@@ -20,9 +20,10 @@ export interface HintBoxProps {
   thinkingVoiceId?: string;
   /**
    * A line under the tiers: `error` = the purchase failed (storage), `solved` / `reset` = tier 2
-   * had nothing to show (`useHints().buy` returned that status; no coins were taken).
+   * had nothing to show, `missing` = not enough coins after all (`useHints().buy` returned that
+   * status; no coins were taken).
    */
-  notice?: 'error' | 'solved' | 'reset' | null;
+  notice?: 'error' | 'solved' | 'reset' | 'missing' | null;
   onBuy: (tier: HintTier) => void;
   onClose: () => void;
 }
@@ -194,9 +195,9 @@ export function HintBox({
             {t.error}
           </p>
         )}
-        {(notice === 'solved' || notice === 'reset') && (
-          <p role="status" className="m-0 font-bold">
-            {notice === 'solved' ? t.solved : t.reset}
+        {(notice === 'solved' || notice === 'reset' || notice === 'missing') && (
+          <p role="status" data-testid="hint-notice" className="m-0 font-bold">
+            {notice === 'solved' ? t.solved : notice === 'reset' ? t.reset : t.notEnough}
           </p>
         )}
       </Panel>

@@ -28,7 +28,7 @@ export const RUN_END_DELAY_MS = 1500;
 export const IDLE_MS = 60_000;
 const IDLE_CHECK_MS = 5_000;
 
-export type HintNotice = 'error' | 'solved' | 'reset' | null;
+export type HintNotice = 'error' | 'solved' | 'reset' | 'missing' | null;
 
 export interface PlayHintsOptions {
   profileId: string;
@@ -36,6 +36,11 @@ export interface PlayHintsOptions {
   feedback: FeedbackFile;
   /** `usePlaySession().snapshot().session`, read on every render. */
   session: LevelSession;
+  /**
+   * False while the level session is not loaded (`usePlaySession().snapshot().open`): a purchase
+   * then could not be recorded (no star cap), so `buy` does nothing.
+   */
+  sessionOpen: () => boolean;
   recordHintBought: (tier: HintTier, entry?: LedgerEntry | null) => void;
   workspaceRef: RefObject<WorkspaceSvg | null>;
   handleRef: RefObject<WorkspaceHandle | null>;
@@ -47,7 +52,7 @@ export interface PlayHintsOptions {
   showTip: (line: PlayLine) => void;
   /** The bubble's current text: a tip that repeats it adds nothing. */
   currentText: () => string;
-  /** Tips wait while a replay runs or the results are up. */
+  /** Tips wait while a replay runs or the results are up (and while a hint is open, see below). */
   canTip: () => boolean;
 }
 
@@ -67,6 +72,10 @@ export interface PlayHints {
   entered: () => void;
   changed: () => void;
   runEnded: () => void;
+  /** Cancels a pending `change` / `run-end` tip (the stage was reset or a new run started). */
+  cancelPending: () => void;
+  /** Closes the tier-2 popover (a run starts). */
+  closePopover: () => void;
   /** Removes the tip's arrow / ring / spotlight (the bubble moved on). */
   clearTip: () => void;
 }
@@ -80,16 +89,33 @@ function mentionsLooseBlocks(cond: Condition): boolean {
 
 /** Hint box, tier-2 popover, tier-3 solution and tier-0 tips of one play session. */
 export function usePlayHints(options: PlayHintsOptions): PlayHints {
-  const { profileId, level, feedback, session, recordHintBought } = options;
+  const { profileId, level, feedback, session, sessionOpen, recordHintBought } = options;
   const opts = useRef(options);
   useEffect(() => {
     opts.current = options;
   });
-  const hints = useHints({ profileId, level, session, onPurchased: recordHintBought });
-  const [boxOpen, setBoxOpen] = useState(false);
+  const hints = useHints({
+    profileId,
+    level,
+    session,
+    sessionOpen,
+    onPurchased: recordHintBought,
+  });
+  const [boxOpen, setBoxOpenState] = useState(false);
   const [thinkingShown, setThinkingShown] = useState(false);
   const [notice, setNotice] = useState<HintNotice>(null);
-  const [solutionOpen, setSolutionOpen] = useState(false);
+  const [solutionOpen, setSolutionOpenState] = useState(false);
+  // Mirrors of the state above, read by `tip` at once (no tip over an open hint).
+  const boxOpenRef = useRef(false);
+  const solutionOpenRef = useRef(false);
+  const setBoxOpen = useCallback((open: boolean) => {
+    boxOpenRef.current = open;
+    setBoxOpenState(open);
+  }, []);
+  const setSolutionOpen = useCallback((open: boolean) => {
+    solutionOpenRef.current = open;
+    setSolutionOpenState(open);
+  }, []);
   const popoverRef = useRef<NextStepPopover | null>(null);
   const tipCleanup = useRef<Array<() => void>>([]);
   const timers = useRef<{ change?: number; runEnd?: number }>({});
@@ -97,12 +123,17 @@ export function usePlayHints(options: PlayHintsOptions): PlayHints {
   const lastActivity = useRef(0);
   const idleShown = useRef(false);
 
-  const clearTip = useCallback(() => {
+  const { evaluate, dismissTip } = hints;
+  /** Removes the pointer only; `hints.tip` is replaced by the caller. */
+  const removePointer = useCallback(() => {
     for (const cleanup of tipCleanup.current) cleanup();
     tipCleanup.current = [];
   }, []);
+  const clearTip = useCallback(() => {
+    removePointer();
+    dismissTip();
+  }, [removePointer, dismissTip]);
 
-  const { evaluate, dismissTip } = hints;
   const lineOf = useCallback(
     (selection: HintSelection): PlayLine => {
       const text = hintText(selection, level, feedback);
@@ -148,7 +179,9 @@ export function usePlayHints(options: PlayHintsOptions): PlayHints {
       const { handleRef, canTip, showTip, currentText, isFirstOfModeInWorld, seenModes } =
         opts.current;
       const handle = handleRef.current;
-      if (!handle || !canTip()) return;
+      // A tip never covers an open hint: the box, the solution or the next-step popover.
+      const hintOpen = boxOpenRef.current || solutionOpenRef.current || popoverRef.current !== null;
+      if (!handle || hintOpen || !canTip()) return;
       const state = handle.getState();
       const selection = evaluate(trigger, {
         analysis: state.analysis,
@@ -159,18 +192,27 @@ export function usePlayHints(options: PlayHintsOptions): PlayHints {
       });
       if (selection === null) return;
       const line = lineOf(selection);
-      clearTip();
+      removePointer();
       if (line.text !== currentText()) showTip(line);
       point(selection);
-      dismissTip();
     },
-    [evaluate, dismissTip, lineOf, point, clearTip],
+    [evaluate, lineOf, point, removePointer],
   );
+
+  const cancelPending = useCallback(() => {
+    window.clearTimeout(timers.current.change);
+    window.clearTimeout(timers.current.runEnd);
+  }, []);
+
+  const closePopover = useCallback(() => {
+    popoverRef.current?.close();
+  }, []);
 
   const changed = useCallback(() => {
     lastActivity.current = Date.now();
     idleShown.current = false;
-    window.clearTimeout(timers.current.change);
+    // An edit makes the last run's hint stale: only the `change` tip may follow.
+    cancelPending();
     const fire = () => {
       // Never while a block is being dragged (hint-engine.md §5): try again a bit later.
       if (Gesture.inProgress()) {
@@ -180,7 +222,7 @@ export function usePlayHints(options: PlayHintsOptions): PlayHints {
       tip('change');
     };
     timers.current.change = window.setTimeout(fire, CHANGE_DEBOUNCE_MS);
-  }, [tip]);
+  }, [tip, cancelPending]);
 
   const runEnded = useCallback(() => {
     lastActivity.current = Date.now();
@@ -245,6 +287,7 @@ export function usePlayHints(options: PlayHintsOptions): PlayHints {
             if (result.tier === 1) {
               setThinkingShown(true);
             } else if (result.tier === 2) {
+              clearTip();
               setBoxOpen(false);
               const workspace = opts.current.workspaceRef.current;
               popoverRef.current?.close();
@@ -257,6 +300,7 @@ export function usePlayHints(options: PlayHintsOptions): PlayHints {
                 popoverRef.current = popover;
               }
             } else {
+              clearTip();
               setBoxOpen(false);
               setSolutionOpen(true);
             }
@@ -264,6 +308,9 @@ export function usePlayHints(options: PlayHintsOptions): PlayHints {
           case 'solved':
           case 'reset':
             setNotice(result.status);
+            break;
+          case 'missing':
+            setNotice('missing');
             break;
           case 'error':
             setNotice('error');
@@ -273,7 +320,7 @@ export function usePlayHints(options: PlayHintsOptions): PlayHints {
         }
       });
     },
-    [hints],
+    [hints, clearTip, setBoxOpen, setSolutionOpen],
   );
 
   const available = availableTiers(level).length > 0;
@@ -284,21 +331,24 @@ export function usePlayHints(options: PlayHintsOptions): PlayHints {
     openBox: useCallback(() => {
       setNotice(null);
       popoverRef.current?.close();
+      clearTip();
       setBoxOpen(true);
-    }, []),
+    }, [clearTip, setBoxOpen]),
     closeBox: useCallback(() => {
       setBoxOpen(false);
-    }, []),
+    }, [setBoxOpen]),
     thinkingShown,
     notice,
     solutionOpen,
     closeSolution: useCallback(() => {
       setSolutionOpen(false);
-    }, []),
+    }, [setSolutionOpen]),
     buy,
     entered,
     changed,
     runEnded,
+    cancelPending,
+    closePopover,
     clearTip,
   };
 }

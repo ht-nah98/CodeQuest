@@ -120,6 +120,8 @@ export const vi = {
     freeNote: 'Khó nhỉ? Gợi ý tư duy đang miễn phí đó.',
     thinkingLabel: 'Măng hỏi',
     error: 'Ối, chưa mở được gợi ý. Thử lại nhé!',
+    // A purchase refused for lack of coins (the balance changed meanwhile): nothing was taken.
+    notEnough: 'Chưa đủ xu rồi. Qua màn mới là có thêm xu!',
     // Tier 2 when there is nothing to show: no coins are taken.
     solved: 'Giống lời giải rồi. Bấm Chạy nhé!',
     reset: 'Thiếu khối rồi. Bấm Làm lại để lấy lại nhé!',
@@ -297,7 +299,7 @@ export const vi = {
     // Măng's line by stars (ui-copy-guide.md §4).
     stars1: 'Qua màn rồi! Thử ít khối hơn nhé?',
     // 1 star because the solution was shown (hint tier 3), not because of the block count.
-    stars1Hint: 'Qua màn rồi! Lần sau thử tự làm, không xem lời giải nhé?',
+    stars1Hint: 'Qua màn rồi! Lần sau con thử tự làm nhé!',
     stars2: 'Đúng số khối chuẩn! Không cần gợi ý là được 3 sao.',
     stars3: 'Hoàn hảo! Ba sao luôn!',
     coinsTitle: 'Xu nhận được',

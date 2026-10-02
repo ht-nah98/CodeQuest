@@ -43,8 +43,25 @@
   }
 }
 
+/* No room on the block's left (e.g. a flyout block at the edge): the arrow points from the right. */
+.cq-tip-arrow[data-side='right'] {
+  border-left: 0;
+  border-right: 26px solid var(--color-hint);
+  animation-name: cq-tip-bounce-right;
+}
+
+@keyframes cq-tip-bounce-right {
+  from {
+    translate: 6px 0;
+  }
+  to {
+    translate: 0 0;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .cq-tip-arrow,
+  .cq-tip-arrow[data-side='right'],
   [data-hint-target='true'] {
     animation: none;
   }

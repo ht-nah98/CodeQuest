@@ -81,8 +81,11 @@ export interface PlaySession {
    * save when the session ends; pass null when the workspace goes away.
    */
   setWorkspaceFlush: (flush: (() => void) | null) => void;
-  /** The open session and ledger, for the hint box (P1-07: buyHint / failStreak). */
-  snapshot: () => { session: LevelSession; ledger: readonly LedgerEntry[] };
+  /**
+   * The open session and ledger, for the hint box (P1-07: buyHint / failStreak). `open` is false
+   * until the session is loaded (an empty stand-in session is returned meanwhile).
+   */
+  snapshot: () => { session: LevelSession; ledger: readonly LedgerEntry[]; open: boolean };
 }
 
 type Loaded = {
@@ -351,6 +354,7 @@ export function usePlaySession(profileId: string, level: Level): PlaySession {
     return {
       session: state?.session ?? { levelId: level.id, runs: [], hintTiersBought: [] },
       ledger: state?.ledger ?? [],
+      open: state !== null,
     };
   }, [level.id]);
 

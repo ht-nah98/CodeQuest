@@ -40,15 +40,23 @@ export function nextStepMessage(step: NextStep | null): string {
   }
 }
 
-/**
- * The right edge of the whole stack holding `block` (so the popover never covers the program),
- * at height `y`: the popover's arrow then points along that row to the spot.
- */
-function besideStack(block: BlockSvg, y: number): utils.Coordinate {
-  return new utils.Coordinate(block.getRootBlock().getBoundingRectangle().right, y);
+/** Where the popover goes, in workspace coordinates: beside `right`, else beside `left`. */
+interface AnchorSpot {
+  left: number;
+  right: number;
+  y: number;
 }
 
-function connectionPoint(workspace: WorkspaceSvg, anchor: StepAnchor): utils.Coordinate | null {
+/**
+ * The left and right edges of the whole stack holding `block` (so the popover never covers the
+ * program), at height `y`: the popover's arrow then points along that row to the spot.
+ */
+function besideStack(block: BlockSvg, y: number): AnchorSpot {
+  const { left, right } = block.getRootBlock().getBoundingRectangle();
+  return { left, right, y };
+}
+
+function connectionPoint(workspace: WorkspaceSvg, anchor: StepAnchor): AnchorSpot | null {
   const block = workspace.getBlockById(anchor.blockId);
   if (!block) return null;
   const connection =
@@ -56,16 +64,18 @@ function connectionPoint(workspace: WorkspaceSvg, anchor: StepAnchor): utils.Coo
   return besideStack(block, connection ? connection.y : block.getRelativeToSurfaceXY().y);
 }
 
-function blockPoint(workspace: WorkspaceSvg, id: string): utils.Coordinate | null {
+function blockPoint(workspace: WorkspaceSvg, id: string): AnchorSpot | null {
   const block = workspace.getBlockById(id);
   return block ? besideStack(block, block.getBoundingRectangle().top + 16) : null;
 }
 
 /** Workspace coordinates of the spot the child should look at. */
-function anchorPoint(workspace: WorkspaceSvg, step: NextStep | null): utils.Coordinate | null {
+function anchorPoint(workspace: WorkspaceSvg, step: NextStep | null): AnchorSpot | null {
   if (step === null || step.kind === 'reset') {
     const top = workspace.getTopBlocks(true)[0];
-    return top ? top.getRelativeToSurfaceXY() : null;
+    if (!top) return null;
+    const { x, y } = top.getRelativeToSurfaceXY();
+    return { left: x, right: x, y };
   }
   if (step.kind === 'edit' || step.kind === 'remove') return blockPoint(workspace, step.blockId);
   return connectionPoint(workspace, step.anchor);
@@ -164,20 +174,29 @@ export function showNextStepPopover(
   }
 
   const place = () => {
-    const point = anchorPoint(workspace, step);
-    if (point === null) return;
-    const screen = utils.svgMath.wsToScreenCoordinates(workspace, point);
+    const spot = anchorPoint(workspace, step);
+    if (spot === null) return;
     const box = host.getBoundingClientRect();
-    const x = screen.x - box.left;
-    const y = screen.y - box.top;
+    const toHost = (x: number) =>
+      utils.svgMath.wsToScreenCoordinates(workspace, new utils.Coordinate(x, spot.y));
+    const right = toHost(spot.right);
+    const xRight = right.x - box.left;
+    // Left of the stack's left edge, so the popover does not cover the program either way.
+    const xLeft = toHost(spot.left).x - box.left;
+    const y = right.y - box.top;
     const width = element.offsetWidth;
-    const fitsRight = x + GAP + width <= box.width - EDGE;
-    element.dataset.side = fitsRight || x - GAP - width < EDGE ? 'right' : 'left';
-    const left = element.dataset.side === 'right' ? x + GAP : x - GAP - width;
+    const fitsRight = xRight + GAP + width <= box.width - EDGE;
+    element.dataset.side = fitsRight || xLeft - GAP - width < EDGE ? 'right' : 'left';
+    const left = element.dataset.side === 'right' ? xRight + GAP : xLeft - GAP - width;
+    // Inside the Blockly panel: not above it, nor below its bottom edge.
+    const maxTop = box.height - element.offsetHeight - EDGE;
     element.style.left = `${String(Math.max(EDGE, left))}px`;
-    element.style.top = `${String(Math.max(EDGE, y - 26))}px`;
+    element.style.top = `${String(Math.max(EDGE, Math.min(y - 26, maxTop)))}px`;
   };
   place();
+  // The panel resizes with the window (and the hint row below it): stay beside the spot.
+  const resizeObserver = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(place);
+  resizeObserver?.observe(host);
 
   const marks = outlines(workspace, step);
   for (const [block, className] of marks) block.addClass(className);
@@ -200,6 +219,7 @@ export function showNextStepPopover(
     if (!open) return;
     open = false;
     workspace.removeChangeListener(onWorkspaceChange);
+    resizeObserver?.disconnect();
     document.removeEventListener('pointerdown', onPointerDown, true);
     document.removeEventListener('keydown', onKeyDown, true);
     for (const [block, className] of marks) {

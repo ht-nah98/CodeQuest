@@ -14,8 +14,9 @@ const STAGE_SFX: Partial<Record<string, SfxName>> = {
   fall: 'fall',
   bump: 'bump',
   offTrack: 'fall',
+  // Ends the run: the play screen then skips its own `RUN_SFX.fail` (no double `wrong`).
   missed: 'wrong',
-  win: 'win',
+  // No `win`: the results overlay plays its `fanfare` (audio.md §3).
   // maze
   move: 'step',
   turn: 'click',
@@ -30,7 +31,7 @@ export function stageSfx(eventType: string): SfxName | null {
 export const RUN_SFX = {
   /** ▶ Chạy pressed. */
   start: 'run',
-  /** The run failed (after the event's own sound). */
+  /** The run failed (after the event's own sound; skipped when that sound was already this). */
   fail: 'wrong',
 } as const satisfies Record<string, SfxName>;
 

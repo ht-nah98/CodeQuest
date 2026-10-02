@@ -187,6 +187,13 @@ function feedbackPlayLine(
 /** A fixed vi.ts line of the play screen, voiced as `ui.<path>`. */
 const uiLine = (path: string, text: string): PlayLine => ({ text, voiceId: uiVoiceId(path) });
 
+/** Fixed win lines of `resultLine` that have a voice; the others (with numbers) have none. */
+const VOICED_WIN_LINES: readonly PlayLine[] = [
+  uiLine('play.win', t.win),
+  uiLine('play.bughunt.win', t.bughunt.win),
+  uiLine('play.creative.done', t.creative.done),
+];
+
 type Phase = 'idle' | 'running' | 'success' | 'fail';
 
 // Text labels, not 🐢/🐇: emoji fonts are not guaranteed on the children's laptops.
@@ -278,6 +285,7 @@ function PlaySession({
     level,
     feedback,
     session: snapshot().session,
+    sessionOpen: () => snapshot().open,
     recordHintBought,
     workspaceRef,
     handleRef,
@@ -293,7 +301,14 @@ function PlaySession({
     runEnded: hintRunEnded,
     entered: hintEntered,
     changed: hintChanged,
+    cancelPending: cancelPendingTips,
+    closePopover: closeStepPopover,
   } = playHints;
+  /** Sound of the replay's last stage event: a `missed` already said `wrong` (audio.md §3). */
+  const lastEventSfxRef = useRef<string | null>(null);
+  const playFailSfx = useCallback(() => {
+    if (lastEventSfxRef.current !== RUN_SFX.fail) audio.playSfx(RUN_SFX.fail);
+  }, []);
   useEffect(() => {
     phaseRef.current = phase;
   });
@@ -368,7 +383,9 @@ function PlaySession({
       },
       // Each event's sound starts with its animation, on the replay's clock (audio.md §3).
       onEvent: (event) => {
-        audio.playSfx(stageSfx(event.type));
+        const sfx = stageSfx(event.type);
+        lastEventSfxRef.current = sfx;
+        audio.playSfx(sfx);
         trackFeed?.event(event);
       },
       onReset: () => trackFeed?.reset(),
@@ -419,9 +436,7 @@ function PlaySession({
       const text = resultLine(outcome, level, feedback);
       say(
         outcome.result === 'success'
-          ? text === t.win
-            ? uiLine('play.win', t.win)
-            : { text }
+          ? (VOICED_WIN_LINES.find((line) => line.text === text) ?? { text })
           : feedbackPlayLine(outcome.reasonCode ?? 'INTERNAL_ERROR', level, feedback),
       );
       // The run was recorded when it ran (rewards-engine.md §3); only the overlay waits for the
@@ -435,28 +450,32 @@ function PlaySession({
       } else {
         setPhase('fail');
         shake(offendingBlockId(outcome));
-        audio.playSfx(RUN_SFX.fail);
+        playFailSfx();
         hintRunEnded();
       }
     },
-    [level, feedback, shake, say, hintRunEnded],
+    [level, feedback, shake, say, hintRunEnded, playFailSfx],
   );
 
   /** Stage back to the start; the program is kept (screens-and-flows.md §4, `R`). */
   const reset = useCallback(() => {
     stageRef.current?.reset();
+    cancelPendingTips();
     clearShake();
     setStepping(false);
     setPaused(false);
     setPhase('idle');
     say(readyLine);
-  }, [clearShake, readyLine, say]);
+  }, [clearShake, readyLine, say, cancelPendingTips]);
 
   const run = useCallback(
     (step: boolean) => {
       const stage = stageRef.current;
       const handle = handleRef.current;
       if (!stage || !handle || mode === 'predict') return;
+      // Chạy, Space or S: the tier-2 popover and any pending tip belong to the old program.
+      closeStepPopover();
+      cancelPendingTips();
       if (stage.playing) {
         if (step) {
           stage.step();
@@ -488,6 +507,7 @@ function PlaySession({
       // before it ends (rewards-engine.md §3 "Quy ước gọi").
       runTokenRef.current += 1;
       setReward(null);
+      lastEventSfxRef.current = null;
       // One sound per start, by click, Space or S (the button itself is data-sfx="none").
       audio.playSfx(RUN_SFX.start);
       const rewardOf = recordRun(outcome);
@@ -499,7 +519,18 @@ function PlaySession({
         if (result === 'finished') finish(outcome, rewardOf);
       }, fail);
     },
-    [level, mode, feedback, finish, reset, clearShake, recordRun, say],
+    [
+      level,
+      mode,
+      feedback,
+      finish,
+      reset,
+      clearShake,
+      recordRun,
+      say,
+      closeStepPopover,
+      cancelPendingTips,
+    ],
   );
 
   /**
@@ -524,6 +555,7 @@ function PlaySession({
       runTokenRef.current += 1;
       const token = runTokenRef.current;
       setReward(null);
+      lastEventSfxRef.current = null;
       const rewardOf = recordRun(outcome, key);
       setMarks((current) => ({ ...current, [key]: right ? 'right' : 'wrong' }));
       setPhase('running');
@@ -548,7 +580,7 @@ function PlaySession({
           }
           setPhase('fail');
           say(uiLine('play.predict.tryAgain', t.predict.tryAgain));
-          audio.playSfx(RUN_SFX.fail);
+          playFailSfx();
           hintRunEnded();
         },
         () => {
@@ -563,7 +595,7 @@ function PlaySession({
         },
       );
     },
-    [level, feedback, recordRun, sessionReady, say, hintRunEnded],
+    [level, feedback, recordRun, sessionReady, say, hintRunEnded, playFailSfx],
   );
 
   /** Mode creative: "Lưu" stores the program; the first save of the level pays its coins. */
@@ -621,7 +653,8 @@ function PlaySession({
                 : null;
       if (action === null || !shouldHandleAppShortcut(event)) return;
       if (action === 'hint') {
-        if (!hintsAvailable) return;
+        // Before the session is loaded a purchase could not cap the stars.
+        if (!hintsAvailable || !sessionReady) return;
         event.preventDefault();
         event.stopPropagation();
         openHintBox();
@@ -640,7 +673,7 @@ function PlaySession({
     return () => {
       window.removeEventListener('keydown', onKeyDown, { capture: true });
     };
-  }, [run, reset, mode, hintsAvailable, openHintBox]);
+  }, [run, reset, mode, hintsAvailable, sessionReady, openHintBox]);
 
   const onReady = useCallback(
     (workspace: Blockly.WorkspaceSvg, handle: WorkspaceHandle) => {
@@ -689,12 +722,13 @@ function PlaySession({
       }
       saveDraft(state.json);
       const key = programKey(state.json);
+      // Editing the program makes the replay on screen stale: put the stage back (before the
+      // `change` tip is scheduled, as a reset cancels pending tips).
+      if (phase !== 'idle' && key !== ranJsonRef.current) reset();
       if (key !== lastProgramRef.current) {
         lastProgramRef.current = key;
         hintChanged();
       }
-      // Editing the program makes the replay on screen stale: put the stage back.
-      if (phase !== 'idle' && programKey(state.json) !== ranJsonRef.current) reset();
     },
     [level.id, level.initialWorkspace, mode, phase, reset, saveDraft, hintChanged],
   );
@@ -909,6 +943,7 @@ function PlaySession({
                   shortcut="H"
                   className="ml-auto"
                   aria-haspopup="dialog"
+                  disabled={!sessionReady}
                   data-testid="play-hint"
                   onClick={openHintBox}
                 >

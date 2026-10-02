@@ -1,5 +1,5 @@
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { inject, serialization, type WorkspaceSvg } from 'blockly';
+import { afterEach, beforeEach, describe, expect, it, vi as vitest } from 'vitest';
+import { type BlockSvg, Events, inject, serialization, type WorkspaceSvg } from 'blockly';
 import { hintTargetBlock, pointAtBlock, pointAtElement } from './hintPointer';
 import { setupBlockly } from './setup';
 import { buildToolbox } from './toolbox';
@@ -71,6 +71,53 @@ describe('pointers', () => {
     stop();
     expect(host.querySelector('[data-testid="hint-arrow"]')).toBeNull();
     expect(block.getSvgRoot().classList.contains('cq-tip-target')).toBe(false);
+  });
+
+  const arrowEl = () => host.querySelector<HTMLElement>('[data-testid="hint-arrow"]');
+  /** Puts the block's screen box at `left`/`top` (jsdom has no layout). */
+  const placeBlock = (block: BlockSvg, left: number, top: number) => {
+    block.getSvgRoot().getBoundingClientRect = () =>
+      ({ left, top, right: left + 80, bottom: top + 40, width: 80, height: 40 }) as DOMRect;
+  };
+
+  it('removes the arrow once the block is deleted', async () => {
+    const block = workspace.getBlockById('loose');
+    if (!block) throw new Error('fixture');
+    const stop = pointAtBlock(workspace, block);
+    expect(arrowEl()).not.toBeNull();
+    block.dispose();
+    // Blockly fires the delete event a moment later.
+    await vitest.waitFor(() => {
+      expect(arrowEl()).toBeNull();
+    });
+    stop(); // still safe
+  });
+
+  it('follows a flyout block when the flyout scrolls', () => {
+    const block = hintTargetBlock(workspace, 'toolbox:runner_jump');
+    if (!block) throw new Error('fixture');
+    placeBlock(block, 100, 50);
+    const stop = pointAtBlock(workspace, block);
+    expect(arrowEl()?.style.top).toBe('54px');
+    placeBlock(block, 100, 150);
+    block.workspace.fireChangeListener(new Events.ViewportChange(0, 0, 1, block.workspace.id, 1));
+    expect(arrowEl()?.style.top).toBe('154px');
+    stop();
+  });
+
+  it('points from the right when there is no room on the left', () => {
+    const block = workspace.getBlockById('loose');
+    if (!block) throw new Error('fixture');
+    placeBlock(block, 100, 0);
+    const stop = pointAtBlock(workspace, block);
+    expect(arrowEl()?.dataset.side).toBe('left');
+    expect(arrowEl()?.style.left).toBe('66px');
+    stop();
+    placeBlock(block, 10, 0);
+    const stopRight = pointAtBlock(workspace, block);
+    expect(arrowEl()?.dataset.side).toBe('right');
+    expect(arrowEl()?.style.left).toBe('98px');
+    stopRight();
   });
 
   it('rings an element until stopped', () => {

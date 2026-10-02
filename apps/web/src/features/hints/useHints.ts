@@ -42,6 +42,11 @@ export interface UseHintsOptions {
    */
   session: LevelSession;
   /**
+   * False while the level session is not loaded yet: a purchase then could not be recorded in it
+   * (no star cap), so `buy` returns `busy` without charging. Default: always open.
+   */
+  sessionOpen?: () => boolean;
+  /**
    * After a purchase was written (a free tier 1 included), with its ledger line: the play screen
    * passes both to `usePlaySession().recordHintBought` so later wins are capped and scored on
    * the right ledger.
@@ -60,7 +65,7 @@ export type BuyResult =
   /** Tier 2 in a parsons level whose needed block was deleted: say "Làm lại". Not charged. */
   | { status: 'reset'; tier: 2 }
   | { status: 'missing'; tier: HintTier; missing: number }
-  /** Ledger still loading or another purchase in flight: nothing happened. */
+  /** Ledger or level session still loading, or another purchase in flight: nothing happened. */
   | { status: 'busy' }
   /** This level has no such tier (e.g. tier 2 in predict). Not charged. */
   | { status: 'unavailable' }
@@ -106,6 +111,7 @@ export function useHints({
   profileId,
   level,
   session,
+  sessionOpen = () => true,
   onPurchased,
   now = () => new Date(),
   newPurchaseId = () => crypto.randomUUID(),
@@ -132,7 +138,7 @@ export function useHints({
 
   const buy = async (tier: HintTier, program?: ProgramNow): Promise<BuyResult> => {
     if (!availableTiers(level).includes(tier)) return { status: 'unavailable' };
-    if (ledger === undefined || busyRef.current) return { status: 'busy' };
+    if (ledger === undefined || busyRef.current || !sessionOpen()) return { status: 'busy' };
     // The step first: nothing to show means nothing to pay (and no star cap).
     let step: NextStep | null = null;
     if (tier === 2) {

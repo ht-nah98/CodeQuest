@@ -87,6 +87,9 @@ async function runTo(page: Page, phase: 'fail' | 'success'): Promise<void> {
 }
 
 const coins = (page: Page) => page.locator('[data-hud-coins]');
+/** The top bar's coin count, exactly ("30 xu", its screen-reader label). */
+const expectCoins = (page: Page, n: number) =>
+  expect(coins(page).locator('li').first().locator('.sr-only')).toHaveText(`${String(n)} xu`);
 const bubble = (page: Page) => page.getByTestId('play-bubble');
 const box = (page: Page) => page.getByTestId('hint-box');
 const shot = (page: Page, name: string, project: string) =>
@@ -129,7 +132,7 @@ test.describe('/play hints (P1-07)', () => {
     await open(page, 'w01-l03');
     // Enter tip of w01-l03: the new jump block in the toolbox.
     await expect(page.getByTestId('hint-arrow')).toHaveAttribute('data-block-type', 'runner_jump');
-    await expect(coins(page)).toContainText('30');
+    await expectCoins(page, 30);
 
     // H opens the box (focus on the stage, as after any toolbar click); Esc closes it.
     await page.getByTestId('play-stage').focus();
@@ -172,9 +175,30 @@ test.describe('/play hints (P1-07)', () => {
     expect(await hasClass(page, 'w1', 'cq-step-anchor')).toBe(true);
     expect(await hasClass(page, 'w2', 'cq-step-anchor')).toBe(false);
     await expect(popover.locator('.cq-step-preview .blocklyPath')).toHaveCount(1);
-    await expect(coins(page)).toContainText('15');
+    await expectCoins(page, 15);
     await shot(page, 'l03-tier2-popover', project);
     await page.keyboard.press('Escape');
+    await expect(popover).toHaveCount(0);
+
+    // Tier 2 with the program already matching the solution: nothing to show, nothing taken.
+    await setProgram(page, level.solution);
+    await page.getByTestId('play-hint').click();
+    await page.getByTestId('hint-buy-2').click();
+    await expect(page.getByTestId('hint-notice')).toHaveText('Giống lời giải rồi. Bấm Chạy nhé!');
+    await expect(page.getByTestId('next-step-popover')).toHaveCount(0);
+    await expect(page.getByTestId('hint-balance')).toHaveAttribute('aria-label', '15 xu');
+    await expectCoins(page, 15);
+    await page.keyboard.press('Escape');
+
+    // Tier 2 again on an unfinished program: a new step, charged again.
+    await setProgram(page, program(['runner_walk', 'w1'], ['runner_walk', 'w2']));
+    await page.getByTestId('play-hint').click();
+    await page.getByTestId('hint-buy-2').click();
+    await expect(popover).toBeVisible();
+    await expectCoins(page, 0);
+    // Running closes the popover (Space as well as the button).
+    await page.getByTestId('play-stage').focus();
+    await page.keyboard.press('Space');
     await expect(popover).toHaveCount(0);
 
     // A new session (reload): no losses, yet tier 1 stays owned and free to reopen.
@@ -183,7 +207,7 @@ test.describe('/play hints (P1-07)', () => {
     await expect(page.getByTestId('hint-buy-1')).toHaveAttribute('data-state', 'owned');
     await page.getByTestId('hint-buy-1').click();
     await expect(page.getByTestId('hint-thinking')).toBeVisible();
-    await expect(page.getByTestId('hint-balance')).toHaveAttribute('aria-label', '15 xu');
+    await expect(page.getByTestId('hint-balance')).toHaveAttribute('aria-label', '0 xu');
   });
 
   test('buying tier 3 shows the solution and caps the stars at 1, without star coins', async ({
@@ -198,16 +222,24 @@ test.describe('/play hints (P1-07)', () => {
       timeout: 10_000,
     });
     const before = Number(/\d+/.exec(await coins(page).innerText())?.[0]);
-    expect(before).toBeGreaterThanOrEqual(40);
+    expect(before).toBeGreaterThanOrEqual(55);
+    await expectCoins(page, before);
 
     await open(page, 'w01-l03', false);
+    // A double click buys tier 2 once (the second click lands while the first is written).
     await page.getByTestId('play-hint').click();
-    await page.getByTestId('hint-buy-3').click();
+    await page.getByTestId('hint-buy-2').dblclick();
+    await expect(page.getByTestId('next-step-popover')).toBeVisible();
+    await expectCoins(page, before - 15);
+    await page.keyboard.press('Escape');
+
+    await page.getByTestId('play-hint').click();
+    await page.getByTestId('hint-buy-3').dblclick();
     await expect(box(page)).toHaveCount(0);
     const viewer = page.getByTestId('solution-viewer');
     await expect(viewer).toBeVisible();
     await expect(viewer.locator('.blocklyPath').first()).toBeVisible();
-    await expect(coins(page)).toContainText(String(before - 40));
+    await expectCoins(page, before - 15 - 40);
     await shot(page, 'l03-tier3-solution', project);
     await page.keyboard.press('Escape');
     await expect(viewer).toHaveCount(0);
@@ -253,7 +285,10 @@ test.describe('/play hints (P1-07)', () => {
       if (path.startsWith('/audio/')) fetched.set(path, response.status());
     });
     await open(page, 'w01-l03');
-    // Record what the app asks the audio manager to play (dev server: same module instance).
+    // Record what the app asks the audio manager to play. This needs the Vite DEV server (the
+    // webServer of playwright.config.ts): importing '/src/audio/audio.ts' there returns the very
+    // module instance the app uses. Against a production build (`vite preview`) that path does
+    // not exist, so this test would fail there.
     await page.evaluate(async () => {
       const url = '/src/audio/audio.ts';
       const mod = (await import(/* @vite-ignore */ url)) as {
@@ -280,9 +315,12 @@ test.describe('/play hints (P1-07)', () => {
     });
     await runTo(page, 'success');
     const sounds = await played();
-    // One `run` for one click (no click sound on top), then the replay's events in order.
-    expect(sounds.slice(0, 5)).toEqual(['run', 'step', 'jump', 'step', 'win']);
+    // One `run` for one click (no click sound on top), then the replay's events in order; the
+    // win itself has no event sound (the results overlay plays its fanfare).
+    expect(sounds.slice(0, 4)).toEqual(['run', 'step', 'jump', 'step']);
+    expect(sounds).not.toContain('win');
     expect(sounds).not.toContain('click');
+    await expect.poll(played).toContain('fanfare');
     await expect.poll(() => fetched.get('/audio/music/adventure.mp3')).toBe(200);
 
     // Space starts a run with the same `run` sound; a failed run ends with `wrong`.

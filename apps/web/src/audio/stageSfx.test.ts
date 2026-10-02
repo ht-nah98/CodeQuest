@@ -14,13 +14,15 @@ describe('stageSfx', () => {
     expect(stageSfx('fall')).toBe('fall');
     expect(stageSfx('bump')).toBe('bump');
     expect(stageSfx('collect')).toBe('collect');
-    expect(stageSfx('win')).toBe('win');
+    expect(stageSfx('missed')).toBe('wrong');
     expect(stageSfx('move')).toBe('step');
   });
 
   it('is silent for unknown events (and inherited object keys)', () => {
     expect(stageSfx('teleport')).toBeNull();
     expect(stageSfx('toString')).toBeNull();
+    // The results overlay's fanfare covers a win.
+    expect(stageSfx('win')).toBeNull();
   });
 });
 

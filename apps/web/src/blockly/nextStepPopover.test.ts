@@ -4,6 +4,7 @@ import {
   getMainWorkspace,
   inject,
   serialization,
+  utils,
   WidgetDiv,
   type WorkspaceSvg,
 } from 'blockly';
@@ -249,6 +250,59 @@ describe('showNextStepPopover: Blockly interplay', () => {
     document.body.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
     expect(onClose).toHaveBeenCalledTimes(1);
     expect(getMainWorkspace()).toBe(workspace);
+  });
+});
+
+describe('showNextStepPopover: placement', () => {
+  it('falls back to the left of the stack, stays inside the panel and re-places on resize', () => {
+    // Workspace = screen coordinates; a 400×300 panel; a 200×100 popover.
+    vitest
+      .spyOn(utils.svgMath, 'wsToScreenCoordinates')
+      .mockImplementation((_ws, xy) => new utils.Coordinate(xy.x, xy.y));
+    vitest.spyOn(HTMLElement.prototype, 'offsetWidth', 'get').mockReturnValue(200);
+    vitest.spyOn(HTMLElement.prototype, 'offsetHeight', 'get').mockReturnValue(100);
+    const hostBox = vitest.spyOn(host, 'getBoundingClientRect');
+    hostBox.mockReturnValue(new DOMRect(0, 0, 400, 300));
+    let onResize: (() => void) | undefined;
+    vitest.stubGlobal(
+      'ResizeObserver',
+      class {
+        constructor(callback: () => void) {
+          onResize = callback;
+        }
+        observe() {}
+        disconnect() {}
+      },
+    );
+    try {
+      // A stack far right and low: no room on its right, and its row is below the panel.
+      load([
+        {
+          type: 'cq_start',
+          id: 'start',
+          x: 260,
+          y: 1000,
+          next: { block: { type: 'runner_jump', id: 'a' } },
+        },
+      ]);
+      const stack = workspace.getBlockById('start')?.getBoundingRectangle();
+      if (!stack) throw new Error('fixture');
+      const popover = showNextStepPopover(workspace, nextStep(solution, current()));
+      expect(popover.element.dataset.side).toBe('left');
+      // Beside the stack's left edge (not its right edge): the program stays visible.
+      expect(popover.element.style.left).toBe(`${String(stack.left - 16 - 200)}px`);
+      expect(popover.element.style.top).toBe('192px'); // 300 - 100 - 8
+
+      // The panel grows: room on the right now, and the row fits.
+      hostBox.mockReturnValue(new DOMRect(0, 0, 1200, 1400));
+      onResize?.();
+      expect(popover.element.dataset.side).toBe('right');
+      expect(popover.element.style.left).toBe(`${String(stack.right + 16)}px`);
+      popover.close();
+    } finally {
+      vitest.restoreAllMocks();
+      vitest.unstubAllGlobals();
+    }
   });
 });
 

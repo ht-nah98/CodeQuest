@@ -127,6 +127,11 @@ describe('HintBox', () => {
       'Thiếu khối rồi. Bấm Làm lại để lấy lại nhé!',
     );
     cleanup();
+    renderBox({ notice: 'missing' });
+    expect(screen.getByRole('status').textContent).toBe(
+      'Chưa đủ xu rồi. Qua màn mới là có thêm xu!',
+    );
+    cleanup();
     renderBox({ notice: 'error' });
     expect(screen.getByRole('alert').textContent).toBe('Ối, chưa mở được gợi ý. Thử lại nhé!');
   });

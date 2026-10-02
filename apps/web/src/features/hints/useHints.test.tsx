@@ -216,6 +216,27 @@ describe('useHints: buying', () => {
     expect(await getBalance(PROFILE)).toBe(15);
   });
 
+  it('charges nothing while the level session is not loaded (no star cap possible)', async () => {
+    let open = false;
+    const bought: HintTier[] = [];
+    const hook = renderHook(() =>
+      useHints({
+        profileId: PROFILE,
+        level,
+        session: sessionWithFails(level.id, 0),
+        sessionOpen: () => open,
+        onPurchased: (tier) => bought.push(tier),
+        now: () => NOW,
+      }),
+    );
+    await ready(hook);
+    expect(await buy(hook, 2, program())).toEqual({ status: 'busy' });
+    expect(await getBalance(PROFILE)).toBe(30);
+    open = true;
+    expect(await buy(hook, 2, program())).toMatchObject({ status: 'opened', tier: 2 });
+    expect(bought).toEqual([2]);
+  });
+
   it('reports a storage failure without recording a purchase', async () => {
     vitest.mocked(ledgerRepo.spend).mockRejectedValueOnce(new Error('IndexedDB is gone'));
     const { hook, bought } = setup(sessionWithFails(level.id, 0));

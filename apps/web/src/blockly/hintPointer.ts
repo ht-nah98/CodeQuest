@@ -38,9 +38,14 @@ export function hintTargetBlock(
   return null;
 }
 
+/** Arrow width (hintPointer.css) plus its gap to the block, in px. */
+const ARROW_SPACE = 34;
+
 /**
- * Points at a block (in the workspace or its flyout) with a bouncing arrow on its left and a
- * coin outline, until the returned cleanup runs. Follows scrolling and zooming.
+ * Points at a block (in the workspace or its flyout) with a bouncing arrow on its left (on its
+ * right when there is no room on the left, `data-side="right"`) and a coin outline, until the
+ * returned cleanup runs. Follows scrolling and zooming of the workspace and, for a flyout block,
+ * of the flyout. The arrow goes away by itself when the block is deleted (or the flyout redrawn).
  */
 export function pointAtBlock(workspace: WorkspaceSvg, block: BlockSvg): () => void {
   const injectionDiv = workspace.getInjectionDiv();
@@ -53,23 +58,35 @@ export function pointAtBlock(workspace: WorkspaceSvg, block: BlockSvg): () => vo
   arrow.dataset.blockType = block.type;
   host.append(arrow);
   block.addClass('cq-tip-target');
+  // A flyout block lives on the flyout's own workspace, which scrolls on its own.
+  const workspaces = block.workspace === workspace ? [workspace] : [workspace, block.workspace];
 
-  const place = () => {
-    const rect = block.getSvgRoot().getBoundingClientRect();
-    const box = host.getBoundingClientRect();
-    arrow.style.left = `${String(Math.max(0, rect.left - box.left - 34))}px`;
-    arrow.style.top = `${String(Math.max(0, rect.top - box.top + 4))}px`;
-  };
-  place();
-  const onChange = (event: Events.Abstract) => {
-    if (event instanceof Events.ViewportChange || !event.isUiEvent) place();
-  };
-  workspace.addChangeListener(onChange);
-  return () => {
-    workspace.removeChangeListener(onChange);
+  let stopped = false;
+  const stop = () => {
+    if (stopped) return;
+    stopped = true;
+    for (const each of workspaces) each.removeChangeListener(onChange);
     if (!block.isDeadOrDying()) block.removeClass('cq-tip-target');
     arrow.remove();
   };
+  const place = () => {
+    if (block.isDeadOrDying()) {
+      stop();
+      return;
+    }
+    const rect = block.getSvgRoot().getBoundingClientRect();
+    const box = host.getBoundingClientRect();
+    const left = rect.left - box.left - ARROW_SPACE;
+    arrow.dataset.side = left < 0 ? 'right' : 'left';
+    arrow.style.left = `${String(left < 0 ? rect.right - box.left + 8 : left)}px`;
+    arrow.style.top = `${String(Math.max(0, rect.top - box.top + 4))}px`;
+  };
+  function onChange(event: Events.Abstract): void {
+    if (event instanceof Events.ViewportChange || !event.isUiEvent) place();
+  }
+  place();
+  for (const each of workspaces) each.addChangeListener(onChange);
+  return stop;
 }
 
 /** Points at a screen element (run button, capacity bar, stage) with a pulsing ring. */
