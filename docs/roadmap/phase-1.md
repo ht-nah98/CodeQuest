@@ -19,7 +19,7 @@
 | P1-12 | Nội dung Thế giới 1 (15 màn + bài giảng) | P1-11 | AI soạn nháp · HLV duyệt | 🟨 |
 | P1-13 | Nội dung Thế giới 2 (20 màn + bài giảng) | P1-12 | AI soạn nháp · HLV duyệt | 🟨 |
 | P1-14 | Âm thanh & giọng đọc | P1-10 | AI · HLV chọn giọng | 🟨 |
-| P1-15 | E2E smoke + CI đầy đủ | P1-10 | AI | ⬜ |
+| P1-15 | E2E smoke + CI đầy đủ | P1-10 | AI | 🟨 |
 | P1-16 | Chơi thử, sửa, phát hành `v0.1.0` | tất cả | HLV + AI | ⬜ |
 
 ---
@@ -89,7 +89,7 @@ Hiệu ứng (tự tạo bằng `tools/audio/`, chiptune), 2 bản nhạc nền,
 
 ### P1-15 · E2E smoke + CI
 Kịch bản ở `testing-strategy.md` §3, chạy trong CI với tag `@smoke`.
-**Nghiệm thu:** CI xanh trên PR.
+**Nghiệm thu:** CI xanh trên PR. *(03/10: đã mô phỏng CI trên bản clone sạch — `npm ci`, lint, typecheck, test + coverage, content:check, build, smoke 24/24 — xanh 3 lần liên tiếp; toàn bộ e2e 129/129. Chờ push lên GitHub để chạy CI thật.)*
 
 ### P1-16 · Chơi thử & phát hành
 Chơi thử với bé → sửa lỗi chặn → chơi thử với 1–2 bạn → deploy Vercel → tag `v0.1.0` + `CHANGELOG.md`.
