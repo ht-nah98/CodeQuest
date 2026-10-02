@@ -6,7 +6,7 @@ Nguồn chuẩn cho: giai đoạn, task, thứ tự, tiêu chí nghiệm thu. L�
 |---|---|---|---|
 | **GĐ 0 · Nền móng** | 02–08/10/2026 | Repo chạy được, design system, Blockly + engine lõi, 1 màn Đường chạy chơi được | [`phase-0.md`](phase-0.md) |
 | **GĐ 1 · MVP** | 09–29/10 | 2 kiểu game, 5 cách chơi, Thế giới 1–2 (35 màn), phần thưởng, gợi ý, lưu local | [`phase-1.md`](phase-1.md) |
-| GĐ 2 · Nhóm 6 bé | 30/10–19/11 | Supabase, ghép máy, Góc huấn luyện viên, Thế giới 3–5, level editor | [`later-phases.md`](later-phases.md) |
+| **GĐ 2 · Nhóm 6 bé** | 30/10–19/11 | Supabase, ghép máy, đồng bộ, Góc huấn luyện viên, Thế giới 3–5, level editor, PWA offline | [`phase-2.md`](phase-2.md) |
 | GĐ 3 · Thành Phố Robot | 20/11–10/12 | robotlab, Thế giới 6 | [`later-phases.md`](later-phases.md) |
 | GĐ 4 · Mở rộng | 4 tuần | turtle, farm, sorter, music; Thế giới 7–9; cửa hàng, huy hiệu | [`later-phases.md`](later-phases.md) |
 | GĐ 5 · Thuật toán & code chữ | 2 tuần | Thế giới 10, xem code JS/Python | [`later-phases.md`](later-phases.md) |
