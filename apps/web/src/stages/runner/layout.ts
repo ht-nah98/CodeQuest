@@ -1,7 +1,6 @@
 // Pixi-free geometry of the runner stage, so it can be unit tested (stage-rendering.md §2).
-import { TILE_SIZE } from '../assets';
 import { PANDA_FRAME_SIZE } from '../panda';
-import { GRASS_OUTLINE_TEXELS } from '../tiles';
+import { GRASS_OUTLINE_TEXELS, TILE_SIZE } from '../tileGrid';
 
 /** Each runner cell is this many tiles wide. */
 export const CELL_TILES = 2;
@@ -13,7 +12,10 @@ const GROUND_LINE = 0.66;
 const PANDA_MIN_PX = 96;
 const PANDA_MAX_PX = 150;
 const PANDA_HEIGHT_SHARE = 0.34;
-/** Visible body / untrimmed frame height (≈ 236 of 280 px for the idle frames). */
+/**
+ * Măng's on-screen height counts this share of the 280 px frame box (≈ 235 px). The idle frames
+ * themselves are 217 / 219 px tall (panda.json), so she stands ≈ 0.92 × that height.
+ */
 const PANDA_BODY_SHARE = 0.84;
 
 export interface RunnerLayout {

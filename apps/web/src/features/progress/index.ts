@@ -1,4 +1,11 @@
-export { useCoinBalance, useLessonsDone, useLevelProgress, useProgressMap } from './useProgress';
+export {
+  useCoinBalance,
+  useLessonsDone,
+  useLevelProgress,
+  useProgressMap,
+  useStreakDays,
+  useTotalStars,
+} from './useProgress';
 export {
   getProgress,
   listProgress,

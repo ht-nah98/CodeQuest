@@ -1,0 +1,83 @@
+{
+  "id": "runner-bamboo",
+  "worldId": "_sandbox",
+  "stage": "guided",
+  "kind": "runner",
+  "mode": "build",
+  "title": "Nhặt hết măng",
+  "objective": "Nhặt hết măng rồi tới cờ nhé!",
+  "learningGoal": "Đi từng ô để dừng đúng chỗ có măng; nhảy qua thì không nhặt được.",
+  "misconception": "Nhảy qua măng cũng nhặt được măng.",
+  "toolbox": ["runner_walk", "runner_jump"],
+  "par": 6,
+  "maxBlocks": 8,
+  "config": {
+    "cells": ["ground", "ground", "ground", "ground", "ground", "ground", "flag"],
+    "start": 0,
+    "bamboo": [2, 4],
+    "goal": {
+      "collectAll": true
+    }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "runner_walk",
+              "id": "w1",
+              "next": {
+                "block": {
+                  "type": "runner_walk",
+                  "id": "w2",
+                  "next": {
+                    "block": {
+                      "type": "runner_walk",
+                      "id": "w3",
+                      "next": {
+                        "block": {
+                          "type": "runner_walk",
+                          "id": "w4",
+                          "next": {
+                            "block": {
+                              "type": "runner_walk",
+                              "id": "w5",
+                              "next": {
+                                "block": {
+                                  "type": "runner_walk",
+                                  "id": "w6"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "missed-one",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "MISSED_ITEMS"
+      },
+      "say": "Đi từng ô thì mới nhặt được măng.",
+      "point": "stage"
+    }
+  ]
+}

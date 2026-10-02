@@ -1,0 +1,95 @@
+{
+  "id": "runner-obstacles",
+  "worldId": "_sandbox",
+  "stage": "guided",
+  "kind": "runner",
+  "mode": "build",
+  "title": "Cành, thùng và hố",
+  "objective": "Cúi, đá thùng, nhảy hố tới cờ!",
+  "learningGoal": "Chọn đúng khối cho từng chướng ngại: cúi dưới cành, đá thùng, nhảy qua hố.",
+  "misconception": "Khối đi vượt được mọi chướng ngại.",
+  "toolbox": ["runner_walk", "runner_jump", "runner_crouch", "runner_kick"],
+  "par": 8,
+  "maxBlocks": 12,
+  "config": {
+    "cells": ["ground", "ground", "branch", "ground", "crate", "ground", "hole", "ground", "flag"],
+    "start": 0,
+    "bamboo": [3, 7],
+    "goal": {
+      "collectAll": true
+    }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "runner_walk",
+              "id": "w1",
+              "next": {
+                "block": {
+                  "type": "runner_crouch",
+                  "id": "c1",
+                  "next": {
+                    "block": {
+                      "type": "runner_walk",
+                      "id": "w2",
+                      "next": {
+                        "block": {
+                          "type": "runner_kick",
+                          "id": "k1",
+                          "next": {
+                            "block": {
+                              "type": "runner_walk",
+                              "id": "w3",
+                              "next": {
+                                "block": {
+                                  "type": "runner_walk",
+                                  "id": "w4",
+                                  "next": {
+                                    "block": {
+                                      "type": "runner_jump",
+                                      "id": "j1",
+                                      "next": {
+                                        "block": {
+                                          "type": "runner_walk",
+                                          "id": "w5"
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "branch-low",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "HIT_BRANCH"
+      },
+      "say": "Cành thấp lắm, cúi xuống nhé!",
+      "point": "stage"
+    }
+  ]
+}

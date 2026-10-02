@@ -94,10 +94,33 @@ Vì vậy:
 - Lấy lời giải (`level.solution`), so với chương trình hiện tại theo thứ tự trước (như `editDistance`), tìm **khối đầu tiên khác nhau** và **chỗ nối** của nó (khối cha + tên input, hoặc khối đứng trước).
 - **Không** chèn khối vào workspace chính. Một khối thật sẽ bị serialize, bị tính vào `remainingCapacity()` (có thể khóa thanh khối khi chỉ còn 1 chỗ) và bắn sự kiện change. Thay vào đó:
   - Hiện một **popover** nhỏ chứa workspace chỉ đọc riêng, bên trong có đúng khối cần thêm, mờ và viền nét đứt.
-  - Popover neo cạnh chỗ nối trong workspace chính, có mũi tên chỉ vào đó. Khối đích được tô viền bằng `addSelect`/class CSS, không thay đổi dữ liệu.
+  - Popover neo cạnh chỗ nối trong workspace chính, có mũi tên chỉ vào đó. Khối đích được tô viền bằng class CSS (`BlockSvg.addClass`), không thay đổi dữ liệu.
   - Nếu khối đúng có trong thanh khối, khối đó trong flyout cũng nhấp nháy viền.
 - Popover tự đóng khi bé thả một khối hoặc bấm ra ngoài.
-- Code: `apps/web/src/blockly/nextStepHint.ts`.
+
+### Cài đặt (P1-07)
+- **Phần so sánh là hàm thuần trong engine**: `nextStep(solution, current, { toolbox?, capacityLeft? }): NextStep | null` (`packages/engine/src/hints/nextStep.ts`).
+  - Chỉ so khối dưới `cq_start`, theo token thứ tự trước như `editDistance` (độ sâu + tên input + `type` + `fields` + `extraState`), **bỏ qua shadow** (khác nhau chỉ ở shadow không phải là một bước).
+  - Căn hai chương trình bằng **cùng bảng edit-distance** (đổi khối tại chỗ = 1, đổi sang độ sâu/input khác = 2), lấy các phép sửa trên một đường tối ưu theo thứ tự chương trình. Ví dụ: lời giải ABC, bé ghép AXBC → bỏ X (không phải "đổi X thành B"); bé ghép AC → thêm B sau A; bé ghép ACB → kéo B lên sau A.
+  - Mỗi phép sửa thành một bước bé làm được, rồi **thử bước đó trên bản sao** theo đúng cách Blockly làm (kéo một khối là kéo cả các khối dưới nó; xóa một khối là xóa cả khối bên trong; chuột phải → "Xóa khối" giữ các khối dưới). Chọn bước làm `structuralDistance` giảm nhiều nhất. Nếu không bước đơn nào giảm (gỡ khối ra khỏi một vòng lặp thừa, thêm vòng lặp rồi kéo khối vào), chọn bước mà ngay sau nó có bước làm giảm, nên khoảng cách luôn giảm sau tối đa 2 bước (có property test chạy bằng Blockly headless thật).
+  - Kết quả (`NextStep`):
+    - `{ kind: 'add', block, anchor }`: kéo `block` từ thanh khối vào `anchor = { blockId, input }` (`input: null` = nối vào `next` của `blockId`).
+    - `{ kind: 'move', blockId, anchor, withTail }`: kéo khối **đã có** (khối rời, hoặc khối nằm sai chỗ trong chuỗi; `withTail` = kéo theo cả các khối dưới nó) tới `anchor`.
+    - `{ kind: 'edit', block, blockId }`: đúng loại khối, chỉ sai trường (vd lặp 3 thay vì lặp 2); sửa xong, các khối bên trong được so tiếp như đã khớp.
+    - `{ kind: 'replace', block, anchor, blockId, midStack }`: xóa khối sai rồi đặt `block` từ thanh khối vào chỗ đó.
+    - `{ kind: 'remove', blockId, midStack, loose }`: bỏ khối thừa (`midStack` = còn khối bên dưới, dùng chuột phải → "Xóa khối"; `loose` = chồng khối rời, bỏ để có chỗ).
+    - `{ kind: 'reset' }`: cần một khối mà không còn ở đâu và thanh khối không có (màn `parsons` lỡ xóa khối) → bấm "Làm lại".
+    - `null`: chương trình đã giống lời giải (hoặc một bên thiếu `cq_start`).
+  - `toolbox`: các loại khối bé kéo được; `add`/`replace` chỉ dùng chúng. Màn `parsons` truyền `[]`: chỉ có `move`/`edit`/`remove`, và không bao giờ xóa một khối lời giải cần mà thanh khối không cho lại.
+  - `capacityLeft ≤ 0`: không đề nghị khối mới; nếu bước đầu cần khối mới thì bỏ chồng khối rời trước, hoặc một khối thừa / dùng lại khối đã có.
+  - `block` là khối của lời giải đứng một mình (bỏ `next` và khối con, giữ shadow), id `NEXT_STEP_BLOCK_ID`. Hàm định nghĩa ("để làm…") chưa được so (chỉ có từ Thế giới 8).
+- **Phần hiển thị**: `showNextStepPopover(workspace, step, { onClose })` trong `apps/web/src/blockly/nextStepPopover.ts` (+ `.css`), trả `{ element, close() }`. Câu của Măng: `nextStepMessage(step)` (`vi.hints.nextStep`).
+  - Popover (`role="dialog"`, không modal) gắn vào div `.cq-blockly` (cha của `injectionDiv`), đặt bên phải điểm neo (sang trái nếu không đủ chỗ); điểm neo = tọa độ kết nối của `anchor` (`nextConnection` / `getInput(name).connection`) hoặc mép phải khối cần sửa/bỏ, đổi sang pixel bằng `utils.svgMath.wsToScreenCoordinates`. Đặt lại khi workspace cuộn/zoom (`VIEWPORT_CHANGE`).
+  - Xem trước (`add`, `replace`, `edit`): `mountReadOnlyWorkspace` (`blockly/readOnlyWorkspace.ts`, dùng chung với lời giải tầng 3), khối mờ, viền nét đứt. `inject` biến workspace mới thành "main workspace" của Blockly; hàm trả vai đó về workspace chính ngay và khi gỡ.
+  - Viền: `cq-step-anchor` (chỗ nối), `cq-step-source` (khối cần kéo / cần sửa), `cq-step-wrong` (khối cần đổi / bỏ, đỏ nét đứt), `cq-step-flyout` (khối cùng loại trong flyout, nhấp nháy; tắt khi giảm chuyển động).
+  - Đóng khi: thả khối (`BlockDrag` kết thúc), bấm chuột **ngoài vùng `.cq-blockly`** (bấm trong vùng ghép là đang kéo khối, nên giữ popover tới lúc thả), `Esc` (trừ khi dropdown / ô nhập của Blockly đang mở: `Esc` đó dành để đóng nó), nút đóng. `close()` gỡ mọi listener và class, idempotent, gọi `onClose` một lần.
+  - Màn chơi đọc chương trình bằng `handle.getState().json` (đồng bộ, §2) và đưa cho `useHints().buy(2, …)`, hàm này tính bước **trước** khi trừ xu.
+- Lời giải tầng 3: `screens/play/SolutionViewer.tsx` (lớp phủ `aria-modal`, workspace chỉ đọc). API nối vào màn chơi: `hint-engine.md` §7.
 
 ## 9. Tiếng Việt
 - `Blockly.setLocale(vi)` từ `blockly/msg/vi` (đã có sẵn tiếng Việt cho khối có sẵn).
@@ -113,7 +136,7 @@ Vì vậy:
 | Plugin | Dùng làm gì |
 |---|---|
 | `@blockly/disable-top-blocks` | Kết hợp `disableOrphans`. Bản 13.3.0 chỉ phát hành `src/` (không có `dist/`, không có type): Vite lấy theo trường `module`; type tự khai trong `apps/web/src/blockly/disable-top-blocks.d.ts` |
-| `@blockly/workspace-content-highlight` | Làm mờ xung quanh khi hướng dẫn lần đầu |
+| `@blockly/workspace-content-highlight` | Làm mờ xung quanh khi hướng dẫn lần đầu: `startContentHighlight(ws)` trong `blockly/contentHighlight.ts`, bật khi gợi ý tầng 0 có `spotlight: true`. Plugin chỉ làm sáng **cả vùng có khối** của workspace (không riêng một khối), flyout giữ nguyên |
 | `@blockly/field-grid-dropdown` | Chọn hướng / màu / ô bằng lưới hình |
 | `@blockly/zoom-to-fit` | Nút "vừa màn hình" |
 

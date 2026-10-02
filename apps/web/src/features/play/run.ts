@@ -1,31 +1,18 @@
 import type { FeedbackFile, Level, WorkspaceJson } from '@codequest/content-schema';
 import { runLevel, type RunOutcome } from '@codequest/engine';
-import {
-  getGameKind,
-  runnerConfigSchema,
-  type RunnerConfig,
-  type RunnerEvent,
-} from '@codequest/games';
+import { getGameKind } from '@codequest/games';
 import { vi } from '../../i18n/vi';
-import { feedbackLine } from '../content/content';
-
-/** The runner config of a level, validated (throws for a level of another kind). */
-export function runnerConfigOf(level: Level): RunnerConfig {
-  if (level.kind !== 'runner') throw new Error(`Not a runner level: ${level.id} (${level.kind})`);
-  return runnerConfigSchema.parse(level.config);
-}
+import { feedbackLine } from '../content/files';
 
 /**
- * Runs the child's program headlessly (run-then-replay, overview.md §4). Synchronous and bounded
- * by the level's maxSteps / maxActions, so an endless loop ends as TIMEOUT instead of hanging.
+ * Runs the child's program headlessly with the level's game kind (run-then-replay,
+ * overview.md §4). Synchronous and bounded by the level's maxSteps / maxActions, so an endless
+ * loop ends as TIMEOUT instead of hanging. Throws when the kind is not implemented.
  */
-export function runRunnerProgram(level: Level, workspace: WorkspaceJson): RunOutcome<RunnerEvent> {
+export function runProgram(level: Level, workspace: WorkspaceJson): RunOutcome {
   const kind = getGameKind(level.kind);
-  if (kind === undefined || level.kind !== 'runner') {
-    throw new Error(`Game kind not implemented: ${level.kind}`);
-  }
-  // The registry erases event types; the runner kind only emits RunnerEvent.
-  return runLevel({ kind, level, workspace }) as RunOutcome<RunnerEvent>;
+  if (kind === undefined) throw new Error(`Game kind not implemented: ${level.kind}`);
+  return runLevel({ kind, level, workspace });
 }
 
 /** The block to shake after a failed run: the block of the last event (game-kind-sdk.md §1.1). */

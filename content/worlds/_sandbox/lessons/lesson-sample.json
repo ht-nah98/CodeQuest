@@ -1,0 +1,47 @@
+{
+  "id": "lesson-sample",
+  "worldId": "_sandbox",
+  "title": "Chương trình là gì?",
+  "cards": [
+    { "type": "say", "pose": "talk", "text": "Chào con! Hôm nay mình học về chương trình nhé." },
+    {
+      "type": "say",
+      "pose": "point",
+      "text": "Chương trình là các bước. Máy làm đúng từng bước con ghép."
+    },
+    {
+      "type": "demo",
+      "text": "Bấm Chạy xem Măng đi 2 bước nhé!",
+      "kind": "runner",
+      "config": { "cells": ["ground", "ground", "flag"], "start": 0 },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 30,
+              "y": 30,
+              "next": {
+                "block": {
+                  "type": "runner_walk",
+                  "id": "walk1",
+                  "next": { "block": { "type": "runner_walk", "id": "walk2" } }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "quiz",
+      "text": "Măng cần mấy khối đi để tới cờ?",
+      "options": ["1 khối", "2 khối", "3 khối"],
+      "correct": 1,
+      "explain": "Mỗi khối đi là 1 ô. Cờ cách Măng 2 ô."
+    },
+    { "type": "say", "pose": "cheer", "text": "Giỏi lắm! Giờ con tự ghép thử nhé." }
+  ]
+}

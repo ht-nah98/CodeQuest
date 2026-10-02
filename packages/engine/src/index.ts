@@ -29,3 +29,13 @@ export { StopSignal } from './run/stopSignal';
 // Deterministic randomness (runtime-engine.md §6).
 export { fnv1a } from './rng/fnv1a';
 export { mulberry32 } from './rng/mulberry32';
+
+// Tier-0 hints and the tier-2 next step (hint-engine.md, blockly-integration.md §8).
+export type { HintContext } from './hints/context';
+export { compare, matches } from './hints/matches';
+export { GLOBAL_HINT_IDS, globalRules } from './hints/globalRules';
+export type { GlobalHintId, GlobalHintRule, HintLevel } from './hints/globalRules';
+export { selectHint } from './hints/selectHint';
+export type { HintSelection } from './hints/selectHint';
+export { NEXT_STEP_BLOCK_ID, nextStep, structuralDistance } from './hints/nextStep';
+export type { NextStep, NextStepOptions, StepAnchor } from './hints/nextStep';

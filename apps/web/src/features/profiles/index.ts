@@ -1,5 +1,13 @@
 export { useProfile, useProfiles } from './useProfiles';
 export {
+  CurrentProfileProvider,
+  prefersReducedMotion,
+  RequireProfile,
+  useCurrentProfile,
+  useSignedInProfile,
+} from './CurrentProfile';
+export { installDevHook } from './devHook';
+export {
   changePin,
   createProfile,
   deleteProfile,

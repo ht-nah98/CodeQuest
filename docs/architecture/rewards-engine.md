@@ -55,6 +55,8 @@ computeLevelRewards(input: { level; session; winning; progress: LevelProgress | 
   // entries gồm cả 'daily' và 'streak-7' nếu lượt thắng này là hoạt động đầu tiên của ngày / chạm mốc chuỗi
 computeLessonRewards(input: { lessonId; ledger; now; profileId }): LedgerEntry[]   // 'lesson' + có thể 'daily', 'streak-7'
 hintPrice(tier: 1 | 2 | 3, session: LevelSession, ledger: LedgerEntry[]): number  // lưới an toàn; tầng 1 đã mua trước đây → 0
+hintEntryId(tier, levelId, purchaseId): string                    // id dòng sổ xu của lần mua gợi ý (§4)
+isHintOwned(levelId, ledger): boolean                              // tầng 1 của màn đã mua (mở lại miễn phí)
 buyHint(input: { tier; level; session; ledger; now; profileId; purchaseId }): { ok: true; entry: LedgerEntry | null } | { ok: false; missing: number }
   // entry null khi đã sở hữu (tầng 1) hoặc purchaseId này đã trả rồi; missing = giá − max(0, số dư)
   // tầng 1 mở miễn phí nhờ lưới an toàn → vẫn ghi `hint-1:<levelId>` với delta 0 để sở hữu mãi
@@ -79,6 +81,7 @@ WRONG_ANSWER = 'WRONG_ANSWER'                               // reasonCode của 
 ```
 
 ### Quy ước gọi (chốt ở P1-08)
+- **Một lượt chạy được tính ngay khi engine trả kết quả** (`runLevel` xong), không đợi phần phát lại: bé bấm Dừng, Làm lại hay rời màn giữa lúc Măng đang diễn thì lượt đó vẫn nằm trong `session.runs` (vẫn tính vào `attempts`, `failStreak`, "thắng lượt đầu"), và lượt thắng vẫn được ghi xu ngay. Chỉ lớp phủ kết quả đợi phát lại xong mới hiện. Cài đặt: `apps/web/src/features/play/usePlaySession.ts` (`recordRun`), phiên đang mở được chép vào `sessionStorage` sau mỗi lượt để lần vào màn sau đóng nốt nếu tab bị đóng giữa chừng (`recordSession` + `saveAttempt`, cả hai idempotent). Gợi ý mua trong phiên: `recordHintBought(tier, entry)`.
 - **UI dùng `applyRun`**: gọi sau mỗi lượt chạy theo đúng thứ tự, `session` đã chứa lượt đó, rồi giữ `{ progress, ledger }` trả về cho lượt sau (và ghi `rewards.entries` + `progress` vào Dexie). Nhờ vậy lượt thắng thứ 2 trong cùng phiên nhận đúng `newProgress` của lượt thắng thứ 1 (không đếm `attempts` hai lần). Lượt không thắng → `rewards: null`, state giữ nguyên.
 - `computeLevelRewards` nhận `progress` và `ledger` **như ngay trước lượt thắng này**. Gọi lại với cùng đầu vào (cùng `runId`) không sinh dòng mới. Dòng "lần đầu" (`level-clear`, `star-*`, `first-try`) xét theo **sổ xu**, không theo `progress`. Lỗ hổng đã biết: nếu ghi lại lượt ⭐⭐⭐ đầu tiên với `progress` **đã cập nhật**, sẽ sinh thêm `replay:<runId>`; vì vậy luôn đi qua `applyRun`.
 - `session.levelId` phải bằng `level.id` (và `progress.levelId` trong `recordSession`), nếu không thì throw.

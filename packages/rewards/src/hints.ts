@@ -6,9 +6,16 @@ import type { HintTier, LedgerEntry, LevelSession } from './types';
 
 const HINT_REASON = { 1: 'hint-1', 2: 'hint-2', 3: 'hint-3' } as const;
 
-function hintEntryId(tier: HintTier, levelId: string, purchaseId: string): string {
+/** Ledger id of a hint purchase (rewards-engine.md §4); tier 1 ignores `purchaseId`. */
+export function hintEntryId(tier: HintTier, levelId: string, purchaseId: string): string {
   // Tier 1 is bought once per level and then free forever, so its id has no purchase part.
   return tier === 1 ? `hint-1:${levelId}` : `${HINT_REASON[tier]}:${levelId}:${purchaseId}`;
+}
+
+/** Tier 1 of `levelId` was bought (or claimed free) before: it reopens for free. */
+export function isHintOwned(levelId: string, ledger: readonly LedgerEntry[]): boolean {
+  const id = hintEntryId(1, levelId, '');
+  return ledger.some((entry) => entry.id === id);
 }
 
 /**
@@ -23,8 +30,9 @@ export function hintPrice(
   const fails = failStreak(session);
   switch (tier) {
     case 1: {
-      const owned = ledger.some((entry) => entry.id === hintEntryId(1, session.levelId, ''));
-      return owned || fails >= SAFETY_NET.freeTier1AfterFails ? 0 : HINT_PRICES[1];
+      return isHintOwned(session.levelId, ledger) || fails >= SAFETY_NET.freeTier1AfterFails
+        ? 0
+        : HINT_PRICES[1];
     }
     case 2:
       return fails >= SAFETY_NET.discountTier2AfterFails

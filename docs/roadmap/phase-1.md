@@ -33,7 +33,7 @@
 **Nghiệm thu:** như P1-01, khớp §3.2.
 
 ### P1-03 · `RunnerStage` đầy đủ
-Nền parallax pixel (bầu trời, tre xa, đất), camera cuộn theo Măng khi > 8 ô, hoạt ảnh cho mọi event (đi, nhảy, cúi, đá thùng đổ, nhặt măng, rơi hố, đụng cành, ăn mừng).
+Nền parallax pixel (bầu trời, tre xa, đất), camera cuộn theo Măng khi đường dài hơn sân chơi (quy tắc theo pixel ở `stage-rendering.md` §2), hoạt ảnh cho mọi event (đi, nhảy, cúi, đá thùng đổ, nhặt măng, rơi hố, đụng cành, ăn mừng).
 **Nghiệm thu:** 60 fps với màn 30 ô; mọi event của P1-01 có hoạt ảnh.
 
 ### P1-04 · `MazeStage`

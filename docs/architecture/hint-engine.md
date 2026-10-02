@@ -66,10 +66,18 @@ type NumCmp = { lt?: number; lte?: number; eq?: number; gte?: number; gt?: numbe
 | `g-empty-enter` | `{ trigger: 'enter', blockCount: { eq: 0 } }`, chỉ ở mode `build` và khi `isFirstOfModeInWorld` | "Kéo khối từ đây sang nhé!" → `toolbox:<khối đầu của toolbox>` |
 | `g-parsons-enter` | `{ trigger: 'enter' }`, chỉ khi mode `parsons` chưa có trong `seenModes` | "Nối các khối vào khi bắt đầu nhé!" → `block:cq_start` |
 | `g-orphans` | `{ orphans: true, trigger: 'run-end' }` | "Có khối chưa nối vào khi bắt đầu." |
-| `g-empty-run` | `{ lastReason: 'EMPTY_PROGRAM' }` | lấy từ feedback |
-| `g-timeout` | `{ lastResult: 'timeout' }` | lấy từ feedback |
-| `g-idle` | `{ idleSeconds: { gte: 60 }, runCount: { eq: 0 } }` | "Thử bấm ▶ xem chuyện gì xảy ra!" → `run` |
-| `g-fail3` | `{ failStreak: { gte: 3 } }` | "Khó nhỉ? Gợi ý 💡 đang miễn phí đó." |
+| `g-empty-run` | `{ trigger: 'run-end', lastReason: 'EMPTY_PROGRAM' }` | lấy từ feedback |
+| `g-timeout` | `{ trigger: 'run-end', lastResult: 'timeout' }` | lấy từ feedback |
+| `g-idle` | `{ idleSeconds: { gte: 60 }, runCount: { eq: 0 } }` | "Thử bấm Chạy xem chuyện gì xảy ra!" → `run` |
+| `g-fail3` | `{ trigger: 'run-end', failStreak: { gte: 3 } }`, chỉ khi màn có `thinkingHint` | "Khó nhỉ? Gợi ý đang miễn phí đó." |
+
+Cài đặt (`hints/globalRules.ts`):
+- Luật chung **không mang chữ**: engine chỉ trả `id` (`GlobalHintId`). Web lấy câu ở `vi.hints.global[id]`; `g-empty-run` và `g-timeout` có `feedbackReason` (`EMPTY_PROGRAM`, `TIMEOUT`) nên nói câu `level.feedback` → `feedback.json` của reasonCode đó, câu trong `vi.ts` chỉ là dự phòng. Hàm: `hintText(selection, level, feedback)` ở `apps/web/src/features/hints`.
+- Điều kiện theo mode (`g-empty-enter`, `g-parsons-enter`) không viết được bằng cú pháp `Condition`, nên `globalRules(level, ctx)` lọc trước.
+- `g-empty-run` chỉ vào `toolbox:<khối đầu của toolbox>` ở mode `build` (`screens-and-flows.md` §5).
+- `g-empty-run`, `g-timeout`, `g-fail3` chỉ nói ngay sau một lượt chạy (`run-end`), không lặp lại mỗi lần bé sửa khối.
+- Bỏ emoji 💡 / ▶ khỏi câu: máy của bé không chắc có font emoji (giống nút Chạy).
+- Id luật chung bắt đầu bằng `g-`; luật của màn không nên dùng tiền tố này (dùng chung `shownHintIds`).
 
 Ngoài ra, sau mỗi lượt thua, **câu phản hồi theo reasonCode** (`feedback`) luôn hiện trước. Gợi ý tầng 0 (nếu có) hiện sau 1,5 giây.
 
@@ -81,5 +89,53 @@ Ngoài ra, sau mỗi lượt thua, **câu phản hồi theo reasonCode** (`feedb
 5. Trigger `change` được debounce 600 ms và **không** chạy khi bé đang kéo khối.
 
 ## 6. Kiểm thử
-- Unit test `matches()` cho từng khóa điều kiện.
+- Unit test `matches()` cho từng khóa điều kiện, `all`/`any`/`not`, ưu tiên, từng luật chung (`packages/engine/src/hints/*.test.ts`).
 - `content:check` xác nhận mọi `point` và `lastReason` hợp lệ.
+- Web: `features/hints/*.test.ts(x)` (giá, lưới an toàn, mua bằng `spend` trên fake-indexeddb, trần sao tầng 3), `screens/play/HintBox.test.tsx`, `SolutionViewer.test.tsx`, `blockly/nextStepPopover.test.ts` (Blockly thật trong jsdom).
+
+## 7. API cho màn chơi (P1-07)
+### Engine (`@codequest/engine`)
+| Hàm | Ý nghĩa |
+|---|---|
+| `matches(cond, ctx)` / `compare(value, numCmp)` | Đánh giá điều kiện (thuần) |
+| `globalRules(level, ctx): GlobalHintRule[]` | Luật chung áp dụng cho màn này, theo thứ tự khai báo |
+| `selectHint(level, ctx): HintSelection \| null` | Thuật toán §5. `HintSelection = { source: 'level', rule: HintRule, target } \| { source: 'global', rule: GlobalHintRule, target }`, `target` = `point` hoặc `null` |
+| `nextStep(solution, current, { toolbox?, capacityLeft? }): NextStep \| null` | Gợi ý tầng 2 (`blockly-integration.md` §8), thuần trên JSON |
+| `structuralDistance(solution, current)` | Số bước sửa còn lại theo cách `nextStep` đo (0 = giống lời giải) |
+
+`level` là `HintLevel = Pick<Level, 'mode' | 'toolbox' | 'hints' | 'thinkingHint'>`. `HintContext.capacityLeft` = `Infinity` khi màn không có `maxBlocks`.
+
+### Web: `useHints` (`apps/web/src/features/hints`)
+```ts
+const hints = useHints({ profileId, level, session });   // onPurchased?, now?, newPurchaseId? tùy chọn
+hints.ready; hints.balance; hints.tiers;   // TierView[]: { tier, state: 'owned'|'free'|'buy'|'locked', price, missing }
+hints.tiersBought;                         // tầng đã mua trong phiên màn (theo thứ tự)
+await hints.buy(1 | 3);
+await hints.buy(2, { json: handle.getState().json, capacityLeft });   // capacityLeft = remainingCapacity ?? Infinity
+// → { status: 'opened', tier: 1|3 } | { status: 'opened', tier: 2, step: NextStep }
+//   | { status: 'solved' | 'reset', tier: 2 }          // tầng 2 không có gì để chỉ: KHÔNG trừ xu, KHÔNG hạ sao
+//   | { status: 'missing', tier, missing } | { status: 'busy' } | { status: 'unavailable' } | { status: 'error' }
+hints.evaluate(trigger, facts);            // facts: { analysis, capacityLeft, idleMs, isFirstOfModeInWorld, seenModes }
+hints.tip; hints.dismissTip();             // gợi ý tầng 0 đang hiện (tối đa 1)
+```
+- `session` (`LevelSession`) do màn chơi giữ; hook đọc nó ở **mỗi lần render và mỗi lần gọi** (không memo), nên giữ trong ref/sửa tại chỗ cũng được, miễn là màn chơi render lại sau mỗi lượt chạy. `runCount`, `failStreak`, `lastOutcome` lấy từ `session.runs`; `shownHintIds` do hook giữ suốt phiên màn (hook sống cùng `PlaySession`, `key={level.id}`).
+- **Trần sao:** hook tự giữ `tiersBought` (khởi tạo từ `session.hintTiersBought` lúc mount). Trước khi gọi `applyRun` / `computeStars`, màn chơi truyền `{ ...session, hintTiersBought: hints.tiersBought }`. Không cần tự `push` vào session.
+- Mua: tầng 2 tính `nextStep` **trước** khi trừ xu (`toolbox` của màn, rỗng ở `parsons`; `capacityLeft`). Rồi đọc lại sổ xu → `buyHint` của rewards → giá > 0 ghi bằng `spend` (kiểm số dư trong transaction), tầng 1 miễn phí (delta 0) ghi bằng `addLedgerEntries` để **sở hữu mãi**. Mỗi lần bấm một `purchaseId` mới (`crypto.randomUUID()`). Bấm lần 2 khi đang ghi → `busy`; tầng màn không có → `unavailable`; lỗi lưu trữ → `error`, không ghi nhận tầng.
+- Trạng thái `owned`: tầng 1 đã mua ở màn này (`isHintOwned` của rewards, bất kỳ phiên nào), tầng 3 đã mua trong phiên này (mở lại không trừ xu). Tầng 2 lần nào cũng trả (mỗi lần một bước mới).
+- Tầng có trong màn (`availableTiers`): tầng 1 cần `thinkingHint`; tầng 2–3 cần `solution` và không có ở `predict`/`creative`.
+
+### Web: thành phần giao diện
+| Thành phần | Dùng |
+|---|---|
+| `screens/play/HintBox.tsx` | Lớp phủ `aria-modal`: `<HintBox tiers balance busy thinkingHint notice onBuy onClose />`, `notice` = `'error' \| 'solved' \| 'reset' \| null`. Có kiểm soát. Focus nút đầu khi mở, Tab không ra ngoài, Esc đóng (bắt trên `document`), trả focus cho nút đã mở hộp. Nút bị khóa/đang mua dùng `aria-disabled` (vẫn focus được) |
+| `screens/play/SolutionViewer.tsx` | Tầng 3: `<SolutionViewer solution={level.solution} onClose />`, workspace chỉ đọc (vùng `role="region"`), tự `zoomToFit` |
+| `blockly/nextStepPopover.ts` | Tầng 2: `showNextStepPopover(workspace, result.step, { onClose })` → `{ element, close() }`; `nextStepMessage(step)` cho câu của Măng |
+| `blockly/readOnlyWorkspace.ts` | `mountReadOnlyWorkspace(div, json)` → `{ workspace, dispose() }`; trả vai "main workspace" cho workspace chính |
+| `blockly/contentHighlight.ts` | `startContentHighlight(workspace)` → hàm gỡ; dùng khi gợi ý tầng 0 đang hiện có `spotlight: true` |
+
+### Việc của màn chơi khi nối (vòng sau)
+1. Nút "Gợi ý" (phím `H`) ở góc dưới vùng ghép khối mở `HintBox`. `onBuy(tier)` → tầng 2: `hints.buy(2, { json: handle.getState().json, capacityLeft })` (đọc đồng bộ); tầng 1/3: `hints.buy(tier)`. Kết quả: `opened` tầng 1 → giữ hộp mở, truyền `thinkingHint={level.thinkingHint}`; tầng 2 → đóng hộp, `showNextStepPopover(workspace, result.step)`; tầng 3 → đóng hộp, mở `SolutionViewer`. `solved`/`reset` → `notice`; `missing` → hộp đã hiện "Cần thêm N xu"; `error` → `notice="error"`.
+2. Gọi `hints.evaluate`: `'enter'` khi workspace sẵn sàng; `'run-end'` sau khi phát lại xong và câu phản hồi đã hiện (hiện gợi ý sau 1,5 s); `'change'` debounce 600 ms, **không** gọi khi đang kéo khối (`Gesture.inProgress()`); `'idle'` sau 60 s không thao tác. Hiện `hintText(tip, level, feedback)` trong bong bóng Măng, nếu khác câu đang hiện.
+3. `target` → mũi tên: `toolbox:<type>` = khối trong flyout, `block:<type>` = khối đầu tiên loại đó trong vùng ghép, `run`/`capacity`/`stage` = nút/thanh/sân chơi. `spotlight` → `startContentHighlight`, gỡ khi `dismissTip`.
+4. Đóng popover tầng 2 khi đổi màn / unmount (`close()` trong cleanup).
+5. Khi chấm lượt chạy: `applyRun(state, { ..., session: { ...session, hintTiersBought: [...hints.tiersBought] } })`.

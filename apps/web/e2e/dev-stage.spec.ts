@@ -54,7 +54,8 @@ test.describe('/dev/stage', () => {
 
     // Client-side remount: a new renderer must reuse the cached textures without leaks.
     await page.getByRole('link', { name: 'Về trang đầu' }).click();
-    await expect(page).toHaveURL(/\/$/);
+    // "/" is the profile picker; with no profile yet it opens /profile/new (P1-10).
+    await expect(page).toHaveURL(/\/(profile\/new)?$/);
     await expect(stage).toHaveCount(0);
     await page.getByRole('link', { name: '/dev/stage' }).click();
     await waitForStage(stage);

@@ -1,9 +1,20 @@
-import { lazy, Suspense } from 'react';
+import { lazy, type ReactNode, Suspense } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router';
-import { HomeScreen } from '../screens/home/HomeScreen';
+import { CurrentProfileProvider, RequireProfile } from '../features/profiles';
+import '../screens/shared/screens.css';
+import { BreakReminder } from './BreakReminder';
 import { ErrorBoundary } from './ErrorBoundary';
+import { SmallScreenGate } from './SmallScreenGate';
 
+// Routes: docs/design/screens-and-flows.md §2 (phase 1: no shop, badges, group or coach corner).
+const ProfilePickScreen = lazy(() => import('../screens/profile/ProfilePickScreen'));
+const NewProfileScreen = lazy(() => import('../screens/profile/NewProfileScreen'));
+const RestoreScreen = lazy(() => import('../screens/settings/RestoreScreen'));
+const MapScreen = lazy(() => import('../screens/map/MapScreen'));
+const WorldScreen = lazy(() => import('../screens/world/WorldScreen'));
+const LessonScreen = lazy(() => import('../screens/lesson/LessonScreen'));
 const PlayScreen = lazy(() => import('../screens/play/PlayScreen'));
+const SettingsScreen = lazy(() => import('../screens/settings/SettingsScreen'));
 
 // Dev-only showcase pages. The DEV ternary lets Rollup drop the chunks from production builds.
 const DevUiScreen = import.meta.env.DEV ? lazy(() => import('../screens/dev/DevUiScreen')) : null;
@@ -14,19 +25,35 @@ const DevStageScreen = import.meta.env.DEV
   ? lazy(() => import('../screens/dev/DevStageScreen'))
   : null;
 
+const signedIn = (screen: ReactNode) => <RequireProfile>{screen}</RequireProfile>;
+
 export function App() {
   return (
     <BrowserRouter>
       <ErrorBoundary>
-        <Suspense fallback={null}>
-          <Routes>
-            <Route path="/" element={<HomeScreen />} />
-            <Route path="/play/:levelId" element={<PlayScreen />} />
-            {DevUiScreen && <Route path="/dev/ui" element={<DevUiScreen />} />}
-            {DevBlocklyScreen && <Route path="/dev/blockly" element={<DevBlocklyScreen />} />}
-            {DevStageScreen && <Route path="/dev/stage" element={<DevStageScreen />} />}
-          </Routes>
-        </Suspense>
+        <SmallScreenGate>
+          <CurrentProfileProvider>
+            <Suspense fallback={null}>
+              <Routes>
+                <Route path="/" element={<ProfilePickScreen />} />
+                <Route path="/profile/new" element={<NewProfileScreen />} />
+                <Route path="/restore" element={<RestoreScreen />} />
+                <Route path="/map" element={signedIn(<MapScreen />)} />
+                <Route path="/w/:worldId" element={signedIn(<WorldScreen />)} />
+                <Route
+                  path="/w/:worldId/lesson/:lessonId"
+                  element={signedIn(<LessonScreen />)}
+                />
+                <Route path="/play/:levelId" element={signedIn(<PlayScreen />)} />
+                <Route path="/settings" element={signedIn(<SettingsScreen />)} />
+                {DevUiScreen && <Route path="/dev/ui" element={<DevUiScreen />} />}
+                {DevBlocklyScreen && <Route path="/dev/blockly" element={<DevBlocklyScreen />} />}
+                {DevStageScreen && <Route path="/dev/stage" element={<DevStageScreen />} />}
+              </Routes>
+            </Suspense>
+            <BreakReminder />
+          </CurrentProfileProvider>
+        </SmallScreenGate>
       </ErrorBoundary>
     </BrowserRouter>
   );

@@ -26,18 +26,29 @@ describe('assertPlayable', () => {
   const runner = {
     id: 'w01-l99',
     kind: 'runner',
+    mode: 'build',
     config: { cells: ['ground', 'flag', 'ground'], start: 0 },
   } as const;
 
   it('rejects a kind that is not implemented yet', () => {
     expect(() => {
-      assertPlayable({ id: 'w02-l01', kind: 'maze', config: {} });
+      assertPlayable({ id: 'w02-l01', kind: 'maze', mode: 'build', config: {} });
     }).toThrow(UnplayableLevelError);
   });
 
   it('rejects a config the kind does not accept', () => {
     expect(() => {
       assertPlayable(runner);
+    }).toThrow(UnplayableLevelError);
+  });
+
+  it('rejects a mode the play screen cannot run yet (P1-06)', () => {
+    expect(() => {
+      assertPlayable({
+        ...runner,
+        mode: 'predict',
+        config: { cells: ['ground', 'flag'], start: 0 },
+      });
     }).toThrow(UnplayableLevelError);
   });
 

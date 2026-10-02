@@ -81,4 +81,10 @@ describe('ledger repository', () => {
     expect(await spend(hint('hint-2:w01-l01:a', 15), NOW)).toEqual({ ok: true, entry: null });
     await expect(spend(entry('level-clear:x', 10), NOW)).rejects.toThrow();
   });
+
+  it('never asks for more than the price when the balance is negative', async () => {
+    await addLedgerEntries([entry('coach-adjust:minus', -3)], NOW);
+    const hint: LedgerRow = { ...entry('hint-1:w01-l01', -5), reason: 'hint-1' };
+    expect(await spend(hint, NOW)).toEqual({ ok: false, missing: 5 });
+  });
 });

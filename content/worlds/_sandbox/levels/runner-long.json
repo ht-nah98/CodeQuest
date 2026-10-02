@@ -1,0 +1,146 @@
+{
+  "id": "runner-long",
+  "worldId": "_sandbox",
+  "stage": "practice",
+  "kind": "runner",
+  "mode": "build",
+  "title": "Đường dài",
+  "objective": "Đường dài lắm, dùng khối lặp nhé!",
+  "learningGoal": "Thấy mẫu lặp lại (4 bước đi rồi nhảy) và gói nó vào khối lặp. Màn 30 ô để đo hiệu năng sân chơi.",
+  "misconception": "Phải ghép từng khối cho mỗi ô.",
+  "toolbox": ["runner_walk", "runner_jump", "cq_repeat"],
+  "par": 11,
+  "maxBlocks": 14,
+  "config": {
+    "cells": [
+      "ground",
+      "ground",
+      "ground",
+      "ground",
+      "ground",
+      "hole",
+      "ground",
+      "ground",
+      "ground",
+      "ground",
+      "ground",
+      "hole",
+      "ground",
+      "ground",
+      "ground",
+      "ground",
+      "ground",
+      "hole",
+      "ground",
+      "ground",
+      "ground",
+      "ground",
+      "ground",
+      "hole",
+      "ground",
+      "ground",
+      "ground",
+      "ground",
+      "ground",
+      "flag"
+    ],
+    "start": 0,
+    "bamboo": [3, 9, 16, 27]
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "r1",
+              "fields": {
+                "TIMES": 4
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "runner_walk",
+                    "id": "w1",
+                    "next": {
+                      "block": {
+                        "type": "runner_walk",
+                        "id": "w2",
+                        "next": {
+                          "block": {
+                            "type": "runner_walk",
+                            "id": "w3",
+                            "next": {
+                              "block": {
+                                "type": "runner_walk",
+                                "id": "w4",
+                                "next": {
+                                  "block": {
+                                    "type": "runner_jump",
+                                    "id": "j1"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "type": "runner_walk",
+                  "id": "w5",
+                  "next": {
+                    "block": {
+                      "type": "runner_walk",
+                      "id": "w6",
+                      "next": {
+                        "block": {
+                          "type": "runner_walk",
+                          "id": "w7",
+                          "next": {
+                            "block": {
+                              "type": "runner_walk",
+                              "id": "w8",
+                              "next": {
+                                "block": {
+                                  "type": "runner_walk",
+                                  "id": "w9"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "see-pattern",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "FELL_IN_HOLE"
+      },
+      "say": "Đi 4 bước rồi nhảy. Lặp lại nhé!",
+      "point": "stage"
+    }
+  ]
+}

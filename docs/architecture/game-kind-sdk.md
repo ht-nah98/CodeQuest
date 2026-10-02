@@ -162,16 +162,32 @@ export interface StageRenderer<E extends GameEvent> {
   /** Đổi kích thước khung (ResizeObserver). */
   resize(width: number, height: number): void;
   destroy(): void;
+  /** Tùy chọn: gọi đúng một lần sau event cuối của lượt chạy (sau rest() nếu lượt chưa xong); không gọi khi abort/Làm lại, không gọi giữa các bước. */
+  finish?(outcome: RunOutcome<E>): void;
 }
 ```
+Helper dùng chung cho renderer: `tween` (`stages/types.ts`), `reducedMotion()` (`stages/motion.ts`, bỏ chuyển động trang trí như rung sân khi máy bật giảm chuyển động).
 Renderer dựng cảnh trong constructor (nhận `app`, `config`, asset). Không có tham số `speed`: tốc độ là `ticker.speed` của đồng hồ chung, renderer chỉ đo thời gian bằng `ticker.deltaMS` (helper `tween` trong `stages/types.ts`). `drawAnswer(key, config, canvas)` cho mode `predict` thêm khi làm mode đó. Bản runner: `stages/runner/RunnerStage.ts`, hình học thuần trong `stages/runner/layout.ts`.
-`StageController` chung (`apps/web/src/stages/StageController.ts`) giữ `PIXI.Application`, chạy event log tuần tự, báo highlight qua callback `onHighlight(event.blockId)`, xử lý tốc độ / từng bước / dừng bằng `AbortSignal`. Renderer của từng kiểu game chỉ lo vẽ.
+`StageController` chung (`apps/web/src/stages/StageController.ts`) giữ `PIXI.Application`, chạy event log tuần tự, báo highlight qua callback `onHighlight(event.blockId)`, xử lý tốc độ / tạm dừng / từng bước / dừng bằng `AbortSignal`. Renderer của từng kiểu game chỉ lo vẽ. Mọi chuyển động phải chạy trên `app.ticker` (helper `tween`, sprite `autoUpdate: false`) và dừng khi `signal` abort, nếu không tạm dừng / Làm lại sẽ không dừng được nó.
+
+**Stage registry** (`apps/web/src/stages/registry.ts`), màn chơi chọn renderer theo `level.kind`:
+```ts
+export interface StageHooks { onAnimation?: PandaAnimationListener }
+export type StageFactory = (app: Application, config: unknown, hooks: StageHooks) => StageRenderer<GameEvent>;
+export interface StageKind {
+  background: string;                  // màu nền canvas (token trong ui/tokens.ts)
+  prepare(): Promise<StageFactory>;    // nạp texture (PIXI.Assets cache), trả factory; factory parse config bằng configSchema
+}
+export const stageKinds: Partial<Record<GameKindId, StageKind>>;   // { runner, maze }
+export function getStageKind(kind: GameKindId): StageKind | undefined;
+```
+Chạy chương trình cũng chung cho mọi kiểu game: `features/play/run.ts` `runProgram(level, workspace)` lấy kiểu game qua `getGameKind(level.kind)`.
 
 ## 3. Đăng ký một kiểu game mới
 Từng bước ở `docs/playbooks/add-game-kind.md`. Tóm tắt:
 1. Thêm id vào `GameKindId` (`packages/content-schema`).
 2. Tạo `packages/games/src/<kind>/` theo cấu trúc trên, đăng ký vào registry.
-3. Tạo `apps/web/src/stages/<kind>/`, đăng ký vào `stageRegistry`.
+3. Tạo `apps/web/src/stages/<kind>/`, đăng ký vào `stageKinds` (`stages/registry.ts`).
 4. Thêm category màu (nếu có) vào theme.
 5. Viết ≥ 3 màn mẫu trong `content/` + chạy `content:check`.
 6. Cập nhật `docs/product/game-kinds.md`.

@@ -15,3 +15,7 @@ export { Stars } from './Stars';
 export type { StarsProps } from './Stars';
 export { BLOCK_COLORS, UI_COLORS } from './tokens';
 export type { BlockColorName, UiColorName } from './tokens';
+export { Avatar, AVATAR_IDS, isAvatarId } from './Avatar';
+export type { AvatarId, AvatarProps } from './Avatar';
+export { Dialog } from './Dialog';
+export type { DialogProps } from './Dialog';

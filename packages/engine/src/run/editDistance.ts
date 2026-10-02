@@ -1,14 +1,14 @@
 import type { WorkspaceJson } from '@codequest/content-schema';
 import { CQ_START } from '../blocks/common';
 
-type JsonRecord = Record<string, unknown>;
+export type JsonRecord = Record<string, unknown>;
 
-function isRecord(value: unknown): value is JsonRecord {
+export function isRecord(value: unknown): value is JsonRecord {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
 /** JSON with object keys sorted, so equal values always serialize the same. */
-function stableStringify(value: unknown): string {
+export function stableStringify(value: unknown): string {
   if (Array.isArray(value)) return `[${value.map(stableStringify).join(',')}]`;
   if (isRecord(value)) {
     const keys = Object.keys(value).sort();
@@ -18,7 +18,7 @@ function stableStringify(value: unknown): string {
 }
 
 /** The real block of a connection, or its shadow when nothing is plugged in. */
-function connectedBlock(connection: unknown): JsonRecord | null {
+export function connectedBlock(connection: unknown): JsonRecord | null {
   if (!isRecord(connection)) return null;
   const block = connection['block'] ?? connection['shadow'];
   return isRecord(block) ? block : null;

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buyHint, failStreak, hintPrice } from './index';
+import { buyHint, failStreak, hintEntryId, hintPrice, isHintOwned } from './index';
 import { entry, makeLevel, run, session, vnNoon } from './testFixtures';
 
 const level = makeLevel();
@@ -150,5 +150,22 @@ describe('buyHint', () => {
       ledger: coins(5),
     });
     expect(t1.ok).toBe(true);
+  });
+});
+
+describe('hintEntryId / isHintOwned', () => {
+  it('builds the ledger ids of rewards-engine.md §4', () => {
+    expect(hintEntryId(1, 'w01-l03', 'x')).toBe('hint-1:w01-l03');
+    expect(hintEntryId(2, 'w01-l03', 'x')).toBe('hint-2:w01-l03:x');
+    expect(hintEntryId(3, 'w01-l03', 'y')).toBe('hint-3:w01-l03:y');
+  });
+
+  it('knows a level whose tier 1 was bought', () => {
+    const bought = [entry('hint-1:w01-l03', { reason: 'hint-1', delta: -5 })];
+    expect(isHintOwned('w01-l03', bought)).toBe(true);
+    expect(isHintOwned('w01-l04', bought)).toBe(false);
+    expect(
+      isHintOwned('w01-l03', [entry('hint-2:w01-l03:x', { reason: 'hint-2', delta: -15 })]),
+    ).toBe(false);
   });
 });

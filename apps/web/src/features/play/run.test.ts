@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { Level, WorkspaceJson } from '@codequest/content-schema';
 import { CQ_REPEAT, CQ_START } from '@codequest/engine';
 import { loadPlayContent } from '../content/content';
-import { offendingBlockId, resultLine, runnerConfigOf, runRunnerProgram } from './run';
+import { offendingBlockId, resultLine, runProgram } from './run';
 
 type Block = { type: string; id: string; fields?: Record<string, unknown>; inputs?: unknown };
 
@@ -35,10 +35,10 @@ async function level(): Promise<Level> {
   return content.level;
 }
 
-describe('runRunnerProgram on w01-l03', () => {
+describe('runProgram on w01-l03', () => {
   it('wins with the solution and highlights every block in order', async () => {
     const lvl = await level();
-    const outcome = runRunnerProgram(lvl, program(walk('a'), jump('b'), walk('c')));
+    const outcome = runProgram(lvl, program(walk('a'), jump('b'), walk('c')));
     expect(outcome.result).toBe('success');
     expect(outcome.events.map((e) => e.type)).toEqual([
       'highlight', // khi bắt đầu
@@ -55,7 +55,7 @@ describe('runRunnerProgram on w01-l03', () => {
 
   it('falls in the hole with "đi, đi" and blames the second walk', async () => {
     const lvl = await level();
-    const outcome = runRunnerProgram(lvl, program(walk('a'), walk('b')));
+    const outcome = runProgram(lvl, program(walk('a'), walk('b')));
     expect(outcome).toMatchObject({ result: 'crash', reasonCode: 'FELL_IN_HOLE' });
     expect(offendingBlockId(outcome)).toBe('b');
   });
@@ -63,13 +63,14 @@ describe('runRunnerProgram on w01-l03', () => {
   it('ends a 160 000-turn loop with TIMEOUT instead of hanging', async () => {
     const lvl = await level();
     const loops = repeat('r1', repeat('r2', repeat('r3', repeat('r4'))));
-    const outcome = runRunnerProgram(lvl, program(loops));
+    const outcome = runProgram(lvl, program(loops));
     expect(outcome).toMatchObject({ result: 'timeout', reasonCode: 'TIMEOUT' });
     expect(offendingBlockId(outcome)).not.toBeNull();
   });
 
-  it('parses the runner config', async () => {
-    expect(runnerConfigOf(await level()).cells.at(-1)).toBe('flag');
+  it('throws for a game kind that is not implemented', async () => {
+    const lvl = { ...(await level()), kind: 'music' as const };
+    expect(() => runProgram(lvl, program(walk('a')))).toThrow(/not implemented/);
   });
 });
 

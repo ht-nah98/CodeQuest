@@ -85,3 +85,17 @@ Phím tắt của app không hoạt động khi bé đang điều hướng Block
 | Đồng bộ lỗi | Chỉ hiện trong Góc huấn luyện viên |
 | Nội dung màn bị lỗi | "Màn này đang được sửa" + nút về thế giới; ghi lỗi vào console |
 | Chương trình rỗng mà bấm chạy | Măng: "Con chưa ghép khối nào. Kéo khối vào đây nhé" + chỉ vào thanh khối |
+
+## 6. Ghi chú cài đặt (P1-10)
+- **Mã nguồn:** `apps/web/src/screens/{profile,map,world,lesson,play,settings}/`, khung dùng chung ở `screens/shared/` (`TopBar`, `ScreenMessage`). Định tuyến ở `app/App.tsx`; mọi route sau `/` đi qua `RequireProfile` (chưa chọn hồ sơ → về `/`).
+- **Hồ sơ đang chơi:** `features/profiles/CurrentProfile.tsx` (React context). Chỉ lưu `profileId` trong `sessionStorage` của tab: tải lại trang không hỏi lại PIN, đóng tab thì hỏi. "Đổi người chơi" và mọi lần vào `/` đều đăng xuất (bấm Back không quay lại bản đồ của bé trước). PIN bắt buộc 4 số, nhập 2 lần khi tạo; sai PIN thì rung và xóa, không khóa.
+- **12 avatar** là mặt con vật pixel 16×16 vẽ bằng token màu (`ui/Avatar.tsx`), không cần file ảnh.
+- **Phiên màn:** `features/play/usePlaySession.ts` theo đúng "Quy ước gọi" của `rewards-engine.md` §3: lượt chạy được ghi ngay khi engine chạy xong (dù phát lại bị dừng), thắng thì `saveLevelResult` ngay; phiên đang mở được chép vào `sessionStorage` sau mỗi lượt và đóng (`recordSession` + `saveAttempt`) khi rời màn, hoặc ở lần vào màn sau nếu tab bị đóng giữa chừng. Phiên không có lượt chạy nào thì không ghi `attempts`. Bản nháp workspace tự lưu sau 1 s, kèm mã băm của màn: màn đổi nội dung thì bản nháp cũ bị bỏ.
+- **Mở bằng đường link:** `/play/:levelId` và bài giảng kiểm `isUnlocked` (màn đã qua coi như mở; cờ dev `?unlock=all` được tính). Màn chưa mở hoặc kiểu chơi chưa làm (`features/content/modes.ts`) hiện câu thân thiện + nút về thế giới.
+- **Cài đặt:** phần "Dành cho người lớn" (sao lưu, khôi phục, xóa) mở bằng PIN của hồ sơ.
+- **Lớp phủ kết quả:** sao bay lần lượt, xu bay vào ví trên thanh trên (`[data-hud-coins]`), liệt kê từng dòng xu nhận được; `Esc` = Chơi lại. "Màn tiếp" chỉ hiện khi màn sau trong `world.levelIds` đã mở.
+- **`/restore`** (thêm so với §2): khôi phục file sao lưu khi máy chưa có hồ sơ nào (máy mới), để huấn luyện viên không phải tạo hồ sơ tạm. Trong Cài đặt cũng có Khôi phục. Sao lưu xuất **mọi** hồ sơ trên máy.
+- **Màn hình nhỏ quá:** lớp phủ (app vẫn chạy bên dưới, không mất màn đang chơi); xét kích thước **màn hình** (`screen`) < 1280×720, hoặc cửa sổ < 1000×520 (laptop 1280×720 thật chỉ còn ~1280×600 cho trang vì thanh trình duyệt).
+- **Nhắc nghỉ:** đếm thời gian tab đang hiện, sau 25 phút hiện lớp phủ "Mình chơi lâu rồi. Đứng dậy vươn vai nhé!" với nút "Mình nghỉ xong rồi"; máy ngủ (khoảng trống > 60 s) không tính; thời gian đã chơi giữ qua lần tải lại trang (`sessionStorage`). Màn chơi vừa khung 1280×600 (laptop 1280×720 trừ thanh trình duyệt) không cần cuộn.
+- **Chế độ tác giả (chỉ bản dev):** `?author=1` hiện nút "Sao chép workspace JSON" trên thanh trên màn chơi; `?unlock=all` mở mọi thế giới và màn. Cờ được nhớ trong tab; `?author=0` / `?unlock=0` để tắt.
+- **Thế giới "Sân thử" (chỉ bản dev):** các file trong `content/worlds/_sandbox/` (không có `world.json`) được gom thành một thế giới tổng hợp ở cuối bản đồ (`features/content/sandbox.ts`), luôn mở. Bài giảng mẫu `lesson-sample` và hai màn `flow-01`, `flow-02` dùng cho e2e `e2e/flow.spec.ts` cho tới khi Thế giới 1 có bài giảng (P1-12).

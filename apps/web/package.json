@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@blockly/disable-top-blocks": "13.3.0",
+    "@blockly/workspace-content-highlight": "13.3.0",
     "@codequest/content-schema": "*",
     "@codequest/engine": "*",
     "@codequest/games": "*",

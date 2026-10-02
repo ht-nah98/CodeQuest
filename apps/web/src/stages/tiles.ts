@@ -1,9 +1,6 @@
 import { AnimatedSprite, Sprite } from 'pixi.js';
 import type { TileName, TileTextures } from './assets';
 
-/** Kenney grass tiles have a dark outline this many texels thick on top; feet stand below it. */
-export const GRASS_OUTLINE_TEXELS = 2;
-
 /** One grid-aligned tile at an integer scale, top-left at (x, y). */
 export function tileSprite(
   tiles: TileTextures,
