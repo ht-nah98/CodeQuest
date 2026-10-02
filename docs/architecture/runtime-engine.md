@@ -5,11 +5,11 @@ Nguồn chuẩn cho: cách một chương trình của bé được phân tích,
 ## 1. Tổng quan pipeline
 
 ```
-workspace JSON ─▶ analyze ─▶ compile ─▶ interpret (sandbox) ─▶ evaluate ─▶ RunOutcome
-                   │           │            │                      │
-                   │           │            └─ GameKind.api ghi GameEvent vào log
-                   │           └─ javascriptGenerator + STATEMENT_PREFIX
-                   └─ đếm khối, khối rời, chương trình rỗng
+workspace JSON ─▶ normalizeIds ─▶ analyze ─▶ compile ─▶ interpret (sandbox) ─▶ evaluate ─▶ RunOutcome
+                                  │           │            │                      │
+                                  │           │            └─ GameKind.api ghi GameEvent vào log
+                                  │           └─ generator riêng của engine (§3) + STATEMENT_PREFIX
+                                  └─ đếm khối, khối rời, chương trình rỗng
 ```
 Hàm công khai chính:
 ```ts
@@ -39,21 +39,26 @@ Quy tắc:
 - Mỗi workspace có đúng **một** `cq_start`, không xóa được (`deletable: false`).
 - Khối rời **không chạy** (UI làm xám bằng `Blockly.Events.disableOrphans`) và **không** gây thua. Chúng chỉ kích hoạt gợi ý `DISCONNECTED_BLOCKS`.
 - `blocksUsed` là con số dùng cho `maxBlocks`, `par`, sao ⭐⭐. Shadow block (vd ô số trong "lặp 3 lần") không tính.
-- Chương trình rỗng (chỉ có `cq_start`) → trả ngay `{ result: 'error', reasonCode: 'EMPTY_PROGRAM' }`, không chạy.
+- Block thiếu `id` được gán id theo vị trí bằng hàm thuần `normalizeIds` (export từ engine) trước khi nạp: `b0`, `b0.n` (khối `next`), `b0.DO` (khối trong input `DO`), `b0.TIMES.s` (shadow); trùng id có sẵn thì thêm `_2`, `_3`… Lý do: Blockly tự sinh id bằng `Math.random`, làm event log không tất định và làm highlight của engine lệch với workspace của UI. **Web phải gọi cùng hàm này** khi nạp nội dung vào Blockly. Nội dung trong `content/` vẫn bắt buộc có id cho mọi khối (`content-model.md` §3).
+- Định nghĩa hàm ở gốc (`procedures_defnoreturn`, `procedures_defreturn`) thuộc chương trình: các khối của nó được tính vào `blocksUsed`, có trong `programBlockIds` (sau các khối dưới `cq_start`), **không** nằm trong `orphanBlockIds`, và được biên dịch cùng chương trình.
+- Chương trình rỗng (không có khối nào nối dưới `cq_start`, kể cả khi có định nghĩa hàm) → trả ngay `{ result: 'error', reasonCode: 'EMPTY_PROGRAM' }`, không chạy. Workspace không có `cq_start` cũng tính là rỗng. Nếu có hơn một `cq_start`, khối đầu tiên là chương trình, các khối còn lại tính là khối rời.
 - `DISCONNECTED_BLOCKS` **không** phải kết quả chạy. Nó là mã cho gợi ý (hint engine dùng `analysis.orphanBlockIds`).
 - `blocksUsed > level.maxBlocks` → không chạy, trả `{ result: 'error', reasonCode: 'TOO_MANY_BLOCKS' }`. Bình thường UI đã chặn việc này bằng tùy chọn `maxBlocks` của Blockly; đây là lớp bảo vệ thứ hai.
 
 ## 3. Biên dịch (`compileProgram`)
-- Dùng `javascriptGenerator` từ `blockly/javascript`, chỉ sinh code từ `cq_start` trở xuống (không dùng `workspaceToCode`, vì hàm đó sinh cả khối rời). Trình tự bắt buộc (đã chạy thử):
+- Dùng generator riêng của engine (xem các gạch đầu dòng dưới), chỉ sinh code từ `cq_start` trở xuống và từ các định nghĩa hàm ở gốc (không dùng `workspaceToCode`, vì hàm đó sinh cả khối rời). Trình tự bắt buộc (đã chạy thử):
   ```ts
   gen.init(ws);                                   // khởi tạo nameDB_, nếu thiếu sẽ lỗi khi đặt tên biến
+  for (const def of procedureDefinitions) gen.blockToCode(def);   // lưu code hàm cho finish()
   let code = gen.blockToCode(ws.getBlockById(startId)!);
   if (Array.isArray(code)) code = code[0];
   code = gen.finish(code);                        // thêm khai báo biến/hàm
   ```
-- `javascriptGenerator.STATEMENT_PREFIX = '__hl(%1);\n'` → trước mỗi câu lệnh có một lời gọi highlight mang block id. Kết quả là event `{ type: 'highlight', blockId }` cho cả khối lặp lẫn khối điều kiện.
-- Generator của khối kiểu game gọi API theo mẫu `walk(<id>);`, trong đó **id luôn được quote bằng `javascriptGenerator.quote_(block.id)`**. Không ghép chuỗi `'${id}'` bằng tay: block id của Blockly có thể chứa ký tự đặc biệt.
-- Tên API của các kiểu game phải được thêm vào `addReservedWords`, để biến của bé không trùng tên.
+- `STATEMENT_PREFIX = '__hl(%1);\n'` → trước mỗi câu lệnh có một lời gọi highlight mang block id. Kết quả là event `{ type: 'highlight', blockId }` cho cả khối lặp lẫn khối điều kiện (khối lặp được highlight lại ở cuối mỗi vòng; `cq_start` cũng có một highlight đầu tiên).
+- Engine dùng **generator riêng** (`packages/engine/src/blocks/generator.ts`): một instance con của `JavascriptGenerator`, chép `forBlock` của `javascriptGenerator`, để `STATEMENT_PREFIX` và reserved words không lan sang web. Instance này ghi đè `injectId`: bản gốc của Blockly 13.3.0 chỉ bọc id trong `'…'` **không escape**, nên id chứa `'` hoặc `\` sinh code lỗi cú pháp (đã kiểm 02/10/2026). Bản ghi đè dùng `quote_(block.id)`.
+- Generator riêng còn: (1) dùng **danh sách reserved words cố định** (từ khóa JS + biến toàn cục của js-interpreter + `__hl`) thay cho mặc định của Blockly (mặc định thêm mọi biến toàn cục của môi trường chạy, nên Node và trình duyệt sinh code khác nhau); (2) **dựng lại `nameDB_` mỗi lần `init`**, vì `Names.reset()` của Blockly 13.3.0 không đọc lại reserved words, nên tên API đăng ký sau lần biên dịch đầu sẽ không được giữ chỗ.
+- Generator của khối kiểu game gọi API theo mẫu `walk(<id>);`, trong đó **id luôn được quote bằng `gen.quote_(block.id)`** (`gen` là generator được truyền vào). Không ghép chuỗi `'${id}'` bằng tay: block id của Blockly có thể chứa ký tự đặc biệt.
+- Tên API của các kiểu game phải được thêm vào `addReservedWords`, để biến của bé không trùng tên. `registerBlockSpecs` tự làm việc này từ `BlockSpec.apiNames`; vd khi kiểu game có API `walk`, biến tên `walk` của bé được sinh thành `walk2` (có test, kể cả khi kiểu game được đăng ký sau lần biên dịch đầu).
 - Khối điều khiển: **lặp dùng khối riêng `cq_repeat`** (số lần là field trong khối, không có shadow, xem `blockly-integration.md` §5). Các khối khác dùng khối có sẵn của Blockly (`controls_if`, `controls_whileUntil`, `logic_*`, `variables_*`, `procedures_*`), đổi màu bằng theme. Generator của `cq_repeat` lấy tên biến đếm bằng `gen.nameDB_.getDistinctName('count', Blockly.Names.NameType.VARIABLE)`.
 
 Đã kiểm chứng ngày 01/10/2026: Blockly 13.3.0 + js-interpreter 6.0.2 chạy headless trên Node 22, sinh code có `STATEMENT_PREFIX` và gọi native function đúng thứ tự.
@@ -66,13 +71,19 @@ const interpreter = new Interpreter(code, (it, globalObj) => {
   }
 });
 ```
-- API của kiểu game chỉ nhận và trả **giá trị nguyên thủy** (string, number, boolean). Không trả object.
+- API của kiểu game chỉ nhận **string, number, boolean** và chỉ trả string, number, boolean hoặc không trả gì. Tham số khác, **kể cả `undefined`** (vd ô giá trị để trống), hoặc giá trị trả về là object → `INTERNAL_ERROR` (cách xử lý ô trống đang chờ huấn luyện viên quyết). `runLevel` cũng báo `INTERNAL_ERROR` nếu `createApi` thiếu một hàm có trong `apiNames` của khối.
+- Interpreter đặt `REGEXP_MODE = 1` (RegExp gốc). Mặc định (2) chạy RegExp trong Web Worker khi có `Worker`, làm interpreter tạm dừng (ASYNC) và mỗi `step()` chỉ quay vòng tới `maxSteps` → `timeout` giả trên trình duyệt, trong khi Node vẫn thắng. Khối chữ của Blockly chỉ tạo mẫu tĩnh đã escape, bé không gõ được RegExp, nên dùng RegExp gốc là an toàn. Nếu interpreter vẫn rơi vào trạng thái ASYNC thì trả `INTERNAL_ERROR` ngay, không quay vòng.
+- `interpreter.step()` của js-interpreter có gọi `Date.now()` nội bộ, nhưng chỉ để giới hạn thời gian chạy polyfill trong một bước (polyfill chạy xong trong constructor). Số bước và kết quả không phụ thuộc đồng hồ.
+- `runLevel` gọi `Blockly.Events.disable()` trong lúc nạp workspace headless (đồng bộ, bật lại ngay trong `finally`). Trên trình duyệt, việc này dùng chung bộ đếm sự kiện toàn cục của Blockly với workspace có hiển thị, nhưng vì `runLevel` đồng bộ nên không có sự kiện nào của UI bị nuốt.
+- File `js-interpreter` có `require("vm")` (chỉ dùng cho REGEXP_MODE 2 trên Node). Với `REGEXP_MODE = 1` nhánh này không chạy; nếu Vite cảnh báo khi đóng gói thì đánh dấu `vm` là external.
 - **Giới hạn:**
 
 | Giới hạn | Mặc định | Ghi đè | Khi vượt |
 |---|---|---|---|
 | `maxSteps` (bước interpreter) | 100 000 | `level.limits.maxSteps` | `timeout` / `TIMEOUT` |
 | `maxActions` (số GameEvent không phải highlight) | 1 000 | `level.limits.maxActions` | `timeout` / `TIMEOUT` |
+
+Chương trình chạy đúng `maxSteps` bước mà chưa xong thì là `timeout` (`stats.steps = maxSteps`). Event thứ `maxActions + 1` không được ghi; log có đúng `maxActions` event hành động.
 
 - **Dừng sớm:** khi mô phỏng gặp va chạm hoặc thắng giữa chừng, API gọi `ctx.stop(result, reasonCode)`. Hàm này ném `StopSignal` (một class riêng của engine). `runLevel` bắt `StopSignal` bên ngoài vòng `interpreter.step()`. Lỗi khác bị bắt → `result: 'error'`, `reasonCode: 'INTERNAL_ERROR'`, kèm thông tin để debug.
 - Chạy trên **main thread**. Màn thông thường mất < 20 ms. Nếu đo được > 50 ms thì chuyển sang Web Worker (làm được vì engine không đụng DOM).
@@ -105,7 +116,9 @@ interface RunOutcome<E extends GameEvent = GameEvent> {
   events: ReadonlyArray<E | HighlightEvent>;
   stats: { steps: number; actions: number; blocksUsed: number };
   answerKey?: string;                   // cho mode predict (xem §8)
+  edits?: number;                       // cho mode bughunt (xem §8, §9)
   debug?: { message: string };          // chỉ khi result = 'error'
+  // Lỗi ném ra từ predictAnswer hoặc editDistance cũng thành result 'error' / INTERNAL_ERROR.
 }
 ```
 | result | Khi nào | Ví dụ reasonCode |
@@ -123,12 +136,12 @@ interface RunOutcome<E extends GameEvent = GameEvent> {
 |---|---|
 | `build`, `parsons` | Như trên |
 | `predict` | Chạy `level.initialWorkspace`. `answerKey = kind.predictAnswer(state, { result, reasonCode })` (vd `"stop@5"`, `"crash:HIT_WALL@3,2"`). UI so lựa chọn của bé với `answerKey` |
-| `bughunt` | Ngoài kết quả chạy, tính `edits = editDistance(level.initialWorkspace, workspace)` (§9) |
-| `creative` | Chạy bình thường nhưng **bỏ qua `evaluate`** (luôn `success`, không chấm) |
+| `bughunt` | Ngoài kết quả chạy, tính `outcome.edits = editDistance(level.initialWorkspace, workspace)` (§9) |
+| `creative` | Chạy bình thường nhưng **bỏ qua `evaluate`**: chương trình chạy hết thì `success`. Nếu mô phỏng gọi `ctx.stop('crash', …)` hoặc `ctx.stop('incomplete', …)`, hoặc quá giới hạn, thì vẫn trả `crash` / `incomplete` / `timeout` để sân chơi diễn đúng (đang chờ huấn luyện viên xác nhận) |
 
 ## 9. Khoảng cách sửa (`editDistance`) cho `bughunt`
 - Duyệt chương trình (từ `cq_start`) theo thứ tự trước (pre-order) thành chuỗi token `"<depth>|<tên input chứa khối>|<type>|<fields JSON đã sắp key>|<mutation JSON>"`. Tên input (vd `DO`, `DO0`, `ELSE`) giúp phân biệt nhánh nếu / nếu-không; mutation phân biệt số nhánh của `controls_if`.
-- `edits` = khoảng cách Levenshtein giữa hai chuỗi token (chèn = xóa = thay = 1).
+- `edits` = khoảng cách Levenshtein giữa hai chuỗi token (chèn = xóa = thay = 1). Chuỗi khối tiếp nối (`next`) có cùng độ sâu và cùng tên input với khối đầu chuỗi; chuỗi ngay dưới `cq_start` có độ sâu 0 và tên input rỗng. Ô shadow được tính như khối (nếu không có khối thật cắm vào), nên đổi số trong `controls_repeat_ext` cũng = 1. Hàm làm việc trên JSON, không cần Blockly.
 - Ví dụ: đổi số lặp 3 → 2 = 1; thêm 1 khối = 1; đổi chỗ 2 khối liền nhau = 2.
 - `level.parEdits` phải ≥ `editDistance(initialWorkspace, solution)`. `content:check` kiểm tra điều này.
 

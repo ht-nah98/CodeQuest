@@ -17,3 +17,5 @@ __pycache__/
 .venv/
 .tsbuild/
 *.tsbuildinfo
+apps/web/public/blockly-media/
+.vitest/

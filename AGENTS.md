@@ -53,8 +53,6 @@ Mỗi thư mục chính có `README.md` riêng mô tả trách nhiệm và quy t
 
 ## 5. Lệnh thường dùng
 
-> Lệnh sẽ có từ task P0-01 (khởi tạo monorepo). Trước đó repo chỉ có tài liệu.
-
 ```bash
 npm install              # cài đặt (Node 22, npm workspaces)
 npm run dev              # chạy web ở http://localhost:5173
@@ -65,7 +63,7 @@ npm run content:check    # kiểm chứng toàn bộ màn chơi
 npm run e2e              # playwright (1280×720, 1366×768)
 npm run build            # build production
 npm run sprites -- <in.png> <outDir>   # làm sạch sprite sheet
-npm run sprites:pack -- <dir>          # tạo spritesheet cho PixiJS
+npm run sprites:pack -- <dir>          # tạo spritesheet cho PixiJS (pack.py có từ P0-06)
 ```
 
 ## 6. Định nghĩa "xong" (Definition of Done)

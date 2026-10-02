@@ -28,7 +28,7 @@ Khi chưa có `VITE_SUPABASE_URL`, app chạy chế độ **chỉ local** (đún
 | `lint` / `format` | `eslint .` · `prettier --write .` |
 | `test` | `vitest run --passWithNoTests` (Vitest projects: node cho packages/tools, jsdom cho web) |
 | `content:check` | `tsx tools/content-check/src/main.ts` |
-| `e2e` | `npm -w apps/web run e2e` |
+| `e2e` | `npm -w apps/web run e2e --` (dấu `--` để cờ như `--grep` đi tiếp tới Playwright) |
 | `sprites` | `python3 tools/sprites/clean.py` |
 | `sprites:pack` | `python3 tools/sprites/pack.py` |
 
@@ -40,7 +40,7 @@ Chạy trên mỗi push và pull request:
 4. `npm run test -- --coverage`
 5. `npm run content:check`
 6. `npm run build`
-7. `npx playwright install --with-deps chromium && npm run e2e -- --grep @smoke --pass-with-no-tests` (bỏ cờ `--pass-with-no-tests` ở P0-07, khi đã có test smoke đầu tiên)
+7. `npx playwright install --with-deps chromium && npm run e2e -- --grep @smoke` (test smoke đầu tiên: `apps/web/e2e/play-runner.spec.ts`, từ P0-07; không còn cờ `--pass-with-no-tests`)
 
 Mọi bước phải xanh mới được merge vào `main`.
 

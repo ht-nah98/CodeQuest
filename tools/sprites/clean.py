@@ -3,9 +3,10 @@
 
 Slices the grid, removes the flat lavender background and drop shadow by
 flood-filling from the cell borders (so light/dark fur inside the character
-is never touched), aligns every frame on a shared bounding box so feet stay
-on the same baseline, and writes transparent PNGs plus a clean sheet and a
-checkerboard preview.
+is never touched), crops every frame with one shared bounding box (so frames
+keep their relative position; it does NOT put every pose's feet on one line,
+pack.py computes the feet line per animation), and writes transparent PNGs
+plus a clean sheet and a checkerboard preview.
 
 Usage:
   python3 tools/sprites/clean.py assets/raw/panda-sheet.png assets/sprites/panda \

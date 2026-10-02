@@ -11,7 +11,7 @@ SPA React 19 + Vite 8. Mọi thứ bé và huấn luyện viên nhìn thấy.
 | `src/features/` | progress, coins, hints, profiles, sync: hook và logic dùng chung |
 | `src/blockly/` | Wrapper React, theme, toolbox, messages, popover chỉ bước tiếp, phím tắt, capacity guard (GĐ 4) |
 | `src/stages/` | `StageController` + renderer PixiJS cho từng kiểu game |
-| `src/ui/` | Design system (token, Button, Panel, Bubble, Hud…); không biết nghiệp vụ |
+| `src/ui/` | Design system (token, Button, Panel, Bubble, Hud, Stars, CapacityBricks, PixelIcon); không biết nghiệp vụ. `index.css` là CSS toàn cục (import một lần ở `main.tsx`: Tailwind + `fonts.css` + `tokens.css`). `tokens.ts` chép bảng màu cho code TS (Blockly theme, sân chơi); `tokens.test.ts` bắt lỗi nếu hai file lệch nhau |
 | `src/audio/` | Howler: hiệu ứng, nhạc, giọng đọc |
 | `src/data/` | Dexie DB, repository, outbox, Supabase client |
 | `src/i18n/vi.ts` | Chuỗi giao diện tiếng Việt |

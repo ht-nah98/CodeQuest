@@ -61,7 +61,7 @@ interface World {
   theme: { tileset: string; music?: string; palette?: 'day' | 'dusk' | 'night' };
   lessonIds: string[];
   levelIds: string[];                       // đúng thứ tự hiển thị
-  unlock: { minStarRatio: number };         // mặc định 0.6
+  unlock: { minStarRatio: number };         // bắt buộc ghi rõ; giá trị chuẩn 0.6 (rewards-economy.md §3)
   unplugged?: { title: string; steps: string[] };   // hoạt động ngoài màn hình cho huấn luyện viên
 }
 
@@ -100,7 +100,20 @@ type MascotPose = 'idle' | 'talk' | 'happy' | 'cheer' | 'think' | 'point' | 'oop
 
 interface ShopItem { id: string; kind: 'skin' | 'pen' | 'fx' | 'music' | 'bonus-level'; title: string; price: number; asset: string; unlockAfterWorld?: number }
 interface Badge { id: string; title: string; description: string; icon: string; rule: BadgeRule }  // BadgeRule: xem rewards-engine.md
+
+// File trong shared/
+type FeedbackFile = Record<ReasonCode, string>;   // feedback.json: khóa SCREAMING_SNAKE_CASE → câu không rỗng
+type ShopFile = ShopItem[];                       // shop.json: thứ tự hiển thị
+type BadgesFile = Badge[];                        // badges.json: thứ tự hiển thị
 ```
+
+Ghi chú cài đặt schema (P0-02):
+- World, Level, Lesson, LessonCard, HintRule, ShopItem, Badge là **strict object**: khóa lạ (gõ sai tên trường) bị báo lỗi luật 1. `WorkspaceJson` thì lỏng (giữ nguyên khóa khác của Blockly), chỉ kiểm `languageVersion: 0` và mỗi khối gốc có `type`.
+- Schema Level tự kiểm các trường bắt buộc mà engine cần: `par` (build/parsons), `initialWorkspace` (parsons/predict/bughunt), `solution` (trừ predict/creative), `predict` (chỉ và bắt buộc với predict, 3–4 phương án), `parEdits` chỉ cho bughunt, `id` của hint không trùng trong màn. Các luật sư phạm (`misconception`, `thinkingHint`, số chữ) vẫn thuộc luật 5–6.
+- `world.unlock.minStarRatio` bắt buộc ghi rõ (giá trị chuẩn 0.6, `rewards-economy.md` §3).
+- Quiz: 2–4 phương án, `correct` phải là chỉ số hợp lệ.
+- **Block id trong nội dung** (`solution`, `initialWorkspace`, `workspace` của thẻ demo) dùng `ContentWorkspaceJsonSchema`: **mọi** khối, kể cả khối lồng trong `next`/`inputs` và shadow, phải có `id` khớp `^[A-Za-z0-9_\-.:]+$` và không trùng trong cùng workspace. Lý do: thiếu id thì Blockly sinh id ngẫu nhiên (event log không tất định, highlight của bài predict lệch giữa engine và UI); ký tự lạ (`'`, `\`, xuống dòng, U+2028) dễ làm hỏng code sinh ra. Kiểm ở schema (luật 1) chứ không chỉ ở luật 2, vì đây là điều kiện để nội dung chạy đúng. `WorkspaceJsonSchema` dùng cho dữ liệu lúc chạy (bài làm dở, IndexedDB) vẫn lỏng: `Blockly.serialization.workspaces.save` sinh id có ký tự ngoài bảng trên. Kiểu TS của các trường này vẫn là `WorkspaceJson`.
+- `limits.maxSteps` ≤ 1 000 000, `limits.maxActions` ≤ 10 000 (gấp 10 lần mặc định của engine). Khóa của `level.feedback` theo SCREAMING_SNAKE_CASE. Các `key` của `predict.options` không trùng nhau.
 
 ## 4. Ví dụ một màn
 ```json
@@ -120,8 +133,9 @@ interface Badge { id: string; title: string; description: string; icon: string; 
   "config": { "cells": ["ground","ground","hole","ground","ground","hole","ground","ground","hole","flag"], "start": 0 },
   "solution": { "blocks": { "languageVersion": 0, "blocks": [
     { "type": "cq_start", "id": "start", "deletable": false,
-      "next": { "block": { "type": "cq_repeat", "fields": { "TIMES": 3 },
-        "inputs": { "DO": { "block": { "type": "runner_walk", "next": { "block": { "type": "runner_jump" } } } } } } } }
+      "next": { "block": { "type": "cq_repeat", "id": "rep", "fields": { "TIMES": 3 },
+        "inputs": { "DO": { "block": { "type": "runner_walk", "id": "walk",
+          "next": { "block": { "type": "runner_jump", "id": "jump" } } } } } } } }
   ] } },
   "hints": [
     { "id": "cap", "when": { "capacityFull": true, "missing": "cq_repeat" }, "say": "Hết chỗ rồi! Thử khối lặp xem", "point": "toolbox:cq_repeat" },
@@ -167,6 +181,7 @@ Kết quả in thành bảng: `✔ w01-l03 runner/build  par 3  sol 3  ok` hoặ
 `GameKindDefinition.version` tăng khi luật chơi đổi. Không cần cache kết quả kiểm: `content:check` **luôn chạy lại lời giải của mọi màn**, nên màn nào bị ảnh hưởng sẽ đỏ ngay. Khi tăng version, ghi một dòng vào `CHANGELOG.md` để huấn luyện viên chơi thử lại các màn của kiểu game đó.
 
 ## 7. Giai đoạn của `content:check`
-- **Từ P0-01:** bản tối thiểu, chỉ chạy luật 1–2 (schema, ID) trên những file đang có. Thư mục `content/` rỗng thì xanh.
-- **P0-07:** thêm luật 9–11 cho `runner`.
+- **Từ P0-01:** bản tối thiểu, chỉ chạy luật 1–2 (schema, ID) trên những file đang có. Thư mục `content/` rỗng thì xanh. Vì zod schema có ở P0-02, luật 1 lúc này chỉ kiểm JSON hợp lệ và có `id` dạng chuỗi; P0-02 nối schema vào. Khu nháp `_*` được miễn mẫu ID nhưng vẫn phải có `id` trùng tên file và không trùng ID khác. Level/lesson phải có tiền tố `wNN-` trùng thư mục thế giới. Trong `shared/` chỉ chấp nhận `feedback.json`, `shop.json`, `badges.json`.
+- **Từ P0-02:** luật 1 kiểm mọi file bằng schema zod (lỗi kèm đường dẫn trường, vd `mode: Invalid option…`), và `level.config` bằng `configSchema` của `kind` lấy từ registry `@codequest/games`; kiểu game chưa cài → lỗi luật 1 `game kind "x" is not implemented yet`. Luật 2 kiểm thêm ID vật phẩm (`<loại>-<slug>`, tiền tố phải trùng `kind`) và huy hiệu (kebab-case), không trùng với mọi ID khác.
+- **P0-07:** thêm luật 9–11 cho `runner`. Luật 9 chạy `runLevel(solution)` đúng mode của màn; khi thua, chạy lại ở mode `predict` để in chỗ dừng, vd `rule 9: solution ends crash FELL_IN_HOLE (crash:FELL_IN_HOLE@2)`. Luật 11 đọc mọi khối (không tính shadow) trong JSON của `solution`, kể cả khối rời và khối lồng trong `inputs`. `world.json` của `w01-lang-tre` lúc này là **bản tạm**: chỉ liệt kê các màn đã có (`w01-l03`), `lessonIds` rỗng; luật 3–4 chưa bật nên vẫn xanh. Bổ sung dần khi soạn đủ Thế giới 1 (P1-12).
 - **P1-11:** đủ 18 luật.

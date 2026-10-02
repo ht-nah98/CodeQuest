@@ -2,7 +2,7 @@
 
 Web game dạy **tư duy lập trình** cho học sinh tiểu học, cùng gấu trúc **Măng**. Bé ghép khối lệnh (Blockly) để giải đố qua 10 thế giới, từ tuần tự, vòng lặp, điều kiện đến robot kiểu AIROC và thuật toán.
 
-> **Trạng thái:** đang ở GĐ 0. Tài liệu và kiến trúc đã xong, chưa có code. Xem `docs/roadmap/`.
+> **Trạng thái:** đang ở GĐ 0. Đã có khung monorepo (P0-01); chưa có tính năng. Xem `docs/roadmap/`.
 
 ## Bắt đầu
 - **AI agent:** đọc [`AGENTS.md`](AGENTS.md).
@@ -21,11 +21,12 @@ design/          Style board, mockup
 docs/            Tài liệu
 ```
 
-## Lệnh (có từ task P0-01)
+## Lệnh
 ```bash
 npm install && npm run dev        # http://localhost:5173
-npm run test && npm run content:check
+npm run lint && npm run typecheck && npm run test && npm run content:check
 ```
+Danh sách đủ: `AGENTS.md` §5.
 
 ## Công nghệ
 React 19 · Vite 8 · TypeScript 6.0 · Blockly 13 · js-interpreter · PixiJS 8 · Tailwind 4 · Dexie · Supabase. Chi tiết: [`docs/architecture/tech-stack.md`](docs/architecture/tech-stack.md).

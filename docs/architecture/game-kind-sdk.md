@@ -31,7 +31,7 @@ export interface GameKindDefinition<C, S, E extends GameEvent> {
   createState(config: C, rng: () => number): S;
 
   /** Các hàm đưa vào sandbox. Tên hàm phải khớp với generator trong blocks. */
-  createApi(ctx: SimContext<S, E>): Readonly<Record<string, (...args: Primitive[]) => Primitive | void>>;
+  createApi(ctx: SimContext<S, E>): GameKindApi;   // Readonly<Record<string, (...args: Primitive[]) => Primitive | undefined>>
 
   /** Gọi khi chương trình chạy hết mà chưa bị stop. */
   evaluate(state: S, config: C): { success: true } | { success: false; reasonCode: string };
@@ -56,7 +56,9 @@ export interface BlockSpec {
 }
 ```
 
-Registry: `packages/games/src/index.ts` export `gameKinds: Record<GameKindId, GameKindDefinition>`. App và tools lấy kiểu game qua registry, **không** import trực tiếp từng thư mục con.
+Registry: `packages/games/src/index.ts` export `gameKinds: Readonly<Partial<Record<GameKindId, AnyGameKindDefinition>>>` và `getGameKind(id)` (trả `undefined` nếu kiểu game chưa cài). `Partial` vì các kiểu game được thêm dần theo roadmap. `AnyGameKindDefinition = GameKindDefinition<unknown, unknown, GameEvent>`; các phương thức của interface viết theo cú pháp method nên một kiểu game cụ thể gán được vào kiểu này. App và tools lấy kiểu game qua registry, **không** import trực tiếp từng thư mục con.
+
+API trả `Primitive | undefined` (không dùng `void` vì luật ESLint `no-invalid-void-type`; arrow function không có `return` vẫn hợp lệ nhờ TS ≥ 5.1). Tham số không phải string/number/boolean (**kể cả `undefined`**, vốn cũng là giá trị nguyên thủy trong JS) hoặc giá trị trả về là object → `INTERNAL_ERROR`. Mọi tên trong `BlockSpec.apiNames` phải có trong object `createApi` trả về, nếu không `runLevel` báo `INTERNAL_ERROR` (`createApi lacks …`).
 
 ### Cấu trúc thư mục một kiểu game (headless)
 ```
@@ -101,27 +103,45 @@ jump: (blockId) => {
 4. Va chạm phải emit một event thất bại **trước** khi `stop`, để sân chơi diễn được cảnh ngã/đâm.
 5. Mọi `reasonCode` mới phải được liệt kê trong `reasonCodes` **và** có câu tiếng Việt trong `content/shared/feedback.json`.
 
+### 1.1 Event của `runner` (đã cài ở P0-07)
+Type: `RunnerEvent` export từ `@codequest/games` (`packages/games/src/runner/events.ts`). Mọi event có `blockId` của khối gây ra nó; engine chèn thêm `highlight` trước mỗi câu lệnh.
+
+| Event | Trường | Ý nghĩa cho sân chơi |
+|---|---|---|
+| `walk` | `from`, `to` (= from+1) | Đi sang ô kế |
+| `jump` | `from`, `to` (= from+2) | Nhảy vòng cung qua ô from+1, tiếp đất ở `to` |
+| `fall` | `at` | Rơi xuống hố ở ô `at`. Luôn đi **ngay sau** `walk`/`jump` có `to = at`, cùng `blockId`; lượt chạy kết thúc `crash` / `FELL_IN_HOLE` |
+| `offTrack` | `from` | Nhảy từ `from` ra khỏi cuối đường (đứng ở ô áp chót mà nhảy, kể cả bay qua cờ). **Không** có `jump` đi trước; lượt chạy kết thúc `crash` / `OFF_TRACK` |
+| `win` | `at` | Đứng trên cờ ở ô `at`: ăn mừng. Đi ngay sau `walk`/`jump` tới cờ, cùng `blockId`; lượt chạy kết thúc `success` |
+
+Hết chương trình mà chưa tới cờ: không có event riêng, lượt chạy kết thúc `incomplete` / `NOT_AT_GOAL` (sân chơi giữ Măng đứng ở ô cuối cùng). Khối gây lỗi để rung = `blockId` của event cuối cùng.
+
+Bản P0-07 là bản tối thiểu: ô `ground` / `hole` / `flag`, khối `runner_walk` / `runner_jump`, reason `FELL_IN_HOLE` / `OFF_TRACK` / `NOT_AT_GOAL`. Ô `branch` / `crate`, măng (`bamboo`, `goal.collectAll`), khối cúi / đá / cảm biến và các event `crouch`, `kick`, `collect`, `bump` thêm ở P1-01 theo `product/game-kinds.md` §3.1. Khối tạm chỉ có chữ (chưa có `field_image`) vì `apps/web/public/icons/` chưa có icon.
+
+`predictAnswer` của runner: với `crash:OFF_TRACK@<ô>`, ô là **ô Măng nhảy đi** (ô tiếp đất không tồn tại); với `FELL_IN_HOLE` là ô hố. Kết quả `timeout`/`error` trả đúng tên kết quả (`timeout`, `error`).
+
 ## 2. Nửa hiển thị: `StageRenderer`
 Interface định nghĩa trong `apps/web/src/stages/types.ts`:
 
 ```ts
-export interface StageRenderer<C, E extends GameEvent> {
-  /** Dựng cảnh ban đầu từ config. Gọi một lần khi vào màn và mỗi lần Làm lại. */
-  mount(ctx: StageMountContext<C>): Promise<void>;
+export interface StageRenderer<E extends GameEvent> {
   /** Đưa về trạng thái ban đầu, không tải lại asset. */
   reset(): void;
-  /** Diễn một event. Trả Promise xong khi diễn xong. speed: 0.5 | 1 | 2. */
-  play(event: E, speed: number, signal: AbortSignal): Promise<void>;
+  /** Diễn một event. Xong khi diễn xong, hoặc ngay khi signal abort. `next`: event kế tiếp cùng khối (vd `fall` sau `jump`). */
+  play(event: E, signal: AbortSignal, next?: E): Promise<void>;
   /** Thời lượng ước tính (ms) ở speed 1, dùng cho thanh tua. */
   estimate(event: E): number;
-  /** Vẽ hình thu nhỏ cho một đáp án của mode predict (vd Măng đứng ở ô 5). */
-  drawAnswer(key: string, config: C, target: HTMLCanvasElement): void;
+  /** Nhân vật đứng yên (giữa các bước, cuối lượt chưa xong). */
+  rest(): void;
+  /** Giữ nguyên khung hình hiện tại (lúc khối kế tiếp đang sáng). */
+  hold(): void;
   /** Đổi kích thước khung (ResizeObserver). */
   resize(width: number, height: number): void;
   destroy(): void;
 }
 ```
-`StageController` chung (`apps/web/src/stages/StageController.ts`) giữ `PIXI.Application`, chạy event log tuần tự, gọi `workspace.highlightBlock(event.blockId)`, xử lý tạm dừng / từng bước / dừng bằng `AbortSignal`. Renderer của từng kiểu game chỉ lo vẽ.
+Renderer dựng cảnh trong constructor (nhận `app`, `config`, asset). Không có tham số `speed`: tốc độ là `ticker.speed` của đồng hồ chung, renderer chỉ đo thời gian bằng `ticker.deltaMS` (helper `tween` trong `stages/types.ts`). `drawAnswer(key, config, canvas)` cho mode `predict` thêm khi làm mode đó. Bản runner: `stages/runner/RunnerStage.ts`, hình học thuần trong `stages/runner/layout.ts`.
+`StageController` chung (`apps/web/src/stages/StageController.ts`) giữ `PIXI.Application`, chạy event log tuần tự, báo highlight qua callback `onHighlight(event.blockId)`, xử lý tốc độ / từng bước / dừng bằng `AbortSignal`. Renderer của từng kiểu game chỉ lo vẽ.
 
 ## 3. Đăng ký một kiểu game mới
 Từng bước ở `docs/playbooks/add-game-kind.md`. Tóm tắt:

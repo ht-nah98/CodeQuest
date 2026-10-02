@@ -1,0 +1,61 @@
+/* Global stylesheet: imported once from main.tsx. */
+@import 'tailwindcss';
+@import './fonts.css';
+@import './tokens.css';
+
+@layer base {
+  html {
+    color-scheme: light;
+    -webkit-text-size-adjust: 100%;
+    /* VT323 ships one weight; never let the browser smear a fake bold onto pixel glyphs. */
+    font-synthesis-weight: none;
+  }
+
+  body {
+    margin: 0;
+    background-color: var(--color-ground);
+    color: var(--color-ink);
+    font-family: var(--font-body);
+    font-size: var(--text-body);
+    line-height: var(--text-body--line-height);
+    font-weight: 600;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    font-weight: 800;
+    line-height: 1.1;
+    text-wrap: balance;
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--color-brand-deep);
+    outline-offset: 3px;
+  }
+
+  /*
+   * Reduced motion: honour the OS setting and the profile's "Giảm chuyển động" toggle
+   * (coding-standards.md §5), which sets `data-reduced-motion="true"` on <html>.
+   * Transforms still apply (a pressed button still sinks); only movement over time stops.
+   */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    ::before,
+    ::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  [data-reduced-motion='true'] *,
+  [data-reduced-motion='true'] ::before,
+  [data-reduced-motion='true'] ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

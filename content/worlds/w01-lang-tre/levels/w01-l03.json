@@ -1,0 +1,70 @@
+{
+  "id": "w01-l03",
+  "worldId": "w01-lang-tre",
+  "stage": "guided",
+  "kind": "runner",
+  "mode": "build",
+  "title": "Nhảy qua hố",
+  "objective": "Nhảy qua hố để tới lá cờ nhé!",
+  "learningGoal": "Dùng khối nhảy để vượt hố, đặt đúng chỗ trong chuỗi lệnh.",
+  "misconception": "Măng tự biết né hố, không cần khối nhảy.",
+  "toolbox": ["runner_walk", "runner_jump"],
+  "par": 3,
+  "config": { "cells": ["ground", "ground", "hole", "ground", "flag"], "start": 0 },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "runner_walk",
+              "id": "walk1",
+              "next": {
+                "block": {
+                  "type": "runner_jump",
+                  "id": "jump1",
+                  "next": { "block": { "type": "runner_walk", "id": "walk2" } }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "jump-new",
+      "when": { "trigger": "enter" },
+      "say": "Khối mới: nhảy! Măng bay qua được hố.",
+      "point": "toolbox:runner_jump",
+      "spotlight": true
+    },
+    {
+      "id": "hole-why",
+      "when": { "trigger": "run-end", "lastReason": "FELL_IN_HOLE" },
+      "say": "Măng chỉ bay qua hố khi đứng sát nó.",
+      "point": "stage"
+    },
+    {
+      "id": "jump-too-far",
+      "when": { "trigger": "run-end", "lastReason": "OFF_TRACK" },
+      "say": "Cờ ở ngay sát bên rồi. Cần nhảy nữa không?",
+      "point": "stage"
+    },
+    {
+      "id": "count-cells",
+      "when": { "trigger": "run-end", "lastReason": "NOT_AT_GOAL" },
+      "say": "Đếm xem còn mấy ô nữa tới cờ?",
+      "point": "stage"
+    }
+  ],
+  "feedback": { "FELL_IN_HOLE": "Ối, hố! Nhảy ngay trước hố nhé." },
+  "thinkingHint": "Ngay trước hố, Măng phải làm gì để không rơi?"
+}
