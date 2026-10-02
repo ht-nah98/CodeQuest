@@ -1,0 +1,87 @@
+# Màn hình & luồng
+
+Nguồn chuẩn cho: danh sách màn hình, đường đi giữa các màn hình, trạng thái của từng màn hình. Phong cách xem `art-direction.md`; câu chữ xem `ui-copy-guide.md`.
+
+Kích thước thiết kế: **1366×768**, tối thiểu **1280×720**. Nhỏ hơn 1280×720 thì hiện màn hình "Màn hình nhỏ quá, con mở trên laptop nhé".
+
+## 1. Sơ đồ luồng
+
+```mermaid
+flowchart LR
+  A[Chọn hồ sơ] -->|PIN đúng| B[Bản đồ phiêu lưu]
+  B --> C[Trang thế giới]
+  C -->|lần đầu| D[Bài giảng]
+  D --> E[Màn chơi]
+  C --> E
+  E -->|thắng| F[Kết quả màn]
+  F -->|Màn tiếp| E
+  F -->|Về thế giới| C
+  B --> G[Cửa hàng & tủ đồ]
+  B --> H[Huy hiệu]
+  B --> I[Góc nhóm]
+  A -->|Khóa người lớn| J[Góc huấn luyện viên]
+  J --> K[Level editor]
+  B --> L[Cài đặt]
+```
+
+## 2. Danh sách màn hình
+
+| Route | Màn hình | Thành phần chính | Trạng thái cần thiết kế |
+|---|---|---|---|
+| `/` | **Chọn hồ sơ** | Lưới avatar (không cần đọc chữ), bàn phím PIN 4 số to, nút "+" tạo hồ sơ | chưa có hồ sơ nào (chuyển thẳng sang tạo hồ sơ) · đang tải · sai PIN (rung nhẹ, không khóa) |
+| `/profile/new` | **Tạo hồ sơ** (GĐ 1) | Bước 1 chọn avatar (12 avatar) → bước 2 nhập biệt danh (≤ 12 ký tự, có thể để người lớn gõ) → bước 3 đặt PIN 4 số, nhập lại lần 2 | PIN 2 lần không khớp · biệt danh trùng trên máy. Từ GĐ 2: hồ sơ do huấn luyện viên tạo, máy chỉ "Ghép máy" bằng mã 6 số |
+| `/map` | **Bản đồ phiêu lưu** | Bản đồ pixel cuộn ngang, 10 đảo, Măng đứng ở thế giới hiện tại, HUD xu/sao/chuỗi ngày | thế giới khóa / mở / hoàn thành · mở thế giới mới (hiệu ứng mở đường) |
+| `/w/:worldId` | **Trang thế giới** | Đường các màn kiểu bậc đá, sao của từng màn, boss, nút bài giảng, màn sáng tạo | màn khóa / mở / ⭐ 1–3 · `challenge` tùy chọn có nhãn riêng |
+| `/w/:worldId/lesson/:lessonId` | **Bài giảng** | Thẻ lớn, Măng nói, ví dụ chạy được (workspace chỉ đọc + sân chơi nhỏ), nút 🔊 | thẻ trước/sau · thẻ có câu hỏi nhanh |
+| `/play/:levelId` | **Màn chơi** | Thanh trên, sân chơi, mục tiêu, điều khiển, thanh khối, vùng ghép khối, bong bóng Măng (bố cục ở §3) | đang ghép · đang chạy · đang phát lại từng bước · thua (bong bóng + rung khối) · thắng (chuyển sang Kết quả) |
+| (lớp phủ) | **Kết quả màn** | Măng ăn mừng, sao bay, xu bay vào ví, "con vừa viết N dòng code", nút Màn tiếp / Chơi lại / Về thế giới | 1/2/3 sao · có huy hiệu mới · mở thế giới mới |
+| (lớp phủ) | **Hộp gợi ý** | 3 tầng, giá, số dư, câu "Cần thêm N xu" | đủ / thiếu xu · tầng 1 miễn phí sau 3 lần thua |
+| `/shop` | **Cửa hàng & tủ đồ** | Lưới vật phẩm pixel, xem trước trên Măng, mua / mặc | chưa mua / đã mua / đang dùng / thiếu xu |
+| `/badges` | **Huy hiệu** | Album huy hiệu và sticker | có / chưa có (bóng mờ + gợi ý cách đạt) |
+| `/group` | **Góc nhóm** | Mục tiêu chung, thanh tiến độ, tường tác phẩm sáng tạo | chưa có mục tiêu · đang chạy · đã đạt |
+| `/settings` | **Cài đặt** | Âm lượng nhạc / hiệu ứng / giọng đọc, giảm chuyển động, theme mù màu, đổi avatar, **Sao lưu tiến độ** (tải file JSON) / **Khôi phục**, **Xóa hồ sơ trên máy này** (cần PIN + xác nhận 2 bước) | khôi phục thành công / file lỗi |
+| `/coach` | **Góc huấn luyện viên** | Bảng 6 bé × thế giới, khái niệm yếu, màn hay kẹt, thời gian học, mở khóa thủ công, đặt mục tiêu nhóm | chưa đăng nhập · đang đồng bộ · bé lâu không học |
+| `/coach/editor` | **Level editor** | Vẽ bản đồ, chọn toolbox, ghép lời giải, xem trước, kiểm chứng, xuất JSON | hợp lệ / có lỗi kiểm chứng |
+
+Khóa người lớn để vào `/coach`: giải một phép nhân hai chữ số (vd 17 × 6), sau đó đăng nhập Supabase.
+
+## 3. Bố cục màn chơi (1366×768)
+
+```
+┌──────────────────────────────────────────────────────────────────────────┐ 56px
+│ ← Bản đồ    Làng Tre · Màn 5        ⭐⭐☆           🪙 120    🔊  ⚙       │
+├──────────────────────────────┬─────────┬─────────────────────────────────┤
+│                              │ THANH   │                                 │
+│   SÂN CHƠI (PixiJS)          │ KHỐI    │   VÙNG GHÉP KHỐI (Blockly)      │
+│   tỷ lệ 16:10                │ 150px   │                                 │
+│                              │         │                                 │
+├──────────────────────────────┤         │                                 │
+│ 🎯 Mục tiêu (1 dòng)         │         │                                 │
+│ [▶ CHẠY ␣]  ⏭ S  🐢━●━🐇  ↺ R│         │   🧱🧱🧱 còn N khối    💡 Gợi ý H│
+├──────────────────────────────┴─────────┴─────────────────────────────────┤ 72px
+│ 🐼 Măng: bong bóng thoại (≤ 12 chữ)  🔊                                  │
+└──────────────────────────────────────────────────────────────────────────┘
+```
+- Cột trái khoảng **42%**, phần Blockly (thanh khối + vùng ghép) khoảng **58%**. Có thanh kéo để đổi tỷ lệ (30–55%), nhớ theo từng bé.
+- Mode `predict`: vùng ghép khối **chỉ đọc**; thay chỗ điều khiển bằng 3–4 thẻ đáp án có hình.
+- Mode `parsons`: thanh khối ẩn; khối nằm rải rác trong vùng ghép.
+- Mode `bughunt`: nhãn "Săn lỗi: sửa ít nhất có thể", bộ đếm "đã sửa N khối".
+
+## 4. Phím tắt
+Phím tắt của app không hoạt động khi bé đang điều hướng Blockly bằng bàn phím (Blockly 13 dùng `Space`/`Enter`/`H`/`Esc` cho việc đó). Kéo thả bằng chuột xong thì `Space` chạy được ngay. Chi tiết: `architecture/blockly-integration.md` §13.
+| Phím | Tác dụng | Ở đâu |
+|---|---|---|
+| `Space` | Chạy / Dừng | Màn chơi, khi con trỏ không ở trong ô nhập |
+| `S` | Chạy từng bước | Màn chơi |
+| `R` | Làm lại (đưa sân chơi về đầu, giữ chương trình) | Màn chơi |
+| `H` | Mở hộp gợi ý | Màn chơi |
+| `Esc` | Đóng lớp phủ | Mọi nơi |
+| `←` `→` | Thẻ trước / sau | Bài giảng |
+
+## 5. Trạng thái trống & lỗi
+| Tình huống | Hiển thị |
+|---|---|
+| Mất mạng | Chơi bình thường (local-first); biểu tượng mây gạch chéo nhỏ ở góc. Không hiện popup |
+| Đồng bộ lỗi | Chỉ hiện trong Góc huấn luyện viên |
+| Nội dung màn bị lỗi | "Màn này đang được sửa" + nút về thế giới; ghi lỗi vào console |
+| Chương trình rỗng mà bấm chạy | Măng: "Con chưa ghép khối nào. Kéo khối vào đây nhé" + chỉ vào thanh khối |

@@ -1,0 +1,754 @@
+<title>Phong cách CodeQuest</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@500;600;700;800&family=VT323&display=swap">
+<style>
+/* Layout: một cột trang board, mỗi mục là một "tấm giấy" pixel ấm áp; màn chơi mẫu là điểm nhấn duy nhất. */
+:root {
+  color-scheme: light;
+  --ink: #1E1B2E;
+  --ink-soft: #4A4560;
+  --paper: #FFF8EE;
+  --paper-2: #F1E6D8;
+  --ground: #E9E4F3;
+  --brand: #7B769E;
+  --brand-deep: #4B4673;
+  --brand-soft: #D9D5EE;
+  --go: #4FAF5A;
+  --go-deep: #2F7D3A;
+  --coin: #FBC73F;
+  --coin-deep: #C98A12;
+  --hint: #F9A5A7;
+  --oops: #E8615E;
+  --sky: #BFE3F2;
+  --white: #FFFFFF;
+
+  --b-move: #3A7BD5;
+  --b-loop: #D9730D;
+  --b-if: #8A5CD1;
+  --b-sensor: #178A7E;
+  --b-robot: #A0612B;
+  --b-var: #D13F73;
+  --b-fn: #5560C8;
+  --b-pen: #2F8A3E;
+  --b-event: #FBC73F;
+
+  --f-display: "Baloo 2", "Nunito", system-ui, sans-serif;
+  --f-body: "Nunito", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-pixel: "VT323", ui-monospace, "Cascadia Mono", monospace;
+
+  --line: 3px;
+  --r: 18px;
+  --shadow: 0 6px 0 var(--ink);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--f-body);
+  font-size: 17px;
+  line-height: 1.55;
+}
+.page { max-width: 1120px; margin: 0 auto; padding-inline: 20px; padding-block: 28px 64px; display: grid; gap: 28px; }
+h1, h2, h3 { font-family: var(--f-display); line-height: 1.1; margin: 0; text-wrap: balance; }
+h2 { font-size: clamp(26px, 3.2vw, 34px); font-weight: 800; }
+h3 { font-size: 20px; font-weight: 700; }
+p { margin: 0; max-width: 66ch; }
+.eyebrow { font-family: var(--f-pixel); font-size: 24px; letter-spacing: .04em; color: var(--brand-deep); line-height: 1; }
+.sheet { background: var(--paper); border: var(--line) solid var(--ink); border-radius: var(--r); box-shadow: var(--shadow); padding: clamp(18px, 3vw, 32px); display: grid; gap: 20px; min-width: 0; }
+.sheet-head { display: grid; gap: 6px; }
+.muted { color: var(--ink-soft); }
+:focus-visible { outline: 3px solid var(--brand-deep); outline-offset: 3px; }
+
+/* ---------- Hero ---------- */
+.hero { background: var(--brand); color: var(--white); border: var(--line) solid var(--ink); border-radius: var(--r); box-shadow: var(--shadow); overflow: hidden; display: grid; }
+.hero-top { padding: clamp(22px, 4vw, 40px); padding-bottom: 0; display: grid; gap: 14px; }
+.wordmark { font-family: var(--f-display); font-weight: 800; font-size: clamp(54px, 10vw, 112px); line-height: .9; letter-spacing: -.01em; color: var(--paper);
+  text-shadow: 3px 0 var(--ink), -3px 0 var(--ink), 0 3px var(--ink), 0 -3px var(--ink), 3px 3px var(--ink), -3px 3px var(--ink), 3px -3px var(--ink), -3px -3px var(--ink), 0 9px 0 var(--ink); }
+.wordmark span { color: var(--coin); }
+.hero p { color: var(--paper); font-size: 19px; font-weight: 600; }
+.hero-stage { position: relative; height: 210px; margin-top: 8px; }
+.hero-stage canvas { position: absolute; inset: auto 0 0 0; width: 100%; height: 64px; image-rendering: pixelated; }
+.hero-panda { position: absolute; bottom: 44px; left: 0; }
+.bubble { position: absolute; background: var(--white); color: var(--ink); border: var(--line) solid var(--ink); border-radius: 16px; padding: 8px 14px; font-weight: 800; font-size: 17px; white-space: nowrap; box-shadow: 0 4px 0 var(--ink); }
+.bubble::after { content: ""; position: absolute; left: 22px; bottom: -11px; width: 16px; height: 16px; background: var(--white); border-right: var(--line) solid var(--ink); border-bottom: var(--line) solid var(--ink); transform: rotate(45deg); }
+
+/* ---------- Sprite ---------- */
+.sprite { --s: 120px; width: var(--s); height: var(--s); background-image: url("panda-sheet.png"); background-repeat: no-repeat; background-size: calc(var(--s) * 4) calc(var(--s) * 4); }
+.anim-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 16px; }
+.anim-card { border: var(--line) solid var(--ink); border-radius: 14px; background: var(--white); display: grid; justify-items: center; gap: 4px; padding: 14px 12px 16px; text-align: center; min-width: 0; }
+.anim-card .stagelet { width: 100%; display: grid; place-items: center; background: var(--brand-soft); border-radius: 10px; padding-block: 6px; }
+.anim-card b { font-family: var(--f-display); font-size: 19px; }
+.anim-card small { font-size: 14px; color: var(--ink-soft); line-height: 1.35; }
+.chip { font-family: var(--f-pixel); font-size: 20px; line-height: 1; padding: 3px 8px 2px; border: 2px solid var(--ink); border-radius: 8px; background: var(--paper-2); }
+
+/* ---------- Colors ---------- */
+.swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+.sw { border: var(--line) solid var(--ink); border-radius: 12px; overflow: hidden; background: var(--white); min-width: 0; }
+.sw i { display: block; height: 64px; border-bottom: var(--line) solid var(--ink); }
+.sw div { padding: 8px 10px; display: grid; gap: 0; }
+.sw b { font-size: 15px; }
+.sw code { font-family: var(--f-pixel); font-size: 20px; line-height: 1.1; color: var(--ink-soft); }
+.blocks-table { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; }
+.bt { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.bt .pill { flex: 1; min-width: 0; color: var(--white); font-family: var(--f-display); font-weight: 700; font-size: 17px; padding: 8px 14px; border-radius: 999px; border: 2px solid rgba(30, 27, 46, .35); }
+.bt .ratio { font-family: var(--f-pixel); font-size: 22px; width: 64px; text-align: right; }
+
+/* ---------- Type ---------- */
+.type-rows { display: grid; gap: 14px; }
+.type-row { display: grid; grid-template-columns: 170px 1fr; gap: 16px; align-items: baseline; padding-bottom: 14px; border-bottom: 2px dashed var(--paper-2); }
+.type-row:last-child { border-bottom: 0; padding-bottom: 0; }
+.type-row .meta { display: grid; gap: 2px; font-size: 14px; color: var(--ink-soft); }
+.type-row .meta b { color: var(--ink); font-size: 16px; }
+.t-display { font-family: var(--f-display); font-weight: 800; font-size: clamp(30px, 4.2vw, 44px); line-height: 1.1; }
+.t-body { font-family: var(--f-body); font-size: 20px; font-weight: 600; }
+.t-pixel { font-family: var(--f-pixel); font-size: 34px; line-height: 1; }
+.warn { display: flex; gap: 12px; align-items: flex-start; background: #FDE7E6; border: 2px solid var(--oops); border-radius: 12px; padding: 12px 14px; color: var(--ink); }
+.warn b { font-family: var(--f-display); }
+
+/* ---------- Components ---------- */
+.comp-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px; }
+.comp { border: 2px dashed var(--brand); border-radius: 14px; padding: 16px; display: grid; gap: 12px; align-content: start; min-width: 0; }
+.comp > .label { font-family: var(--f-pixel); font-size: 22px; color: var(--brand-deep); line-height: 1; }
+.btn-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.btn { font-family: var(--f-display); font-weight: 800; font-size: 19px; color: var(--ink); background: var(--paper); border: var(--line) solid var(--ink); border-radius: 14px; padding: 8px 18px 6px; box-shadow: 0 5px 0 var(--ink); cursor: pointer; transition: transform .08s ease, box-shadow .08s ease; display: inline-flex; gap: 8px; align-items: center; line-height: 1.2; }
+.btn:hover { transform: translateY(-1px); box-shadow: 0 6px 0 var(--ink); }
+.btn:active, .btn.pressed { transform: translateY(4px); box-shadow: 0 1px 0 var(--ink); }
+.btn.go { background: var(--go); font-size: 22px; padding: 10px 24px 8px; }
+.btn.hint { background: var(--hint); }
+.btn.coin { background: var(--coin); }
+.btn[disabled] { opacity: .55; cursor: not-allowed; transform: none; box-shadow: 0 5px 0 var(--ink); }
+.kbd { font-family: var(--f-pixel); font-size: 18px; border: 2px solid var(--ink); border-radius: 6px; padding: 0 6px; background: rgba(255, 255, 255, .6); line-height: 1.2; }
+.hud { display: flex; flex-wrap: wrap; gap: 10px; }
+.hud-item { display: inline-flex; align-items: center; gap: 8px; background: var(--brand-deep); color: var(--paper); border: var(--line) solid var(--ink); border-radius: 12px; padding: 4px 12px 4px 8px; font-family: var(--f-pixel); font-size: 28px; line-height: 1; }
+.hud-item canvas { width: 26px; height: 26px; image-rendering: pixelated; }
+.stars { display: inline-flex; gap: 4px; }
+.stars canvas { width: 34px; height: 34px; image-rendering: pixelated; }
+.cap { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.bricks { display: flex; gap: 4px; }
+.brick { width: 22px; height: 16px; background: var(--b-loop); border: 2px solid var(--ink); border-radius: 3px; box-shadow: inset 0 -4px 0 rgba(0, 0, 0, .18); }
+.brick.used { background: var(--paper-2); box-shadow: none; border-style: dashed; }
+.cap b { font-family: var(--f-pixel); font-size: 26px; font-weight: 400; }
+.say { display: flex; gap: 10px; align-items: flex-end; }
+.say .sprite { --s: 84px; flex: none; }
+.say .bub { position: relative; background: var(--white); border: var(--line) solid var(--ink); border-radius: 16px; padding: 10px 14px; font-weight: 700; font-size: 17px; box-shadow: 0 4px 0 var(--ink); display: flex; gap: 10px; align-items: center; min-width: 0; }
+.say .bub::before { content: ""; position: absolute; left: -11px; bottom: 16px; width: 16px; height: 16px; background: var(--white); border-left: var(--line) solid var(--ink); border-bottom: var(--line) solid var(--ink); transform: rotate(45deg); }
+.icon-btn { flex: none; width: 36px; height: 36px; border-radius: 10px; border: 2px solid var(--ink); background: var(--brand-soft); display: grid; place-items: center; cursor: pointer; font-size: 17px; padding: 0; }
+.hint-tiers { display: grid; gap: 8px; }
+.tier { display: grid; grid-template-columns: 34px 1fr auto; gap: 10px; align-items: center; background: var(--white); border: 2px solid var(--ink); border-radius: 12px; padding: 8px 10px; }
+.tier .n { font-family: var(--f-pixel); font-size: 26px; text-align: center; line-height: 1; }
+.tier b { font-family: var(--f-display); font-size: 17px; display: block; line-height: 1.2; }
+.tier small { color: var(--ink-soft); font-size: 14px; line-height: 1.3; display: block; }
+.tier .price { font-family: var(--f-pixel); font-size: 24px; display: inline-flex; align-items: center; gap: 4px; }
+.tier .price canvas { width: 18px; height: 18px; image-rendering: pixelated; }
+
+/* ---------- Blocks (zelos-like) ---------- */
+.blk { display: inline-flex; align-items: center; gap: 8px; color: var(--white); font-family: var(--f-display); font-weight: 700; font-size: 17px; padding: 7px 16px 6px 12px; border-radius: 10px; border: 2px solid rgba(30, 27, 46, .35); line-height: 1.15; position: relative; transition: filter .15s, transform .15s, box-shadow .15s; white-space: nowrap; }
+.blk .ic { font-size: 16px; }
+.blk.event { background: var(--b-event); color: var(--ink); border-radius: 18px 18px 10px 10px; padding-top: 10px; }
+.blk.move { background: var(--b-move); }
+.blk.loop { background: var(--b-loop); }
+.blk.if { background: var(--b-if); }
+.blk .num { background: var(--white); color: var(--ink); border-radius: 999px; padding: 0 9px; font-family: var(--f-body); font-weight: 800; font-size: 15px; }
+.c-block { display: inline-grid; background: var(--b-loop); border: 2px solid rgba(30, 27, 46, .35); border-radius: 10px; color: var(--white); transition: box-shadow .15s; }
+.c-block > .blk { border: 0; background: transparent; }
+.c-block > .inner { margin-left: 18px; background: var(--paper); border-radius: 8px 0 0 8px; padding: 4px 0 4px 4px; display: grid; gap: 3px; min-width: 120px; }
+.c-block > .foot { height: 14px; }
+.stack { display: grid; gap: 3px; justify-items: start; }
+.lit { box-shadow: 0 0 0 4px var(--coin), 0 0 0 7px var(--ink) !important; z-index: 2; }
+.shake { animation: shake .4s ease 2; }
+@keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+
+/* ---------- Demo level ---------- */
+.demo { display: grid; gap: 0; border: var(--line) solid var(--ink); border-radius: 16px; overflow: hidden; background: var(--paper); box-shadow: var(--shadow); }
+.demo-bar { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; justify-content: space-between; padding: 10px 14px; background: var(--brand-deep); color: var(--paper); border-bottom: var(--line) solid var(--ink); }
+.demo-bar .where { font-family: var(--f-display); font-weight: 700; font-size: 18px; }
+.demo-body { display: grid; grid-template-columns: minmax(0, 42fr) minmax(0, 58fr); }
+.stage-col { display: grid; align-content: start; border-right: var(--line) solid var(--ink); min-width: 0; }
+.stage { position: relative; aspect-ratio: 16 / 10; overflow: hidden; background: var(--sky); border-bottom: var(--line) solid var(--ink); }
+.stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; image-rendering: pixelated; }
+.stage .sprite { position: absolute; --s: 100px; will-change: transform; }
+.stage .bubble { font-size: 15px; white-space: normal; max-width: 70%; z-index: 3; }
+.goal { padding: 10px 14px; display: grid; gap: 10px; }
+.goal .obj { font-weight: 800; display: flex; gap: 8px; align-items: center; }
+.controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.speed { display: inline-flex; align-items: center; gap: 6px; font-size: 18px; }
+.speed input { width: 90px; accent-color: var(--brand-deep); }
+.ws { position: relative; display: grid; grid-template-columns: 150px minmax(0, 1fr); min-width: 0; }
+.toolbox { background: var(--paper-2); border-right: 2px solid var(--ink); padding: 12px 10px; display: grid; gap: 8px; align-content: start; }
+.toolbox .cat { font-family: var(--f-pixel); font-size: 20px; color: var(--ink-soft); line-height: 1; margin-top: 4px; }
+.toolbox .blk { font-size: 15px; padding: 5px 12px 4px 10px; }
+.canvas-area { padding: 18px; background-color: var(--paper); background-image: radial-gradient(var(--brand-soft) 1.4px, transparent 1.6px); background-size: 22px 22px; display: grid; gap: 16px; align-content: space-between; min-width: 0; overflow-x: auto; }
+.ws-foot { display: flex; flex-wrap: wrap; gap: 10px; justify-content: space-between; align-items: center; }
+.variant { display: inline-flex; border: var(--line) solid var(--ink); border-radius: 12px; overflow: hidden; background: var(--white); }
+.variant button { font-family: var(--f-display); font-weight: 700; font-size: 15px; padding: 6px 12px 4px; border: 0; background: transparent; cursor: pointer; color: var(--ink); }
+.variant button[aria-pressed="true"] { background: var(--coin); }
+.variant button + button { border-left: 2px solid var(--ink); }
+.result { display: none; position: absolute; inset: 0; background: rgba(30, 27, 46, .45); place-items: center; z-index: 5; padding: 16px; }
+.result.show { display: grid; }
+.result-card { background: var(--paper); border: var(--line) solid var(--ink); border-radius: var(--r); box-shadow: var(--shadow); padding: 18px 22px; display: grid; justify-items: center; gap: 8px; text-align: center; max-width: 340px; }
+.result-card h3 { font-size: 26px; }
+.result-card .sprite { --s: 110px; }
+.coin-gain { font-family: var(--f-pixel); font-size: 30px; display: inline-flex; gap: 6px; align-items: center; }
+.coin-gain canvas { width: 26px; height: 26px; image-rendering: pixelated; }
+
+.note-list { display: grid; gap: 10px; padding: 0; margin: 0; list-style: none; }
+.note-list li { display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: start; }
+.note-list li .chip { margin-top: 2px; }
+footer { text-align: center; color: var(--ink-soft); font-size: 14px; }
+
+@media (max-width: 860px) {
+  .demo-body { grid-template-columns: 1fr; }
+  .stage-col { border-right: 0; border-bottom: var(--line) solid var(--ink); }
+  .type-row { grid-template-columns: 1fr; gap: 4px; }
+}
+@media (max-width: 520px) {
+  .ws { grid-template-columns: 1fr; }
+  .toolbox { border-right: 0; border-bottom: 2px solid var(--ink); grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); }
+  .toolbox .cat { grid-column: 1 / -1; }
+  .stage .sprite { --s: 70px; }
+  .hero-stage { height: 180px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .btn, .blk, .c-block { transition: none; }
+  .shake { animation: none; }
+}
+</style>
+
+<div class="page">
+
+  <!-- HERO -->
+  <header class="hero">
+    <div class="hero-top">
+      <div class="eyebrow" style="color:var(--paper)">STYLE BOARD · BẢN 1 · 01/10/2026</div>
+      <h1 class="wordmark">Code<span>Quest</span></h1>
+      <p>Phong cách "Pixel ấm áp": thế giới và nhân vật vẽ pixel, khung giao diện tròn trịa, viền mực đậm, chữ tiếng Việt dễ đọc cho bé 8–10 tuổi học trên laptop.</p>
+    </div>
+    <div class="hero-stage" id="heroStage">
+      <div class="bubble" id="heroBubble" style="left:20px; top:12px">Chào con! Mình là Măng 🎋</div>
+      <div class="sprite hero-panda" id="heroPanda" style="--s:120px" role="img" aria-label="Gấu trúc Măng đang đi dạo"></div>
+      <canvas id="heroGround" width="320" height="16" aria-hidden="true"></canvas>
+    </div>
+  </header>
+
+  <!-- DEMO -->
+  <section class="sheet" aria-labelledby="demo-h">
+    <div class="sheet-head">
+      <div class="eyebrow">MÀN CHƠI MẪU · ĐƯỜNG CHẠY CỦA MĂNG</div>
+      <h2 id="demo-h">Bấm ▶ Chạy để xem một màn chơi thật</h2>
+      <p class="muted">Mô phỏng cách engine hoạt động: chương trình chạy trước, sau đó Măng diễn lại từng bước, khối đang chạy sáng viền vàng. Đổi sang "Chương trình có lỗi" để xem cách game phản hồi khi bé làm sai.</p>
+    </div>
+
+    <div class="demo">
+      <div class="demo-bar">
+        <span class="where">← Làng Tre · Màn 4</span>
+        <span class="stars" aria-label="Sao của màn này">
+          <canvas class="px-star" data-on="1" width="10" height="10"></canvas>
+          <canvas class="px-star" data-on="1" width="10" height="10"></canvas>
+          <canvas class="px-star" data-on="0" width="10" height="10"></canvas>
+        </span>
+        <span class="hud-item"><canvas class="px-coin" width="10" height="10"></canvas><span id="coinCount">120</span></span>
+      </div>
+      <div class="demo-body">
+        <div class="stage-col">
+          <div class="stage" id="stage">
+            <canvas id="stageBg" width="160" height="100" aria-hidden="true"></canvas>
+            <div class="sprite" id="hero" role="img" aria-label="Măng"></div>
+            <div class="bubble" id="stageBubble" hidden></div>
+          </div>
+          <div class="goal">
+            <div class="obj">🎯 Đến lá cờ, dùng không quá 6 khối</div>
+            <div class="controls">
+              <button class="btn go" id="runBtn" type="button">▶ Chạy <span class="kbd">Space</span></button>
+              <button class="btn" id="resetBtn" type="button">↺ <span class="kbd">R</span></button>
+              <label class="speed" for="speed">🐢 <input id="speed" type="range" min="1" max="3" step="1" value="2" aria-label="Tốc độ"> 🐇</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="ws">
+          <div class="toolbox" aria-label="Thanh khối lệnh">
+            <span class="cat">DI CHUYỂN</span>
+            <span class="blk move"><span class="ic">👣</span>đi</span>
+            <span class="blk move"><span class="ic">🦘</span>nhảy</span>
+            <span class="blk move"><span class="ic">🙇</span>cúi</span>
+            <span class="cat">LẶP</span>
+            <span class="blk loop"><span class="ic">🔁</span>lặp <span class="num">3</span> lần</span>
+            <span class="cat">ĐIỀU KIỆN</span>
+            <span class="blk if"><span class="ic">❓</span>nếu có hố</span>
+          </div>
+          <div class="canvas-area">
+            <div class="stack" id="program" aria-live="polite"></div>
+            <div class="ws-foot">
+              <div class="cap"><div class="bricks" id="bricks"></div><b id="capText">còn 1 khối</b></div>
+              <div class="variant" role="group" aria-label="Chọn chương trình">
+                <button type="button" id="vGood" aria-pressed="true">Chương trình đúng</button>
+                <button type="button" id="vBad" aria-pressed="false">Chương trình có lỗi</button>
+              </div>
+            </div>
+          </div>
+          <div class="result" id="result">
+            <div class="result-card">
+              <div class="sprite" id="resultPanda"></div>
+              <h3>Qua màn rồi!</h3>
+              <span class="stars"><canvas class="px-star" data-on="1" width="10" height="10"></canvas><canvas class="px-star" data-on="1" width="10" height="10"></canvas><canvas class="px-star" data-on="1" width="10" height="10"></canvas></span>
+              <span class="coin-gain">+ 25 <canvas class="px-coin" width="10" height="10"></canvas></span>
+              <span class="muted" style="font-size:15px">Con dùng 5 khối, đúng bằng số chuẩn. Đó là 5 dòng code đấy!</span>
+              <button class="btn go" id="nextBtn" type="button">Màn tiếp ▶</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MASCOT -->
+  <section class="sheet" aria-labelledby="mascot-h">
+    <div class="sheet-head">
+      <div class="eyebrow">NHÂN VẬT · 16 KHUNG HÌNH</div>
+      <h2 id="mascot-h">Măng, người dẫn đường của các bé</h2>
+      <p class="muted">Lấy từ bộ sprite anh gửi, đã xóa nền tím và căn chân thẳng hàng. Hướng trái thì lật ngang ảnh. Mỗi nhóm khung gắn với một tình huống cụ thể trong game.</p>
+    </div>
+    <div class="anim-grid" id="animGrid"></div>
+  </section>
+
+  <!-- COLORS -->
+  <section class="sheet" aria-labelledby="color-h">
+    <div class="sheet-head">
+      <div class="eyebrow">MÀU SẮC</div>
+      <h2 id="color-h">Bảng màu lấy từ chính bộ lông của Măng</h2>
+      <p class="muted">Màu mực lấy từ viền sprite, màu giấy từ lông kem, màu vàng từ tia sáng khung ăn mừng, màu tím từ nền gốc của bộ sprite.</p>
+    </div>
+    <div class="swatches">
+      <div class="sw"><i style="background:var(--ink)"></i><div><b>Mực</b><code>#1E1B2E</code><span class="muted" style="font-size:13px">chữ, viền, bóng</span></div></div>
+      <div class="sw"><i style="background:var(--paper)"></i><div><b>Giấy</b><code>#FFF8EE</code><span class="muted" style="font-size:13px">thẻ, panel</span></div></div>
+      <div class="sw"><i style="background:var(--brand)"></i><div><b>Oải hương</b><code>#7B769E</code><span class="muted" style="font-size:13px">thương hiệu</span></div></div>
+      <div class="sw"><i style="background:var(--go)"></i><div><b>Lá tre</b><code>#4FAF5A</code><span class="muted" style="font-size:13px">▶ Chạy, thành công</span></div></div>
+      <div class="sw"><i style="background:var(--coin)"></i><div><b>Nắng</b><code>#FBC73F</code><span class="muted" style="font-size:13px">coin, sao</span></div></div>
+      <div class="sw"><i style="background:var(--hint)"></i><div><b>Má hồng</b><code>#F9A5A7</code><span class="muted" style="font-size:13px">gợi ý</span></div></div>
+      <div class="sw"><i style="background:var(--sky)"></i><div><b>Trời</b><code>#BFE3F2</code><span class="muted" style="font-size:13px">nền sân chơi</span></div></div>
+      <div class="sw"><i style="background:var(--oops)"></i><div><b>Ối</b><code>#E8615E</code><span class="muted" style="font-size:13px">lỗi, luôn kèm icon</span></div></div>
+    </div>
+    <h3>Màu khối lệnh, cố định trong toàn bộ hệ thống</h3>
+    <p class="muted" style="font-size:15px">Con số bên phải là độ tương phản của chữ trắng trên khối. Tất cả đều trên 3:1, mức tối thiểu cho chữ đậm cỡ lớn.</p>
+    <div class="blocks-table">
+      <div class="bt"><span class="pill" style="background:var(--b-move)">👣 Di chuyển</span><span class="ratio">4.2</span></div>
+      <div class="bt"><span class="pill" style="background:var(--b-loop)">🔁 Lặp</span><span class="ratio">3.3</span></div>
+      <div class="bt"><span class="pill" style="background:var(--b-if)">❓ Điều kiện</span><span class="ratio">4.6</span></div>
+      <div class="bt"><span class="pill" style="background:var(--b-sensor)">👀 Cảm biến</span><span class="ratio">4.2</span></div>
+      <div class="bt"><span class="pill" style="background:var(--b-robot)">🦾 Robot</span><span class="ratio">5.0</span></div>
+      <div class="bt"><span class="pill" style="background:var(--b-var)">🔢 Biến &amp; số</span><span class="ratio">4.5</span></div>
+      <div class="bt"><span class="pill" style="background:var(--b-fn)">🪄 Hàm</span><span class="ratio">5.4</span></div>
+      <div class="bt"><span class="pill" style="background:var(--b-pen)">🖍️ Bút vẽ</span><span class="ratio">4.4</span></div>
+    </div>
+  </section>
+
+  <!-- TYPE -->
+  <section class="sheet" aria-labelledby="type-h">
+    <div class="sheet-head">
+      <div class="eyebrow">CHỮ</div>
+      <h2 id="type-h">Ba font, tất cả đều có đủ dấu tiếng Việt</h2>
+    </div>
+    <div class="type-rows">
+      <div class="type-row">
+        <div class="meta"><b>Baloo 2 · 800</b>Tiêu đề, nút, chữ trên khối</div>
+        <div class="t-display">Măng nhảy qua hố, rẽ phải!</div>
+      </div>
+      <div class="type-row">
+        <div class="meta"><b>Nunito · 600</b>Bài giảng, bong bóng thoại</div>
+        <div class="t-body">Vòng lặp giúp con không phải ghép một khối nhiều lần. Con đếm xem Măng phải đi mấy bước nhé?</div>
+      </div>
+      <div class="type-row">
+        <div class="meta"><b>VT323</b>Số HUD, nhãn pixel, từ 22px</div>
+        <div class="t-pixel">MÀN 04 · CÒN 3 KHỐI · 120 XU · ỐI!</div>
+      </div>
+    </div>
+    <div class="warn"><span aria-hidden="true">⚠️</span><span><b>Không dùng Press Start 2P, Pixelify Sans, Silkscreen, Tiny5.</b> Các font pixel phổ biến này không có bộ ký tự tiếng Việt: chữ "ằ", "ẫ", "ợ" sẽ bị thay bằng font khác và vỡ chữ.</span></div>
+  </section>
+
+  <!-- COMPONENTS -->
+  <section class="sheet" aria-labelledby="comp-h">
+    <div class="sheet-head">
+      <div class="eyebrow">THÀNH PHẦN GIAO DIỆN</div>
+      <h2 id="comp-h">Nút to, có độ dày, bấm vào thấy lún xuống</h2>
+      <p class="muted">Bé cần cảm giác "bấm được" ngay khi nhìn. Mọi nút có bóng cứng, không làm mờ; rê chuột thì nút nhô lên, bấm thì nút lún xuống.</p>
+    </div>
+    <div class="comp-grid">
+      <div class="comp">
+        <span class="label">NÚT</span>
+        <div class="btn-row">
+          <button class="btn go" type="button">▶ Chạy</button>
+          <button class="btn hint" type="button">💡 Gợi ý</button>
+          <button class="btn coin" type="button">🛍️ Cửa hàng</button>
+          <button class="btn" type="button">↺ Làm lại</button>
+          <button class="btn" type="button" disabled>🔒 Chưa mở</button>
+        </div>
+      </div>
+      <div class="comp">
+        <span class="label">HUD &amp; GIỚI HẠN KHỐI</span>
+        <div class="hud">
+          <span class="hud-item"><canvas class="px-coin" width="10" height="10"></canvas>120</span>
+          <span class="hud-item"><canvas class="px-star" data-on="1" width="10" height="10"></canvas>38</span>
+          <span class="hud-item">🔥 5 NGÀY</span>
+        </div>
+        <div class="cap"><div class="bricks"><span class="brick"></span><span class="brick"></span><span class="brick"></span><span class="brick used"></span><span class="brick used"></span></div><b>còn 3 khối</b></div>
+      </div>
+      <div class="comp">
+        <span class="label">MĂNG NÓI</span>
+        <div class="say">
+          <div class="sprite" data-loop="talk" role="img" aria-label="Măng đang nói"></div>
+          <div class="bub"><span>Con thấy đoạn nào lặp lại không?</span><button class="icon-btn" type="button" aria-label="Đọc to">🔊</button></div>
+        </div>
+      </div>
+      <div class="comp">
+        <span class="label">GỢI Ý 3 TẦNG</span>
+        <div class="hint-tiers">
+          <div class="tier"><span class="n">1</span><span><b>Gợi ý tư duy</b><small>Một câu hỏi gợi mở</small></span><span class="price">5<canvas class="px-coin" width="10" height="10"></canvas></span></div>
+          <div class="tier"><span class="n">2</span><span><b>Chỉ bước tiếp</b><small>Hiện khối mờ đúng chỗ · tối đa 2 sao</small></span><span class="price">15<canvas class="px-coin" width="10" height="10"></canvas></span></div>
+          <div class="tier"><span class="n">3</span><span><b>Xem lời giải</b><small>Xem rồi tự ghép lại · tối đa 1 sao</small></span><span class="price">40<canvas class="px-coin" width="10" height="10"></canvas></span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- NEXT -->
+  <section class="sheet" aria-labelledby="next-h">
+    <div class="sheet-head">
+      <div class="eyebrow">CÒN THIẾU</div>
+      <h2 id="next-h">Sprite cần tạo thêm trước khi làm Mê cung</h2>
+    </div>
+    <ul class="note-list">
+      <li><span class="chip">CAO</span><span><b>Đi về phía trước và đi ra sau</b> (4 khung mỗi hướng): cần cho Mê cung nhìn từ trên xuống. Đường chạy nhìn ngang thì đã đủ sprite.</span></li>
+      <li><span class="chip">CAO</span><span><b>Choáng, ôm đầu, suy nghĩ</b>: để phản hồi lỗi một cách vui vẻ và để minh họa gợi ý.</span></li>
+      <li><span class="chip">VỪA</span><span><b>Chỉ tay, vẫy chào, bê khối</b>: dùng cho hướng dẫn, màn mở đầu và Thành Phố Robot.</span></li>
+      <li><span class="chip">VỪA</span><span><b>Robot nhỏ đồng hành</b> (8 khung): nhân vật của Thế giới 6, mô phỏng Leanbot.</span></li>
+    </ul>
+  </section>
+
+  <footer>CodeQuest · Style board bản 1 · Sprite gấu trúc do anh cung cấp, nền sân chơi vẽ bằng code</footer>
+</div>
+
+<script>
+(() => {
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const ROW = { idle: 0, walk: 1, run: 2, act: 3 };
+  const FR = {
+    idle: [[0, 0], [0, 3], [0, 0], [0, 3]],
+    talk: [[0, 1], [0, 0], [0, 1], [0, 3]],
+    happy: [[0, 2]],
+    walk: [[1, 0], [1, 1], [1, 2], [1, 3]],
+    run: [[2, 0], [2, 1], [2, 2], [2, 3]],
+    crouch: [[3, 0]], jump: [[3, 1]], kick: [[3, 2]], cheer: [[3, 3]],
+    actions: [[3, 0], [3, 1], [3, 2], [3, 3]]
+  };
+  function setFrame(el, rc, flip) {
+    const s = el.getBoundingClientRect().width || 100;
+    el.style.backgroundPosition = `${-rc[1] * s}px ${-rc[0] * s}px`;
+    if (flip !== undefined) el.dataset.flip = flip ? '1' : '';
+  }
+  // Generic looping sprite player
+  const loops = new Set();
+  function loopSprite(el, frames, fps) {
+    const st = { el, frames, fps, i: 0, t: 0 };
+    loops.add(st); setFrame(el, frames[0]);
+    return st;
+  }
+  let last = performance.now();
+  function tick(now) {
+    const dt = now - last; last = now;
+    if (!reduce) loops.forEach(st => {
+      st.t += dt;
+      const step = 1000 / st.fps;
+      if (st.t >= step) { st.t %= step; st.i = (st.i + 1) % st.frames.length; setFrame(st.el, st.frames[st.i]); }
+    });
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+
+  // ---------- Pixel icons ----------
+  const COIN = [
+    '..YYYYYY..', '.YyyyyyyY.', 'YyYYYYYYyY', 'YyYYWYYYyY', 'YyYYWYYYyY',
+    'YyYYWYYYyY', 'YyYYYYYYyY', 'YyyYYYYyyY', '.YyyyyyyY.', '..YYYYYY..'];
+  const STAR = [
+    '....YY....', '....YY....', '...YWYY...', 'YYYYWYYYYY', '.YYYYYYYY.',
+    '..YYYYYY..', '..YYYYYY..', '.YYY..YYY.', '.YY....YY.', 'Y........Y'];
+  function drawPx(cv, map, pal) {
+    const g = cv.getContext('2d'); g.clearRect(0, 0, 10, 10);
+    map.forEach((row, y) => [...row].forEach((ch, x) => { if (pal[ch]) { g.fillStyle = pal[ch]; g.fillRect(x, y, 1, 1); } }));
+  }
+  const css = getComputedStyle(document.documentElement);
+  const C = n => css.getPropertyValue(n).trim();
+  document.querySelectorAll('.px-coin').forEach(cv => drawPx(cv, COIN, { Y: C('--coin-deep'), y: C('--coin'), W: '#FFF4C8' }));
+  document.querySelectorAll('.px-star').forEach(cv => {
+    const on = cv.dataset.on === '1';
+    drawPx(cv, STAR, on ? { Y: C('--coin'), W: '#FFF4C8' } : { Y: C('--brand-soft'), W: C('--brand-soft') });
+  });
+
+  // ---------- Hero ----------
+  const hg = document.getElementById('heroGround');
+  (function drawGround(cv) {
+    const g = cv.getContext('2d'); const w = cv.width;
+    g.fillStyle = '#6FBF5A'; g.fillRect(0, 0, w, 5);
+    g.fillStyle = '#4E9B45'; for (let x = 0; x < w; x += 4) g.fillRect(x, 4 + (x / 4 % 2), 2, 2);
+    g.fillStyle = '#9A6B43'; g.fillRect(0, 6, w, 10);
+    g.fillStyle = '#7F5536'; for (let x = 0; x < w; x += 7) g.fillRect(x + (x % 3), 9 + (x % 4), 2, 1);
+    g.fillStyle = '#1E1B2E'; g.fillRect(0, 0, w, 1);
+  })(hg);
+  const heroPanda = document.getElementById('heroPanda');
+  const heroStage = document.getElementById('heroStage');
+  const heroBubble = document.getElementById('heroBubble');
+  const heroLoop = loopSprite(heroPanda, FR.walk, 9);
+  let hx = 40, dir = 1, pause = 0;
+  const heroLines = ['Chào con! Mình là Măng 🎋', 'Mình thích măng tre lắm!', 'Cùng học lập trình nhé!'];
+  let lineI = 0;
+  function heroStep(now) {
+    if (!reduce) {
+      const W = heroStage.clientWidth, s = heroPanda.clientWidth;
+      if (pause > 0) { pause -= 16; if (pause <= 0) { heroLoop.frames = FR.walk; } }
+      else {
+        hx += dir * 1.3;
+        if (hx > W - s - 10 || hx < 10) {
+          dir *= -1; pause = 1600; heroLoop.frames = FR.cheer.concat(FR.happy);
+          lineI = (lineI + 1) % heroLines.length; heroBubble.textContent = heroLines[lineI];
+        }
+      }
+      heroPanda.style.transform = `translateX(${hx}px) scaleX(${dir})`;
+      heroBubble.style.left = Math.max(8, Math.min(W - heroBubble.offsetWidth - 8, hx - 10)) + 'px';
+    } else {
+      heroPanda.style.transform = 'translateX(40px)'; heroLoop.frames = FR.idle;
+    }
+    requestAnimationFrame(heroStep);
+  }
+  requestAnimationFrame(heroStep);
+
+  // ---------- Animation cards ----------
+  const cards = [
+    { k: 'idle', t: 'Đứng chờ', d: 'Khi bé đang ghép khối', f: 'idle_1 · idle_2', fps: 2 },
+    { k: 'talk', t: 'Nói', d: 'Bài giảng, gợi ý, đọc mục tiêu', f: 'talk', fps: 4 },
+    { k: 'walk', t: 'Đi', d: 'Khối "đi", mỗi lần 1 ô', f: 'walk_1–4', fps: 9 },
+    { k: 'run', t: 'Chạy', d: 'Tua nhanh, màn thắng', f: 'run_1–4', fps: 12 },
+    { k: 'actions', t: 'Hành động', d: 'Cúi chui cành, nhảy qua hố, đá thùng, ăn mừng', f: 'crouch · jump · kick · cheer', fps: 2 },
+    { k: 'happy', t: 'Vui', d: 'Chạy đúng ngay lần đầu', f: 'happy', fps: 1 }
+  ];
+  const grid = document.getElementById('animGrid');
+  cards.forEach(c => {
+    const el = document.createElement('div'); el.className = 'anim-card';
+    el.innerHTML = `<div class="stagelet"><div class="sprite" role="img" aria-label="Măng: ${c.t}"></div></div><b>${c.t}</b><small>${c.d}</small><span class="chip">${c.f}</span>`;
+    grid.appendChild(el);
+    loopSprite(el.querySelector('.sprite'), FR[c.k], c.fps);
+  });
+  document.querySelectorAll('[data-loop]').forEach(el => loopSprite(el, FR[el.dataset.loop], 4));
+  loopSprite(document.getElementById('resultPanda'), FR.cheer.concat(FR.happy), 3);
+
+  // ---------- Demo level ----------
+  const COLS = 8, HOLE = 3, FLAG = 7;
+  const stage = document.getElementById('stage');
+  const bg = document.getElementById('stageBg');
+  (function drawStage(cv) {
+    const g = cv.getContext('2d'); const W = cv.width, H = cv.height, T = W / COLS, GY = 72;
+    const bands = ['#CDEBF6', '#C3E5F3', '#B8DEEF'];
+    bands.forEach((c, i) => { g.fillStyle = c; g.fillRect(0, i * 24, W, 24); });
+    g.fillStyle = '#B8DEEF'; g.fillRect(0, 72, W, 28);
+    // clouds
+    g.fillStyle = '#FFFFFF';
+    [[14, 12], [92, 18], [128, 8]].forEach(([x, y]) => { g.fillRect(x, y, 16, 4); g.fillRect(x + 3, y - 3, 9, 3); g.fillRect(x - 2, y + 2, 20, 3); });
+    // distant bamboo
+    for (let i = 0; i < 9; i++) {
+      const x = 6 + i * 18 + (i % 2) * 5, top = 18 + (i * 7) % 16;
+      g.fillStyle = i % 2 ? '#8CC7A0' : '#9BD1AC'; g.fillRect(x, top, 3, GY - top);
+      g.fillStyle = '#76B48B'; for (let y = top + 8; y < GY; y += 10) g.fillRect(x, y, 3, 1);
+      g.fillStyle = '#7FBF92'; g.fillRect(x + 3, top + 4, 5, 2); g.fillRect(x - 5, top + 12, 5, 2);
+    }
+    // ground
+    for (let c = 0; c < COLS; c++) {
+      if (c === HOLE) {
+        g.fillStyle = '#2B2740'; g.fillRect(c * T, GY + 1, T, H - GY);
+        g.fillStyle = '#3B3656'; g.fillRect(c * T + 2, GY + 3, T - 4, 2);
+        continue;
+      }
+      g.fillStyle = '#6FBF5A'; g.fillRect(c * T, GY, T, 5);
+      g.fillStyle = '#4E9B45'; for (let x = 0; x < T; x += 4) g.fillRect(c * T + x, GY + 4 + ((x / 4) % 2), 2, 2);
+      g.fillStyle = '#9A6B43'; g.fillRect(c * T, GY + 6, T, H - GY - 6);
+      g.fillStyle = '#7F5536'; for (let k = 0; k < 6; k++) g.fillRect(c * T + (k * 7 + c * 3) % T, GY + 10 + (k * 5) % 16, 2, 1);
+      g.fillStyle = '#1E1B2E'; g.fillRect(c * T, GY, T, 1);
+      if (c === HOLE - 1) g.fillRect(c * T + T - 1, GY, 1, H - GY);
+      if (c === HOLE + 1) g.fillRect(c * T, GY, 1, H - GY);
+    }
+    // flag
+    const fx = FLAG * T + T / 2;
+    g.fillStyle = '#1E1B2E'; g.fillRect(fx, GY - 30, 2, 30);
+    g.fillStyle = '#E8615E'; g.fillRect(fx + 2, GY - 30, 12, 8);
+    g.fillStyle = '#FBC73F'; g.fillRect(fx + 6, GY - 28, 3, 3);
+    g.fillStyle = '#1E1B2E'; g.fillRect(fx + 2, GY - 22, 12, 1); g.fillRect(fx + 14, GY - 30, 1, 9);
+    // start mat
+    g.fillStyle = '#D9D5EE'; g.fillRect(3, GY - 1, T - 6, 2);
+  })(bg);
+
+  const hero = document.getElementById('hero');
+  const bubble = document.getElementById('stageBubble');
+  const GROUND = 72 / 100; // ground line ratio
+  const P = { col: 0, y: 0, flip: false, frame: FR.idle[0] };
+  const heroIdle = loopSprite(hero, FR.idle, 2);
+  function place() {
+    const W = stage.clientWidth, H = stage.clientHeight, s = hero.clientWidth;
+    const x = (P.col + 0.5) / COLS * W - s / 2;
+    const y = GROUND * H - s * 0.97 + P.y;
+    hero.style.transform = `translate(${x}px, ${y}px) scaleX(${P.flip ? -1 : 1})`;
+  }
+  new ResizeObserver(() => { place(); setFrame(hero, P.frame); }).observe(stage);
+
+  const programs = {
+    good: [
+      { id: 'b0', type: 'event', label: 'khi bắt đầu', ic: '▶' },
+      { id: 'b1', type: 'repeat', n: 2, body: [{ id: 'b2', type: 'move', label: 'đi', ic: '👣', op: 'walk' }] },
+      { id: 'b3', type: 'move', label: 'nhảy', ic: '🦘', op: 'jump' },
+      { id: 'b4', type: 'repeat', n: 3, body: [{ id: 'b5', type: 'move', label: 'đi', ic: '👣', op: 'walk' }] }
+    ],
+    bad: [
+      { id: 'b0', type: 'event', label: 'khi bắt đầu', ic: '▶' },
+      { id: 'b1', type: 'repeat', n: 7, body: [{ id: 'b2', type: 'move', label: 'đi', ic: '👣', op: 'walk' }] }
+    ]
+  };
+  let variant = 'good';
+  const progEl = document.getElementById('program');
+  function blockHTML(b) {
+    if (b.type === 'repeat') return `<div class="c-block" data-id="${b.id}"><span class="blk loop"><span class="ic">🔁</span>lặp <span class="num">${b.n}</span> lần</span><div class="inner">${b.body.map(blockHTML).join('')}</div><div class="foot"></div></div>`;
+    const cls = b.type === 'event' ? 'event' : 'move';
+    return `<span class="blk ${cls}" data-id="${b.id}"><span class="ic">${b.ic}</span>${b.label}</span>`;
+  }
+  function countBlocks(list) { return list.reduce((n, b) => n + (b.type === 'event' ? 0 : 1) + (b.body ? countBlocks(b.body) : 0), 0); }
+  const MAX = 6;
+  function renderProgram() {
+    progEl.innerHTML = programs[variant].map(blockHTML).join('');
+    const used = countBlocks(programs[variant]);
+    const br = document.getElementById('bricks'); br.innerHTML = '';
+    for (let i = 0; i < MAX; i++) { const s = document.createElement('span'); s.className = 'brick' + (i < used ? ' used' : ''); br.appendChild(s); }
+    document.getElementById('capText').textContent = `còn ${MAX - used} khối`;
+  }
+
+  // Run first, record a log, then replay (same pattern as Blockly Games Maze)
+  function execute(list) {
+    const log = []; const sim = { col: 0, alive: true, done: false };
+    function run(items) {
+      for (const b of items) {
+        if (!sim.alive || sim.done) return;
+        if (b.type === 'event') { log.push({ op: 'hl', id: b.id }); continue; }
+        if (b.type === 'repeat') { for (let i = 0; i < b.n; i++) { log.push({ op: 'hl', id: b.id }); run(b.body); if (!sim.alive || sim.done) return; } continue; }
+        if (b.op === 'walk') {
+          const to = sim.col + 1;
+          if (to === HOLE) { log.push({ op: 'fall', id: b.id, from: sim.col, to }); sim.alive = false; return; }
+          log.push({ op: 'walk', id: b.id, from: sim.col, to }); sim.col = to;
+        } else if (b.op === 'jump') {
+          const to = Math.min(COLS - 1, sim.col + 2);
+          log.push({ op: 'jump', id: b.id, from: sim.col, to }); sim.col = to;
+        }
+        if (sim.col === FLAG) { sim.done = true; log.push({ op: 'win' }); return; }
+      }
+    }
+    run(list);
+    const result = sim.done ? 'SUCCESS' : (sim.alive ? 'FAILURE' : 'FALL');
+    return { log, result };
+  }
+
+  const speedEl = document.getElementById('speed');
+  const speedK = () => [0, 1.6, 1, 0.55][+speedEl.value];
+  let token = 0;
+  function highlight(id) {
+    progEl.querySelectorAll('.lit').forEach(e => e.classList.remove('lit'));
+    if (!id) return;
+    const el = progEl.querySelector(`[data-id="${id}"]`);
+    if (el) el.classList.add('lit');
+  }
+  const wait = ms => new Promise(r => setTimeout(r, ms));
+  function tween(ms, fn, my) {
+    return new Promise(res => {
+      const t0 = performance.now();
+      function f(now) {
+        if (my !== token) return res();
+        const t = Math.min(1, (now - t0) / ms); fn(t);
+        if (t < 1) requestAnimationFrame(f); else res();
+      }
+      requestAnimationFrame(f);
+    });
+  }
+  function frame(fr) { P.frame = fr; setFrame(hero, fr); }
+  function say(text) {
+    if (!text) { bubble.hidden = true; return; }
+    bubble.textContent = text; bubble.hidden = false;
+    const W = stage.clientWidth, s = hero.clientWidth;
+    const x = (P.col + 0.5) / COLS * W - s / 2;
+    bubble.style.left = Math.max(8, Math.min(W - bubble.offsetWidth - 8, x)) + 'px';
+    bubble.style.top = '10px';
+  }
+  async function play() {
+    reset();
+    const my = ++token;
+    const gone = () => my !== token;
+    const runBtn = document.getElementById('runBtn'); runBtn.disabled = true;
+    const { log, result } = execute(programs[variant]);
+    loops.delete(heroIdle);
+    const k = speedK();
+    for (const e of log) {
+      if (gone()) return;
+      if (e.op === 'hl') { highlight(e.id); await wait(160 * k); continue; }
+      highlight(e.id);
+      if (e.op === 'walk') {
+        let i = 0;
+        await tween(480 * k, t => { P.col = e.from + (e.to - e.from) * t; const fi = Math.floor(t * 4) % 4; if (fi !== i || t === 0) { i = fi; frame(FR.walk[fi]); } place(); }, my);
+      } else if (e.op === 'jump') {
+        frame(FR.crouch[0]); await wait(140 * k); frame(FR.jump[0]);
+        await tween(700 * k, t => { P.col = e.from + (e.to - e.from) * t; P.y = -Math.sin(Math.PI * t) * stage.clientHeight * 0.28; place(); }, my);
+        P.y = 0; frame(FR.crouch[0]); place(); await wait(120 * k);
+      } else if (e.op === 'fall') {
+        await tween(420 * k, t => { P.col = e.from + (e.to - e.from) * t; frame(FR.walk[Math.floor(t * 4) % 4]); place(); }, my);
+        frame(FR.crouch[0]);
+        await tween(520 * k, t => { P.y = t * t * stage.clientHeight * 0.55; place(); }, my);
+        if (gone()) return;
+        const blk = progEl.querySelector(`[data-id="${e.id}"]`);
+        if (blk) { blk.classList.remove('shake'); void blk.offsetWidth; blk.classList.add('shake'); }
+        await wait(250);
+        if (gone()) return;
+        P.y = 0; P.col = HOLE - 1; frame(FR.idle[0]); place();
+        say('Ối! Phía trước có hố. Con thử thêm khối 🦘 nhảy nhé!');
+      } else if (e.op === 'win') {
+        highlight(null);
+        frame(FR.cheer[0]); say('Yay! Tới lá cờ rồi!');
+        await wait(900 * k);
+        if (!gone()) {
+          document.getElementById('result').classList.add('show');
+          document.getElementById('coinCount').textContent = '145';
+        }
+      }
+    }
+    if (gone()) return;
+    if (result !== 'SUCCESS') { highlight(null); loops.add(heroIdle); }
+    runBtn.disabled = false;
+  }
+  function reset() {
+    token++;
+    document.getElementById('runBtn').disabled = false;
+    document.getElementById('result').classList.remove('show');
+    document.getElementById('coinCount').textContent = '120';
+    P.col = 0; P.y = 0; frame(FR.idle[0]); place(); say(null); highlight(null);
+    loops.add(heroIdle);
+  }
+  function setVariant(v) {
+    variant = v; reset();
+    document.getElementById('vGood').setAttribute('aria-pressed', v === 'good');
+    document.getElementById('vBad').setAttribute('aria-pressed', v === 'bad');
+    renderProgram();
+  }
+  document.getElementById('runBtn').addEventListener('click', play);
+  document.getElementById('resetBtn').addEventListener('click', reset);
+  document.getElementById('nextBtn').addEventListener('click', reset);
+  document.getElementById('vGood').addEventListener('click', () => setVariant('good'));
+  document.getElementById('vBad').addEventListener('click', () => setVariant('bad'));
+  document.addEventListener('keydown', e => {
+    if (['INPUT', 'TEXTAREA', 'BUTTON'].includes(document.activeElement?.tagName) && e.key === ' ') return;
+    if (e.key === ' ') { const r = stage.getBoundingClientRect(); if (r.bottom > 0 && r.top < innerHeight) { e.preventDefault(); play(); } }
+    if (e.key === 'r' || e.key === 'R') reset();
+  });
+  renderProgram(); place();
+})();
+</script>
