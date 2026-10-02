@@ -7,7 +7,7 @@
 |---|---|---|---|---|
 | P1-01 | Kiểu game `runner` đầy đủ | P0-07 | AI | ✅ |
 | P1-02 | Kiểu game `maze` | P0-03 | AI | ✅ |
-| P1-03 | `RunnerStage` đầy đủ | P1-01 | AI | ✅ |
+| P1-03 | `RunnerStage` đầy đủ | P1-01 | AI | ⬜ |
 | P1-04 | `MazeStage` | P1-02 (P0-08 nếu có, không bắt buộc) | AI | ⬜ |
 | P1-05 | `StageController` đầy đủ | P0-07 | AI | ⬜ |
 | P1-06 | 4 cách chơi: parsons, predict, bughunt, creative | P1-01, P1-02, P1-03, P1-04, P1-05 | AI | ⬜ |
