@@ -1,0 +1,122 @@
+/*
+ * Design tokens: the only place fonts, radii and shadows are written down. Colour hex values are
+ * mirrored in tokens.ts for the Blockly theme and the stage (ADR-0014); tokens.test.ts fails if the
+ * two files disagree, so change both together.
+ * Source of truth: docs/design/art-direction.md §2–4, visual reference design/style-board/index.html.
+ * Tailwind 4 turns every token below into utilities (`bg-ink`, `font-pixel`, `shadow-hard`…)
+ * and exposes it as a CSS variable (`var(--color-ink)`). Components must use these, never hex.
+ */
+
+/* `static`: emit every token as a CSS variable even when no utility uses it yet, so the Blockly
+   theme, the stage renderer and /dev/ui can read `var(--color-block-move)` at runtime. */
+@theme static {
+  /* Drop Tailwind's default palette and fonts so a stray `bg-blue-500` fails to style anything. */
+  --color-*: initial;
+  --font-*: initial;
+  --shadow-*: initial; /* only hard, unblurred shadows below */
+
+  /* ---- UI palette (art-direction.md §2 "Token giao diện") ---- */
+  --color-ink: #1e1b2e; /* text, 3px borders, hard shadows */
+  --color-ink-soft: #4a4560; /* secondary text (style board) */
+  --color-paper: #fff8ee; /* cards, panels */
+  --color-paper-2: #f1e6d8; /* recessed areas, used bricks */
+  --color-ground: #e9e4f3; /* page background behind panels (style board) */
+  --color-white: #ffffff; /* speech bubbles */
+  --color-brand: #7b769e; /* lavender brand */
+  --color-brand-deep: #4b4673;
+  --color-brand-soft: #d9d5ee;
+  --color-go: #4faf5a; /* ▶ Run, success */
+  --color-go-deep: #2f7d3a;
+  --color-coin: #fbc73f; /* coins, stars */
+  --color-coin-deep: #c98a12;
+  --color-coin-shine: #fff4c8; /* highlight pixel on coin/star icons (style board) */
+  --color-hint: #f9a5a7; /* hints */
+  --color-oops: #e8615e; /* errors: use sparingly, always with an icon */
+  --color-oops-soft: #fde7e6; /* warning box background (style board) */
+  --color-sky: #bfe3f2; /* daytime stage background */
+
+  /* ---- Block category colours (art-direction.md §2, fixed system-wide) ---- */
+  --color-block-move: #3a7bd5;
+  --color-block-loop: #d9730d;
+  --color-block-if: #8a5cd1;
+  --color-block-sensor: #178a7e;
+  --color-block-robot: #a0612b;
+  --color-block-var: #d13f73;
+  --color-block-fn: #5560c8;
+  --color-block-pen: #2f8a3e;
+  --color-block-event: #fbc73f;
+
+  /* ---- Fonts (art-direction.md §3; only fonts with a `vietnamese` subset, ADR-0012) ---- */
+  --font-display: 'Baloo 2', 'Nunito', system-ui, sans-serif; /* titles, buttons, blocks: 700–800 */
+  --font-body: 'Nunito', system-ui, 'Segoe UI', sans-serif; /* content, bubbles: 600–800 */
+  --font-pixel: 'VT323', ui-monospace, monospace; /* HUD numbers, pixel labels: ≥ 22px only */
+
+  /* ---- Type scale (laptop: body ≥ 18px, bubble 20–22px, VT323 ≥ 22px) ---- */
+  --text-small: 15px;
+  --text-small--line-height: 1.4;
+  --text-body: 18px;
+  --text-body--line-height: 1.55;
+  --text-bubble: 20px;
+  --text-bubble--line-height: 1.35;
+  --text-button: 19px;
+  --text-button--line-height: 1.2;
+  --text-button-lg: 22px;
+  --text-button-lg--line-height: 1.2;
+  --text-title: 34px;
+  --text-title--line-height: 1.1;
+  --text-display: 44px;
+  --text-display--line-height: 1.1;
+  --text-pixel-sm: 22px; /* smallest allowed VT323 size: key caps, chips */
+  --text-pixel-sm--line-height: 1.1;
+  --text-pixel: 24px; /* pixel labels, eyebrows */
+  --text-pixel--line-height: 1;
+  --text-hud: 28px; /* HUD numbers */
+  --text-hud--line-height: 1;
+  --text-pixel-lg: 34px;
+  --text-pixel-lg--line-height: 1.25; /* room for stacked marks like "ố", "ẫ" */
+
+  /* ---- Shape ---- */
+  --radius-panel: 18px; /* cards, panels */
+  --radius-bubble: 16px;
+  --radius-button: 14px;
+  --radius-chip: 12px; /* HUD pills, swatches */
+  --radius-key: 10px; /* small icon buttons, keyboard hints */
+  --radius-kbd: 6px;
+  --radius-brick: 3px;
+
+  /* Hard shadows only, never blurred (art-direction.md §4). */
+  --shadow-hard: 0 6px 0 var(--color-ink); /* panels */
+  --shadow-button: 0 5px 0 var(--color-ink);
+  --shadow-button-hover: 0 6px 0 var(--color-ink);
+  --shadow-button-pressed: 0 1px 0 var(--color-ink);
+  --shadow-bubble: 0 4px 0 var(--color-ink);
+  --shadow-key: 0 3px 0 var(--color-ink); /* small icon buttons */
+  --shadow-brick: inset 0 -4px 0 rgb(0 0 0 / 0.18);
+
+  /* ---- Motion (art-direction.md §6: 150–300 ms, bouncy) ---- */
+  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --animate-shake: shake 0.4s ease-in-out 2;
+  --animate-pop: pop 0.3s var(--ease-bounce);
+
+  @keyframes shake {
+    0%,
+    100% {
+      transform: translateX(0);
+    }
+    25% {
+      transform: translateX(-5px);
+    }
+    75% {
+      transform: translateX(5px);
+    }
+  }
+
+  @keyframes pop {
+    0% {
+      transform: scale(0.6);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+}

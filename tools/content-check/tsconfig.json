@@ -1,0 +1,13 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "types": ["node"]
+  },
+  "include": ["src"],
+  "references": [
+    { "path": "../../packages/content-schema" },
+    { "path": "../../packages/engine" },
+    { "path": "../../packages/games" }
+  ]
+}

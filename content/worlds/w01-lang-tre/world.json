@@ -1,0 +1,21 @@
+{
+  "id": "w01-lang-tre",
+  "order": 1,
+  "title": "Làng Tre",
+  "emoji": "🎋",
+  "concept": "Tuần tự",
+  "story": "Gió to thổi bay hết măng của làng. Măng phải đi khắp làng nhặt lại.",
+  "theme": { "tileset": "/tiles/ground.png", "palette": "day" },
+  "lessonIds": [],
+  "levelIds": ["w01-l03"],
+  "unlock": { "minStarRatio": 0.6 },
+  "unplugged": {
+    "title": "Robot trên sàn nhà",
+    "steps": [
+      "Dán băng keo thành một đường trên sàn.",
+      "Một bé làm robot, đứng ở đầu đường.",
+      "Một bé đọc lệnh bằng thẻ giấy: đi, nhảy.",
+      "Robot làm đúng từng lệnh, theo đúng thứ tự."
+    ]
+  }
+}

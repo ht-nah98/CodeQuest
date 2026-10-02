@@ -1,0 +1,35 @@
+{
+  "name": "@codequest/web",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "postinstall": "node scripts/copyBlocklyMedia.js",
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "e2e": "playwright test"
+  },
+  "dependencies": {
+    "@blockly/disable-top-blocks": "13.3.0",
+    "@codequest/content-schema": "*",
+    "@codequest/engine": "*",
+    "@codequest/games": "*",
+    "@codequest/rewards": "*",
+    "@tailwindcss/vite": "^4.3.3",
+    "blockly": "13.3.0",
+    "pixi.js": "8.21.0",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "react-router": "^8.4.0",
+    "tailwindcss": "^4.3.3"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.63.0",
+    "@testing-library/react": "^16.3.3",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.1",
+    "vite": "^8.3.2"
+  }
+}

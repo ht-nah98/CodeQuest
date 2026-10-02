@@ -1,0 +1,435 @@
+{
+  "frames": {
+    "cheer.png": {
+      "frame": {
+        "x": 3,
+        "y": 3,
+        "w": 254,
+        "h": 227
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 13,
+        "y": 42,
+        "w": 254,
+        "h": 227
+      },
+      "sourceSize": {
+        "w": 280,
+        "h": 280
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 0.960714
+      }
+    },
+    "crouch.png": {
+      "frame": {
+        "x": 261,
+        "y": 3,
+        "w": 192,
+        "h": 197
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 40,
+        "y": 67,
+        "w": 192,
+        "h": 197
+      },
+      "sourceSize": {
+        "w": 280,
+        "h": 280
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 0.942857
+      }
+    },
+    "happy.png": {
+      "frame": {
+        "x": 519,
+        "y": 3,
+        "w": 163,
+        "h": 217
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 59,
+        "y": 57,
+        "w": 163,
+        "h": 217
+      },
+      "sourceSize": {
+        "w": 280,
+        "h": 280
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 0.978571
+      }
+    },
+    "idle_1.png": {
+      "frame": {
+        "x": 777,
+        "y": 3,
+        "w": 162,
+        "h": 217
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 59,
+        "y": 57,
+        "w": 162,
+        "h": 217
+      },
+      "sourceSize": {
+        "w": 280,
+        "h": 280
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 0.978571
+      }
+    },
+    "idle_2.png": {
+      "frame": {
+        "x": 3,
+        "y": 243,
+        "w": 162,
+        "h": 219
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 56,
+        "y": 55,
+        "w": 162,
+        "h": 219
+      },
+      "sourceSize": {
+        "w": 280,
+        "h": 280
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 0.978571
+      }
+    },
+    "jump.png": {
+      "frame": {
+        "x": 261,
+        "y": 243,
+        "w": 213,
+        "h": 217
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 35,
+        "y": 4,
+        "w": 213,
+        "h": 217
+      },
+      "sourceSize": {
+        "w": 280,
+        "h": 280
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 0.978571
+      }
+    },
+    "kick.png": {
+      "frame": {
+        "x": 519,
+        "y": 243,
+        "w": 227,
+        "h": 232
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 27,
+        "y": 15,
+        "w": 227,
+        "h": 232
+      },
+      "sourceSize": {
+        "w": 280,
+        "h": 280
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 0.882143
+      }
+    },
+    "run_1.png": {
+      "frame": {
+        "x": 777,
+        "y": 243,
+        "w": 187,
+        "h": 218
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 50,
+        "y": 48,
+        "w": 187,
+        "h": 218
+      },
+      "sourceSize": {
+        "w": 280,
+        "h": 280
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 0.971429
+      }
+    },
+    "run_2.png": {
+      "frame": {
+        "x": 3,
+        "y": 483,
+        "w": 210,
+        "h": 223
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 27,
+        "y": 43,
+        "w": 210,
+        "h": 223
+      },
+      "sourceSize": {
+        "w": 280,
+        "h": 280
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 0.971429
+      }
+    },
+    "run_3.png": {
+      "frame": {
+        "x": 261,
+        "y": 483,
+        "w": 193,
+        "h": 227
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 41,
+        "y": 45,
+        "w": 193,
+        "h": 227
+      },
+      "sourceSize": {
+        "w": 280,
+        "h": 280
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 0.971429
+      }
+    },
+    "run_4.png": {
+      "frame": {
+        "x": 519,
+        "y": 483,
+        "w": 220,
+        "h": 220
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 19,
+        "y": 45,
+        "w": 220,
+        "h": 220
+      },
+      "sourceSize": {
+        "w": 280,
+        "h": 280
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 0.971429
+      }
+    },
+    "talk.png": {
+      "frame": {
+        "x": 777,
+        "y": 483,
+        "w": 165,
+        "h": 220
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 58,
+        "y": 54,
+        "w": 165,
+        "h": 220
+      },
+      "sourceSize": {
+        "w": 280,
+        "h": 280
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 0.978571
+      }
+    },
+    "walk_1.png": {
+      "frame": {
+        "x": 3,
+        "y": 723,
+        "w": 159,
+        "h": 236
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 56,
+        "y": 40,
+        "w": 159,
+        "h": 236
+      },
+      "sourceSize": {
+        "w": 280,
+        "h": 280
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 0.985714
+      }
+    },
+    "walk_2.png": {
+      "frame": {
+        "x": 261,
+        "y": 723,
+        "w": 159,
+        "h": 236
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 57,
+        "y": 40,
+        "w": 159,
+        "h": 236
+      },
+      "sourceSize": {
+        "w": 280,
+        "h": 280
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 0.985714
+      }
+    },
+    "walk_3.png": {
+      "frame": {
+        "x": 519,
+        "y": 723,
+        "w": 157,
+        "h": 236
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 59,
+        "y": 40,
+        "w": 157,
+        "h": 236
+      },
+      "sourceSize": {
+        "w": 280,
+        "h": 280
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 0.985714
+      }
+    },
+    "walk_4.png": {
+      "frame": {
+        "x": 777,
+        "y": 723,
+        "w": 162,
+        "h": 235
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 55,
+        "y": 40,
+        "w": 162,
+        "h": 235
+      },
+      "sourceSize": {
+        "w": 280,
+        "h": 280
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 0.985714
+      }
+    }
+  },
+  "animations": {
+    "cheer": [
+      "cheer.png"
+    ],
+    "crouch": [
+      "crouch.png"
+    ],
+    "happy": [
+      "happy.png"
+    ],
+    "idle": [
+      "idle_1.png",
+      "idle_2.png"
+    ],
+    "jump": [
+      "jump.png"
+    ],
+    "kick": [
+      "kick.png"
+    ],
+    "run": [
+      "run_1.png",
+      "run_2.png",
+      "run_3.png",
+      "run_4.png"
+    ],
+    "talk": [
+      "talk.png"
+    ],
+    "walk": [
+      "walk_1.png",
+      "walk_2.png",
+      "walk_3.png",
+      "walk_4.png"
+    ]
+  },
+  "meta": {
+    "app": "codequest tools/sprites/pack.py",
+    "version": "1",
+    "image": "panda.png",
+    "format": "RGBA8888",
+    "size": {
+      "w": 1034,
+      "h": 962
+    },
+    "scale": 1
+  }
+}

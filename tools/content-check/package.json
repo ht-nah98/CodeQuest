@@ -1,0 +1,12 @@
+{
+  "name": "@codequest/content-check",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@codequest/content-schema": "*",
+    "@codequest/engine": "*",
+    "@codequest/games": "*",
+    "zod": "^4.6.5"
+  }
+}

@@ -21,11 +21,13 @@ Luôn khai báo **tường minh** mọi tùy chọn dưới đây. TypeScript 6 
     "noImplicitOverride": true, "verbatimModuleSyntax": true, "isolatedModules": true,
     "resolveJsonModule": true, "skipLibCheck": true,
     "composite": true, "declaration": true, "emitDeclarationOnly": true,
-    "declarationDir": ".tsbuild/types", "tsBuildInfoFile": ".tsbuild/tsconfig.tsbuildinfo"
+    "declarationDir": "${configDir}/.tsbuild/types", "tsBuildInfoFile": "${configDir}/.tsbuild/tsconfig.tsbuildinfo"
   }
 }
 // tsconfig.json (root): { "files": [], "references": [{ "path": "packages/content-schema" }, { "path": "packages/engine" }, …, { "path": "apps/web" }] }
 ```
+`${configDir}` (có từ TS 5.5) làm đường dẫn tính theo thư mục của tsconfig con. Nếu viết đường dẫn thường, mọi package sẽ ghi chung một file `.tsbuildinfo` ở gốc repo và đè lên nhau. File cấu hình chạy bằng Node (`vite.config.ts`, `playwright.config.ts`, `e2e/`, `vitest.config.ts`) nằm trong `tsconfig.node.json` riêng, có `types: ["node"]`.
+
 Project reference bắt buộc `composite` và không được `noEmit`, nên dùng `emitDeclarationOnly` vào `.tsbuild/` (đã gitignore). Vite/Vitest không đọc các file này.
 
 ## 2. Đặt tên

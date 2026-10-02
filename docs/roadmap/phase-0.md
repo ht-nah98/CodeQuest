@@ -5,13 +5,13 @@
 
 | ID | Task | Phụ thuộc | Người làm | Trạng thái |
 |---|---|---|---|---|
-| P0-01 | Khởi tạo monorepo & tooling | — | AI | ⬜ |
-| P0-02 | Khung 4 package headless | P0-01 | AI | ⬜ |
-| P0-03 | Engine lõi `runLevel` | P0-02 | AI | ⬜ |
-| P0-04 | Design system & font | P0-01 | AI | ⬜ |
-| P0-05 | Wrapper Blockly + theme | P0-02, P0-04 | AI | ⬜ |
-| P0-06 | Pipeline asset & spritesheet Măng | P0-01 | AI | ⬜ |
-| P0-07 | Prototype 1 màn runner end-to-end | P0-03, P0-05, P0-06 | AI | ⬜ |
+| P0-01 | Khởi tạo monorepo & tooling | — | AI | 🟨 |
+| P0-02 | Khung 4 package headless | P0-01 | AI | ✅ |
+| P0-03 | Engine lõi `runLevel` | P0-02 | AI | ✅ |
+| P0-04 | Design system & font | P0-01 | AI | ✅ |
+| P0-05 | Wrapper Blockly + theme | P0-02, P0-04 | AI | ✅ |
+| P0-06 | Pipeline asset & spritesheet Măng | P0-01 | AI | ✅ |
+| P0-07 | Prototype 1 màn runner end-to-end | P0-03, P0-05, P0-06 | AI | 🟨 |
 | P0-08 | Tạo thêm sprite (đi lên/xuống, choáng, ôm đầu, suy nghĩ) | — | **HLV** | ⬜ |
 | P0-09 | Chơi thử prototype với bé | P0-07 | **HLV** | ⬜ |
 

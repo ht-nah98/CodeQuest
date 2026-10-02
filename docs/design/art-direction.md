@@ -54,6 +54,18 @@ Lấy trực tiếp từ sprite (k-means trên pixel thật):
 }
 ```
 
+**Token bổ sung** (lấy từ style board, cần khi dựng component ở P0-04):
+
+| Token | Mã | Dùng cho |
+|---|---|---|
+| `ink-soft` | `#4A4560` | chữ phụ, chú thích |
+| `ground` | `#E9E4F3` | nền trang phía sau các panel |
+| `white` | `#FFFFFF` | bong bóng thoại |
+| `coin-shine` | `#FFF4C8` | điểm sáng trên icon xu/sao |
+| `oops-soft` | `#FDE7E6` | nền hộp cảnh báo |
+
+**Cách đặt tên trong code:** token nằm trong `apps/web/src/ui/tokens.css`, khối `@theme static` của Tailwind 4, theo không gian tên của Tailwind: màu là `--color-<tên>` (vd `--color-ink`, `--color-block-move`), font là `--font-display|body|pixel`, cỡ chữ `--text-*`, bo góc `--radius-*`, bóng `--shadow-*`. Tailwind sinh class tương ứng (`bg-ink`, `font-pixel`, `shadow-hard`). Bảng màu của Tailwind và bóng mặc định đã bị tắt. Mã màu được chép sang `ui/tokens.ts` cho Blockly/PixiJS; unit test so hai file nên phải sửa cả hai cùng lúc.
+
 ### Màu khối lệnh (cố định trên toàn hệ thống)
 Chọn đủ đậm để **chữ trắng in đậm trên khối đạt độ tương phản ≥ 3:1**. Ngưỡng 3:1 chỉ đúng vì chữ trên khối là chữ lớn in đậm (≥ 18,66px), xem §3. Không giảm cỡ chữ khối xuống dưới mức này:
 
@@ -88,9 +100,11 @@ Cỡ chữ cho laptop: nội dung ≥ 18px, bong bóng mascot 20–22px, chữ t
 
 - **Nút chunky:** chữ màu `--ink` trên nền `--go`/`--coin`/`--paper` (chữ trắng trên `--go` chỉ đạt 2,8:1, không đủ tương phản), viền 3px `--ink`, bóng cứng `0 5px 0 var(--ink)`. Khi hover, nút nhô lên 1px. Khi bấm, nút lún xuống (`translateY(4px)`, bóng còn 1px) kèm tiếng "tách".
 - **Thẻ/panel:** nền `--paper`, bo 18px, viền 3px, bóng cứng 6px.
-- **Bong bóng mascot:** nền trắng, viền mực, đuôi nhọn chỉ về Măng. Luôn có nút 🔊 đọc to.
+- **Bong bóng mascot:** nền trắng, viền mực, đuôi nhọn chỉ về Măng. Có nút 🔊 đọc to cho mọi câu cố định (câu có số thay đổi thì không, xem `ui-copy-guide.md` §5). Nút 🔊 rộng **44×44px** (vùng bấm tối thiểu), không phải 36px như bản style board.
+- **Viền focus bàn phím:** hai màu: vòng `--paper` 3px sát viền nút, ngoài cùng là viền `--brand-deep` 3px. Một màu đơn sẽ biến mất trên nền cùng màu (thanh trên màu `--brand-deep`).
 - **Thanh còn-khối:** những "viên gạch" pixel giảm dần, hết gạch thì rung nhẹ.
 - **Sao & coin:** icon pixel 16×16 phóng to theo bội số nguyên, hiệu ứng nảy khi nhận.
+- **Icon pixel (`PixelIcon`):** `coin`, `star`, `star-empty`, `flame` (chuỗi ngày), `speaker` (🔊), `play` (▶ Chạy), `bulb` (💡 Gợi ý), `lock` (🔒 chưa mở). Giao diện **không dùng emoji** cho icon: emoji phụ thuộc font của máy (máy không có font emoji hiện ô trống; "▶" thành emoji màu trên Windows).
 - **Bản đồ phiêu lưu:** ảnh pixel cuộn ngang, có con đường nối các đảo thế giới. Măng đi theo đường tới màn hiện tại.
 
 ---

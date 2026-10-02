@@ -15,7 +15,9 @@ Nguồn chuẩn cho: cách dùng Blockly 13 trong CodeQuest: wrapper React, them
 - `useEffect` gọi `Blockly.inject(div, options)` khi mount và `workspace.dispose()` khi unmount.
 - **Mỗi màn một workspace mới:** component được render với `key={level.id}`, nên chuyển màn = dispose workspace cũ + inject workspace mới. Lý do (đã kiểm trong mã nguồn Blockly 13): `maxBlocks`/`maxInstances`/`readOnly` chỉ đặt được lúc inject, và `updateToolbox` ném lỗi *"Existing toolbox is null"* nếu workspace được tạo mà không có toolbox (trường hợp mode `parsons` → `build`).
 - Trong cùng một màn, Làm lại chương trình dùng `workspace.clear()` + `serialization.workspaces.load(initial)`.
-- Nhận `level`, trả ra qua callback: `onChange(json, analysis)` (debounce 150 ms), `onReady(workspaceSvg)`.
+- Nhận `level`, trả ra qua callback: `onChange({ levelId, json, analysis, remainingCapacity })` (debounce 150 ms, chỉ dùng để hiển thị), `onReady(workspaceSvg, handle)`, `onDispose()`, `onMouseDragEnd()` (xem §13).
+- **Bấm Chạy phải đọc workspace đồng bộ** qua `handle.getState()` (serialize + `analyzeWorkspace` + `remainingCapacity` ngay lúc gọi), **không** đọc state debounce: bé thả khối rồi nhấn Space ngay thì state debounce vẫn là chương trình cũ. `handle.flush()` giao ngay báo cáo `onChange` đang chờ. Khi gỡ workspace (unmount hoặc đổi màn), wrapper hủy thao tác di chuyển bằng bàn phím đang dở, flush báo cáo đang chờ (không bỏ mất), gọi `onDispose()` rồi mới `dispose()`. Báo cáo flush lúc đổi màn mang `levelId` của màn cũ, nên màn hình lọc theo `levelId`. `loadInitialWorkspace(ws, level)` dùng chung cho lúc inject và nút Làm lại; hàm này luôn `setDeletable(false)` cho `cq_start`, bất kể JSON nội dung ghi gì.
+- **Chờ font trước khi inject** (`document.fonts.load` cho Baloo 2 và VT323, kèm chữ có dấu để tải bộ `vietnamese`): Blockly đo chữ đúng một lần lúc vẽ khối, đo bằng font dự phòng thì nhãn tràn khỏi khối khi Baloo 2 tải xong. Vì vậy `onReady` đến sau một nhịp bất đồng bộ.
 - Một màn chơi chỉ có **một** workspace có hiển thị. Bài giảng dùng workspace **chỉ đọc** riêng (`readOnly: true`).
 
 Tùy chọn `inject` chuẩn (viết bằng conditional spread vì `exactOptionalPropertyTypes` không cho gán `undefined` vào trường tùy chọn):
@@ -52,6 +54,8 @@ Tùy chọn `inject` chuẩn (viết bằng conditional spread vì `exactOptiona
 | `pen_blocks` | turtle | `#2F8A3E` |
 | `event_blocks` | `cq_start` | `#FBC73F`, chữ màu mực |
 
+- Code: `apps/web/src/blockly/theme.ts` (`base: Themes.Zelos`; màu import từ `ui/tokens.ts`). `colourTertiary` (zelos vẽ thành viền) = màu khối trộn 35% mực, viền 2px trong `blockly.css`, giống viền khối trên style board. `math_blocks` dùng màu biến.
+- Chữ trên `cq_start` màu mực: CSS `.event_blocks > .blocklyLabelField > .blocklyText` (chỉ con trực tiếp, vì khối bên dưới nằm lồng trong `<g>` của `cq_start`).
 - Font: `fontStyle: { family: '"Baloo 2", Nunito, sans-serif', weight: '700', size: 14 }`. 14pt ≈ 18,7px in đậm, đạt mức **chữ lớn** của WCAG, nên ngưỡng tương phản 3:1 của bảng màu khối là đúng chuẩn.
 - Theme mù màu: tạo thêm `codequest-cvd` theo bộ màu của plugin `@blockly/theme-deuteranopia`, bật trong Cài đặt.
 
@@ -59,6 +63,8 @@ Tùy chọn `inject` chuẩn (viết bằng conditional spread vì `exactOptiona
 - Khối mũ (hat), định nghĩa trong `packages/engine/src/blocks/common.ts`.
 - Luôn có sẵn trong workspace ban đầu, `deletable: false`, `movable: true`, không xuất hiện trong thanh khối.
 - Khối rời bị làm xám nhờ listener `Blockly.Events.disableOrphans` + plugin `@blockly/disable-top-blocks`.
+- Menu chuột phải: `setupBlockly()` bỏ đăng ký `blockHelp` ("Trợ giúp" mở trang tiếng Anh của bên thứ ba bằng `window.open`) và `blockInline` ("Cùng dòng"). Giữ Nhân đôi, Xóa khối, Hoàn tác / Làm tiếp (`REDO` đổi thành "Làm tiếp" để không trùng nút "Làm lại" của màn chơi), Xếp gọn, Xóa hết. `blockDisable` vẫn đăng ký (ẩn vì `disable` tắt) vì plugin vá nó.
+- Đã kiểm (13.3.0): menu chuột phải của `cq_start` không có mục nào hiện (không xóa, không bình luận, không thu gọn), nên không mở menu. Tùy chọn `disable` để mặc định (`false` khi toolbox là flyout), nên bé không tự tắt khối được; plugin vẫn được `init()` để đúng hành vi nếu sau này bật `disable`.
 
 ## 5. Giới hạn khối
 Đã kiểm chứng trên Blockly 13.3.0 (01/10/2026): `workspace.remainingCapacity()` = `maxBlocks − getAllBlocks(false).length`, tức là **tính cả `cq_start` và cả shadow block**. Ví dụ `controls_repeat_ext` có ô số shadow chiếm **2** chỗ.
@@ -76,7 +82,8 @@ Vì vậy:
 `buildToolbox(level)` (trong `apps/web/src/blockly/toolbox.ts`) tạo **flyout toolbox** (không dùng category) từ `level.toolbox: string[]`:
 - Thứ tự theo `level.toolbox`, nhóm theo `category` của BlockSpec, giữa các nhóm có nhãn nhỏ (VT323: "DI CHUYỂN", "LẶP"…).
 - Khối có tham số dùng giá trị mặc định khai báo trong `content` (vd `{"type":"cq_repeat","fields":{"TIMES":3}}`). Vì thế `level.toolbox` cho phép chuỗi hoặc object.
-- Mode `parsons`: toolbox là flyout **rỗng**, cột thanh khối ẩn bằng CSS (vẫn phải có toolbox để Blockly không lỗi).
+- Mode `parsons`: toolbox là flyout **rỗng**, cột thanh khối ẩn bằng CSS (vẫn phải có toolbox để Blockly không lỗi). CSS cần `display: none !important` vì Blockly đặt `style="display: block"` inline cho flyout.
+- Nhãn nhóm là `{ kind: 'label', 'web-class': 'cq-flyout-label' }`, kiểu chữ VT323 22px trong `blockly.css`. Blockly đo nhãn bằng style đã tính, nên phải chờ font (§2).
 
 ## 7. Highlight khi phát lại
 - `workspace.highlightBlock(id)` khi diễn event có `blockId`; `highlightBlock(null)` khi xong.
@@ -105,13 +112,13 @@ Vì vậy:
 ## 11. Plugin dùng
 | Plugin | Dùng làm gì |
 |---|---|
-| `@blockly/disable-top-blocks` | Kết hợp `disableOrphans` |
+| `@blockly/disable-top-blocks` | Kết hợp `disableOrphans`. Bản 13.3.0 chỉ phát hành `src/` (không có `dist/`, không có type): Vite lấy theo trường `module`; type tự khai trong `apps/web/src/blockly/disable-top-blocks.d.ts` |
 | `@blockly/workspace-content-highlight` | Làm mờ xung quanh khi hướng dẫn lần đầu |
 | `@blockly/field-grid-dropdown` | Chọn hướng / màu / ô bằng lưới hình |
 | `@blockly/zoom-to-fit` | Nút "vừa màn hình" |
 
 ## 12. Đường dẫn tài nguyên
-- Copy `node_modules/blockly/media/` vào `apps/web/public/blockly-media/` (script `postinstall` hoặc plugin Vite) và truyền `media: '/blockly-media/'`.
+- Copy `node_modules/blockly/media/` vào `apps/web/public/blockly-media/` bằng script `postinstall` của `apps/web` (`apps/web/scripts/copyBlocklyMedia.js`; thư mục đích đã gitignore, `npm ci` tạo lại) và truyền `media: '/blockly-media/'`.
 - `field_image.src` luôn là **đường dẫn tuyệt đối từ gốc site** (`/icons/jump.png`), không dùng đường dẫn tương đối (sẽ thành `/play/icons/...` → 404).
 
 ## 13. Phím tắt và Blockly
@@ -119,3 +126,5 @@ Blockly 13 có phím tắt riêng (đã kiểm trong `core/shortcut_items.ts`): 
 - Phím tắt của app (`Space`, `S`, `R`, `H`) chỉ hoạt động khi Blockly **không ở chế độ điều hướng bàn phím** (không có khối/kết nối đang được focus bằng bàn phím, và không có thao tác di chuyển bằng bàn phím đang dở). Sau khi bé **kéo thả bằng chuột** xong, app trả focus về vùng màn chơi (listener `BLOCK_DRAG` kết thúc → `stageContainer.focus()`), nên `Space` để chạy vẫn dùng được ngay.
 - Bỏ đăng ký `next_heading` (`Blockly.ShortcutRegistry.registry.unregister('next_heading')`). Giữ các phím điều hướng còn lại cho người dùng bàn phím.
 - `Esc` của app chỉ đóng lớp phủ của app; khi không có lớp phủ thì để Blockly xử lý.
+- Code: `shouldHandleAppShortcut(event)` trong `apps/web/src/blockly/shortcuts.ts`. Không xử lý khi có lớp phủ `[aria-modal="true"]`, khi có Shift + phím chữ, và để `Space` cho nút/link/`summary`/các role checkbox, switch, tab, menuitem, option tự kích hoạt. Blockly giữ phím khi: đang di chuyển bằng bàn phím (`KeyboardMover.mover.isMoving()`), đang kéo bằng chuột (`Gesture.inProgress()`, nếu không Space giữa lúc kéo sẽ chạy chương trình trước khi thả), đang mở ô nhập/dropdown, hoặc điều hướng bàn phím đang bật **và** focus nằm trong Blockly. Phải xét cả focus vì Blockly bật điều hướng bàn phím mỗi khi nhấn `Tab` ở **bất kỳ đâu** trên trang (`inject.ts`, listener `keydown` trên `document`).
+- Màn chơi nghe `keydown` ở **pha capture** trên `window` và `stopPropagation()` khi tự xử lý `Space`; nếu không, khối vừa bấm chuột (đang focus, điều hướng bàn phím tắt) sẽ nhận thêm `perform_action` của Blockly.

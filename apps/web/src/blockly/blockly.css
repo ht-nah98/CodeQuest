@@ -1,0 +1,43 @@
+/*
+ * Blockly skin on top of the codequest theme (blockly-integration.md §3, §6).
+ * Colours come from the tokens in ui/tokens.css; Blockly injects its own base CSS at runtime.
+ */
+
+.cq-blockly {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+}
+
+/* Mode parsons: the flyout stays (Blockly needs a toolbox) but is hidden (§6).
+   !important beats the inline `display: block` Blockly sets when it shows the flyout. */
+.cq-blockly[data-mode='parsons'] .blocklyFlyout,
+.cq-blockly[data-mode='parsons'] .blocklyFlyoutScrollbar {
+  display: none !important;
+}
+
+/* Block outline: 2px, like the style board's block pills (colour = blockStyle colourTertiary). */
+.cq-blockly .blocklyPath {
+  stroke-width: 2px;
+}
+
+/* "khi bắt đầu" is coin yellow, so its label is ink, not white (§3). Only its own label:
+   blocks hanging below it are nested inside its <g>. */
+.cq-blockly .event_blocks > .blocklyLabelField > .blocklyText,
+.cq-blockly .event_blocks > .blocklyEditableField > .blocklyText {
+  fill: var(--color-ink);
+}
+
+/* The flyout reads as a column with an ink edge, like the style board's toolbox. */
+.cq-blockly .blocklyFlyoutBackground {
+  stroke: var(--color-ink);
+  stroke-width: 2px;
+}
+
+/* Toolbox group labels: small VT323 caps, like the style board's toolbox. */
+.cq-blockly .cq-flyout-label .blocklyFlyoutLabelText {
+  font-family: var(--font-pixel);
+  font-size: 22px;
+  font-weight: 400;
+  fill: var(--color-ink-soft);
+}

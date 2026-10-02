@@ -1,0 +1,14 @@
+# Docs and design files are hand-formatted (Vietnamese tables, prompts).
+*.md
+docs/
+design/
+assets/
+.omc/
+node_modules/
+dist/
+coverage/
+.tsbuild/
+playwright-report/
+test-results/
+apps/web/public/blockly-media/
+package-lock.json

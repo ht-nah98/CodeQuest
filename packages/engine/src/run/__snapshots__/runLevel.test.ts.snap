@@ -1,0 +1,69 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`runLevel > is deterministic: the same input gives the same outcome 1`] = `
+{
+  "events": [
+    {
+      "blockId": "start",
+      "type": "highlight",
+    },
+    {
+      "blockId": "r1",
+      "type": "highlight",
+    },
+    {
+      "blockId": "r1",
+      "type": "say",
+      "value": 0.011601541191339493,
+    },
+    {
+      "blockId": "r",
+      "type": "highlight",
+    },
+    {
+      "blockId": "s",
+      "type": "highlight",
+    },
+    {
+      "blockId": "s",
+      "from": 0,
+      "to": 1,
+      "type": "step",
+    },
+    {
+      "blockId": "r",
+      "type": "highlight",
+    },
+    {
+      "blockId": "s",
+      "type": "highlight",
+    },
+    {
+      "blockId": "s",
+      "from": 1,
+      "to": 2,
+      "type": "step",
+    },
+    {
+      "blockId": "r",
+      "type": "highlight",
+    },
+    {
+      "blockId": "r2",
+      "type": "highlight",
+    },
+    {
+      "blockId": "r2",
+      "type": "say",
+      "value": 6,
+    },
+  ],
+  "reasonCode": null,
+  "result": "success",
+  "stats": {
+    "actions": 4,
+    "blocksUsed": 6,
+    "steps": 203,
+  },
+}
+`;
