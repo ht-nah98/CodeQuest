@@ -34,7 +34,7 @@ Nếu hai tài liệu nói khác nhau, **tài liệu ở cột "Nguồn chuẩn"
 | Lưu trữ, đồng bộ, đăng nhập | `architecture/data-sync-auth.md` |
 | Kiểm thử | `architecture/testing-strategy.md` |
 | Bảo mật, quyền riêng tư của trẻ | `architecture/security-privacy.md` |
-| Môi trường dev, CI, deploy | `architecture/deployment-ops.md` |
+| Môi trường dev, CI, deploy | `architecture/deployment-ops.md` (kèm hướng dẫn H1–H5 tạo Supabase/Docker/GitHub/Vercel) |
 | Lý do của từng quyết định kỹ thuật | `adr/` |
 | Việc cần làm, thứ tự, tiêu chí nghiệm thu | `roadmap/` |
 
