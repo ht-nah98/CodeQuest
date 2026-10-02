@@ -1,0 +1,39 @@
+{
+  "id": "w01-creative",
+  "worldId": "w01-lang-tre",
+  "stage": "creative",
+  "kind": "runner",
+  "mode": "creative",
+  "title": "Sân chơi của con",
+  "objective": "Ghép tùy ý, xem Măng chạy thế nào nhé!",
+  "learningGoal": "Tự do thử các khối, tự đặt thử thách cho mình và cho bạn.",
+  "toolbox": ["runner_walk", "runner_jump", "runner_crouch", "runner_kick"],
+  "config": {
+    "cells": [
+      "ground",
+      "ground",
+      "hole",
+      "ground",
+      "branch",
+      "ground",
+      "crate",
+      "ground",
+      "hole",
+      "ground",
+      "branch",
+      "flag"
+    ],
+    "start": 0,
+    "bamboo": [3, 4, 7, 10]
+  },
+  "hints": [
+    {
+      "id": "free",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Không có đúng sai đâu. Con cứ thử thoải mái!",
+      "point": "stage"
+    }
+  ]
+}

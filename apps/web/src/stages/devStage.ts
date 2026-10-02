@@ -1,9 +1,10 @@
 import { type AnimatedSprite, Container, type Ticker } from 'pixi.js';
-import { loadPandaSheet, loadTiles, TILE_SIZE, type TileName, type TileTextures } from './assets';
+import { loadPandaSheet, loadTiles, type TileName, type TileTextures } from './assets';
 import { createStageApp, destroyStageApp } from './createStageApp';
 import type { PandaAnimation } from './panda';
 import { createPanda } from './pandaSprite';
-import { createFlag, GRASS_OUTLINE_TEXELS, tileSprite } from './tiles';
+import { GRASS_OUTLINE_TEXELS, TILE_SIZE } from './tileGrid';
+import { createFlag, tileSprite } from './tiles';
 
 /** Logical stage size (16:10, stage-rendering.md §2). */
 export const DEV_STAGE_WIDTH = 800;

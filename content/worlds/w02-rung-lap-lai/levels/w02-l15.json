@@ -1,0 +1,106 @@
+{
+  "id": "w02-l15",
+  "worldId": "w02-rung-lap-lai",
+  "stage": "practice",
+  "kind": "runner",
+  "mode": "predict",
+  "title": "Hai khối lặp nối nhau",
+  "objective": "Hai khối lặp nối nhau. Măng dừng ở đâu?",
+  "learningGoal": "Máy chạy hết khối lặp thứ nhất rồi mới chạy khối lặp thứ hai.",
+  "misconception": "Hai khối lặp chạy xen kẽ nhau; hoặc số lần lặp là số ô Măng đi.",
+  "toolbox": [],
+  "config": {
+    "cells": [
+      "ground",
+      "ground",
+      "ground",
+      "ground",
+      "hole",
+      "ground",
+      "hole",
+      "ground",
+      "ground",
+      "flag"
+    ],
+    "start": 0
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "rep1",
+              "fields": {
+                "TIMES": 3
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "runner_walk",
+                    "id": "walk1"
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "type": "cq_repeat",
+                  "id": "rep2",
+                  "fields": {
+                    "TIMES": 2
+                  },
+                  "inputs": {
+                    "DO": {
+                      "block": {
+                        "type": "runner_jump",
+                        "id": "jump1"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "predict": {
+    "options": [
+      {
+        "key": "stop@5",
+        "label": "Giữa hai hố"
+      },
+      {
+        "key": "stop@7",
+        "label": "Sau hố thứ hai"
+      },
+      {
+        "key": "stop@3",
+        "label": "Trước hố đầu tiên"
+      },
+      {
+        "key": "crash:FELL_IN_HOLE@4",
+        "label": "Rơi vào hố đầu"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "read",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Đọc từng khối lặp một, chỉ tay theo Măng.",
+      "point": "block:cq_start"
+    }
+  ],
+  "thinkingHint": "Hết khối lặp thứ nhất, Măng đứng ở đâu?"
+}

@@ -1,4 +1,4 @@
-import type { BlockCategory } from '@codequest/engine';
+import type { BlockCategory, GlobalHintId } from '@codequest/engine';
 import type { PandaAnimation } from '../stages/panda';
 
 export const vi = {
@@ -32,10 +32,15 @@ export const vi = {
       levelNumber === null ? world : `${world} · Màn ${String(levelNumber)}`,
     objectiveLabel: 'Mục tiêu',
     stageLabel: 'Sân chơi',
+    // Runner full-track strip under the stage (screen readers; cells counted from 1).
+    trackStrip: (cells: number, at: number) =>
+      `Cả đường: ${String(cells)} ô, Măng ở ô ${String(at)}`,
     controlsLabel: 'Điều khiển',
     run: 'Chạy',
     stop: 'Dừng',
     step: 'Từng bước',
+    pause: 'Tạm dừng',
+    resume: 'Tiếp tục',
     reset: 'Làm lại',
     speedLabel: 'Tốc độ',
     speeds: { slow: 'Chậm', normal: 'Vừa', fast: 'Nhanh' },
@@ -44,6 +49,7 @@ export const vi = {
     ready: 'Ghép khối rồi bấm Chạy nhé!',
     running: 'Xem Măng làm theo từng khối nhé!',
     stepping: 'Bấm Từng bước để Măng làm tiếp.',
+    paused: 'Măng đứng chờ. Bấm Tiếp tục nhé!',
     winPar: (blocks: number) => `Chỉ ${String(blocks)} khối, đúng bằng số chuẩn!`,
     winUnderPar: (blocks: number) => `Chỉ ${String(blocks)} khối, ít hơn cả số chuẩn!`,
     win: 'Qua màn rồi! Thử ít khối hơn nhé?',
@@ -54,7 +60,345 @@ export const vi = {
     notFound: 'Không tìm thấy màn này.',
     loadError: 'Ối, không mở được màn này.',
     unplayable: 'Màn này chưa chơi được. Con chọn màn khác nhé!',
+    locked: 'Màn này chưa mở. Con qua màn trước nhé!',
+    toWorld: 'Về thế giới',
+    toMap: 'Về bản đồ',
     stageError: 'Ối, sân chơi chưa hiện được.',
+    // Modes other than build (P1-06, screens-and-flows.md §3). Bubble lines ≤ 12 words.
+    readyByMode: {
+      parsons: 'Kéo các khối nối vào dưới “khi bắt đầu” nhé!',
+      predict: 'Đọc các khối, rồi chọn một thẻ nhé!',
+      bughunt: 'Có khối sai. Con sửa rồi bấm Chạy nhé!',
+      creative: 'Ghép tùy ý rồi bấm Chạy xem Măng nhé!',
+    },
+    predict: {
+      cardsLabel: 'Chọn đáp án',
+      right: 'Đúng rồi! Cùng xem Măng đi nhé!',
+      rightDone: 'Con đoán đúng rồi!',
+      // After the replay of a wrong pick (the pick itself says the WRONG_ANSWER line).
+      tryAgain: 'Thấy chưa? Giờ con chọn lại nhé!',
+      wrongMark: 'Chưa đúng',
+      rightMark: 'Đúng rồi',
+    },
+    bughunt: {
+      label: 'Săn lỗi: sửa ít nhất có thể',
+      edits: (n: number) => `Đã sửa ${String(n)} khối`,
+      par: (n: number) => `Chuẩn: ${String(n)}`,
+      winPar: (n: number) => `Chỉ sửa ${String(n)} khối, giỏi quá!`,
+      win: 'Hết lỗi rồi! Thử sửa ít khối hơn nhé?',
+    },
+    creative: {
+      label: 'Sáng tạo: không có đúng sai',
+      save: 'Lưu',
+      saving: 'Đang lưu…',
+      done: 'Măng diễn xong rồi! Bấm Lưu để giữ nhé.',
+      savedCoins: (n: number) => `Đã lưu! Con được ${String(n)} xu.`,
+      saved: 'Đã lưu bài của con rồi!',
+      saveError: 'Ối, chưa lưu được. Thử lại nhé!',
+    },
+  },
+
+  // Hint box, tier-0 hints, next-step popover, solution view (hint-engine.md, rewards-economy.md §2).
+  // Bubble lines ≤ 12 words; questions, not orders (ui-copy-guide.md §1).
+  hints: {
+    open: 'Gợi ý',
+    title: 'Gợi ý',
+    close: 'Đóng',
+    tiers: {
+      1: { name: 'Gợi ý tư duy', about: 'Một câu hỏi giúp con tự nghĩ.' },
+      2: { name: 'Chỉ bước tiếp', about: 'Măng chỉ một khối tiếp theo.' },
+      3: { name: 'Xem lời giải', about: 'Xem cả chương trình mẫu.' },
+    },
+    // Buying tier 2 / 3 caps this session's stars (rewards-economy.md §1).
+    starCap: { 2: 'Tối đa 2 sao', 3: 'Tối đa 1 sao' },
+    free: 'Miễn phí',
+    owned: 'Xem lại',
+    price: (n: number) => `${String(n)} xu`,
+    buyLabel: (name: string, price: number) => `${name}: ${String(price)} xu`,
+    missing: (n: number) => `Cần thêm ${String(n)} xu`,
+    missingTip: 'Qua màn mới là có thêm xu!',
+    freeNote: 'Khó nhỉ? Gợi ý tư duy đang miễn phí đó.',
+    thinkingLabel: 'Măng hỏi',
+    error: 'Ối, chưa mở được gợi ý. Thử lại nhé!',
+    // A purchase refused for lack of coins (the balance changed meanwhile): nothing was taken.
+    notEnough: 'Chưa đủ xu rồi. Qua màn mới là có thêm xu!',
+    // Tier 2 when there is nothing to show: no coins are taken.
+    solved: 'Giống lời giải rồi. Bấm Chạy nhé!',
+    reset: 'Thiếu khối rồi. Bấm Làm lại để lấy lại nhé!',
+    // Tier-0 copy of the global rules (hint-engine.md §4). g-empty-run / g-timeout say the
+    // feedback.json line (or the level's override); their copy here is only the fallback.
+    global: {
+      'g-empty-enter': 'Kéo khối từ đây sang nhé!',
+      'g-parsons-enter': 'Nối các khối vào “khi bắt đầu” nhé!',
+      'g-orphans': 'Có khối chưa nối vào “khi bắt đầu”.',
+      'g-empty-run': 'Con chưa ghép khối nào. Kéo khối vào đây nhé!',
+      'g-timeout': 'Măng chóng mặt rồi, vòng lặp không dừng!',
+      'g-idle': 'Thử bấm Chạy xem chuyện gì xảy ra!',
+      'g-fail3': 'Khó nhỉ? Gợi ý đang miễn phí đó.',
+    } satisfies Record<GlobalHintId, string>,
+    nextStep: {
+      title: 'Khối tiếp theo',
+      add: 'Ghép khối này vào chỗ sáng nhé!',
+      move: 'Kéo khối sáng tới chỗ có mũi tên nhé!',
+      moveWithTail: 'Kéo khối sáng, cả các khối dưới nó, tới mũi tên nhé!',
+      edit: 'Sửa khối sáng cho giống khối này nhé!',
+      replace: 'Đổi khối sáng thành khối này nhé!',
+      replaceMid: 'Xóa khối sáng, rồi ghép khối này vào chỗ đó.',
+      remove: 'Bỏ khối sáng ra nhé!',
+      // Right-click → "Xóa khối" deletes one block and keeps the ones below attached.
+      removeMid: 'Chuột phải vào khối sáng, chọn Xóa khối nhé!',
+      removeLoose: 'Bỏ khối rời sáng ra cho có chỗ nhé!',
+      reset: 'Thiếu khối rồi. Bấm Làm lại để lấy lại nhé!',
+      done: 'Giống lời giải rồi. Bấm Chạy nhé!',
+      close: 'Đóng',
+    },
+    solution: {
+      title: 'Lời giải',
+      note: 'Xem kỹ rồi tự ghép lại nhé!',
+      workspaceLabel: 'Lời giải, chỉ để xem',
+      close: 'Đóng',
+    },
+  },
+
+  // Profile picture names (not the playable character, always Măng), read by screen readers only.
+  avatars: {
+    panda: 'Gấu trúc',
+    bear: 'Gấu nâu',
+    koala: 'Gấu túi',
+    cat: 'Mèo',
+    fox: 'Cáo',
+    tiger: 'Hổ',
+    bunny: 'Thỏ',
+    pig: 'Heo',
+    chick: 'Gà con',
+    owl: 'Cú',
+    penguin: 'Chim cánh cụt',
+    frog: 'Ếch',
+  },
+
+  // Shared top bar of the map, world, lesson and settings screens.
+  topBar: {
+    settings: 'Cài đặt',
+    switchProfile: 'Đổi người chơi',
+    back: 'Quay lại',
+  },
+
+  // "/" Chọn hồ sơ (screens-and-flows.md §2).
+  profiles: {
+    title: 'Ai đang chơi nhỉ?',
+    loading: 'Măng đang tìm hồ sơ…',
+    add: 'Thêm người chơi',
+    pinTitle: (nickname: string) => `Chào ${nickname}!`,
+    pinPrompt: 'Nhập mã PIN 4 số của con.',
+    pinWrong: 'Chưa đúng mã. Con thử lại nhé!',
+    pinChecking: 'Măng đang kiểm tra…',
+    pinPad: 'Bàn phím số',
+    pinDigits: (n: number) => `Đã nhập ${String(n)} trên 4 số`,
+    erase: 'Xóa',
+    close: 'Đóng',
+    restore: 'Khôi phục từ file',
+  },
+
+  // "/profile/new" Tạo hồ sơ: avatar → nickname → PIN twice.
+  newProfile: {
+    title: 'Tạo hồ sơ mới',
+    stepOf: (step: number) => `Bước ${String(step)} / 3`,
+    // The avatar is only the profile picture: in game the child always plays Măng.
+    avatarTitle: 'Chọn hình đại diện của con',
+    avatarMang: 'Măng sẽ đi cùng con nhé!',
+    avatarGroup: 'Hình đại diện',
+    nicknameTitle: 'Con tên là gì?',
+    nicknameLabel: 'Biệt danh',
+    nicknameHelp: 'Tối đa 12 chữ. Bố mẹ gõ giúp cũng được.',
+    pinTitle: 'Đặt mã PIN 4 số',
+    pinHelp: 'Mã này để mở hồ sơ của con.',
+    pinAgainTitle: 'Nhập lại mã PIN',
+    pinAgainHelp: 'Nhập lại đúng 4 số vừa rồi.',
+    pinMismatch: 'Hai lần chưa giống nhau. Đặt lại nhé!',
+    next: 'Tiếp',
+    back: 'Quay lại',
+    create: 'Tạo hồ sơ',
+    creating: 'Đang tạo…',
+    cancel: 'Thôi',
+    errors: {
+      'nickname-empty': 'Con gõ biệt danh nhé.',
+      'nickname-too-long': 'Biệt danh dài quá, tối đa 12 chữ.',
+      'nickname-taken': 'Máy này đã có bạn tên này rồi.',
+      'pin-invalid': 'Mã PIN cần đúng 4 số.',
+      unknown: 'Ối, chưa tạo được. Con thử lại nhé!',
+    },
+  },
+
+  // "/map" Bản đồ phiêu lưu.
+  map: {
+    title: 'Bản đồ phiêu lưu',
+    greeting: (nickname: string) => `Chào ${nickname}! Mình đi đâu nào?`,
+    worldNumber: (order: number) => `Thế giới ${String(order)}`,
+    locked: 'Chưa mở',
+    comingSoon: 'Sắp có',
+    done: 'Đã qua',
+    levelsDone: (done: number, total: number) => `${String(done)}/${String(total)} màn`,
+    worldLabel: (order: number, title: string, status: string) =>
+      `Thế giới ${String(order)}: ${title}. ${status}`,
+    loading: 'Măng đang mở bản đồ…',
+    loadError: 'Ối, chưa mở được bản đồ. Con tải lại trang nhé!',
+    sandbox: 'SÂN THỬ · DEV',
+    mangHere: 'Măng đang ở đây',
+  },
+
+  // "/w/:worldId" Trang thế giới.
+  world: {
+    backToMap: 'Bản đồ',
+    lesson: 'Bài giảng',
+    lessonFirst: 'Xem bài giảng trước nhé!',
+    allDone: 'Con qua hết các màn ở đây rồi!',
+    levelLabel: (n: number, title: string) => `Màn ${String(n)}: ${title}`,
+    stage: {
+      guided: '',
+      practice: '',
+      challenge: 'Thử thách',
+      boss: 'Trùm',
+      creative: 'Sáng tạo',
+      bonus: 'Thưởng',
+    },
+    status: { locked: 'chưa mở', open: 'đang mở', done: 'đã qua', soon: 'chưa làm xong' },
+    // A level whose mode the play screen cannot run yet (features/content/modes.ts).
+    soonTag: 'Chưa làm',
+    notFound: 'Không tìm thấy thế giới này.',
+    lockedWorld: 'Thế giới này chưa mở. Qua thế giới trước nhé!',
+    unplayable: 'Màn này đang được sửa.',
+    pathLabel: 'Các màn',
+  },
+
+  // "/w/:worldId/lesson/:lessonId" Bài giảng.
+  lesson: {
+    cardOf: (n: number, total: number) => `Thẻ ${String(n)} / ${String(total)}`,
+    prev: 'Trước',
+    next: 'Tiếp',
+    finish: 'Xong bài giảng',
+    close: 'Về thế giới',
+    demoRun: 'Chạy thử',
+    demoAgain: 'Xem lại',
+    demoStage: 'Sân chơi ví dụ',
+    quizRight: 'Đúng rồi!',
+    quizWrong: 'Chưa đúng, không sao!',
+    doneTitle: 'Xong bài giảng rồi!',
+    doneBody: 'Giờ mình vào chơi nhé!',
+    play: 'Vào chơi',
+    coins: (n: number) => `+${String(n)} xu`,
+    notFound: 'Không tìm thấy bài giảng này.',
+    locked: 'Bài giảng này chưa mở. Qua thế giới trước nhé!',
+    saveFailed: 'Ối, chưa lưu được. Con bấm lại nhé!',
+    keysHint: 'Phím ← → để lật thẻ',
+  },
+
+  // Kết quả màn (results overlay over the play screen).
+  results: {
+    title: 'Qua màn rồi!',
+    lines: (n: number) => `Con vừa viết ${String(n)} dòng code!`,
+    // Măng's line by stars (ui-copy-guide.md §4).
+    stars1: 'Qua màn rồi! Thử ít khối hơn nhé?',
+    // 1 star because the solution was shown (hint tier 3), not because of the block count.
+    stars1Hint: 'Qua màn rồi! Lần sau con thử tự làm nhé!',
+    stars2: 'Đúng số khối chuẩn! Không cần gợi ý là được 3 sao.',
+    stars3: 'Hoàn hảo! Ba sao luôn!',
+    coinsTitle: 'Xu nhận được',
+    noCoins: 'Màn này con đã nhận xu rồi.',
+    total: (n: number) => `+${String(n)} xu`,
+    reasons: {
+      'level-clear': 'Qua màn lần đầu',
+      'star-2': 'Lần đầu 2 sao',
+      'star-3': 'Lần đầu 3 sao',
+      'first-try': 'Đúng ngay lần đầu',
+      daily: 'Thưởng hôm nay',
+      'streak-7': 'Chuỗi 7 ngày',
+      replay: 'Chơi lại 3 sao',
+    } as Partial<Record<string, string>>,
+    newWorld: 'Mở thế giới mới!',
+    next: 'Màn tiếp',
+    replay: 'Chơi lại',
+    toWorld: 'Về thế giới',
+    best: 'Kỷ lục',
+    // Mode predict / bughunt replace the line chip and the star lines (rewards-economy.md §1).
+    predict: {
+      lines: (n: number) => `Con đọc hiểu ${String(n)} khối lệnh!`,
+      stars3: 'Đoán đúng ngay lần đầu! Ba sao luôn!',
+      stars2: 'Đúng rồi! Lần sau đoán trúng ngay nhé?',
+      stars1: 'Đúng rồi! Đọc kỹ từng khối là trúng ngay!',
+    },
+    bughunt: {
+      lines: (n: number) => `Con sửa ${String(n)} khối là hết lỗi!`,
+      stars2: 'Sửa ít khối lắm! Không cần gợi ý là được 3 sao.',
+      stars1: 'Hết lỗi rồi! Thử sửa ít khối hơn nhé?',
+    },
+  },
+
+  // Nhắc nghỉ sau 25 phút (ui-copy-guide.md §4).
+  breakReminder: {
+    title: 'Nghỉ một chút nhé!',
+    body: 'Mình chơi lâu rồi. Đứng dậy vươn vai nhé!',
+    resume: 'Mình nghỉ xong rồi',
+  },
+
+  // Màn hình nhỏ quá (screens-and-flows.md: smaller than 1280×720).
+  smallScreen: {
+    title: 'Màn hình nhỏ quá',
+    body: 'Màn hình nhỏ quá, con mở trên laptop nhé.',
+  },
+
+  // "/settings" Cài đặt.
+  settings: {
+    title: 'Cài đặt',
+    sound: 'Âm thanh',
+    music: 'Nhạc nền',
+    sfx: 'Hiệu ứng',
+    voice: 'Giọng đọc',
+    display: 'Hiển thị',
+    reducedMotion: 'Giảm chuyển động',
+    colorBlind: 'Màu cho mắt khó phân biệt màu',
+    avatar: 'Đổi hình đại diện',
+    adults: 'Dành cho người lớn',
+    adultsLocked: 'Phần này cần mã PIN của hồ sơ.',
+    adultsUnlock: 'Mở bằng PIN',
+    adultsPin: 'Nhập mã PIN',
+    backupFailed: 'Ối, chưa tải được file. Thử lại nhé!',
+    deleteFailed: 'Ối, chưa xóa được. Thử lại nhé!',
+    backupTitle: 'Sao lưu tiến độ',
+    backupHelp: 'Tải về một file chứa tiến độ của mọi hồ sơ trên máy này.',
+    backup: 'Tải file sao lưu',
+    restoreTitle: 'Khôi phục',
+    restoreHelp: 'Chọn file sao lưu. Tiến độ được gộp, không mất gì.',
+    restore: 'Chọn file',
+    restoring: 'Đang khôi phục…',
+    restored: (n: number) => `Đã khôi phục ${String(n)} hồ sơ.`,
+    conflict: (nickname: string) => `Bỏ qua "${nickname}": máy này đã có hồ sơ cùng tên.`,
+    restoreErrors: {
+      'too-large': 'File lớn quá (tối đa 5 MB).',
+      'not-json': 'File này không đọc được.',
+      'not-backup': 'Đây không phải file sao lưu CodeQuest.',
+      'newer-version': 'File này của phiên bản mới hơn. Cập nhật app trước nhé.',
+      invalid: 'File sao lưu bị lỗi.',
+      unknown: 'Ối, chưa khôi phục được.',
+    },
+    deleteTitle: 'Xóa hồ sơ trên máy này',
+    deleteHelp: 'Xóa hết tiến độ và xu của hồ sơ này trên máy. Không lấy lại được.',
+    delete: 'Xóa hồ sơ',
+    deletePin: 'Nhập mã PIN để xóa',
+    deleteConfirm: (nickname: string) => `Xóa hẳn hồ sơ "${nickname}"?`,
+    deleteYes: 'Xóa hẳn',
+    deleteNo: 'Không xóa',
+    pinWrong: 'Mã PIN chưa đúng.',
+    saved: 'Đã lưu',
+    on: 'Bật',
+    off: 'Tắt',
+  },
+
+  // Author mode (?author=1, dev builds only; read by the coach).
+  author: {
+    label: 'TÁC GIẢ',
+    copyJson: 'Sao chép workspace JSON',
+    copied: 'Đã chép!',
+    copyFailed: 'Không chép được',
   },
 
   // Showcase page /dev/ui (dev build only; read by the coach, not by children).
@@ -151,6 +495,12 @@ export const vi = {
 
   // Dev-only pages (/dev/*; read by the coach, not by children).
   dev: {
+    // Synthetic world of content/worlds/_sandbox (features/content/sandbox.ts).
+    sandbox: {
+      title: 'Sân thử',
+      concept: 'Chỉ có ở bản dev',
+      story: 'Màn và bài giảng thử của thư mục _sandbox.',
+    },
     stageTitle: 'Sân chơi thử: Măng',
     stageHint: 'Chọn một hoạt ảnh để xem Măng.',
     stageLoading: 'Đang tải…',

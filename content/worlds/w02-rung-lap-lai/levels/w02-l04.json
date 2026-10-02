@@ -1,0 +1,98 @@
+{
+  "id": "w02-l04",
+  "worldId": "w02-rung-lap-lai",
+  "stage": "practice",
+  "kind": "runner",
+  "mode": "predict",
+  "title": "Lặp 3 lần thì sao?",
+  "objective": "Đọc khối lặp, đoán xem Măng dừng ở đâu nhé!",
+  "learningGoal": "Mỗi vòng lặp, Măng làm hết các khối bên trong theo thứ tự; lặp 3 lần là đúng 3 vòng rồi dừng.",
+  "misconception": "Lặp chỉ làm lại khối đầu tiên bên trong; hoặc lặp 3 lần là đi 3 ô.",
+  "toolbox": [],
+  "config": {
+    "cells": [
+      "ground",
+      "ground",
+      "hole",
+      "ground",
+      "ground",
+      "hole",
+      "ground",
+      "ground",
+      "hole",
+      "ground",
+      "ground",
+      "hole",
+      "flag"
+    ],
+    "start": 0
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "rep1",
+              "fields": {
+                "TIMES": 3
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "runner_walk",
+                    "id": "walk1",
+                    "next": {
+                      "block": {
+                        "type": "runner_jump",
+                        "id": "jump1"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "predict": {
+    "options": [
+      {
+        "key": "win",
+        "label": "Tới lá cờ"
+      },
+      {
+        "key": "stop@9",
+        "label": "Sau hố thứ ba"
+      },
+      {
+        "key": "stop@3",
+        "label": "Sau hố đầu tiên"
+      },
+      {
+        "key": "crash:FELL_IN_HOLE@2",
+        "label": "Rơi vào hố đầu"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "read",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Mỗi vòng: đi, rồi nhảy. Đếm từng vòng nhé!",
+      "point": "block:cq_repeat"
+    }
+  ],
+  "thinkingHint": "Hết vòng thứ nhất, Măng đứng ở đâu?"
+}

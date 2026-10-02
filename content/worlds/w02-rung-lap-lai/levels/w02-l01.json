@@ -1,0 +1,104 @@
+{
+  "id": "w02-l01",
+  "worldId": "w02-rung-lap-lai",
+  "stage": "guided",
+  "kind": "runner",
+  "mode": "build",
+  "title": "Khối lặp đầu tiên",
+  "objective": "Tới lá cờ chỉ với 2 khối nhé!",
+  "learningGoal": "Dùng khối lặp để làm một khối nhiều lần, thay cho ghép khối đó nhiều lần.",
+  "misconception": "Muốn Măng đi 6 bước thì phải ghép đủ 6 khối đi.",
+  "toolbox": [
+    {
+      "type": "cq_repeat",
+      "fields": {
+        "TIMES": 6
+      }
+    },
+    "runner_walk"
+  ],
+  "maxBlocks": 2,
+  "par": 2,
+  "config": {
+    "cells": ["ground", "ground", "ground", "ground", "ground", "ground", "flag"],
+    "start": 0,
+    "bamboo": [3]
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "rep1",
+              "fields": {
+                "TIMES": 6
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "runner_walk",
+                    "id": "walk1"
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "repeat-new",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Khối mới: lặp! Nó làm khối bên trong nhiều lần.",
+      "point": "toolbox:cq_repeat",
+      "spotlight": true
+    },
+    {
+      "id": "cap",
+      "when": {
+        "capacityFull": true,
+        "missing": "cq_repeat"
+      },
+      "say": "Hết chỗ rồi! Bỏ bớt 1 khối để lấy khối lặp nhé.",
+      "point": "capacity"
+    },
+    {
+      "id": "empty-loop",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "NOT_AT_GOAL",
+        "has": "cq_repeat",
+        "missing": "runner_walk"
+      },
+      "say": "Khối lặp còn trống. Kéo khối đi vào trong nhé!",
+      "point": "toolbox:runner_walk"
+    },
+    {
+      "id": "walk-inside",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "NOT_AT_GOAL",
+        "has": "cq_repeat",
+        "orphans": false,
+        "blockCount": {
+          "eq": 2
+        }
+      },
+      "say": "Khối đi nằm trong khối lặp chưa? Số lần đủ chưa?",
+      "point": "block:cq_repeat"
+    }
+  ],
+  "thinkingHint": "Măng phải làm đi làm lại việc gì?"
+}

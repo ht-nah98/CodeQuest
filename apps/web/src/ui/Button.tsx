@@ -1,4 +1,4 @@
-import type { ButtonHTMLAttributes, ReactNode } from 'react';
+import type { ButtonHTMLAttributes, ReactNode, Ref } from 'react';
 import { FOCUS_RING } from './focusRing';
 
 export type ButtonVariant = 'go' | 'hint' | 'coin' | 'plain';
@@ -16,6 +16,8 @@ export interface ButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement
   /** Keyboard shortcut shown as a small key cap, e.g. "Space" or "R". */
   shortcut?: string;
   children?: ReactNode;
+  /** React 19 passes `ref` as a prop; it lands on the <button>. */
+  ref?: Ref<HTMLButtonElement>;
 }
 
 const VARIANT_CLASS: Record<ButtonVariant, string> = {

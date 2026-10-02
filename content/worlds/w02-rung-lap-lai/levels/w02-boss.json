@@ -1,0 +1,178 @@
+{
+  "id": "w02-boss",
+  "worldId": "w02-rung-lap-lai",
+  "stage": "boss",
+  "kind": "runner",
+  "mode": "build",
+  "title": "Vượt rừng tre",
+  "objective": "Vượt rừng tre tới lá cờ, chỉ 7 khối thôi!",
+  "learningGoal": "Tổng hợp: tìm mẫu 4 khối lặp lại (đá, đi, cúi, nhảy), lặp vừa đủ số lần, rồi qua hố cuối.",
+  "misconception": "Đá thùng 1 lần là dọn được mọi thùng trên đường.",
+  "toolbox": [
+    {
+      "type": "cq_repeat",
+      "fields": {
+        "TIMES": 2
+      }
+    },
+    "runner_walk",
+    "runner_jump",
+    "runner_crouch",
+    "runner_kick"
+  ],
+  "maxBlocks": 7,
+  "par": 6,
+  "config": {
+    "cells": [
+      "ground",
+      "ground",
+      "crate",
+      "branch",
+      "hole",
+      "ground",
+      "crate",
+      "branch",
+      "hole",
+      "ground",
+      "crate",
+      "branch",
+      "hole",
+      "ground",
+      "crate",
+      "branch",
+      "hole",
+      "ground",
+      "crate",
+      "branch",
+      "hole",
+      "ground",
+      "crate",
+      "branch",
+      "hole",
+      "ground",
+      "hole",
+      "flag"
+    ],
+    "start": 1,
+    "bamboo": [7, 15, 23]
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "rep1",
+              "fields": {
+                "TIMES": 6
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "runner_kick",
+                    "id": "kick1",
+                    "next": {
+                      "block": {
+                        "type": "runner_walk",
+                        "id": "walk1",
+                        "next": {
+                          "block": {
+                            "type": "runner_crouch",
+                            "id": "crouch1",
+                            "next": {
+                              "block": {
+                                "type": "runner_jump",
+                                "id": "jump1"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "type": "runner_jump",
+                  "id": "jump2"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "story",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Phù thủy gió chặn đường bằng thùng, cành và hố!",
+      "point": "stage"
+    },
+    {
+      "id": "kick-inside",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "HIT_CRATE",
+        "has": "cq_repeat"
+      },
+      "say": "Đoạn nào cũng có thùng. Mỗi vòng, Măng đá lúc nào?",
+      "point": "block:cq_repeat"
+    },
+    {
+      "id": "short",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "HIT_CRATE",
+        "has": "cq_repeat",
+        "runCount": {
+          "gte": 2
+        }
+      },
+      "say": "Đếm xem rừng có mấy đoạn giống nhau nhé!",
+      "point": "stage",
+      "priority": 1
+    },
+    {
+      "id": "cap",
+      "when": {
+        "capacityFull": true,
+        "missing": "cq_repeat"
+      },
+      "say": "Hết chỗ rồi! Bỏ bớt 1 khối để lấy khối lặp nhé.",
+      "point": "capacity"
+    },
+    {
+      "id": "last-part",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "NOT_AT_GOAL",
+        "has": "cq_repeat"
+      },
+      "say": "Măng dừng giữa đường. Còn đoạn nào chưa đi?",
+      "point": "stage"
+    },
+    {
+      "id": "extra",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "FELL_IN_HOLE",
+        "has": "runner_kick"
+      },
+      "say": "Đoạn cuối chỉ có hố. Vòng lặp có thừa không?",
+      "point": "block:cq_repeat"
+    }
+  ],
+  "thinkingHint": "Đoạn rừng nào cứ lặp lại? Đoạn cuối có giống không?"
+}

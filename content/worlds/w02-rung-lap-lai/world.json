@@ -1,0 +1,51 @@
+{
+  "id": "w02-rung-lap-lai",
+  "order": 2,
+  "title": "Rừng Lặp Lại",
+  "emoji": "🌳",
+  "concept": "Lặp n lần",
+  "story": "Rừng tre có những con đường lặp đi lặp lại. Phù thủy gió chỉ cho Măng mang theo rất ít khối.",
+  "theme": {
+    "tileset": "/tiles/ground.png",
+    "palette": "day"
+  },
+  "lessonIds": ["w02-lesson"],
+  "levelIds": [
+    "w02-l01",
+    "w02-l02",
+    "w02-l03",
+    "w02-l04",
+    "w02-l05",
+    "w02-l06",
+    "w02-l07",
+    "w02-l08",
+    "w02-l09",
+    "w02-l10",
+    "w02-l11",
+    "w02-l12",
+    "w02-l13",
+    "w02-l14",
+    "w02-l15",
+    "w02-l16",
+    "w02-l17",
+    "w02-l18",
+    "w02-l19",
+    "w02-boss",
+    "w02-creative"
+  ],
+  "unlock": {
+    "minStarRatio": 0.6
+  },
+  "unplugged": {
+    "title": "Nhịp vỗ-vỗ-dậm",
+    "steps": [
+      "Cả nhóm đứng thành vòng tròn. Huấn luyện viên làm mẫu: vỗ tay, vỗ tay, dậm chân.",
+      "Cả nhóm làm theo đúng 4 lần rồi dừng.",
+      "Hỏi các bé: mình vừa làm những gì? Viết lên bảng đủ 12 động tác.",
+      "Cùng viết gọn lại thành: \"lặp 4 lần: vỗ, vỗ, dậm\". Đếm xem bản gọn có mấy dòng.",
+      "Đổi số thành \"lặp 2 lần\". Một bé đọc, cả nhóm làm đúng 2 lần rồi dừng.",
+      "Thử bẫy: viết \"dậm\" ra ngoài, dưới vòng lặp: \"lặp 3 lần: vỗ, vỗ\" rồi \"dậm\". Hỏi: cả nhóm dậm mấy lần?",
+      "Bài rẽ 1 phút: một bé quay mặt về phía cả lớp (như Măng nhìn xuống trên màn hình). Hỏi: tay trái của bạn chỉ về phía nào? Rẽ trái là quay về phía tay trái của bạn ấy, không phải tay trái của mình."
+    ]
+  }
+}

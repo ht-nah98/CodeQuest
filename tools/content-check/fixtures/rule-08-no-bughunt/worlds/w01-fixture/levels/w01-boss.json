@@ -1,0 +1,50 @@
+{
+  "id": "w01-boss",
+  "worldId": "w01-fixture",
+  "stage": "boss",
+  "kind": "runner",
+  "mode": "build",
+  "title": "Sửa lỗi",
+  "objective": "Đưa Măng tới lá cờ nhé!",
+  "learningGoal": "Tìm và sửa một khối sai.",
+  "toolbox": ["runner_walk", "runner_jump"],
+  "par": 3,
+  "config": {
+    "cells": ["ground", "ground", "hole", "ground", "flag"],
+    "start": 0
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "runner_walk",
+              "id": "b1",
+              "next": {
+                "block": {
+                  "type": "runner_jump",
+                  "id": "b2",
+                  "next": {
+                    "block": {
+                      "type": "runner_walk",
+                      "id": "b3"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [],
+  "thinkingHint": "Măng rơi ở ô nào?"
+}

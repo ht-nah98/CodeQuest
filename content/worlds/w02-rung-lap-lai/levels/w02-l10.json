@@ -1,0 +1,90 @@
+{
+  "id": "w02-l10",
+  "worldId": "w02-rung-lap-lai",
+  "stage": "practice",
+  "kind": "maze",
+  "mode": "predict",
+  "title": "Đi quanh khóm tre",
+  "objective": "Lặp 3 lần, có rẽ. Măng dừng ở đâu?",
+  "learningGoal": "Khối rẽ bên trong khối lặp cũng được lặp lại; mỗi vòng Măng đi hết một cạnh.",
+  "misconception": "Lặp chỉ làm lại khối tiến; hoặc Măng tự bước vào đích khi đứng gần.",
+  "toolbox": [],
+  "config": {
+    "map": ["######", "#S..##", "#.#.##", "G...##", "######"],
+    "startDir": "E"
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "rep1",
+              "fields": {
+                "TIMES": 3
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "maze_forward",
+                    "id": "fwd1",
+                    "next": {
+                      "block": {
+                        "type": "maze_forward",
+                        "id": "fwd2",
+                        "next": {
+                          "block": {
+                            "type": "maze_turn_right",
+                            "id": "right1"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "predict": {
+    "options": [
+      {
+        "key": "win",
+        "label": "Tới đích"
+      },
+      {
+        "key": "stop@3,1",
+        "label": "Đứng sát bên đích"
+      },
+      {
+        "key": "crash:HIT_WALL@1,3",
+        "label": "Đụng tường góc trên bên phải"
+      },
+      {
+        "key": "stop@3,3",
+        "label": "Góc dưới bên phải"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "read",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Mỗi vòng: tiến, tiến, rẽ phải. Chỉ tay theo Măng!",
+      "point": "block:cq_repeat"
+    }
+  ],
+  "thinkingHint": "Hết vòng thứ nhất, Măng đứng ở góc nào, nhìn về đâu?"
+}

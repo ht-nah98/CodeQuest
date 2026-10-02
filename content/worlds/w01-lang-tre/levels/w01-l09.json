@@ -1,0 +1,132 @@
+{
+  "id": "w01-l09",
+  "worldId": "w01-lang-tre",
+  "stage": "practice",
+  "kind": "runner",
+  "mode": "bughunt",
+  "title": "Thiếu một khối",
+  "objective": "Chương trình thiếu 1 khối. Con thêm giúp Măng nhé!",
+  "learningGoal": "Chạy thử, nhìn chỗ Măng gặp nạn để tìm và thêm đúng khối còn thiếu.",
+  "misconception": "Chương trình có lỗi thì phải xóa hết, làm lại từ đầu.",
+  "toolbox": ["runner_walk", "runner_jump", "runner_crouch"],
+  "par": 6,
+  "parEdits": 1,
+  "config": {
+    "cells": ["ground", "ground", "hole", "ground", "branch", "ground", "hole", "ground", "flag"],
+    "start": 0
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "runner_walk",
+              "id": "walk1",
+              "next": {
+                "block": {
+                  "type": "runner_jump",
+                  "id": "jump1",
+                  "next": {
+                    "block": {
+                      "type": "runner_crouch",
+                      "id": "crouch1",
+                      "next": {
+                        "block": {
+                          "type": "runner_walk",
+                          "id": "walk2",
+                          "next": {
+                            "block": {
+                              "type": "runner_walk",
+                              "id": "walk3"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "runner_walk",
+              "id": "walk1",
+              "next": {
+                "block": {
+                  "type": "runner_jump",
+                  "id": "jump1",
+                  "next": {
+                    "block": {
+                      "type": "runner_crouch",
+                      "id": "crouch1",
+                      "next": {
+                        "block": {
+                          "type": "runner_walk",
+                          "id": "walk2",
+                          "next": {
+                            "block": {
+                              "type": "runner_jump",
+                              "id": "jump2",
+                              "next": {
+                                "block": {
+                                  "type": "runner_walk",
+                                  "id": "walk3"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "run-first",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Bấm Chạy trước, xem Măng vấp ở đâu nhé!",
+      "point": "run"
+    },
+    {
+      "id": "where",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "FELL_IN_HOLE"
+      },
+      "say": "Nhìn ô Măng rơi. Ngay trước đó cần khối gì?",
+      "point": "stage"
+    }
+  ],
+  "thinkingHint": "Măng rơi ở ô nào? Ngay trước ô đó phải làm gì?"
+}

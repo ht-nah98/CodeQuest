@@ -1,0 +1,92 @@
+{
+  "id": "w01-l05",
+  "worldId": "w01-lang-tre",
+  "stage": "practice",
+  "kind": "runner",
+  "mode": "build",
+  "title": "Hai cái hố",
+  "objective": "Có tới 2 hố! Đưa Măng tới lá cờ nhé.",
+  "learningGoal": "Đặt khối nhảy đúng chỗ trước mỗi hố, xen giữa các khối đi.",
+  "misconception": "Một khối nhảy là qua được mọi hố.",
+  "toolbox": ["runner_walk", "runner_jump"],
+  "par": 5,
+  "config": {
+    "cells": ["ground", "ground", "hole", "ground", "ground", "hole", "ground", "flag"],
+    "start": 0,
+    "bamboo": [4]
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "runner_walk",
+              "id": "walk1",
+              "next": {
+                "block": {
+                  "type": "runner_jump",
+                  "id": "jump1",
+                  "next": {
+                    "block": {
+                      "type": "runner_walk",
+                      "id": "walk2",
+                      "next": {
+                        "block": {
+                          "type": "runner_jump",
+                          "id": "jump2",
+                          "next": {
+                            "block": {
+                              "type": "runner_walk",
+                              "id": "walk3"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "edge",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "FELL_IN_HOLE"
+      },
+      "say": "Măng phải đứng sát hố rồi mới nhảy.",
+      "point": "stage"
+    },
+    {
+      "id": "count",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "NOT_AT_GOAL"
+      },
+      "say": "Măng dừng giữa đường. Đếm xem còn mấy ô nhé!",
+      "point": "stage"
+    },
+    {
+      "id": "too-far",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "OFF_TRACK"
+      },
+      "say": "Cờ ở ngay sát bên rồi. Cần nhảy nữa không?",
+      "point": "stage"
+    }
+  ],
+  "thinkingHint": "Trước mỗi hố, Măng phải làm gì?"
+}

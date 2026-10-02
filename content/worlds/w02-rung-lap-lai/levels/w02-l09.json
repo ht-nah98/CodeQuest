@@ -1,0 +1,161 @@
+{
+  "id": "w02-l09",
+  "worldId": "w02-rung-lap-lai",
+  "stage": "practice",
+  "kind": "maze",
+  "mode": "parsons",
+  "title": "Bậc thang xuống dốc",
+  "objective": "Xếp các khối cho Măng xuống dốc tới đích!",
+  "learningGoal": "Thứ tự các khối bên trong khối lặp cũng quan trọng như ở ngoài.",
+  "misconception": "Bên trong khối lặp, xếp khối theo thứ tự nào cũng được.",
+  "toolbox": [],
+  "par": 5,
+  "config": {
+    "map": ["#######", ".S.####", "##..###", "###..##", "####G.#", "#######"],
+    "startDir": "E"
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false
+        },
+        {
+          "type": "maze_turn_left",
+          "id": "left1",
+          "x": 240,
+          "y": 150
+        },
+        {
+          "type": "cq_repeat",
+          "id": "rep1",
+          "fields": {
+            "TIMES": 3
+          },
+          "x": 90,
+          "y": 230
+        },
+        {
+          "type": "maze_forward",
+          "id": "fwd1",
+          "x": 300,
+          "y": 310
+        },
+        {
+          "type": "maze_turn_right",
+          "id": "right1",
+          "x": 140,
+          "y": 390
+        },
+        {
+          "type": "maze_forward",
+          "id": "fwd2",
+          "x": 260,
+          "y": 470
+        }
+      ]
+    }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "rep1",
+              "fields": {
+                "TIMES": 3
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "maze_forward",
+                    "id": "fwd1",
+                    "next": {
+                      "block": {
+                        "type": "maze_turn_right",
+                        "id": "right1",
+                        "next": {
+                          "block": {
+                            "type": "maze_forward",
+                            "id": "fwd2",
+                            "next": {
+                              "block": {
+                                "type": "maze_turn_left",
+                                "id": "left1"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "first-step",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "HIT_WALL"
+      },
+      "say": "Bước đầu tiên, Măng đi về phía nào?",
+      "point": "stage"
+    },
+    {
+      "id": "down",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "HIT_WALL",
+        "runCount": {
+          "gte": 2
+        }
+      },
+      "say": "Măng nhìn sang phải. Xuống dốc là rẽ phải!",
+      "point": "block:maze_turn_right",
+      "priority": 1
+    },
+    {
+      "id": "outside",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "NOT_AT_GOAL",
+        "orphans": false
+      },
+      "say": "Còn khối nằm ngoài khối lặp không?",
+      "point": "block:cq_repeat"
+    },
+    {
+      "id": "facing-down",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "HIT_WALL",
+        "runCount": {
+          "gte": 3
+        }
+      },
+      "say": "Măng nhìn xuống. Tay trái của Măng ở phía nào?",
+      "point": "stage",
+      "priority": 2
+    }
+  ],
+  "thinkingHint": "Xuống một bậc gồm những bước nào, theo thứ tự nào?"
+}

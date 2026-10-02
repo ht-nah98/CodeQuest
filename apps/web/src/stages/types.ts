@@ -1,5 +1,5 @@
 import type { Ticker } from 'pixi.js';
-import type { GameEvent } from '@codequest/engine';
+import type { GameEvent, RunOutcome } from '@codequest/engine';
 import type { PandaAnimation } from './panda';
 
 /**
@@ -21,6 +21,12 @@ export interface StageRenderer<E extends GameEvent> {
   rest(): void;
   /** Freezes the current frame (while the next block lights up). */
   hold(): void;
+  /**
+   * Optional end-of-run cue: called once after the last event of a run has been acted out
+   * (after `rest()` for an unfinished run), never after an abort / reset and never between
+   * steps. E.g. the maze shows its MISSED_ITEMS cue here.
+   */
+  finish?(outcome: RunOutcome<E>): void;
   /** New stage size in CSS px (ResizeObserver). */
   resize(width: number, height: number): void;
   destroy(): void;

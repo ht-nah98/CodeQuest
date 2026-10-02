@@ -1,0 +1,44 @@
+{
+  "id": "flow-02",
+  "worldId": "_sandbox",
+  "stage": "guided",
+  "kind": "runner",
+  "mode": "build",
+  "title": "Nhảy rồi đi",
+  "objective": "Nhảy qua hố rồi đi tới cờ!",
+  "learningGoal": "Dev sandbox: the level after flow-01 in the screen-flow e2e.",
+  "misconception": "Măng tự biết né hố.",
+  "toolbox": ["runner_walk", "runner_jump"],
+  "par": 2,
+  "config": { "cells": ["ground", "hole", "ground", "flag"], "start": 0 },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "runner_jump",
+              "id": "jump1",
+              "next": { "block": { "type": "runner_walk", "id": "walk1" } }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "jump-new",
+      "when": { "trigger": "enter" },
+      "say": "Khối mới: nhảy! Măng bay qua được hố.",
+      "point": "toolbox:runner_jump"
+    }
+  ],
+  "thinkingHint": "Ngay trước hố, Măng phải làm gì?"
+}

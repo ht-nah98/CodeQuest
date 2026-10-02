@@ -165,4 +165,5 @@ Luôn gửi kèm ảnh gốc làm tham chiếu. Sau đó chạy lại script là
   - Hiển thị ở kích thước **nhỏ hơn bản gốc** (96–160px): dùng scale mượt (linear). Ảnh sẽ trông sắc nét.
   - **Không** dùng `image-rendering: pixelated` ở tỉ lệ không nguyên, vì sẽ bị răng cưa lệch.
   - Icon/tile tự vẽ theo lưới chuẩn (16px, 32px) thì dùng `pixelated` + phóng to theo bội số nguyên.
+  - **Ngoại lệ mê cung:** bản đồ tới 12×12 ô phải vừa sân chơi ~516×300 px, nên Măng trong maze chỉ cao 1,4 ô và **tối thiểu 64 px** (thấp hơn mức 96–160px), được phép tràn ra ngoài ô. Khung `idle` gần như nhìn thẳng, nên hướng nhìn do mũi tên trên sàn chỉ (`architecture/stage-rendering.md` §2–3).
 - Script làm sạch: `tools/sprites/clean.py` (tách 16 khung, xóa nền tím và bóng bằng flood-fill từ mép, căn đáy chung, xuất PNG trong suốt + `preview.png`). Cách dùng: `docs/playbooks/add-asset.md`.

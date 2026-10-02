@@ -46,7 +46,7 @@ Kèm mỗi thế giới có **1 hoạt động ngoài màn hình** (unplugged) 5
 | 1 | `w01-l01` | guided | runner | parsons | Kéo khối và nối vào "khi bắt đầu" | đi | — | 2 | — |
 | 2 | `w01-l02` | guided | runner | build | Ghép 3 bước đi | đi | — | 3 | — |
 | 3 | `w01-l03` | guided | runner | build | Khối **nhảy** qua hố | đi, nhảy | — | 3 | — |
-| 4 | `w01-l04` | practice | runner | predict | Đoán Măng dừng ở ô nào | (chỉ xem) | — | — | — |
+| 4 | `w01-l04` | practice | runner | predict | Đoán Măng dừng ở đâu | (chỉ xem) | — | — | — |
 | 5 | `w01-l05` | practice | runner | build | Hai hố | đi, nhảy | — | 5 | — |
 | 6 | `w01-l06` | practice | runner | parsons | Thứ tự quan trọng: xếp lại 5 khối | đi, nhảy | — | 5 | — |
 | 7 | `w01-l07` | practice | runner | build | Khối **cúi** dưới cành tre | đi, nhảy, cúi | — | 4 | — |
@@ -57,8 +57,8 @@ Kèm mỗi thế giới có **1 hoạt động ngoài màn hình** (unplugged) 5
 | 12 | `w01-l12` | practice | maze | build | Mê cung đầu tiên: **tiến**, **rẽ** | tiến, rẽ trái, rẽ phải | — | 4 | — |
 | 13 | `w01-l13` | challenge | runner | build | Đường dài đủ mọi chướng ngại | đi, nhảy, cúi, đá | 12 | 10 | — |
 | 14 | `w01-l14` | challenge | maze | bughunt | Mê cung chữ Z có 2 lỗi | tiến, rẽ trái, rẽ phải | — | 8 | 2 |
-| 15 | `w01-boss` | boss | runner | build | "Mang măng về làng": đường dài, nhặt 3 măng (`collectAll`) | đi, nhảy, cúi, đá | 14 | 12 | — |
-| ✦ | `w01-creative` | creative | runner | creative | Tự xây đường chạy cho bạn chơi | tất cả | — | — | — |
+| 15 | `w01-boss` | boss | runner | build | "Mang măng về làng": nhặt 3 măng (`collectAll`); nhảy qua măng là bỏ sót | đi, nhảy, cúi, đá | 11 | 9 | — |
+| ✦ | `w01-creative` | creative | runner | creative | Sân chơi tự do trên đường chạy có sẵn (chưa có trình xây đường) | tất cả | — | — | — |
 
 Thế giới 1 dạy tuần tự nên **không giới hạn số khối** ở các màn guided/practice: bé được thử thoải mái. `par` vẫn dùng để chấm ⭐⭐.
 
@@ -78,23 +78,29 @@ Thế giới 1 dạy tuần tự nên **không giới hạn số khối** ở c�
 | 4 | `w02-l04` | practice | runner | predict | Lặp 3 lần thì Măng đi tới đâu? | — | — |
 | 5 | `w02-l05` | practice | runner | build | Mẫu "đi, nhảy" × 3 | 3 | 3 |
 | 6 | `w02-l06` | practice | runner | build | Khối trước + vòng lặp + khối sau | 4 | 4 |
-| 7 | `w02-l07` | practice | runner | bughunt | Số lần lặp sai (parEdits 1) | — | 3 |
+| 7 | `w02-l07` | practice | runner | bughunt | Thừa một vòng: "lặp 4 lần" phải là 3, sau vòng lặp còn 1 khối nhảy (parEdits 1) ⁴ | — | 4 |
 | 8 | `w02-l08` | practice | maze | build | Bậc thang: "tiến, rẽ trái, tiến, rẽ phải" × 3 | 5 | 5 |
-| 9 | `w02-l09` | practice | maze | parsons | Xếp vòng lặp cho mê cung xoắn | — | 5 |
+| 9 | `w02-l09` | practice | maze | parsons | Bậc thang xuống dốc: thứ tự khối **trong** vòng lặp (tiến, rẽ phải, tiến, rẽ trái) × 3 ¹ | — | 5 |
 | 10 | `w02-l10` | practice | maze | predict | Đoán ô dừng của vòng lặp có rẽ | — | — |
-| 11 | `w02-l11` | practice | runner | bughunt | Khối bị đặt ngoài vòng lặp (parEdits 2) | — | 3 |
-| 12 | `w02-l12` | practice | maze | build | Hình vuông quanh hồ | 4 | 4 |
+| 11 | `w02-l11` | practice | runner | bughunt | Khối bị đặt ngoài vòng lặp, có hố cuối sau vòng lặp (parEdits 2) ⁴ | — | 4 |
+| 12 | `w02-l12` | practice | maze | build | Ba cạnh quanh khóm tre: "tiến, tiến, rẽ phải" × 3 ² | 4 | 4 |
 | 13 | `w02-l13` | practice | runner | build | Hai vòng lặp nối tiếp | 4 | 4 |
-| 14 | `w02-l14` | practice | maze | build | Hai vòng lặp nối tiếp trong mê cung | 6 | 6 |
+| 14 | `w02-l14` | practice | maze | build | Hai vòng lặp nối tiếp trong mê cung (đoạn ngang 3, đoạn dọc 5) ⁵ | 6 | 5 |
 | 15 | `w02-l15` | practice | runner | predict | Hai vòng lặp nối tiếp: đoán kết quả | — | — |
-| 16 | `w02-l16` | challenge | runner | build | Đường 20 ô chỉ được 4 khối | 4 | 4 |
-| 17 | `w02-l17` | challenge | maze | build | Mê cung xoắn ốc tiết kiệm khối | 6 | 5 |
-| 18 | `w02-l18` | challenge | runner | bughunt | Ba lỗi trong một chương trình (parEdits 3) | — | 5 |
+| 16 | `w02-l16` | challenge | runner | build | Đường dài (19 ô kể cả ô xuất phát và cờ) chỉ được 5 khối: vòng lặp + hố cuối ⁴ | 5 | 5 |
+| 17 | `w02-l17` | challenge | maze | build | Bậc thang rồi hành lang: hai vòng lặp, mỗi vòng vừa đủ ³ | 8 | 7 |
+| 18 | `w02-l18` | challenge | runner | bughunt | Ba lỗi trong một chương trình, có hố cuối sau vòng lặp (parEdits 3) ⁴ | — | 6 |
 | 19 | `w02-l19` | challenge | maze | build | Mê cung dài, `par` rất chặt | 7 | 6 |
-| 20 | `w02-boss` | boss | runner | build | "Vượt rừng tre": 30 ô có quy luật | 6 | 5 |
+| 20 | `w02-boss` | boss | runner | build | "Vượt rừng tre": 28 ô, mẫu "đá, đi, cúi, nhảy" × 6 rồi hố cuối ⁴ | 7 | 6 |
 | ✦ | `w02-creative` | creative | runner | creative | Tạo nhịp điệu đường chạy riêng | — | — |
 
 Ghi chú: thế giới này **chưa có lặp lồng nhau** (để dành Thế giới 9). Với màn `bughunt`, cột `par` là số khối của lời giải; sao ⭐⭐ chấm theo `parEdits` (số khối phải sửa).
+
+Ghi chú khi soạn nháp (P1-13, đã sửa sau review sư phạm):
+- ¹ ² ³ **Mê cung xoắn ốc** (dòng 9, 17 bản đầu) bỏ: trên lưới, xoắn ốc cạnh 2 ô luôn đặt đích sát ô xuất phát (đi tắt 2 khối), còn cạnh 3 ô thì lặp lồng `lặp 4 { lặp 3 {tiến}, rẽ }` chỉ 4 khối, ít hơn `par`, mà thế giới này chưa dạy lặp lồng. **Hình vuông kín** (dòng 12) cũng tạo đường tắt sang đích, nên đường quanh khóm tre là 3 cạnh (chữ C). Dòng 17 giờ là bậc thang + hành lang (`par` 7, `maxBlocks` 8).
+- ⁴ Măng **thắng ngay khi chạm cờ / đích**, kể cả giữa vòng lặp, nên đặt số lần lặp **lớn hơn** cần vẫn thắng nếu ngay sau vòng lặp là đích. Để kỹ năng "đếm đúng số lần lặp" thật sự cần, các màn này có **đoạn cuối khác mẫu** ngay sau vòng lặp (hố cuối): lặp thừa 1 vòng là Măng rơi hố / đụng cành, lặp thiếu thì khối sau vòng lặp va vào chướng ngại. Các màn vẫn để số lặp thừa thắng được: `l01`, `l03`, `l05`, `l08`, `l12`, `l19` (màn dạy ý khác, hoặc mê cung nhìn thấy hết đường).
+- ⁵ `l14` bản đầu bắt đầu nhìn lên (thêm 1 khối rẽ đầu tiên để `par` 6); đổi sang nhìn sang phải, `par` 5, `maxBlocks` 6. Lặp thừa ở đoạn ngang là đụng tường.
+- Mọi `par` đã được kiểm bằng vét cạn trên thanh khối của màn (số lần lặp 2–20, cho phép cả lặp lồng): không có lời giải nào ít khối hơn.
 
 ## 5. Thế giới 3–10 (khung, chi tiết hóa khi tới giai đoạn xây)
 

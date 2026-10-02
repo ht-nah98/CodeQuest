@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { TILE_SIZE } from '../assets';
+import { TILE_SIZE } from '../tileGrid';
 import { cameraX, cellCenterX, computeRunnerLayout } from './layout';
 
 describe('computeRunnerLayout', () => {

@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { expect, type Page, test } from '@playwright/test';
 import type * as BlocklyModule from 'blockly';
+import { pandaBecomes, signInTestProfile } from './helpers';
 
 // P0-07 acceptance (docs/roadmap/phase-0.md): one runner level played end to end on /play/:levelId.
 
@@ -78,6 +79,7 @@ test.afterEach(() => {
 });
 
 async function open(page: Page): Promise<void> {
+  await signInTestProfile(page);
   await page.goto(`/play/${LEVEL_ID}`);
   // The first visit on a cold dev server compiles Blockly, Pixi and the engine on demand,
   // which can take well over the default 5 s while other workers do the same.
@@ -127,7 +129,7 @@ test.describe('/play/w01-l03 runner', () => {
     await expect(page.getByTestId('play-stage')).toHaveAttribute('data-phase', 'running');
     // The block that runs now is outlined.
     await expect(page.locator('.blocklyHighlighted')).toHaveCount(1);
-    await expect(page.getByTestId('play-stage')).toHaveAttribute('data-panda', 'jump');
+    await pandaBecomes(page, 'jump');
     await page.screenshot({ path: `${SHOTS}/${project}-jump.png` });
 
     await expect(page.getByTestId('play-success')).toBeVisible({ timeout: 15_000 });
@@ -283,6 +285,7 @@ test.describe('/play/w01-l03 runner', () => {
   });
 
   test('unknown level shows a friendly message', async ({ page }) => {
+    await signInTestProfile(page);
     await page.goto('/play/w99-nope');
     await expect(page.getByRole('alert')).toHaveText('Không tìm thấy màn này.');
   });

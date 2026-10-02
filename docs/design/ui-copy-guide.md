@@ -30,9 +30,9 @@ Mỗi `reasonCode` có câu mặc định. **Nguồn duy nhất** là `content/s
 | `INTERNAL_ERROR` | Ối, game bị vấp. Con bấm Làm lại nhé! |
 | `OFF_TRACK` | Ối, Măng nhảy ra khỏi đường rồi! |
 | `DISCONNECTED_BLOCKS` (chỉ dùng cho gợi ý) | Có khối chưa nối vào "khi bắt đầu". |
-| `NOT_AT_GOAL` | Gần lắm rồi! Măng chưa tới đích. |
-| `HIT_WALL` | Ối, tường! Măng cần rẽ trước đó. |
-| `FELL_IN_HOLE` | Ối, hố! Thử khối nhảy nhé. |
+| `NOT_AT_GOAL` | Hết khối rồi mà Măng chưa tới nơi. |
+| `HIT_WALL` | Ối, tường! Măng rẽ đúng chỗ, đúng phía chưa? |
+| `FELL_IN_HOLE` | Ối, hố! Nhảy ngay trước hố nhé. |
 | `HIT_BRANCH` | Cộc! Cành thấp quá, Măng phải cúi. |
 | `HIT_CRATE` | Thùng chắn đường. Đá nó đi! |
 | `MISSED_ITEMS` | Còn măng chưa nhặt kìa! |

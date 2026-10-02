@@ -1,0 +1,16 @@
+{
+  "id": "maze-creative",
+  "worldId": "_sandbox",
+  "stage": "creative",
+  "kind": "maze",
+  "mode": "creative",
+  "title": "Vườn tre tự do",
+  "objective": "Ghép tùy ý, dẫn Măng đi dạo nhé!",
+  "learningGoal": "Tự do thử tiến và rẽ, tự đặt đường đi cho Măng.",
+  "toolbox": ["maze_forward", "maze_turn_left", "maze_turn_right", "cq_repeat"],
+  "config": {
+    "map": ["######", "#S..b#", "#.#..#", "#..#.#", "#b..G#", "######"],
+    "startDir": "E"
+  },
+  "hints": []
+}

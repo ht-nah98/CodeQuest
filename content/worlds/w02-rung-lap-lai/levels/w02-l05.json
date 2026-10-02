@@ -1,0 +1,124 @@
+{
+  "id": "w02-l05",
+  "worldId": "w02-rung-lap-lai",
+  "stage": "practice",
+  "kind": "runner",
+  "mode": "build",
+  "title": "Đi và nhảy",
+  "objective": "Đến lá cờ, dùng không quá 3 khối nhé!",
+  "learningGoal": "Đặt nhiều khối bên trong một khối lặp để lặp cả một mẫu.",
+  "misconception": "Khối lặp chỉ chứa được một khối.",
+  "toolbox": [
+    {
+      "type": "cq_repeat",
+      "fields": {
+        "TIMES": 2
+      }
+    },
+    "runner_walk",
+    "runner_jump"
+  ],
+  "maxBlocks": 3,
+  "par": 3,
+  "config": {
+    "cells": [
+      "ground",
+      "ground",
+      "hole",
+      "ground",
+      "ground",
+      "hole",
+      "ground",
+      "ground",
+      "hole",
+      "flag"
+    ],
+    "start": 0,
+    "bamboo": [4, 7]
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "rep1",
+              "fields": {
+                "TIMES": 3
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "runner_walk",
+                    "id": "walk1",
+                    "next": {
+                      "block": {
+                        "type": "runner_jump",
+                        "id": "jump1"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "cap",
+      "when": {
+        "capacityFull": true,
+        "missing": "cq_repeat"
+      },
+      "say": "Hết chỗ rồi! Bỏ bớt 1 khối để lấy khối lặp nhé.",
+      "point": "capacity"
+    },
+    {
+      "id": "many-inside",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "FELL_IN_HOLE",
+        "has": "cq_repeat",
+        "blockCount": {
+          "lte": 2
+        }
+      },
+      "say": "Khối lặp chứa được nhiều khối đó!",
+      "point": "block:cq_repeat"
+    },
+    {
+      "id": "jump-place",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "FELL_IN_HOLE",
+        "has": "cq_repeat",
+        "blockCount": {
+          "eq": 3
+        }
+      },
+      "say": "Khối nhảy nằm đâu? Trong vòng lặp, khối nào trước?",
+      "point": "block:runner_jump"
+    },
+    {
+      "id": "more",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "NOT_AT_GOAL",
+        "has": "cq_repeat"
+      },
+      "say": "Mỗi vòng qua 1 hố. Đường có mấy hố?",
+      "point": "stage"
+    }
+  ],
+  "thinkingHint": "Con thấy mẫu nào lặp đi lặp lại trên đường?"
+}

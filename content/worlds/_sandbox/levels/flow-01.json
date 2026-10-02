@@ -1,0 +1,44 @@
+{
+  "id": "flow-01",
+  "worldId": "_sandbox",
+  "stage": "guided",
+  "kind": "runner",
+  "mode": "build",
+  "title": "Hai bước tới cờ",
+  "objective": "Đi 2 bước tới lá cờ nhé!",
+  "learningGoal": "Dev sandbox: first level of the screen-flow e2e (lesson, results, next level).",
+  "misconception": "Một khối đi là đủ để tới cờ.",
+  "toolbox": ["runner_walk"],
+  "par": 2,
+  "config": { "cells": ["ground", "ground", "flag"], "start": 0 },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "runner_walk",
+              "id": "walk1",
+              "next": { "block": { "type": "runner_walk", "id": "walk2" } }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "walk-new",
+      "when": { "trigger": "enter" },
+      "say": "Kéo khối đi vào dưới khối bắt đầu.",
+      "point": "toolbox:runner_walk"
+    }
+  ],
+  "thinkingHint": "Từ chỗ Măng tới cờ có mấy ô?"
+}

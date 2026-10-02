@@ -16,3 +16,6 @@ Nguồn chuẩn cho: giai đoạn, task, thứ tự, tiêu chí nghiệm thu. L�
 - Mỗi task có: **Mục tiêu**, **Phụ thuộc**, **Sản phẩm**, **Nghiệm thu** (kiểm được), **Người làm** (AI / HLV = huấn luyện viên).
 - Trạng thái ghi ngay trong bảng: ⬜ chưa làm · 🟨 đang làm · ✅ xong · ⛔ bị chặn.
 - Một task xong khi đạt nghiệm thu **và** "Định nghĩa xong" trong `AGENTS.md`.
+
+## Câu hỏi chờ huấn luyện viên
+AI gom các quyết định sản phẩm đang tạm chọn vào [`coach-questions.md`](coach-questions.md). Huấn luyện viên trả lời ở đó; AI cập nhật tài liệu nguồn chuẩn rồi xóa câu đã chốt.

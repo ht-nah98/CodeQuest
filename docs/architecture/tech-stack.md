@@ -49,7 +49,8 @@ Quy tắc:
 | `supabase` (CLI) | 2.119.0 | Migration, chạy Supabase local, từ GĐ 2 |
 | `tsx` | 4.23.15 | Chạy script TS trong `tools/` |
 | Python 3 + Pillow ≥ 12 + NumPy ≥ 2 | — | `tools/sprites/clean.py`, `pack.py` (`tools/sprites/requirements.txt`) |
-| Dịch vụ TTS tiếng Việt | chưa chọn | Sinh trước giọng đọc (`tools/voice/`). HLV chọn ở đầu task P1-14, ghi lại tại đây |
+| Dịch vụ TTS tiếng Việt | chưa chọn | Sinh trước giọng đọc (`tools/voice/`). HLV chọn ở đầu task P1-14, ghi lại tại đây (tên dịch vụ + giọng). Khung CLI + adapter đã có: provider `none` (mặc định, chưa có giọng) và `files` (thu âm / xuất tay); cách cắm dịch vụ mới ở `tools/voice/README.md` |
+| `ffmpeg` (libmp3lame) | hệ thống | Chỉ khi chạy `npm run audio:gen` (`tools/audio/`): mã hóa WAV tự sinh thành MP3. Không cần để chạy hay build app (file MP3 đã commit) |
 
 ## Đã cân nhắc và không chọn
 | Lựa chọn | Lý do không chọn |

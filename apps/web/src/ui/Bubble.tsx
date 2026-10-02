@@ -1,7 +1,5 @@
-import { vi } from '../i18n/vi';
 import { fitsBubble } from './bubbleCopy';
-import { FOCUS_RING } from './focusRing';
-import { PixelIcon } from './PixelIcon';
+import { SpeakButton } from './SpeakButton';
 
 /** Which side the tail points to, i.e. where Măng stands relative to the bubble. */
 export type BubbleTail = 'left' | 'bottom' | 'none';
@@ -10,7 +8,12 @@ export interface BubbleProps {
   /** At most 12 words (ui-copy-guide.md §2). Over-long copy is outlined red in dev builds. */
   text: string;
   tail?: BubbleTail;
-  /** Plays the pre-recorded voice line. Omit for lines that have no audio (e.g. ones with numbers). */
+  /**
+   * Voice line id (`audio/voiceIds.ts`, content-model.md §2). The 🔊 button shows only when the
+   * line has a voice file; it plays / stops the line. Omit for lines with numbers.
+   */
+  voiceId?: string;
+  /** Custom read-aloud handler; overrides `voiceId`. */
   onSpeak?: () => void;
   /** True while the voice line is playing; keeps the 🔊 button looking pressed. */
   speaking?: boolean;
@@ -25,21 +28,13 @@ const TAIL_CLASS: Record<Exclude<BubbleTail, 'none'>, string> = {
   bottom: 'left-[22px] -bottom-[11px] border-r-3 border-b-3',
 };
 
-const SPEAK_CLASS = [
-  'grid size-11 shrink-0 cursor-pointer place-items-center rounded-key border-2 border-ink bg-brand-soft',
-  'transition-[transform,box-shadow,background-color] duration-150 ease-bounce',
-  'shadow-key hover:-translate-y-px hover:bg-brand-soft/70',
-  'active:translate-y-0.5 active:shadow-button-pressed',
-  'aria-pressed:translate-y-0.5 aria-pressed:bg-coin aria-pressed:shadow-button-pressed',
-  FOCUS_RING,
-].join(' ');
-
 /** Măng's speech bubble: white, ink border, pointed tail and a read-aloud button. */
 export function Bubble({
   text,
   tail = 'left',
+  voiceId,
   onSpeak,
-  speaking = false,
+  speaking,
   live = false,
   className = '',
 }: BubbleProps) {
@@ -63,17 +58,11 @@ export function Bubble({
       <p className="m-0 min-w-0 py-1" aria-live={live ? 'polite' : undefined}>
         {text}
       </p>
-      {onSpeak !== undefined && (
-        <button
-          type="button"
-          className={SPEAK_CLASS}
-          aria-label={vi.ui.speak}
-          aria-pressed={speaking}
-          onClick={onSpeak}
-        >
-          <PixelIcon name="speaker" scale={2} />
-        </button>
-      )}
+      <SpeakButton
+        {...(voiceId !== undefined && { voiceId })}
+        {...(onSpeak !== undefined && { onSpeak })}
+        {...(speaking !== undefined && { speaking })}
+      />
     </div>
   );
 }

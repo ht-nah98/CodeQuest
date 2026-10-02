@@ -16,6 +16,7 @@
 
 ## Âm thanh
 - Hiệu ứng `.mp3`, ≤ 1 giây, chuẩn hóa âm lượng −16 LUFS. Nguồn CC0 (Kenney Audio) hoặc tự tạo. Ghi vào `assets/CREDITS.md`.
+- Hiệu ứng hiện có là tự tạo bằng mã: thêm/sửa công thức trong `tools/audio/src/sfx.ts`, tên thêm vào `apps/web/src/audio/sfxCatalog.ts`, chạy `npm run audio:gen` (xem `architecture/audio.md` §4).
 - Giọng đọc: `apps/web/public/audio/voice/<id câu>.mp3`, id theo `content-model.md` §2.
 
 ## Giấy phép

@@ -1,5 +1,15 @@
 export type PixelIconName =
-  'coin' | 'star' | 'star-empty' | 'flame' | 'speaker' | 'play' | 'bulb' | 'lock';
+  | 'coin'
+  | 'star'
+  | 'star-empty'
+  | 'flame'
+  | 'speaker'
+  | 'play'
+  | 'bulb'
+  | 'lock'
+  | 'gear'
+  | 'book'
+  | 'crown';
 
 /** Integer zoom of the 16×16 grid; pixel art is only scaled by whole multiples (art-direction.md §4, §7). */
 export type PixelIconScale = 1 | 2 | 3 | 4;
@@ -168,6 +178,63 @@ const MAPS: Record<PixelIconName, readonly string[]> = {
     '.OOOOOOOOOOOOOO.',
     '................',
   ],
+  // Settings.
+  gear: [
+    '......OOOO......',
+    '..OO..OssO..OO..',
+    '.OssOOOssOOOssO.',
+    '.OssssssssssssO.',
+    '..OsssOOOOsssO..',
+    '.OOssOwwwwOssOO.',
+    'OsssOwwwwwwOsssO',
+    'OsssOwwwwwwOsssO',
+    'OsssOwwwwwwOsssO',
+    'OsssOwwwwwwOsssO',
+    '.OOssOwwwwOssOO.',
+    '..OsssOOOOsssO..',
+    '.OssssssssssssO.',
+    '.OssOOOssOOOssO.',
+    '..OO..OssO..OO..',
+    '......OOOO......',
+  ],
+  // Lesson.
+  book: [
+    '................',
+    '................',
+    '.OOOOO....OOOOO.',
+    'OwwwwwOOOOwwwwwO',
+    'OwsssswOOwsssswO',
+    'OwwwwwwOOwwwwwwO',
+    'OwssssswOwsssssw',
+    'OwwwwwwOOwwwwwwO',
+    'OwsssswOOwsssswO',
+    'OwwwwwwOOwwwwwwO',
+    'OwwwwwwOOwwwwwwO',
+    'OOOOOOwOOwOOOOOO',
+    'OhhhhhOOOOhhhhhO',
+    '.OOOOOO..OOOOOO.',
+    '................',
+    '................',
+  ],
+  // Boss level.
+  crown: [
+    '................',
+    '................',
+    '.O.....OO.....O.',
+    'OyO...OyyO...OyO',
+    'OyyO.OyyyyO.OyyO',
+    'OyyyOyyyyyyOyyyO',
+    'OyyyyyyWyyyyyyyO',
+    'OyyyyyWhWyyyyyyO',
+    'OyyyyyyWyyyyyyyO',
+    'OyyyyyyyyyyyyyyO',
+    'ODDDDDDDDDDDDDDO',
+    'OyyyyyyyyyyyyyyO',
+    'OOOOOOOOOOOOOOOO',
+    '................',
+    '................',
+    '................',
+  ],
 };
 
 const FILLS: Record<string, string> = {
@@ -179,6 +246,7 @@ const FILLS: Record<string, string> = {
   w: 'fill-white',
   s: 'fill-ink-soft',
   p: 'fill-paper-2',
+  h: 'fill-hint',
 };
 
 interface Run {

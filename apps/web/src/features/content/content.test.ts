@@ -26,12 +26,13 @@ describe('assertPlayable', () => {
   const runner = {
     id: 'w01-l99',
     kind: 'runner',
+    mode: 'build',
     config: { cells: ['ground', 'flag', 'ground'], start: 0 },
   } as const;
 
   it('rejects a kind that is not implemented yet', () => {
     expect(() => {
-      assertPlayable({ id: 'w02-l01', kind: 'maze', config: {} });
+      assertPlayable({ id: 'w02-l01', kind: 'maze', mode: 'build', config: {} });
     }).toThrow(UnplayableLevelError);
   });
 
@@ -39,6 +40,28 @@ describe('assertPlayable', () => {
     expect(() => {
       assertPlayable(runner);
     }).toThrow(UnplayableLevelError);
+  });
+
+  it('rejects a mode the play screen cannot run', () => {
+    expect(() => {
+      assertPlayable({
+        ...runner,
+        mode: 'future' as string as 'build',
+        config: { cells: ['ground', 'flag'], start: 0 },
+      });
+    }).toThrow(UnplayableLevelError);
+  });
+
+  it('accepts every mode of the schema (P1-06)', () => {
+    for (const mode of ['build', 'parsons', 'predict', 'bughunt', 'creative'] as const) {
+      expect(() => {
+        assertPlayable({
+          ...runner,
+          mode,
+          config: { cells: ['ground', 'hole', 'flag'], start: 0 },
+        });
+      }).not.toThrow();
+    }
   });
 
   it('accepts a valid runner level', () => {

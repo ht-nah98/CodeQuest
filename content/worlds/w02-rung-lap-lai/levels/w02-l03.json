@@ -1,0 +1,105 @@
+{
+  "id": "w02-l03",
+  "worldId": "w02-rung-lap-lai",
+  "stage": "guided",
+  "kind": "runner",
+  "mode": "build",
+  "title": "Đường hầm cành tre",
+  "objective": "Đổi số trong khối lặp để tới lá cờ nhé!",
+  "learningGoal": "Con số trong khối lặp là số lần làm lại; đếm đường để chọn đủ số.",
+  "misconception": "Có khối lặp là Măng tự đi tới cờ, con số nào cũng được.",
+  "toolbox": [
+    {
+      "type": "cq_repeat",
+      "fields": {
+        "TIMES": 3
+      }
+    },
+    "runner_walk",
+    "runner_jump",
+    "runner_crouch"
+  ],
+  "maxBlocks": 2,
+  "par": 2,
+  "config": {
+    "cells": ["ground", "branch", "branch", "branch", "branch", "branch", "branch", "flag"],
+    "start": 0,
+    "bamboo": [4]
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "rep1",
+              "fields": {
+                "TIMES": 7
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "runner_crouch",
+                    "id": "crouch1"
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "change",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "NOT_AT_GOAL",
+        "has": "runner_crouch"
+      },
+      "say": "Măng cúi chưa đủ. Bấm vào con số để đổi nhé!",
+      "point": "block:cq_repeat"
+    },
+    {
+      "id": "to-flag",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "NOT_AT_GOAL",
+        "has": "runner_crouch",
+        "runCount": {
+          "gte": 2
+        }
+      },
+      "say": "Tăng con số cho tới khi Măng tới lá cờ nhé!",
+      "point": "block:cq_repeat",
+      "priority": 1
+    },
+    {
+      "id": "low",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "HIT_BRANCH"
+      },
+      "say": "Cành thấp suốt đường hầm. Khối nào chui qua được?",
+      "point": "stage"
+    },
+    {
+      "id": "cap",
+      "when": {
+        "capacityFull": true,
+        "missing": "cq_repeat"
+      },
+      "say": "Hết chỗ rồi! Bỏ bớt 1 khối để lấy khối lặp nhé.",
+      "point": "capacity"
+    }
+  ],
+  "thinkingHint": "Từ chỗ Măng tới lá cờ, Măng phải cúi mấy lần?"
+}

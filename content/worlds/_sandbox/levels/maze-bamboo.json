@@ -1,0 +1,118 @@
+{
+  "id": "maze-bamboo",
+  "worldId": "_sandbox",
+  "stage": "practice",
+  "kind": "maze",
+  "mode": "build",
+  "title": "Nhặt hết măng",
+  "objective": "Nhặt hết măng rồi tới đích nhé!",
+  "learningGoal": "Đích chỉ mở khi đã nhặt đủ măng; đi qua đích rồi quay lại.",
+  "misconception": "Chạm đích là thắng ngay, dù còn măng.",
+  "toolbox": ["maze_forward", "maze_turn_left", "maze_turn_right"],
+  "par": 12,
+  "maxBlocks": 14,
+  "config": {
+    "map": ["b.G", ".#.", "S.b"],
+    "startDir": "N",
+    "goal": {
+      "collectAll": true
+    }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "maze_forward",
+              "id": "b1",
+              "next": {
+                "block": {
+                  "type": "maze_forward",
+                  "id": "b2",
+                  "next": {
+                    "block": {
+                      "type": "maze_turn_right",
+                      "id": "b3",
+                      "next": {
+                        "block": {
+                          "type": "maze_forward",
+                          "id": "b4",
+                          "next": {
+                            "block": {
+                              "type": "maze_forward",
+                              "id": "b5",
+                              "next": {
+                                "block": {
+                                  "type": "maze_turn_right",
+                                  "id": "b6",
+                                  "next": {
+                                    "block": {
+                                      "type": "maze_forward",
+                                      "id": "b7",
+                                      "next": {
+                                        "block": {
+                                          "type": "maze_forward",
+                                          "id": "b8",
+                                          "next": {
+                                            "block": {
+                                              "type": "maze_turn_right",
+                                              "id": "b9",
+                                              "next": {
+                                                "block": {
+                                                  "type": "maze_turn_right",
+                                                  "id": "b10",
+                                                  "next": {
+                                                    "block": {
+                                                      "type": "maze_forward",
+                                                      "id": "b11",
+                                                      "next": {
+                                                        "block": {
+                                                          "type": "maze_forward",
+                                                          "id": "b12"
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "missed",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "MISSED_ITEMS"
+      },
+      "say": "Còn măng chưa nhặt kìa!",
+      "point": "stage"
+    }
+  ]
+}

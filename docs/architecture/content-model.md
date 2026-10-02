@@ -28,7 +28,7 @@ content/
   ```
   Không dùng `'/content/**'`: trong Vite, `/` là gốc của app (`apps/web`), glob sẽ trả về **rỗng mà không báo lỗi**. Màn trong thư mục `_*` chỉ được nạp khi `import.meta.env.DEV` (glob riêng).
 - Nội dung được đóng gói cùng bản build (không tải từ server).
-- Thư mục `worlds/_<tên>/` (vd `_sandbox`) là **khu nháp**: không hiện cho bé ở bản production; vẫn được `content:check` kiểm luật chạy được (9–17) nhưng **miễn** luật cấu trúc 2 (mẫu ID) và 4 (lesson/boss).
+- Thư mục `worlds/_<tên>/` (vd `_sandbox`) là **khu nháp**: không hiện cho bé ở bản production; vẫn được `content:check` kiểm luật 1, luật chạy được (9–17) và 18, nhưng **miễn** mẫu ID của luật 2 và các luật chương trình học 3–8 (khu nháp không cần `world.json`, không nằm trong thứ tự `world.order`, chưa phải chữ cho bé).
 
 ## 2. Quy ước ID
 | Loại | Mẫu | Ví dụ |
@@ -39,7 +39,7 @@ content/
 | Block type | `<kind>_<verb>` hoặc `cq_<tên>` cho khối chung | `runner_jump`, `cq_repeat`, `cq_start` |
 | Badge | kebab-case | `loop-master` |
 | Shop item | `<loại>-<slug>` | `skin-astro-panda`, `fx-confetti` |
-| Câu thoại có giọng đọc | `<id>.<khóa>` | `w01-l03.objective` · `w01-l03.thinking` · `w01-l03.hint.<hintId>` · `w01-lesson.c<số thẻ>` · `feedback.FELL_IN_HOLE` · `ui.<khóa trong vi.ts>` |
+| Câu thoại có giọng đọc | `<id>.<khóa>` (chỉ chữ, số, `.` `_` `-`; là tên file) | `w01-l03.objective` · `w01-l03.thinking` · `w01-l03.hint.<hintId>` · `w01-l03.feedback.<REASON>` (câu feedback riêng của màn) · `w01-lesson.c<n>` (thẻ thứ n, **đếm từ 1**) · `w01-lesson.c<n>.explain` (giải thích của thẻ quiz) · `feedback.FELL_IN_HOLE` · `ui.<khóa trong vi.ts>`. Danh sách đầy đủ: `npm run voice -- lines` (`docs/architecture/audio.md` §5) |
 
 ID **không bao giờ đổi** sau khi đã có bé chơi, vì tiến độ gắn với ID. Muốn bỏ màn: đặt `"retired": true`.
 
@@ -80,7 +80,7 @@ interface Level {
   config: unknown;                          // kiểm bằng configSchema của kind; điều kiện thắng phụ (vd goal.collectAll) nằm TRONG config
   initialWorkspace?: WorkspaceJson;         // bắt buộc với parsons (khối xáo trộn), predict, bughunt
   solution?: WorkspaceJson;                 // bắt buộc trừ predict/creative
-  predict?: { options: Array<{ key: string; label: string }>; };  // key theo predictAnswer; label ≤ 4 chữ; hình do renderer vẽ (drawAnswer); đáp án đúng do engine tính
+  predict?: { options: Array<{ key: string; label: string }>; };  // key theo predictAnswer; label ≤ 4 chữ; hình vẽ từ key + config (AnswerPicture, stage-rendering.md §4); đáp án đúng do engine tính
   hints: HintRule[];                        // gợi ý tầng 0 (xem hint-engine.md)
   thinkingHint?: string;                    // gợi ý tầng 1, bắt buộc trừ creative
   feedback?: Partial<Record<string, string>>;   // ghi đè câu theo reasonCode
@@ -175,7 +175,21 @@ Chạy `npm run content:check`. Báo lỗi (exit 1) nếu vi phạm bất kỳ l
 **Tài sản**
 18. Asset được tham chiếu (`theme.tileset`, `image`, `shop.asset`) tồn tại trong `apps/web/public/`.
 
-Kết quả in thành bảng: `✔ w01-l03 runner/build  par 3  sol 3  ok` hoặc `✖ w02-l05  rule 9: solution ends NOT_AT_GOAL at cell 9`.
+Kết quả in thành bảng: `✔ w01-l03 runner/build  par 3  sol 3  ok` hoặc `✖ w02-l05  rule 9: solution ends NOT_AT_GOAL at cell 9`. Cảnh báo in `⚠ <id>  rule 8: …` và **không** làm đỏ (exit 0); có lỗi thì exit 1. `npm run content:check -- --dir <thư mục>` kiểm một cây nội dung khác (mặc định `content/`), dùng cho fixture ở `tools/content-check/fixtures/` (mỗi luật một fixture sai, `baseline/` xanh).
+
+Cách hiểu chi tiết (cài đặt ở P1-11):
+- **Đếm chữ** (luật 5): tách theo khoảng trắng, chỉ tính token có chữ cái hoặc chữ số, nên emoji và dấu câu không tính; mỗi âm tiết tiếng Việt là 1 chữ (`lá cờ` = 2). Giống `countWords` trong `apps/web/src/ui/bubbleCopy.ts`.
+- **Luật 3:** `levelIds`/`lessonIds` không trùng và trỏ tới file trong **chính thư mục thế giới đó**; `worldId` của level/lesson phải bằng tên thư mục thế giới. Lesson không bắt buộc phải được liệt kê.
+- **Luật 4, 7, 8** bỏ qua màn `retired`. "Màn creative" của luật 4 là `stage: "creative"`; "trừ creative" của luật 6 là `stage` hoặc `mode` là `creative`.
+- **Luật 7:** khối "xuất hiện" ở một màn = khối trong `toolbox`, `initialWorkspace` và `solution` (trừ `cq_start`), xét theo `world.order` rồi `levelIds`. Mỗi khối chỉ báo một lần, ở màn đầu tiên.
+- **Luật 9–11** bỏ qua màn `predict` (nếu lỡ có `solution`): engine chạy `initialWorkspace` ở mode này, luật 15 đã kiểm.
+- **Luật 12:** shadow tính cả shadow lồng trong `next`/`inputs`.
+- **Luật 13:** so khớp theo bội (multiset) chữ ký `type + fields + extraState` của mọi khối không phải shadow, kể cả `cq_start` và khối rời.
+- **Luật 14:** `initialWorkspace` kết thúc `success` hoặc `INTERNAL_ERROR` đều vi phạm; `parEdits` mặc định 1.
+- **Luật 15:** số phương án 3–4 và khóa không trùng đã do schema (luật 1) kiểm.
+- **Luật 16:** `lastReason` được đọc cả trong `all`/`any`/`not` lồng nhau.
+- **Luật 17:** có màn mà thiếu `shared/feedback.json` cũng là lỗi luật 17.
+- **Luật 18:** đường dẫn phải bắt đầu bằng `/` (tính từ `apps/web/public/`) và không thoát ra ngoài thư mục đó. Kiểm `world.theme.tileset`, `world.theme.music`, `image` của thẻ bài giảng, `asset` của vật phẩm cửa hàng.
 
 ## 6. Phiên bản luật chơi
 `GameKindDefinition.version` tăng khi luật chơi đổi. Không cần cache kết quả kiểm: `content:check` **luôn chạy lại lời giải của mọi màn**, nên màn nào bị ảnh hưởng sẽ đỏ ngay. Khi tăng version, ghi một dòng vào `CHANGELOG.md` để huấn luyện viên chơi thử lại các màn của kiểu game đó.
@@ -183,5 +197,5 @@ Kết quả in thành bảng: `✔ w01-l03 runner/build  par 3  sol 3  ok` hoặ
 ## 7. Giai đoạn của `content:check`
 - **Từ P0-01:** bản tối thiểu, chỉ chạy luật 1–2 (schema, ID) trên những file đang có. Thư mục `content/` rỗng thì xanh. Vì zod schema có ở P0-02, luật 1 lúc này chỉ kiểm JSON hợp lệ và có `id` dạng chuỗi; P0-02 nối schema vào. Khu nháp `_*` được miễn mẫu ID nhưng vẫn phải có `id` trùng tên file và không trùng ID khác. Level/lesson phải có tiền tố `wNN-` trùng thư mục thế giới. Trong `shared/` chỉ chấp nhận `feedback.json`, `shop.json`, `badges.json`.
 - **Từ P0-02:** luật 1 kiểm mọi file bằng schema zod (lỗi kèm đường dẫn trường, vd `mode: Invalid option…`), và `level.config` bằng `configSchema` của `kind` lấy từ registry `@codequest/games`; kiểu game chưa cài → lỗi luật 1 `game kind "x" is not implemented yet`. Luật 2 kiểm thêm ID vật phẩm (`<loại>-<slug>`, tiền tố phải trùng `kind`) và huy hiệu (kebab-case), không trùng với mọi ID khác.
-- **P0-07:** thêm luật 9–11 cho `runner`. Luật 9 chạy `runLevel(solution)` đúng mode của màn; khi thua, chạy lại ở mode `predict` để in chỗ dừng, vd `rule 9: solution ends crash FELL_IN_HOLE (crash:FELL_IN_HOLE@2)`. Luật 11 đọc mọi khối (không tính shadow) trong JSON của `solution`, kể cả khối rời và khối lồng trong `inputs`. `world.json` của `w01-lang-tre` lúc này là **bản tạm**: chỉ liệt kê các màn đã có (`w01-l03`), `lessonIds` rỗng; luật 3–4 chưa bật nên vẫn xanh. Bổ sung dần khi soạn đủ Thế giới 1 (P1-12).
-- **P1-11:** đủ 18 luật.
+- **P0-07:** thêm luật 9–11 cho `runner`. Luật 9 chạy `runLevel(solution)` đúng mode của màn; khi thua, chạy lại ở mode `predict` để in chỗ dừng, vd `rule 9: solution ends crash FELL_IN_HOLE (crash:FELL_IN_HOLE@2)`. Luật 11 đọc mọi khối (không tính shadow) trong JSON của `solution`, kể cả khối rời và khối lồng trong `inputs`. `world.json` của `w01-lang-tre` lúc này là **bản tạm**: chỉ liệt kê các màn đã có (`w01-l03`), `lessonIds` rỗng. Bổ sung dần khi soạn đủ Thế giới 1 (P1-12).
+- **P1-11:** đủ 18 luật, fixture cho từng luật (`tools/content-check/fixtures/`), tùy chọn `--dir`. **Thế giới tạm:** bảng `PROVISIONAL_WORLDS` trong `tools/content-check/src/curriculum.ts` ghi các thế giới mà `world.json` còn là bản tạm (từ P1-12 bảng đang rỗng; `w01-lang-tre` đã đủ bài giảng và boss). Với chúng, luật 4 và 7 chỉ **cảnh báo** (kèm chữ `provisional world until P1-12`) thay vì báo lỗi, vì thế giới còn thiếu bài giảng, boss và các màn đầu (vd `runner_walk` sẽ được giới thiệu ở `w01-l01`). Mọi luật khác vẫn là lỗi như thường. Không thêm trường mới vào schema cho việc này. Thế giới nào mới dựng dở có thể tạm thêm vào bảng, và phải xóa khi đủ bài giảng và boss.

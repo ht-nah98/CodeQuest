@@ -1,8 +1,11 @@
 import { Assets, type Spritesheet, type Texture, type UnresolvedAsset } from 'pixi.js';
 import { PANDA_ANIMATIONS, type PandaAnimation } from './panda';
 
-/** Temporary Kenney "Pixel Platformer" tiles (assets/CREDITS.md), drawn on an 18 px grid. */
-export const TILE_SIZE = 18;
+// Decode images on the main thread: our textures are small, and Pixi's worker path first probes a
+// blob worker for image support; under heavy CPU load that probe never resolved, so a cold load hung.
+Assets.setPreferences({ preferWorkers: false });
+
+/** Temporary Kenney "Pixel Platformer" tiles (assets/CREDITS.md), 18 px grid (`tileGrid.ts`). */
 export const TILE_NAMES = [
   'ground_left',
   'ground',
@@ -14,6 +17,9 @@ export const TILE_NAMES = [
   'flag_2',
   'flag_pole',
   'crate',
+  'branch_left',
+  'branch_right',
+  'bamboo',
 ] as const;
 export type TileName = (typeof TILE_NAMES)[number];
 export type TileTextures = Record<TileName, Texture>;

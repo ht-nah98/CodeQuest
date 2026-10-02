@@ -1,41 +1,50 @@
-import { readdirSync, readFileSync } from 'node:fs';
-import { join, relative, sep } from 'node:path';
+// Usage: npm run content:check [-- --dir <content dir>]   (default: <repo>/content)
+import { relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { checkContent, type ContentFile } from './rules';
+import { parseArgs } from 'node:util';
+import { loadContentFiles } from './load';
+import { checkContent, type Issue } from './rules';
 
-const contentDir = fileURLToPath(new URL('../../../content', import.meta.url));
+const { values } = parseArgs({ options: { dir: { type: 'string' } } });
+const contentDir =
+  values.dir === undefined
+    ? fileURLToPath(new URL('../../../content', import.meta.url))
+    : resolve(values.dir);
 
-function listJsonFiles(dir: string): string[] {
-  return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
-    const full = join(dir, entry.name);
-    if (entry.isDirectory()) return listJsonFiles(full);
-    return entry.name.endsWith('.json') ? [full] : [];
-  });
-}
+const files = loadContentFiles(contentDir);
+const { entries, issues, warnings } = checkContent(files);
 
-const files: ContentFile[] = listJsonFiles(contentDir)
-  .sort()
-  .map((full) => ({
-    path: relative(contentDir, full).split(sep).join('/'),
-    text: readFileSync(full, 'utf8'),
-  }));
+const byPath = (list: Issue[]): Map<string, Issue[]> => {
+  const map = new Map<string, Issue[]>();
+  for (const issue of list) map.set(issue.path, [...(map.get(issue.path) ?? []), issue]);
+  return map;
+};
+const errorsByPath = byPath(issues);
+const warningsByPath = byPath(warnings);
+const line = (mark: string, name: string, issue: Issue): string =>
+  `${mark} ${name}  rule ${String(issue.rule)}: ${issue.message}`;
 
-const { entries, issues } = checkContent(files);
-const failedPaths = new Set(issues.map((issue) => issue.path));
-
+const printed = new Set<string>();
 for (const entry of entries) {
-  if (!failedPaths.has(entry.path)) {
-    const name = entry.id ?? entry.path;
+  printed.add(entry.path);
+  const name = entry.id ?? entry.path;
+  const errors = errorsByPath.get(entry.path) ?? [];
+  if (errors.length === 0) {
     console.log(
       entry.detail === undefined ? `✔ ${name}  ${entry.kind}  ok` : `✔ ${name} ${entry.detail}  ok`,
     );
   }
+  for (const issue of errors) console.log(line('✖', name, issue));
+  for (const issue of warningsByPath.get(entry.path) ?? []) console.log(line('⚠', name, issue));
 }
-for (const issue of issues) {
-  console.log(`✖ ${issue.path}  rule ${String(issue.rule)}: ${issue.message}`);
+// Files that never became an entry (bad location, invalid JSON) or are missing (feedback.json).
+for (const issue of [...issues, ...warnings]) {
+  if (!printed.has(issue.path))
+    console.log(line(issues.includes(issue) ? '✖' : '⚠', issue.path, issue));
 }
 
 console.log(
-  `\ncontent:check (rules 1–2, 9–11): ${String(files.length)} files, ${String(issues.length)} issues`,
+  `\ncontent:check (rules 1–18) ${relative(process.cwd(), contentDir) || '.'}: ${String(files.length)} files, ` +
+    `${String(issues.length)} errors, ${String(warnings.length)} warnings`,
 );
 process.exitCode = issues.length > 0 ? 1 : 0;

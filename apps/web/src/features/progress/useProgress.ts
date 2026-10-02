@@ -1,7 +1,7 @@
 import { useLiveQuery } from 'dexie-react-hooks';
-import type { LevelProgress } from '@codequest/rewards';
+import { streak, type LevelProgress } from '@codequest/rewards';
 import type { ProgressRow } from '../../data/db';
-import { getBalance } from '../../data/repos/ledger';
+import { getBalance, listLedger } from '../../data/repos/ledger';
 import { listLessonsDone } from '../../data/repos/lessons';
 import { getProgress, listProgress, toProgressMap } from '../../data/repos/progress';
 
@@ -35,4 +35,20 @@ export function useLessonsDone(profileId: string): Set<string> | undefined {
  */
 export function useCoinBalance(profileId: string): number | undefined {
   return useLiveQuery(async () => Math.max(0, await getBalance(profileId)), [profileId]);
+}
+
+/** Consecutive learning days (from the `daily` ledger lines), for the HUD flame. */
+export function useStreakDays(profileId: string): number | undefined {
+  return useLiveQuery(
+    async () => streak(await listLedger(profileId), new Date()).current,
+    [profileId],
+  );
+}
+
+/** Sum of the best stars over every level played, for the map HUD. */
+export function useTotalStars(profileId: string): number | undefined {
+  return useLiveQuery(
+    async () => (await listProgress(profileId)).reduce((sum, row) => sum + row.bestStars, 0),
+    [profileId],
+  );
 }

@@ -2,13 +2,24 @@ import {
   type KeyboardEvent as ReactKeyboardEvent,
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import * as Blockly from 'blockly';
-import type { RunOutcome } from '@codequest/engine';
-import type { RunnerEvent } from '@codequest/games';
+import type { FeedbackFile, Level, LevelMode, ReasonCode } from '@codequest/content-schema';
+import { editDistance, type RunOutcome } from '@codequest/engine';
+import { DEFAULT_PAR_EDITS } from '@codequest/rewards';
+import {
+  audio,
+  feedbackVoiceId,
+  levelVoiceId,
+  RUN_SFX,
+  stageSfx,
+  uiVoiceId,
+  useMusic,
+} from '../../audio';
 import {
   BlocklyWorkspace,
   type WorkspaceHandle,
@@ -21,17 +32,26 @@ import {
   type PlayContent,
   UnplayableLevelError,
 } from '../../features/content/content';
-import {
-  offendingBlockId,
-  resultLine,
-  runnerConfigOf,
-  runRunnerProgram,
-} from '../../features/play/run';
+import { offendingBlockId, resultLine, runProgram } from '../../features/play/run';
+import type { WinReward } from '../../features/play/session';
+import { usePlaySession } from '../../features/play/usePlaySession';
+import { useSignedInProfile } from '../../features/profiles';
 import { vi } from '../../i18n/vi';
 import type { PandaAnimation } from '../../stages/panda';
+import { trackFeedFor } from '../../stages/runner/trackStrip';
 import { type Speed, StageController } from '../../stages/StageController';
-import { Bubble, Button, CapacityBricks, Panel, PixelIcon } from '../../ui';
+import { TrackStrip } from '../../stages/TrackStrip';
+import { Bubble, Button, CapacityBricks, Panel, PixelIcon, SpeakButton } from '../../ui';
+import { canOpenLevel } from '../../features/content/catalog';
+import { ScreenMessage } from '../shared/ScreenMessage';
+import { useChild } from '../shared/useChild';
 import { MangPortrait, type PortraitPose } from './MangPortrait';
+import { PlayTopBar } from './PlayTopBar';
+import { type PickMark, PredictCards } from './PredictCards';
+import { HintBox } from './HintBox';
+import { ResultsOverlay } from './ResultsOverlay';
+import { SolutionViewer } from './SolutionViewer';
+import { type PlayLine, usePlayHints } from './usePlayHints';
 import './play.css';
 
 const t = vi.play;
@@ -39,7 +59,13 @@ const t = vi.play;
 /** Test hook for e2e (dev build only): the live workspace and what playback highlighted. */
 declare global {
   interface Window {
-    __cqPlay?: { Blockly: typeof Blockly; workspace: Blockly.WorkspaceSvg; highlights: string[] };
+    __cqPlay?: {
+      Blockly: typeof Blockly;
+      workspace: Blockly.WorkspaceSvg;
+      highlights: string[];
+      /** Mode predict: the engine's answer for the level's program. */
+      answerKey?: string | undefined;
+    };
   }
 }
 
@@ -53,6 +79,7 @@ type Loaded =
 /** /play/:levelId — loads the level, then mounts a fresh play session for it. */
 export default function PlayScreen() {
   const { levelId = '' } = useParams();
+  const navigate = useNavigate();
   const [result, setResult] = useState<{ levelId: string; loaded: Loaded } | null>(null);
   // A result for another level (client-side navigation) counts as still loading.
   const loaded: Loaded = result?.levelId === levelId ? result.loaded : { status: 'loading' };
@@ -75,31 +102,97 @@ export default function PlayScreen() {
     };
   }, [levelId]);
 
-  if (loaded.status !== 'ready') {
+  // URL guard (P1-10 review M4): a level the child has not opened yet is not playable by link.
+  const profile = useSignedInProfile();
+  const { catalog, child } = useChild(profile.id);
+  const known = catalog?.levels.get(levelId);
+  const access =
+    catalog === null || child === null
+      ? 'checking'
+      : canOpenLevel(catalog, levelId, child)
+        ? 'open'
+        : 'locked';
+
+  const status =
+    loaded.status === 'ready' && access !== 'open'
+      ? access === 'locked' && known
+        ? 'locked'
+        : 'loading'
+      : loaded.status;
+  if (status !== 'ready' || loaded.status !== 'ready') {
     const text =
-      loaded.status === 'loading'
+      status === 'loading'
         ? t.loading
-        : loaded.status === 'missing'
-          ? t.notFound
-          : loaded.status === 'unplayable'
-            ? t.unplayable
-            : t.loadError;
+        : status === 'locked'
+          ? t.locked
+          : status === 'missing'
+            ? t.notFound
+            : status === 'unplayable'
+              ? t.unplayable
+              : t.loadError;
     return (
-      <main className="grid h-screen place-items-center bg-ground p-6">
-        <Panel className="grid justify-items-center gap-4 p-8">
-          <MangPortrait pose={loaded.status === 'loading' ? 'idle_1' : 'talk'} height={96} />
-          <p
-            role={loaded.status === 'loading' ? undefined : 'alert'}
-            className="m-0 text-bubble font-bold"
+      <ScreenMessage text={text} alert={status !== 'loading'}>
+        {status !== 'loading' && (
+          <Button
+            icon="←"
+            onClick={() => void navigate(known ? `/w/${known.worldId}` : '/map')}
+            data-testid="play-back-out"
           >
-            {text}
-          </p>
-        </Panel>
-      </main>
+            {known ? t.toWorld : t.toMap}
+          </Button>
+        )}
+      </ScreenMessage>
     );
   }
-  return <PlaySession key={loaded.content.level.id} content={loaded.content} />;
+  return (
+    <PlaySession
+      key={loaded.content.level.id}
+      content={loaded.content}
+      {...hintFactsOf(loaded.content, catalog, child)}
+    />
+  );
 }
+
+/**
+ * Profile facts for tier-0 hints (hint-engine.md §2): whether this level is the first of its mode
+ * in its world, and the modes of every level the child has progress on.
+ */
+function hintFactsOf(
+  content: PlayContent,
+  catalog: ReturnType<typeof useChild>['catalog'],
+  child: ReturnType<typeof useChild>['child'],
+): { isFirstOfModeInWorld: boolean; seenModes: ReadonlySet<LevelMode> } {
+  const { level, world } = content;
+  const firstOfMode = world.levelIds
+    .map((id) => catalog?.levels.get(id))
+    .find((other) => other !== undefined && other.retired !== true && other.mode === level.mode);
+  const seenModes = new Set<LevelMode>();
+  for (const id of child?.progress.keys() ?? []) {
+    const mode = catalog?.levels.get(id)?.mode;
+    if (mode !== undefined) seenModes.add(mode);
+  }
+  return { isFirstOfModeInWorld: firstOfMode?.id === level.id, seenModes };
+}
+
+/** A feedback line with its voice: the level's own when it overrides the shared one. */
+function feedbackPlayLine(
+  reason: ReasonCode,
+  level: Pick<Level, 'id' | 'feedback'>,
+  feedback: FeedbackFile,
+): PlayLine {
+  const own = level.feedback?.[reason] !== undefined ? level.id : undefined;
+  return { text: feedbackLine(reason, level, feedback), voiceId: feedbackVoiceId(reason, own) };
+}
+
+/** A fixed vi.ts line of the play screen, voiced as `ui.<path>`. */
+const uiLine = (path: string, text: string): PlayLine => ({ text, voiceId: uiVoiceId(path) });
+
+/** Fixed win lines of `resultLine` that have a voice; the others (with numbers) have none. */
+const VOICED_WIN_LINES: readonly PlayLine[] = [
+  uiLine('play.win', t.win),
+  uiLine('play.bughunt.win', t.bughunt.win),
+  uiLine('play.creative.done', t.creative.done),
+];
 
 type Phase = 'idle' | 'running' | 'success' | 'fail';
 
@@ -125,24 +218,128 @@ const PORTRAIT: Record<Phase, PortraitPose> = {
 };
 
 /** One attempt at a level: stage on the left, Blockly on the right, Măng's bubble below. */
-function PlaySession({ content }: { content: PlayContent }) {
+function PlaySession({
+  content,
+  isFirstOfModeInWorld,
+  seenModes,
+}: {
+  content: PlayContent;
+  isFirstOfModeInWorld: boolean;
+  seenModes: ReadonlySet<LevelMode>;
+}) {
   const { level, world, levelNumber, feedback } = content;
+  const { mode } = level;
+  const predict = mode === 'predict' ? level.predict : undefined;
+  const readyLine = useMemo(
+    () =>
+      mode === 'build'
+        ? uiLine('play.ready', t.ready)
+        : uiLine(`play.readyByMode.${mode}`, t.readyByMode[mode]),
+    [mode],
+  );
+  useMusic('adventure');
+  const rootRef = useRef<HTMLElement>(null);
   const navigate = useNavigate();
   const stageBoxRef = useRef<HTMLDivElement>(null);
+  // Runner only: the full-track strip under the stage follows the replay (stage-rendering.md §2).
+  const trackFeed = useMemo(() => trackFeedFor(level.kind, level.config), [level]);
   const stageRef = useRef<StageController | null>(null);
   const workspaceRef = useRef<Blockly.WorkspaceSvg | null>(null);
   const handleRef = useRef<WorkspaceHandle | null>(null);
   const shakenRef = useRef<Element | null>(null);
   /** The program of the replay on screen, to tell a real edit from a late debounced report. */
   const ranJsonRef = useRef<string | null>(null);
+  /** The program of the last workspace report, to tell the child's edits from re-reports. */
+  const lastProgramRef = useRef<string | null>(null);
   const [stageReady, setStageReady] = useState(false);
   const [stageFailed, setStageFailed] = useState(false);
   const [phase, setPhase] = useState<Phase>('idle');
-  const [bubble, setBubble] = useState<string>(t.ready);
+  const [bubble, setBubbleLine] = useState<PlayLine>(readyLine);
+  const bubbleRef = useRef(bubble);
+  useEffect(() => {
+    bubbleRef.current = bubble;
+  });
   const [speed, setSpeed] = useState<Speed>(1);
+  /** The chosen speed, for a stage mounted later (level change, dev Fast Refresh). */
+  const speedRef = useRef<Speed>(1);
   const [stepping, setStepping] = useState(false);
-  const [blocksUsed, setBlocksUsed] = useState(0);
+  const [paused, setPaused] = useState(false);
   const [capacity, setCapacity] = useState<number | null>(level.maxBlocks ?? null);
+  // Rewards and progress of this level session (features/play/usePlaySession.ts).
+  const profile = useSignedInProfile();
+  const {
+    ready: sessionReady,
+    initialWorkspace,
+    recordRun,
+    saveCreative,
+    saveDraft,
+    setWorkspaceFlush,
+    wrongPicks,
+    recordHintBought,
+    snapshot,
+  } = usePlaySession(profile.id, level);
+  const phaseRef = useRef<Phase>('idle');
+  const [workspaceReady, setWorkspaceReady] = useState(false);
+  const playHints = usePlayHints({
+    profileId: profile.id,
+    level,
+    feedback,
+    session: snapshot().session,
+    sessionOpen: () => snapshot().open,
+    recordHintBought,
+    workspaceRef,
+    handleRef,
+    rootRef,
+    isFirstOfModeInWorld,
+    seenModes,
+    showTip: setBubbleLine,
+    currentText: () => bubbleRef.current.text,
+    canTip: () => phaseRef.current !== 'running' && phaseRef.current !== 'success',
+  });
+  const {
+    clearTip,
+    runEnded: hintRunEnded,
+    entered: hintEntered,
+    changed: hintChanged,
+    cancelPending: cancelPendingTips,
+    closePopover: closeStepPopover,
+  } = playHints;
+  /** Sound of the replay's last stage event: a `missed` already said `wrong` (audio.md §3). */
+  const lastEventSfxRef = useRef<string | null>(null);
+  const playFailSfx = useCallback(() => {
+    if (lastEventSfxRef.current !== RUN_SFX.fail) audio.playSfx(RUN_SFX.fail);
+  }, []);
+  useEffect(() => {
+    phaseRef.current = phase;
+  });
+  /** Măng says `line`; any tier-0 hint pointer goes away with the old line. */
+  const say = useCallback(
+    (line: PlayLine) => {
+      clearTip();
+      setBubbleLine(line);
+    },
+    [clearTip],
+  );
+  const [reward, setReward] = useState<WinReward | null>(null);
+  /** Mode predict: the cards picked in this session. */
+  const [marks, setMarks] = useState<Record<string, PickMark>>({});
+  /** Plus the wrong picks of the session a reload left open: still marked and locked. */
+  const allMarks = useMemo(
+    () => ({
+      ...Object.fromEntries(wrongPicks.map((key): [string, PickMark] => [key, 'wrong'])),
+      ...marks,
+    }),
+    [wrongPicks, marks],
+  );
+  /** Mode bughunt: blocks changed from the level's start, live (editDistance). */
+  const [edits, setEdits] = useState(0);
+  /** Mode creative: a save in progress. */
+  const [saving, setSaving] = useState(false);
+  // The workspace starts from the child's draft when there is one.
+  const workspaceLevel = useMemo(
+    () => (initialWorkspace === undefined ? level : { ...level, initialWorkspace }),
+    [level, initialWorkspace],
+  );
 
   const highlight = useCallback((blockId: string | null) => {
     const workspace = workspaceRef.current;
@@ -175,7 +372,8 @@ function PlaySession({ content }: { content: PlayContent }) {
     if (!container) return;
     const controller = new AbortController();
     StageController.mount(container, controller.signal, {
-      config: runnerConfigOf(level),
+      kind: level.kind,
+      config: level.config,
       onHighlight: highlight,
       onAnimation: (animation: PandaAnimation) => {
         container.dataset.panda = animation;
@@ -183,6 +381,19 @@ function PlaySession({ content }: { content: PlayContent }) {
       onWaitingStep: (waiting) => {
         container.dataset.waitingStep = String(waiting);
       },
+      // Each event's sound starts with its animation, on the replay's clock (audio.md §3).
+      onEvent: (event) => {
+        const sfx = stageSfx(event.type);
+        lastEventSfxRef.current = sfx;
+        audio.playSfx(sfx);
+        trackFeed?.event(event);
+      },
+      onReset: () => trackFeed?.reset(),
+      ...(import.meta.env.DEV && {
+        onClockSpeed: (clockSpeed: number) => {
+          container.dataset.stageSpeed = String(clockSpeed);
+        },
+      }),
     }).then(
       (stage) => {
         if (controller.signal.aborted) {
@@ -191,7 +402,17 @@ function PlaySession({ content }: { content: PlayContent }) {
         }
         if (!stage) return;
         stageRef.current = stage;
+        // A fresh stage starts at 1× and not paused: carry over the speed the child chose (the
+        // paused state is reset below, as a new stage has no replay to pause).
+        stage.setSpeed(speedRef.current);
         setStageReady(true);
+        // A new stage shows Măng at the start, so the screen must too. Normally it already does;
+        // but dev Fast Refresh re-runs this effect while keeping state, which left
+        // data-phase="success" over a fresh stage (Măng idle on S) and the results overlay up.
+        setPhase('idle');
+        setStepping(false);
+        setPaused(false);
+        say(readyLine);
       },
       () => {
         if (!controller.signal.aborted) setStageFailed(true);
@@ -203,43 +424,66 @@ function PlaySession({ content }: { content: PlayContent }) {
       stageRef.current = null;
       setStageReady(false);
     };
-  }, [level, highlight]);
+  }, [level, trackFeed, highlight, readyLine, say]);
+
+  /** Bumped by every run: a reward that resolves after the next run started is not shown. */
+  const runTokenRef = useRef(0);
 
   const finish = useCallback(
-    (outcome: RunOutcome<RunnerEvent>) => {
+    (outcome: RunOutcome, rewardOf: Promise<WinReward | null>) => {
       setStepping(false);
-      setBlocksUsed(outcome.stats.blocksUsed);
-      setBubble(resultLine(outcome, level, feedback));
+      setPaused(false);
+      const text = resultLine(outcome, level, feedback);
+      say(
+        outcome.result === 'success'
+          ? (VOICED_WIN_LINES.find((line) => line.text === text) ?? { text })
+          : feedbackPlayLine(outcome.reasonCode ?? 'INTERNAL_ERROR', level, feedback),
+      );
+      // The run was recorded when it ran (rewards-engine.md §3); only the overlay waits for the
+      // end of the replay.
+      const token = runTokenRef.current;
+      void rewardOf.then((won) => {
+        if (won && runTokenRef.current === token) setReward(won);
+      });
       if (outcome.result === 'success') {
         setPhase('success');
       } else {
         setPhase('fail');
         shake(offendingBlockId(outcome));
+        playFailSfx();
+        hintRunEnded();
       }
     },
-    [level, feedback, shake],
+    [level, feedback, shake, say, hintRunEnded, playFailSfx],
   );
 
   /** Stage back to the start; the program is kept (screens-and-flows.md §4, `R`). */
   const reset = useCallback(() => {
     stageRef.current?.reset();
+    cancelPendingTips();
     clearShake();
     setStepping(false);
+    setPaused(false);
     setPhase('idle');
-    setBubble(t.ready);
-  }, [clearShake]);
+    say(readyLine);
+  }, [clearShake, readyLine, say, cancelPendingTips]);
 
   const run = useCallback(
     (step: boolean) => {
       const stage = stageRef.current;
       const handle = handleRef.current;
-      if (!stage || !handle) return;
+      if (!stage || !handle || mode === 'predict') return;
+      // Chạy, Space or S: the tier-2 popover and any pending tip belong to the old program.
+      closeStepPopover();
+      cancelPendingTips();
       if (stage.playing) {
         if (step) {
           stage.step();
           setStepping(true);
-          setBubble(t.stepping);
+          setPaused(false);
+          say(uiLine('play.stepping', t.stepping));
         } else {
+          audio.playSfx('click');
           reset(); // Space / Chạy while playing = Dừng
         }
         return;
@@ -250,27 +494,151 @@ function PlaySession({ content }: { content: PlayContent }) {
       ranJsonRef.current = programKey(json);
       const fail = () => {
         reset();
-        setBubble(feedbackLine('INTERNAL_ERROR', level, feedback));
+        say(feedbackPlayLine('INTERNAL_ERROR', level, feedback));
       };
-      let outcome: RunOutcome<RunnerEvent>;
+      let outcome: RunOutcome;
       try {
-        outcome = runRunnerProgram(level, json);
+        outcome = runProgram(level, json);
       } catch {
         fail();
         return;
       }
+      // Every run counts as soon as it ran, even if the replay is stopped or the child leaves
+      // before it ends (rewards-engine.md §3 "Quy ước gọi").
+      runTokenRef.current += 1;
+      setReward(null);
+      lastEventSfxRef.current = null;
+      // One sound per start, by click, Space or S (the button itself is data-sfx="none").
+      audio.playSfx(RUN_SFX.start);
+      const rewardOf = recordRun(outcome);
       setPhase('running');
       setStepping(step);
-      setBubble(step ? t.stepping : t.running);
+      setPaused(false);
+      say(step ? uiLine('play.stepping', t.stepping) : uiLine('play.running', t.running));
       stage.play(outcome, { step }).then((result) => {
-        if (result === 'finished') finish(outcome);
+        if (result === 'finished') finish(outcome, rewardOf);
       }, fail);
     },
-    [level, feedback, finish, reset, clearShake],
+    [
+      level,
+      mode,
+      feedback,
+      finish,
+      reset,
+      clearShake,
+      recordRun,
+      say,
+      closeStepPopover,
+      cancelPendingTips,
+    ],
   );
 
-  // App shortcuts: Space = Chạy/Dừng, S = Từng bước, R = Làm lại (blockly-integration.md §13).
-  // Capture phase, so a block clicked with the mouse does not also get Blockly's Space action.
+  /**
+   * Mode predict: the child picks a card. The pick is judged at once (the engine ran the level's
+   * program), recorded as the run (stars by pick number, rewards-engine.md §3), then the replay
+   * shows what really happens. A wrong card stays marked; a right one opens the results.
+   */
+  const pick = useCallback(
+    (key: string) => {
+      const stage = stageRef.current;
+      const program = level.initialWorkspace;
+      // Before the session is loaded a pick could not be recorded: it would be lost.
+      if (!sessionReady || !stage || stage.playing || program === undefined) return;
+      let outcome: RunOutcome;
+      try {
+        outcome = runProgram(level, program);
+      } catch {
+        say(feedbackPlayLine('INTERNAL_ERROR', level, feedback));
+        return;
+      }
+      const right = key === outcome.answerKey;
+      runTokenRef.current += 1;
+      const token = runTokenRef.current;
+      setReward(null);
+      lastEventSfxRef.current = null;
+      const rewardOf = recordRun(outcome, key);
+      setMarks((current) => ({ ...current, [key]: right ? 'right' : 'wrong' }));
+      setPhase('running');
+      say(
+        right
+          ? uiLine('play.predict.right', t.predict.right)
+          : feedbackPlayLine('WRONG_ANSWER', level, feedback),
+      );
+      const won = () => {
+        setPhase('success');
+        say(uiLine('play.predict.rightDone', t.predict.rightDone));
+        void rewardOf.then((result) => {
+          if (result && runTokenRef.current === token) setReward(result);
+        });
+      };
+      stage.play(outcome).then(
+        (result) => {
+          if (result !== 'finished') return;
+          if (right) {
+            won();
+            return;
+          }
+          setPhase('fail');
+          say(uiLine('play.predict.tryAgain', t.predict.tryAgain));
+          playFailSfx();
+          hintRunEnded();
+        },
+        () => {
+          // The pick was recorded already: a right one still wins even if the replay broke.
+          stage.reset();
+          if (right) {
+            won();
+            return;
+          }
+          setPhase('idle');
+          say(feedbackPlayLine('INTERNAL_ERROR', level, feedback));
+        },
+      );
+    },
+    [level, feedback, recordRun, sessionReady, say, hintRunEnded, playFailSfx],
+  );
+
+  /** Mode creative: "Lưu" stores the program; the first save of the level pays its coins. */
+  const save = useCallback(() => {
+    const handle = handleRef.current;
+    if (!handle || saving) return;
+    setSaving(true);
+    saveCreative(handle.getState().json).then(
+      (coins) => {
+        setSaving(false);
+        say(
+          coins > 0
+            ? { text: t.creative.savedCoins(coins) }
+            : uiLine('play.creative.saved', t.creative.saved),
+        );
+      },
+      () => {
+        setSaving(false);
+        say(uiLine('play.creative.saveError', t.creative.saveError));
+      },
+    );
+  }, [saveCreative, saving, say]);
+
+  /** Tạm dừng / Tiếp tục: freezes the replay mid-move, or lets it go on. */
+  const togglePause = useCallback(() => {
+    const stage = stageRef.current;
+    if (!stage?.playing) return;
+    if (stage.paused) {
+      stage.resume();
+      setPaused(false);
+      say(stepping ? uiLine('play.stepping', t.stepping) : uiLine('play.running', t.running));
+    } else {
+      stage.pause();
+      setPaused(true);
+      say(uiLine('play.paused', t.paused));
+    }
+  }, [stepping, say]);
+
+  const { available: hintsAvailable, openBox: openHintBox } = playHints;
+
+  // App shortcuts: Space = Chạy/Dừng, S = Từng bước, R = Làm lại, H = Gợi ý
+  // (blockly-integration.md §13). Capture phase, so a block clicked with the mouse does not also
+  // get Blockly's Space action.
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       const action =
@@ -280,43 +648,93 @@ function PlaySession({ content }: { content: PlayContent }) {
             ? 'step'
             : event.code === 'KeyR'
               ? 'reset'
-              : null;
+              : event.code === 'KeyH'
+                ? 'hint'
+                : null;
       if (action === null || !shouldHandleAppShortcut(event)) return;
+      if (action === 'hint') {
+        // Before the session is loaded a purchase could not cap the stars.
+        if (!hintsAvailable || !sessionReady) return;
+        event.preventDefault();
+        event.stopPropagation();
+        openHintBox();
+        return;
+      }
+      if (mode === 'predict') return;
       event.preventDefault();
       event.stopPropagation();
-      if (action === 'reset') reset();
-      else run(action === 'step');
+      if (action === 'reset') {
+        reset();
+        return;
+      }
+      run(action === 'step');
     };
     window.addEventListener('keydown', onKeyDown, { capture: true });
     return () => {
       window.removeEventListener('keydown', onKeyDown, { capture: true });
     };
-  }, [run, reset]);
+  }, [run, reset, mode, hintsAvailable, sessionReady, openHintBox]);
 
-  const onReady = useCallback((workspace: Blockly.WorkspaceSvg, handle: WorkspaceHandle) => {
-    workspaceRef.current = workspace;
-    handleRef.current = handle;
-    if (import.meta.env.DEV) window.__cqPlay = { Blockly, workspace, highlights: [] };
-  }, []);
+  const onReady = useCallback(
+    (workspace: Blockly.WorkspaceSvg, handle: WorkspaceHandle) => {
+      workspaceRef.current = workspace;
+      handleRef.current = handle;
+      lastProgramRef.current = programKey(handle.getState().json);
+      setWorkspaceReady(true);
+      setWorkspaceFlush(() => {
+        handle.flush();
+      });
+      if (import.meta.env.DEV) {
+        let answerKey: string | undefined;
+        if (level.mode === 'predict' && level.initialWorkspace !== undefined) {
+          answerKey = runProgram(level, level.initialWorkspace).answerKey;
+        }
+        window.__cqPlay = { Blockly, workspace, highlights: [], answerKey };
+      }
+    },
+    [setWorkspaceFlush, level],
+  );
 
   const onDispose = useCallback(() => {
     workspaceRef.current = null;
     handleRef.current = null;
+    setWorkspaceReady(false);
+    setWorkspaceFlush(null);
     delete window.__cqPlay;
-  }, []);
+  }, [setWorkspaceFlush]);
+
+  // Tier-0 "enter" hint: once, when both the stage and the workspace are up (hint-engine.md §5).
+  const enteredRef = useRef(false);
+  useEffect(() => {
+    if (!stageReady || !workspaceReady || enteredRef.current) return;
+    enteredRef.current = true;
+    hintEntered();
+  }, [stageReady, workspaceReady, hintEntered]);
 
   const onChange = useCallback(
     (state: WorkspaceState) => {
       // A workspace being torn down reports once more, tagged with its own level.
       if (state.levelId !== level.id) return;
       setCapacity(state.remainingCapacity);
-      // Editing the program makes the replay on screen stale: put the stage back.
-      if (phase !== 'idle' && programKey(state.json) !== ranJsonRef.current) reset();
+      if (mode === 'predict') return; // read-only: nothing to save or compare
+      if (mode === 'bughunt' && level.initialWorkspace !== undefined) {
+        setEdits(editDistance(level.initialWorkspace, state.json));
+      }
+      saveDraft(state.json);
+      const key = programKey(state.json);
+      // Editing the program makes the replay on screen stale: put the stage back (before the
+      // `change` tip is scheduled, as a reset cancels pending tips).
+      if (phase !== 'idle' && key !== ranJsonRef.current) reset();
+      if (key !== lastProgramRef.current) {
+        lastProgramRef.current = key;
+        hintChanged();
+      }
     },
-    [level.id, phase, reset],
+    [level.id, level.initialWorkspace, mode, phase, reset, saveDraft, hintChanged],
   );
 
   const chooseSpeed = (next: Speed) => {
+    speedRef.current = next;
     setSpeed(next);
     stageRef.current?.setSpeed(next);
   };
@@ -342,18 +760,19 @@ function PlaySession({ content }: { content: PlayContent }) {
   const running = phase === 'running';
 
   return (
-    <main className="cq-play grid h-screen min-h-[720px] grid-rows-[56px_minmax(0,1fr)_72px] gap-3 bg-ground px-3 pt-2 pb-3">
-      <header className="flex min-w-0 items-center gap-4">
-        <Button size="sm" icon="←" onClick={() => void navigate('/')}>
-          {t.backToMap}
-        </Button>
-        <h1 className="m-0 flex min-w-0 items-baseline gap-3 text-[26px] leading-tight">
-          <span className="font-pixel text-pixel text-brand-deep">
-            {t.where(world.title, levelNumber)}
-          </span>
-          <span className="truncate">{level.title}</span>
-        </h1>
-      </header>
+    <main
+      ref={rootRef}
+      className="cq-play grid h-dvh min-h-[500px] grid-rows-[56px_minmax(0,1fr)_64px] gap-2 bg-ground px-3 pt-2 pb-2"
+    >
+      <PlayTopBar
+        profileId={profile.id}
+        levelId={level.id}
+        levelTitle={level.title}
+        where={t.where(world.title, levelNumber)}
+        worldId={world.id}
+        showStars={mode !== 'creative'}
+        readProgram={() => handleRef.current?.getState().json ?? null}
+      />
 
       <div className="grid min-h-0 grid-cols-[minmax(0,42fr)_minmax(0,58fr)] gap-3">
         <Panel className="flex min-h-0 flex-col overflow-hidden">
@@ -366,6 +785,8 @@ function PlaySession({ content }: { content: PlayContent }) {
               data-testid="play-stage"
               data-ready={stageReady}
               data-phase={phase}
+              data-paused={paused}
+              data-hint-anchor="stage"
               className="absolute inset-0 outline-none focus-visible:outline-3 focus-visible:-outline-offset-4 focus-visible:outline-brand-deep"
             />
             {stageFailed && (
@@ -376,141 +797,251 @@ function PlaySession({ content }: { content: PlayContent }) {
                 {t.stageError}
               </p>
             )}
-            {phase === 'success' && (
-              <Panel
-                as="section"
-                aria-labelledby="play-success-title"
-                data-testid="play-success"
-                className="absolute inset-x-4 bottom-4 flex animate-pop flex-wrap items-center justify-between gap-x-4 gap-y-2 px-5 py-3"
-              >
-                <div className="grid">
-                  <h2 id="play-success-title" className="m-0 text-[28px] leading-tight">
-                    {t.successTitle}
-                  </h2>
-                  <p className="m-0">{t.successBody(blocksUsed)}</p>
-                </div>
-                <div className="flex gap-3">
-                  <Button
-                    size="sm"
-                    icon="↺"
-                    onClick={() => {
-                      reset();
-                      focusStage();
-                    }}
-                  >
-                    {t.playAgain}
-                  </Button>
-                  <Button size="sm" variant="go" onClick={() => void navigate('/')}>
-                    {t.backToMap}
-                  </Button>
-                </div>
-              </Panel>
-            )}
           </div>
+          {trackFeed && <TrackStrip feed={trackFeed} />}
 
           <p className="m-0 flex items-center gap-2 border-b-3 border-ink bg-paper-2 px-4 py-2 font-bold">
             <span className="rounded-kbd bg-brand-deep px-2 pt-0.5 font-pixel text-pixel-sm font-normal text-paper uppercase">
               {t.objectiveLabel}
             </span>
             {level.objective}
+            {/* Renders only once the line has a voice file (audio.md §3). */}
+            <SpeakButton voiceId={levelVoiceId(level.id, 'objective')} className="ml-auto" />
           </p>
 
-          <div
-            role="toolbar"
-            aria-label={t.controlsLabel}
-            className="flex flex-wrap items-center gap-3 px-4 py-3"
-          >
-            <Button
-              variant={running ? 'plain' : 'go'}
-              size="lg"
-              icon={running ? '■' : <PixelIcon name="play" scale={1} />}
-              shortcut="Space"
-              disabled={!stageReady}
-              data-testid="play-run"
-              onClick={() => {
-                run(false);
-                focusStage();
-              }}
+          {/* Mode predict has no run controls: the answer cards sit under the program. */}
+          {predict ? null : (
+            <div
+              role="toolbar"
+              aria-label={t.controlsLabel}
+              className="flex flex-wrap items-center gap-3 px-4 py-3"
             >
-              {running ? t.stop : t.run}
-            </Button>
-            <Button
-              size="sm"
-              shortcut="S"
-              disabled={!stageReady}
-              aria-pressed={stepping}
-              onClick={() => {
-                run(true);
-                focusStage();
-              }}
-            >
-              {t.step}
-            </Button>
-            <div role="radiogroup" aria-label={t.speedLabel} className="flex gap-1">
-              {SPEEDS.map((option, index) => (
-                <button
-                  key={option.speed}
-                  ref={(element) => {
-                    speedRefs.current[index] = element;
-                  }}
-                  type="button"
-                  role="radio"
-                  aria-checked={speed === option.speed}
-                  tabIndex={speed === option.speed ? 0 : -1}
-                  onKeyDown={(event) => {
-                    onSpeedKey(event, index);
-                  }}
-                  onClick={() => {
-                    chooseSpeed(option.speed);
-                    focusStage();
-                  }}
-                  className="min-h-11 cursor-pointer rounded-key border-2 border-ink bg-paper px-3 font-display text-small font-bold shadow-key transition-transform duration-150 hover:-translate-y-px aria-checked:translate-y-0.5 aria-checked:bg-coin aria-checked:shadow-button-pressed focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-brand-deep"
-                >
-                  {option.label}
-                </button>
-              ))}
+              <Button
+                variant={running ? 'plain' : 'go'}
+                size="lg"
+                icon={running ? '■' : <PixelIcon name="play" scale={1} />}
+                shortcut="Space"
+                disabled={!stageReady}
+                data-testid="play-run"
+                data-hint-anchor="run"
+                // run() plays the sound (`run` to start, a click to stop), the same for Space: the
+                // delegated click sound would read data-sfx after React re-rendered the button.
+                data-sfx="none"
+                onClick={() => {
+                  run(false);
+                  focusStage();
+                }}
+              >
+                {running ? t.stop : t.run}
+              </Button>
+              <Button
+                size="sm"
+                shortcut="S"
+                disabled={!stageReady}
+                aria-pressed={stepping}
+                onClick={() => {
+                  run(true);
+                  focusStage();
+                }}
+              >
+                {t.step}
+              </Button>
+              {/* Icon-only (named for screen readers and on hover) so the toolbar keeps its rows. */}
+              <Button
+                size="sm"
+                icon={paused ? <PixelIcon name="play" scale={1} /> : '❚❚'}
+                disabled={!running}
+                aria-label={paused ? t.resume : t.pause}
+                title={paused ? t.resume : t.pause}
+                data-testid="play-pause"
+                onClick={() => {
+                  togglePause();
+                  focusStage();
+                }}
+              />
+              <div role="radiogroup" aria-label={t.speedLabel} className="flex gap-1">
+                {SPEEDS.map((option, index) => (
+                  <button
+                    key={option.speed}
+                    ref={(element) => {
+                      speedRefs.current[index] = element;
+                    }}
+                    type="button"
+                    role="radio"
+                    aria-checked={speed === option.speed}
+                    tabIndex={speed === option.speed ? 0 : -1}
+                    onKeyDown={(event) => {
+                      onSpeedKey(event, index);
+                    }}
+                    onClick={() => {
+                      chooseSpeed(option.speed);
+                      focusStage();
+                    }}
+                    className="min-h-11 cursor-pointer rounded-key border-2 border-ink bg-paper px-3 font-display text-small font-bold shadow-key transition-transform duration-150 hover:-translate-y-px aria-checked:translate-y-0.5 aria-checked:bg-coin aria-checked:shadow-button-pressed focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-brand-deep"
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+              <Button
+                size="sm"
+                icon="↺"
+                shortcut="R"
+                className="ml-auto"
+                onClick={() => {
+                  reset();
+                  focusStage();
+                }}
+              >
+                {t.reset}
+              </Button>
             </div>
-            <Button
-              size="sm"
-              icon="↺"
-              shortcut="R"
-              className="ml-auto"
-              onClick={() => {
-                reset();
-                focusStage();
-              }}
-            >
-              {t.reset}
-            </Button>
-          </div>
+          )}
         </Panel>
 
         <Panel className="grid min-h-0 grid-rows-[minmax(0,1fr)_auto] overflow-hidden">
-          <BlocklyWorkspace
-            level={level}
-            onChange={onChange}
-            onReady={onReady}
-            onDispose={onDispose}
-            onMouseDragEnd={() => {
-              stageBoxRef.current?.focus();
-            }}
-            className="min-h-0 rounded-t-[15px]"
-          />
-          {level.maxBlocks !== undefined && capacity !== null && (
-            <div className="flex min-h-14 items-center border-t-3 border-ink bg-paper px-4 py-2">
-              <CapacityBricks max={level.maxBlocks} used={level.maxBlocks - capacity} />
+          {sessionReady ? (
+            <BlocklyWorkspace
+              level={workspaceLevel}
+              onChange={onChange}
+              onReady={onReady}
+              onDispose={onDispose}
+              onMouseDragEnd={() => {
+                stageBoxRef.current?.focus();
+              }}
+              className="min-h-0 rounded-t-[15px]"
+            />
+          ) : (
+            <div className="min-h-0 rounded-t-[15px] bg-paper" />
+          )}
+          {predict && (
+            <div className="border-t-3 border-ink bg-paper-2">
+              <PredictCards
+                kind={level.kind}
+                config={level.config}
+                options={predict.options}
+                marks={allMarks}
+                disabled={
+                  !sessionReady || !stageReady || phase === 'running' || phase === 'success'
+                }
+                onPick={pick}
+              />
+            </div>
+          )}
+          {((level.maxBlocks !== undefined && capacity !== null) || hintsAvailable) && (
+            <div className="flex min-h-14 items-center gap-3 border-t-3 border-ink bg-paper px-4 py-2">
+              {level.maxBlocks !== undefined && capacity !== null && (
+                <div data-hint-anchor="capacity" className="rounded-key">
+                  <CapacityBricks max={level.maxBlocks} used={level.maxBlocks - capacity} />
+                </div>
+              )}
+              {hintsAvailable && (
+                <Button
+                  variant="hint"
+                  size="sm"
+                  icon={<PixelIcon name="bulb" scale={1} />}
+                  shortcut="H"
+                  className="ml-auto"
+                  aria-haspopup="dialog"
+                  disabled={!sessionReady}
+                  data-testid="play-hint"
+                  onClick={openHintBox}
+                >
+                  {vi.hints.open}
+                </Button>
+              )}
+            </div>
+          )}
+          {mode === 'bughunt' && (
+            <BughuntBar edits={edits} parEdits={level.parEdits ?? DEFAULT_PAR_EDITS} />
+          )}
+          {mode === 'creative' && (
+            <div className="flex min-h-14 items-center gap-3 border-t-3 border-ink bg-paper px-4 py-2">
+              <span className="font-bold text-ink-soft">{t.creative.label}</span>
+              <Button
+                variant="coin"
+                size="sm"
+                className="ml-auto"
+                disabled={!sessionReady || saving}
+                data-testid="play-save"
+                onClick={() => {
+                  save();
+                  focusStage();
+                }}
+              >
+                {saving ? t.creative.saving : t.creative.save}
+              </Button>
             </div>
           )}
         </Panel>
       </div>
 
       <footer className="flex min-w-0 items-center gap-4 px-2">
-        <MangPortrait pose={PORTRAIT[phase]} height={64} />
+        <MangPortrait pose={PORTRAIT[phase]} height={56} />
         <span className="sr-only">{t.mangSays}:</span>
         <div data-testid="play-bubble" className="min-w-0">
-          <Bubble text={bubble} live className="max-w-[820px]" />
+          <Bubble
+            text={bubble.text}
+            live
+            className="max-w-[820px]"
+            {...(bubble.voiceId !== undefined && { voiceId: bubble.voiceId })}
+          />
         </div>
       </footer>
+      {playHints.boxOpen && (
+        <HintBox
+          tiers={playHints.hints.tiers}
+          balance={playHints.hints.balance}
+          busy={playHints.hints.busy}
+          thinkingHint={playHints.thinkingShown ? (level.thinkingHint ?? null) : null}
+          thinkingVoiceId={levelVoiceId(level.id, 'thinking')}
+          notice={playHints.notice}
+          onBuy={playHints.buy}
+          onClose={playHints.closeBox}
+        />
+      )}
+      {playHints.solutionOpen && level.solution !== undefined && (
+        <SolutionViewer solution={level.solution} onClose={playHints.closeSolution} />
+      )}
+      {reward !== null && phase === 'success' && (
+        <ResultsOverlay
+          profileId={profile.id}
+          level={level}
+          world={world}
+          reward={reward}
+          onReplay={() => {
+            setReward(null);
+            // Playing again: the right card can be picked again, wrong ones stay locked.
+            setMarks((current) =>
+              Object.fromEntries(Object.entries(current).filter(([, mark]) => mark === 'wrong')),
+            );
+            reset();
+            focusStage();
+          }}
+          onWorld={() => void navigate(`/w/${world.id}`)}
+          onNext={(next) => void navigate(`/play/${next}`)}
+        />
+      )}
     </main>
+  );
+}
+
+/** Mode bughunt (screens-and-flows.md §3): "Săn lỗi" and the live "đã sửa N khối" counter. */
+function BughuntBar({ edits, parEdits }: { edits: number; parEdits: number }) {
+  const over = edits > parEdits;
+  return (
+    <div className="flex min-h-14 items-center gap-3 border-t-3 border-ink bg-paper px-4 py-2">
+      <span className="font-bold">{t.bughunt.label}</span>
+      <span
+        data-testid="bughunt-edits"
+        data-edits={edits}
+        data-over={over}
+        aria-live="polite"
+        className={`ml-auto rounded-chip border-3 border-ink px-3 pt-0.5 font-pixel text-pixel ${over ? 'bg-oops-soft' : 'bg-go/25'}`}
+      >
+        {t.bughunt.edits(edits)}
+      </span>
+      <span className="font-pixel text-pixel text-ink-soft">{t.bughunt.par(parEdits)}</span>
+    </div>
   );
 }

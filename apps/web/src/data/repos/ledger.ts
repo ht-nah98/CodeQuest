@@ -47,8 +47,10 @@ export function spend(entry: LedgerRow, now: Date = new Date()): Promise<SpendRe
   if (entry.delta >= 0) return Promise.reject(new Error('spend: delta must be negative'));
   return db.transaction('rw', db.ledger, db.outbox, async (): Promise<SpendResult> => {
     if (await db.ledger.get([entry.profileId, entry.id])) return { ok: true, entry: null };
-    const missing = -entry.delta - balance(await listLedger(entry.profileId));
-    if (missing > 0) return { ok: false, missing };
+    const price = -entry.delta;
+    const coins = balance(await listLedger(entry.profileId));
+    // A negative balance (offline spends merged) still shows "Cần thêm <price>", not more.
+    if (coins < price) return { ok: false, missing: price - Math.max(0, coins) };
     await addLedgerEntries([entry], now);
     return { ok: true, entry };
   });

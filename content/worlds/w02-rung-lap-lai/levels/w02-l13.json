@@ -1,0 +1,144 @@
+{
+  "id": "w02-l13",
+  "worldId": "w02-rung-lap-lai",
+  "stage": "practice",
+  "kind": "runner",
+  "mode": "build",
+  "title": "Hai khối lặp",
+  "objective": "Chui đường hầm rồi nhảy qua 3 hố tới cờ!",
+  "learningGoal": "Đường có hai đoạn khác nhau thì dùng hai khối lặp nối tiếp nhau.",
+  "misconception": "Một chương trình chỉ dùng được một khối lặp.",
+  "toolbox": [
+    {
+      "type": "cq_repeat",
+      "fields": {
+        "TIMES": 2
+      }
+    },
+    "runner_walk",
+    "runner_jump",
+    "runner_crouch"
+  ],
+  "maxBlocks": 4,
+  "par": 4,
+  "config": {
+    "cells": [
+      "ground",
+      "branch",
+      "branch",
+      "branch",
+      "ground",
+      "hole",
+      "ground",
+      "hole",
+      "ground",
+      "hole",
+      "flag"
+    ],
+    "start": 0,
+    "bamboo": [2, 6]
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "rep1",
+              "fields": {
+                "TIMES": 4
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "runner_crouch",
+                    "id": "crouch1"
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "type": "cq_repeat",
+                  "id": "rep2",
+                  "fields": {
+                    "TIMES": 3
+                  },
+                  "inputs": {
+                    "DO": {
+                      "block": {
+                        "type": "runner_jump",
+                        "id": "jump1"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "cap",
+      "when": {
+        "capacityFull": true,
+        "missing": "cq_repeat"
+      },
+      "say": "Hết chỗ rồi! Bỏ bớt 1 khối để lấy khối lặp nhé.",
+      "point": "capacity"
+    },
+    {
+      "id": "second-loop",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "NOT_AT_GOAL",
+        "has": "cq_repeat",
+        "blockCount": {
+          "lte": 2
+        }
+      },
+      "say": "Đoạn hố cũng lặp lại. Thêm một khối lặp nữa?",
+      "point": "toolbox:cq_repeat",
+      "priority": 1
+    },
+    {
+      "id": "which-part",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "NOT_AT_GOAL",
+        "has": "cq_repeat"
+      },
+      "say": "Măng dừng giữa đường. Đoạn nào chưa đi hết?",
+      "point": "stage"
+    },
+    {
+      "id": "early",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "FELL_IN_HOLE",
+        "has": "runner_crouch"
+      },
+      "say": "Măng nhảy đúng lúc chưa? Đếm số bước chui hầm nhé!",
+      "point": "stage"
+    },
+    {
+      "id": "tunnel",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "HIT_BRANCH"
+      },
+      "say": "Còn trong đường hầm thì phải cúi. Thử đổi số!",
+      "point": "stage"
+    }
+  ],
+  "thinkingHint": "Đoạn đầu Măng làm gì? Đoạn sau làm gì?"
+}

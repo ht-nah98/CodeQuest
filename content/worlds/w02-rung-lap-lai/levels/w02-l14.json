@@ -1,0 +1,136 @@
+{
+  "id": "w02-l14",
+  "worldId": "w02-rung-lap-lai",
+  "stage": "practice",
+  "kind": "maze",
+  "mode": "build",
+  "title": "Hai đoạn đường thẳng",
+  "objective": "Đưa Măng tới đích, dùng không quá 6 khối nhé!",
+  "learningGoal": "Hai đoạn thẳng dài khác nhau thì dùng hai khối lặp, mỗi khối một số lần; rẽ đặt giữa hai khối.",
+  "misconception": "Hai đoạn đường dài khác nhau vẫn dùng chung một số lần lặp.",
+  "toolbox": [
+    {
+      "type": "cq_repeat",
+      "fields": {
+        "TIMES": 2
+      }
+    },
+    "maze_forward",
+    "maze_turn_left",
+    "maze_turn_right"
+  ],
+  "maxBlocks": 6,
+  "par": 5,
+  "config": {
+    "map": [
+      "#######",
+      ".S...##",
+      "####.##",
+      "####.##",
+      "####.##",
+      "####.##",
+      "####G##",
+      "####.##",
+      "#######"
+    ],
+    "startDir": "E"
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "rep1",
+              "fields": {
+                "TIMES": 3
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "maze_forward",
+                    "id": "fwd1"
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "type": "maze_turn_right",
+                  "id": "right1",
+                  "next": {
+                    "block": {
+                      "type": "cq_repeat",
+                      "id": "rep2",
+                      "fields": {
+                        "TIMES": 5
+                      },
+                      "inputs": {
+                        "DO": {
+                          "block": {
+                            "type": "maze_forward",
+                            "id": "fwd2"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "cap",
+      "when": {
+        "capacityFull": true,
+        "missing": "cq_repeat"
+      },
+      "say": "Hết chỗ rồi! Bỏ bớt 1 khối để lấy khối lặp nhé.",
+      "point": "capacity"
+    },
+    {
+      "id": "down-right",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "HIT_WALL",
+        "has": "maze_turn_left",
+        "missing": "maze_turn_right"
+      },
+      "say": "Măng nhìn sang phải. Đi xuống là rẽ phía nào?",
+      "point": "stage",
+      "priority": 1
+    },
+    {
+      "id": "lengths",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "HIT_WALL",
+        "has": "cq_repeat"
+      },
+      "say": "Đoạn ngang và đoạn dọc dài khác nhau đó!",
+      "point": "stage"
+    },
+    {
+      "id": "count",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "NOT_AT_GOAL",
+        "has": "cq_repeat"
+      },
+      "say": "Mỗi đoạn dài mấy ô? Đếm từng đoạn nhé!",
+      "point": "stage"
+    }
+  ],
+  "thinkingHint": "Đoạn ngang dài mấy ô? Đoạn dọc dài mấy ô?"
+}

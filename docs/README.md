@@ -30,6 +30,7 @@ Nếu hai tài liệu nói khác nhau, **tài liệu ở cột "Nguồn chuẩn"
 | Cú pháp luật gợi ý | `architecture/hint-engine.md` |
 | Cài đặt logic phần thưởng | `architecture/rewards-engine.md` |
 | Vẽ sân chơi, sprite, asset pipeline | `architecture/stage-rendering.md` |
+| Âm thanh, nhạc nền, giọng đọc | `architecture/audio.md` |
 | Lưu trữ, đồng bộ, đăng nhập | `architecture/data-sync-auth.md` |
 | Kiểm thử | `architecture/testing-strategy.md` |
 | Bảo mật, quyền riêng tư của trẻ | `architecture/security-privacy.md` |
@@ -56,7 +57,7 @@ docs/
 ├─ architecture/             XÂY NHƯ THẾ NÀO
 │  ├─ overview.md · tech-stack.md · runtime-engine.md · game-kind-sdk.md
 │  ├─ blockly-integration.md · content-model.md · hint-engine.md · rewards-engine.md
-│  ├─ stage-rendering.md · data-sync-auth.md · testing-strategy.md
+│  ├─ stage-rendering.md · audio.md · data-sync-auth.md · testing-strategy.md
 │  └─ security-privacy.md · deployment-ops.md
 ├─ adr/                      QUYẾT ĐỊNH ĐÃ CHỐT (không sửa nội dung, chỉ thay thế bằng ADR mới)
 ├─ conventions/              QUY ƯỚC: code, git, soạn nội dung

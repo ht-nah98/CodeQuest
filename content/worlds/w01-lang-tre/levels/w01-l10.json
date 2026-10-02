@@ -1,0 +1,112 @@
+{
+  "id": "w01-l10",
+  "worldId": "w01-lang-tre",
+  "stage": "practice",
+  "kind": "runner",
+  "mode": "build",
+  "title": "Đá văng thùng gỗ",
+  "objective": "Thùng gỗ chắn đường! Giúp Măng tới lá cờ nhé.",
+  "learningGoal": "Dùng khối đá để dọn thùng; đá xong Măng vẫn đứng yên, phải đi tiếp.",
+  "misconception": "Đá thùng xong là Măng tự bước lên.",
+  "toolbox": ["runner_walk", "runner_jump", "runner_crouch", "runner_kick"],
+  "par": 5,
+  "config": {
+    "cells": ["ground", "ground", "crate", "hole", "ground", "flag"],
+    "start": 0,
+    "bamboo": [4]
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "runner_walk",
+              "id": "walk1",
+              "next": {
+                "block": {
+                  "type": "runner_kick",
+                  "id": "kick1",
+                  "next": {
+                    "block": {
+                      "type": "runner_walk",
+                      "id": "walk2",
+                      "next": {
+                        "block": {
+                          "type": "runner_jump",
+                          "id": "jump1",
+                          "next": {
+                            "block": {
+                              "type": "runner_walk",
+                              "id": "walk3"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "kick-new",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Khối mới: đá! Măng đá đổ thùng gỗ.",
+      "point": "toolbox:runner_kick",
+      "spotlight": true
+    },
+    {
+      "id": "crate-why",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "HIT_CRATE"
+      },
+      "say": "Thùng cao quá, nhảy không qua. Đá nó trước nhé!",
+      "point": "toolbox:runner_kick"
+    },
+    {
+      "id": "kick-stay",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "FELL_IN_HOLE",
+        "has": "runner_kick"
+      },
+      "say": "Đá xong, Măng vẫn đứng chỗ cũ. Măng đang ở đâu?",
+      "point": "stage",
+      "priority": 1
+    },
+    {
+      "id": "hole-why",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "FELL_IN_HOLE"
+      },
+      "say": "Măng phải đứng sát hố rồi mới nhảy.",
+      "point": "stage"
+    },
+    {
+      "id": "count",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "NOT_AT_GOAL"
+      },
+      "say": "Hết khối rồi. Đếm xem còn mấy ô tới cờ?",
+      "point": "stage"
+    }
+  ],
+  "thinkingHint": "Thùng gỗ chắn ngay trước mặt. Làm sao dọn nó đi?"
+}

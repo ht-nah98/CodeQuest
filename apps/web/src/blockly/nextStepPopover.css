@@ -1,0 +1,117 @@
+/*
+ * Tier-2 "next step" popover and the outlines it puts on blocks (blockly-integration.md §8).
+ * Classes only: nothing here changes the workspace data.
+ */
+
+.cq-step-popover {
+  position: absolute;
+  z-index: 30;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  width: 260px;
+  padding: 10px 10px 10px 14px;
+  border: 3px solid var(--color-ink);
+  border-radius: var(--radius-bubble);
+  background: var(--color-white);
+  box-shadow: 4px 4px 0 var(--color-ink);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+}
+
+/* Arrow pointing at the anchor: a rotated square with two ink sides (like the bubble tail). */
+.cq-step-arrow {
+  position: absolute;
+  top: 18px;
+  left: -11px;
+  width: 16px;
+  height: 16px;
+  rotate: 45deg;
+  border-bottom: 3px solid var(--color-ink);
+  border-left: 3px solid var(--color-ink);
+  background: var(--color-white);
+}
+.cq-step-popover[data-side='left'] .cq-step-arrow {
+  right: -11px;
+  left: auto;
+  rotate: -135deg;
+}
+
+.cq-step-text {
+  margin: 0;
+  font-size: var(--text-body);
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.cq-step-close {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  border: 2px solid var(--color-ink);
+  border-radius: 10px;
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font: 800 22px/1 var(--font-display);
+  cursor: pointer;
+}
+.cq-step-close:hover {
+  background: var(--color-brand-soft);
+}
+.cq-step-close:active {
+  translate: 0 2px;
+}
+.cq-step-close:focus-visible {
+  outline: 3px solid var(--color-brand-deep);
+  outline-offset: 3px;
+}
+
+/* The block to add: faded with a dashed outline, so it never looks like a real block. */
+.cq-step-preview {
+  grid-column: 1 / -1;
+  height: 84px;
+  border: 2px dashed var(--color-ink-soft);
+  border-radius: 10px;
+  overflow: hidden;
+  opacity: 0.75;
+}
+.cq-step-preview .blocklyMainBackground {
+  fill: var(--color-paper);
+  stroke: none;
+}
+.cq-step-preview .blocklyPath {
+  stroke-dasharray: 6 4;
+}
+
+/* Where to plug the block in (anchor), the block to change or remove, and the source block. */
+.cq-blockly .cq-step-anchor > .blocklyPath,
+.cq-blockly .cq-step-source > .blocklyPath {
+  stroke: var(--color-coin);
+  stroke-width: 5px;
+}
+.cq-blockly .cq-step-wrong > .blocklyPath {
+  stroke: var(--color-oops);
+  stroke-width: 5px;
+  stroke-dasharray: 8 5;
+}
+.cq-blockly .cq-step-flyout > .blocklyPath {
+  stroke: var(--color-coin);
+  stroke-width: 5px;
+  animation: cq-step-blink 0.8s steps(2, jump-none) infinite alternate;
+}
+
+@keyframes cq-step-blink {
+  from {
+    stroke-opacity: 1;
+  }
+  to {
+    stroke-opacity: 0.2;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cq-blockly .cq-step-flyout > .blocklyPath {
+    animation: none;
+  }
+}

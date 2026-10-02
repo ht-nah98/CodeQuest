@@ -1,0 +1,124 @@
+{
+  "id": "w02-l08",
+  "worldId": "w02-rung-lap-lai",
+  "stage": "practice",
+  "kind": "maze",
+  "mode": "build",
+  "title": "Bậc thang lên đồi",
+  "objective": "Leo bậc thang tới đích, dùng không quá 5 khối!",
+  "learningGoal": "Nhận ra mẫu tiến, rẽ, tiến, rẽ lặp lại và đặt cả mẫu vào khối lặp.",
+  "misconception": "Khối lặp chỉ chứa được một khối, nên các khối rẽ phải ghép riêng.",
+  "toolbox": [
+    {
+      "type": "cq_repeat",
+      "fields": {
+        "TIMES": 2
+      }
+    },
+    "maze_forward",
+    "maze_turn_left",
+    "maze_turn_right"
+  ],
+  "maxBlocks": 5,
+  "par": 5,
+  "config": {
+    "map": ["#######", "####G.#", "###..##", "##..###", ".S.####", "#######"],
+    "startDir": "E"
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "rep1",
+              "fields": {
+                "TIMES": 3
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "maze_forward",
+                    "id": "fwd1",
+                    "next": {
+                      "block": {
+                        "type": "maze_turn_left",
+                        "id": "left1",
+                        "next": {
+                          "block": {
+                            "type": "maze_forward",
+                            "id": "fwd2",
+                            "next": {
+                              "block": {
+                                "type": "maze_turn_right",
+                                "id": "right1"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "cap",
+      "when": {
+        "capacityFull": true,
+        "missing": "cq_repeat"
+      },
+      "say": "Hết chỗ rồi! Bỏ bớt 1 khối để lấy khối lặp nhé.",
+      "point": "capacity"
+    },
+    {
+      "id": "up-left",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "HIT_WALL",
+        "has": "maze_turn_right",
+        "missing": "maze_turn_left",
+        "runCount": {
+          "gte": 2
+        }
+      },
+      "say": "Măng nhìn sang phải. Muốn đi lên thì rẽ trái!",
+      "point": "toolbox:maze_turn_left",
+      "priority": 1
+    },
+    {
+      "id": "wall",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "HIT_WALL",
+        "has": "cq_repeat"
+      },
+      "say": "Leo 1 bậc: khối nào trước, khối nào sau?",
+      "point": "stage"
+    },
+    {
+      "id": "count",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "NOT_AT_GOAL",
+        "has": "cq_repeat"
+      },
+      "say": "Đếm xem có mấy bậc thang nhé!",
+      "point": "stage"
+    }
+  ],
+  "thinkingHint": "Leo một bậc thang, Măng phải làm những gì?"
+}

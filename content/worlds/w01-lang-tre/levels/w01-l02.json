@@ -1,0 +1,72 @@
+{
+  "id": "w01-l02",
+  "worldId": "w01-lang-tre",
+  "stage": "guided",
+  "kind": "runner",
+  "mode": "build",
+  "title": "Đếm bước tới cờ",
+  "objective": "Đếm số ô, rồi ghép khối đi tới lá cờ nhé!",
+  "learningGoal": "Mỗi khối đi là đúng 1 bước; ghép đủ số khối thì Măng tới đích.",
+  "misconception": "Chỉ cần 1 khối đi là Măng tự chạy tới cờ.",
+  "toolbox": ["runner_walk"],
+  "par": 3,
+  "config": {
+    "cells": ["ground", "ground", "ground", "flag"],
+    "start": 0
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "runner_walk",
+              "id": "walk1",
+              "next": {
+                "block": {
+                  "type": "runner_walk",
+                  "id": "walk2",
+                  "next": {
+                    "block": {
+                      "type": "runner_walk",
+                      "id": "walk3"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "drag",
+      "when": {
+        "trigger": "enter",
+        "blockCount": {
+          "eq": 0
+        }
+      },
+      "say": "Kéo khối \"đi\" từ thanh khối sang đây nhé!",
+      "point": "toolbox:runner_walk"
+    },
+    {
+      "id": "count",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "NOT_AT_GOAL"
+      },
+      "say": "Mỗi khối đi là 1 bước. Đếm lại số ô nhé!",
+      "point": "stage"
+    }
+  ],
+  "thinkingHint": "Từ chỗ Măng tới lá cờ có mấy ô?"
+}

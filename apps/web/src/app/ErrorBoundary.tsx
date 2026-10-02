@@ -1,6 +1,8 @@
 import { Component, type ReactNode } from 'react';
+import { audio } from '../audio/audio';
 import { vi } from '../i18n/vi';
-import { Button, Panel } from '../ui';
+import { Button, Panel, SpeakButton } from '../ui';
+import { uiVoiceId } from '../audio/voiceIds';
 
 interface Props {
   children: ReactNode;
@@ -22,14 +24,22 @@ export class ErrorBoundary extends Component<Props, State> {
     return { failed: true };
   }
 
+  // The screens that played music or a voice line are gone: silence them too.
+  override componentDidCatch(): void {
+    audio.stopAll();
+  }
+
   override render(): ReactNode {
     if (!this.state.failed) return this.props.children;
     return (
       <main className="grid h-screen place-items-center bg-ground p-6">
         <Panel className="grid justify-items-center gap-4 p-8">
-          <p role="alert" className="m-0 text-bubble font-bold">
-            {vi.crash.message}
-          </p>
+          <div className="flex items-center gap-3">
+            <p role="alert" className="m-0 text-bubble font-bold">
+              {vi.crash.message}
+            </p>
+            <SpeakButton voiceId={uiVoiceId('crash.message')} />
+          </div>
           <Button
             variant="go"
             onClick={() => {

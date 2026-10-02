@@ -4,7 +4,9 @@
 |---|---|---|
 | Sprite gấu trúc Măng (`raw/panda-sheet.png`) | Huấn luyện viên cung cấp (tạo bằng AI) | Thuộc dự án |
 | Font Baloo 2, Nunito, VT323 | Google Fonts | SIL Open Font License 1.1 |
-| Tile tạm cho runner (`apps/web/public/tiles/*.png`): `ground_left/ground/ground_right` = `tile_0021/0022/0023`, `dirt_left/dirt/dirt_right` = `tile_0121/0122/0123`, `flag_1/flag_2` = `tile_0111/0112`, `flag_pole` = `tile_0131`, `crate` = `tile_0026` | Kenney, gói **Pixel Platformer** 1.2 (https://kenney.nl/assets/pixel-platformer), giấy phép gốc ở `apps/web/public/tiles/LICENSE-kenney.txt` | CC0 1.0 |
+| Tile tạm cho runner (`apps/web/public/tiles/*.png`): `ground_left/ground/ground_right` = `tile_0021/0022/0023`, `dirt_left/dirt/dirt_right` = `tile_0121/0122/0123`, `flag_1/flag_2` = `tile_0111/0112`, `flag_pole` = `tile_0131`, `crate` = `tile_0026`, `branch_left/branch_right` = `tile_0098/0099` (cành thấp, P1-03), `bamboo` = `tile_0125` (măng để nhặt, P1-03) | Kenney, gói **Pixel Platformer** 1.2 (https://kenney.nl/assets/pixel-platformer), giấy phép gốc ở `apps/web/public/tiles/LICENSE-kenney.txt` | CC0 1.0 |
+| Hiệu ứng âm thanh + 2 bài nhạc nền (`apps/web/public/audio/{sfx,music}/*.mp3`, P1-14) | Tự tạo bằng mã: bộ tổng hợp chiptune tất định `tools/audio/` (`npm run audio:gen`), không dùng mẫu âm thanh nào của người khác | Thuộc dự án |
+| Tile mê cung (`apps/web/src/stages/maze/pixelArt.ts`): đường, tường tre, măng, khung đích, cờ, mũi tên hướng, tia sáng | Vẽ cho dự án bằng mã (lưới 12×12; màu là token trong `ui/tokens.ts` hoặc sắc độ suy ra bằng `shade()`), không dùng file ảnh | Thuộc dự án |
 
 ## Font tự host (P0-04)
 

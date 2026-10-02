@@ -136,7 +136,7 @@ export default function DevUiScreen() {
   const [used, setUsed] = useState(2);
   const [speaking, setSpeaking] = useState(false);
 
-  // Audio arrives with src/audio; for now the button only shows its "playing" state.
+  // A showcase of the pressed state only; real lines pass `voiceId` and play through src/audio.
   useEffect(() => {
     if (!speaking) return;
     const timer = window.setTimeout(() => {

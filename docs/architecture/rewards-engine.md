@@ -55,6 +55,8 @@ computeLevelRewards(input: { level; session; winning; progress: LevelProgress | 
   // entries gồm cả 'daily' và 'streak-7' nếu lượt thắng này là hoạt động đầu tiên của ngày / chạm mốc chuỗi
 computeLessonRewards(input: { lessonId; ledger; now; profileId }): LedgerEntry[]   // 'lesson' + có thể 'daily', 'streak-7'
 hintPrice(tier: 1 | 2 | 3, session: LevelSession, ledger: LedgerEntry[]): number  // lưới an toàn; tầng 1 đã mua trước đây → 0
+hintEntryId(tier, levelId, purchaseId): string                    // id dòng sổ xu của lần mua gợi ý (§4)
+isHintOwned(levelId, ledger): boolean                              // tầng 1 của màn đã mua (mở lại miễn phí)
 buyHint(input: { tier; level; session; ledger; now; profileId; purchaseId }): { ok: true; entry: LedgerEntry | null } | { ok: false; missing: number }
   // entry null khi đã sở hữu (tầng 1) hoặc purchaseId này đã trả rồi; missing = giá − max(0, số dư)
   // tầng 1 mở miễn phí nhờ lưới an toàn → vẫn ghi `hint-1:<levelId>` với delta 0 để sở hữu mãi
@@ -79,12 +81,13 @@ WRONG_ANSWER = 'WRONG_ANSWER'                               // reasonCode của 
 ```
 
 ### Quy ước gọi (chốt ở P1-08)
+- **Một lượt chạy được tính ngay khi engine trả kết quả** (`runLevel` xong), không đợi phần phát lại: bé bấm Dừng, Làm lại hay rời màn giữa lúc Măng đang diễn thì lượt đó vẫn nằm trong `session.runs` (vẫn tính vào `attempts`, `failStreak`, "thắng lượt đầu"), và lượt thắng vẫn được ghi xu ngay. Chỉ lớp phủ kết quả đợi phát lại xong mới hiện. Cài đặt: `apps/web/src/features/play/usePlaySession.ts` (`recordRun`), phiên đang mở được chép vào `sessionStorage` sau mỗi lượt để lần vào màn sau đóng nốt nếu tab bị đóng giữa chừng (`recordSession` + `saveAttempt`, cả hai idempotent). Gợi ý mua trong phiên: `recordHintBought(tier, entry)`.
 - **UI dùng `applyRun`**: gọi sau mỗi lượt chạy theo đúng thứ tự, `session` đã chứa lượt đó, rồi giữ `{ progress, ledger }` trả về cho lượt sau (và ghi `rewards.entries` + `progress` vào Dexie). Nhờ vậy lượt thắng thứ 2 trong cùng phiên nhận đúng `newProgress` của lượt thắng thứ 1 (không đếm `attempts` hai lần). Lượt không thắng → `rewards: null`, state giữ nguyên.
 - `computeLevelRewards` nhận `progress` và `ledger` **như ngay trước lượt thắng này**. Gọi lại với cùng đầu vào (cùng `runId`) không sinh dòng mới. Dòng "lần đầu" (`level-clear`, `star-*`, `first-try`) xét theo **sổ xu**, không theo `progress`. Lỗ hổng đã biết: nếu ghi lại lượt ⭐⭐⭐ đầu tiên với `progress` **đã cập nhật**, sẽ sinh thêm `replay:<runId>`; vì vậy luôn đi qua `applyRun`.
 - `session.levelId` phải bằng `level.id` (và `progress.levelId` trong `recordSession`), nếu không thì throw.
 - `LevelProgress.attempts` = tổng số lượt chạy **không phải `error`** ở màn đó từ trước tới nay. `computeLevelRewards` cộng các lượt từ lần thắng trước trong phiên tới lượt thắng này; `recordSession` cộng phần còn lại khi rời màn. UI **phải** gọi `recordSession` khi rời màn, kể cả khi thua, nếu không "thắng lượt đầu" sẽ bị cho sai ở phiên sau.
 - "Thắng lượt đầu" = `attempts` trước đó bằng 0, chưa từng hoàn thành, sổ xu chưa có `level-clear:<levelId>`, và không có lượt chạy (khác `error`) nào trước lượt thắng trong phiên.
-- `predict`: mỗi lần chọn thẻ thành một `RunSummary` qua `predictPickSummary`: chọn đúng → `success`; chọn sai → `incomplete` + `reasonCode: 'WRONG_ANSWER'`, **bất kể** chương trình tự nó thắng hay lỗi. Lần chọn sai tính vào `failStreak` (mở gợi ý tầng 1 miễn phí sau 3 lần). `feedback.json` cần một dòng cho `WRONG_ANSWER`.
+- `predict`: mỗi lần chọn thẻ thành một `RunSummary` qua `predictPickSummary`: chọn đúng → `success`; chọn sai → `incomplete` + `reasonCode: 'WRONG_ANSWER'`, **bất kể** chương trình tự nó thắng hay lỗi. Lần chọn sai tính vào `failStreak` (mở gợi ý tầng 1 miễn phí sau 3 lần). `feedback.json` cần một dòng cho `WRONG_ANSWER`. Cài đặt (P1-06): `PlayScreen` chạy `initialWorkspace` khi bé bấm thẻ, `recordRun(outcome, pickedKey)` → `toRunSummary(outcome, runId, pickedKey)` (`features/play/session.ts`) gọi `predictPickSummary`. Màn `creative`: nút Lưu → `saveCreative` (`usePlaySession`) → `saveCreation` (`data/repos/creations.ts`, có outbox) + `addCreativeSave` → `computeCreativeSaveRewards`, ghi bằng `saveLevelResult`.
 - `predict`: "lần chọn thứ n" đếm **qua mọi phiên** = `progress.attempts` + lượt (khác `error`) trước lượt thắng trong phiên, để ra vào màn không "cày" được ⭐⭐⭐ (chờ HLV xác nhận).
 - `bughunt` mà lượt thắng thiếu `edits` → coi như không đạt điều kiện ⭐⭐.
 - Màn `creative`: gọi `computeCreativeSaveRewards` khi bé bấm Lưu; chỉ sinh `creative:<levelId>` lần đầu, 0 sao, **không** tính là ngày có học (không thưởng ngày). `computeLevelRewards` gặp màn creative thì chuyển sang hàm này (giữ tương thích); `applyRun` bỏ qua màn creative.

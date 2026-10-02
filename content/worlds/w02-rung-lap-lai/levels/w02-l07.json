@@ -1,0 +1,157 @@
+{
+  "id": "w02-l07",
+  "worldId": "w02-rung-lap-lai",
+  "stage": "practice",
+  "kind": "runner",
+  "mode": "bughunt",
+  "title": "Thừa một vòng",
+  "objective": "Măng rơi xuống hố cuối. Sửa 1 chỗ giúp Măng nhé!",
+  "learningGoal": "Số lần lặp phải vừa đủ: lặp thừa 1 vòng thì Măng làm thêm việc không cần, và gặp nạn.",
+  "misconception": "Số lần lặp càng lớn càng chắc, thừa cũng không sao.",
+  "toolbox": [
+    {
+      "type": "cq_repeat",
+      "fields": {
+        "TIMES": 3
+      }
+    },
+    "runner_walk",
+    "runner_jump",
+    "runner_crouch"
+  ],
+  "par": 4,
+  "parEdits": 1,
+  "config": {
+    "cells": [
+      "ground",
+      "branch",
+      "hole",
+      "ground",
+      "branch",
+      "hole",
+      "ground",
+      "branch",
+      "hole",
+      "ground",
+      "hole",
+      "flag"
+    ],
+    "start": 0,
+    "bamboo": [4]
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "rep1",
+              "fields": {
+                "TIMES": 4
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "runner_crouch",
+                    "id": "crouch1",
+                    "next": {
+                      "block": {
+                        "type": "runner_jump",
+                        "id": "jump1"
+                      }
+                    }
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "type": "runner_jump",
+                  "id": "jump2"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "rep1",
+              "fields": {
+                "TIMES": 3
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "runner_crouch",
+                    "id": "crouch1",
+                    "next": {
+                      "block": {
+                        "type": "runner_jump",
+                        "id": "jump1"
+                      }
+                    }
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "type": "runner_jump",
+                  "id": "jump2"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "run-first",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Bấm Chạy trước, xem Măng gặp nạn ở đâu nhé!",
+      "point": "run"
+    },
+    {
+      "id": "extra",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "FELL_IN_HOLE"
+      },
+      "say": "Hết cành rồi mà Măng vẫn cúi. Vòng lặp có thừa không?",
+      "point": "block:cq_repeat"
+    },
+    {
+      "id": "short",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "HIT_BRANCH"
+      },
+      "say": "Còn cành mà Măng đã nhảy. Có mấy cặp cành và hố?",
+      "point": "block:cq_repeat"
+    }
+  ],
+  "thinkingHint": "Trên đường có mấy cặp cành tre và hố?"
+}

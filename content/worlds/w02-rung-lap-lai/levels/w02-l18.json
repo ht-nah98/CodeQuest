@@ -1,0 +1,193 @@
+{
+  "id": "w02-l18",
+  "worldId": "w02-rung-lap-lai",
+  "stage": "challenge",
+  "kind": "runner",
+  "mode": "bughunt",
+  "title": "Ba lỗi trong rừng",
+  "objective": "Chương trình có 3 lỗi. Sửa từng lỗi một nhé!",
+  "learningGoal": "Sửa lần lượt từng lỗi: thiếu khối trước khối lặp, thiếu khối trong khối lặp, sai số lần lặp.",
+  "misconception": "Sửa xong 1 lỗi là chương trình chạy đúng hết.",
+  "toolbox": [
+    {
+      "type": "cq_repeat",
+      "fields": {
+        "TIMES": 3
+      }
+    },
+    "runner_walk",
+    "runner_jump",
+    "runner_crouch",
+    "runner_kick"
+  ],
+  "par": 6,
+  "parEdits": 3,
+  "config": {
+    "cells": [
+      "ground",
+      "crate",
+      "branch",
+      "hole",
+      "ground",
+      "ground",
+      "branch",
+      "hole",
+      "ground",
+      "ground",
+      "branch",
+      "hole",
+      "ground",
+      "hole",
+      "flag"
+    ],
+    "start": 0,
+    "bamboo": [6]
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "rep1",
+              "fields": {
+                "TIMES": 2
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "runner_walk",
+                    "id": "walk1",
+                    "next": {
+                      "block": {
+                        "type": "runner_crouch",
+                        "id": "crouch1"
+                      }
+                    }
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "type": "runner_jump",
+                  "id": "jump1"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "runner_kick",
+              "id": "kick1",
+              "next": {
+                "block": {
+                  "type": "cq_repeat",
+                  "id": "rep1",
+                  "fields": {
+                    "TIMES": 3
+                  },
+                  "inputs": {
+                    "DO": {
+                      "block": {
+                        "type": "runner_walk",
+                        "id": "walk1",
+                        "next": {
+                          "block": {
+                            "type": "runner_crouch",
+                            "id": "crouch1",
+                            "next": {
+                              "block": {
+                                "type": "runner_jump",
+                                "id": "jump1"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "next": {
+                    "block": {
+                      "type": "runner_jump",
+                      "id": "jump2"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "run-first",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Bấm Chạy, xem Măng vấp ở đâu nhé!",
+      "point": "run"
+    },
+    {
+      "id": "crate",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "HIT_CRATE"
+      },
+      "say": "Thùng chắn ngay đầu đường. Thiếu khối gì?",
+      "point": "stage"
+    },
+    {
+      "id": "jump-where",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "FELL_IN_HOLE",
+        "has": "runner_kick"
+      },
+      "say": "Măng rơi xuống hố. Khối nhảy nằm đúng chỗ chưa?",
+      "point": "block:runner_jump"
+    },
+    {
+      "id": "short",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "HIT_BRANCH",
+        "has": "runner_kick"
+      },
+      "say": "Còn cành mà Măng đã nhảy. Có mấy cặp cành và hố?",
+      "point": "block:cq_repeat"
+    },
+    {
+      "id": "tail",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "NOT_AT_GOAL"
+      },
+      "say": "Măng dừng giữa đường. Còn đoạn nào chưa đi?",
+      "point": "stage"
+    }
+  ],
+  "thinkingHint": "Măng vấp ở đâu? Lỗi đó nằm ở khối nào?"
+}

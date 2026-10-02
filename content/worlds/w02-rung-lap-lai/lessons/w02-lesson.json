@@ -1,0 +1,169 @@
+{
+  "id": "w02-lesson",
+  "worldId": "w02-rung-lap-lai",
+  "title": "Lặp lại cho gọn",
+  "cards": [
+    {
+      "type": "say",
+      "pose": "oops",
+      "text": "Ối! Phù thủy gió chỉ cho Măng mang rất ít khối."
+    },
+    {
+      "type": "demo",
+      "text": "Đường thẳng 6 ô: con phải ghép tới 6 khối đi!",
+      "kind": "runner",
+      "config": {
+        "cells": ["ground", "ground", "ground", "ground", "ground", "ground", "flag"],
+        "start": 0
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "runner_walk",
+                  "id": "walk1",
+                  "next": {
+                    "block": {
+                      "type": "runner_walk",
+                      "id": "walk2",
+                      "next": {
+                        "block": {
+                          "type": "runner_walk",
+                          "id": "walk3",
+                          "next": {
+                            "block": {
+                              "type": "runner_walk",
+                              "id": "walk4",
+                              "next": {
+                                "block": {
+                                  "type": "runner_walk",
+                                  "id": "walk5",
+                                  "next": {
+                                    "block": {
+                                      "type": "runner_walk",
+                                      "id": "walk6"
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "say",
+      "pose": "point",
+      "text": "Khối lặp làm khối bên trong nhiều lần. Chỉ cần đổi số!"
+    },
+    {
+      "type": "demo",
+      "text": "Lặp 6 lần: đi. Chỉ 2 khối mà vẫn tới cờ!",
+      "kind": "runner",
+      "config": {
+        "cells": ["ground", "ground", "ground", "ground", "ground", "ground", "flag"],
+        "start": 0
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "cq_repeat",
+                  "id": "rep1",
+                  "fields": {
+                    "TIMES": 6
+                  },
+                  "inputs": {
+                    "DO": {
+                      "block": {
+                        "type": "runner_walk",
+                        "id": "walk1"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "demo",
+      "text": "Lặp 3 lần: đi, cúi. Mỗi vòng làm hết khối bên trong!",
+      "kind": "runner",
+      "config": {
+        "cells": ["ground", "ground", "branch", "ground", "branch", "ground", "flag"],
+        "start": 0
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "cq_repeat",
+                  "id": "rep1",
+                  "fields": {
+                    "TIMES": 3
+                  },
+                  "inputs": {
+                    "DO": {
+                      "block": {
+                        "type": "runner_walk",
+                        "id": "walk1",
+                        "next": {
+                          "block": {
+                            "type": "runner_crouch",
+                            "id": "crouch1"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "quiz",
+      "text": "Lặp 3 lần: đi, nhảy. Măng nhảy mấy lần?",
+      "options": ["1 lần", "3 lần", "6 lần"],
+      "correct": 1,
+      "explain": "Mỗi vòng, Măng làm hết các khối bên trong."
+    }
+  ]
+}

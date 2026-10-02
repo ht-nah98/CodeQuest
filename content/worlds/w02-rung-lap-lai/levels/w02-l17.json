@@ -1,0 +1,147 @@
+{
+  "id": "w02-l17",
+  "worldId": "w02-rung-lap-lai",
+  "stage": "challenge",
+  "kind": "maze",
+  "mode": "build",
+  "title": "Bậc thang và hành lang",
+  "objective": "Leo bậc thang rồi đi hành lang tới đích!",
+  "learningGoal": "Hai đoạn có mẫu khác nhau (bậc thang, hành lang thẳng) thì dùng hai khối lặp, mỗi khối lặp vừa đủ.",
+  "misconception": "Lặp thêm vòng cho chắc, thừa cũng không sao.",
+  "toolbox": [
+    {
+      "type": "cq_repeat",
+      "fields": {
+        "TIMES": 2
+      }
+    },
+    "maze_forward",
+    "maze_turn_left",
+    "maze_turn_right"
+  ],
+  "maxBlocks": 8,
+  "par": 7,
+  "config": {
+    "map": [
+      "###########",
+      "####....G.#",
+      "###..######",
+      "##..#######",
+      ".S.########",
+      "###########"
+    ],
+    "startDir": "E"
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "rep1",
+              "fields": {
+                "TIMES": 3
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "maze_forward",
+                    "id": "fwd1",
+                    "next": {
+                      "block": {
+                        "type": "maze_turn_left",
+                        "id": "left1",
+                        "next": {
+                          "block": {
+                            "type": "maze_forward",
+                            "id": "fwd2",
+                            "next": {
+                              "block": {
+                                "type": "maze_turn_right",
+                                "id": "right1"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "type": "cq_repeat",
+                  "id": "rep2",
+                  "fields": {
+                    "TIMES": 4
+                  },
+                  "inputs": {
+                    "DO": {
+                      "block": {
+                        "type": "maze_forward",
+                        "id": "fwd3"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "cap",
+      "when": {
+        "capacityFull": true,
+        "missing": "cq_repeat"
+      },
+      "say": "Hết chỗ rồi! Bỏ bớt 1 khối để lấy khối lặp nhé.",
+      "point": "capacity"
+    },
+    {
+      "id": "wall",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "HIT_WALL",
+        "has": "cq_repeat"
+      },
+      "say": "Măng đụng tường ở đâu? Ở bậc thang hay hành lang?",
+      "point": "stage"
+    },
+    {
+      "id": "extra-step",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "HIT_WALL",
+        "has": "cq_repeat",
+        "runCount": {
+          "gte": 2
+        }
+      },
+      "say": "Bậc thang có mấy bậc? Lặp thừa là đụng tường.",
+      "point": "stage",
+      "priority": 1
+    },
+    {
+      "id": "corridor",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "NOT_AT_GOAL",
+        "has": "cq_repeat"
+      },
+      "say": "Hết bậc thang rồi. Hành lang cần thêm khối lặp nữa?",
+      "point": "stage"
+    }
+  ],
+  "thinkingHint": "Bậc thang có mấy bậc? Hành lang dài mấy ô?"
+}

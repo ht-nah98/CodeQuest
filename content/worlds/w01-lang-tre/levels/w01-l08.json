@@ -1,0 +1,91 @@
+{
+  "id": "w01-l08",
+  "worldId": "w01-lang-tre",
+  "stage": "practice",
+  "kind": "runner",
+  "mode": "predict",
+  "title": "Măng vướng ở đâu?",
+  "objective": "Đoán xem Măng có tới cờ không, hay vướng ở đâu?",
+  "learningGoal": "Máy chạy từng khối theo thứ tự; khối cúi đặt muộn thì không giúp được.",
+  "misconception": "Có khối cúi trong chương trình là Măng tự cúi đúng lúc.",
+  "toolbox": [],
+  "config": {
+    "cells": ["ground", "ground", "hole", "ground", "branch", "ground", "flag"],
+    "start": 0
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "runner_walk",
+              "id": "walk1",
+              "next": {
+                "block": {
+                  "type": "runner_jump",
+                  "id": "jump1",
+                  "next": {
+                    "block": {
+                      "type": "runner_walk",
+                      "id": "walk2",
+                      "next": {
+                        "block": {
+                          "type": "runner_crouch",
+                          "id": "crouch1",
+                          "next": {
+                            "block": {
+                              "type": "runner_walk",
+                              "id": "walk3"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "predict": {
+    "options": [
+      {
+        "key": "win",
+        "label": "Tới lá cờ"
+      },
+      {
+        "key": "crash:HIT_BRANCH@4",
+        "label": "Cụng đầu vào cành tre"
+      },
+      {
+        "key": "crash:FELL_IN_HOLE@2",
+        "label": "Rơi xuống hố"
+      },
+      {
+        "key": "stop@5",
+        "label": "Qua cành, đứng trước cờ"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "read",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Đọc từng khối một, ngón tay đi theo Măng.",
+      "point": "block:cq_start"
+    }
+  ],
+  "thinkingHint": "Tới khối cúi thì Măng đã đứng ở ô nào?"
+}

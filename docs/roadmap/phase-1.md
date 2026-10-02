@@ -8,18 +8,18 @@
 | P1-01 | Kiểu game `runner` đầy đủ | P0-07 | AI | ✅ |
 | P1-02 | Kiểu game `maze` | P0-03 | AI | ✅ |
 | P1-03 | `RunnerStage` đầy đủ | P1-01 | AI | ✅ |
-| P1-04 | `MazeStage` | P1-02 (P0-08 nếu có, không bắt buộc) | AI | ⬜ |
-| P1-05 | `StageController` đầy đủ | P0-07 | AI | ⬜ |
-| P1-06 | 4 cách chơi: parsons, predict, bughunt, creative | P1-01, P1-02, P1-03, P1-04, P1-05 | AI | ⬜ |
-| P1-07 | Hint engine + gợi ý tầng 1–3 + popover chỉ bước tiếp | P0-05, P1-08 | AI | ⬜ |
+| P1-04 | `MazeStage` | P1-02 (P0-08 nếu có, không bắt buộc) | AI | ✅ |
+| P1-05 | `StageController` đầy đủ | P0-07 | AI | ✅ |
+| P1-06 | 4 cách chơi: parsons, predict, bughunt, creative | P1-01, P1-02, P1-03, P1-04, P1-05 | AI | ✅ |
+| P1-07 | Hint engine + gợi ý tầng 1–3 + popover chỉ bước tiếp | P0-05, P1-08 | AI | ✅ |
 | P1-08 | Package `rewards` đầy đủ | P0-02 | AI | ✅ |
 | P1-09 | Lớp dữ liệu Dexie, hồ sơ + PIN, bản nháp, sao lưu/khôi phục | P0-01 | AI | ✅ |
-| P1-10 | Màn hình: hồ sơ, bản đồ, thế giới, bài giảng, kết quả, cài đặt | P1-08, P1-09 | AI | ⬜ |
-| P1-11 | Công cụ `content:check` đủ 18 luật | P1-01, P1-02 | AI | ⬜ |
-| P1-12 | Nội dung Thế giới 1 (15 màn + bài giảng) | P1-11 | AI soạn nháp · HLV duyệt | ⬜ |
-| P1-13 | Nội dung Thế giới 2 (20 màn + bài giảng) | P1-12 | AI soạn nháp · HLV duyệt | ⬜ |
-| P1-14 | Âm thanh & giọng đọc | P1-10 | AI · HLV chọn giọng | ⬜ |
-| P1-15 | E2E smoke + CI đầy đủ | P1-10 | AI | ⬜ |
+| P1-10 | Màn hình: hồ sơ, bản đồ, thế giới, bài giảng, kết quả, cài đặt | P1-08, P1-09 | AI | ✅ |
+| P1-11 | Công cụ `content:check` đủ 18 luật | P1-01, P1-02 | AI | ✅ |
+| P1-12 | Nội dung Thế giới 1 (15 màn + bài giảng) | P1-11 | AI soạn nháp · HLV duyệt | 🟨 |
+| P1-13 | Nội dung Thế giới 2 (20 màn + bài giảng) | P1-12 | AI soạn nháp · HLV duyệt | 🟨 |
+| P1-14 | Âm thanh & giọng đọc | P1-10 | AI · HLV chọn giọng | 🟨 |
+| P1-15 | E2E smoke + CI đầy đủ | P1-10 | AI | 🟨 |
 | P1-16 | Chơi thử, sửa, phát hành `v0.1.0` | tất cả | HLV + AI | ⬜ |
 
 ---
@@ -33,7 +33,7 @@
 **Nghiệm thu:** như P1-01, khớp §3.2.
 
 ### P1-03 · `RunnerStage` đầy đủ
-Nền parallax pixel (bầu trời, tre xa, đất), camera cuộn theo Măng khi > 8 ô, hoạt ảnh cho mọi event (đi, nhảy, cúi, đá thùng đổ, nhặt măng, rơi hố, đụng cành, ăn mừng).
+Nền parallax pixel (bầu trời, tre xa, đất), camera cuộn theo Măng khi đường dài hơn sân chơi (quy tắc theo pixel ở `stage-rendering.md` §2), hoạt ảnh cho mọi event (đi, nhảy, cúi, đá thùng đổ, nhặt măng, rơi hố, đụng cành, ăn mừng).
 **Nghiệm thu:** 60 fps với màn 30 ô; mọi event của P1-01 có hoạt ảnh.
 
 ### P1-04 · `MazeStage`
@@ -70,18 +70,26 @@ Theo `design/screens-and-flows.md`: `/`, `/profile/new`, `/map`, `/w/:worldId`, 
 
 ### P1-12 · Nội dung Thế giới 1
 Theo bảng ở `product/curriculum.md` §3. `world.json`, `w01-lesson`, 15 màn + `w01-creative`, `content/shared/feedback.json`.
-**Nghiệm thu:** `content:check` xanh; HLV chơi thử từng màn; mỗi mode xuất hiện ≥ 1 lần.
+**Nghiệm thu:** `content:check` xanh; HLV chơi thử từng màn; mỗi mode xuất hiện ≥ 1 lần; đã xóa `w01-lang-tre` khỏi `PROVISIONAL_WORLDS` (`tools/content-check/src/curriculum.ts`), `content:check` không còn cảnh báo luật 4/7.
 
 ### P1-13 · Nội dung Thế giới 2
 Theo `product/curriculum.md` §4. **Nghiệm thu:** như P1-12.
 
 ### P1-14 · Âm thanh & giọng đọc
-Hiệu ứng (Kenney CC0), 2 bản nhạc nền, script sinh trước giọng đọc cho mọi câu **cố định** (`tools/voice/`; dịch vụ TTS do HLV chọn ở đầu task, ghi vào `tech-stack.md`), 3 kênh âm lượng.
+Hiệu ứng (tự tạo bằng `tools/audio/`, chiptune), 2 bản nhạc nền, script sinh trước giọng đọc cho mọi câu **cố định** (`tools/voice/`; dịch vụ TTS do HLV chọn ở đầu task, ghi vào `tech-stack.md`), 3 kênh âm lượng.
 **Nghiệm thu:** mọi câu cố định của Thế giới 1–2 và `feedback.json` có giọng đọc (câu có số thay đổi thì không, xem `ui-copy-guide.md` §5); tắt từng kênh độc lập.
+**Đã có (AI):** `apps/web/src/audio/`, 17 hiệu ứng + 2 nhạc nền tự tạo, `tools/voice/` (provider `none`/`files`), Cài đặt nghe thử, màn Kết quả, Bài giảng/Thế giới/Bản đồ/Tạo hồ sơ/nhắc nghỉ (xem `architecture/audio.md` §3).
+**Còn lại** (chờ P1-06 xong phần màn chơi; cách nối ở `architecture/audio.md` §3):
+- [ ] HLV chọn giọng → `npm run voice -- build --provider …`, ghi vào `tech-stack.md`; `npm run voice -- check --worlds w01,w02` sạch
+- [x] `StageController`/stage: `playSfx(stageSfx(event.type))` khi hoạt ảnh của mỗi event bắt đầu; `RUN_SFX.fail` khi thua
+- [x] Nút ▶ Chạy: `data-sfx="run"` (thay tiếng click mặc định) — làm bằng `run()` phát `run` + nút `data-sfx="none"` (lý do: `audio.md` §3)
+- [x] `PlayScreen`: `useMusic('adventure')`; bubble mục tiêu / gợi ý / feedback / câu `vi.play.*` có `voiceId` (`levelVoiceId`, `hintVoiceId`, `feedbackVoiceId`, `uiVoiceId`); `HintBox`: `thinkingHint` → `levelVoiceId(id, 'thinking')`
+- [x] `BlocklyWorkspace.tsx`: `sounds: false` (tiếng có sẵn của Blockly không theo thanh âm lượng) và gọi `playSfx(blocklySfx(event))` trong change listener
+- [ ] HLV nghe thử phong cách hiệu ứng + 2 bài nhạc, duyệt hoặc thay
 
 ### P1-15 · E2E smoke + CI
 Kịch bản ở `testing-strategy.md` §3, chạy trong CI với tag `@smoke`.
-**Nghiệm thu:** CI xanh trên PR.
+**Nghiệm thu:** CI xanh trên PR. *(03/10: đã mô phỏng CI trên bản clone sạch — `npm ci`, lint, typecheck, test + coverage, content:check, build, smoke 24/24 — xanh 3 lần liên tiếp; toàn bộ e2e 129/129. Chờ push lên GitHub để chạy CI thật.)*
 
 ### P1-16 · Chơi thử & phát hành
 Chơi thử với bé → sửa lỗi chặn → chơi thử với 1–2 bạn → deploy Vercel → tag `v0.1.0` + `CHANGELOG.md`.

@@ -32,7 +32,7 @@ export {
 } from './computeRewards';
 export type { LevelRewards, RunState } from './computeRewards';
 export { computeStars } from './computeStars';
-export { buyHint, hintPrice } from './hints';
+export { buyHint, hintEntryId, hintPrice, isHintOwned } from './hints';
 export type { BuyHintResult } from './hints';
 export { isUnlocked } from './isUnlocked';
 export type { UnlockContext, UnlockTarget } from './isUnlocked';
