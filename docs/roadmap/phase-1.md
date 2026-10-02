@@ -70,7 +70,7 @@ Theo `design/screens-and-flows.md`: `/`, `/profile/new`, `/map`, `/w/:worldId`, 
 
 ### P1-12 · Nội dung Thế giới 1
 Theo bảng ở `product/curriculum.md` §3. `world.json`, `w01-lesson`, 15 màn + `w01-creative`, `content/shared/feedback.json`.
-**Nghiệm thu:** `content:check` xanh; HLV chơi thử từng màn; mỗi mode xuất hiện ≥ 1 lần.
+**Nghiệm thu:** `content:check` xanh; HLV chơi thử từng màn; mỗi mode xuất hiện ≥ 1 lần; đã xóa `w01-lang-tre` khỏi `PROVISIONAL_WORLDS` (`tools/content-check/src/curriculum.ts`), `content:check` không còn cảnh báo luật 4/7.
 
 ### P1-13 · Nội dung Thế giới 2
 Theo `product/curriculum.md` §4. **Nghiệm thu:** như P1-12.

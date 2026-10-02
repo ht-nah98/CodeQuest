@@ -1,9 +1,12 @@
 /**
- * content:check rules 1–2 and 9–11 (docs/architecture/content-model.md §5, §7): every file
- * matches its zod schema (levels also their kind's `configSchema`), IDs are unique, well-formed
- * and match their file; shop item and badge IDs inside shared/ are checked too. Every level
- * solution runs to success, fits `par` and `maxBlocks`, and only uses toolbox blocks.
+ * content:check, all 18 rules of docs/architecture/content-model.md §5 (phases: §7).
+ * This file: rules 1–2 (schema, IDs), 9–11 (the solution wins within par, maxBlocks and the
+ * toolbox), 17 (feedback coverage) and 18 (assets), and wires in levelRules.ts (5–6, 12–16) and
+ * curriculum.ts (3–4, 7–8). Draft folders `worlds/_*` skip the curriculum rules 3–8.
  */
+import { statSync } from 'node:fs';
+import { isAbsolute, relative, resolve, sep } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import {
   BadgesFileSchema,
   FeedbackFileSchema,
@@ -11,6 +14,7 @@ import {
   LevelSchema,
   ShopFileSchema,
   WorldSchema,
+  type FeedbackFile,
   type GameKindId,
   type Level,
   type WorkspaceJson,
@@ -18,12 +22,16 @@ import {
 import {
   analyzeWorkspace,
   CQ_START,
+  ENGINE_REASONS,
   registerBlockSpecs,
   runLevel,
   type AnyGameKindDefinition,
 } from '@codequest/engine';
-import { getGameKind } from '@codequest/games';
+import { gameKinds, getGameKind } from '@codequest/games';
 import type { z } from 'zod';
+import { checkCurriculum, type CurriculumInput, type WorldFile } from './curriculum';
+import { hintIssues, modeIssues, pedagogyIssues, shadowIssues, toolboxTypes } from './levelRules';
+import { blockTypesOf } from './workspace';
 
 export type ContentKind = 'world' | 'level' | 'lesson' | 'shared';
 
@@ -49,7 +57,21 @@ export interface CheckedEntry {
 
 export interface CheckReport {
   entries: CheckedEntry[];
+  /** Errors: any of them makes content:check exit 1. */
   issues: Issue[];
+  /** Printed but never fail the check (rule 8, provisional worlds). */
+  warnings: Issue[];
+}
+
+/** Assets are served from the web app's public folder (content-model.md §5 rule 18). */
+const PUBLIC_DIR = fileURLToPath(new URL('../../../apps/web/public/', import.meta.url));
+
+/** True when `publicPath` (`/…`) names a file inside apps/web/public. */
+export function publicAssetExists(publicPath: string): boolean {
+  const full = resolve(PUBLIC_DIR, `.${publicPath}`);
+  const inside = relative(PUBLIC_DIR, full);
+  if (inside === '..' || inside.startsWith(`..${sep}`) || isAbsolute(inside)) return false;
+  return statSync(full, { throwIfNoEntry: false })?.isFile() === true;
 }
 
 const ID_PATTERNS: Record<Exclude<ContentKind, 'shared'>, RegExp> = {
@@ -59,6 +81,7 @@ const ID_PATTERNS: Record<Exclude<ContentKind, 'shared'>, RegExp> = {
 };
 
 const SHARED_FILES = new Set(['feedback.json', 'shop.json', 'badges.json']);
+const FEEDBACK_PATH = 'shared/feedback.json';
 
 const SHOP_ITEM_ID = /^(?:skin|pen|fx|music|bonus-level)-[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const BADGE_ID = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
@@ -90,27 +113,6 @@ function levelConfigIssues(
   }
   const config = kind.configSchema.safeParse(level.config);
   return config.success ? [] : schemaIssues(path, config.error, 'config');
-}
-
-/** Types of every non-shadow block in a workspace JSON, orphans included. */
-function blockTypesOf(workspace: WorkspaceJson): Set<string> {
-  const types = new Set<string>();
-  const visit = (block: unknown): void => {
-    if (typeof block !== 'object' || block === null) return;
-    const { type, next, inputs } = block as Record<string, unknown>;
-    if (typeof type === 'string') types.add(type);
-    if (typeof next === 'object' && next !== null)
-      visit((next as Record<string, unknown>)['block']);
-    if (typeof inputs === 'object' && inputs !== null) {
-      for (const input of Object.values(inputs)) {
-        if (typeof input === 'object' && input !== null) {
-          visit((input as Record<string, unknown>)['block']);
-        }
-      }
-    }
-  };
-  for (const block of workspace.blocks.blocks) visit(block);
-  return types;
 }
 
 function describeError(error: unknown): string {
@@ -183,7 +185,7 @@ function solutionIssues(
   const available =
     level.mode === 'parsons'
       ? blockTypesOf(level.initialWorkspace ?? solution)
-      : new Set(level.toolbox.map((entry) => (typeof entry === 'string' ? entry : entry.type)));
+      : toolboxTypes(level);
   const source = level.mode === 'parsons' ? 'initialWorkspace' : 'toolbox';
   for (const type of blockTypesOf(solution)) {
     if (type !== CQ_START && !available.has(type)) {
@@ -198,25 +200,50 @@ function solutionIssues(
   return { issues, blocksUsed };
 }
 
-/** Rules 1 (config) and 9–11 for a level file, plus its table detail. */
+/**
+ * Rules 1 (config), 5–6 (not in drafts), 9–16 for a schema-valid level, plus its table detail.
+ * The run rules 9–11 and 13–16 need a valid config of an implemented kind.
+ */
 function levelIssues(
   path: string,
-  parsed: unknown,
+  level: Level,
+  isDraft: boolean,
   getKind: GameKindLookup,
-): { issues: Issue[]; detail?: string } {
-  const parsedLevel = LevelSchema.safeParse(parsed);
-  if (!parsedLevel.success) return { issues: [] };
-  const level = parsedLevel.data;
+): { issues: Issue[]; detail: string } {
   const kind = getKind(level.kind);
-  const issues = levelConfigIssues(path, level, kind);
+  const issues = [...(isDraft ? [] : pedagogyIssues(path, level)), ...shadowIssues(path, level)];
+  const configIssues = levelConfigIssues(path, level, kind);
+  issues.push(...configIssues);
   let detail = `${level.kind}/${level.mode}`;
   if (level.par !== undefined) detail += `  par ${String(level.par)}`;
-  if (issues.length > 0 || kind === undefined || level.solution === undefined) {
-    return { issues, detail };
+  if (configIssues.length > 0 || kind === undefined) return { issues, detail };
+  // A predict level runs initialWorkspace, never a solution (rule 15 checks it instead).
+  if (level.solution !== undefined && level.mode !== 'predict') {
+    const solved = solutionIssues(path, level, level.solution, kind);
+    issues.push(...solved.issues);
+    if (solved.blocksUsed !== null) detail += `  sol ${String(solved.blocksUsed)}`;
   }
-  const solved = solutionIssues(path, level, level.solution, kind);
-  if (solved.blocksUsed !== null) detail += `  sol ${String(solved.blocksUsed)}`;
-  return { issues: solved.issues, detail };
+  issues.push(...modeIssues(path, level, kind), ...hintIssues(path, level, kind));
+  return { issues, detail };
+}
+
+/** Rule 17: every engine and game-kind reason code has a sentence in feedback.json. */
+function feedbackIssues(feedback: FeedbackFile, kinds: readonly AnyGameKindDefinition[]): Issue[] {
+  const codes = new Set<string>([...ENGINE_REASONS, ...kinds.flatMap((kind) => kind.reasonCodes)]);
+  return [...codes]
+    .filter((code) => feedback[code] === undefined)
+    .map((code) => ({
+      path: FEEDBACK_PATH,
+      rule: 17,
+      message: `reasonCode ${code} has no sentence`,
+    }));
+}
+
+/** What rules 17–18 need, collected while reading the files. */
+interface SharedData {
+  feedback: FeedbackFile | null;
+  /** Rule 18: `[path, field, public path]` of every referenced asset. */
+  assets: Array<[string, string, string]>;
 }
 
 /** Rule 1–2 for shared/*.json: schema, then shop item and badge IDs. */
@@ -224,10 +251,12 @@ function sharedIssues(
   path: string,
   parsed: unknown,
   claimId: (id: string, path: string) => Issue | null,
+  shared: SharedData,
 ): Issue[] {
   const name = path.split('/')[1];
   if (name === 'feedback.json') {
     const feedback = FeedbackFileSchema.safeParse(parsed);
+    if (feedback.success) shared.feedback = feedback.data;
     return feedback.success ? [] : schemaIssues(path, feedback.error);
   }
   const issues: Issue[] = [];
@@ -243,6 +272,7 @@ function sharedIssues(
     const shop = ShopFileSchema.safeParse(parsed);
     if (!shop.success) return schemaIssues(path, shop.error);
     for (const item of shop.data) {
+      shared.assets.push([path, `${item.id}.asset`, item.asset]);
       const prefix = `${item.kind}-`;
       check(
         item.id,
@@ -266,6 +296,8 @@ interface Location {
   expectedId: string | null;
   /** `w<NN>` prefix that level and lesson IDs must share with their world folder. */
   worldPrefix: string | null;
+  /** Name of the `worlds/<dir>/` folder, null for shared/. */
+  worldDir: string | null;
 }
 
 function locate(path: string): Location | string {
@@ -274,7 +306,7 @@ function locate(path: string): Location | string {
     if (!SHARED_FILES.has(parts[1] ?? '')) {
       return `unknown shared file; expected one of ${[...SHARED_FILES].join(', ')}`;
     }
-    return { kind: 'shared', isDraft: false, expectedId: null, worldPrefix: null };
+    return { kind: 'shared', isDraft: false, expectedId: null, worldPrefix: null, worldDir: null };
   }
   if (parts[0] !== 'worlds' || parts.length < 3) {
     return 'file is outside shared/ and worlds/<world>/';
@@ -285,30 +317,33 @@ function locate(path: string): Location | string {
   const baseName = fileName.replace(/\.json$/, '');
   const worldPrefix = isDraft ? null : (/^w\d{2}-/.exec(worldDir)?.[0] ?? null);
   if (parts.length === 3 && fileName === 'world.json') {
-    return { kind: 'world', isDraft, expectedId: worldDir, worldPrefix: null };
+    return { kind: 'world', isDraft, expectedId: worldDir, worldPrefix: null, worldDir };
   }
   if (parts.length === 4 && parts[2] === 'levels') {
-    return { kind: 'level', isDraft, expectedId: baseName, worldPrefix };
+    return { kind: 'level', isDraft, expectedId: baseName, worldPrefix, worldDir };
   }
   if (parts.length === 4 && parts[2] === 'lessons') {
-    return { kind: 'lesson', isDraft, expectedId: baseName, worldPrefix };
+    return { kind: 'lesson', isDraft, expectedId: baseName, worldPrefix, worldDir };
   }
   return 'unexpected location; use world.json, levels/<id>.json or lessons/<id>.json';
 }
 
-function readId(value: unknown): string | null {
+function readString(value: unknown, key: string): string | null {
   if (typeof value !== 'object' || value === null || Array.isArray(value)) return null;
-  const id: unknown = (value as Record<string, unknown>)['id'];
-  return typeof id === 'string' ? id : null;
+  const field: unknown = (value as Record<string, unknown>)[key];
+  return typeof field === 'string' ? field : null;
 }
 
-/** Runs rules 1–2 and 9–11 over every JSON file under `content/`. */
+/** Runs all 18 rules over every JSON file under `content/` (paths relative to it). */
 export function checkContent(
   files: readonly ContentFile[],
   getKind: GameKindLookup = getGameKind,
 ): CheckReport {
   const entries: CheckedEntry[] = [];
   const issues: Issue[] = [];
+  const curriculum: CurriculumInput = { worlds: [], levels: [], lessons: [] };
+  const shared: SharedData = { feedback: null, assets: [] };
+  let hasLevels = false;
   const firstPathById = new Map<string, string>();
   const claimId = (id: string, path: string): Issue | null => {
     const firstPath = firstPathById.get(id);
@@ -337,11 +372,11 @@ export function checkContent(
 
     if (location.kind === 'shared') {
       entries.push({ path: file.path, kind: 'shared', id: null });
-      issues.push(...sharedIssues(file.path, parsed, claimId));
+      issues.push(...sharedIssues(file.path, parsed, claimId, shared));
       continue;
     }
 
-    const id = readId(parsed);
+    const id = readString(parsed, 'id');
     const entry: CheckedEntry = { path: file.path, kind: location.kind, id };
     entries.push(entry);
     if (id === null) {
@@ -351,10 +386,42 @@ export function checkContent(
 
     const entity = ENTITY_SCHEMAS[location.kind].safeParse(parsed);
     if (!entity.success) issues.push(...schemaIssues(file.path, entity.error));
+    const worldFile: WorldFile = {
+      path: file.path,
+      dir: location.worldDir ?? '',
+      id,
+      worldId: readString(parsed, 'worldId'),
+    };
     if (location.kind === 'level') {
-      const level = levelIssues(file.path, parsed, getKind);
-      issues.push(...level.issues);
-      if (level.detail !== undefined) entry.detail = level.detail;
+      hasLevels = true;
+      const level = entity.success ? LevelSchema.parse(parsed) : null;
+      if (level !== null) {
+        const checked = levelIssues(file.path, level, location.isDraft, getKind);
+        issues.push(...checked.issues);
+        entry.detail = checked.detail;
+      }
+      if (!location.isDraft) curriculum.levels.push({ ...worldFile, level });
+    }
+    if (location.kind === 'lesson') {
+      const lesson = entity.success ? LessonSchema.parse(parsed) : null;
+      for (const [index, card] of (lesson?.cards ?? []).entries()) {
+        if (card.type === 'say' && card.image !== undefined) {
+          shared.assets.push([file.path, `cards.${String(index)}.image`, card.image]);
+        }
+      }
+      if (!location.isDraft) curriculum.lessons.push(worldFile);
+    }
+    if (location.kind === 'world') {
+      const world = entity.success ? WorldSchema.parse(parsed) : null;
+      if (world !== null) {
+        shared.assets.push([file.path, 'theme.tileset', world.theme.tileset]);
+        if (world.theme.music !== undefined) {
+          shared.assets.push([file.path, 'theme.music', world.theme.music]);
+        }
+        if (!location.isDraft) {
+          curriculum.worlds.push({ path: file.path, dir: worldFile.dir, world });
+        }
+      }
     }
 
     if (!location.isDraft && !ID_PATTERNS[location.kind].test(id)) {
@@ -383,5 +450,27 @@ export function checkContent(
     if (duplicate !== null) issues.push(duplicate);
   }
 
-  return { entries, issues };
+  // Rules 3–4, 7–8 across worlds.
+  const { errors, warnings } = checkCurriculum(curriculum);
+  issues.push(...errors);
+
+  // Rule 17: feedback.json covers every reason code.
+  if (shared.feedback !== null) {
+    issues.push(...feedbackIssues(shared.feedback, Object.values(gameKinds)));
+  } else if (hasLevels && !files.some((file) => file.path === FEEDBACK_PATH)) {
+    issues.push({ path: FEEDBACK_PATH, rule: 17, message: 'file is missing' });
+  }
+
+  // Rule 18: referenced assets exist.
+  for (const [path, field, asset] of shared.assets) {
+    if (!asset.startsWith('/') || !publicAssetExists(asset)) {
+      issues.push({
+        path,
+        rule: 18,
+        message: `${field} "${asset}" is not a file in apps/web/public/`,
+      });
+    }
+  }
+
+  return { entries, issues, warnings };
 }

@@ -2,12 +2,25 @@ import type { AnyGameKindDefinition } from '@codequest/engine';
 import { describe, expect, it } from 'vitest';
 import { z } from 'zod';
 import { getGameKind } from '@codequest/games';
-import { checkContent, type ContentFile, type GameKindLookup } from './rules';
+import { checkContent, type CheckReport, type ContentFile, type GameKindLookup } from './rules';
 
-/** Stand-in for the runner until it exists (P0-07); only `configSchema` matters to rule 1. */
+/**
+ * The tests in this file feed single files, so they look only at the per-file rules they were
+ * written for (1–2, 9–11). The other rules have their own tests in curriculum.test.ts and one
+ * fixture each (fixtures.test.ts).
+ */
+const FILE_RULES = new Set([1, 2, 9, 10, 11]);
+function checkFiles(files: readonly ContentFile[], getKind?: GameKindLookup): CheckReport {
+  const report = checkContent(files, getKind);
+  return { ...report, issues: report.issues.filter((issue) => FILE_RULES.has(issue.rule)) };
+}
+
+/** Stand-in for the runner: `configSchema` for rule 1, empty `blocks`/`reasonCodes` for rule 16. */
 const fakeRunner = {
   id: 'runner',
   configSchema: z.strictObject({ cells: z.array(z.string()).min(1) }),
+  blocks: [],
+  reasonCodes: [],
 } as unknown as AnyGameKindDefinition;
 const lookup: GameKindLookup = (id) => (id === 'runner' ? fakeRunner : undefined);
 
@@ -78,16 +91,16 @@ function entity(path: string, id: string): ContentFile {
 }
 
 function rulesOf(files: ContentFile[]): number[] {
-  return checkContent(files, lookup).issues.map((issue) => issue.rule);
+  return checkFiles(files, lookup).issues.map((issue) => issue.rule);
 }
 
-describe('checkContent', () => {
+describe('checkContent rules 1–2', () => {
   it('passes when there is no content', () => {
-    expect(checkContent([], lookup)).toEqual({ entries: [], issues: [] });
+    expect(checkContent([], lookup)).toEqual({ entries: [], issues: [], warnings: [] });
   });
 
   it('accepts well-formed world, level, lesson and shared files', () => {
-    const report = checkContent(
+    const report = checkFiles(
       [
         entity('worlds/w01-lang-tre/world.json', 'w01-lang-tre'),
         entity('worlds/w01-lang-tre/levels/w01-l03.json', 'w01-l03'),
@@ -143,7 +156,7 @@ describe('checkContent', () => {
   });
 
   it('rejects duplicate ids across worlds', () => {
-    const issues = checkContent(
+    const issues = checkFiles(
       [
         entity('worlds/w01-a/levels/w01-l01.json', 'w01-l01'),
         entity('worlds/w01-b/levels/w01-l01.json', 'w01-l01'),
@@ -175,7 +188,7 @@ describe('checkContent', () => {
 
   it('reports schema violations as rule 1 with the field path', () => {
     const level = valid('worlds/w01-a/levels/w01-l01.json', 'w01-l01');
-    const issues = checkContent(
+    const issues = checkFiles(
       [json('worlds/w01-a/levels/w01-l01.json', { ...level, mode: 'quiz' })],
       lookup,
     ).issues;
@@ -189,7 +202,7 @@ describe('checkContent', () => {
 
   it("checks level.config against its kind's configSchema", () => {
     const level = valid('worlds/w01-a/levels/w01-l01.json', 'w01-l01');
-    const issues = checkContent(
+    const issues = checkFiles(
       [json('worlds/w01-a/levels/w01-l01.json', { ...level, config: { cells: [] } })],
       lookup,
     ).issues;
@@ -208,7 +221,7 @@ describe('checkContent', () => {
         blocks: [{ type: 'cq_start', id: 'start', next: { block: { type: 'runner_walk' } } }],
       },
     };
-    const issues = checkContent(
+    const issues = checkFiles(
       [json('worlds/w01-a/levels/w01-l01.json', { ...level, initialWorkspace: idless })],
       lookup,
     ).issues;
@@ -221,7 +234,7 @@ describe('checkContent', () => {
 
   it('reports a level whose game kind is not implemented', () => {
     const level = valid('worlds/w01-a/levels/w01-l01.json', 'w01-l01');
-    const issues = checkContent(
+    const issues = checkFiles(
       [json('worlds/w01-a/levels/w01-l01.json', { ...level, kind: 'maze' })],
       lookup,
     ).issues;
@@ -236,7 +249,7 @@ describe('checkContent', () => {
 
   it('uses the real registry by default', () => {
     const level = valid('worlds/w01-a/levels/w01-l01.json', 'w01-l01');
-    const report = checkContent([json('worlds/w01-a/levels/w01-l01.json', level)]);
+    const report = checkFiles([json('worlds/w01-a/levels/w01-l01.json', level)]);
     expect(report.issues.every((issue) => issue.rule === 1)).toBe(true);
   });
 
@@ -305,12 +318,12 @@ function runnerLevel(overrides: Record<string, unknown> = {}): ContentFile {
 }
 
 function realIssues(file: ContentFile): Array<{ rule: number; message: string }> {
-  return checkContent([file], getGameKind).issues.map(({ rule, message }) => ({ rule, message }));
+  return checkFiles([file], getGameKind).issues.map(({ rule, message }) => ({ rule, message }));
 }
 
 describe('checkContent rules 9–11', () => {
   it('accepts a winning solution within par and toolbox, and reports its detail', () => {
-    const report = checkContent([runnerLevel()], getGameKind);
+    const report = checkFiles([runnerLevel()], getGameKind);
     expect(report.issues).toEqual([]);
     expect(report.entries[0]?.detail).toBe('runner/build  par 3  sol 3');
   });
@@ -418,7 +431,7 @@ describe('checkContent rules 9–11', () => {
 
   it('reports detail without sol for levels that have no solution', () => {
     const level = valid('worlds/w01-a/levels/w01-l01.json', 'w01-l01');
-    const report = checkContent(
+    const report = checkFiles(
       [
         json('worlds/w01-a/levels/w01-l01.json', {
           ...level,
