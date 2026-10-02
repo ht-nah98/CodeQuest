@@ -348,9 +348,17 @@ test.describe('/dev/blockly', () => {
     // Space while a mouse drag is in progress does not run the pre-drop program.
     const box = await page.locator('svg.blocklySvg .dev_walk').boundingBox();
     if (!box) throw new Error('dev_walk not rendered');
+    // The drop above connected the block, so Blockly drew its connection ripple: a <circle>
+    // over the block for 150 ms. A press on it starts no gesture, so wait for it to go.
+    await expect(page.locator('svg.blocklySvg > circle')).toHaveCount(0);
     await page.mouse.move(box.x + 12, box.y + 14);
     await page.mouse.down();
     await page.mouse.move(box.x + 60, box.y + 60, { steps: 8 });
+    expect(
+      await page.evaluate(() =>
+        (window as unknown as HookWindow).__cqDevBlockly.workspace.isDragging(),
+      ),
+    ).toBe(true);
     await page.keyboard.press('Space');
     await page.mouse.up();
     await expect(runCount(page)).toHaveText('đã chạy: 2');
