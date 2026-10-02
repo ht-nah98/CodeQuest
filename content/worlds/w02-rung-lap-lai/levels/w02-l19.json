@@ -1,0 +1,136 @@
+{
+  "id": "w02-l19",
+  "worldId": "w02-rung-lap-lai",
+  "stage": "challenge",
+  "kind": "maze",
+  "mode": "build",
+  "title": "Đường xuống thung lũng",
+  "objective": "Xuống bậc thang dài tới đích. Chỉ 7 khối thôi!",
+  "learningGoal": "Nhìn ra một bậc gồm 5 khối (tiến, tiến, rẽ, tiến, rẽ) và lặp cả bậc.",
+  "misconception": "Bậc thang dài thì phải ghép từng bậc một.",
+  "toolbox": [
+    {
+      "type": "cq_repeat",
+      "fields": {
+        "TIMES": 2
+      }
+    },
+    "maze_forward",
+    "maze_turn_left",
+    "maze_turn_right"
+  ],
+  "maxBlocks": 7,
+  "par": 6,
+  "config": {
+    "map": [
+      "############",
+      ".S..########",
+      "###...######",
+      "#####...####",
+      "#######...##",
+      "#########G.#",
+      "############"
+    ],
+    "startDir": "E"
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "rep1",
+              "fields": {
+                "TIMES": 4
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "maze_forward",
+                    "id": "fwd1",
+                    "next": {
+                      "block": {
+                        "type": "maze_forward",
+                        "id": "fwd2",
+                        "next": {
+                          "block": {
+                            "type": "maze_turn_right",
+                            "id": "right1",
+                            "next": {
+                              "block": {
+                                "type": "maze_forward",
+                                "id": "fwd3",
+                                "next": {
+                                  "block": {
+                                    "type": "maze_turn_left",
+                                    "id": "left1"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "cap",
+      "when": {
+        "capacityFull": true,
+        "missing": "cq_repeat"
+      },
+      "say": "Hết chỗ rồi! Bỏ bớt 1 khối để lấy khối lặp nhé.",
+      "point": "capacity"
+    },
+    {
+      "id": "facing-down",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "HIT_WALL",
+        "runCount": {
+          "gte": 3
+        }
+      },
+      "say": "Măng nhìn xuống. Tay trái của Măng ở phía nào?",
+      "point": "stage",
+      "priority": 2
+    },
+    {
+      "id": "step",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "HIT_WALL",
+        "has": "cq_repeat"
+      },
+      "say": "Mỗi bậc: đi ngang mấy ô, xuống mấy ô?",
+      "point": "stage"
+    },
+    {
+      "id": "count",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "NOT_AT_GOAL",
+        "has": "cq_repeat"
+      },
+      "say": "Đếm xem có mấy bậc thang nhé!",
+      "point": "stage"
+    }
+  ],
+  "thinkingHint": "Một bậc thang, Măng đi ngang mấy ô, xuống mấy ô?"
+}

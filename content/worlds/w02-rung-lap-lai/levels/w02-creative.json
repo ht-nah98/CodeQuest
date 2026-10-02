@@ -1,0 +1,68 @@
+{
+  "id": "w02-creative",
+  "worldId": "w02-rung-lap-lai",
+  "stage": "creative",
+  "kind": "runner",
+  "mode": "creative",
+  "title": "Nhịp chạy của con",
+  "objective": "Thử ghép nhịp lặp riêng, xem Măng chạy được bao xa!",
+  "learningGoal": "Tự tạo mẫu lặp, thử đổi số lần lặp và khối bên trong rồi xem Măng chạy.",
+  "toolbox": [
+    {
+      "type": "cq_repeat",
+      "fields": {
+        "TIMES": 3
+      }
+    },
+    "runner_walk",
+    "runner_jump",
+    "runner_crouch",
+    "runner_kick"
+  ],
+  "config": {
+    "cells": [
+      "ground",
+      "ground",
+      "hole",
+      "ground",
+      "ground",
+      "hole",
+      "ground",
+      "branch",
+      "ground",
+      "branch",
+      "ground",
+      "crate",
+      "ground",
+      "crate",
+      "ground",
+      "ground",
+      "hole",
+      "ground",
+      "ground",
+      "hole",
+      "ground",
+      "branch",
+      "ground",
+      "branch",
+      "ground",
+      "crate",
+      "ground",
+      "crate",
+      "ground",
+      "flag"
+    ],
+    "start": 0,
+    "bamboo": [3, 7, 10, 14, 17, 21, 24]
+  },
+  "hints": [
+    {
+      "id": "free",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Không có đúng sai. Con thử tạo nhịp riêng nhé!",
+      "point": "stage"
+    }
+  ]
+}

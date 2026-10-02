@@ -1,0 +1,151 @@
+{
+  "id": "w02-l16",
+  "worldId": "w02-rung-lap-lai",
+  "stage": "challenge",
+  "kind": "runner",
+  "mode": "build",
+  "title": "Đường 18 ô",
+  "objective": "Đường dài 18 ô mà chỉ được 5 khối!",
+  "learningGoal": "Tìm đoạn ngắn nhất lặp lại trên đường dài, lặp vừa đủ số lần rồi xử lý đoạn cuối khác.",
+  "misconception": "Đường càng dài thì càng cần nhiều khối.",
+  "toolbox": [
+    {
+      "type": "cq_repeat",
+      "fields": {
+        "TIMES": 2
+      }
+    },
+    "runner_walk",
+    "runner_jump",
+    "runner_crouch"
+  ],
+  "maxBlocks": 5,
+  "par": 5,
+  "config": {
+    "cells": [
+      "ground",
+      "ground",
+      "branch",
+      "hole",
+      "ground",
+      "ground",
+      "branch",
+      "hole",
+      "ground",
+      "ground",
+      "branch",
+      "hole",
+      "ground",
+      "ground",
+      "branch",
+      "hole",
+      "ground",
+      "hole",
+      "flag"
+    ],
+    "start": 0,
+    "bamboo": [6, 14]
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "rep1",
+              "fields": {
+                "TIMES": 4
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "runner_walk",
+                    "id": "walk1",
+                    "next": {
+                      "block": {
+                        "type": "runner_crouch",
+                        "id": "crouch1",
+                        "next": {
+                          "block": {
+                            "type": "runner_jump",
+                            "id": "jump1"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "type": "runner_jump",
+                  "id": "jump2"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "cap",
+      "when": {
+        "capacityFull": true,
+        "missing": "cq_repeat"
+      },
+      "say": "Hết chỗ rồi! Bỏ bớt 1 khối để lấy khối lặp nhé.",
+      "point": "capacity"
+    },
+    {
+      "id": "more",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "NOT_AT_GOAL",
+        "has": "cq_repeat"
+      },
+      "say": "Măng dừng giữa đường. Còn đoạn nào chưa đi?",
+      "point": "stage"
+    },
+    {
+      "id": "extra",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "FELL_IN_HOLE",
+        "has": "cq_repeat"
+      },
+      "say": "Đoạn cuối khác các đoạn kia. Vòng lặp có thừa không?",
+      "point": "block:cq_repeat"
+    },
+    {
+      "id": "short",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "HIT_BRANCH",
+        "has": "runner_crouch"
+      },
+      "say": "Còn cành mà Măng đã nhảy. Vòng lặp chạy đủ chưa?",
+      "point": "block:cq_repeat"
+    },
+    {
+      "id": "fix-there",
+      "when": {
+        "trigger": "run-end",
+        "failStreak": {
+          "gte": 2
+        }
+      },
+      "say": "Xem Măng vấp ở đâu, sửa đúng chỗ đó.",
+      "point": "stage"
+    }
+  ],
+  "thinkingHint": "Đoạn nào cứ lặp đi lặp lại? Đoạn cuối có giống không?"
+}

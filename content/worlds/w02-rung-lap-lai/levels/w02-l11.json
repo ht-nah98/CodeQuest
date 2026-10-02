@@ -1,0 +1,156 @@
+{
+  "id": "w02-l11",
+  "worldId": "w02-rung-lap-lai",
+  "stage": "practice",
+  "kind": "runner",
+  "mode": "bughunt",
+  "title": "Khối đá ở ngoài",
+  "objective": "Măng đụng thùng thứ hai. Sửa giúp Măng nhé!",
+  "learningGoal": "Khối đặt trước khối lặp chỉ chạy 1 lần; việc phải làm ở mỗi bước phải nằm trong khối lặp.",
+  "misconception": "Khối đặt ngoài vòng lặp cũng bị lặp.",
+  "toolbox": [
+    {
+      "type": "cq_repeat",
+      "fields": {
+        "TIMES": 3
+      }
+    },
+    "runner_walk",
+    "runner_jump",
+    "runner_kick"
+  ],
+  "par": 4,
+  "parEdits": 2,
+  "config": {
+    "cells": ["ground", "crate", "crate", "crate", "hole", "flag"],
+    "start": 0
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "runner_kick",
+              "id": "kick1",
+              "next": {
+                "block": {
+                  "type": "cq_repeat",
+                  "id": "rep1",
+                  "fields": {
+                    "TIMES": 3
+                  },
+                  "inputs": {
+                    "DO": {
+                      "block": {
+                        "type": "runner_walk",
+                        "id": "walk1"
+                      }
+                    }
+                  },
+                  "next": {
+                    "block": {
+                      "type": "runner_jump",
+                      "id": "jump1"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "rep1",
+              "fields": {
+                "TIMES": 3
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "runner_kick",
+                    "id": "kick1",
+                    "next": {
+                      "block": {
+                        "type": "runner_walk",
+                        "id": "walk1"
+                      }
+                    }
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "type": "runner_jump",
+                  "id": "jump1"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "run-first",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Bấm Chạy trước, xem Măng vấp ở đâu nhé!",
+      "point": "run"
+    },
+    {
+      "id": "kick-once",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "HIT_CRATE"
+      },
+      "say": "Măng đá được mấy thùng? Khối đá chạy mấy lần?",
+      "point": "block:runner_kick"
+    },
+    {
+      "id": "kick-explain",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "HIT_CRATE",
+        "runCount": {
+          "gte": 2
+        }
+      },
+      "say": "Khối đá ở ngoài khối lặp nên chỉ đá 1 lần.",
+      "point": "block:runner_kick",
+      "priority": 1
+    },
+    {
+      "id": "extra",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "FELL_IN_HOLE"
+      },
+      "say": "Hết thùng rồi thì nhảy. Vòng lặp có thừa không?",
+      "point": "block:cq_repeat"
+    }
+  ],
+  "thinkingHint": "Khối nào chạy 1 lần, khối nào chạy nhiều lần?"
+}

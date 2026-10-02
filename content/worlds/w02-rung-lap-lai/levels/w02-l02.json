@@ -1,0 +1,108 @@
+{
+  "id": "w02-l02",
+  "worldId": "w02-rung-lap-lai",
+  "stage": "guided",
+  "kind": "runner",
+  "mode": "parsons",
+  "title": "Nhảy trong khối lặp",
+  "objective": "Xếp khối nhảy vào bên trong khối lặp nhé!",
+  "learningGoal": "Khối nằm bên trong khối lặp mới được làm lại; khối nằm dưới khối lặp chỉ chạy 1 lần.",
+  "misconception": "Khối nằm ngay dưới khối lặp cũng được lặp lại.",
+  "toolbox": [],
+  "par": 2,
+  "config": {
+    "cells": ["ground", "hole", "ground", "hole", "ground", "hole", "ground", "hole", "flag"],
+    "start": 0,
+    "bamboo": [4]
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false
+        },
+        {
+          "type": "cq_repeat",
+          "id": "rep1",
+          "fields": {
+            "TIMES": 4
+          },
+          "x": 240,
+          "y": 150
+        },
+        {
+          "type": "runner_jump",
+          "id": "jump1",
+          "x": 90,
+          "y": 230
+        }
+      ]
+    }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "rep1",
+              "fields": {
+                "TIMES": 4
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "runner_jump",
+                    "id": "jump1"
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "inside",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Kéo khối nhảy vào bên trong khối lặp nhé.",
+      "point": "block:runner_jump",
+      "spotlight": true
+    },
+    {
+      "id": "outside",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "NOT_AT_GOAL",
+        "orphans": false
+      },
+      "say": "Khối nhảy ở ngoài khối lặp nên chỉ chạy 1 lần.",
+      "point": "block:runner_jump"
+    },
+    {
+      "id": "loose",
+      "when": {
+        "trigger": "run-end",
+        "orphans": true
+      },
+      "say": "Còn khối rời. Nối hết vào khi bắt đầu nhé!"
+    }
+  ],
+  "thinkingHint": "Muốn nhảy nhiều lần, khối nhảy phải nằm ở đâu?"
+}

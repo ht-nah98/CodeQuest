@@ -1,0 +1,127 @@
+{
+  "id": "w02-l12",
+  "worldId": "w02-rung-lap-lai",
+  "stage": "practice",
+  "kind": "maze",
+  "mode": "build",
+  "title": "Vòng quanh khóm tre",
+  "objective": "Đi vòng quanh khóm tre tới đích, chỉ 4 khối nhé!",
+  "learningGoal": "Mỗi cạnh của đường quanh khóm tre giống nhau (tiến, tiến, rẽ phải) nên lặp được cả cạnh.",
+  "misconception": "Mỗi góc rẽ phải ghép riêng, không cho vào khối lặp được.",
+  "toolbox": [
+    {
+      "type": "cq_repeat",
+      "fields": {
+        "TIMES": 2
+      }
+    },
+    "maze_forward",
+    "maze_turn_left",
+    "maze_turn_right"
+  ],
+  "maxBlocks": 4,
+  "par": 4,
+  "config": {
+    "map": ["#####", ".S..#", "###.#", ".G..#", "#####"],
+    "startDir": "E"
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "rep1",
+              "fields": {
+                "TIMES": 3
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "maze_forward",
+                    "id": "fwd1",
+                    "next": {
+                      "block": {
+                        "type": "maze_forward",
+                        "id": "fwd2",
+                        "next": {
+                          "block": {
+                            "type": "maze_turn_right",
+                            "id": "right1"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "cap",
+      "when": {
+        "capacityFull": true,
+        "missing": "cq_repeat"
+      },
+      "say": "Hết chỗ rồi! Bỏ bớt 1 khối để lấy khối lặp nhé.",
+      "point": "capacity"
+    },
+    {
+      "id": "side",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "HIT_WALL",
+        "has": "cq_repeat"
+      },
+      "say": "Mỗi cạnh khóm tre dài mấy ô? Đếm lại nhé!",
+      "point": "stage"
+    },
+    {
+      "id": "left-right",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "HIT_WALL",
+        "has": "maze_turn_left"
+      },
+      "say": "Khóm tre ở bên phải Măng. Rẽ về phía khóm tre!",
+      "point": "toolbox:maze_turn_right",
+      "priority": 1
+    },
+    {
+      "id": "facing-down",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "HIT_WALL",
+        "runCount": {
+          "gte": 3
+        }
+      },
+      "say": "Măng nhìn xuống. Tay trái của Măng ở phía nào?",
+      "point": "stage",
+      "priority": 2
+    },
+    {
+      "id": "more",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "NOT_AT_GOAL",
+        "has": "cq_repeat"
+      },
+      "say": "Măng mới đi mấy cạnh? Còn thiếu cạnh nào?",
+      "point": "stage"
+    }
+  ],
+  "thinkingHint": "Đi hết một cạnh khóm tre, Măng làm những gì?"
+}

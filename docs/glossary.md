@@ -28,6 +28,8 @@ Dùng **đúng** các từ này. Cột "Trong code" là tên dùng cho type, bi�
 | Khối rời | `orphan block` | Khối không nối vào chương trình, bị làm xám và không chạy |
 | Chạy | `run` | Bấm ▶: chạy sandbox rồi phát lại |
 | Lượt chạy | `Run` / `RunOutcome` | Một lần bấm chạy và kết quả của nó |
+| Khối lặp | `cq_repeat` | Khối "lặp N lần": làm các khối bên trong N lần, rồi chạy tiếp khối nằm dưới nó |
+| Vòng (lặp) | iteration | Một lần chạy hết các khối bên trong khối lặp. "Lặp 3 lần" = 3 vòng. Khối nằm trước/sau khối lặp không thuộc vòng nào, chỉ chạy 1 lần |
 | Sự kiện | `GameEvent` | Một hành động mô phỏng ghi vào log (vd `{type:'walk', blockId, from, to}`) |
 | Nhật ký chạy | `eventLog` | Danh sách sự kiện của một lượt chạy |
 | Phát lại | `playback` | Diễn hoạt cảnh từ event log trên sân chơi |
