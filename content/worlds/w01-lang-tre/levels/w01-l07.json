@@ -1,0 +1,97 @@
+{
+  "id": "w01-l07",
+  "worldId": "w01-lang-tre",
+  "stage": "practice",
+  "kind": "runner",
+  "mode": "build",
+  "title": "Cúi dưới cành tre",
+  "objective": "Cành tre thấp quá! Giúp Măng qua cành tới cờ.",
+  "learningGoal": "Dùng khối cúi để chui qua cành thấp; mỗi loại chướng ngại cần khối riêng.",
+  "misconception": "Khối nhảy qua được mọi chướng ngại, kể cả cành tre.",
+  "toolbox": ["runner_walk", "runner_jump", "runner_crouch"],
+  "par": 4,
+  "config": {
+    "cells": ["ground", "branch", "ground", "hole", "ground", "flag"],
+    "start": 0,
+    "bamboo": [1]
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "runner_crouch",
+              "id": "crouch1",
+              "next": {
+                "block": {
+                  "type": "runner_walk",
+                  "id": "walk1",
+                  "next": {
+                    "block": {
+                      "type": "runner_jump",
+                      "id": "jump1",
+                      "next": {
+                        "block": {
+                          "type": "runner_walk",
+                          "id": "walk2"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "crouch-new",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Khối mới: cúi! Măng cúi người, bước qua cành.",
+      "point": "toolbox:runner_crouch",
+      "spotlight": true
+    },
+    {
+      "id": "branch-why",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "HIT_BRANCH"
+      },
+      "say": "Cành ở thấp, đứng hay nhảy đều bị cụng đầu.",
+      "point": "toolbox:runner_crouch"
+    },
+    {
+      "id": "crouch-moves",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "FELL_IN_HOLE",
+        "has": "runner_crouch"
+      },
+      "say": "Cúi cũng bước sang 1 ô đó. Đếm lại nhé!",
+      "point": "stage",
+      "priority": 1
+    },
+    {
+      "id": "hole-why",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "FELL_IN_HOLE"
+      },
+      "say": "Măng phải đứng sát hố rồi mới nhảy.",
+      "point": "stage"
+    }
+  ],
+  "thinkingHint": "Cành tre thấp ngang đầu Măng. Làm sao để chui qua?"
+}

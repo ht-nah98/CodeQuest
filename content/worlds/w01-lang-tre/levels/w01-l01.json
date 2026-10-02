@@ -1,0 +1,99 @@
+{
+  "id": "w01-l01",
+  "worldId": "w01-lang-tre",
+  "stage": "guided",
+  "kind": "runner",
+  "mode": "parsons",
+  "title": "Nối khối đầu tiên",
+  "objective": "Nối các khối \"đi\" vào dưới \"khi bắt đầu\" nhé!",
+  "learningGoal": "Chương trình bắt đầu từ khối \"khi bắt đầu\"; chỉ những khối nối vào nó mới chạy.",
+  "misconception": "Khối rời trên vùng ghép khối vẫn chạy.",
+  "toolbox": [],
+  "par": 2,
+  "config": {
+    "cells": ["ground", "ground", "flag"],
+    "start": 0
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false
+        },
+        {
+          "type": "runner_walk",
+          "id": "walk1",
+          "x": 260,
+          "y": 150
+        },
+        {
+          "type": "runner_walk",
+          "id": "walk2",
+          "x": 120,
+          "y": 240
+        }
+      ]
+    }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "runner_walk",
+              "id": "walk1",
+              "next": {
+                "block": {
+                  "type": "runner_walk",
+                  "id": "walk2"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "connect",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Kéo khối \"đi\" nối vào dưới \"khi bắt đầu\" nhé.",
+      "point": "block:runner_walk",
+      "spotlight": true
+    },
+    {
+      "id": "loose",
+      "when": {
+        "trigger": "run-end",
+        "orphans": true
+      },
+      "say": "Khối rời thì không chạy. Nối nó vào nhé!",
+      "point": "block:runner_walk"
+    },
+    {
+      "id": "one-step",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "NOT_AT_GOAL"
+      },
+      "say": "Mỗi khối đi là 1 bước. Cờ cách Măng 2 bước.",
+      "point": "stage"
+    }
+  ],
+  "thinkingHint": "Khối nào đang nối vào \"khi bắt đầu\"?"
+}

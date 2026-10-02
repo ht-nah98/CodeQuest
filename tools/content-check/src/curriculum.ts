@@ -13,7 +13,7 @@ import { blockTypesOf } from './workspace';
  * Worlds whose world.json is still a temporary stub (content-model.md §7), with the roadmap
  * task that completes them. Rules 4 and 7 only warn for them; remove the entry in that task.
  */
-export const PROVISIONAL_WORLDS: ReadonlyMap<string, string> = new Map([['w01-lang-tre', 'P1-12']]);
+export const PROVISIONAL_WORLDS: ReadonlyMap<string, string> = new Map<string, string>();
 
 /** A file under `worlds/<dir>/`; `id` and `worldId` are read loosely so broken files still count. */
 export interface WorldFile {

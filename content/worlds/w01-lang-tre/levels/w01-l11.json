@@ -1,0 +1,139 @@
+{
+  "id": "w01-l11",
+  "worldId": "w01-lang-tre",
+  "stage": "practice",
+  "kind": "runner",
+  "mode": "bughunt",
+  "title": "Hai khối lộn chỗ",
+  "objective": "Có 2 khối bị đổi chỗ. Con xếp lại giúp Măng!",
+  "learningGoal": "Nhận ra hai khối đúng nhưng đặt sai thứ tự, và đổi chỗ chúng lại.",
+  "misconception": "Chương trình có đủ khối là chạy đúng, thứ tự không quan trọng.",
+  "toolbox": ["runner_walk", "runner_jump", "runner_crouch", "runner_kick"],
+  "par": 6,
+  "parEdits": 2,
+  "config": {
+    "cells": ["ground", "ground", "crate", "hole", "ground", "branch", "flag"],
+    "start": 0
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "runner_walk",
+              "id": "walk1",
+              "next": {
+                "block": {
+                  "type": "runner_kick",
+                  "id": "kick1",
+                  "next": {
+                    "block": {
+                      "type": "runner_walk",
+                      "id": "walk2",
+                      "next": {
+                        "block": {
+                          "type": "runner_crouch",
+                          "id": "crouch1",
+                          "next": {
+                            "block": {
+                              "type": "runner_jump",
+                              "id": "jump1",
+                              "next": {
+                                "block": {
+                                  "type": "runner_walk",
+                                  "id": "walk3"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "runner_walk",
+              "id": "walk1",
+              "next": {
+                "block": {
+                  "type": "runner_kick",
+                  "id": "kick1",
+                  "next": {
+                    "block": {
+                      "type": "runner_walk",
+                      "id": "walk2",
+                      "next": {
+                        "block": {
+                          "type": "runner_jump",
+                          "id": "jump1",
+                          "next": {
+                            "block": {
+                              "type": "runner_crouch",
+                              "id": "crouch1",
+                              "next": {
+                                "block": {
+                                  "type": "runner_walk",
+                                  "id": "walk3"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "order",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "FELL_IN_HOLE"
+      },
+      "say": "Tới hố thì Măng làm gì? Cúi hay nhảy?",
+      "point": "stage"
+    },
+    {
+      "id": "branch",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "HIT_BRANCH"
+      },
+      "say": "Tới cành thì Măng phải cúi, đúng không?",
+      "point": "stage"
+    }
+  ],
+  "thinkingHint": "Đọc từng khối: tới hố, tới cành, Măng đang làm gì?"
+}

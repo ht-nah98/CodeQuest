@@ -1,0 +1,111 @@
+{
+  "id": "w01-lesson",
+  "worldId": "w01-lang-tre",
+  "title": "Chương trình là gì?",
+  "cards": [
+    {
+      "type": "say",
+      "pose": "oops",
+      "text": "Ối! Gió to thổi bay hết măng của làng rồi."
+    },
+    {
+      "type": "say",
+      "pose": "talk",
+      "text": "Con giúp Măng nhặt lại nhé! Mình cùng ghép khối."
+    },
+    {
+      "type": "say",
+      "pose": "point",
+      "text": "Chương trình là các khối con ghép. Măng làm đúng từng khối."
+    },
+    {
+      "type": "demo",
+      "text": "Bấm Chạy nhé: mỗi khối đi là 1 bước.",
+      "kind": "runner",
+      "config": {
+        "cells": ["ground", "ground", "ground", "flag"],
+        "start": 0
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "runner_walk",
+                  "id": "walk1",
+                  "next": {
+                    "block": {
+                      "type": "runner_walk",
+                      "id": "walk2",
+                      "next": {
+                        "block": {
+                          "type": "runner_walk",
+                          "id": "walk3"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "demo",
+      "text": "Một khối chưa nối. Đoán xem Măng tới cờ không?",
+      "kind": "runner",
+      "config": {
+        "cells": ["ground", "ground", "ground", "flag"],
+        "start": 0
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "runner_walk",
+                  "id": "walk1",
+                  "next": {
+                    "block": {
+                      "type": "runner_walk",
+                      "id": "walk2"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "type": "runner_walk",
+              "id": "walk3",
+              "x": 60,
+              "y": 220
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "quiz",
+      "text": "Con nối 2 khối đi. Măng đi mấy bước?",
+      "options": ["1 bước", "2 bước", "Tự đi tới cờ"],
+      "correct": 1,
+      "explain": "Máy chỉ làm đúng các khối con nối vào."
+    }
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "id": "w01-l04",
+  "worldId": "w01-lang-tre",
+  "stage": "practice",
+  "kind": "runner",
+  "mode": "predict",
+  "title": "Măng dừng ở đâu?",
+  "objective": "Đọc các khối rồi đoán Măng dừng ở ô nào nhé!",
+  "learningGoal": "Đọc chương trình từng khối một; hết khối thì Măng đứng lại, dù chưa tới cờ.",
+  "misconception": "Hết khối rồi Măng vẫn tự đi tiếp tới cờ.",
+  "toolbox": [],
+  "config": {
+    "cells": ["ground", "ground", "hole", "ground", "ground", "flag"],
+    "start": 0
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "runner_walk",
+              "id": "walk1",
+              "next": {
+                "block": {
+                  "type": "runner_jump",
+                  "id": "jump1",
+                  "next": {
+                    "block": {
+                      "type": "runner_walk",
+                      "id": "walk2"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "predict": {
+    "options": [
+      {
+        "key": "win",
+        "label": "Tới lá cờ"
+      },
+      {
+        "key": "stop@4",
+        "label": "Đứng ngay trước lá cờ"
+      },
+      {
+        "key": "stop@3",
+        "label": "Đứng ngay sau hố"
+      },
+      {
+        "key": "crash:FELL_IN_HOLE@2",
+        "label": "Rơi xuống hố"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "read",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Đọc từng khối từ trên xuống, chỉ tay theo Măng.",
+      "point": "block:cq_start"
+    }
+  ],
+  "thinkingHint": "Sau mỗi khối, Măng đứng ở ô nào?"
+}

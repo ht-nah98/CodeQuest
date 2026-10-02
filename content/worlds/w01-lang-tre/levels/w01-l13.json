@@ -1,0 +1,128 @@
+{
+  "id": "w01-l13",
+  "worldId": "w01-lang-tre",
+  "stage": "challenge",
+  "kind": "runner",
+  "mode": "build",
+  "title": "Đường dài nhiều thử thách",
+  "objective": "Đủ cả hố, cành, thùng! Dùng không quá 12 khối.",
+  "learningGoal": "Phối hợp đủ 4 khối theo đúng thứ tự trên một đường dài, trong giới hạn khối.",
+  "misconception": "Gặp chướng ngại nào cũng nhảy là qua.",
+  "toolbox": ["runner_walk", "runner_jump", "runner_crouch", "runner_kick"],
+  "maxBlocks": 12,
+  "par": 10,
+  "config": {
+    "cells": [
+      "ground",
+      "ground",
+      "branch",
+      "ground",
+      "crate",
+      "hole",
+      "ground",
+      "branch",
+      "ground",
+      "hole",
+      "ground",
+      "flag"
+    ],
+    "start": 0,
+    "bamboo": [3, 7]
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "runner_walk",
+              "id": "walk1",
+              "next": {
+                "block": {
+                  "type": "runner_crouch",
+                  "id": "crouch1",
+                  "next": {
+                    "block": {
+                      "type": "runner_walk",
+                      "id": "walk2",
+                      "next": {
+                        "block": {
+                          "type": "runner_kick",
+                          "id": "kick1",
+                          "next": {
+                            "block": {
+                              "type": "runner_walk",
+                              "id": "walk3",
+                              "next": {
+                                "block": {
+                                  "type": "runner_jump",
+                                  "id": "jump1",
+                                  "next": {
+                                    "block": {
+                                      "type": "runner_crouch",
+                                      "id": "crouch2",
+                                      "next": {
+                                        "block": {
+                                          "type": "runner_walk",
+                                          "id": "walk4",
+                                          "next": {
+                                            "block": {
+                                              "type": "runner_jump",
+                                              "id": "jump2",
+                                              "next": {
+                                                "block": {
+                                                  "type": "runner_walk",
+                                                  "id": "walk5"
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "cap",
+      "when": {
+        "capacityFull": true
+      },
+      "say": "Hết chỗ rồi. Có khối nào thừa không?",
+      "point": "capacity"
+    },
+    {
+      "id": "fix-there",
+      "when": {
+        "trigger": "run-end",
+        "failStreak": {
+          "gte": 2
+        }
+      },
+      "say": "Xem Măng vấp ở ô nào, sửa đúng chỗ đó.",
+      "point": "stage"
+    }
+  ],
+  "thinkingHint": "Đi lần lượt từng ô: ô này có gì, cần khối nào?"
+}

@@ -1,0 +1,129 @@
+{
+  "id": "w01-boss",
+  "worldId": "w01-lang-tre",
+  "stage": "boss",
+  "kind": "runner",
+  "mode": "build",
+  "title": "Mang măng về làng",
+  "objective": "Nhặt đủ 3 cây măng rồi chạy về lá cờ nhé!",
+  "learningGoal": "Tổng hợp cả 4 khối trên đường dài; Măng chỉ nhặt măng ở ô mà nó dừng lại.",
+  "misconception": "Nhảy qua ô có măng thì vẫn nhặt được măng.",
+  "toolbox": ["runner_walk", "runner_jump", "runner_crouch", "runner_kick"],
+  "maxBlocks": 11,
+  "par": 9,
+  "config": {
+    "cells": [
+      "ground",
+      "ground",
+      "crate",
+      "branch",
+      "ground",
+      "hole",
+      "ground",
+      "ground",
+      "ground",
+      "flag"
+    ],
+    "start": 0,
+    "bamboo": [3, 7, 8],
+    "goal": {
+      "collectAll": true
+    }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "runner_walk",
+              "id": "walk1",
+              "next": {
+                "block": {
+                  "type": "runner_kick",
+                  "id": "kick1",
+                  "next": {
+                    "block": {
+                      "type": "runner_walk",
+                      "id": "walk2",
+                      "next": {
+                        "block": {
+                          "type": "runner_crouch",
+                          "id": "crouch1",
+                          "next": {
+                            "block": {
+                              "type": "runner_walk",
+                              "id": "walk3",
+                              "next": {
+                                "block": {
+                                  "type": "runner_jump",
+                                  "id": "jump1",
+                                  "next": {
+                                    "block": {
+                                      "type": "runner_walk",
+                                      "id": "walk4",
+                                      "next": {
+                                        "block": {
+                                          "type": "runner_walk",
+                                          "id": "walk5",
+                                          "next": {
+                                            "block": {
+                                              "type": "runner_walk",
+                                              "id": "walk6"
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "story",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Có cây măng mắc trên cành tre đó!",
+      "point": "stage"
+    },
+    {
+      "id": "missed",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "MISSED_ITEMS"
+      },
+      "say": "Nhảy qua thì không nhặt được măng đâu!",
+      "point": "stage"
+    },
+    {
+      "id": "cap",
+      "when": {
+        "capacityFull": true
+      },
+      "say": "Hết chỗ rồi. Có khối nào thừa không?",
+      "point": "capacity"
+    }
+  ],
+  "thinkingHint": "Măng phải dừng ở những ô nào để nhặt măng?"
+}

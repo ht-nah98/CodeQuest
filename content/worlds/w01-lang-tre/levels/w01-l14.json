@@ -1,0 +1,162 @@
+{
+  "id": "w01-l14",
+  "worldId": "w01-lang-tre",
+  "stage": "challenge",
+  "kind": "maze",
+  "mode": "bughunt",
+  "title": "Mê cung chữ Z",
+  "objective": "Chương trình có 2 lỗi. Con sửa giúp Măng nhé!",
+  "learningGoal": "Sửa lần lượt từng lỗi: chạy, nhìn chỗ Măng vấp, sửa, rồi chạy lại.",
+  "misconception": "Sửa xong 1 lỗi là chương trình chạy đúng hết.",
+  "toolbox": ["maze_forward", "maze_turn_left", "maze_turn_right"],
+  "par": 8,
+  "parEdits": 2,
+  "config": {
+    "map": ["######", "##..G.", "##.###", "S...##", "######"],
+    "startDir": "E"
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "maze_forward",
+              "id": "fwd1",
+              "next": {
+                "block": {
+                  "type": "maze_forward",
+                  "id": "fwd2",
+                  "next": {
+                    "block": {
+                      "type": "maze_turn_right",
+                      "id": "right1",
+                      "next": {
+                        "block": {
+                          "type": "maze_forward",
+                          "id": "fwd3",
+                          "next": {
+                            "block": {
+                              "type": "maze_turn_right",
+                              "id": "right2",
+                              "next": {
+                                "block": {
+                                  "type": "maze_forward",
+                                  "id": "fwd4",
+                                  "next": {
+                                    "block": {
+                                      "type": "maze_forward",
+                                      "id": "fwd5"
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "maze_forward",
+              "id": "fwd1",
+              "next": {
+                "block": {
+                  "type": "maze_forward",
+                  "id": "fwd2",
+                  "next": {
+                    "block": {
+                      "type": "maze_turn_left",
+                      "id": "left1",
+                      "next": {
+                        "block": {
+                          "type": "maze_forward",
+                          "id": "fwd3",
+                          "next": {
+                            "block": {
+                              "type": "maze_forward",
+                              "id": "fwd4",
+                              "next": {
+                                "block": {
+                                  "type": "maze_turn_right",
+                                  "id": "right1",
+                                  "next": {
+                                    "block": {
+                                      "type": "maze_forward",
+                                      "id": "fwd5",
+                                      "next": {
+                                        "block": {
+                                          "type": "maze_forward",
+                                          "id": "fwd6"
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "wall",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "HIT_WALL"
+      },
+      "say": "Đụng tường rồi! Măng có rẽ đúng phía không?",
+      "point": "stage"
+    },
+    {
+      "id": "again",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "HIT_WALL",
+        "has": "maze_turn_left",
+        "runCount": {
+          "gte": 2
+        }
+      },
+      "say": "Đoạn đi lên dài mấy ô? Đếm thử nhé!",
+      "point": "stage",
+      "priority": 1
+    }
+  ],
+  "thinkingHint": "Chữ Z có 3 đoạn. Mỗi đoạn Măng đi mấy ô, rẽ phía nào?"
+}

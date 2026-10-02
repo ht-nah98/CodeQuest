@@ -1,7 +1,8 @@
 // Edge cases of rules 3–8 and 12–18 on top of fixtures/baseline (one fixture per rule lives in
 // fixtures.test.ts).
 import { fileURLToPath } from 'node:url';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+import { PROVISIONAL_WORLDS } from './curriculum';
 import { loadContentFiles } from './load';
 import { checkContent, publicAssetExists, type ContentFile, type Issue } from './rules';
 import { countWords } from './words';
@@ -141,18 +142,35 @@ describe('rule 4', () => {
     ]);
   });
 
-  it('only warns for a provisional world (w01-lang-tre until P1-12)', () => {
+  it('reports w01-lang-tre strictly now that P1-12 completed it', () => {
     const t = renameWorld(tree(), 'w01-lang-tre');
     get(t, 'worlds/w01-lang-tre/world.json').lessonIds = [];
     const { errors, warnings } = run(t);
-    expect(errors).toEqual([]);
-    expect(warnings).toEqual([
-      {
-        path: 'worlds/w01-lang-tre/world.json',
-        rule: 4,
-        message: 'world has no lesson (provisional world until P1-12)',
-      },
+    expect(errors).toEqual([
+      { path: 'worlds/w01-lang-tre/world.json', rule: 4, message: 'world has no lesson' },
     ]);
+    expect(warnings).toEqual([]);
+  });
+
+  it('only warns for a world listed in PROVISIONAL_WORLDS', () => {
+    const spy = vi
+      .spyOn(PROVISIONAL_WORLDS, 'get')
+      .mockImplementation((id) => (id === 'w01-fixture' ? 'P9-99' : undefined));
+    try {
+      const t = tree();
+      world(t).lessonIds = [];
+      const { errors, warnings } = run(t);
+      expect(errors).toEqual([]);
+      expect(warnings).toEqual([
+        {
+          path: `${W}/world.json`,
+          rule: 4,
+          message: 'world has no lesson (provisional world until P9-99)',
+        },
+      ]);
+    } finally {
+      spy.mockRestore();
+    }
   });
 });
 
