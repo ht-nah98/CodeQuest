@@ -7,16 +7,16 @@
 |---|---|---|---|---|
 | P1-01 | Kiểu game `runner` đầy đủ | P0-07 | AI | ✅ |
 | P1-02 | Kiểu game `maze` | P0-03 | AI | ✅ |
-| P1-03 | `RunnerStage` đầy đủ | P1-01 | AI | ⬜ |
-| P1-04 | `MazeStage` | P1-02 (P0-08 nếu có, không bắt buộc) | AI | ⬜ |
-| P1-05 | `StageController` đầy đủ | P0-07 | AI | ⬜ |
+| P1-03 | `RunnerStage` đầy đủ | P1-01 | AI | ✅ |
+| P1-04 | `MazeStage` | P1-02 (P0-08 nếu có, không bắt buộc) | AI | ✅ |
+| P1-05 | `StageController` đầy đủ | P0-07 | AI | ✅ |
 | P1-06 | 4 cách chơi: parsons, predict, bughunt, creative | P1-01, P1-02, P1-03, P1-04, P1-05 | AI | ⬜ |
-| P1-07 | Hint engine + gợi ý tầng 1–3 + popover chỉ bước tiếp | P0-05, P1-08 | AI | ⬜ |
+| P1-07 | Hint engine + gợi ý tầng 1–3 + popover chỉ bước tiếp | P0-05, P1-08 | AI | 🟨 |
 | P1-08 | Package `rewards` đầy đủ | P0-02 | AI | ✅ |
 | P1-09 | Lớp dữ liệu Dexie, hồ sơ + PIN, bản nháp, sao lưu/khôi phục | P0-01 | AI | ✅ |
-| P1-10 | Màn hình: hồ sơ, bản đồ, thế giới, bài giảng, kết quả, cài đặt | P1-08, P1-09 | AI | ⬜ |
-| P1-11 | Công cụ `content:check` đủ 18 luật | P1-01, P1-02 | AI | ⬜ |
-| P1-12 | Nội dung Thế giới 1 (15 màn + bài giảng) | P1-11 | AI soạn nháp · HLV duyệt | ⬜ |
+| P1-10 | Màn hình: hồ sơ, bản đồ, thế giới, bài giảng, kết quả, cài đặt | P1-08, P1-09 | AI | ✅ |
+| P1-11 | Công cụ `content:check` đủ 18 luật | P1-01, P1-02 | AI | ✅ |
+| P1-12 | Nội dung Thế giới 1 (15 màn + bài giảng) | P1-11 | AI soạn nháp · HLV duyệt | 🟨 |
 | P1-13 | Nội dung Thế giới 2 (20 màn + bài giảng) | P1-12 | AI soạn nháp · HLV duyệt | ⬜ |
 | P1-14 | Âm thanh & giọng đọc | P1-10 | AI · HLV chọn giọng | ⬜ |
 | P1-15 | E2E smoke + CI đầy đủ | P1-10 | AI | ⬜ |
