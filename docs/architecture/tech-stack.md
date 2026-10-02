@@ -24,7 +24,7 @@ Quy tắc:
 | `howler` | 2.2.4 | web | Âm thanh | + `@types/howler` 2.2.13 |
 | `zustand` | 5.0.15 | web | State UI phiên chơi | Không dùng `persist`; lưu trữ đi qua repository |
 | `dexie` | 4.4.6 | web | IndexedDB | + `dexie-react-hooks` 4.4.0 |
-| `zod` | 4.6.5 | content-schema | Schema nội dung | |
+| `zod` | 4.6.5 | content-schema, engine, games, web | Schema nội dung; web dùng để kiểm file sao lưu khi khôi phục | |
 | `@supabase/supabase-js` | 2.117.2 | web | Backend | Từ GĐ 2 |
 | `tailwindcss` + `@tailwindcss/vite` | 4.3.3 | web | CSS utility, đọc token từ CSS variable | Token ở `apps/web/src/ui/tokens.css` (`@theme static`); bảng màu chép sang `ui/tokens.ts` cho Blockly/Pixi, có test chống lệch |
 | `vite-plugin-pwa` | 1.3.0 | web | Chơi offline | Từ GĐ 2 |

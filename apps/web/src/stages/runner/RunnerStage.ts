@@ -99,6 +99,9 @@ export class RunnerStage implements StageRenderer<RunnerEvent> {
         return MS.crouch + MS.jump + MS.offTrackFall;
       case 'win':
         return MS.cheer;
+      default:
+        // crouch, kick, collect, bump and missed get their animations in P1-03.
+        return 0;
     }
   }
 

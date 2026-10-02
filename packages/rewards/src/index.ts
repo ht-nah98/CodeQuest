@@ -23,3 +23,21 @@ export type {
   LevelSession,
   StarCount,
 } from './types';
+export {
+  applyRun,
+  computeCreativeSaveRewards,
+  computeLessonRewards,
+  computeLevelRewards,
+  starterEntry,
+} from './computeRewards';
+export type { LevelRewards, RunState } from './computeRewards';
+export { computeStars } from './computeStars';
+export { buyHint, hintPrice } from './hints';
+export type { BuyHintResult } from './hints';
+export { isUnlocked } from './isUnlocked';
+export type { UnlockContext, UnlockTarget } from './isUnlocked';
+export { balance, canAfford } from './ledger';
+export { localDay } from './localDay';
+export { mergeProgress, recordSession } from './progress';
+export { failStreak, predictPickSummary, WRONG_ANSWER } from './session';
+export { streak } from './streak';

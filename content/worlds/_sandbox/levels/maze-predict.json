@@ -1,0 +1,65 @@
+{
+  "id": "maze-predict",
+  "worldId": "_sandbox",
+  "stage": "practice",
+  "kind": "maze",
+  "mode": "predict",
+  "title": "Đoán xem Măng đi đâu",
+  "objective": "Đoán xem Măng dừng ở đâu nhé!",
+  "learningGoal": "Đọc chương trình và đoán Măng đi tới đâu, có đâm tường không.",
+  "misconception": "Măng tự rẽ khi gặp góc.",
+  "toolbox": [],
+  "config": {
+    "map": ["#####", "#S..#", "###.#", "###G.", "#####"],
+    "startDir": "E"
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "maze_forward",
+              "id": "fwd1",
+              "next": {
+                "block": {
+                  "type": "maze_forward",
+                  "id": "fwd2",
+                  "next": {
+                    "block": {
+                      "type": "maze_forward",
+                      "id": "fwd3"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "predict": {
+    "options": [
+      {
+        "key": "win",
+        "label": "Tới đích"
+      },
+      {
+        "key": "stop@1,2",
+        "label": "Dừng giữa đường"
+      },
+      {
+        "key": "crash:HIT_WALL@1,3",
+        "label": "Đâm tường ở góc"
+      }
+    ]
+  },
+  "hints": []
+}

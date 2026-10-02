@@ -3,7 +3,8 @@ import { expect, type Locator, test } from '@playwright/test';
 const SHOTS = 'test-results/dev-stage';
 
 async function waitForStage(stage: Locator): Promise<void> {
-  await expect(stage).toHaveAttribute('data-ready', 'true');
+  // A cold dev server compiles Pixi on demand; allow more than the default 5 s.
+  await expect(stage).toHaveAttribute('data-ready', 'true', { timeout: 30_000 });
   // StrictMode mounts twice in dev; exactly one canvas must survive.
   await expect(stage.locator('canvas')).toHaveCount(1);
 }

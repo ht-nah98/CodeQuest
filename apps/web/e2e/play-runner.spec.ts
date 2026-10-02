@@ -79,7 +79,11 @@ test.afterEach(() => {
 
 async function open(page: Page): Promise<void> {
   await page.goto(`/play/${LEVEL_ID}`);
-  await expect(page.getByTestId('play-stage')).toHaveAttribute('data-ready', 'true');
+  // The first visit on a cold dev server compiles Blockly, Pixi and the engine on demand,
+  // which can take well over the default 5 s while other workers do the same.
+  await expect(page.getByTestId('play-stage')).toHaveAttribute('data-ready', 'true', {
+    timeout: 30_000,
+  });
   // StrictMode mounts twice in dev; exactly one canvas must survive.
   await expect(page.getByTestId('play-stage').locator('canvas')).toHaveCount(1);
   await page.waitForFunction(

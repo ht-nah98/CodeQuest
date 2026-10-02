@@ -7,7 +7,7 @@ import { RUNNER_REASONS } from './reasons';
 import { createRunnerApi } from './sim';
 import { createRunnerState, type RunnerState } from './state';
 
-/** "Đường chạy của Măng": one lane, Măng walks and jumps right to the flag. */
+/** "Đường chạy của Măng": one lane; Măng walks, jumps, crouches and kicks right to the flag. */
 export const runner: GameKindDefinition<RunnerConfig, RunnerState, RunnerEvent> = {
   id: 'runner',
   version: 1,
@@ -20,9 +20,15 @@ export const runner: GameKindDefinition<RunnerConfig, RunnerState, RunnerEvent> 
   predictAnswer: runnerPredictAnswer,
 };
 
-export { RUNNER_CELLS, RUNNER_MAX_CELLS, RUNNER_MIN_CELLS, runnerConfigSchema } from './config';
-export type { RunnerCell, RunnerConfig } from './config';
-export type { RunnerEvent, RunnerEventType } from './events';
+export {
+  RUNNER_AHEAD_KINDS,
+  RUNNER_CELLS,
+  RUNNER_MAX_CELLS,
+  RUNNER_MIN_CELLS,
+  runnerConfigSchema,
+} from './config';
+export type { RunnerAheadKind, RunnerCell, RunnerConfig } from './config';
+export type { RunnerEvent, RunnerEventType, RunnerMove, RunnerObstacle } from './events';
 export { RUNNER_REASONS } from './reasons';
 export type { RunnerReason } from './reasons';
 export type { RunnerState } from './state';

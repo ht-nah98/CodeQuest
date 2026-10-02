@@ -1,0 +1,65 @@
+{
+  "id": "maze-try",
+  "worldId": "_sandbox",
+  "stage": "guided",
+  "kind": "maze",
+  "mode": "build",
+  "title": "Thử mê cung",
+  "objective": "Đưa Măng tới đích nhé!",
+  "learningGoal": "Dùng khối rẽ để đổi hướng trước khi đâm tường.",
+  "misconception": "Khối tiến tự đi theo đường cong.",
+  "toolbox": ["maze_forward", "maze_turn_left", "maze_turn_right"],
+  "par": 5,
+  "maxBlocks": 8,
+  "config": {
+    "map": ["#####", "#S..#", "###.#", "###G.", "#####"],
+    "startDir": "E"
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "maze_forward",
+              "id": "fwd1",
+              "next": {
+                "block": {
+                  "type": "maze_forward",
+                  "id": "fwd2",
+                  "next": {
+                    "block": {
+                      "type": "maze_turn_right",
+                      "id": "right1",
+                      "next": {
+                        "block": {
+                          "type": "maze_forward",
+                          "id": "fwd3",
+                          "next": { "block": { "type": "maze_forward", "id": "fwd4" } }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "wall-turn",
+      "when": { "trigger": "run-end", "lastReason": "HIT_WALL" },
+      "say": "Tới góc rồi thì rẽ nhé!",
+      "point": "stage"
+    }
+  ]
+}

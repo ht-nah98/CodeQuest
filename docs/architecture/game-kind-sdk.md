@@ -84,15 +84,13 @@ packages/games/src/runner/
 
 // sim.ts
 jump: (blockId) => {
-  const id = String(blockId), from = s.pos, over = from + 1, to = from + 2;
-  // Luật đầy đủ: product/game-kinds.md §3.1, bảng "nhảy"
-  if (over >= s.cells.length || to >= s.cells.length) { ctx.emit({ type: 'offTrack', from }, id); ctx.stop('crash', 'OFF_TRACK'); }
-  crashIfBlocked(ctx, s, over, id, /* overhead */ true);   // branch/crate ở ô bay qua → crash
-  crashIfBlocked(ctx, s, to, id, false);                   // hole/branch/crate ở ô tiếp đất → crash
+  const id = String(blockId), from = ctx.state.pos, to = from + 2;
+  // Luật đầy đủ: product/game-kinds.md §3.1, bảng "nhảy". Ô from+1 luôn nằm trong đường.
+  crashIfBlocked(ctx, from + 1, 'jump', id);                // branch/crate ở ô bay qua → bump + crash
+  if (to >= ctx.state.cells.length) { ctx.state.crashAt = from; ctx.emit({ type: 'offTrack', from }, id); ctx.stop('crash', 'OFF_TRACK'); }
+  crashIfBlocked(ctx, to, 'jump', id);                      // branch/crate ở ô tiếp đất → bump + crash
   ctx.emit({ type: 'jump', from, to }, id);
-  s.pos = to;
-  collectAt(ctx, s, to, id);
-  finishIfOnFlag(ctx, s, id);                              // success, hoặc incomplete MISSED_ITEMS
+  arrive(ctx, to, id);   // hố → fall; măng → collect; cờ → win (success) hoặc missed (MISSED_ITEMS)
 }
 ```
 
@@ -103,22 +101,48 @@ jump: (blockId) => {
 4. Va chạm phải emit một event thất bại **trước** khi `stop`, để sân chơi diễn được cảnh ngã/đâm.
 5. Mọi `reasonCode` mới phải được liệt kê trong `reasonCodes` **và** có câu tiếng Việt trong `content/shared/feedback.json`.
 
-### 1.1 Event của `runner` (đã cài ở P0-07)
-Type: `RunnerEvent` export từ `@codequest/games` (`packages/games/src/runner/events.ts`). Mọi event có `blockId` của khối gây ra nó; engine chèn thêm `highlight` trước mỗi câu lệnh.
+### 1.1 Event của `runner` (P0-07, đủ luật ở P1-01)
+Type: `RunnerEvent` export từ `@codequest/games` (`packages/games/src/runner/events.ts`), kèm `RunnerObstacle` (`'branch' | 'crate'`), `RunnerMove` (`'walk' | 'crouch' | 'jump'`), `RUNNER_AHEAD_KINDS`. Mọi event có `blockId` của khối gây ra nó; engine chèn thêm `highlight` trước mỗi câu lệnh. Luật đầy đủ: `product/game-kinds.md` §3.1.
 
 | Event | Trường | Ý nghĩa cho sân chơi |
 |---|---|---|
 | `walk` | `from`, `to` (= from+1) | Đi sang ô kế |
+| `crouch` | `from`, `to` (= from+1) | Cúi người đi sang ô kế (chui dưới cành nếu ô `to` là `branch`) |
 | `jump` | `from`, `to` (= from+2) | Nhảy vòng cung qua ô from+1, tiếp đất ở `to` |
-| `fall` | `at` | Rơi xuống hố ở ô `at`. Luôn đi **ngay sau** `walk`/`jump` có `to = at`, cùng `blockId`; lượt chạy kết thúc `crash` / `FELL_IN_HOLE` |
+| `kick` | `at` (= ô Măng + 1), `hit` | Măng đá ô `at`, **đứng yên**. `hit: true`: thùng đổ, từ đây ô `at` là `ground`. `hit: false`: đá hụt, không thua |
+| `collect` | `at` | Nhặt măng ở ô `at` (ô Măng vừa dừng). Đi ngay sau `walk`/`crouch`/`jump` có `to = at`, cùng `blockId`. Bay qua măng thì không nhặt |
+| `fall` | `at` | Rơi xuống hố ở ô `at`. Luôn đi **ngay sau** `walk`/`crouch`/`jump` có `to = at`, cùng `blockId`; lượt chạy kết thúc `crash` / `FELL_IN_HOLE` |
+| `bump` | `from`, `at`, `obstacle`, `move` | Măng đang `move` từ `from` thì va `obstacle` ở ô `at` và **vẫn ở `from`** (bật lại). **Không** có `walk`/`crouch`/`jump` đi trước. Với `move: 'jump'`: `at = from+1` là va giữa không trung, `at = from+2` là va lúc tiếp đất. Lượt chạy kết thúc `crash` / `HIT_BRANCH` (`obstacle: 'branch'`) hoặc `HIT_CRATE` (`'crate'`) |
 | `offTrack` | `from` | Nhảy từ `from` ra khỏi cuối đường (đứng ở ô áp chót mà nhảy, kể cả bay qua cờ). **Không** có `jump` đi trước; lượt chạy kết thúc `crash` / `OFF_TRACK` |
-| `win` | `at` | Đứng trên cờ ở ô `at`: ăn mừng. Đi ngay sau `walk`/`jump` tới cờ, cùng `blockId`; lượt chạy kết thúc `success` |
+| `win` | `at` | Đứng trên cờ ở ô `at`: ăn mừng. Đi ngay sau `walk`/`crouch`/`jump` tới cờ, cùng `blockId`; lượt chạy kết thúc `success` |
+| `missed` | `at`, `left` | Tới cờ ở ô `at` nhưng `goal.collectAll` và còn măng ở các ô `left` (tăng dần): Măng tiếc, măng còn lại nhấp nháy. Thay cho `win`; lượt chạy kết thúc `incomplete` / `MISSED_ITEMS` |
+
+Thứ tự trong một khối: kiểm tra chướng ngại (`bump` / `offTrack`) → di chuyển (`walk`/`crouch`/`jump`) → `fall` **hoặc** `collect` → `win` / `missed`. Nhảy: xét ô bay qua trước, rồi tới cuối đường, rồi ô tiếp đất (cành ở ô bay qua + hố ở ô tiếp đất → `HIT_BRANCH`). Cảm biến `isAhead` không emit event (chỉ đọc ô from+1; ô ngoài đường → `false`); khối `controls_if` chứa nó được highlight như mọi câu lệnh.
 
 Hết chương trình mà chưa tới cờ: không có event riêng, lượt chạy kết thúc `incomplete` / `NOT_AT_GOAL` (sân chơi giữ Măng đứng ở ô cuối cùng). Khối gây lỗi để rung = `blockId` của event cuối cùng.
 
-Bản P0-07 là bản tối thiểu: ô `ground` / `hole` / `flag`, khối `runner_walk` / `runner_jump`, reason `FELL_IN_HOLE` / `OFF_TRACK` / `NOT_AT_GOAL`. Ô `branch` / `crate`, măng (`bamboo`, `goal.collectAll`), khối cúi / đá / cảm biến và các event `crouch`, `kick`, `collect`, `bump` thêm ở P1-01 theo `product/game-kinds.md` §3.1. Khối tạm chỉ có chữ (chưa có `field_image`) vì `apps/web/public/icons/` chưa có icon.
+Config: `cells` (`ground`/`hole`/`branch`/`crate`/`flag`), `start`, `bamboo?: number[]` (ô `ground`/`branch`, nằm **sau** `start`, không trùng), `goal?: { collectAll?: boolean }` (`collectAll: true` cần ≥ 1 măng). `RUNNER_AHEAD_KINDS` nằm ở `config.ts`. `state.cells` là bản sao vì thùng bị đá thành `ground`; `level.config` không bị sửa. Khối tạm chỉ có chữ (chưa có `field_image`) vì `apps/web/public/icons/` chưa có icon. Cảm biến `runner_is_ahead` là khối giá trị (`output: 'Boolean'`, `sensor_blocks`), dropdown `KIND` = `HOLE`/`BRANCH`/`CRATE`/`CLEAR` (nhãn hố/cành/thùng/ô trống), generator `isAhead('<KIND>', '<blockId>')`.
 
-`predictAnswer` của runner: với `crash:OFF_TRACK@<ô>`, ô là **ô Măng nhảy đi** (ô tiếp đất không tồn tại); với `FELL_IN_HOLE` là ô hố. Kết quả `timeout`/`error` trả đúng tên kết quả (`timeout`, `error`).
+`predictAnswer` của runner: `win` · `stop@<ô>` (hết chương trình ở ô đó, `NOT_AT_GOAL`) · `missed@<ô cờ>` (`MISSED_ITEMS`) · `crash:<REASON>@<ô>`. Ô của crash là ô hố (`FELL_IN_HOLE`) hoặc ô chướng ngại bị va (`HIT_BRANCH`/`HIT_CRATE`, tức `bump.at`); với `OFF_TRACK` là **ô Măng nhảy đi** (ô tiếp đất không tồn tại). Kết quả `timeout`/`error` trả đúng tên kết quả (`timeout`, `error`).
+
+### 1.2 Event của `maze` (P1-02)
+Type: `MazeEvent` export từ `@codequest/games` (`packages/games/src/maze/events.ts`). Ô viết `[r, c]` (hàng, cột, từ 0, hàng 0 ở trên cùng); hướng là `'N' | 'E' | 'S' | 'W'` (N = lên trên). Mọi event có `blockId` của khối gây ra nó; engine chèn thêm `highlight` trước mỗi câu lệnh (khối cảm biến là khối giá trị nên không có `highlight` riêng và không emit event).
+
+| Event | Trường | Ý nghĩa cho sân chơi |
+|---|---|---|
+| `move` | `from`, `to`, `dir` | Đi một ô từ `from` sang `to` (kề nhau theo `dir`). Có thể đi vào `.`, `S`, `b`, `G` |
+| `turn` | `from`, `to` (hướng) | Quay 90° tại chỗ: rẽ trái N→W→S→E→N, rẽ phải N→E→S→W→N |
+| `bump` | `at`, `dir` | Đứng ở `at`, nhìn `dir`, tiến vào tường `#` hoặc ra ngoài bản đồ: đâm rồi đứng lại ở `at`. **Khác runner:** `at` là ô **của Măng**, không phải ô vật cản; ô tường = `at` + một bước theo `dir` (có thể nằm ngoài bản đồ). **Không** có `move` đi trước; lượt chạy kết thúc `crash` / `HIT_WALL` |
+| `collect` | `at` | Nhặt măng ở ô `b` tại `at`. Đi **ngay sau** `move` có `to = at`, cùng `blockId`; mỗi ô măng chỉ nhặt một lần. Nhặt cả khi màn không có `goal.collectAll` |
+| `win` | `at` | Tới đích `G` ở `at` và đã đủ điều kiện (không `collectAll`, hoặc đã nhặt hết): ăn mừng. Đi **ngay sau** `move` có `to = at` (ô `G` không có măng nên không có `collect` xen giữa), cùng `blockId`; lượt chạy kết thúc `success` **ngay**, các khối sau không chạy |
+
+Tới `G` khi `collectAll` mà còn măng: không có event riêng, `G` như ô thường. Măng còn lại trên sân = các ô `b` của `config.map` trừ các `collect.at` đã diễn (sân chơi tự tính, event không mang số đếm). Hết chương trình: đứng ở `G` mà còn măng → `incomplete` / `MISSED_ITEMS`; không ở `G` → `incomplete` / `NOT_AT_GOAL`. Khối gây lỗi để rung = `blockId` của event cuối cùng.
+
+API trong sandbox: `forward(id)`, `turn('LEFT' | 'RIGHT', id)`, `isPath('AHEAD' | 'LEFT' | 'RIGHT', id)` (ô kề theo hướng tương đối đó nằm trong bản đồ và không phải `#`), `atGoal(id)` (đang đứng ở `G`, bất kể măng). Giá trị lạ → `INTERNAL_ERROR`.
+
+`predictAnswer` của maze: `win` · `stop@r,c` (`NOT_AT_GOAL`) · `missed@r,c` (`MISSED_ITEMS`) · `crash:HIT_WALL@r,c`, với `r,c` là ô Măng đang đứng (khi đâm: ô đứng lúc tiến, vì ô tường không đi vào được), viết không dấu cách, vd `stop@1,2`. Kết quả `timeout`/`error` trả đúng tên kết quả.
+
+Config được kiểm (zod `mazeConfigSchema`): 3–12 hàng × 3–12 cột, các hàng dài bằng nhau, chỉ có ký tự `# . S G b`, đúng 1 `S` và 1 `G`, `startDir` là `N/E/S/W`, `goal.collectAll: true` cần ít nhất 1 `b`, không có khóa lạ. Schema **không** kiểm `G` có tới được không; việc đó do luật 9 của `content:check` (lời giải phải thắng). Bản đồ không bắt buộc có viền `#`: đi ra ngoài mép cũng là `HIT_WALL`, nên `MazeStage` (P1-04) phải vẽ viền tường quanh bản đồ để bé thấy được chỗ đâm.
 
 ## 2. Nửa hiển thị: `StageRenderer`
 Interface định nghĩa trong `apps/web/src/stages/types.ts`:
