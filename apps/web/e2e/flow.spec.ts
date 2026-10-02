@@ -5,14 +5,24 @@ import type * as BlocklyModule from 'blockly';
 // P1-10 acceptance (docs/roadmap/phase-1.md): profile → map → world → lesson → play → results →
 // next level, by mouse and by keyboard; progress survives a reload; the results overlay shows
 // the real stars and coins; backup → restore round trip; small screen; break reminder; author mode.
-// The lesson and the "next level" run in the dev sandbox world (content/worlds/_sandbox:
-// lesson-sample, flow-01, flow-02) because world 1 has no lesson and one level until P1-12.
+// Runs on the real World 1 (testing-strategy.md §3): lesson w01-lesson, then w01-l01 (parsons),
+// w01-l02, w01-l03 in the order the child unlocks them. Programs are set from each level's
+// `solution` through the dev play hook; dragging blocks is covered by play-runner.spec.
+// Coins (rewards-economy.md §2, rewards-engine.md §3): 30 starter; lesson +5; the first learning
+// activity of the day +10 (daily); a first clear at par on the first run 10 + 5 (⭐⭐) + 5 (⭐⭐⭐)
+// + 5 (first try) = 25; replaying a ⭐⭐⭐ level +1.
 
-const SHOTS = 'test-results/flow';
+const SHOTS = process.env.CQ_SHOTS_DIR ?? 'test-results/flow';
 
 const readJson = (path: string): unknown =>
   JSON.parse(readFileSync(new URL(`../../../content/${path}`, import.meta.url), 'utf8'));
-const w01l03 = readJson('worlds/w01-lang-tre/levels/w01-l03.json') as { solution: unknown };
+const solutionOf = (levelId: string): unknown =>
+  (readJson(`worlds/w01-lang-tre/levels/${levelId}.json`) as { solution: unknown }).solution;
+const w01l01 = solutionOf('w01-l01');
+const w01l02 = solutionOf('w01-l02');
+const w01l03 = solutionOf('w01-l03');
+const shared = readJson('shared/feedback.json') as Record<string, string>;
+const world1 = readJson('worlds/w01-lang-tre/world.json') as { levelIds: string[] };
 
 type HookWindow = Window & {
   __cqPlay: { Blockly: typeof BlocklyModule; workspace: BlocklyModule.WorkspaceSvg };
@@ -80,22 +90,6 @@ async function setProgram(page: Page, json: unknown): Promise<void> {
   }, json);
 }
 
-/** Drags the first flyout block under the last block of the program, with a real mouse. */
-async function dragWalkToEnd(page: Page): Promise<void> {
-  const source = page.locator('.blocklyFlyout .blocklyDraggable').first();
-  // The main workspace only (the flyout is a workspace of its own, in its own <svg>).
-  const canvas = page.locator('svg.blocklySvg > .blocklyWorkspace > .blocklyBlockCanvas');
-  const walks = canvas.locator('.runner_walk');
-  const target = (await walks.count()) > 0 ? walks.last() : canvas.locator('.cq_start').first();
-  const from = await source.boundingBox();
-  const to = await target.boundingBox();
-  if (!from || !to) throw new Error('flyout or target block not rendered');
-  await page.mouse.move(from.x + 15, from.y + 15);
-  await page.mouse.down();
-  await page.mouse.move(to.x + 20, to.y + to.height + 18, { steps: 12 });
-  await page.mouse.up();
-}
-
 /** "khi bắt đầu" followed by blocks of these types. */
 function program(types: string[]): unknown {
   // Built back to front, so the first type runs first.
@@ -130,16 +124,16 @@ test.describe('screen flow', () => {
     await expect(hudCoins(page)).toContainText('30');
     await shot(page, 'map', project);
 
-    // The sandbox world (dev only) has the sample lesson and two levels in a row.
-    await page.locator('[data-world="_sandbox"]').click();
-    await expect(page).toHaveURL(/\/w\/_sandbox$/);
-    await expect(page.locator('[data-level="flow-01"]')).toHaveAttribute('data-status', 'locked');
+    await page.locator('[data-world="w01-lang-tre"]').click();
+    await expect(page).toHaveURL(/\/w\/w01-lang-tre$/);
+    // The lesson comes first: even level 1 waits for it.
+    await expect(page.locator('[data-level="w01-l01"]')).toHaveAttribute('data-status', 'locked');
     await shot(page, 'world-lesson-first', project);
 
+    // w01-lesson: 3 talk cards, 2 demos, then the quiz as the last card.
     await page.getByTestId('lesson-stone').click();
-    await expect(page.getByTestId('lesson-card')).toBeVisible();
-    await page.getByTestId('lesson-next').click();
-    await page.getByTestId('lesson-next').click();
+    await expect(page.getByTestId('lesson-card')).toHaveAttribute('data-card', '0');
+    for (let i = 0; i < 3; i++) await page.getByTestId('lesson-next').click();
     // The demo (Blockly + stage) is a lazy chunk: a cold dev server compiles it on demand.
     await expect(page.getByTestId('lesson-demo')).toBeVisible({ timeout: 30_000 });
     await page.getByTestId('lesson-demo-run').click();
@@ -147,38 +141,80 @@ test.describe('screen flow', () => {
       timeout: 20_000,
     });
     await page.getByTestId('lesson-next').click();
-    // A quiz card holds "Tiếp" until it is answered (right or wrong both count).
-    await expect(page.getByTestId('lesson-next')).toBeDisabled();
+    await page.getByTestId('lesson-next').click();
+    await expect(page.getByTestId('lesson-card')).toHaveAttribute('data-card', '5');
+    // The quiz holds "Xong bài giảng" until it is answered (right or wrong both count).
+    await expect(page.getByTestId('lesson-finish')).toBeDisabled();
     await page.getByTestId('quiz-option').nth(1).click();
     await expect(page.getByText(/Đúng rồi!/)).toBeVisible();
-    await page.getByTestId('lesson-next').click();
     await page.getByTestId('lesson-finish').click();
-    // +5 lesson, +10 first learning activity today.
+    // +5 lesson, +10 daily (the first learning activity today): 30 → 45.
     await expect(page.getByTestId('lesson-done')).toContainText('+15 xu');
     await expect(hudCoins(page)).toContainText('45');
     await shot(page, 'lesson-done', project);
 
     await page.getByRole('button', { name: 'Vào chơi' }).click();
-    await expect(page).toHaveURL(/\/play\/flow-01$/);
+    await expect(page).toHaveURL(/\/play\/w01-l01$/);
     await waitForPlay(page);
-    await dragWalkToEnd(page);
-    await dragWalkToEnd(page);
+    // Parsons: the blocks are on the workspace already; the helper links them as `solution` does.
+    await setProgram(page, w01l01);
     await page.getByTestId('play-run').click();
 
     const results = page.getByTestId('play-success');
     await expect(results).toBeVisible({ timeout: 20_000 });
     await expect(page.getByTestId('results-stars')).toHaveAttribute('data-stars', '3');
     await expect(page.getByTestId('results-lines')).toHaveText('Con vừa viết 2 dòng code!');
-    // First clear at par on the first run: 10 + 5 + 5 + 5 (the daily bonus came with the lesson).
+    // First clear at par on the first run: 10 + 5 + 5 + 5 (the daily bonus came with the
+    // lesson): 45 → 70 (testing-strategy.md §3).
+    await expect(page.getByTestId('results-coins').locator('li')).toHaveText([
+      /Qua màn lần đầu\s*\+10/,
+      /Lần đầu 2 sao\s*\+5/,
+      /Lần đầu 3 sao\s*\+5/,
+      /Đúng ngay lần đầu\s*\+5/,
+    ]);
     await expect(page.getByTestId('results-total')).toHaveText('+25 xu');
     await expect(hudCoins(page)).toContainText('70');
     await page.waitForTimeout(2200); // stars land, coins fly
     await shot(page, 'results', project);
 
+    // "Màn tiếp" → w01-l02 (opened by clearing l01): another first clear at par, 70 → 95.
     await page.getByTestId('results-next').click();
-    await expect(page).toHaveURL(/\/play\/flow-02$/);
+    await expect(page).toHaveURL(/\/play\/w01-l02$/);
     await waitForPlay(page);
     await expect(page.getByTestId('play-success')).toHaveCount(0);
+    await setProgram(page, w01l02);
+    await page.getByTestId('play-run').click();
+    await expect(page.getByTestId('play-success')).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByTestId('results-total')).toHaveText('+25 xu');
+    await expect(hudCoins(page)).toContainText('95');
+
+    // w01-l03 is open now. "đi, đi" walks into the hole: the FELL_IN_HOLE line, no coins.
+    await page.getByTestId('results-next').click();
+    await expect(page).toHaveURL(/\/play\/w01-l03$/);
+    await waitForPlay(page);
+    await setProgram(page, program(['runner_walk', 'runner_walk']));
+    await page.getByTestId('play-run').click();
+    await expect(page.getByTestId('play-bubble')).toHaveText(shared['FELL_IN_HOLE'] ?? '', {
+      timeout: 20_000,
+    });
+    await expect(hudCoins(page)).toContainText('95');
+    // TODO(P1-07): buy a tier-1 hint here and expect 95 → 90 (testing-strategy.md §3 step 4);
+    // hints are not wired into PlayScreen yet.
+
+    // Progress survives a reload.
+    await page.goto('/w/w01-lang-tre');
+    await page.reload();
+    await expect(page.getByTestId('lesson-stone')).toHaveAttribute('data-done', 'true');
+    for (const id of ['w01-l01', 'w01-l02']) {
+      await expect(page.locator(`[data-level="${id}"]`)).toHaveAttribute('data-status', 'done');
+      await expect(page.locator(`[data-level="${id}"]`).getByRole('img')).toHaveAccessibleName(
+        '3 trên 3 sao',
+      );
+    }
+    await expect(page.locator('[data-level="w01-l03"]')).toHaveAttribute('data-next', 'true');
+    await expect(page.locator('[data-level="w01-l04"]')).toHaveAttribute('data-status', 'locked');
+    await expect(hudCoins(page)).toContainText('95');
+    await shot(page, 'world-after-reload', project);
   });
 
   test('@smoke by keyboard: Tab, Enter and Space only', async ({ page }, testInfo) => {
@@ -215,43 +251,39 @@ test.describe('screen flow', () => {
     await typePin(page, '2468');
     await expect(page).toHaveURL(/\/map$/);
 
-    await tabTo(page, page.locator('[data-world="_sandbox"]'));
+    await tabTo(page, page.locator('[data-world="w01-lang-tre"]'));
     await page.keyboard.press('Enter');
-    await expect(page).toHaveURL(/\/w\/_sandbox$/);
+    await expect(page).toHaveURL(/\/w\/w01-lang-tre$/);
     await tabTo(page, page.getByTestId('lesson-stone'));
     await page.keyboard.press('Enter');
     await expect(page.getByTestId('lesson-card')).toHaveAttribute('data-card', '0');
-    // ← → flip cards.
-    await page.keyboard.press('ArrowRight');
-    await page.keyboard.press('ArrowRight');
-    await expect(page.getByTestId('lesson-card')).toHaveAttribute('data-card', '2');
-    await page.keyboard.press('ArrowRight');
+    // ← → flip cards, past the demos (running them is optional) to the quiz, the last card.
+    for (let i = 0; i < 3; i++) await page.keyboard.press('ArrowRight');
     await expect(page.getByTestId('lesson-card')).toHaveAttribute('data-card', '3');
+    await page.keyboard.press('ArrowRight');
+    await page.keyboard.press('ArrowRight');
+    await expect(page.getByTestId('lesson-card')).toHaveAttribute('data-card', '5');
     await tabTo(page, page.getByTestId('quiz-option').first());
     await page.keyboard.press('Enter');
     await expect(page.getByText(/Chưa đúng, không sao!/)).toBeVisible();
-    await page.keyboard.press('ArrowRight');
     await tabTo(page, page.getByTestId('lesson-finish'));
     await page.keyboard.press('Enter');
     await expect(page.getByTestId('lesson-done')).toBeVisible();
     // "Vào chơi" has focus.
     await page.keyboard.press('Enter');
-    await expect(page).toHaveURL(/\/play\/flow-01$/);
+    await expect(page).toHaveURL(/\/play\/w01-l01$/);
     await waitForPlay(page);
 
     // Building blocks with Blockly's own keyboard navigation is Blockly's feature, tested by
     // Blockly; here the program is loaded and the app's keys take over: Space runs.
-    await setProgram(
-      page,
-      (readJson('worlds/_sandbox/levels/flow-01.json') as { solution: unknown }).solution,
-    );
+    await setProgram(page, w01l01);
     await page.getByTestId('play-stage').focus();
     await page.keyboard.press('Space');
     await expect(page.getByTestId('play-success')).toBeVisible({ timeout: 20_000 });
     // "Màn tiếp" has focus in the results overlay.
     await expect(page.getByTestId('results-next')).toBeFocused();
     await page.keyboard.press('Enter');
-    await expect(page).toHaveURL(/\/play\/flow-02$/);
+    await expect(page).toHaveURL(/\/play\/w01-l02$/);
     await waitForPlay(page);
   });
 
@@ -262,10 +294,13 @@ test.describe('screen flow', () => {
     await createProfileByMouse(page, 'Tôm', '0000');
     await page.locator('[data-world="w01-lang-tre"]').click();
     await shot(page, 'world-w01', project);
+    // Straight to w01-l03 with the dev unlock (no lesson, no l01–l02): this win is the first
+    // learning activity of the day, so the daily bonus comes with it.
+    await page.goto('/w/w01-lang-tre?unlock=all');
     await page.locator('[data-level="w01-l03"]').click();
     await waitForPlay(page);
     await expect(hudCoins(page)).toContainText('30');
-    await setProgram(page, w01l03.solution);
+    await setProgram(page, w01l03);
     await page.getByTestId('play-run').click();
     await expect(page.getByTestId('play-success')).toBeVisible({ timeout: 20_000 });
 
@@ -286,9 +321,10 @@ test.describe('screen flow', () => {
     await expect(page.getByTestId('play-stage')).toHaveAttribute('data-phase', 'success');
     await expect(page.getByTestId('play-stage')).toHaveAttribute('data-panda', 'cheer');
     await expect(page.getByTestId('results-lines')).toHaveText('Con vừa viết 3 dòng code!');
+    // 30 + 35 = 65.
     await expect(hudCoins(page)).toContainText('65');
-    // The only level of world 1 so far: no "Màn tiếp".
-    await expect(page.getByTestId('results-next')).toHaveCount(0);
+    // "Màn tiếp" shows because w01-l04 is open (dev unlock).
+    await expect(page.getByTestId('results-next')).toBeVisible();
 
     // Esc closes the overlay (= Chơi lại).
     await page.keyboard.press('Escape');
@@ -297,7 +333,7 @@ test.describe('screen flow', () => {
     // Winning again: no new coins (first-time lines are in the ledger already).
     await page.getByTestId('play-run').click();
     await expect(page.getByTestId('play-success')).toBeVisible({ timeout: 20_000 });
-    // Replaying a ⭐⭐⭐ level: +1 (at most 5 a day), nothing else.
+    // Replaying a ⭐⭐⭐ level: +1 (at most 5 a day), nothing else: 65 → 66.
     await expect(page.getByTestId('results-coins').locator('li')).toHaveText([
       /Chơi lại 3 sao\s*\+1/,
     ]);
@@ -320,9 +356,10 @@ test.describe('screen flow', () => {
   test('backup → delete → restore round trip keeps the coins', async ({ page }, testInfo) => {
     const project = testInfo.project.name;
     await createProfileByMouse(page, 'Su', '1357');
-    await page.goto('/play/w01-l03');
+    // Dev unlock: no lesson first, so the win also earns the daily bonus (35 → 65 coins).
+    await page.goto('/play/w01-l03?unlock=all');
     await waitForPlay(page);
-    await setProgram(page, w01l03.solution);
+    await setProgram(page, w01l03);
     await page.getByTestId('play-run').click();
     await expect(page.getByTestId('play-success')).toBeVisible({ timeout: 20_000 });
     await expect(hudCoins(page)).toContainText('65');
@@ -378,25 +415,23 @@ test.describe('screen flow', () => {
     );
   });
 
-  test('dev sandbox: modes the play screen cannot run yet are hidden and not playable', async ({
-    page,
-  }) => {
+  test('dev sandbox: every mode is listed and playable (P1-06)', async ({ page }) => {
     await createProfileByMouse(page, 'Dế', '1212');
     await page.goto('/w/_sandbox?unlock=all');
     await expect(page.locator('[data-level="flow-01"]')).toBeVisible();
-    await expect(page.locator('[data-level="maze-predict"]')).toHaveCount(0);
-    await expect(page.locator('[data-level="maze-bughunt"]')).toHaveCount(0);
+    for (const id of ['maze-predict', 'maze-bughunt', 'runner-parsons', 'maze-creative']) {
+      await expect(page.locator(`[data-level="${id}"]`)).toBeVisible();
+    }
     await page.goto('/play/maze-predict');
-    await expect(page.getByRole('alert')).toHaveText(
-      'Màn này chưa chơi được. Con chọn màn khác nhé!',
-    );
+    await waitForPlay(page);
+    await expect(page.getByTestId('predict-card')).toHaveCount(3);
   });
 
   test('a run counts even when its replay is stopped: no "first try" after it', async ({
     page,
   }) => {
     await createProfileByMouse(page, 'Gió', '2020');
-    await page.goto('/play/w01-l03');
+    await page.goto('/play/w01-l03?unlock=all');
     await waitForPlay(page);
     // Slowest speed, so the replay is surely still going when Dừng is pressed.
     await page.getByRole('radio', { name: 'Chậm' }).click();
@@ -407,7 +442,7 @@ test.describe('screen flow', () => {
     await expect(page.getByTestId('play-stage')).toHaveAttribute('data-phase', 'idle');
 
     await page.getByRole('radio', { name: 'Nhanh' }).click();
-    await setProgram(page, w01l03.solution);
+    await setProgram(page, w01l03);
     await page.getByTestId('play-run').click();
     await expect(page.getByTestId('play-success')).toBeVisible({ timeout: 20_000 });
     await expect(page.getByTestId('results-coins').locator('li')).toHaveText([
@@ -432,19 +467,19 @@ test.describe('screen flow', () => {
 
   test('a level not reached yet does not open by URL', async ({ page }) => {
     await createProfileByMouse(page, 'Mưa', '4040');
-    // flow-01 waits for the sandbox lesson.
-    await page.goto('/play/flow-01');
+    // w01-l03 waits for the lesson, w01-l01 and w01-l02.
+    await page.goto('/play/w01-l03');
     await expect(page.getByRole('alert')).toHaveText('Màn này chưa mở. Con qua màn trước nhé!');
     await expect(page.getByTestId('play-stage')).toHaveCount(0);
     await page.getByTestId('play-back-out').click();
-    await expect(page).toHaveURL(/\/w\/_sandbox$/);
+    await expect(page).toHaveURL(/\/w\/w01-lang-tre$/);
     // The dev unlock override is honoured.
-    await page.goto('/play/flow-01?unlock=all');
+    await page.goto('/play/w01-l03?unlock=all');
     await waitForPlay(page);
-    await page.goto('/w/_sandbox/lesson/nope?unlock=0');
+    await page.goto('/w/w01-lang-tre/lesson/nope?unlock=0');
     await expect(page.getByRole('alert')).toHaveText('Không tìm thấy bài giảng này.');
     await page.getByRole('button', { name: 'Về thế giới' }).click();
-    await expect(page).toHaveURL(/\/w\/_sandbox$/);
+    await expect(page).toHaveURL(/\/w\/w01-lang-tre$/);
   });
 
   test('break reminder after 25 minutes of play', async ({ page }, testInfo) => {
@@ -466,20 +501,20 @@ test.describe('screen flow', () => {
   test('author mode (dev): copy workspace JSON, unlock all', async ({ page, context }) => {
     await context.grantPermissions(['clipboard-read', 'clipboard-write']);
     await createProfileByMouse(page, 'Cô', '9999');
-    await page.goto('/w/_sandbox?unlock=all');
-    await expect(page.locator('[data-level="flow-02"]')).toHaveAttribute('data-status', 'open');
-    await page.goto('/play/flow-01?author=1');
+    await page.goto('/w/w01-lang-tre?unlock=all');
+    await expect(page.locator('[data-level="w01-l02"]')).toHaveAttribute('data-status', 'open');
+    await page.goto('/play/w01-l01?author=1');
     await waitForPlay(page);
     await page.getByTestId('author-copy').click();
     await expect(page.getByTestId('author-copy')).toHaveText('Đã chép!');
     const copied = await page.evaluate(() => navigator.clipboard.readText());
     expect(JSON.parse(copied)).toHaveProperty('blocks.languageVersion', 0);
-    // Without the flags, the sandbox chain is locked again.
-    await page.goto('/play/flow-01?author=0');
+    // Without the flags, World 1 is locked behind its lesson again.
+    await page.goto('/play/w01-l01?author=0');
     await waitForPlay(page);
     await expect(page.getByTestId('author-tools')).toHaveCount(0);
-    await page.goto('/w/_sandbox?unlock=0');
-    await expect(page.locator('[data-level="flow-02"]')).toHaveAttribute('data-status', 'locked');
+    await page.goto('/w/w01-lang-tre?unlock=0');
+    await expect(page.locator('[data-level="w01-l02"]')).toHaveAttribute('data-status', 'locked');
   });
 });
 
@@ -512,14 +547,19 @@ test.describe('a 1280×720 laptop shows ~1280×600 of page', () => {
       );
     };
     await inView(page.locator('[data-world="w01-lang-tre"]'));
+    // Every stone of World 1 (lesson, levels, boss, free play) is on screen at once.
     await page.goto('/w/w01-lang-tre');
-    await inView(page.locator('[data-level="w01-l03"]'));
-    await page.goto('/play/w01-l03');
+    await inView(page.getByTestId('lesson-stone'));
+    const stones = page.locator('[data-level]');
+    await expect(stones).toHaveCount(world1.levelIds.length);
+    for (const stone of await stones.all()) await inView(stone);
+    await shot(page, 'world-1280x600', testInfo.project.name);
+    await page.goto('/play/w01-l03?unlock=all');
     await waitForPlay(page);
     await inView(page.getByTestId('play-bubble'));
     await inView(page.getByTestId('play-run'));
     await shot(page, 'play-1280x600', testInfo.project.name);
-    await page.goto('/w/_sandbox/lesson/lesson-sample');
+    await page.goto('/w/w01-lang-tre/lesson/w01-lesson');
     await inView(page.getByTestId('lesson-next'));
     await shot(page, 'lesson-1280x600', testInfo.project.name);
   });

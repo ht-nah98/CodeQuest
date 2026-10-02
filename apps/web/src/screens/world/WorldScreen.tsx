@@ -1,6 +1,8 @@
-import { useMemo } from 'react';
+import { type ReactNode, useEffect, useMemo, useRef } from 'react';
 import { Link, useNavigate, useParams } from 'react-router';
 import { isUnlocked } from '@codequest/rewards';
+import { useMusic } from '../../audio/useAudio';
+import { levelVoiceId, uiVoiceId } from '../../audio/voiceIds';
 import { useUnlockOverrides } from '../../features/author/authorMode';
 import {
   levelViews,
@@ -23,10 +25,17 @@ import { TopBar } from '../shared/TopBar';
 const t = vi.world;
 
 const STONE = [
-  'relative grid h-[124px] w-[112px] content-start justify-items-center gap-1 rounded-panel border-3 border-ink pt-3 pb-2',
+  'relative grid h-[104px] w-[96px] content-start justify-items-center gap-1 rounded-panel border-3 border-ink pt-2.5 pb-2',
   'transition-[transform,box-shadow] duration-150 ease-bounce',
 ].join(' ');
 const STONE_LIVE = `${STONE} cursor-pointer shadow-hard hover:-translate-y-1 active:translate-y-1 active:shadow-button-pressed ${FOCUS_RING}`;
+
+/**
+ * Stones per row of the path. The path snakes: left → right, then right → left on the next
+ * row, so a world of 16 levels + lesson is 3 rows and fits a 1280×600 page (a 1280×720 laptop
+ * minus the browser bar) without scrolling. The DOM keeps the level order, so Tab does too.
+ */
+const PATH_COLUMNS = 6;
 
 /** "/w/:worldId" Trang thế giới: the lesson, then the levels as stepping stones. */
 export default function WorldScreen() {
@@ -48,6 +57,8 @@ export default function WorldScreen() {
     [catalog, world, child],
   );
 
+  useMusic('village');
+
   if (state.status === 'error') return <ScreenMessage text={vi.map.loadError} alert />;
   if (!catalog || !child || !views) return <ScreenMessage text={vi.play.loading} />;
   if (!world) {
@@ -67,13 +78,21 @@ export default function WorldScreen() {
 
   const pending = pendingLessonId(world, child.lessonsDone);
   const firstLocked = views.find((v) => v.status === 'locked');
-  const nextUp = views.find((v) => v.status === 'open');
   const needsLesson = pending !== null && world.lessonIds[0] === pending;
+  // The free-play level is always open: it is "next" only once every other level is done,
+  // and nothing is "next" while the lesson comes first.
+  const open = needsLesson ? [] : views.filter((v) => v.status === 'open');
+  const nextUp = open.find((v) => v.level.mode !== 'creative') ?? open[0];
   const mangLine = needsLesson ? t.lessonFirst : (nextUp?.level.objective ?? t.allDone);
+  const mangVoice = needsLesson
+    ? uiVoiceId('world.lessonFirst')
+    : nextUp
+      ? levelVoiceId(nextUp.level.id, 'objective')
+      : uiVoiceId('world.allDone');
   const sandbox = world.id === SANDBOX_WORLD_ID;
 
   return (
-    <main className="grid min-h-screen grid-rows-[auto_minmax(0,1fr)] gap-3 bg-ground p-3">
+    <main className="grid h-dvh min-h-[500px] grid-rows-[auto_minmax(0,1fr)] gap-3 bg-ground p-3">
       <TopBar back={{ label: t.backToMap, to: '/map' }}>
         <h1 className="m-0 flex min-w-0 items-baseline gap-3 font-display text-[28px] text-paper">
           <span className="font-pixel text-pixel text-brand-soft uppercase">
@@ -98,45 +117,57 @@ export default function WorldScreen() {
           <p className="m-0 text-body">{world.story}</p>
           <div className="mt-auto flex items-end gap-3 pb-14">
             <MangPortrait pose={needsLesson ? 'talk' : 'idle_1'} height={104} />
-            <Bubble text={mangLine} tail="left" />
+            <Bubble text={mangLine} tail="left" voiceId={mangVoice} />
           </div>
         </Panel>
 
-        <Panel as="section" aria-label={t.pathLabel} className="min-h-0 overflow-y-auto p-6">
-          <ol className="m-0 flex list-none flex-wrap content-start items-center gap-x-3 gap-y-6 p-0">
-            {world.lessonIds.map((lessonId) => {
-              const lesson = catalog.lessons.get(lessonId);
-              if (!lesson) return null;
-              const done = child.lessonsDone.has(lessonId);
-              return (
-                <li key={lessonId} className="flex items-center gap-3">
-                  <Link
-                    to={`/w/${world.id}/lesson/${lessonId}`}
-                    aria-label={`${t.lesson}: ${lesson.title}`}
-                    data-testid="lesson-stone"
-                    data-done={done}
-                    className={`${STONE_LIVE} ${done ? 'bg-brand-soft' : 'bg-coin'}`}
-                  >
-                    <PixelIcon name="book" scale={3} />
-                    <span className="font-display text-body font-extrabold">{t.lesson}</span>
-                    {!done && <Pulse />}
-                  </Link>
-                  <Connector />
-                </li>
-              );
-            })}
-            {views.map((view, index) => (
-              <li key={view.level.id} className="flex items-center gap-3">
-                <LevelStone
-                  view={view}
-                  number={levelNumberOf(view.level.id) ?? index + 1}
-                  next={view === nextUp}
-                  worldId={world.id}
-                />
-                {index < views.length - 1 && <Connector dim={view === firstLocked} />}
-              </li>
-            ))}
-          </ol>
+        <Panel
+          as="section"
+          aria-label={t.pathLabel}
+          className="flex min-h-0 flex-col overflow-y-auto px-6 pt-8 pb-6"
+        >
+          <StonePath
+            stones={[
+              ...world.lessonIds.flatMap((lessonId) => {
+                const lesson = catalog.lessons.get(lessonId);
+                if (!lesson) return [];
+                const done = child.lessonsDone.has(lessonId);
+                return [
+                  {
+                    key: lessonId,
+                    dimAfter: false,
+                    node: (
+                      <Link
+                        to={`/w/${world.id}/lesson/${lessonId}`}
+                        aria-label={`${t.lesson}: ${lesson.title}`}
+                        data-testid="lesson-stone"
+                        data-done={done}
+                        className={`${STONE_LIVE} ${done ? 'bg-brand-soft' : 'bg-coin'}`}
+                      >
+                        <PixelIcon name="book" scale={3} />
+                        <span className="font-display text-[15px] leading-5 font-extrabold">
+                          {t.lesson}
+                        </span>
+                        {!done && <Pulse />}
+                      </Link>
+                    ),
+                  },
+                ];
+              }),
+              ...views.map((view, index) => ({
+                key: view.level.id,
+                dimAfter: view === firstLocked,
+                node: (
+                  <LevelStone
+                    view={view}
+                    number={levelNumberOf(view.level.id) ?? index + 1}
+                    next={view === nextUp}
+                    worldId={world.id}
+                  />
+                ),
+              })),
+            ]}
+          />
         </Panel>
       </div>
     </main>
@@ -152,11 +183,68 @@ function BackToMap() {
   );
 }
 
-function Connector({ dim = false }: { dim?: boolean }) {
+interface PathStone {
+  key: string;
+  /** The way on from this stone is not open yet. */
+  dimAfter: boolean;
+  node: ReactNode;
+}
+
+/** The stones in order on a snaking path (see PATH_COLUMNS); keeps the next stone in view. */
+function StonePath({ stones }: { stones: PathStone[] }) {
+  const list = useRef<HTMLOListElement>(null);
+  const columns = Math.min(PATH_COLUMNS, stones.length);
+  useEffect(() => {
+    // A longer world scrolls inside the panel: start with the stone to play next in view.
+    list.current?.querySelector('[data-next="true"]')?.scrollIntoView({ block: 'nearest' });
+  }, []);
   return (
-    <span aria-hidden="true" className={`flex gap-1.5 ${dim ? 'opacity-40' : ''}`}>
-      <span className="size-2.5 rounded-brick bg-ink-soft" />
-      <span className="size-2.5 rounded-brick bg-ink-soft" />
+    <ol
+      ref={list}
+      className="m-auto grid w-full max-w-[960px] list-none gap-y-10 p-0"
+      style={{ gridTemplateColumns: `repeat(${String(columns)}, minmax(0, 1fr))` }}
+    >
+      {stones.map((stone, index) => {
+        const row = Math.floor(index / columns);
+        const reversed = row % 2 === 1;
+        const column = reversed ? columns - 1 - (index % columns) : index % columns;
+        const last = index === stones.length - 1;
+        const turn = !last && Math.floor((index + 1) / columns) !== row;
+        return (
+          <li
+            key={stone.key}
+            className="relative flex justify-center"
+            style={{ gridRow: row + 1, gridColumn: column + 1 }}
+          >
+            {stone.node}
+            {!last && (
+              <Connector
+                dim={stone.dimAfter}
+                way={turn ? 'down' : reversed ? 'left' : 'right'}
+              />
+            )}
+          </li>
+        );
+      })}
+    </ol>
+  );
+}
+
+const CONNECTOR_WAY = {
+  // From the stone's edge (48px = half a stone) to the next stone's edge, one cell away.
+  right: 'top-1/2 left-[calc(50%+48px)] w-[calc(100%-96px)] -translate-y-1/2',
+  left: 'top-1/2 right-[calc(50%+48px)] w-[calc(100%-96px)] -translate-y-1/2',
+  down: 'top-full left-1/2 h-10 -translate-x-1/2 flex-col',
+} as const;
+
+function Connector({ dim, way }: { dim: boolean; way: keyof typeof CONNECTOR_WAY }) {
+  return (
+    <span
+      aria-hidden="true"
+      className={`pointer-events-none absolute flex items-center justify-center gap-1.5 ${CONNECTOR_WAY[way]} ${dim ? 'opacity-40' : ''}`}
+    >
+      <span className="size-2.5 shrink-0 rounded-brick bg-ink-soft" />
+      <span className="size-2.5 shrink-0 rounded-brick bg-ink-soft" />
     </span>
   );
 }
@@ -204,7 +292,7 @@ function LevelStone({
       ) : boss ? (
         <PixelIcon name="crown" scale={3} />
       ) : (
-        <span className="font-pixel text-[52px] leading-[48px]">{number}</span>
+        <span className="font-pixel text-[48px] leading-[44px]">{number}</span>
       )}
       {playable && <Stars earned={stars} scale={1} className="mt-auto" />}
     </>
@@ -230,6 +318,7 @@ function LevelStone({
       aria-label={label}
       data-level={level.id}
       data-status={status}
+      data-next={next}
       className={`${STONE_LIVE} ${next ? 'bg-go' : 'bg-paper'}`}
     >
       {inner}
