@@ -176,7 +176,7 @@
         "lastReason": "HIT_BRANCH",
         "has": "runner_kick"
       },
-      "say": "Còn cành mà Măng đã nhảy. Vòng lặp chạy đủ chưa?",
+      "say": "Còn cành mà Măng đã nhảy. Có mấy cặp cành và hố?",
       "point": "block:cq_repeat"
     },
     {

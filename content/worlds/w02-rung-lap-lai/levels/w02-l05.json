@@ -116,8 +116,8 @@
         "lastReason": "NOT_AT_GOAL",
         "has": "cq_repeat"
       },
-      "say": "Măng dừng sớm quá. Tăng số lần lặp nhé!",
-      "point": "block:cq_repeat"
+      "say": "Mỗi vòng qua 1 hố. Đường có mấy hố?",
+      "point": "stage"
     }
   ],
   "thinkingHint": "Con thấy mẫu nào lặp đi lặp lại trên đường?"

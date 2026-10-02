@@ -97,7 +97,7 @@
         "lastReason": "HIT_BRANCH",
         "has": "runner_crouch"
       },
-      "say": "Măng phải cúi tới hết đường hầm rồi mới nhảy.",
+      "say": "Măng phải cúi tới hết đường hầm. Đếm số bước nhé!",
       "point": "stage",
       "priority": 1
     },
@@ -120,7 +120,7 @@
           "eq": 4
         }
       },
-      "say": "Đứng sát hố mới nhảy. Thử đổi số lần cúi!",
+      "say": "Đứng sát hố mới nhảy. Đếm lại số lần cúi!",
       "point": "stage"
     },
     {

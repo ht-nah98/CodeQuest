@@ -4,8 +4,8 @@
   "stage": "challenge",
   "kind": "runner",
   "mode": "build",
-  "title": "Đường 18 ô",
-  "objective": "Đường dài 18 ô mà chỉ được 5 khối!",
+  "title": "Đường dài, ít khối",
+  "objective": "Đường dài mà chỉ được 5 khối thôi!",
   "learningGoal": "Tìm đoạn ngắn nhất lặp lại trên đường dài, lặp vừa đủ số lần rồi xử lý đoạn cuối khác.",
   "misconception": "Đường càng dài thì càng cần nhiều khối.",
   "toolbox": [
@@ -132,7 +132,7 @@
         "lastReason": "HIT_BRANCH",
         "has": "runner_crouch"
       },
-      "say": "Còn cành mà Măng đã nhảy. Vòng lặp chạy đủ chưa?",
+      "say": "Còn cành mà Măng đã nhảy. Đường có mấy đoạn giống nhau?",
       "point": "block:cq_repeat"
     },
     {

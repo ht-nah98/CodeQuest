@@ -87,7 +87,7 @@ Thế giới 1 dạy tuần tự nên **không giới hạn số khối** ở c�
 | 13 | `w02-l13` | practice | runner | build | Hai vòng lặp nối tiếp | 4 | 4 |
 | 14 | `w02-l14` | practice | maze | build | Hai vòng lặp nối tiếp trong mê cung (đoạn ngang 3, đoạn dọc 5) ⁵ | 6 | 5 |
 | 15 | `w02-l15` | practice | runner | predict | Hai vòng lặp nối tiếp: đoán kết quả | — | — |
-| 16 | `w02-l16` | challenge | runner | build | Đường 18 ô chỉ được 5 khối: vòng lặp + hố cuối ⁴ | 5 | 5 |
+| 16 | `w02-l16` | challenge | runner | build | Đường dài (19 ô kể cả ô xuất phát và cờ) chỉ được 5 khối: vòng lặp + hố cuối ⁴ | 5 | 5 |
 | 17 | `w02-l17` | challenge | maze | build | Bậc thang rồi hành lang: hai vòng lặp, mỗi vòng vừa đủ ³ | 8 | 7 |
 | 18 | `w02-l18` | challenge | runner | bughunt | Ba lỗi trong một chương trình, có hố cuối sau vòng lặp (parEdits 3) ⁴ | — | 6 |
 | 19 | `w02-l19` | challenge | maze | build | Mê cung dài, `par` rất chặt | 7 | 6 |

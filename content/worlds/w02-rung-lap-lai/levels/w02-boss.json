@@ -140,7 +140,7 @@
           "gte": 2
         }
       },
-      "say": "Măng đụng thùng ở đâu? Vòng lặp chạy đủ chưa?",
+      "say": "Đếm xem rừng có mấy đoạn giống nhau nhé!",
       "point": "stage",
       "priority": 1
     },

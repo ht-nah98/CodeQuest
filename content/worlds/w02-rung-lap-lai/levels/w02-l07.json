@@ -149,9 +149,9 @@
         "trigger": "run-end",
         "lastReason": "HIT_BRANCH"
       },
-      "say": "Còn cành mà Măng đã nhảy. Vòng lặp chạy đủ chưa?",
+      "say": "Còn cành mà Măng đã nhảy. Có mấy cặp cành và hố?",
       "point": "block:cq_repeat"
     }
   ],
-  "thinkingHint": "Vòng lặp cuối cùng, Măng cúi vào đâu?"
+  "thinkingHint": "Trên đường có mấy cặp cành tre và hố?"
 }

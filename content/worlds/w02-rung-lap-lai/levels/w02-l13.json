@@ -127,7 +127,7 @@
         "lastReason": "FELL_IN_HOLE",
         "has": "runner_crouch"
       },
-      "say": "Ra khỏi hầm rồi mới nhảy. Thử đổi số lần cúi!",
+      "say": "Măng nhảy đúng lúc chưa? Đếm số bước chui hầm nhé!",
       "point": "stage"
     },
     {
