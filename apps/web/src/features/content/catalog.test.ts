@@ -15,6 +15,9 @@ import {
 } from './catalog';
 import { SANDBOX_WORLD_ID } from './sandbox';
 
+/** A mode the schema might gain before the play screen supports it (every real one is, P1-06). */
+const FUTURE_MODE = 'future' as string as Level['mode'];
+
 const world = (id: string, order: number, levelIds: string[], lessonIds: string[] = []): World => ({
   id,
   order,
@@ -108,7 +111,7 @@ describe('catalog views', () => {
   });
 
   it('a level whose mode is not playable yet is "soon", never open', () => {
-    const predict = { ...level('w01-l02', 'w01-a', 'practice'), mode: 'predict' as const };
+    const predict = { ...level('w01-l02', 'w01-a', 'practice'), mode: FUTURE_MODE };
     const withPredict = catalogOf(
       [w1, w2],
       [...catalog.levels.values()].map((l) => (l.id === predict.id ? predict : l)),
@@ -127,7 +130,7 @@ describe('catalog views', () => {
   });
 
   it('skips levels whose mode is not playable yet; URL guards', () => {
-    const predict = { ...level('w01-l02', 'w01-a', 'practice'), mode: 'predict' as const };
+    const predict = { ...level('w01-l02', 'w01-a', 'practice'), mode: FUTURE_MODE };
     const withPredict = catalogOf(
       [w1, w2],
       [...catalog.levels.values()].map((l) => (l.id === predict.id ? predict : l)),
@@ -168,8 +171,9 @@ describe('loadCatalog', () => {
     expect(sandbox?.levelIds).toEqual(expect.arrayContaining(['flow-01', 'flow-02']));
     expect(loaded.levels.get('w01-l03')?.worldId).toBe('w01-lang-tre');
     expect(loaded.lessons.get('lesson-sample')?.cards.length).toBeGreaterThan(0);
-    // Sandbox levels in modes the play screen cannot run yet are left out (modes.ts).
-    expect(sandbox?.levelIds).not.toContain('maze-predict');
-    expect(sandbox?.levelIds).not.toContain('maze-bughunt');
+    // Every mode is playable since P1-06: the sandbox lists one sample level of each.
+    expect(sandbox?.levelIds).toEqual(
+      expect.arrayContaining(['maze-predict', 'maze-bughunt', 'runner-parsons', 'maze-creative']),
+    );
   });
 });

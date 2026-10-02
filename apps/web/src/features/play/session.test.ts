@@ -3,6 +3,7 @@ import type { Level } from '@codequest/content-schema';
 import type { RunOutcome } from '@codequest/engine';
 import { starterEntry } from '@codequest/rewards';
 import {
+  addCreativeSave,
   addHint,
   addRun,
   closeSession,
@@ -12,6 +13,7 @@ import {
   parseOpenRecord,
   toOpenRecord,
   toRunSummary,
+  wrongPicks,
 } from './session';
 
 const level: Level = {
@@ -158,5 +160,97 @@ describe('hints and the open session record', () => {
   it('levelHash changes with the level and is stable otherwise', () => {
     expect(levelHash(level)).toBe(levelHash({ ...level }));
     expect(levelHash({ ...level, par: 4 })).not.toBe(levelHash(level));
+  });
+});
+
+describe('modes other than build (P1-06)', () => {
+  const predictLevel: Level = {
+    ...level,
+    id: 'p-predict',
+    mode: 'predict',
+    toolbox: [],
+    predict: {
+      options: [
+        { key: 'win', label: 'Tới cờ' },
+        { key: 'stop@1', label: 'Dừng ở ô 1' },
+        { key: 'crash:FELL_IN_HOLE@2', label: 'Rơi hố' },
+      ],
+    },
+  };
+  const engineRun = (): RunOutcome => ({ ...outcome('crash'), answerKey: 'crash:FELL_IN_HOLE@2' });
+  const pick = (state: ReturnType<typeof fresh>, key: string, id: string) =>
+    addRun(state, {
+      level: predictLevel,
+      run: toRunSummary(engineRun(), id, key),
+      now: NOW,
+      profileId: PROFILE,
+    });
+  const freshPredict = () =>
+    openSession(predictLevel.id, { progress: undefined, ledger: [starterEntry(PROFILE, NOW)] });
+
+  it('predict: a pick is the run; wrong = WRONG_ANSWER, right = success whatever Măng did', () => {
+    expect(toRunSummary(engineRun(), 'r1', 'win')).toMatchObject({
+      result: 'incomplete',
+      reasonCode: 'WRONG_ANSWER',
+      predictChoice: 'win',
+    });
+    expect(toRunSummary(engineRun(), 'r2', 'crash:FELL_IN_HOLE@2')).toMatchObject({
+      result: 'success',
+      reasonCode: null,
+    });
+  });
+
+  it('predict: stars by pick number, counted across sessions', () => {
+    expect(pick(freshPredict(), 'crash:FELL_IN_HOLE@2', 'r1').reward?.stars).toBe(3);
+    const wrong = pick(freshPredict(), 'win', 'r1');
+    expect(wrong.reward).toBeNull();
+    expect(pick(wrong.state, 'crash:FELL_IN_HOLE@2', 'r2').reward?.stars).toBe(2);
+    // Two wrong picks in an earlier session (recorded in progress): the right pick is the 3rd.
+    const leftBefore = closeSession(
+      pick(pick(freshPredict(), 'win', 'a').state, 'stop@1', 'b').state,
+      {
+        attemptId: 'x',
+        profileId: PROFILE,
+        startedAt: NOW,
+        now: NOW,
+      },
+    );
+    const back = openSession(predictLevel.id, { progress: leftBefore?.progress, ledger: [] });
+    expect(pick(back, 'crash:FELL_IN_HOLE@2', 'r3').reward?.stars).toBe(1);
+  });
+
+  it('bughunt: edits over parEdits is "over par" (1 star line)', () => {
+    const bughunt: Level = { ...level, id: 'p-bug', mode: 'bughunt', parEdits: 1 };
+    const win = (edits: number) =>
+      addRun(openSession(bughunt.id, { progress: undefined, ledger: [] }), {
+        level: bughunt,
+        run: toRunSummary({ ...outcome('success', 9), edits }, `r${String(edits)}`),
+        now: NOW,
+        profileId: PROFILE,
+      }).reward;
+    expect(win(1)).toMatchObject({ stars: 3, edits: 1, overPar: false });
+    expect(win(2)).toMatchObject({ stars: 1, edits: 2, overPar: true });
+  });
+
+  it('creative: the first save pays 10 coins once and marks the level done', () => {
+    const creative: Level = { ...level, id: 'p-creative', mode: 'creative', stage: 'creative' };
+    const start = openSession(creative.id, { progress: undefined, ledger: [] });
+    const first = addCreativeSave(start, { level: creative, now: NOW, profileId: PROFILE });
+    expect(first.coins).toBe(10);
+    expect(first.entries.map((e) => e.id)).toEqual(['creative:p-creative']);
+    expect(first.progress.completedAt).toBe(NOW.toISOString());
+    const again = addCreativeSave(first.state, { level: creative, now: NOW, profileId: PROFILE });
+    expect(again.coins).toBe(0);
+    expect(again.entries).toEqual([]);
+  });
+
+  it('wrongPicks: wrong cards since the last right pick', () => {
+    const run = (runId: string, key: string, right: boolean) =>
+      toRunSummary({ ...outcome('crash'), answerKey: right ? key : 'other' }, runId, key);
+    expect(wrongPicks([run('1', 'a', false), run('2', 'b', false)])).toEqual(['a', 'b']);
+    expect(wrongPicks([run('1', 'a', false), run('2', 'b', true), run('3', 'c', false)])).toEqual([
+      'c',
+    ]);
+    expect(wrongPicks([toRunSummary(outcome('crash'), 'x')])).toEqual([]);
   });
 });

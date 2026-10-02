@@ -85,6 +85,19 @@ describe('resultLine', () => {
     expect(resultLine(win, { par: 4 }, feedback)).toBe('Chỉ 3 khối, ít hơn cả số chuẩn!');
   });
 
+  it('praises by mode: edits in bughunt, nothing to grade in creative', () => {
+    const win = { result: 'success' as const, reasonCode: null, events: [], stats };
+    expect(resultLine({ ...win, edits: 1 }, { mode: 'bughunt', parEdits: 1 }, feedback)).toBe(
+      'Chỉ sửa 1 khối, giỏi quá!',
+    );
+    expect(resultLine({ ...win, edits: 2 }, { mode: 'bughunt' }, feedback)).toBe(
+      'Hết lỗi rồi! Thử sửa ít khối hơn nhé?',
+    );
+    expect(resultLine(win, { mode: 'creative', par: 1 }, feedback)).toBe(
+      'Măng diễn xong rồi! Bấm Lưu để giữ nhé.',
+    );
+  });
+
   it('uses the feedback line of the reason', () => {
     const fell = { result: 'crash', reasonCode: 'FELL_IN_HOLE', events: [], stats } as const;
     expect(resultLine(fell, {}, feedback)).toBe('Ối, hố! Thử khối nhảy nhé.');

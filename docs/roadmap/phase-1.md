@@ -76,8 +76,16 @@ Theo bảng ở `product/curriculum.md` §3. `world.json`, `w01-lesson`, 15 màn
 Theo `product/curriculum.md` §4. **Nghiệm thu:** như P1-12.
 
 ### P1-14 · Âm thanh & giọng đọc
-Hiệu ứng (Kenney CC0), 2 bản nhạc nền, script sinh trước giọng đọc cho mọi câu **cố định** (`tools/voice/`; dịch vụ TTS do HLV chọn ở đầu task, ghi vào `tech-stack.md`), 3 kênh âm lượng.
+Hiệu ứng (tự tạo bằng `tools/audio/`, chiptune), 2 bản nhạc nền, script sinh trước giọng đọc cho mọi câu **cố định** (`tools/voice/`; dịch vụ TTS do HLV chọn ở đầu task, ghi vào `tech-stack.md`), 3 kênh âm lượng.
 **Nghiệm thu:** mọi câu cố định của Thế giới 1–2 và `feedback.json` có giọng đọc (câu có số thay đổi thì không, xem `ui-copy-guide.md` §5); tắt từng kênh độc lập.
+**Đã có (AI):** `apps/web/src/audio/`, 17 hiệu ứng + 2 nhạc nền tự tạo, `tools/voice/` (provider `none`/`files`), Cài đặt nghe thử, màn Kết quả, Bài giảng/Thế giới/Bản đồ/Tạo hồ sơ/nhắc nghỉ (xem `architecture/audio.md` §3).
+**Còn lại** (chờ P1-06 xong phần màn chơi; cách nối ở `architecture/audio.md` §3):
+- [ ] HLV chọn giọng → `npm run voice -- build --provider …`, ghi vào `tech-stack.md`; `npm run voice -- check --worlds w01,w02` sạch
+- [ ] `StageController`/stage: `playSfx(stageSfx(event.type))` khi hoạt ảnh của mỗi event bắt đầu; `RUN_SFX.fail` khi thua
+- [ ] Nút ▶ Chạy: `data-sfx="run"` (thay tiếng click mặc định)
+- [ ] `PlayScreen`: `useMusic('adventure')`; bubble mục tiêu / gợi ý / feedback / câu `vi.play.*` có `voiceId` (`levelVoiceId`, `hintVoiceId`, `feedbackVoiceId`, `uiVoiceId`); `HintBox`: `thinkingHint` → `levelVoiceId(id, 'thinking')`
+- [ ] `BlocklyWorkspace.tsx`: `sounds: false` (tiếng có sẵn của Blockly không theo thanh âm lượng) và gọi `playSfx(blocklySfx(event))` trong change listener
+- [ ] HLV nghe thử phong cách hiệu ứng + 2 bài nhạc, duyệt hoặc thay
 
 ### P1-15 · E2E smoke + CI
 Kịch bản ở `testing-strategy.md` §3, chạy trong CI với tag `@smoke`.

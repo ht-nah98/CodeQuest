@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { useCurrentProfile } from '../features/profiles';
 import { vi } from '../i18n/vi';
-import { Button, Dialog } from '../ui';
+import { uiVoiceId } from '../audio/voiceIds';
+import { Button, Dialog, SpeakButton } from '../ui';
 import { MangPortrait } from '../screens/play/MangPortrait';
 
 // "Nhắc nghỉ 25 phút" (phase-1.md P1-10, ui-copy-guide.md §4): after 25 minutes of play time
@@ -67,7 +68,10 @@ export function BreakReminder() {
       className="grid w-[480px] justify-items-center gap-4 px-8 pt-6 pb-8 text-center"
     >
       <MangPortrait pose="cheer" height={128} />
-      <p className="m-0 text-bubble font-bold">{vi.breakReminder.body}</p>
+      <div className="flex items-center gap-3">
+        <p className="m-0 text-bubble font-bold">{vi.breakReminder.body}</p>
+        <SpeakButton voiceId={uiVoiceId('breakReminder.body')} />
+      </div>
       <Button
         ref={resumeRef}
         variant="go"

@@ -1,6 +1,7 @@
 import { type ReactNode, useSyncExternalStore } from 'react';
 import { vi } from '../i18n/vi';
-import { Panel } from '../ui';
+import { uiVoiceId } from '../audio/voiceIds';
+import { Panel, SpeakButton } from '../ui';
 import { MangPortrait } from '../screens/play/MangPortrait';
 
 // ADR-0011: laptop-first, minimum 1280×720. The check is on the *screen* (a 1280×720 laptop
@@ -59,7 +60,10 @@ export function SmallScreenGate({ children }: { children: ReactNode }) {
             <h1 id="small-screen-title" className="m-0 text-title">
               {vi.smallScreen.title}
             </h1>
-            <p className="m-0 text-bubble font-bold">{vi.smallScreen.body}</p>
+            <div className="flex items-center gap-3">
+              <p className="m-0 text-bubble font-bold">{vi.smallScreen.body}</p>
+              <SpeakButton voiceId={uiVoiceId('smallScreen.body')} />
+            </div>
           </Panel>
         </div>
       )}

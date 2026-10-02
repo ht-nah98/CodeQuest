@@ -1,6 +1,8 @@
 import { type CSSProperties, useEffect, useMemo, useRef, useState } from 'react';
 import type { Level, World } from '@codequest/content-schema';
 import { isUnlocked, type LevelProgress } from '@codequest/rewards';
+import { uiVoiceId } from '../../audio/voiceIds';
+import { useAudio } from '../../audio/useAudio';
 import { useUnlockOverrides } from '../../features/author/authorMode';
 import { nextLevelId, unlockContext, useCatalog } from '../../features/content/catalog';
 import type { WinReward } from '../../features/play/session';
@@ -24,6 +26,44 @@ export interface ResultsOverlayProps {
 }
 
 const STAR_DELAYS_MS = [250, 550, 850];
+/** Each star "dings" a little higher (art-direction.md §6). */
+const STAR_RATES = [1, 1.12, 1.26];
+const COIN_SFX_DELAY_MS = 1150;
+
+type StarKey = 'stars3' | 'stars2' | 'stars1' | 'stars1Hint';
+
+// Măng's line by stars (ui-copy-guide.md §4): one table gives both the text and its voice id
+// (`ui.results.<path>`). stars1Hint = 1 star because the solution was shown.
+const LINE_TEXT = {
+  stars3: t.stars3,
+  stars2: t.stars2,
+  stars1: t.stars1,
+  stars1Hint: t.stars1Hint,
+  'predict.stars3': t.predict.stars3,
+  'predict.stars2': t.predict.stars2,
+  'predict.stars1': t.predict.stars1,
+  'bughunt.stars2': t.bughunt.stars2,
+  'bughunt.stars1': t.bughunt.stars1,
+} as const;
+
+const STAR_LINES: Record<
+  'build' | 'predict' | 'bughunt',
+  Record<StarKey, keyof typeof LINE_TEXT>
+> = {
+  build: { stars3: 'stars3', stars2: 'stars2', stars1: 'stars1', stars1Hint: 'stars1Hint' },
+  predict: {
+    stars3: 'predict.stars3',
+    stars2: 'predict.stars2',
+    stars1: 'predict.stars1',
+    stars1Hint: 'predict.stars1',
+  },
+  bughunt: {
+    stars3: 'stars3',
+    stars2: 'bughunt.stars2',
+    stars1: 'bughunt.stars1',
+    stars1Hint: 'stars1Hint',
+  },
+};
 const MAX_FLYING_COINS = 8;
 const FLY_FROM_RIGHT = 96;
 
@@ -60,6 +100,7 @@ export function ResultsOverlay({
   const worldRef = useRef<HTMLButtonElement>(null);
   const totalRef = useRef<HTMLParagraphElement>(null);
   const [flight, setFlight] = useState<{ dx: number; dy: number } | null>(null);
+  const { playSfx } = useAudio();
 
   // What the win opened, judged on progress with this win in (and, for "new world", without):
   // the live query may not have caught up with the write yet.
@@ -80,6 +121,38 @@ export function ResultsOverlay({
     return { next, newWorld };
   }, [catalog, progress, lessonsDone, overrides, level.id, world.order, reward]);
 
+  // Sounds follow the animation: fanfare, one rising "ding" per star, then the coins.
+  useEffect(() => {
+    playSfx('fanfare');
+    // Reduced motion: the stars are there at once, so one ding (pitched for the star count).
+    const delays = prefersReducedMotion() ? [] : STAR_DELAYS_MS.slice(0, reward.stars);
+    if (delays.length === 0 && reward.stars > 0) {
+      playSfx('star', { rate: STAR_RATES[reward.stars - 1] ?? 1 });
+    }
+    const timers = delays.map((delay, i) =>
+      window.setTimeout(() => {
+        playSfx('star', { rate: STAR_RATES[i] ?? 1 });
+      }, delay),
+    );
+    if (reward.coins > 0) {
+      timers.push(
+        window.setTimeout(() => {
+          playSfx('coin');
+        }, COIN_SFX_DELAY_MS),
+      );
+    }
+    return () => {
+      timers.forEach((timer) => {
+        window.clearTimeout(timer);
+      });
+    };
+  }, [playSfx, reward.stars, reward.coins]);
+
+  const openedNewWorld = opened?.newWorld ?? false;
+  useEffect(() => {
+    if (openedNewWorld) playSfx('unlock');
+  }, [playSfx, openedNewWorld]);
+
   // Coins fly from the total to the HUD wallet once the stars have landed.
   useEffect(() => {
     if (reward.coins <= 0 || prefersReducedMotion()) return;
@@ -97,14 +170,27 @@ export function ResultsOverlay({
     };
   }, [reward.coins]);
 
-  const line =
+  // Predict and bughunt grade picks / edits, not blocks: their own lines (rewards-economy.md §1).
+  const starKey: StarKey =
     reward.stars >= 3
-      ? t.stars3
+      ? 'stars3'
       : reward.stars === 2
-        ? t.stars2
+        ? 'stars2'
         : reward.overPar
-          ? t.stars1
-          : t.stars1Hint;
+          ? 'stars1'
+          : 'stars1Hint';
+  const linePath =
+    STAR_LINES[level.mode === 'predict' || level.mode === 'bughunt' ? level.mode : 'build'][
+      starKey
+    ];
+  const line = LINE_TEXT[linePath];
+  // Bughunt counts edits; without a measured `edits` it falls back to the blocks line.
+  const chip =
+    level.mode === 'bughunt' && reward.edits !== undefined
+      ? t.bughunt.lines(reward.edits)
+      : level.mode === 'predict'
+        ? t.predict.lines(reward.blocksUsed)
+        : t.lines(reward.blocksUsed);
   const next = opened?.next ?? null;
 
   return (
@@ -138,14 +224,19 @@ export function ResultsOverlay({
 
       <div className="flex items-end gap-3">
         <MangPortrait pose="cheer" height={104} />
-        <Bubble text={line} tail="left" className="mb-6 text-left" />
+        <Bubble
+          text={line}
+          tail="left"
+          voiceId={uiVoiceId(`results.${linePath}`)}
+          className="mb-6 text-left"
+        />
       </div>
 
       <p
         data-testid="results-lines"
         className="m-0 rounded-chip border-3 border-ink bg-brand-deep px-4 pt-1 font-pixel text-pixel-lg text-paper"
       >
-        {t.lines(reward.blocksUsed)}
+        {chip}
       </p>
 
       {opened?.newWorld && (

@@ -14,10 +14,13 @@ import { FOCUS_RING } from '../../ui/focusRing';
 import { PinPad } from '../profile/PinPad';
 import { TopBar } from '../shared/TopBar';
 import { BackupPanel, RestorePanel } from './BackupPanels';
+import { useVolumePreview } from './useVolumePreview';
 
 const t = vi.settings;
 
 type VolumeKey = 'musicVolume' | 'sfxVolume' | 'voiceVolume';
+
+const CHANNEL_OF = { musicVolume: 'music', sfxVolume: 'sfx', voiceVolume: 'voice' } as const;
 type SwitchKey = 'reducedMotion' | 'colorBlindTheme';
 
 /** "/settings" Cài đặt: sound, display, avatar; for adults: backup, restore, delete. */
@@ -31,6 +34,7 @@ export default function SettingsScreen() {
   const [unlocking, setUnlocking] = useState(false);
   const [deleteFailed, setDeleteFailed] = useState(false);
   const [pinWrong, setPinWrong] = useState(false);
+  const previewVolume = useVolumePreview();
 
   const save = (patch: Partial<ProfileSettings>) => {
     void updateProfile(profile.id, { settings: patch });
@@ -67,7 +71,9 @@ export default function SettingsScreen() {
                   step={10}
                   value={Math.round(profile.settings[key] * 100)}
                   onChange={(event) => {
-                    save({ [key]: Number(event.target.value) / 100 });
+                    const slider = Number(event.target.value) / 100;
+                    previewVolume(CHANNEL_OF[key], slider);
+                    save({ [key]: slider });
                   }}
                   className="h-9 cursor-pointer accent-brand-deep"
                 />

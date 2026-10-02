@@ -30,7 +30,7 @@ Nhờ tách hai chiều, mỗi kiểu game mới tự động có 5 cách chơi;
 | `bughunt` | Săn lỗi | Chương trình có sẵn bị sai, sửa với ít thao tác nhất | `evaluate()` + đếm số khối thay đổi so với ban đầu | Chương trình có lỗi |
 | `creative` | Sáng tạo | Tự do, không có đúng/sai | Không chấm. Lưu được và khoe với nhóm | Chỉ có "khi bắt đầu" |
 
-Riêng với `predict`: đáp án đúng **được tính bằng cách chạy mô phỏng** (`predictAnswer`), không gõ tay, nên không bao giờ lệch với engine. Người soạn khai báo 3–4 phương án (`key` theo định dạng `predictAnswer` của kiểu game), đúng 1 phương án trùng kết quả thật. Mỗi phương án hiện bằng **hình thu nhỏ** do renderer vẽ từ `key` (`StageRenderer.drawAnswer`), kèm nhãn chữ ngắn.
+Riêng với `predict`: đáp án đúng **được tính bằng cách chạy mô phỏng** (`predictAnswer`), không gõ tay, nên không bao giờ lệch với engine. Người soạn khai báo 3–4 phương án (`key` theo định dạng `predictAnswer` của kiểu game), đúng 1 phương án trùng kết quả thật. Mỗi phương án hiện bằng **hình thu nhỏ** vẽ từ `key` và `config` (`AnswerPicture`, SVG tĩnh, xem `architecture/stage-rendering.md` §4 "Hình đáp án"), kèm nhãn chữ ngắn. Hình không đánh số ô (sân chơi không hiện số); ô của đáp án có khung vàng.
 
 Gợi ý trong `predict`: chỉ có tầng 1 (gợi ý tư duy); tầng 2–3 bị ẩn vì không có lời giải để chỉ.
 

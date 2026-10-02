@@ -8,7 +8,8 @@ import {
 } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import * as Blockly from 'blockly';
-import type { RunOutcome } from '@codequest/engine';
+import { editDistance, type RunOutcome } from '@codequest/engine';
+import { DEFAULT_PAR_EDITS } from '@codequest/rewards';
 import {
   BlocklyWorkspace,
   type WorkspaceHandle,
@@ -34,6 +35,7 @@ import { ScreenMessage } from '../shared/ScreenMessage';
 import { useChild } from '../shared/useChild';
 import { MangPortrait, type PortraitPose } from './MangPortrait';
 import { PlayTopBar } from './PlayTopBar';
+import { type PickMark, PredictCards } from './PredictCards';
 import { ResultsOverlay } from './ResultsOverlay';
 import './play.css';
 
@@ -42,7 +44,13 @@ const t = vi.play;
 /** Test hook for e2e (dev build only): the live workspace and what playback highlighted. */
 declare global {
   interface Window {
-    __cqPlay?: { Blockly: typeof Blockly; workspace: Blockly.WorkspaceSvg; highlights: string[] };
+    __cqPlay?: {
+      Blockly: typeof Blockly;
+      workspace: Blockly.WorkspaceSvg;
+      highlights: string[];
+      /** Mode predict: the engine's answer for the level's program. */
+      answerKey?: string | undefined;
+    };
   }
 }
 
@@ -150,6 +158,9 @@ const PORTRAIT: Record<Phase, PortraitPose> = {
 /** One attempt at a level: stage on the left, Blockly on the right, Măng's bubble below. */
 function PlaySession({ content }: { content: PlayContent }) {
   const { level, world, levelNumber, feedback } = content;
+  const { mode } = level;
+  const predict = mode === 'predict' ? level.predict : undefined;
+  const readyLine = mode === 'build' ? t.ready : t.readyByMode[mode];
   const navigate = useNavigate();
   const stageBoxRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<StageController | null>(null);
@@ -161,7 +172,7 @@ function PlaySession({ content }: { content: PlayContent }) {
   const [stageReady, setStageReady] = useState(false);
   const [stageFailed, setStageFailed] = useState(false);
   const [phase, setPhase] = useState<Phase>('idle');
-  const [bubble, setBubble] = useState<string>(t.ready);
+  const [bubble, setBubble] = useState<string>(readyLine);
   const [speed, setSpeed] = useState<Speed>(1);
   /** The chosen speed, for a stage mounted later (level change, dev Fast Refresh). */
   const speedRef = useRef<Speed>(1);
@@ -174,10 +185,26 @@ function PlaySession({ content }: { content: PlayContent }) {
     ready: sessionReady,
     initialWorkspace,
     recordRun,
+    saveCreative,
     saveDraft,
     setWorkspaceFlush,
+    wrongPicks,
   } = usePlaySession(profile.id, level);
   const [reward, setReward] = useState<WinReward | null>(null);
+  /** Mode predict: the cards picked in this session. */
+  const [marks, setMarks] = useState<Record<string, PickMark>>({});
+  /** Plus the wrong picks of the session a reload left open: still marked and locked. */
+  const allMarks = useMemo(
+    () => ({
+      ...Object.fromEntries(wrongPicks.map((key): [string, PickMark] => [key, 'wrong'])),
+      ...marks,
+    }),
+    [wrongPicks, marks],
+  );
+  /** Mode bughunt: blocks changed from the level's start, live (editDistance). */
+  const [edits, setEdits] = useState(0);
+  /** Mode creative: a save in progress. */
+  const [saving, setSaving] = useState(false);
   // The workspace starts from the child's draft when there is one.
   const workspaceLevel = useMemo(
     () => (initialWorkspace === undefined ? level : { ...level, initialWorkspace }),
@@ -247,7 +274,7 @@ function PlaySession({ content }: { content: PlayContent }) {
         setPhase('idle');
         setStepping(false);
         setPaused(false);
-        setBubble(t.ready);
+        setBubble(readyLine);
       },
       () => {
         if (!controller.signal.aborted) setStageFailed(true);
@@ -259,7 +286,7 @@ function PlaySession({ content }: { content: PlayContent }) {
       stageRef.current = null;
       setStageReady(false);
     };
-  }, [level, highlight]);
+  }, [level, highlight, readyLine]);
 
   /** Bumped by every run: a reward that resolves after the next run started is not shown. */
   const runTokenRef = useRef(0);
@@ -292,14 +319,14 @@ function PlaySession({ content }: { content: PlayContent }) {
     setStepping(false);
     setPaused(false);
     setPhase('idle');
-    setBubble(t.ready);
-  }, [clearShake]);
+    setBubble(readyLine);
+  }, [clearShake, readyLine]);
 
   const run = useCallback(
     (step: boolean) => {
       const stage = stageRef.current;
       const handle = handleRef.current;
-      if (!stage || !handle) return;
+      if (!stage || !handle || mode === 'predict') return;
       if (stage.playing) {
         if (step) {
           stage.step();
@@ -339,8 +366,83 @@ function PlaySession({ content }: { content: PlayContent }) {
         if (result === 'finished') finish(outcome, rewardOf);
       }, fail);
     },
-    [level, feedback, finish, reset, clearShake, recordRun],
+    [level, mode, feedback, finish, reset, clearShake, recordRun],
   );
+
+  /**
+   * Mode predict: the child picks a card. The pick is judged at once (the engine ran the level's
+   * program), recorded as the run (stars by pick number, rewards-engine.md §3), then the replay
+   * shows what really happens. A wrong card stays marked; a right one opens the results.
+   */
+  const pick = useCallback(
+    (key: string) => {
+      const stage = stageRef.current;
+      const program = level.initialWorkspace;
+      // Before the session is loaded a pick could not be recorded: it would be lost.
+      if (!sessionReady || !stage || stage.playing || program === undefined) return;
+      let outcome: RunOutcome;
+      try {
+        outcome = runProgram(level, program);
+      } catch {
+        setBubble(feedbackLine('INTERNAL_ERROR', level, feedback));
+        return;
+      }
+      const right = key === outcome.answerKey;
+      runTokenRef.current += 1;
+      const token = runTokenRef.current;
+      setReward(null);
+      const rewardOf = recordRun(outcome, key);
+      setMarks((current) => ({ ...current, [key]: right ? 'right' : 'wrong' }));
+      setPhase('running');
+      setBubble(right ? t.predict.right : feedbackLine('WRONG_ANSWER', level, feedback));
+      const won = () => {
+        setPhase('success');
+        setBubble(t.predict.rightDone);
+        void rewardOf.then((result) => {
+          if (result && runTokenRef.current === token) setReward(result);
+        });
+      };
+      stage.play(outcome).then(
+        (result) => {
+          if (result !== 'finished') return;
+          if (right) {
+            won();
+            return;
+          }
+          setPhase('fail');
+          setBubble(t.predict.tryAgain);
+        },
+        () => {
+          // The pick was recorded already: a right one still wins even if the replay broke.
+          stage.reset();
+          if (right) {
+            won();
+            return;
+          }
+          setPhase('idle');
+          setBubble(feedbackLine('INTERNAL_ERROR', level, feedback));
+        },
+      );
+    },
+    [level, feedback, recordRun, sessionReady],
+  );
+
+  /** Mode creative: "Lưu" stores the program; the first save of the level pays its coins. */
+  const save = useCallback(() => {
+    const handle = handleRef.current;
+    if (!handle || saving) return;
+    setSaving(true);
+    saveCreative(handle.getState().json).then(
+      (coins) => {
+        setSaving(false);
+        setBubble(coins > 0 ? t.creative.savedCoins(coins) : t.creative.saved);
+      },
+      () => {
+        setSaving(false);
+        setBubble(t.creative.saveError);
+      },
+    );
+  }, [saveCreative, saving]);
 
   /** Tạm dừng / Tiếp tục: freezes the replay mid-move, or lets it go on. */
   const togglePause = useCallback(() => {
@@ -369,7 +471,7 @@ function PlaySession({ content }: { content: PlayContent }) {
             : event.code === 'KeyR'
               ? 'reset'
               : null;
-      if (action === null || !shouldHandleAppShortcut(event)) return;
+      if (action === null || mode === 'predict' || !shouldHandleAppShortcut(event)) return;
       event.preventDefault();
       event.stopPropagation();
       if (action === 'reset') reset();
@@ -379,7 +481,7 @@ function PlaySession({ content }: { content: PlayContent }) {
     return () => {
       window.removeEventListener('keydown', onKeyDown, { capture: true });
     };
-  }, [run, reset]);
+  }, [run, reset, mode]);
 
   const onReady = useCallback(
     (workspace: Blockly.WorkspaceSvg, handle: WorkspaceHandle) => {
@@ -388,9 +490,15 @@ function PlaySession({ content }: { content: PlayContent }) {
       setWorkspaceFlush(() => {
         handle.flush();
       });
-      if (import.meta.env.DEV) window.__cqPlay = { Blockly, workspace, highlights: [] };
+      if (import.meta.env.DEV) {
+        let answerKey: string | undefined;
+        if (level.mode === 'predict' && level.initialWorkspace !== undefined) {
+          answerKey = runProgram(level, level.initialWorkspace).answerKey;
+        }
+        window.__cqPlay = { Blockly, workspace, highlights: [], answerKey };
+      }
     },
-    [setWorkspaceFlush],
+    [setWorkspaceFlush, level],
   );
 
   const onDispose = useCallback(() => {
@@ -405,11 +513,15 @@ function PlaySession({ content }: { content: PlayContent }) {
       // A workspace being torn down reports once more, tagged with its own level.
       if (state.levelId !== level.id) return;
       setCapacity(state.remainingCapacity);
+      if (mode === 'predict') return; // read-only: nothing to save or compare
+      if (mode === 'bughunt' && level.initialWorkspace !== undefined) {
+        setEdits(editDistance(level.initialWorkspace, state.json));
+      }
       saveDraft(state.json);
       // Editing the program makes the replay on screen stale: put the stage back.
       if (phase !== 'idle' && programKey(state.json) !== ranJsonRef.current) reset();
     },
-    [level.id, phase, reset, saveDraft],
+    [level.id, level.initialWorkspace, mode, phase, reset, saveDraft],
   );
 
   const chooseSpeed = (next: Speed) => {
@@ -446,6 +558,7 @@ function PlaySession({ content }: { content: PlayContent }) {
         levelTitle={level.title}
         where={t.where(world.title, levelNumber)}
         worldId={world.id}
+        showStars={mode !== 'creative'}
         readProgram={() => handleRef.current?.getState().json ?? null}
       />
 
@@ -480,87 +593,90 @@ function PlaySession({ content }: { content: PlayContent }) {
             {level.objective}
           </p>
 
-          <div
-            role="toolbar"
-            aria-label={t.controlsLabel}
-            className="flex flex-wrap items-center gap-3 px-4 py-3"
-          >
-            <Button
-              variant={running ? 'plain' : 'go'}
-              size="lg"
-              icon={running ? '■' : <PixelIcon name="play" scale={1} />}
-              shortcut="Space"
-              disabled={!stageReady}
-              data-testid="play-run"
-              onClick={() => {
-                run(false);
-                focusStage();
-              }}
+          {/* Mode predict has no run controls: the answer cards sit under the program. */}
+          {predict ? null : (
+            <div
+              role="toolbar"
+              aria-label={t.controlsLabel}
+              className="flex flex-wrap items-center gap-3 px-4 py-3"
             >
-              {running ? t.stop : t.run}
-            </Button>
-            <Button
-              size="sm"
-              shortcut="S"
-              disabled={!stageReady}
-              aria-pressed={stepping}
-              onClick={() => {
-                run(true);
-                focusStage();
-              }}
-            >
-              {t.step}
-            </Button>
-            {/* Icon-only (named for screen readers and on hover) so the toolbar keeps its rows. */}
-            <Button
-              size="sm"
-              icon={paused ? <PixelIcon name="play" scale={1} /> : '❚❚'}
-              disabled={!running}
-              aria-label={paused ? t.resume : t.pause}
-              title={paused ? t.resume : t.pause}
-              data-testid="play-pause"
-              onClick={() => {
-                togglePause();
-                focusStage();
-              }}
-            />
-            <div role="radiogroup" aria-label={t.speedLabel} className="flex gap-1">
-              {SPEEDS.map((option, index) => (
-                <button
-                  key={option.speed}
-                  ref={(element) => {
-                    speedRefs.current[index] = element;
-                  }}
-                  type="button"
-                  role="radio"
-                  aria-checked={speed === option.speed}
-                  tabIndex={speed === option.speed ? 0 : -1}
-                  onKeyDown={(event) => {
-                    onSpeedKey(event, index);
-                  }}
-                  onClick={() => {
-                    chooseSpeed(option.speed);
-                    focusStage();
-                  }}
-                  className="min-h-11 cursor-pointer rounded-key border-2 border-ink bg-paper px-3 font-display text-small font-bold shadow-key transition-transform duration-150 hover:-translate-y-px aria-checked:translate-y-0.5 aria-checked:bg-coin aria-checked:shadow-button-pressed focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-brand-deep"
-                >
-                  {option.label}
-                </button>
-              ))}
+              <Button
+                variant={running ? 'plain' : 'go'}
+                size="lg"
+                icon={running ? '■' : <PixelIcon name="play" scale={1} />}
+                shortcut="Space"
+                disabled={!stageReady}
+                data-testid="play-run"
+                onClick={() => {
+                  run(false);
+                  focusStage();
+                }}
+              >
+                {running ? t.stop : t.run}
+              </Button>
+              <Button
+                size="sm"
+                shortcut="S"
+                disabled={!stageReady}
+                aria-pressed={stepping}
+                onClick={() => {
+                  run(true);
+                  focusStage();
+                }}
+              >
+                {t.step}
+              </Button>
+              {/* Icon-only (named for screen readers and on hover) so the toolbar keeps its rows. */}
+              <Button
+                size="sm"
+                icon={paused ? <PixelIcon name="play" scale={1} /> : '❚❚'}
+                disabled={!running}
+                aria-label={paused ? t.resume : t.pause}
+                title={paused ? t.resume : t.pause}
+                data-testid="play-pause"
+                onClick={() => {
+                  togglePause();
+                  focusStage();
+                }}
+              />
+              <div role="radiogroup" aria-label={t.speedLabel} className="flex gap-1">
+                {SPEEDS.map((option, index) => (
+                  <button
+                    key={option.speed}
+                    ref={(element) => {
+                      speedRefs.current[index] = element;
+                    }}
+                    type="button"
+                    role="radio"
+                    aria-checked={speed === option.speed}
+                    tabIndex={speed === option.speed ? 0 : -1}
+                    onKeyDown={(event) => {
+                      onSpeedKey(event, index);
+                    }}
+                    onClick={() => {
+                      chooseSpeed(option.speed);
+                      focusStage();
+                    }}
+                    className="min-h-11 cursor-pointer rounded-key border-2 border-ink bg-paper px-3 font-display text-small font-bold shadow-key transition-transform duration-150 hover:-translate-y-px aria-checked:translate-y-0.5 aria-checked:bg-coin aria-checked:shadow-button-pressed focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-brand-deep"
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+              <Button
+                size="sm"
+                icon="↺"
+                shortcut="R"
+                className="ml-auto"
+                onClick={() => {
+                  reset();
+                  focusStage();
+                }}
+              >
+                {t.reset}
+              </Button>
             </div>
-            <Button
-              size="sm"
-              icon="↺"
-              shortcut="R"
-              className="ml-auto"
-              onClick={() => {
-                reset();
-                focusStage();
-              }}
-            >
-              {t.reset}
-            </Button>
-          </div>
+          )}
         </Panel>
 
         <Panel className="grid min-h-0 grid-rows-[minmax(0,1fr)_auto] overflow-hidden">
@@ -578,9 +694,44 @@ function PlaySession({ content }: { content: PlayContent }) {
           ) : (
             <div className="min-h-0 rounded-t-[15px] bg-paper" />
           )}
+          {predict && (
+            <div className="border-t-3 border-ink bg-paper-2">
+              <PredictCards
+                kind={level.kind}
+                config={level.config}
+                options={predict.options}
+                marks={allMarks}
+                disabled={
+                  !sessionReady || !stageReady || phase === 'running' || phase === 'success'
+                }
+                onPick={pick}
+              />
+            </div>
+          )}
           {level.maxBlocks !== undefined && capacity !== null && (
             <div className="flex min-h-14 items-center border-t-3 border-ink bg-paper px-4 py-2">
               <CapacityBricks max={level.maxBlocks} used={level.maxBlocks - capacity} />
+            </div>
+          )}
+          {mode === 'bughunt' && (
+            <BughuntBar edits={edits} parEdits={level.parEdits ?? DEFAULT_PAR_EDITS} />
+          )}
+          {mode === 'creative' && (
+            <div className="flex min-h-14 items-center gap-3 border-t-3 border-ink bg-paper px-4 py-2">
+              <span className="font-bold text-ink-soft">{t.creative.label}</span>
+              <Button
+                variant="coin"
+                size="sm"
+                className="ml-auto"
+                disabled={!sessionReady || saving}
+                data-testid="play-save"
+                onClick={() => {
+                  save();
+                  focusStage();
+                }}
+              >
+                {saving ? t.creative.saving : t.creative.save}
+              </Button>
             </div>
           )}
           {/* HINT SLOT (P1-07, next round): the hint box button (💡 Gợi ý · H) goes here, at the
@@ -605,6 +756,10 @@ function PlaySession({ content }: { content: PlayContent }) {
           reward={reward}
           onReplay={() => {
             setReward(null);
+            // Playing again: the right card can be picked again, wrong ones stay locked.
+            setMarks((current) =>
+              Object.fromEntries(Object.entries(current).filter(([, mark]) => mark === 'wrong')),
+            );
             reset();
             focusStage();
           }}
@@ -613,5 +768,25 @@ function PlaySession({ content }: { content: PlayContent }) {
         />
       )}
     </main>
+  );
+}
+
+/** Mode bughunt (screens-and-flows.md §3): "Săn lỗi" and the live "đã sửa N khối" counter. */
+function BughuntBar({ edits, parEdits }: { edits: number; parEdits: number }) {
+  const over = edits > parEdits;
+  return (
+    <div className="flex min-h-14 items-center gap-3 border-t-3 border-ink bg-paper px-4 py-2">
+      <span className="font-bold">{t.bughunt.label}</span>
+      <span
+        data-testid="bughunt-edits"
+        data-edits={edits}
+        data-over={over}
+        aria-live="polite"
+        className={`ml-auto rounded-chip border-3 border-ink px-3 pt-0.5 font-pixel text-pixel ${over ? 'bg-oops-soft' : 'bg-go/25'}`}
+      >
+        {t.bughunt.edits(edits)}
+      </span>
+      <span className="font-pixel text-pixel text-ink-soft">{t.bughunt.par(parEdits)}</span>
+    </div>
   );
 }

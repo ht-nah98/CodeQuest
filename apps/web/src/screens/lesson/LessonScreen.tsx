@@ -1,12 +1,14 @@
-import { lazy, Suspense, useCallback, useLayoutEffect, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import type { LessonCard, MascotPose } from '@codequest/content-schema';
 import { computeLessonRewards } from '@codequest/rewards';
+import { useAudio, useMusic } from '../../audio/useAudio';
+import { lessonCardVoiceId, uiVoiceId } from '../../audio/voiceIds';
 import { canOpenLesson, firstPlayableLevelId } from '../../features/content/catalog';
 import { useSignedInProfile } from '../../features/profiles';
 import { listLedger, markLessonDone } from '../../features/progress';
 import { vi } from '../../i18n/vi';
-import { Bubble, Button, Panel, PixelIcon } from '../../ui';
+import { Bubble, Button, Panel, PixelIcon, SpeakButton } from '../../ui';
 import { FOCUS_RING } from '../../ui/focusRing';
 import { MangPortrait, type PortraitPose } from '../play/MangPortrait';
 import { ScreenMessage } from '../shared/ScreenMessage';
@@ -42,6 +44,16 @@ export default function LessonScreen() {
   const [finished, setFinished] = useState<Finished | null>(null);
   const [saving, setSaving] = useState(false);
   const [saveFailed, setSaveFailed] = useState(false);
+  const { playSfx } = useAudio();
+  useMusic('village');
+
+  // A card turn swishes (keys or buttons; the buttons themselves are data-sfx="none").
+  const shownIndex = useRef(index);
+  useEffect(() => {
+    if (shownIndex.current === index) return;
+    shownIndex.current = index;
+    playSfx('page-turn');
+  }, [index, playSfx]);
 
   const lesson = catalog?.lessons.get(lessonId);
   const world = catalog?.worldById.get(worldId);
@@ -156,7 +168,10 @@ export default function LessonScreen() {
                 {t.coins(finished.coins)}
               </p>
             )}
-            <p className="m-0 text-bubble font-bold">{t.doneBody}</p>
+            <div className="flex items-center gap-3">
+              <p className="m-0 text-bubble font-bold">{t.doneBody}</p>
+              <SpeakButton voiceId={uiVoiceId('lesson.doneBody')} />
+            </div>
             <div className="flex gap-4">
               <Button onClick={() => void navigate(toWorld)}>{t.close}</Button>
               {firstLevelId !== null && (
@@ -202,6 +217,7 @@ export default function LessonScreen() {
             <div className="flex items-center justify-between gap-4">
               <Button
                 icon="←"
+                data-sfx="none"
                 disabled={index === 0}
                 onClick={() => {
                   go(-1);
@@ -230,6 +246,7 @@ export default function LessonScreen() {
                   variant="go"
                   size="md"
                   iconAfter="→"
+                  data-sfx="none"
                   disabled={!answered}
                   onClick={() => {
                     go(1);
@@ -291,6 +308,7 @@ function CardBody({
         <Bubble
           text={card.text}
           tail="left"
+          voiceId={lessonCardVoiceId(lessonId, index)}
           className="mb-10 max-w-[600px] text-[28px] leading-snug"
         />
       </div>
@@ -301,7 +319,7 @@ function CardBody({
       <>
         <div className="flex items-center gap-4">
           <MangPortrait pose="talk" height={72} />
-          <Bubble text={card.text} tail="left" />
+          <Bubble text={card.text} tail="left" voiceId={lessonCardVoiceId(lessonId, index)} />
         </div>
         <Suspense fallback={<div className="h-[260px]" />}>
           <LessonDemo card={card} id={`${lessonId}-demo-${String(index)}`} worldId={worldId} />
@@ -314,7 +332,12 @@ function CardBody({
     <>
       <div className="flex items-center gap-4">
         <MangPortrait pose={answer === undefined ? 'talk' : right ? 'happy' : 'talk'} height={96} />
-        <Bubble text={card.text} tail="left" className="text-[24px]" />
+        <Bubble
+          text={card.text}
+          tail="left"
+          voiceId={lessonCardVoiceId(lessonId, index)}
+          className="text-[24px]"
+        />
       </div>
       <div className="grid grid-cols-2 gap-4" role="group" aria-label={card.text}>
         {card.options.map((option, i) => {
@@ -340,9 +363,12 @@ function CardBody({
           );
         })}
       </div>
-      <p aria-live="polite" className="m-0 min-h-8 text-bubble font-bold">
-        {answer === undefined ? '' : `${right ? t.quizRight : t.quizWrong} ${card.explain}`}
-      </p>
+      <div className="flex min-h-11 items-center gap-3">
+        <p aria-live="polite" className="m-0 min-h-8 text-bubble font-bold">
+          {answer === undefined ? '' : `${right ? t.quizRight : t.quizWrong} ${card.explain}`}
+        </p>
+        {answer !== undefined && <SpeakButton voiceId={lessonCardVoiceId(lessonId, index, true)} />}
+      </div>
     </>
   );
 }

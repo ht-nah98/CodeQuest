@@ -2,6 +2,8 @@ export { Bubble } from './Bubble';
 export type { BubbleProps, BubbleTail } from './Bubble';
 export { BUBBLE_MAX_WORDS, countWords, fitsBubble } from './bubbleCopy';
 export { Button } from './Button';
+export { SpeakButton } from './SpeakButton';
+export type { SpeakButtonProps } from './SpeakButton';
 export type { ButtonProps, ButtonVariant } from './Button';
 export { CapacityBricks } from './CapacityBricks';
 export type { CapacityBricksProps } from './CapacityBricks';

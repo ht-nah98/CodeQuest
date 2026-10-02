@@ -61,6 +61,38 @@ export const vi = {
     toWorld: 'Về thế giới',
     toMap: 'Về bản đồ',
     stageError: 'Ối, sân chơi chưa hiện được.',
+    // Modes other than build (P1-06, screens-and-flows.md §3). Bubble lines ≤ 12 words.
+    readyByMode: {
+      parsons: 'Kéo các khối nối vào dưới “khi bắt đầu” nhé!',
+      predict: 'Đọc các khối, rồi chọn một thẻ nhé!',
+      bughunt: 'Có khối sai. Con sửa rồi bấm Chạy nhé!',
+      creative: 'Ghép tùy ý rồi bấm Chạy xem Măng nhé!',
+    },
+    predict: {
+      cardsLabel: 'Chọn đáp án',
+      right: 'Đúng rồi! Cùng xem Măng đi nhé!',
+      rightDone: 'Con đoán đúng rồi!',
+      // After the replay of a wrong pick (the pick itself says the WRONG_ANSWER line).
+      tryAgain: 'Thấy chưa? Giờ con chọn lại nhé!',
+      wrongMark: 'Chưa đúng',
+      rightMark: 'Đúng rồi',
+    },
+    bughunt: {
+      label: 'Săn lỗi: sửa ít nhất có thể',
+      edits: (n: number) => `Đã sửa ${String(n)} khối`,
+      par: (n: number) => `Chuẩn: ${String(n)}`,
+      winPar: (n: number) => `Chỉ sửa ${String(n)} khối, giỏi quá!`,
+      win: 'Hết lỗi rồi! Thử sửa ít khối hơn nhé?',
+    },
+    creative: {
+      label: 'Sáng tạo: không có đúng sai',
+      save: 'Lưu',
+      saving: 'Đang lưu…',
+      done: 'Măng diễn xong rồi! Bấm Lưu để giữ nhé.',
+      savedCoins: (n: number) => `Đã lưu! Con được ${String(n)} xu.`,
+      saved: 'Đã lưu bài của con rồi!',
+      saveError: 'Ối, chưa lưu được. Thử lại nhé!',
+    },
   },
 
   // Hint box, tier-0 hints, next-step popover, solution view (hint-engine.md, rewards-economy.md §2).
@@ -282,6 +314,18 @@ export const vi = {
     replay: 'Chơi lại',
     toWorld: 'Về thế giới',
     best: 'Kỷ lục',
+    // Mode predict / bughunt replace the line chip and the star lines (rewards-economy.md §1).
+    predict: {
+      lines: (n: number) => `Con đọc hiểu ${String(n)} khối lệnh!`,
+      stars3: 'Đoán đúng ngay lần đầu! Ba sao luôn!',
+      stars2: 'Đúng rồi! Lần sau đoán trúng ngay nhé?',
+      stars1: 'Đúng rồi! Đọc kỹ từng khối là trúng ngay!',
+    },
+    bughunt: {
+      lines: (n: number) => `Con sửa ${String(n)} khối là hết lỗi!`,
+      stars2: 'Sửa ít khối lắm! Không cần gợi ý là được 3 sao.',
+      stars1: 'Hết lỗi rồi! Thử sửa ít khối hơn nhé?',
+    },
   },
 
   // Nhắc nghỉ sau 25 phút (ui-copy-guide.md §4).

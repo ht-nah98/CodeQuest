@@ -235,7 +235,6 @@ const MAPS: Record<PixelIconName, readonly string[]> = {
     '................',
     '................',
   ],
-
 };
 
 const FILLS: Record<string, string> = {

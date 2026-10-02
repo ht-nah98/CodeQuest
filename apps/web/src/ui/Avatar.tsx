@@ -48,7 +48,18 @@ const ART: Record<AvatarId, AvatarArt> = {
       '..OOFFFFFFFFOO..',
       '....OOOOOOOO....',
     ],
-    fills: { A: 'fill-ink', C: 'fill-hint', E: 'fill-ink', F: 'fill-white', I: 'fill-ink-soft', M: 'fill-ink', N: 'fill-ink', O: 'fill-ink', P: 'fill-ink', w: 'fill-white' },
+    fills: {
+      A: 'fill-ink',
+      C: 'fill-hint',
+      E: 'fill-ink',
+      F: 'fill-white',
+      I: 'fill-ink-soft',
+      M: 'fill-ink',
+      N: 'fill-ink',
+      O: 'fill-ink',
+      P: 'fill-ink',
+      w: 'fill-white',
+    },
   },
   bear: {
     map: [
@@ -69,7 +80,17 @@ const ART: Record<AvatarId, AvatarArt> = {
       '..OOFFFFFFFFOO..',
       '....OOOOOOOO....',
     ],
-    fills: { A: 'fill-block-robot', C: 'fill-hint', E: 'fill-ink', F: 'fill-block-robot', I: 'fill-coin', M: 'fill-paper-2', N: 'fill-ink', O: 'fill-ink', w: 'fill-white' },
+    fills: {
+      A: 'fill-block-robot',
+      C: 'fill-hint',
+      E: 'fill-ink',
+      F: 'fill-block-robot',
+      I: 'fill-coin',
+      M: 'fill-paper-2',
+      N: 'fill-ink',
+      O: 'fill-ink',
+      w: 'fill-white',
+    },
   },
   koala: {
     map: [
@@ -90,7 +111,17 @@ const ART: Record<AvatarId, AvatarArt> = {
       '..OOFFFFFFFFOO..',
       '....OOOOOOOO....',
     ],
-    fills: { A: 'fill-brand', C: 'fill-hint', E: 'fill-ink', F: 'fill-brand', I: 'fill-paper', M: 'fill-brand-soft', N: 'fill-ink', O: 'fill-ink', w: 'fill-white' },
+    fills: {
+      A: 'fill-brand',
+      C: 'fill-hint',
+      E: 'fill-ink',
+      F: 'fill-brand',
+      I: 'fill-paper',
+      M: 'fill-brand-soft',
+      N: 'fill-ink',
+      O: 'fill-ink',
+      w: 'fill-white',
+    },
   },
   cat: {
     map: [
@@ -111,7 +142,17 @@ const ART: Record<AvatarId, AvatarArt> = {
       '..OOFFFFFFFFOO..',
       '....OOOOOOOO....',
     ],
-    fills: { A: 'fill-coin', C: 'fill-hint', E: 'fill-ink', F: 'fill-coin', I: 'fill-hint', M: 'fill-paper', N: 'fill-block-var', O: 'fill-ink', w: 'fill-white' },
+    fills: {
+      A: 'fill-coin',
+      C: 'fill-hint',
+      E: 'fill-ink',
+      F: 'fill-coin',
+      I: 'fill-hint',
+      M: 'fill-paper',
+      N: 'fill-block-var',
+      O: 'fill-ink',
+      w: 'fill-white',
+    },
   },
   fox: {
     map: [
@@ -132,7 +173,17 @@ const ART: Record<AvatarId, AvatarArt> = {
       '..OOFFFFFFFFOO..',
       '....OOOOOOOO....',
     ],
-    fills: { A: 'fill-block-loop', C: 'fill-hint', E: 'fill-ink', F: 'fill-block-loop', I: 'fill-ink', M: 'fill-white', N: 'fill-ink', O: 'fill-ink', w: 'fill-white' },
+    fills: {
+      A: 'fill-block-loop',
+      C: 'fill-hint',
+      E: 'fill-ink',
+      F: 'fill-block-loop',
+      I: 'fill-ink',
+      M: 'fill-white',
+      N: 'fill-ink',
+      O: 'fill-ink',
+      w: 'fill-white',
+    },
   },
   tiger: {
     map: [
@@ -153,7 +204,18 @@ const ART: Record<AvatarId, AvatarArt> = {
       '..OOFFFFFFFFOO..',
       '....OOOOOOOO....',
     ],
-    fills: { A: 'fill-coin-deep', C: 'fill-hint', E: 'fill-ink', F: 'fill-coin-deep', I: 'fill-paper', M: 'fill-paper', N: 'fill-ink', O: 'fill-ink', S: 'fill-ink', w: 'fill-white' },
+    fills: {
+      A: 'fill-coin-deep',
+      C: 'fill-hint',
+      E: 'fill-ink',
+      F: 'fill-coin-deep',
+      I: 'fill-paper',
+      M: 'fill-paper',
+      N: 'fill-ink',
+      O: 'fill-ink',
+      S: 'fill-ink',
+      w: 'fill-white',
+    },
   },
   bunny: {
     map: [
@@ -174,7 +236,17 @@ const ART: Record<AvatarId, AvatarArt> = {
       '..OOFFFFFFFFOO..',
       '....OOOOOOOO....',
     ],
-    fills: { A: 'fill-paper', C: 'fill-hint', E: 'fill-ink', F: 'fill-paper', I: 'fill-hint', M: 'fill-white', N: 'fill-block-var', O: 'fill-ink', w: 'fill-white' },
+    fills: {
+      A: 'fill-paper',
+      C: 'fill-hint',
+      E: 'fill-ink',
+      F: 'fill-paper',
+      I: 'fill-hint',
+      M: 'fill-white',
+      N: 'fill-block-var',
+      O: 'fill-ink',
+      w: 'fill-white',
+    },
   },
   pig: {
     map: [
@@ -195,7 +267,17 @@ const ART: Record<AvatarId, AvatarArt> = {
       '..OOFFFFFFFFOO..',
       '....OOOOOOOO....',
     ],
-    fills: { A: 'fill-hint', C: 'fill-oops', E: 'fill-ink', F: 'fill-hint', I: 'fill-block-var', N: 'fill-ink', O: 'fill-ink', S: 'fill-block-var', w: 'fill-white' },
+    fills: {
+      A: 'fill-hint',
+      C: 'fill-oops',
+      E: 'fill-ink',
+      F: 'fill-hint',
+      I: 'fill-block-var',
+      N: 'fill-ink',
+      O: 'fill-ink',
+      S: 'fill-block-var',
+      w: 'fill-white',
+    },
   },
   chick: {
     map: [
@@ -216,7 +298,14 @@ const ART: Record<AvatarId, AvatarArt> = {
       '..OOFFFFFFFFOO..',
       '....OOOOOOOO....',
     ],
-    fills: { B: 'fill-block-loop', C: 'fill-hint', E: 'fill-ink', F: 'fill-coin', O: 'fill-ink', w: 'fill-white' },
+    fills: {
+      B: 'fill-block-loop',
+      C: 'fill-hint',
+      E: 'fill-ink',
+      F: 'fill-coin',
+      O: 'fill-ink',
+      w: 'fill-white',
+    },
   },
   owl: {
     map: [
@@ -237,7 +326,16 @@ const ART: Record<AvatarId, AvatarArt> = {
       '..OOFFFFFFFFOO..',
       '....OOOOOOOO....',
     ],
-    fills: { A: 'fill-block-robot', B: 'fill-coin', E: 'fill-ink', F: 'fill-block-robot', I: 'fill-paper-2', M: 'fill-paper', O: 'fill-ink', w: 'fill-white' },
+    fills: {
+      A: 'fill-block-robot',
+      B: 'fill-coin',
+      E: 'fill-ink',
+      F: 'fill-block-robot',
+      I: 'fill-paper-2',
+      M: 'fill-paper',
+      O: 'fill-ink',
+      w: 'fill-white',
+    },
   },
   penguin: {
     map: [
@@ -258,7 +356,15 @@ const ART: Record<AvatarId, AvatarArt> = {
       '..OOFFFFFFFFOO..',
       '....OOOOOOOO....',
     ],
-    fills: { B: 'fill-coin', C: 'fill-hint', E: 'fill-ink', F: 'fill-block-fn', M: 'fill-white', O: 'fill-ink', w: 'fill-white' },
+    fills: {
+      B: 'fill-coin',
+      C: 'fill-hint',
+      E: 'fill-ink',
+      F: 'fill-block-fn',
+      M: 'fill-white',
+      O: 'fill-ink',
+      w: 'fill-white',
+    },
   },
   frog: {
     map: [
@@ -279,7 +385,14 @@ const ART: Record<AvatarId, AvatarArt> = {
       '..OOAAAAAAAAOO..',
       '....OOOOOOOO....',
     ],
-    fills: { A: 'fill-go', C: 'fill-hint', E: 'fill-ink', M: 'fill-hint', O: 'fill-ink', w: 'fill-white' },
+    fills: {
+      A: 'fill-go',
+      C: 'fill-hint',
+      E: 'fill-ink',
+      M: 'fill-hint',
+      O: 'fill-ink',
+      w: 'fill-white',
+    },
   },
 };
 
@@ -308,9 +421,10 @@ function toRuns({ map, fills }: AvatarArt): Run[] {
   return runs;
 }
 
-const RUNS = Object.fromEntries(
-  AVATAR_IDS.map((id) => [id, toRuns(ART[id])]),
-) as Record<AvatarId, Run[]>;
+const RUNS = Object.fromEntries(AVATAR_IDS.map((id) => [id, toRuns(ART[id])])) as Record<
+  AvatarId,
+  Run[]
+>;
 
 export interface AvatarProps {
   /** Unknown ids (e.g. from an older backup) fall back to the panda. */

@@ -8,6 +8,7 @@ import {
   useCurrentProfile,
   useProfiles,
 } from '../../features/profiles';
+import { uiVoiceId } from '../../audio/voiceIds';
 import { vi } from '../../i18n/vi';
 import { Avatar, AVATAR_IDS, type AvatarId, Bubble, Button, Panel } from '../../ui';
 import { FOCUS_RING } from '../../ui/focusRing';
@@ -98,6 +99,9 @@ export default function NewProfileScreen() {
     pin: t.pinTitle,
     'pin-again': t.pinAgainTitle,
   }[step];
+  const mangVoice = uiVoiceId(
+    `newProfile.${{ avatar: 'avatarMang', nickname: 'nicknameTitle', pin: 'pinTitle', 'pin-again': 'pinAgainTitle' }[step]}`,
+  );
 
   return (
     <main className="cq-sky grid min-h-screen content-center justify-items-center gap-4 px-6 py-4">
@@ -117,7 +121,7 @@ export default function NewProfileScreen() {
 
         <div className="flex items-end gap-4">
           <MangPortrait pose="talk" height={84} />
-          <Bubble text={mangLine} tail="left" />
+          <Bubble text={mangLine} tail="left" voiceId={mangVoice} />
         </div>
 
         {step === 'avatar' && (

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef } from 'react';
 import { Link } from 'react-router';
+import { useMusic } from '../../audio/useAudio';
 import { useUnlockOverrides } from '../../features/author/authorMode';
 import {
   currentWorldId,
@@ -42,6 +43,7 @@ export default function MapScreen() {
   const lessonsDone = useLessonsDone(profile.id);
   const overrides = useUnlockOverrides(catalog);
   const stripRef = useRef<HTMLDivElement>(null);
+  useMusic('village');
 
   const views = useMemo(
     () =>

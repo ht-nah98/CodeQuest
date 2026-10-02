@@ -1,5 +1,6 @@
 import { lazy, type ReactNode, Suspense } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router';
+import { AudioProvider } from '../audio/AudioProvider';
 import { CurrentProfileProvider, RequireProfile } from '../features/profiles';
 import '../screens/shared/screens.css';
 import { BreakReminder } from './BreakReminder';
@@ -33,25 +34,24 @@ export function App() {
       <ErrorBoundary>
         <SmallScreenGate>
           <CurrentProfileProvider>
-            <Suspense fallback={null}>
-              <Routes>
-                <Route path="/" element={<ProfilePickScreen />} />
-                <Route path="/profile/new" element={<NewProfileScreen />} />
-                <Route path="/restore" element={<RestoreScreen />} />
-                <Route path="/map" element={signedIn(<MapScreen />)} />
-                <Route path="/w/:worldId" element={signedIn(<WorldScreen />)} />
-                <Route
-                  path="/w/:worldId/lesson/:lessonId"
-                  element={signedIn(<LessonScreen />)}
-                />
-                <Route path="/play/:levelId" element={signedIn(<PlayScreen />)} />
-                <Route path="/settings" element={signedIn(<SettingsScreen />)} />
-                {DevUiScreen && <Route path="/dev/ui" element={<DevUiScreen />} />}
-                {DevBlocklyScreen && <Route path="/dev/blockly" element={<DevBlocklyScreen />} />}
-                {DevStageScreen && <Route path="/dev/stage" element={<DevStageScreen />} />}
-              </Routes>
-            </Suspense>
-            <BreakReminder />
+            <AudioProvider>
+              <Suspense fallback={null}>
+                <Routes>
+                  <Route path="/" element={<ProfilePickScreen />} />
+                  <Route path="/profile/new" element={<NewProfileScreen />} />
+                  <Route path="/restore" element={<RestoreScreen />} />
+                  <Route path="/map" element={signedIn(<MapScreen />)} />
+                  <Route path="/w/:worldId" element={signedIn(<WorldScreen />)} />
+                  <Route path="/w/:worldId/lesson/:lessonId" element={signedIn(<LessonScreen />)} />
+                  <Route path="/play/:levelId" element={signedIn(<PlayScreen />)} />
+                  <Route path="/settings" element={signedIn(<SettingsScreen />)} />
+                  {DevUiScreen && <Route path="/dev/ui" element={<DevUiScreen />} />}
+                  {DevBlocklyScreen && <Route path="/dev/blockly" element={<DevBlocklyScreen />} />}
+                  {DevStageScreen && <Route path="/dev/stage" element={<DevStageScreen />} />}
+                </Routes>
+              </Suspense>
+              <BreakReminder />
+            </AudioProvider>
           </CurrentProfileProvider>
         </SmallScreenGate>
       </ErrorBoundary>

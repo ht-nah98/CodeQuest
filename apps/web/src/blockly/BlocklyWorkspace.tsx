@@ -86,7 +86,29 @@ export function loadInitialWorkspace(workspace: WorkspaceSvg, level: BlocklyLeve
   });
   // "khi bắt đầu" can move but never be deleted, whatever the content JSON says (§4).
   for (const start of workspace.getBlocksByType(CQ_START, false)) start.setDeletable(false);
+  // Parsons has no toolbox to get a block back from: no block can be deleted (nor, as Blockly
+  // only copies deletable blocks, duplicated), so the puzzle always stays solvable (§6).
+  if (level.mode === 'parsons') {
+    for (const block of workspace.getAllBlocks(false)) block.setDeletable(false);
+  }
   workspace.clearUndo();
+}
+
+/** CSS class of a loose block (and the stack under it) in a parsons workspace (blockly.css). */
+export const LOOSE_BLOCK_CLASS = 'cq-loose';
+
+/**
+ * Parsons: blocks not yet hanging under "khi bắt đầu" are marked loose (a dashed outline)
+ * instead of greyed out by `disableOrphans`, since at the start nearly every block is loose and
+ * the hatched grey made the puzzle hard to read (§6).
+ */
+function markLooseBlocks(workspace: WorkspaceSvg): void {
+  for (const block of workspace.getTopBlocks(false)) {
+    block.getSvgRoot().classList.toggle(LOOSE_BLOCK_CLASS, block.type !== CQ_START);
+  }
+  for (const block of workspace.getAllBlocks(false)) {
+    if (block.getParent() !== null) block.getSvgRoot().classList.remove(LOOSE_BLOCK_CLASS);
+  }
 }
 
 interface Callbacks {
@@ -113,10 +135,18 @@ function mountWorkspace(
     // +1 for "khi bắt đầu", which Blockly counts too (§5).
     ...(level.maxBlocks !== undefined && { maxBlocks: level.maxBlocks + 1 }),
     ...(level.maxInstances && { maxInstances: level.maxInstances }),
-    trashcan: true,
+    // Nothing to throw away in parsons (blocks cannot be deleted) or predict (read-only).
+    trashcan: level.mode !== 'parsons' && level.mode !== 'predict',
     sounds: true,
     move: { scrollbars: true, drag: true, wheel: true },
-    zoom: { controls: true, wheel: false, startScale: 1.1, minScale: 0.7, maxScale: 1.6 },
+    // Predict shares its panel with the answer cards: a smaller start so the program fits.
+    zoom: {
+      controls: true,
+      wheel: false,
+      startScale: level.mode === 'predict' ? 1 : 1.1,
+      minScale: level.mode === 'predict' ? 0.55 : 0.7,
+      maxScale: 1.6,
+    },
     grid: { spacing: 24, length: 2, colour: UI_COLORS.brandSoft, snap: true },
     readOnly: level.mode === 'predict',
   });
@@ -145,9 +175,11 @@ function mountWorkspace(
     timer = setTimeout(report, CHANGE_DEBOUNCE_MS);
   };
 
-  workspace.addChangeListener(Events.disableOrphans);
+  const parsons = level.mode === 'parsons';
+  if (!parsons) workspace.addChangeListener(Events.disableOrphans);
   workspace.addChangeListener((event) => {
     if (!event.isUiEvent) {
+      if (parsons) markLooseBlocks(workspace);
       schedule();
     } else if (
       event instanceof Events.BlockDrag &&
@@ -160,6 +192,15 @@ function mountWorkspace(
   });
 
   loadInitialWorkspace(workspace, level);
+  // Predict: the program must be read whole, never scrolled to. Fit it into the space the
+  // answer cards leave (short laptops), but never larger than the start scale.
+  if (level.mode === 'predict') {
+    const startScale = workspace.scale;
+    workspace.zoomToFit();
+    if (workspace.scale > startScale) workspace.setScale(startScale);
+    workspace.scrollCenter();
+  }
+  if (parsons) markLooseBlocks(workspace);
   schedule();
   callbacks.current.onReady?.(workspace, { getState, flush });
 

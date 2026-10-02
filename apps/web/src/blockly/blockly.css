@@ -41,3 +41,14 @@
   font-weight: 400;
   fill: var(--color-ink-soft);
 }
+
+/* Mode parsons: loose blocks keep their colours (no disableOrphans grey hatch) and get a dashed
+   outline instead, so the scattered puzzle stays readable while still showing "not joined yet"
+   (§6; answers the coach's P0-05 question). The class sits on the top block of a loose stack. */
+.cq-blockly[data-mode='parsons'] .cq-loose .blocklyPath {
+  stroke: var(--color-ink);
+  stroke-dasharray: 6 4;
+}
+.cq-blockly[data-mode='parsons'] .cq-loose {
+  opacity: 0.88;
+}

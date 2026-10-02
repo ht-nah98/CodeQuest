@@ -1,15 +1,25 @@
 import 'fake-indexeddb/auto';
 import { StrictMode, type ReactNode } from 'react';
 import { act, renderHook, waitFor } from '@testing-library/react';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi as vitest } from 'vitest';
 import type { Level } from '@codequest/content-schema';
 import type { RunOutcome } from '@codequest/engine';
 import { db } from '../../data/db';
 import { listAttempts } from '../../data/repos/attempts';
+import { getCreation } from '../../data/repos/creations';
+import { saveDraft } from '../../data/repos/drafts';
 import { getBalance } from '../../data/repos/ledger';
 import { getProgress } from '../../data/repos/progress';
 import { createProfile } from '../../data/repos/profiles';
-import { openSessionKey, toOpenRecord, openSession, addRun, toRunSummary } from './session';
+import {
+  DRAFT_HASH_KEY,
+  levelHash,
+  openSessionKey,
+  toOpenRecord,
+  openSession,
+  addRun,
+  toRunSummary,
+} from './session';
 import { usePlaySession } from './usePlaySession';
 
 const level: Level = {
@@ -45,8 +55,15 @@ beforeEach(async () => {
   profileId = (await createProfile({ nickname: 'Na', avatarId: 'panda', pin: '1234' })).id;
 });
 
-async function mount(wrapper?: (props: { children: ReactNode }) => ReactNode) {
-  const hook = renderHook(() => usePlaySession(profileId, level), wrapper ? { wrapper } : {});
+afterEach(() => {
+  vitest.restoreAllMocks();
+});
+
+async function mount(
+  wrapper?: (props: { children: ReactNode }) => ReactNode,
+  forLevel: Level = level,
+) {
+  const hook = renderHook(() => usePlaySession(profileId, forLevel), wrapper ? { wrapper } : {});
   await waitFor(() => {
     expect(hook.result.current.ready).toBe(true);
   });
@@ -135,9 +152,124 @@ describe('usePlaySession', () => {
     // That earlier lost run means this win is not "first try".
     let ids: string[] = [];
     await act(async () => {
-      ids = (await hook.result.current.recordRun(outcome('success')))?.entries.map((e) => e.id) ?? [];
+      ids =
+        (await hook.result.current.recordRun(outcome('success')))?.entries.map((e) => e.id) ?? [];
     });
     expect(ids).not.toContain('first-try:w01-l03');
+    hook.unmount();
+  });
+});
+
+const program = (...types: string[]) => ({
+  blocks: {
+    languageVersion: 0 as const,
+    blocks: [
+      { type: 'cq_start', id: 'start', x: 0, y: 0 },
+      ...types.map((type, i) => ({ type, id: `b${String(i)}`, x: 0, y: 99 })),
+    ],
+  },
+});
+
+describe('usePlaySession modes (P1-06)', () => {
+  const predictLevel: Level = {
+    ...level,
+    id: 'p-predict',
+    mode: 'predict',
+    toolbox: [],
+    initialWorkspace: program('runner_walk'),
+    predict: {
+      options: [
+        { key: 'win', label: 'Tới cờ' },
+        { key: 'stop@1', label: 'Dừng' },
+        { key: 'crash:FELL_IN_HOLE@2', label: 'Rơi hố' },
+      ],
+    },
+  };
+  const creative: Level = { ...level, id: 'p-creative', mode: 'creative', stage: 'creative' };
+
+  it('a run before the session is loaded records nothing (the screen waits for ready)', async () => {
+    const hook = renderHook(() => usePlaySession(profileId, predictLevel));
+    expect(hook.result.current.ready).toBe(false);
+    expect(await hook.result.current.recordRun(outcome('crash'), 'win')).toBeNull();
+    await waitFor(() => {
+      expect(hook.result.current.ready).toBe(true);
+    });
+    expect(hook.result.current.snapshot().session.runs).toEqual([]);
+    hook.unmount();
+  });
+
+  it('predict ignores drafts: the program is always the level own', async () => {
+    const tagged = { ...program('runner_jump'), [DRAFT_HASH_KEY]: levelHash(predictLevel) };
+    await saveDraft(profileId, predictLevel.id, tagged);
+    const hook = await mount(undefined, predictLevel);
+    expect(hook.result.current.initialWorkspace).toEqual(predictLevel.initialWorkspace);
+    hook.unmount();
+  });
+
+  it('predict: wrong picks of a session a reload left open come back', async () => {
+    let state = openSession(predictLevel.id, { progress: undefined, ledger: [] });
+    const engine = { ...outcome('crash'), answerKey: 'crash:FELL_IN_HOLE@2' };
+    for (const [id, key] of [
+      ['r1', 'win'],
+      ['r2', 'stop@1'],
+    ] as const) {
+      state = addRun(state, {
+        level: predictLevel,
+        run: toRunSummary(engine, id, key),
+        now: new Date(),
+        profileId,
+      }).state;
+    }
+    const record = toOpenRecord(state, { attemptId: 'old', profileId, startedAt: new Date() });
+    sessionStorage.setItem(openSessionKey(profileId, predictLevel.id), JSON.stringify(record));
+    const hook = await mount(StrictMode, predictLevel);
+    expect(hook.result.current.wrongPicks).toEqual(['win', 'stop@1']);
+    hook.unmount();
+  });
+
+  it('creative: Lưu pays 10 coins once, stores the creation, restores it next time', async () => {
+    const hook = await mount(undefined, creative);
+    let coins = -1;
+    await act(async () => {
+      coins = await hook.result.current.saveCreative(program('runner_walk'));
+    });
+    expect(coins).toBe(10);
+    await act(async () => {
+      coins = await hook.result.current.saveCreative(program('runner_jump'));
+    });
+    expect(coins).toBe(0);
+    expect(await getBalance(profileId)).toBe(40);
+    expect((await getCreation(profileId, creative.id))?.workspace).toEqual(program('runner_jump'));
+    hook.unmount();
+    // No draft: the saved creation is what the workspace starts with.
+    const again = await mount(undefined, creative);
+    expect(again.result.current.initialWorkspace).toEqual(program('runner_jump'));
+    again.unmount();
+  });
+
+  it('creative: a failed save pays nothing and the next save pays the coins', async () => {
+    const hook = await mount(undefined, creative);
+    vitest.spyOn(db.ledger, 'bulkAdd').mockRejectedValueOnce(new Error('disk full'));
+    await act(async () => {
+      await expect(hook.result.current.saveCreative(program('runner_walk'))).rejects.toThrow();
+    });
+    expect(await getBalance(profileId)).toBe(30);
+    let coins = -1;
+    await act(async () => {
+      coins = await hook.result.current.saveCreative(program('runner_walk'));
+    });
+    expect(coins).toBe(10);
+    expect(await getBalance(profileId)).toBe(40);
+    hook.unmount();
+  });
+
+  it('creative offline (data layer unreadable): Lưu rejects', async () => {
+    vitest.spyOn(db.progress, 'get').mockRejectedValue(new Error('blocked'));
+    const hook = await mount(undefined, creative);
+    expect(hook.result.current.offline).toBe(true);
+    await act(async () => {
+      await expect(hook.result.current.saveCreative(program('runner_walk'))).rejects.toThrow();
+    });
     hook.unmount();
   });
 });

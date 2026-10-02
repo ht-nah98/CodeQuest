@@ -3,7 +3,11 @@ import { RunResultSchema, type Level, type RunSummary } from '@codequest/content
 import type { RunOutcome } from '@codequest/engine';
 import {
   applyRun,
+  computeCreativeSaveRewards,
+  DEFAULT_PAR_EDITS,
+  predictPickSummary,
   recordSession,
+  WRONG_ANSWER,
   type LedgerEntry,
   type LevelProgress,
   type LevelSession,
@@ -17,8 +21,16 @@ import type { AttemptRow } from '../../data/db';
 // rewards-engine.md §3: `applyRun` after every run, `recordSession` when the child leaves.
 // usePlaySession.ts adds the I/O (Dexie) around it.
 
-/** The run as rewards sees it. */
-export function toRunSummary(outcome: RunOutcome, runId: string): RunSummary {
+/**
+ * The run as rewards sees it. In mode `predict`, pass the key of the card the child picked:
+ * the run is then the pick (rewards-engine.md §3, `predictPickSummary`), right or wrong
+ * whatever the program itself did.
+ */
+export function toRunSummary(outcome: RunOutcome, runId: string, pickedKey?: string): RunSummary {
+  if (pickedKey !== undefined) {
+    const engineRun = toRunSummary(outcome, runId);
+    return predictPickSummary(engineRun, pickedKey, outcome.answerKey ?? '', runId);
+  }
   const summary: RunSummary = {
     runId,
     result: outcome.result,
@@ -37,7 +49,12 @@ export interface WinReward {
   /** Sum of `entries`. */
   coins: number;
   blocksUsed: number;
-  /** Over `par`: the 1-star line asks for fewer blocks (else the cap came from a hint). */
+  /** Mode `bughunt`: blocks changed from the level's start (editDistance). */
+  edits?: number;
+  /**
+   * Missed the par condition of the mode (blocks over `par`, edits over `parEdits`): the 1-star
+   * line asks for fewer blocks / edits (else the cap came from a hint).
+   */
   overPar: boolean;
   /** Progress right before this win, to tell what the win newly opened. */
   progressBefore: LevelProgress | undefined;
@@ -68,17 +85,62 @@ export function addRun(
   const nextState: SessionState = { progress: next.progress, ledger: next.ledger, session };
   if (next.rewards === null) return { state: nextState, reward: null };
   const { stars, entries, newProgress } = next.rewards;
+  const { level, run } = input;
+  const overPar =
+    level.mode === 'bughunt'
+      ? (run.edits ?? Infinity) > (level.parEdits ?? DEFAULT_PAR_EDITS)
+      : level.par !== undefined && run.blocksUsed > level.par;
   return {
     state: nextState,
     reward: {
       stars,
       entries,
       coins: entries.reduce((sum, entry) => sum + entry.delta, 0),
-      blocksUsed: input.run.blocksUsed,
-      overPar: input.level.par !== undefined && input.run.blocksUsed > input.level.par,
+      blocksUsed: run.blocksUsed,
+      ...(run.edits !== undefined && { edits: run.edits }),
+      overPar,
       progressBefore: state.progress,
       progressAfter: newProgress,
     },
+  };
+}
+
+/**
+ * Mode predict: the cards picked wrong since the last right pick of `runs`, in order, so a
+ * reloaded page keeps them marked (and locked) instead of letting them be picked again.
+ */
+export function wrongPicks(runs: readonly RunSummary[]): string[] {
+  const picks: string[] = [];
+  for (const run of runs) {
+    if (run.result === 'success') picks.length = 0;
+    else if (run.reasonCode === WRONG_ANSWER && run.predictChoice !== undefined) {
+      picks.push(run.predictChoice);
+    }
+  }
+  return picks;
+}
+
+/**
+ * "Lưu" on a `creative` level (rewards-engine.md §3): the first save of the level pays
+ * `creative:<levelId>` once and records the level as done; later saves add nothing.
+ * The caller stores `progress` + `entries` with saveLevelResult.
+ */
+export function addCreativeSave(
+  state: SessionState,
+  input: { level: Level; now: Date; profileId: string },
+): { state: SessionState; progress: LevelProgress; entries: LedgerEntry[]; coins: number } {
+  const { newProgress, entries } = computeCreativeSaveRewards({
+    level: input.level,
+    progress: state.progress,
+    ledger: state.ledger,
+    now: input.now,
+    profileId: input.profileId,
+  });
+  return {
+    state: { ...state, progress: newProgress, ledger: [...state.ledger, ...entries] },
+    progress: newProgress,
+    entries,
+    coins: entries.reduce((sum, entry) => sum + entry.delta, 0),
   };
 }
 

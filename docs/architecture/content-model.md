@@ -39,7 +39,7 @@ content/
 | Block type | `<kind>_<verb>` hoặc `cq_<tên>` cho khối chung | `runner_jump`, `cq_repeat`, `cq_start` |
 | Badge | kebab-case | `loop-master` |
 | Shop item | `<loại>-<slug>` | `skin-astro-panda`, `fx-confetti` |
-| Câu thoại có giọng đọc | `<id>.<khóa>` | `w01-l03.objective` · `w01-l03.thinking` · `w01-l03.hint.<hintId>` · `w01-lesson.c<số thẻ>` · `feedback.FELL_IN_HOLE` · `ui.<khóa trong vi.ts>` |
+| Câu thoại có giọng đọc | `<id>.<khóa>` (chỉ chữ, số, `.` `_` `-`; là tên file) | `w01-l03.objective` · `w01-l03.thinking` · `w01-l03.hint.<hintId>` · `w01-l03.feedback.<REASON>` (câu feedback riêng của màn) · `w01-lesson.c<n>` (thẻ thứ n, **đếm từ 1**) · `w01-lesson.c<n>.explain` (giải thích của thẻ quiz) · `feedback.FELL_IN_HOLE` · `ui.<khóa trong vi.ts>`. Danh sách đầy đủ: `npm run voice -- lines` (`docs/architecture/audio.md` §5) |
 
 ID **không bao giờ đổi** sau khi đã có bé chơi, vì tiến độ gắn với ID. Muốn bỏ màn: đặt `"retired": true`.
 

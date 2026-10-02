@@ -15,6 +15,8 @@ export interface PlayTopBarProps {
   /** "Làng Tre · Màn 3": the back button, to the world page. */
   where: string;
   worldId: string;
+  /** False on creative levels, which have no stars (rewards-economy.md §1). */
+  showStars?: boolean;
   /** Author mode: the program as it is now (blockly-integration.md §2 `getState`). */
   readProgram: () => WorkspaceJson | null;
 }
@@ -29,6 +31,7 @@ export function PlayTopBar({
   levelTitle,
   where,
   worldId,
+  showStars = true,
   readProgram,
 }: PlayTopBarProps) {
   const navigate = useNavigate();
@@ -63,7 +66,7 @@ export function PlayTopBar({
       <h1 className="m-0 min-w-0 flex-1 truncate font-display text-[26px] leading-tight text-paper">
         {levelTitle}
       </h1>
-      <Stars earned={best} scale={2} />
+      {showStars && <Stars earned={best} scale={2} />}
       {author && (
         <span className="flex items-center gap-2" data-testid="author-tools">
           <span className="rounded-kbd bg-coin px-1.5 pt-0.5 font-pixel text-pixel-sm text-ink">

@@ -6,6 +6,8 @@
     { "path": "packages/games" },
     { "path": "packages/rewards" },
     { "path": "tools/content-check" },
+    { "path": "tools/audio" },
+    { "path": "tools/voice" },
     { "path": "apps/web" },
     { "path": "apps/web/tsconfig.node.json" },
     { "path": "tsconfig.node.json" }

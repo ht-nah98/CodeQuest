@@ -42,14 +42,26 @@ describe('assertPlayable', () => {
     }).toThrow(UnplayableLevelError);
   });
 
-  it('rejects a mode the play screen cannot run yet (P1-06)', () => {
+  it('rejects a mode the play screen cannot run', () => {
     expect(() => {
       assertPlayable({
         ...runner,
-        mode: 'predict',
+        mode: 'future' as string as 'build',
         config: { cells: ['ground', 'flag'], start: 0 },
       });
     }).toThrow(UnplayableLevelError);
+  });
+
+  it('accepts every mode of the schema (P1-06)', () => {
+    for (const mode of ['build', 'parsons', 'predict', 'bughunt', 'creative'] as const) {
+      expect(() => {
+        assertPlayable({
+          ...runner,
+          mode,
+          config: { cells: ['ground', 'hole', 'flag'], start: 0 },
+        });
+      }).not.toThrow();
+    }
   });
 
   it('accepts a valid runner level', () => {

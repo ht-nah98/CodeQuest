@@ -80,11 +80,17 @@ assets/raw/<tên>.png  ──(npm run sprites)──▶  assets/sprites/<nhân v
 - Tileset: GĐ 0–1 dùng tạm gói **Kenney** (CC0). Ghi nguồn trong `assets/CREDITS.md`.
 - Tile maze **vẽ bằng code**, không có file ảnh: mẫu pixel 12×12 dạng chuỗi (mỗi ký tự 1 texel, `.` trong suốt) trong `stages/maze/pixelArt.ts` (đường, tường tre, măng, khung đích, 2 khung cờ, mũi tên, lấp lánh), dựng thành texture `nearest` qua `BufferImageSource` lúc tạo sân (không cần renderer). Màu lấy từ `ui/tokens.ts`; sắc độ phụ suy ra bằng `shade(token, k)` (có unit test), không viết mã màu rời.
 
+### Hình đáp án của mode `predict` (P1-06)
+Mỗi thẻ đáp án có một **hình thu nhỏ tĩnh** của sân chơi, vẽ từ `level.config` + `key` của phương án: `apps/web/src/stages/AnswerPicture.tsx` (component React, SVG inline, có unit test).
+- **Không** dùng PixiJS/`StageRenderer` cho việc này (khác với ý `drawAnswer` ban đầu): 3–4 thẻ sẽ cần 3–4 WebGL context cạnh sân chơi chính (mục 6: một `PIXI.Application` mỗi lúc); SVG nét ở mọi cỡ thẻ, không phải nạp bất đồng bộ, kiểm được bằng jsdom.
+- Đọc `key` bằng `parseAnswerKey` (`features/play/answerKey.ts`). Ô của `key` được **tô khung vàng** (`coin`), Măng có dáng theo kết quả: `win` → reo hò + ngôi sao, tại ô cờ/đích; `stop` → đứng yên; `missed` → đang nói; `crash` → cúi + vụ nổ đỏ (`oops`).
+- **Không đánh số ô** (quyết định sau review P1-06): sân chơi không hiện số, và nhãn phương án nói theo chỗ ("Rơi xuống hố", "Dừng trước cành"), không theo số (`conventions/content-authoring.md` §3). Khung vàng là cái chỉ "ở đâu".
+- **Runner:** cả đường chạy một hàng, dùng tile Kenney như sân (đất, thùng, cành, cờ, măng). Rơi hố: Măng tụt xuống hố ở ô khung vàng. Đụng cành/thùng: khung vàng vẫn ở ô vật cản, Măng đứng ở **ô trước đó** quay về phía nó, vụ nổ ở ranh giới hai ô, để vật cản vẫn nhìn thấy. `OFF_TRACK`: Măng nhảy từ ô của `key`.
+- **Maze:** nhìn từ trên xuống, cắt sát vùng đường đi (giữ 0,35 ô tường quanh), tường xanh tre, đường màu `paper2`, cờ ở đích, măng ở ô `b`, mũi tên xanh (màu khối di chuyển) ở ô xuất phát chỉ hướng `startDir`. `HIT_WALL`: `key` là ô Măng **đứng khi đâm** (đúng như engine); Măng đứng ở ô đó, vụ nổ ở cạnh bức tường. Khóa không ghi hướng, nên hướng là ước đoán của hình: bước cuối của đường ngắn nhất từ S tới ô (trên S thì `startDir`), rồi lấy bức tường đầu tiên theo thứ tự trước mặt, trái, phải, sau; quay trái thì lật Măng. Ô ngoài bản đồ hoặc là tường → không vẽ dấu đáp án.
+- Kiểu game chưa có hình (robotlab) hoặc `key`/`config` đọc không được → không vẽ gì, thẻ chỉ còn nhãn chữ.
+
 ## 5. Âm thanh
-- `apps/web/src/audio/sound.ts` bọc Howler: `play('snap' | 'run' | 'step' | 'jump' | 'bump' | 'win' | 'star' | 'coin' | 'click')`, `music(worldId)`, `voice(id)`.
-- Ba kênh âm lượng riêng: nhạc, hiệu ứng, giọng đọc (lưu trong cài đặt của hồ sơ).
-- Chỉ bắt đầu phát sau lần tương tác đầu tiên của người dùng (chính sách autoplay của trình duyệt).
-- File: `apps/web/public/audio/{sfx,music,voice}/`. Định dạng `.mp3` (+ `.ogg` nếu cần).
+Nguồn chuẩn: [`audio.md`](audio.md). Tóm tắt cho sân chơi: `apps/web/src/audio/` bọc Howler (`useAudio()` → `playSfx`, `playVoice`, `playMusic`); event của sân chơi đổi ra hiệu ứng bằng `stageSfx(event.type)`; ba kênh âm lượng riêng (nhạc, hiệu ứng, giọng đọc) lưu trong cài đặt của hồ sơ; chỉ phát sau lần tương tác đầu tiên (autoplay); file ở `apps/web/public/audio/{sfx,music,voice}/`, định dạng `.mp3`.
 
 ## 6. Hiệu năng
 - Mục tiêu 60 fps trên laptop phổ thông, sân chơi ≤ 300 sprite.

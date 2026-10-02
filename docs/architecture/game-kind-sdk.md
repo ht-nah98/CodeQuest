@@ -167,7 +167,7 @@ export interface StageRenderer<E extends GameEvent> {
 }
 ```
 Helper dùng chung cho renderer: `tween` (`stages/types.ts`), `reducedMotion()` (`stages/motion.ts`, bỏ chuyển động trang trí như rung sân khi máy bật giảm chuyển động).
-Renderer dựng cảnh trong constructor (nhận `app`, `config`, asset). Không có tham số `speed`: tốc độ là `ticker.speed` của đồng hồ chung, renderer chỉ đo thời gian bằng `ticker.deltaMS` (helper `tween` trong `stages/types.ts`). `drawAnswer(key, config, canvas)` cho mode `predict` thêm khi làm mode đó. Bản runner: `stages/runner/RunnerStage.ts`, hình học thuần trong `stages/runner/layout.ts`.
+Renderer dựng cảnh trong constructor (nhận `app`, `config`, asset). Không có tham số `speed`: tốc độ là `ticker.speed` của đồng hồ chung, renderer chỉ đo thời gian bằng `ticker.deltaMS` (helper `tween` trong `stages/types.ts`). Hình đáp án của mode `predict` không nằm trong renderer: mỗi kiểu game thêm một hình SVG tĩnh trong `stages/AnswerPicture.tsx` (stage-rendering.md §4). Bản runner: `stages/runner/RunnerStage.ts`, hình học thuần trong `stages/runner/layout.ts`.
 `StageController` chung (`apps/web/src/stages/StageController.ts`) giữ `PIXI.Application`, chạy event log tuần tự, báo highlight qua callback `onHighlight(event.blockId)`, xử lý tốc độ / tạm dừng / từng bước / dừng bằng `AbortSignal`. Renderer của từng kiểu game chỉ lo vẽ. Mọi chuyển động phải chạy trên `app.ticker` (helper `tween`, sprite `autoUpdate: false`) và dừng khi `signal` abort, nếu không tạm dừng / Làm lại sẽ không dừng được nó.
 
 **Stage registry** (`apps/web/src/stages/registry.ts`), màn chơi chọn renderer theo `level.kind`:

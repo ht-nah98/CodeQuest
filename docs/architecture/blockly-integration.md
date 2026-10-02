@@ -83,6 +83,8 @@ Vì vậy:
 - Thứ tự theo `level.toolbox`, nhóm theo `category` của BlockSpec, giữa các nhóm có nhãn nhỏ (VT323: "DI CHUYỂN", "LẶP"…).
 - Khối có tham số dùng giá trị mặc định khai báo trong `content` (vd `{"type":"cq_repeat","fields":{"TIMES":3}}`). Vì thế `level.toolbox` cho phép chuỗi hoặc object.
 - Mode `parsons`: toolbox là flyout **rỗng**, cột thanh khối ẩn bằng CSS (vẫn phải có toolbox để Blockly không lỗi). CSS cần `display: none !important` vì Blockly đặt `style="display: block"` inline cho flyout.
+- Mode `parsons` (P1-06): **không** gắn `Events.disableOrphans` (lúc đầu gần như mọi khối đều rời, sọc xám làm cả bài khó đọc). Thay vào đó khối đứng đầu một chồng rời có class `cq-loose` (viền nét đứt màu mực, `opacity: 0.88`, `blockly.css`), cập nhật sau mỗi event không phải UI. Engine vẫn bỏ qua khối rời khi sinh code. Mọi khối `setDeletable(false)` khi nạp (Blockly chỉ copy/nhân bản khối xóa được), không có thùng rác.
+- Mode `predict`: không có thùng rác (workspace chỉ đọc, §2).
 - Nhãn nhóm là `{ kind: 'label', 'web-class': 'cq-flyout-label' }`, kiểu chữ VT323 22px trong `blockly.css`. Blockly đo nhãn bằng style đã tính, nên phải chờ font (§2).
 
 ## 7. Highlight khi phát lại
