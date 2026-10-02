@@ -133,9 +133,16 @@ hints.tip; hints.dismissTip();             // gợi ý tầng 0 đang hiện (t�
 | `blockly/readOnlyWorkspace.ts` | `mountReadOnlyWorkspace(div, json)` → `{ workspace, dispose() }`; trả vai "main workspace" cho workspace chính |
 | `blockly/contentHighlight.ts` | `startContentHighlight(workspace)` → hàm gỡ; dùng khi gợi ý tầng 0 đang hiện có `spotlight: true` |
 
-### Việc của màn chơi khi nối (vòng sau)
-1. Nút "Gợi ý" (phím `H`) ở góc dưới vùng ghép khối mở `HintBox`. `onBuy(tier)` → tầng 2: `hints.buy(2, { json: handle.getState().json, capacityLeft })` (đọc đồng bộ); tầng 1/3: `hints.buy(tier)`. Kết quả: `opened` tầng 1 → giữ hộp mở, truyền `thinkingHint={level.thinkingHint}`; tầng 2 → đóng hộp, `showNextStepPopover(workspace, result.step)`; tầng 3 → đóng hộp, mở `SolutionViewer`. `solved`/`reset` → `notice`; `missing` → hộp đã hiện "Cần thêm N xu"; `error` → `notice="error"`.
-2. Gọi `hints.evaluate`: `'enter'` khi workspace sẵn sàng; `'run-end'` sau khi phát lại xong và câu phản hồi đã hiện (hiện gợi ý sau 1,5 s); `'change'` debounce 600 ms, **không** gọi khi đang kéo khối (`Gesture.inProgress()`); `'idle'` sau 60 s không thao tác. Hiện `hintText(tip, level, feedback)` trong bong bóng Măng, nếu khác câu đang hiện.
-3. `target` → mũi tên: `toolbox:<type>` = khối trong flyout, `block:<type>` = khối đầu tiên loại đó trong vùng ghép, `run`/`capacity`/`stage` = nút/thanh/sân chơi. `spotlight` → `startContentHighlight`, gỡ khi `dismissTip`.
-4. Đóng popover tầng 2 khi đổi màn / unmount (`close()` trong cleanup).
-5. Khi chấm lượt chạy: `applyRun(state, { ..., session: { ...session, hintTiersBought: [...hints.tiersBought] } })`.
+### Đã nối vào màn chơi (P1-07 phần 2)
+Code: `apps/web/src/screens/play/usePlayHints.ts` (hook gom `useHints` + popover + lời giải + gợi ý tầng 0) và `PlayScreen.tsx`.
+1. **Nút "Gợi ý"** (`data-testid="play-hint"`, phím `H` qua `shouldHandleAppShortcut`) ở bên phải thanh "còn N khối" (hàng dưới vùng ghép khối; màn không giới hạn khối thì hàng chỉ có nút). Không có nút khi màn không có tầng nào (`creative`); `predict` chỉ có tầng 1.
+2. **Mua**: `onBuy(tier)` → tầng 2 đọc `handle.getState()` (JSON + `remainingCapacity`) rồi `hints.buy(2, …)`; `opened` tầng 1 → hộp hiện `thinkingHint` (giọng `levelVoiceId(id, 'thinking')`); tầng 2 → đóng hộp, `showNextStepPopover`; tầng 3 → đóng hộp, `SolutionViewer`. `solved`/`reset`/`error` → `notice` trong hộp. `useHints({ onPurchased })` nhận `(tier, entry)` và chuyển thẳng cho `usePlaySession().recordHintBought(tier, entry)`: phiên màn ghi tầng đã mua (trần sao qua `applyRun`) và thêm dòng sổ xu vào sổ đang giữ trong bộ nhớ. `session` đưa cho `useHints` là `snapshot().session`.
+3. **Gợi ý tầng 0** (`hints.evaluate`):
+   - `enter`: một lần, khi cả sân chơi lẫn workspace đã sẵn sàng.
+   - `change`: 600 ms sau khi **chương trình** đổi (bỏ qua báo cáo lặp lại không đổi chương trình); đang kéo khối (`Gesture.inProgress()`) thì chờ thêm 600 ms.
+   - `run-end`: 1,5 s sau khi phát lại một lượt **thua** xong (câu phản hồi hiện trước), kể cả lần chọn sai ở `predict`. Lượt thắng không có gợi ý (màn Kết quả hiện).
+   - `idle`: kiểm mỗi 5 s; 60 s không chạm / không phím / không đổi chương trình → một lần, tới khi bé thao tác lại.
+   - Không hiện khi đang chạy hoặc đang ở màn Kết quả. Câu của Măng: `hintText`, giọng `hintVoiceId(levelId, ruleId)` (luật của màn), `feedbackVoiceId` (luật mượn câu phản hồi), `ui.hints.global.<id>` (luật chung). Câu mới bất kỳ trong bong bóng (chạy, dừng…) xóa mũi tên của gợi ý cũ.
+4. **Chỉ vào đâu** (`blockly/hintPointer.ts`): `toolbox:<type>` = khối trong flyout (bỏ qua ở `parsons`, thanh khối ẩn); `block:<type>` = khối đầu tiên loại đó (trên xuống), ưu tiên khối đã nối vào chương trình, hoặc **ưu tiên khối rời** nếu điều kiện có `orphans: true`; không có `point` mà điều kiện có `orphans: true` → khối rời đầu tiên. Khối được chỉ có mũi tên nhún (`data-testid="hint-arrow"`, `data-block-type`) + viền hồng; `run` / `capacity` / `stage` → vòng sáng trên phần tử có `data-hint-anchor` tương ứng (`data-hint-target="true"`). `spotlight: true` chỉ bật `startContentHighlight` ở màn `stage: 'guided'`.
+5. Rời màn (unmount) đóng popover và gỡ mũi tên; hẹn giờ được hủy.
+6. E2E: `apps/web/e2e/play-hints.spec.ts` (World 1 thật: w01-l01, l02, l03, l04, creative).

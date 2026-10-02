@@ -41,6 +41,7 @@ beforeEach(async () => {
 
 function setup(session: LevelSession, lvl: Level = level) {
   const bought: HintTier[] = [];
+  const entries: string[] = [];
   let ids = 0;
   const hook = renderHook(
     (props: { session: LevelSession }) =>
@@ -48,13 +49,16 @@ function setup(session: LevelSession, lvl: Level = level) {
         profileId: PROFILE,
         level: lvl,
         session: props.session,
-        onPurchased: (tier) => bought.push(tier),
+        onPurchased: (tier, entry) => {
+          bought.push(tier);
+          entries.push(entry.id);
+        },
         now: () => NOW,
         newPurchaseId: () => `buy-${String(++ids)}`,
       }),
     { initialProps: { session } },
   );
-  return { hook, bought };
+  return { hook, bought, entries };
 }
 
 async function ready(hook: ReturnType<typeof setup>['hook']) {
@@ -77,11 +81,12 @@ async function buy(
 
 describe('useHints: buying', () => {
   it('opens tier 1 for free after 3 losses and keeps it owned in later sessions', async () => {
-    const { hook, bought } = setup(sessionWithFails(level.id, 3));
+    const { hook, bought, entries } = setup(sessionWithFails(level.id, 3));
     await ready(hook);
     expect(hook.result.current.tiers[0]).toMatchObject({ tier: 1, state: 'free', price: 0 });
     expect(await buy(hook, 1)).toEqual({ status: 'opened', tier: 1 });
     expect(bought).toEqual([1]);
+    expect(entries).toEqual([`hint-1:${level.id}`]);
     expect(hook.result.current.tiersBought).toEqual([1]);
     expect(await getBalance(PROFILE)).toBe(30);
     expect((await listLedger(PROFILE)).find((e) => e.id === `hint-1:${level.id}`)).toMatchObject({

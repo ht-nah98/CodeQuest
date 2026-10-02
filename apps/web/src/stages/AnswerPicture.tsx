@@ -6,7 +6,6 @@ import {
   runnerConfigSchema,
   type RunnerConfig,
 } from '@codequest/games';
-import sheetJson from '../../public/sprites/panda.json?raw';
 import {
   type AnswerOutcome,
   mazeCell,
@@ -16,64 +15,27 @@ import {
 } from '../features/play/answerKey';
 import { BLOCK_COLORS, UI_COLORS } from '../ui/tokens';
 import { shade } from './colors';
+import {
+  SvgPanda,
+  type SvgPandaPose,
+  tile,
+  TRACK_CELL,
+  TRACK_GRASS,
+  TRACK_SKY,
+  TrackCells,
+} from './TrackSvg';
 
 // Small static pictures of a predict answer (stage-rendering.md §4 "Hình đáp án"): the level's
 // board drawn from its config as inline SVG, the answer cell framed in yellow and Măng in a pose
 // that tells the outcome. Deliberately not a PixiJS renderer: 3–4 cards would each need a WebGL
 // context, and an SVG is crisp at any card size, needs no async load and is easy to test.
 
-const PANDA_SHEET = JSON.parse(sheetJson) as {
-  frames: Record<string, { frame: { x: number; y: number; w: number; h: number } }>;
-  meta: { size: { w: number; h: number } };
-};
-
-type Pose = 'cheer' | 'idle_1' | 'talk' | 'jump' | 'crouch';
-
-const POSE: Record<AnswerOutcome, Pose> = {
+const POSE: Record<AnswerOutcome, SvgPandaPose> = {
   win: 'cheer',
   stop: 'idle_1',
   missed: 'talk',
   crash: 'crouch',
 };
-
-const tile = (name: string) => `/tiles/${name}.png`;
-
-/** Măng, `height` units tall, feet centred on (cx, feetY); `flip` mirrors her (facing left). */
-function Panda({
-  pose,
-  cx,
-  feetY,
-  height,
-  flip = false,
-}: {
-  pose: Pose;
-  cx: number;
-  feetY: number;
-  height: number;
-  flip?: boolean;
-}) {
-  const frame = PANDA_SHEET.frames[`${pose}.png`]?.frame ?? PANDA_SHEET.frames['idle_1.png']?.frame;
-  if (!frame) return null;
-  const width = (frame.w / frame.h) * height;
-  const { w, h } = PANDA_SHEET.meta.size;
-  return (
-    <g
-      data-panda={pose}
-      data-flip={flip}
-      transform={flip ? `translate(${String(2 * cx)} 0) scale(-1 1)` : undefined}
-    >
-      <svg
-        x={cx - width / 2}
-        y={feetY - height}
-        width={width}
-        height={height}
-        viewBox={`${String(frame.x)} ${String(frame.y)} ${String(frame.w)} ${String(frame.h)}`}
-      >
-        <image href="/sprites/panda.png" width={w} height={h} />
-      </svg>
-    </g>
-  );
-}
 
 /** A spiky "bump!" burst centred on (cx, cy). */
 function Burst({ cx, cy, r }: { cx: number; cy: number; r: number }) {
@@ -133,10 +95,9 @@ function Spot({ x, y, w, h }: { x: number; y: number; w: number; h: number }) {
 // No cell numbers: the stage shows none, and option labels name places, not numbers
 // (content-authoring.md §3). The yellow frame on the key cell is the "where".
 
-const C = 24;
-/** Bands of the runner picture, top to bottom: sky (Măng, obstacles), grass. */
-const SKY = 1.6 * C;
-const GRASS = 0.55 * C;
+const C = TRACK_CELL;
+const SKY = TRACK_SKY;
+const GRASS = TRACK_GRASS;
 
 function RunnerAnswer({ config, answer }: { config: RunnerConfig; answer: ParsedAnswer }) {
   const { cells } = config;
@@ -145,115 +106,6 @@ function RunnerAnswer({ config, answer }: { config: RunnerConfig; answer: Parsed
   const lit = cell !== null && cell >= 0 && cell < cells.length ? cell : null;
   const width = cells.length * C;
   const height = SKY + GRASS;
-  const items: ReactNode[] = [];
-  cells.forEach((kind, i) => {
-    const x = i * C;
-    const key = String(i);
-    if (kind === 'hole') {
-      items.push(
-        <rect
-          key={`c${key}`}
-          x={x}
-          y={SKY + 2}
-          width={C}
-          height={GRASS}
-          fill={UI_COLORS.ink}
-          fillOpacity={0.82}
-        />,
-      );
-    } else {
-      items.push(
-        <image
-          key={`c${key}`}
-          href={tile('ground')}
-          x={x}
-          y={SKY}
-          width={C}
-          height={C}
-          opacity={i % 2 === 1 ? 0.85 : 1}
-        />,
-      );
-      if (i > 0 && cells[i - 1] !== 'hole') {
-        items.push(
-          <rect
-            key={`s${key}`}
-            x={x - 0.75}
-            y={SKY + 1}
-            width={1.5}
-            height={GRASS}
-            fill={UI_COLORS.ink}
-            fillOpacity={0.55}
-          />,
-        );
-      }
-    }
-    if (kind === 'crate') {
-      items.push(
-        <image
-          key={`k${key}`}
-          href={tile('crate')}
-          x={x + C * 0.12}
-          y={SKY - C * 0.76}
-          width={C * 0.76}
-          height={C * 0.76}
-        />,
-      );
-    }
-    if (kind === 'branch') {
-      items.push(
-        <rect key={`t${key}`} x={x + C - 4} y={0} width={3} height={SKY} fill={UI_COLORS.goDeep} />,
-        <image
-          key={`bl${key}`}
-          href={tile('branch_left')}
-          x={x}
-          y={SKY - C * 1.3}
-          width={C / 2}
-          height={C / 2}
-        />,
-        <image
-          key={`br${key}`}
-          href={tile('branch_right')}
-          x={x + C / 2}
-          y={SKY - C * 1.3}
-          width={C / 2}
-          height={C / 2}
-        />,
-      );
-    }
-    if (kind === 'flag') {
-      items.push(
-        <image
-          key="pole"
-          href={tile('flag_pole')}
-          x={x + C * 0.35}
-          y={SKY - C * 0.8}
-          width={C * 0.8}
-          height={C * 0.8}
-        />,
-        <image
-          key="flag"
-          href={tile('flag_1')}
-          x={x + C * 0.35}
-          y={SKY - C * 1.55}
-          width={C * 0.8}
-          height={C * 0.8}
-        />,
-      );
-    }
-  });
-  for (const at of config.bamboo ?? []) {
-    items.push(
-      <image
-        key={`b${String(at)}`}
-        href={tile('bamboo')}
-        x={at * C + C * 0.22}
-        y={SKY - C * 0.56}
-        width={C * 0.56}
-        height={C * 0.56}
-      />,
-    );
-  }
-
   let mark: ReactNode = null;
   if (lit !== null) {
     const cx = lit * C + C / 2;
@@ -272,7 +124,7 @@ function RunnerAnswer({ config, answer }: { config: RunnerConfig; answer: Parsed
             r={C * (bumped ? 0.45 : 0.62)}
           />
         )}
-        <Panda
+        <SvgPanda
           pose={answer.reason === 'OFF_TRACK' ? 'jump' : POSE[answer.outcome]}
           cx={pandaX}
           feetY={fell ? SKY + GRASS : SKY + 1}
@@ -292,7 +144,7 @@ function RunnerAnswer({ config, answer }: { config: RunnerConfig; answer: Parsed
     >
       <rect x={0} y={0} width={width} height={SKY + GRASS} fill={UI_COLORS.sky} />
       {lit !== null && <Spot x={lit * C + 1} y={1} w={C - 2} h={SKY + GRASS - 2} />}
-      {items}
+      <TrackCells cells={cells} bamboo={config.bamboo ?? []} />
       {mark}
     </svg>
   );
@@ -457,7 +309,7 @@ function MazeAnswer({ config, answer }: { config: MazeConfig; answer: ParsedAnsw
       {cell && (
         <g data-answer-cell={`${String(cell[0])},${String(cell[1])}`}>
           <Spot x={cell[1] * M + 0.6} y={cell[0] * M + 0.6} w={M - 1.2} h={M - 1.2} />
-          <Panda
+          <SvgPanda
             pose={POSE[answer.outcome]}
             cx={cell[1] * M + M / 2}
             feetY={cell[0] * M + M - 0.5}

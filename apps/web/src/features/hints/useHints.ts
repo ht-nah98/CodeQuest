@@ -8,7 +8,14 @@ import {
   nextStep,
   selectHint,
 } from '@codequest/engine';
-import { balance, buyHint, failStreak, type HintTier, type LevelSession } from '@codequest/rewards';
+import {
+  balance,
+  buyHint,
+  failStreak,
+  type HintTier,
+  type LedgerEntry,
+  type LevelSession,
+} from '@codequest/rewards';
 import { addLedgerEntries, listLedger, spend } from '../../data/repos/ledger';
 import { availableTiers, isTierOwned, type TierView, tierViews } from './tiers';
 
@@ -34,8 +41,12 @@ export interface UseHintsOptions {
    * seeds `tiersBought` when the hook mounts.
    */
   session: LevelSession;
-  /** Optional notification after a purchase was written (a free tier 1 included). */
-  onPurchased?: (tier: HintTier) => void;
+  /**
+   * After a purchase was written (a free tier 1 included), with its ledger line: the play screen
+   * passes both to `usePlaySession().recordHintBought` so later wins are capped and scored on
+   * the right ledger.
+   */
+  onPurchased?: (tier: HintTier, entry: LedgerEntry) => void;
   now?: () => Date;
   /** One id per click, so a retried tier 2–3 purchase is charged once. */
   newPurchaseId?: () => string;
@@ -113,10 +124,10 @@ export function useHints({
     sessionRef.current = session;
   });
 
-  const record = (tier: HintTier) => {
+  const record = (tier: HintTier, entry: LedgerEntry) => {
     boughtRef.current = [...boughtRef.current, tier];
     setTiersBought(boughtRef.current);
-    onPurchased?.(tier);
+    onPurchased?.(tier, entry);
   };
 
   const buy = async (tier: HintTier, program?: ProgramNow): Promise<BuyResult> => {
@@ -163,7 +174,7 @@ export function useHints({
         } else {
           await addLedgerEntries([entry], at);
         }
-        record(tier);
+        record(tier, entry);
       }
       return opened();
     } catch {

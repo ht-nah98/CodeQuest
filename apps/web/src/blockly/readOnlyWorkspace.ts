@@ -41,7 +41,14 @@ export function mountReadOnlyWorkspace(
     trashcan: false,
     sounds: false,
     move: { scrollbars: scrollable, drag: scrollable, wheel: scrollable },
-    zoom: { controls: false, wheel: false, startScale: scale },
+    // zoomToFit never blows a short program up past 1.2× its start size.
+    zoom: {
+      controls: false,
+      wheel: false,
+      startScale: scale,
+      maxScale: scale * 1.2,
+      minScale: 0.5,
+    },
   });
   const restoreMain = () => {
     // A disposed workspace has left the page; never hand the role back to it.

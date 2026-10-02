@@ -8,8 +8,18 @@ import {
 } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import * as Blockly from 'blockly';
+import type { FeedbackFile, Level, LevelMode, ReasonCode } from '@codequest/content-schema';
 import { editDistance, type RunOutcome } from '@codequest/engine';
 import { DEFAULT_PAR_EDITS } from '@codequest/rewards';
+import {
+  audio,
+  feedbackVoiceId,
+  levelVoiceId,
+  RUN_SFX,
+  stageSfx,
+  uiVoiceId,
+  useMusic,
+} from '../../audio';
 import {
   BlocklyWorkspace,
   type WorkspaceHandle,
@@ -28,15 +38,20 @@ import { usePlaySession } from '../../features/play/usePlaySession';
 import { useSignedInProfile } from '../../features/profiles';
 import { vi } from '../../i18n/vi';
 import type { PandaAnimation } from '../../stages/panda';
+import { trackFeedFor } from '../../stages/runner/trackStrip';
 import { type Speed, StageController } from '../../stages/StageController';
-import { Bubble, Button, CapacityBricks, Panel, PixelIcon } from '../../ui';
+import { TrackStrip } from '../../stages/TrackStrip';
+import { Bubble, Button, CapacityBricks, Panel, PixelIcon, SpeakButton } from '../../ui';
 import { canOpenLevel } from '../../features/content/catalog';
 import { ScreenMessage } from '../shared/ScreenMessage';
 import { useChild } from '../shared/useChild';
 import { MangPortrait, type PortraitPose } from './MangPortrait';
 import { PlayTopBar } from './PlayTopBar';
 import { type PickMark, PredictCards } from './PredictCards';
+import { HintBox } from './HintBox';
 import { ResultsOverlay } from './ResultsOverlay';
+import { SolutionViewer } from './SolutionViewer';
+import { type PlayLine, usePlayHints } from './usePlayHints';
 import './play.css';
 
 const t = vi.play;
@@ -129,8 +144,48 @@ export default function PlayScreen() {
       </ScreenMessage>
     );
   }
-  return <PlaySession key={loaded.content.level.id} content={loaded.content} />;
+  return (
+    <PlaySession
+      key={loaded.content.level.id}
+      content={loaded.content}
+      {...hintFactsOf(loaded.content, catalog, child)}
+    />
+  );
 }
+
+/**
+ * Profile facts for tier-0 hints (hint-engine.md §2): whether this level is the first of its mode
+ * in its world, and the modes of every level the child has progress on.
+ */
+function hintFactsOf(
+  content: PlayContent,
+  catalog: ReturnType<typeof useChild>['catalog'],
+  child: ReturnType<typeof useChild>['child'],
+): { isFirstOfModeInWorld: boolean; seenModes: ReadonlySet<LevelMode> } {
+  const { level, world } = content;
+  const firstOfMode = world.levelIds
+    .map((id) => catalog?.levels.get(id))
+    .find((other) => other !== undefined && other.retired !== true && other.mode === level.mode);
+  const seenModes = new Set<LevelMode>();
+  for (const id of child?.progress.keys() ?? []) {
+    const mode = catalog?.levels.get(id)?.mode;
+    if (mode !== undefined) seenModes.add(mode);
+  }
+  return { isFirstOfModeInWorld: firstOfMode?.id === level.id, seenModes };
+}
+
+/** A feedback line with its voice: the level's own when it overrides the shared one. */
+function feedbackPlayLine(
+  reason: ReasonCode,
+  level: Pick<Level, 'id' | 'feedback'>,
+  feedback: FeedbackFile,
+): PlayLine {
+  const own = level.feedback?.[reason] !== undefined ? level.id : undefined;
+  return { text: feedbackLine(reason, level, feedback), voiceId: feedbackVoiceId(reason, own) };
+}
+
+/** A fixed vi.ts line of the play screen, voiced as `ui.<path>`. */
+const uiLine = (path: string, text: string): PlayLine => ({ text, voiceId: uiVoiceId(path) });
 
 type Phase = 'idle' | 'running' | 'success' | 'fail';
 
@@ -156,23 +211,47 @@ const PORTRAIT: Record<Phase, PortraitPose> = {
 };
 
 /** One attempt at a level: stage on the left, Blockly on the right, Măng's bubble below. */
-function PlaySession({ content }: { content: PlayContent }) {
+function PlaySession({
+  content,
+  isFirstOfModeInWorld,
+  seenModes,
+}: {
+  content: PlayContent;
+  isFirstOfModeInWorld: boolean;
+  seenModes: ReadonlySet<LevelMode>;
+}) {
   const { level, world, levelNumber, feedback } = content;
   const { mode } = level;
   const predict = mode === 'predict' ? level.predict : undefined;
-  const readyLine = mode === 'build' ? t.ready : t.readyByMode[mode];
+  const readyLine = useMemo(
+    () =>
+      mode === 'build'
+        ? uiLine('play.ready', t.ready)
+        : uiLine(`play.readyByMode.${mode}`, t.readyByMode[mode]),
+    [mode],
+  );
+  useMusic('adventure');
+  const rootRef = useRef<HTMLElement>(null);
   const navigate = useNavigate();
   const stageBoxRef = useRef<HTMLDivElement>(null);
+  // Runner only: the full-track strip under the stage follows the replay (stage-rendering.md §2).
+  const trackFeed = useMemo(() => trackFeedFor(level.kind, level.config), [level]);
   const stageRef = useRef<StageController | null>(null);
   const workspaceRef = useRef<Blockly.WorkspaceSvg | null>(null);
   const handleRef = useRef<WorkspaceHandle | null>(null);
   const shakenRef = useRef<Element | null>(null);
   /** The program of the replay on screen, to tell a real edit from a late debounced report. */
   const ranJsonRef = useRef<string | null>(null);
+  /** The program of the last workspace report, to tell the child's edits from re-reports. */
+  const lastProgramRef = useRef<string | null>(null);
   const [stageReady, setStageReady] = useState(false);
   const [stageFailed, setStageFailed] = useState(false);
   const [phase, setPhase] = useState<Phase>('idle');
-  const [bubble, setBubble] = useState<string>(readyLine);
+  const [bubble, setBubbleLine] = useState<PlayLine>(readyLine);
+  const bubbleRef = useRef(bubble);
+  useEffect(() => {
+    bubbleRef.current = bubble;
+  });
   const [speed, setSpeed] = useState<Speed>(1);
   /** The chosen speed, for a stage mounted later (level change, dev Fast Refresh). */
   const speedRef = useRef<Speed>(1);
@@ -189,7 +268,43 @@ function PlaySession({ content }: { content: PlayContent }) {
     saveDraft,
     setWorkspaceFlush,
     wrongPicks,
+    recordHintBought,
+    snapshot,
   } = usePlaySession(profile.id, level);
+  const phaseRef = useRef<Phase>('idle');
+  const [workspaceReady, setWorkspaceReady] = useState(false);
+  const playHints = usePlayHints({
+    profileId: profile.id,
+    level,
+    feedback,
+    session: snapshot().session,
+    recordHintBought,
+    workspaceRef,
+    handleRef,
+    rootRef,
+    isFirstOfModeInWorld,
+    seenModes,
+    showTip: setBubbleLine,
+    currentText: () => bubbleRef.current.text,
+    canTip: () => phaseRef.current !== 'running' && phaseRef.current !== 'success',
+  });
+  const {
+    clearTip,
+    runEnded: hintRunEnded,
+    entered: hintEntered,
+    changed: hintChanged,
+  } = playHints;
+  useEffect(() => {
+    phaseRef.current = phase;
+  });
+  /** Măng says `line`; any tier-0 hint pointer goes away with the old line. */
+  const say = useCallback(
+    (line: PlayLine) => {
+      clearTip();
+      setBubbleLine(line);
+    },
+    [clearTip],
+  );
   const [reward, setReward] = useState<WinReward | null>(null);
   /** Mode predict: the cards picked in this session. */
   const [marks, setMarks] = useState<Record<string, PickMark>>({});
@@ -251,6 +366,12 @@ function PlaySession({ content }: { content: PlayContent }) {
       onWaitingStep: (waiting) => {
         container.dataset.waitingStep = String(waiting);
       },
+      // Each event's sound starts with its animation, on the replay's clock (audio.md §3).
+      onEvent: (event) => {
+        audio.playSfx(stageSfx(event.type));
+        trackFeed?.event(event);
+      },
+      onReset: () => trackFeed?.reset(),
       ...(import.meta.env.DEV && {
         onClockSpeed: (clockSpeed: number) => {
           container.dataset.stageSpeed = String(clockSpeed);
@@ -274,7 +395,7 @@ function PlaySession({ content }: { content: PlayContent }) {
         setPhase('idle');
         setStepping(false);
         setPaused(false);
-        setBubble(readyLine);
+        say(readyLine);
       },
       () => {
         if (!controller.signal.aborted) setStageFailed(true);
@@ -286,7 +407,7 @@ function PlaySession({ content }: { content: PlayContent }) {
       stageRef.current = null;
       setStageReady(false);
     };
-  }, [level, highlight, readyLine]);
+  }, [level, trackFeed, highlight, readyLine, say]);
 
   /** Bumped by every run: a reward that resolves after the next run started is not shown. */
   const runTokenRef = useRef(0);
@@ -295,7 +416,14 @@ function PlaySession({ content }: { content: PlayContent }) {
     (outcome: RunOutcome, rewardOf: Promise<WinReward | null>) => {
       setStepping(false);
       setPaused(false);
-      setBubble(resultLine(outcome, level, feedback));
+      const text = resultLine(outcome, level, feedback);
+      say(
+        outcome.result === 'success'
+          ? text === t.win
+            ? uiLine('play.win', t.win)
+            : { text }
+          : feedbackPlayLine(outcome.reasonCode ?? 'INTERNAL_ERROR', level, feedback),
+      );
       // The run was recorded when it ran (rewards-engine.md §3); only the overlay waits for the
       // end of the replay.
       const token = runTokenRef.current;
@@ -307,9 +435,11 @@ function PlaySession({ content }: { content: PlayContent }) {
       } else {
         setPhase('fail');
         shake(offendingBlockId(outcome));
+        audio.playSfx(RUN_SFX.fail);
+        hintRunEnded();
       }
     },
-    [level, feedback, shake],
+    [level, feedback, shake, say, hintRunEnded],
   );
 
   /** Stage back to the start; the program is kept (screens-and-flows.md §4, `R`). */
@@ -319,8 +449,8 @@ function PlaySession({ content }: { content: PlayContent }) {
     setStepping(false);
     setPaused(false);
     setPhase('idle');
-    setBubble(readyLine);
-  }, [clearShake, readyLine]);
+    say(readyLine);
+  }, [clearShake, readyLine, say]);
 
   const run = useCallback(
     (step: boolean) => {
@@ -332,8 +462,9 @@ function PlaySession({ content }: { content: PlayContent }) {
           stage.step();
           setStepping(true);
           setPaused(false);
-          setBubble(t.stepping);
+          say(uiLine('play.stepping', t.stepping));
         } else {
+          audio.playSfx('click');
           reset(); // Space / Chạy while playing = Dừng
         }
         return;
@@ -344,7 +475,7 @@ function PlaySession({ content }: { content: PlayContent }) {
       ranJsonRef.current = programKey(json);
       const fail = () => {
         reset();
-        setBubble(feedbackLine('INTERNAL_ERROR', level, feedback));
+        say(feedbackPlayLine('INTERNAL_ERROR', level, feedback));
       };
       let outcome: RunOutcome;
       try {
@@ -357,16 +488,18 @@ function PlaySession({ content }: { content: PlayContent }) {
       // before it ends (rewards-engine.md §3 "Quy ước gọi").
       runTokenRef.current += 1;
       setReward(null);
+      // One sound per start, by click, Space or S (the button itself is data-sfx="none").
+      audio.playSfx(RUN_SFX.start);
       const rewardOf = recordRun(outcome);
       setPhase('running');
       setStepping(step);
       setPaused(false);
-      setBubble(step ? t.stepping : t.running);
+      say(step ? uiLine('play.stepping', t.stepping) : uiLine('play.running', t.running));
       stage.play(outcome, { step }).then((result) => {
         if (result === 'finished') finish(outcome, rewardOf);
       }, fail);
     },
-    [level, mode, feedback, finish, reset, clearShake, recordRun],
+    [level, mode, feedback, finish, reset, clearShake, recordRun, say],
   );
 
   /**
@@ -384,7 +517,7 @@ function PlaySession({ content }: { content: PlayContent }) {
       try {
         outcome = runProgram(level, program);
       } catch {
-        setBubble(feedbackLine('INTERNAL_ERROR', level, feedback));
+        say(feedbackPlayLine('INTERNAL_ERROR', level, feedback));
         return;
       }
       const right = key === outcome.answerKey;
@@ -394,10 +527,14 @@ function PlaySession({ content }: { content: PlayContent }) {
       const rewardOf = recordRun(outcome, key);
       setMarks((current) => ({ ...current, [key]: right ? 'right' : 'wrong' }));
       setPhase('running');
-      setBubble(right ? t.predict.right : feedbackLine('WRONG_ANSWER', level, feedback));
+      say(
+        right
+          ? uiLine('play.predict.right', t.predict.right)
+          : feedbackPlayLine('WRONG_ANSWER', level, feedback),
+      );
       const won = () => {
         setPhase('success');
-        setBubble(t.predict.rightDone);
+        say(uiLine('play.predict.rightDone', t.predict.rightDone));
         void rewardOf.then((result) => {
           if (result && runTokenRef.current === token) setReward(result);
         });
@@ -410,7 +547,9 @@ function PlaySession({ content }: { content: PlayContent }) {
             return;
           }
           setPhase('fail');
-          setBubble(t.predict.tryAgain);
+          say(uiLine('play.predict.tryAgain', t.predict.tryAgain));
+          audio.playSfx(RUN_SFX.fail);
+          hintRunEnded();
         },
         () => {
           // The pick was recorded already: a right one still wins even if the replay broke.
@@ -420,11 +559,11 @@ function PlaySession({ content }: { content: PlayContent }) {
             return;
           }
           setPhase('idle');
-          setBubble(feedbackLine('INTERNAL_ERROR', level, feedback));
+          say(feedbackPlayLine('INTERNAL_ERROR', level, feedback));
         },
       );
     },
-    [level, feedback, recordRun, sessionReady],
+    [level, feedback, recordRun, sessionReady, say, hintRunEnded],
   );
 
   /** Mode creative: "Lưu" stores the program; the first save of the level pays its coins. */
@@ -435,14 +574,18 @@ function PlaySession({ content }: { content: PlayContent }) {
     saveCreative(handle.getState().json).then(
       (coins) => {
         setSaving(false);
-        setBubble(coins > 0 ? t.creative.savedCoins(coins) : t.creative.saved);
+        say(
+          coins > 0
+            ? { text: t.creative.savedCoins(coins) }
+            : uiLine('play.creative.saved', t.creative.saved),
+        );
       },
       () => {
         setSaving(false);
-        setBubble(t.creative.saveError);
+        say(uiLine('play.creative.saveError', t.creative.saveError));
       },
     );
-  }, [saveCreative, saving]);
+  }, [saveCreative, saving, say]);
 
   /** Tạm dừng / Tiếp tục: freezes the replay mid-move, or lets it go on. */
   const togglePause = useCallback(() => {
@@ -451,16 +594,19 @@ function PlaySession({ content }: { content: PlayContent }) {
     if (stage.paused) {
       stage.resume();
       setPaused(false);
-      setBubble(stepping ? t.stepping : t.running);
+      say(stepping ? uiLine('play.stepping', t.stepping) : uiLine('play.running', t.running));
     } else {
       stage.pause();
       setPaused(true);
-      setBubble(t.paused);
+      say(uiLine('play.paused', t.paused));
     }
-  }, [stepping]);
+  }, [stepping, say]);
 
-  // App shortcuts: Space = Chạy/Dừng, S = Từng bước, R = Làm lại (blockly-integration.md §13).
-  // Capture phase, so a block clicked with the mouse does not also get Blockly's Space action.
+  const { available: hintsAvailable, openBox: openHintBox } = playHints;
+
+  // App shortcuts: Space = Chạy/Dừng, S = Từng bước, R = Làm lại, H = Gợi ý
+  // (blockly-integration.md §13). Capture phase, so a block clicked with the mouse does not also
+  // get Blockly's Space action.
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       const action =
@@ -470,23 +616,38 @@ function PlaySession({ content }: { content: PlayContent }) {
             ? 'step'
             : event.code === 'KeyR'
               ? 'reset'
-              : null;
-      if (action === null || mode === 'predict' || !shouldHandleAppShortcut(event)) return;
+              : event.code === 'KeyH'
+                ? 'hint'
+                : null;
+      if (action === null || !shouldHandleAppShortcut(event)) return;
+      if (action === 'hint') {
+        if (!hintsAvailable) return;
+        event.preventDefault();
+        event.stopPropagation();
+        openHintBox();
+        return;
+      }
+      if (mode === 'predict') return;
       event.preventDefault();
       event.stopPropagation();
-      if (action === 'reset') reset();
-      else run(action === 'step');
+      if (action === 'reset') {
+        reset();
+        return;
+      }
+      run(action === 'step');
     };
     window.addEventListener('keydown', onKeyDown, { capture: true });
     return () => {
       window.removeEventListener('keydown', onKeyDown, { capture: true });
     };
-  }, [run, reset, mode]);
+  }, [run, reset, mode, hintsAvailable, openHintBox]);
 
   const onReady = useCallback(
     (workspace: Blockly.WorkspaceSvg, handle: WorkspaceHandle) => {
       workspaceRef.current = workspace;
       handleRef.current = handle;
+      lastProgramRef.current = programKey(handle.getState().json);
+      setWorkspaceReady(true);
       setWorkspaceFlush(() => {
         handle.flush();
       });
@@ -504,9 +665,18 @@ function PlaySession({ content }: { content: PlayContent }) {
   const onDispose = useCallback(() => {
     workspaceRef.current = null;
     handleRef.current = null;
+    setWorkspaceReady(false);
     setWorkspaceFlush(null);
     delete window.__cqPlay;
   }, [setWorkspaceFlush]);
+
+  // Tier-0 "enter" hint: once, when both the stage and the workspace are up (hint-engine.md §5).
+  const enteredRef = useRef(false);
+  useEffect(() => {
+    if (!stageReady || !workspaceReady || enteredRef.current) return;
+    enteredRef.current = true;
+    hintEntered();
+  }, [stageReady, workspaceReady, hintEntered]);
 
   const onChange = useCallback(
     (state: WorkspaceState) => {
@@ -518,10 +688,15 @@ function PlaySession({ content }: { content: PlayContent }) {
         setEdits(editDistance(level.initialWorkspace, state.json));
       }
       saveDraft(state.json);
+      const key = programKey(state.json);
+      if (key !== lastProgramRef.current) {
+        lastProgramRef.current = key;
+        hintChanged();
+      }
       // Editing the program makes the replay on screen stale: put the stage back.
       if (phase !== 'idle' && programKey(state.json) !== ranJsonRef.current) reset();
     },
-    [level.id, level.initialWorkspace, mode, phase, reset, saveDraft],
+    [level.id, level.initialWorkspace, mode, phase, reset, saveDraft, hintChanged],
   );
 
   const chooseSpeed = (next: Speed) => {
@@ -551,7 +726,10 @@ function PlaySession({ content }: { content: PlayContent }) {
   const running = phase === 'running';
 
   return (
-    <main className="cq-play grid h-dvh min-h-[500px] grid-rows-[56px_minmax(0,1fr)_64px] gap-2 bg-ground px-3 pt-2 pb-2">
+    <main
+      ref={rootRef}
+      className="cq-play grid h-dvh min-h-[500px] grid-rows-[56px_minmax(0,1fr)_64px] gap-2 bg-ground px-3 pt-2 pb-2"
+    >
       <PlayTopBar
         profileId={profile.id}
         levelId={level.id}
@@ -574,6 +752,7 @@ function PlaySession({ content }: { content: PlayContent }) {
               data-ready={stageReady}
               data-phase={phase}
               data-paused={paused}
+              data-hint-anchor="stage"
               className="absolute inset-0 outline-none focus-visible:outline-3 focus-visible:-outline-offset-4 focus-visible:outline-brand-deep"
             />
             {stageFailed && (
@@ -585,12 +764,15 @@ function PlaySession({ content }: { content: PlayContent }) {
               </p>
             )}
           </div>
+          {trackFeed && <TrackStrip feed={trackFeed} />}
 
           <p className="m-0 flex items-center gap-2 border-b-3 border-ink bg-paper-2 px-4 py-2 font-bold">
             <span className="rounded-kbd bg-brand-deep px-2 pt-0.5 font-pixel text-pixel-sm font-normal text-paper uppercase">
               {t.objectiveLabel}
             </span>
             {level.objective}
+            {/* Renders only once the line has a voice file (audio.md §3). */}
+            <SpeakButton voiceId={levelVoiceId(level.id, 'objective')} className="ml-auto" />
           </p>
 
           {/* Mode predict has no run controls: the answer cards sit under the program. */}
@@ -607,6 +789,10 @@ function PlaySession({ content }: { content: PlayContent }) {
                 shortcut="Space"
                 disabled={!stageReady}
                 data-testid="play-run"
+                data-hint-anchor="run"
+                // run() plays the sound (`run` to start, a click to stop), the same for Space: the
+                // delegated click sound would read data-sfx after React re-rendered the button.
+                data-sfx="none"
                 onClick={() => {
                   run(false);
                   focusStage();
@@ -708,9 +894,27 @@ function PlaySession({ content }: { content: PlayContent }) {
               />
             </div>
           )}
-          {level.maxBlocks !== undefined && capacity !== null && (
-            <div className="flex min-h-14 items-center border-t-3 border-ink bg-paper px-4 py-2">
-              <CapacityBricks max={level.maxBlocks} used={level.maxBlocks - capacity} />
+          {((level.maxBlocks !== undefined && capacity !== null) || hintsAvailable) && (
+            <div className="flex min-h-14 items-center gap-3 border-t-3 border-ink bg-paper px-4 py-2">
+              {level.maxBlocks !== undefined && capacity !== null && (
+                <div data-hint-anchor="capacity" className="rounded-key">
+                  <CapacityBricks max={level.maxBlocks} used={level.maxBlocks - capacity} />
+                </div>
+              )}
+              {hintsAvailable && (
+                <Button
+                  variant="hint"
+                  size="sm"
+                  icon={<PixelIcon name="bulb" scale={1} />}
+                  shortcut="H"
+                  className="ml-auto"
+                  aria-haspopup="dialog"
+                  data-testid="play-hint"
+                  onClick={openHintBox}
+                >
+                  {vi.hints.open}
+                </Button>
+              )}
             </div>
           )}
           {mode === 'bughunt' && (
@@ -734,10 +938,6 @@ function PlaySession({ content }: { content: PlayContent }) {
               </Button>
             </div>
           )}
-          {/* HINT SLOT (P1-07, next round): the hint box button (💡 Gợi ý · H) goes here, at the
-              right of the capacity bar (screens-and-flows.md §3). It reads the open session
-              through usePlaySession().snapshot() for buyHint / failStreak, and reports a purchase
-              with recordHintBought(tier, entry) so later wins are capped. */}
         </Panel>
       </div>
 
@@ -745,9 +945,29 @@ function PlaySession({ content }: { content: PlayContent }) {
         <MangPortrait pose={PORTRAIT[phase]} height={56} />
         <span className="sr-only">{t.mangSays}:</span>
         <div data-testid="play-bubble" className="min-w-0">
-          <Bubble text={bubble} live className="max-w-[820px]" />
+          <Bubble
+            text={bubble.text}
+            live
+            className="max-w-[820px]"
+            {...(bubble.voiceId !== undefined && { voiceId: bubble.voiceId })}
+          />
         </div>
       </footer>
+      {playHints.boxOpen && (
+        <HintBox
+          tiers={playHints.hints.tiers}
+          balance={playHints.hints.balance}
+          busy={playHints.hints.busy}
+          thinkingHint={playHints.thinkingShown ? (level.thinkingHint ?? null) : null}
+          thinkingVoiceId={levelVoiceId(level.id, 'thinking')}
+          notice={playHints.notice}
+          onBuy={playHints.buy}
+          onClose={playHints.closeBox}
+        />
+      )}
+      {playHints.solutionOpen && level.solution !== undefined && (
+        <SolutionViewer solution={level.solution} onClose={playHints.closeSolution} />
+      )}
       {reward !== null && phase === 'success' && (
         <ResultsOverlay
           profileId={profile.id}

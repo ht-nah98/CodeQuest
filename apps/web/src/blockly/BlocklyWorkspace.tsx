@@ -15,6 +15,7 @@ import {
   type BlockSpec,
   type WorkspaceAnalysis,
 } from '@codequest/engine';
+import { audio, blocklySfx } from '../audio';
 import { vi } from '../i18n/vi';
 import { UI_COLORS } from '../ui/tokens';
 import './blockly.css';
@@ -118,6 +119,16 @@ interface Callbacks {
   onMouseDragEnd?: (() => void) | undefined;
 }
 
+/** The fields of a Blockly event that `blocklySfx` reads. */
+function sfxEvent(event: Events.Abstract): Parameters<typeof blocklySfx>[0] {
+  if (!(event instanceof Events.BlockMove)) return { type: event.type };
+  return {
+    type: event.type,
+    ...(event.reason !== undefined && { reason: event.reason }),
+    ...(event.newParentId !== undefined && { newParentId: event.newParentId }),
+  };
+}
+
 /** Injects the workspace for `level` into `container`; returns the teardown. */
 function mountWorkspace(
   container: HTMLElement,
@@ -137,7 +148,8 @@ function mountWorkspace(
     ...(level.maxInstances && { maxInstances: level.maxInstances }),
     // Nothing to throw away in parsons (blocks cannot be deleted) or predict (read-only).
     trashcan: level.mode !== 'parsons' && level.mode !== 'predict',
-    sounds: true,
+    // Blockly's own sounds ignore the volume sliders: ours play from the change listener.
+    sounds: false,
     move: { scrollbars: true, drag: true, wheel: true },
     // Predict shares its panel with the answer cards: a smaller start so the program fits.
     zoom: {
@@ -179,6 +191,8 @@ function mountWorkspace(
   if (!parsons) workspace.addChangeListener(Events.disableOrphans);
   workspace.addChangeListener((event) => {
     if (!event.isUiEvent) {
+      // Loading a program (recordUndo off) is silent; a drop, snap or delete by the child is not.
+      if (event.recordUndo) audio.playSfx(blocklySfx(sfxEvent(event)));
       if (parsons) markLooseBlocks(workspace);
       schedule();
     } else if (

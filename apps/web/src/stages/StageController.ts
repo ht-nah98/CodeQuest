@@ -21,6 +21,10 @@ export interface StageControllerOptions {
   onWaitingStep?: (waiting: boolean) => void;
   /** The clock's speed after every change (e2e, dev build: data-stage-speed). */
   onClockSpeed?: (speed: number) => void;
+  /** An action event's animation starts (the play screen plays its sound effect). */
+  onEvent?: (event: GameEvent) => void;
+  /** The stage went back to the start (Làm lại, Dừng, and the start of every run). */
+  onReset?: () => void;
 }
 
 /**

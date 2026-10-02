@@ -22,6 +22,13 @@ export interface ReplayHooks {
   onWaitingStep?: (waiting: boolean) => void;
   /** The clock's speed after every change (tempo, speed, pause); e2e reads it as data-stage-speed. */
   onClockSpeed?: (speed: number) => void;
+  /**
+   * An action event's animation starts now (sound effects, audio.md §3). Called on the replay's
+   * own clock, so sound follows speed, pause and step without a second timer.
+   */
+  onEvent?: (event: GameEvent) => void;
+  /** The scene went back to the level's start (every reset, including the one each run starts with). */
+  onReset?: () => void;
 }
 
 /**
@@ -85,6 +92,7 @@ export class Replay {
           if (isAborted(signal)) return 'aborted';
         }
         const next = events[index + 1];
+        this.hooks.onEvent?.(event);
         await this.renderer.play(event, signal, next?.type === 'highlight' ? undefined : next);
       }
       if (isAborted(signal)) return 'aborted';
@@ -162,6 +170,7 @@ export class Replay {
     this.applySpeed();
     this.hooks.onWaitingStep?.(false);
     this.renderer.reset();
+    this.hooks.onReset?.();
     this.hooks.onHighlight(null);
   }
 

@@ -81,10 +81,10 @@ Hiệu ứng (tự tạo bằng `tools/audio/`, chiptune), 2 bản nhạc nền,
 **Đã có (AI):** `apps/web/src/audio/`, 17 hiệu ứng + 2 nhạc nền tự tạo, `tools/voice/` (provider `none`/`files`), Cài đặt nghe thử, màn Kết quả, Bài giảng/Thế giới/Bản đồ/Tạo hồ sơ/nhắc nghỉ (xem `architecture/audio.md` §3).
 **Còn lại** (chờ P1-06 xong phần màn chơi; cách nối ở `architecture/audio.md` §3):
 - [ ] HLV chọn giọng → `npm run voice -- build --provider …`, ghi vào `tech-stack.md`; `npm run voice -- check --worlds w01,w02` sạch
-- [ ] `StageController`/stage: `playSfx(stageSfx(event.type))` khi hoạt ảnh của mỗi event bắt đầu; `RUN_SFX.fail` khi thua
-- [ ] Nút ▶ Chạy: `data-sfx="run"` (thay tiếng click mặc định)
-- [ ] `PlayScreen`: `useMusic('adventure')`; bubble mục tiêu / gợi ý / feedback / câu `vi.play.*` có `voiceId` (`levelVoiceId`, `hintVoiceId`, `feedbackVoiceId`, `uiVoiceId`); `HintBox`: `thinkingHint` → `levelVoiceId(id, 'thinking')`
-- [ ] `BlocklyWorkspace.tsx`: `sounds: false` (tiếng có sẵn của Blockly không theo thanh âm lượng) và gọi `playSfx(blocklySfx(event))` trong change listener
+- [x] `StageController`/stage: `playSfx(stageSfx(event.type))` khi hoạt ảnh của mỗi event bắt đầu; `RUN_SFX.fail` khi thua
+- [x] Nút ▶ Chạy: `data-sfx="run"` (thay tiếng click mặc định) — làm bằng `run()` phát `run` + nút `data-sfx="none"` (lý do: `audio.md` §3)
+- [x] `PlayScreen`: `useMusic('adventure')`; bubble mục tiêu / gợi ý / feedback / câu `vi.play.*` có `voiceId` (`levelVoiceId`, `hintVoiceId`, `feedbackVoiceId`, `uiVoiceId`); `HintBox`: `thinkingHint` → `levelVoiceId(id, 'thinking')`
+- [x] `BlocklyWorkspace.tsx`: `sounds: false` (tiếng có sẵn của Blockly không theo thanh âm lượng) và gọi `playSfx(blocklySfx(event))` trong change listener
 - [ ] HLV nghe thử phong cách hiệu ứng + 2 bài nhạc, duyệt hoặc thay
 
 ### P1-15 · E2E smoke + CI

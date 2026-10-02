@@ -54,18 +54,12 @@ apps/web/src/audio/  AudioManager (Howler) · useAudio() · AudioProvider · b�
 - Cài đặt: kéo thanh âm lượng thì áp dụng ngay và nghe thử (hiệu ứng: `coin`; giọng: một câu mẫu nếu đã có giọng; nhạc: phát 2,5 giây rồi trả lại bài cũ).
 - Tiếng click cho mọi `ui/Button` (bỏ qua nút `disabled` / `aria-disabled="true"`; `data-sfx` lạ thì cảnh báo ở bản dev). Đăng xuất (không còn hồ sơ) → âm lượng về mặc định.
 
-Chưa nối (để task sau, vì file đang do P1-06 sửa; checklist ở `roadmap/phase-1.md` §P1-14): `PlayScreen`, `HintBox`, `stages`, `BlocklyWorkspace`:
-```ts
-const { playSfx } = useAudio();
-playSfx(stageSfx(event.type));          // trong StageController/stage, khi hoạt ảnh của event bắt đầu
-<Button variant="go" data-sfx="run">    // ▶ Chạy: tiếng `run` thay cho `click`
-useMusic('adventure');                  // PlayScreen
-<Bubble text={objective} voiceId={levelVoiceId(level.id, 'objective')} />
-<Bubble text={say} voiceId={hintVoiceId(level.id, hint.id)} />
-<Bubble text={fb} voiceId={feedbackVoiceId(reason, levelOverrides ? level.id : undefined)} />
-<Bubble text={vi.play.ready} voiceId={uiVoiceId('play.ready')} />
-```
-Blockly đang bật `sounds: true` (tiếng click/xóa có sẵn của Blockly, không theo thanh âm lượng). Khi nối: đặt `sounds: false` trong `BlocklyWorkspace.tsx` và gọi `playSfx(blocklySfx(event))` trong change listener.
+- Màn chơi (P1-07 phần 2, `screens/play/PlayScreen.tsx`):
+  - Nhạc `adventure` (`useMusic`).
+  - Hiệu ứng theo event khi phát lại: `StageController`/`Replay` có hook `onEvent(event)`, gọi **ngay trước** khi hoạt ảnh của event bắt đầu, trên đúng đồng hồ của replay (theo tốc độ, tạm dừng, từng bước; không thêm bộ hẹn giờ). Màn chơi gọi `audio.playSfx(stageSfx(event.type))`. Lượt thua (kể cả chọn sai ở `predict`) kết thúc bằng `RUN_SFX.fail`.
+  - ▶ Chạy: **một** tiếng `run` mỗi lần bắt đầu chạy, do `run()` phát (bấm nút, `Space` hay `S` đều như nhau); bấm Dừng thì `click`. Nút để `data-sfx="none"`: listener click chung đọc `data-sfx` **sau** khi React đã vẽ lại nút thành "Dừng" (sự kiện click rời rạc được flush đồng bộ), nên `data-sfx="run"` trên nút sẽ kêu `click` thay vì `run`.
+  - Bong bóng của Măng mang `voiceId`: `ui.play.*` cho câu cố định của `vi.play` (`ready`, `readyByMode.<mode>`, `running`, `stepping`, `paused`, `win`, `predict.*`, `creative.saved`…), `feedbackVoiceId(reason, levelId nếu màn ghi đè)` cho câu phản hồi, `hintVoiceId` / `ui.hints.global.<id>` cho gợi ý tầng 0. Câu có số (khen số khối, xu khi lưu) không có giọng. Dòng mục tiêu có nút 🔊 (`levelVoiceId(id, 'objective')`, chỉ hiện khi có file). Hộp gợi ý: `thinkingHint` → `levelVoiceId(id, 'thinking')`.
+  - Blockly: `sounds: false` (tiếng có sẵn của Blockly không theo thanh âm lượng); change listener của `BlocklyWorkspace` gọi `audio.playSfx(blocklySfx(event))` cho sự kiện có `recordUndo` (nạp chương trình thì im lặng): nối khối → `snap`, thả khối rời / xóa khối → `drop`.
 
 Lưu ý: câu đang hiển thị trong bubble chỉ có giọng khi đúng ID với `tools/voice` (ví dụ bubble ghép từ nhiều nguồn thì không có giọng). Câu có số (hàm trong `vi.ts`) không bao giờ có giọng.
 

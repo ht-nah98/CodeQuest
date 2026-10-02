@@ -32,6 +32,9 @@ export const vi = {
       levelNumber === null ? world : `${world} · Màn ${String(levelNumber)}`,
     objectiveLabel: 'Mục tiêu',
     stageLabel: 'Sân chơi',
+    // Runner full-track strip under the stage (screen readers; cells counted from 1).
+    trackStrip: (cells: number, at: number) =>
+      `Cả đường: ${String(cells)} ô, Măng ở ô ${String(at)}`,
     controlsLabel: 'Điều khiển',
     run: 'Chạy',
     stop: 'Dừng',

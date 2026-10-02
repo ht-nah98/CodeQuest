@@ -431,3 +431,72 @@ test.describe('runner performance', () => {
     await expect(page.getByTestId('play-success')).toBeVisible({ timeout: 30_000 });
   });
 });
+
+// Review fix (World 2 pedagogy): the stage shows ~6 cells of a long track, so a strip under it
+// shows every cell, Măng's live cell and the part the stage shows (stage-rendering.md §2).
+test.describe('full-track strip', () => {
+  const strip = (page: Page) => page.getByTestId('track-strip');
+
+  test('runner-long: all 30 cells, the marker follows Măng, Làm lại puts it back', async ({
+    page,
+  }, testInfo) => {
+    const project = testInfo.project.name;
+    await open(page, 'runner-long');
+    await setProgram(page, sandbox('runner-long').solution);
+    await expect(strip(page)).toHaveAttribute('data-cells', '30');
+    await expect(strip(page)).toHaveAccessibleName('Cả đường: 30 ô, Măng ở ô 1');
+    await expect(strip(page).locator('[data-cell]')).toHaveCount(30);
+    await expect(strip(page).locator('[data-bamboo]')).toHaveCount(4);
+    // Readable for an 8-year-old: a cell is at least 14 px wide.
+    const box = await strip(page).locator('svg').first().boundingBox();
+    expect((box?.width ?? 0) / 30).toBeGreaterThanOrEqual(14);
+    const startView = await strip(page).getAttribute('data-view');
+    mkdirSync(SHOTS, { recursive: true });
+    await page.screenshot({ path: `${SHOTS}/${project}-strip-start.png` });
+
+    await page.getByTestId('play-run').click();
+    await expect
+      .poll(async () => Number(await strip(page).getAttribute('data-at')), { timeout: 20_000 })
+      .toBeGreaterThanOrEqual(8);
+    await pauseButton(page).click();
+    const at = Number(await strip(page).getAttribute('data-at'));
+    await expect(strip(page)).toHaveAccessibleName(`Cả đường: 30 ô, Măng ở ô ${String(at + 1)}`);
+    // The frame of what the stage shows moved along with the camera; a shoot was picked up.
+    expect(await strip(page).getAttribute('data-view')).not.toBe(startView);
+    expect(await strip(page).locator('[data-bamboo]').count()).toBeLessThan(4);
+    await page.waitForTimeout(300);
+    await page.screenshot({ path: `${SHOTS}/${project}-strip-running.png` });
+
+    await page.getByRole('button', { name: /Làm lại/ }).click();
+    await expect(strip(page)).toHaveAttribute('data-at', '0');
+    await expect(strip(page)).toHaveAttribute('data-view', startView ?? '');
+    await expect(strip(page).locator('[data-bamboo]')).toHaveCount(4);
+
+    await page.getByRole('radio', { name: 'Nhanh' }).click();
+    await page.getByTestId('play-run').click();
+    await expect(page.getByTestId('play-success')).toBeVisible({ timeout: 30_000 });
+    await expect(strip(page)).toHaveAttribute('data-at', '29');
+    await expect(strip(page).locator('[data-bamboo]')).toHaveCount(0);
+  });
+
+  test.describe('at 1280×600', () => {
+    test.use({
+      viewport: { width: 1280, height: 600 },
+      contextOptions: { screen: { width: 1280, height: 720 } },
+    });
+
+    test('the strip fits and the play screen still does not scroll', async ({ page }, testInfo) => {
+      await open(page, 'runner-long');
+      await expect(strip(page)).toBeVisible();
+      for (const testId of ['track-strip', 'play-run', 'play-bubble']) {
+        const box = await page.getByTestId(testId).boundingBox();
+        expect((box?.y ?? Infinity) + (box?.height ?? 0)).toBeLessThanOrEqual(600);
+      }
+      expect(await page.evaluate(() => document.documentElement.scrollHeight)).toBeLessThanOrEqual(
+        600,
+      );
+      mkdirSync(SHOTS, { recursive: true });
+      await page.screenshot({ path: `${SHOTS}/${testInfo.project.name}-strip-1280x600.png` });
+    });
+  });
+});

@@ -16,6 +16,8 @@ export interface HintBoxProps {
   busy?: boolean;
   /** The thinking hint, once tier 1 is opened; shown at the top of the box. */
   thinkingHint?: string | null;
+  /** Voice line of the thinking hint: `levelVoiceId(level.id, 'thinking')`. */
+  thinkingVoiceId?: string;
   /**
    * A line under the tiers: `error` = the purchase failed (storage), `solved` / `reset` = tier 2
    * had nothing to show (`useHints().buy` returned that status; no coins were taken).
@@ -95,6 +97,7 @@ export function HintBox({
   balance,
   busy = false,
   thinkingHint = null,
+  thinkingVoiceId,
   notice = null,
   onBuy,
   onClose,
@@ -136,7 +139,12 @@ export function HintBox({
             <span className="font-pixel text-pixel-sm text-ink-soft uppercase">
               {t.thinkingLabel}
             </span>
-            <Bubble text={thinkingHint} tail="none" live />
+            <Bubble
+              text={thinkingHint}
+              tail="none"
+              live
+              {...(thinkingVoiceId !== undefined && { voiceId: thinkingVoiceId })}
+            />
           </div>
         )}
 

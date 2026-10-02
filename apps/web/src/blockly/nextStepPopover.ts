@@ -40,21 +40,25 @@ export function nextStepMessage(step: NextStep | null): string {
   }
 }
 
+/**
+ * The right edge of the whole stack holding `block` (so the popover never covers the program),
+ * at height `y`: the popover's arrow then points along that row to the spot.
+ */
+function besideStack(block: BlockSvg, y: number): utils.Coordinate {
+  return new utils.Coordinate(block.getRootBlock().getBoundingRectangle().right, y);
+}
+
 function connectionPoint(workspace: WorkspaceSvg, anchor: StepAnchor): utils.Coordinate | null {
   const block = workspace.getBlockById(anchor.blockId);
   if (!block) return null;
   const connection =
     anchor.input === null ? block.nextConnection : block.getInput(anchor.input)?.connection;
-  return connection
-    ? new utils.Coordinate(connection.x, connection.y)
-    : block.getRelativeToSurfaceXY();
+  return besideStack(block, connection ? connection.y : block.getRelativeToSurfaceXY().y);
 }
 
 function blockPoint(workspace: WorkspaceSvg, id: string): utils.Coordinate | null {
   const block = workspace.getBlockById(id);
-  if (!block) return null;
-  const rect = block.getBoundingRectangle();
-  return new utils.Coordinate(rect.right, rect.top + 16);
+  return block ? besideStack(block, block.getBoundingRectangle().top + 16) : null;
 }
 
 /** Workspace coordinates of the spot the child should look at. */

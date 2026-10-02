@@ -306,3 +306,45 @@ describe('Replay', () => {
     expect(renderer.nexts).toEqual([null, 'fall', null]);
   });
 });
+
+describe('Replay onEvent (sound effects)', () => {
+  it('reports each action event as its animation starts, on the replay clock, in step mode too', async () => {
+    const seen: Array<{ type: string; progress: number }> = [];
+    const hooked = new Replay(ticker, renderer, {
+      onHighlight: () => undefined,
+      onEvent: (event) => seen.push({ type: event.type, progress: renderer.progress }),
+    });
+    const done = hooked.play(outcome('incomplete', 2), { step: true });
+    await advance(HIGHLIGHT_MS * 3);
+    // Waiting for the first step: no sound yet.
+    expect(seen).toEqual([]);
+    hooked.step();
+    await advance(16);
+    expect(seen.map((s) => s.type)).toEqual(['walk']);
+    hooked.step();
+    await advance((2 * (HIGHLIGHT_MS + ACTION_MS)) / LOSE_TEMPO + 200);
+    hooked.step();
+    await advance(400);
+    await expect(done).resolves.toBe('finished');
+    expect(seen.map((s) => s.type)).toEqual(['walk', 'walk']);
+    // Each one fires before its own animation moved (progress of the previous one is done or 0).
+    expect(seen.every((s) => s.progress === 0 || s.progress === 1)).toBe(true);
+  });
+});
+
+describe('Replay onReset', () => {
+  it('reports every reset after the renderer reset, including the one each run starts with', async () => {
+    const order: string[] = [];
+    const hooked = new Replay(ticker, renderer, {
+      onHighlight: () => undefined,
+      onEvent: (event) => order.push(event.type),
+      onReset: () => order.push(`onReset after ${renderer.calls.at(-1) ?? 'nothing'}`),
+    });
+    const done = hooked.play(outcome('incomplete', 1));
+    expect(order).toEqual(['onReset after reset']);
+    await advance(HIGHLIGHT_MS + 32);
+    hooked.reset();
+    await expect(done).resolves.toBe('aborted');
+    expect(order).toEqual(['onReset after reset', 'walk', 'onReset after reset']);
+  });
+});
