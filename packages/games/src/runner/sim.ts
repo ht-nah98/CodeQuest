@@ -1,12 +1,46 @@
 import type { GameKindApi, SimContext } from '@codequest/engine';
-import type { RunnerEvent } from './events';
+import { RUNNER_AHEAD_KINDS, type RunnerAheadKind, type RunnerCell } from './config';
+import type { RunnerEvent, RunnerMove } from './events';
 import type { RunnerState } from './state';
 
 type RunnerContext = SimContext<RunnerState, RunnerEvent>;
 
+/** Cells each sensor value is true for. */
+const AHEAD_MATCHES: Readonly<Record<RunnerAheadKind, readonly RunnerCell[]>> = {
+  HOLE: ['hole'],
+  BRANCH: ['branch'],
+  CRATE: ['crate'],
+  CLEAR: ['ground', 'flag'],
+};
+
+function isAheadKind(value: unknown): value is RunnerAheadKind {
+  return (RUNNER_AHEAD_KINDS as readonly unknown[]).includes(value);
+}
+
 /**
- * Măng has just arrived on `to`: a hole ends the run with FELL_IN_HOLE, the flag with success.
- * Ground cells need nothing. The failure event is emitted before `stop` (game-kind-sdk.md §1).
+ * Ends the run if `move` from Măng's cell cannot get past the cell `at`: a branch (unless she
+ * crouches) or a crate. Măng stays where she is. The failure event is emitted before `stop`
+ * (game-kind-sdk.md §1).
+ */
+function crashIfBlocked(ctx: RunnerContext, at: number, move: RunnerMove, blockId: string): void {
+  const state = ctx.state;
+  const cell = state.cells[at];
+  const from = state.pos;
+  if (cell === 'branch' && move !== 'crouch') {
+    state.crashAt = at;
+    ctx.emit({ type: 'bump', from, at, obstacle: 'branch', move }, blockId);
+    ctx.stop('crash', 'HIT_BRANCH');
+  }
+  if (cell === 'crate') {
+    state.crashAt = at;
+    ctx.emit({ type: 'bump', from, at, obstacle: 'crate', move }, blockId);
+    ctx.stop('crash', 'HIT_CRATE');
+  }
+}
+
+/**
+ * Măng has just arrived on `to`: a hole ends the run with FELL_IN_HOLE, a bamboo shoot is picked
+ * up, and the flag ends the run (success, or MISSED_ITEMS while `collectAll` shoots remain).
  */
 function arrive(ctx: RunnerContext, to: number, blockId: string): void {
   const state = ctx.state;
@@ -17,34 +51,69 @@ function arrive(ctx: RunnerContext, to: number, blockId: string): void {
     ctx.emit({ type: 'fall', at: to }, blockId);
     ctx.stop('crash', 'FELL_IN_HOLE');
   }
+  const shoot = state.bamboo.indexOf(to);
+  if (shoot !== -1) {
+    state.bamboo.splice(shoot, 1);
+    ctx.emit({ type: 'collect', at: to }, blockId);
+  }
   if (cell === 'flag') {
+    if (state.collectAll && state.bamboo.length > 0) {
+      ctx.emit({ type: 'missed', at: to, left: [...state.bamboo] }, blockId);
+      ctx.stop('incomplete', 'MISSED_ITEMS');
+    }
     ctx.emit({ type: 'win', at: to }, blockId);
     ctx.stop('success');
   }
+}
+
+/** Walk and crouch: one cell right; crouching is the only way under a branch. */
+function step(ctx: RunnerContext, move: 'walk' | 'crouch', blockId: unknown): void {
+  const id = String(blockId);
+  const from = ctx.state.pos;
+  // The flag is the last cell and reaching it ends the run, so `from + 1` is always on track.
+  crashIfBlocked(ctx, from + 1, move, id);
+  ctx.emit({ type: move, from, to: from + 1 }, id);
+  arrive(ctx, from + 1, id);
 }
 
 /** Sandbox API of the runner (rules: product/game-kinds.md §3.1). */
 export function createRunnerApi(ctx: RunnerContext): GameKindApi {
   return {
     walk: (blockId) => {
-      const id = String(blockId);
-      const from = ctx.state.pos;
-      // The flag is the last cell and reaching it ends the run, so `from + 1` is always on track.
-      ctx.emit({ type: 'walk', from, to: from + 1 }, id);
-      arrive(ctx, from + 1, id);
+      step(ctx, 'walk', blockId);
+    },
+    crouch: (blockId) => {
+      step(ctx, 'crouch', blockId);
     },
     jump: (blockId) => {
       const id = String(blockId);
       const from = ctx.state.pos;
       const to = from + 2;
-      // Any cell can be flown over (holes and the flag included); only the landing cell matters.
+      // Holes and the flag can be flown over; a branch or crate in the way stops Măng mid-air.
+      // `from + 1` is always on track (Măng never stands on the flag), so only `to` can be off it.
+      crashIfBlocked(ctx, from + 1, 'jump', id);
       if (to >= ctx.state.cells.length) {
         ctx.state.crashAt = from;
         ctx.emit({ type: 'offTrack', from }, id);
         ctx.stop('crash', 'OFF_TRACK');
       }
+      crashIfBlocked(ctx, to, 'jump', id);
       ctx.emit({ type: 'jump', from, to }, id);
       arrive(ctx, to, id);
+    },
+    kick: (blockId) => {
+      const state = ctx.state;
+      const at = state.pos + 1;
+      // Only a crate reacts; kicking anything else is harmless and Măng never moves.
+      const hit = state.cells[at] === 'crate';
+      if (hit) state.cells[at] = 'ground';
+      ctx.emit({ type: 'kick', at, hit }, String(blockId));
+    },
+    isAhead: (kind) => {
+      if (!isAheadKind(kind)) throw new Error(`isAhead: unknown kind ${String(kind)}`);
+      const cell = ctx.state.cells[ctx.state.pos + 1];
+      // Past the end of the track every value is false.
+      return cell !== undefined && AHEAD_MATCHES[kind].includes(cell);
     },
   };
 }

@@ -1,0 +1,117 @@
+{
+  "id": "maze-bughunt",
+  "worldId": "_sandbox",
+  "stage": "practice",
+  "kind": "maze",
+  "mode": "bughunt",
+  "title": "Sửa lỗi rẽ",
+  "objective": "Có 1 khối sai. Con sửa giúp Măng nhé!",
+  "learningGoal": "Tìm và sửa khối rẽ sai hướng.",
+  "misconception": "Rẽ trái hay rẽ phải cũng như nhau.",
+  "toolbox": ["maze_forward", "maze_turn_left", "maze_turn_right"],
+  "par": 5,
+  "parEdits": 1,
+  "config": {
+    "map": ["#####", "#S..#", "###.#", "###G.", "#####"],
+    "startDir": "E"
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "maze_forward",
+              "id": "fwd1",
+              "next": {
+                "block": {
+                  "type": "maze_forward",
+                  "id": "fwd2",
+                  "next": {
+                    "block": {
+                      "type": "maze_turn_left",
+                      "id": "turn1",
+                      "next": {
+                        "block": {
+                          "type": "maze_forward",
+                          "id": "fwd3",
+                          "next": {
+                            "block": {
+                              "type": "maze_forward",
+                              "id": "fwd4"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "maze_forward",
+              "id": "fwd1",
+              "next": {
+                "block": {
+                  "type": "maze_forward",
+                  "id": "fwd2",
+                  "next": {
+                    "block": {
+                      "type": "maze_turn_right",
+                      "id": "turn1",
+                      "next": {
+                        "block": {
+                          "type": "maze_forward",
+                          "id": "fwd3",
+                          "next": {
+                            "block": {
+                              "type": "maze_forward",
+                              "id": "fwd4"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "wall-turn",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "HIT_WALL"
+      },
+      "say": "Đích ở bên nào của Măng?",
+      "point": "stage"
+    }
+  ]
+}

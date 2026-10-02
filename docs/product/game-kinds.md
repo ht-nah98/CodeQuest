@@ -46,8 +46,8 @@ type RunnerCell = 'ground' | 'hole' | 'branch' | 'crate' | 'flag';
 interface RunnerConfig {
   cells: RunnerCell[];          // 3–40 ô; đúng 1 'flag' và nó phải là ô CUỐI
   start: number;                // chỉ số ô 'ground'
-  bamboo?: number[];            // vị trí măng (phải là ô 'ground' hoặc 'branch'), nhặt tự động khi Măng dừng ở ô đó
-  goal?: { collectAll?: boolean };   // mặc định false
+  bamboo?: number[];            // vị trí măng: ô 'ground' hoặc 'branch', nằm SAU start, không trùng; nhặt tự động khi Măng dừng ở ô đó
+  goal?: { collectAll?: boolean };   // mặc định false; collectAll: true thì bamboo phải có ≥ 1 măng
 }
 ```
 - `hole` = hố; `branch` = cành tre thấp (ô đi qua được nếu **cúi**); `crate` = thùng gỗ (phải **đá** đổ trước); `flag` = cờ đích.
@@ -59,7 +59,7 @@ interface RunnerConfig {
 | `runner_jump` | nhảy | `jump(id)` | Bay qua ô p+1, tiếp đất ở ô p+2 |
 | `runner_crouch` | cúi | `crouch(id)` | Cúi người đi sang ô p+1 |
 | `runner_kick` | đá | `kick(id)` | Đá vào ô p+1, Măng **đứng yên** |
-| `runner_is_ahead` | phía trước có [hố ▾ / cành ▾ / thùng ▾ / trống ▾] | `isAhead(kind, id)` → boolean | Cảm biến (Thế giới 4). Giá trị dropdown: `HOLE`, `BRANCH`, `CRATE`, `CLEAR` |
+| `runner_is_ahead` | phía trước có [hố ▾ / cành ▾ / thùng ▾ / ô trống ▾] | `isAhead(kind, id)` → boolean | Cảm biến (Thế giới 4). Giá trị dropdown: `HOLE`, `BRANCH`, `CRATE`, `CLEAR` |
 
 **Bảng luật** (p = ô hiện tại, `t` = ô đích của hành động). "→ crash X" nghĩa là emit event thất bại rồi `stop('crash', X)`.
 
@@ -71,12 +71,13 @@ interface RunnerConfig {
 | **nhảy**: ô tiếp đất (t = p+2) | sang t | → crash `FELL_IN_HOLE` | → crash `HIT_BRANCH` | → crash `HIT_CRATE` | → crash `OFF_TRACK` |
 | **đá** (ô p+1) | không có gì xảy ra (emit `kick{hit:false}`), không thua | như ground | như ground | thùng đổ, ô thành `ground` (emit `kick{hit:true}`) | như ground |
 
-- **Nhặt măng:** mỗi khi Măng dừng ở một ô có măng chưa nhặt → emit `collect`.
-- **Tới cờ:** ngay khi Măng dừng ở ô `flag`, lượt chạy **kết thúc**: nếu `goal.collectAll` và còn măng chưa nhặt → `incomplete` / `MISSED_ITEMS`; ngược lại → `success`. Vì cờ luôn là ô cuối, Măng không bao giờ đi quá đường.
+- **Nhặt măng:** mỗi khi Măng dừng ở một ô có măng chưa nhặt → emit `collect`. Bay qua (nhảy qua) ô có măng thì **không** nhặt.
+- **Va chạm** (`HIT_BRANCH`/`HIT_CRATE`): Măng bật lại, **vẫn đứng ở ô p**; không emit `walk`/`crouch`/`jump` trước `bump`. Khi nhảy, xét ô bay qua trước rồi mới tới ô tiếp đất.
+- **Tới cờ:** ngay khi Măng dừng ở ô `flag`, lượt chạy **kết thúc**: nếu `goal.collectAll` và còn măng chưa nhặt → emit `missed` (thay cho `win`), `incomplete` / `MISSED_ITEMS`; ngược lại → emit `win`, `success`. Vì cờ luôn là ô cuối, Măng không bao giờ đi quá đường.
 - **Hết chương trình** mà chưa tới cờ → `incomplete` / `NOT_AT_GOAL`.
 - **Cảm biến** `isAhead(kind)` nhìn ô p+1: `HOLE`/`BRANCH`/`CRATE` đúng khi ô đó đúng loại; `CLEAR` đúng khi ô đó là `ground` hoặc `flag`. Ô p+1 nằm ngoài đường → mọi giá trị đều `false`.
 
-**Event** (`events.ts`, mọi event có `blockId`): `walk{from,to}` · `crouch{from,to}` · `jump{from,to}` · `kick{at,hit}` · `collect{at}` · `fall{at}` · `bump{at,obstacle:'branch'|'crate'}` · `offTrack{from}` · `win{at}`.
+**Event** (`events.ts`, mọi event có `blockId`): `walk{from,to}` · `crouch{from,to}` · `jump{from,to}` · `kick{at,hit}` · `collect{at}` · `fall{at}` · `bump{from,at,obstacle:'branch'|'crate',move:'walk'|'crouch'|'jump'}` · `offTrack{from}` · `win{at}` · `missed{at,left:number[]}` (`left` = các ô còn măng). Thứ tự, ý nghĩa từng trường: `architecture/game-kind-sdk.md` §1.1.
 
 **reasonCodes:** `FELL_IN_HOLE`, `HIT_BRANCH`, `HIT_CRATE`, `OFF_TRACK`, `NOT_AT_GOAL`, `MISSED_ITEMS`.
 

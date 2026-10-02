@@ -19,6 +19,9 @@
 - `thinkingHint` là **câu hỏi**, không chứa tên khối cần dùng.
 - Gợi ý theo `lastReason` nên nói **vì sao** chuyện đó xảy ra, không chỉ lặp lại câu phản hồi.
 
+### Màn `predict`: khóa đáp án
+Khóa `crash:<REASON>@<ô>` chỉ **ô nơi va chạm xảy ra** (ô hố, ô cành/thùng bị đụng), không phải ô Măng đứng; riêng runner `OFF_TRACK` là ô Măng nhảy đi. Nhãn lựa chọn nên nói rõ chỗ đó, vd `crash:HIT_BRANCH@2` → "Đụng cành ở ô 2". `stop@<ô>` là ô Măng đứng khi hết chương trình; `missed@<ô cờ>` là tới cờ mà còn măng. Định dạng: `product/game-kinds.md` §3.
+
 ## 4. Câu chữ
 Theo `docs/design/ui-copy-guide.md`. `content:check` tự kiểm độ dài.
 

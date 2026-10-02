@@ -37,6 +37,24 @@ Dùng **đúng** các từ này. Cột "Trong code" là tên dùng cho type, bi�
 | Mô phỏng | `sim` | Code headless cập nhật trạng thái game |
 | Chấm bài | `evaluate` | Hàm quyết định thắng/thua từ trạng thái cuối |
 
+## Kiểu game: vật thể & khối
+| Tiếng Việt | Trong code | Nghĩa |
+|---|---|---|
+| Cảm biến | `sensor` (nhóm khối `sensor`) | Khối giá trị đúng/sai, hỏi về thế giới (vd `runner_is_ahead`, `maze_is_path`) |
+| Cành (cành tre thấp) | `branch` | Ô runner chỉ qua được bằng cách **cúi** |
+| Thùng (thùng gỗ) | `crate` | Ô runner chắn đường, phải **đá** đổ trước |
+| Hố | `hole` | Ô runner phải **nhảy** qua |
+| Cờ (lá cờ) | `flag` | Ô đích của runner, luôn là ô cuối |
+| Măng (vật phẩm) | `bamboo` | Măng tre để nhặt; `goal.collectAll` bắt nhặt hết. Khác với Măng (mascot) |
+| Đi | `runner_walk` / `walk` | Sang ô kế bên |
+| Nhảy | `runner_jump` / `jump` | Bay qua 1 ô, đáp ô sau đó |
+| Cúi | `runner_crouch` / `crouch` | Cúi người đi sang ô kế, chui qua cành |
+| Đá | `runner_kick` / `kick` | Đá ô phía trước, đứng yên |
+| Tiến | `maze_forward` / `forward` | Đi 1 ô theo hướng đang nhìn (mê cung) |
+| Rẽ trái / rẽ phải | `maze_turn_left` / `maze_turn_right` (API `turn`) | Quay tại chỗ |
+| Tường | ô `#` (lý do `HIT_WALL`) | Ô mê cung không đi vào được |
+| Đích | `goal` | Ô cần tới (mê cung); `level.config.goal` là điều kiện thắng thêm |
+
 ## Phần thưởng
 | Tiếng Việt | Trong code | Nghĩa |
 |---|---|---|
