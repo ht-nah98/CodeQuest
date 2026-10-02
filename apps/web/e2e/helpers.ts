@@ -20,3 +20,16 @@ export async function signInTestProfile(page: Page, nickname = 'Bé Thử'): Pro
     sessionStorage.setItem('cq.unlockAll', '1');
   }, nickname);
 }
+
+/**
+ * Waits for a short-lived panda animation. It may last only ~0.3 s, so this polls every frame:
+ * `expect(...).toHaveAttribute` backs off to 1 s between checks and can miss it under load.
+ */
+export async function pandaBecomes(page: Page, animation: string): Promise<void> {
+  await page.waitForFunction(
+    (name) =>
+      document.querySelector('[data-testid="play-stage"]')?.getAttribute('data-panda') === name,
+    animation,
+    { polling: 'raf', timeout: 15_000 },
+  );
+}

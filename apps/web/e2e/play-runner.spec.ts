@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { expect, type Page, test } from '@playwright/test';
 import type * as BlocklyModule from 'blockly';
-import { signInTestProfile } from './helpers';
+import { pandaBecomes, signInTestProfile } from './helpers';
 
 // P0-07 acceptance (docs/roadmap/phase-0.md): one runner level played end to end on /play/:levelId.
 
@@ -129,7 +129,7 @@ test.describe('/play/w01-l03 runner', () => {
     await expect(page.getByTestId('play-stage')).toHaveAttribute('data-phase', 'running');
     // The block that runs now is outlined.
     await expect(page.locator('.blocklyHighlighted')).toHaveCount(1);
-    await expect(page.getByTestId('play-stage')).toHaveAttribute('data-panda', 'jump');
+    await pandaBecomes(page, 'jump');
     await page.screenshot({ path: `${SHOTS}/${project}-jump.png` });
 
     await expect(page.getByTestId('play-success')).toBeVisible({ timeout: 15_000 });

@@ -119,6 +119,9 @@ test.describe('screen flow', () => {
   test('@smoke by mouse: new profile → map → world → lesson → play → results → next level', async ({
     page,
   }, testInfo) => {
+    // The whole journey (profile, lesson demo, three animated runs) takes ~20 s alone and ~30 s
+    // under parallel workers, so the default 30 s per-test budget runs out mid-flow.
+    test.setTimeout(90_000);
     const project = testInfo.project.name;
     await createProfileByMouse(page, 'Bin', '1234');
     await expect(hudCoins(page)).toContainText('30');

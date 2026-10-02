@@ -1,7 +1,7 @@
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { expect, type Page, test } from '@playwright/test';
 import type * as BlocklyModule from 'blockly';
-import { signInTestProfile } from './helpers';
+import { pandaBecomes, signInTestProfile } from './helpers';
 
 // P1-03 / P1-05 acceptance (docs/roadmap/phase-1.md): every runner event is acted out on the
 // sandbox levels (dev build only), and the stage controls (pause, step, speed, reset) work
@@ -271,7 +271,7 @@ test.describe('stage controls mid-replay', () => {
     await open(page, 'runner-long');
     await setProgram(page, sandbox('runner-long').solution);
     await page.getByTestId('play-run').click();
-    await expect(stage(page)).toHaveAttribute('data-panda', 'jump', { timeout: 15_000 });
+    await pandaBecomes(page, 'jump');
     await page.getByRole('button', { name: /Làm lại/ }).click();
     await expect(stage(page)).toHaveAttribute('data-phase', 'idle');
     await expect(stage(page)).toHaveAttribute('data-panda', 'idle');

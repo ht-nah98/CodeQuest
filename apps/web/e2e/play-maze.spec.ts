@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { expect, type Page, test } from '@playwright/test';
 import type * as BlocklyModule from 'blockly';
-import { signInTestProfile } from './helpers';
+import { pandaBecomes, signInTestProfile } from './helpers';
 
 // P1-04 acceptance (docs/roadmap/phase-1.md): every maze event acted out on /play/:levelId,
 // using the dev-only _sandbox levels maze-try (bordered map) and maze-bamboo (no border, collectAll).
@@ -104,15 +104,6 @@ const hasClass = (page: Page, blockId: string, name: string) =>
         ?.getSvgRoot()
         .classList.contains(cls) ?? false,
     [blockId, name] as const,
-  );
-
-/** Waits for a short-lived animation (polling every frame, it may last only ~0.3 s). */
-const pandaBecomes = (page: Page, animation: string) =>
-  page.waitForFunction(
-    (name) =>
-      document.querySelector('[data-testid="play-stage"]')?.getAttribute('data-panda') === name,
-    animation,
-    { polling: 'raf', timeout: 15_000 },
   );
 
 /** The maze canvas, which mirrors what the stage shows as data-maze-* attributes. */
