@@ -369,8 +369,9 @@ test.describe('/dev/blockly', () => {
       await page.keyboard.press('Space');
       gap = Date.now() - dropped;
     });
-    expect(gap).toBeLessThan(50);
-    // The debounced onChange (150 ms) has not reported yet, but the run saw the dropped block.
+    // Space must land inside the 150 ms onChange debounce; under CI load the gap is 50-80 ms.
+    expect(gap).toBeLessThan(150);
+    // The debounced onChange has not reported yet, but the run saw the dropped block.
     await expect(page.getByTestId('last-run')).toHaveText('lần chạy cuối: 1 khối');
     await expect(runCount(page)).toHaveText('đã chạy: 1');
   });
