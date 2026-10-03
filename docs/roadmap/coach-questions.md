@@ -54,3 +54,31 @@ Gom từ các task P1-01 → P1-15. Mỗi câu ghi lựa chọn AI đang dùng t
 7. W2-l18: bé di chuyển khối nhảy thay vì chép thì phải sửa 4 chỗ (1 sao). Chấp nhận cho màn thử thách?
 8. Giao diện Thế giới 2 đang dùng chung bộ tile với Thế giới 1. Có muốn khác màu/khác cảnh?
 9. Nhãn thẻ đoán W2-l10 "Đụng tường góc trên bên phải" dài 6 chữ (giới hạn khuyến nghị 4). Rút gọn?
+
+## G. Chương trình học Thế giới 3–5 (P2-10)
+Bảng màn, lý do, quyết định D1–D12 và luật soạn R1–R3: `product/curriculum.md` §5. Danh sách câu hỏi **chỉ để ở đây**; §5.5 trỏ về đây. Luật sao theo mục tiêu đã duyệt (`product/rewards-economy.md` §1), không hỏi lại.
+
+1. **Duyệt chương trình W3–5.** *Đã duyệt 03/10/2026 (hướng chung), kèm yêu cầu thêm nhiệm vụ/cốt truyện.* Sau đó bảng đã sửa theo hai vòng review sư phạm độc lập, thêm nhiệm vụ và mục tiêu ⭐, nên anh xác nhận từng màn khi chơi thử (P2-08/13/14).
+2. **Luật A1 và "lặp đến khi".** Măng thắng ngay khi chạm đích, nên `đã tới đích?` / `đã tới nơi?` không bao giờ trả ✔ khi đang chạy, và `lặp 20 lần` làm được việc của "lặp đến khi tới đích" khi đường ≤ 20 vòng.
+   - *Giữ A1:* W1–W2 không đổi. W4 dùng "lặp đủ nhiều" (`l06`). W5 chỉ cho "lặp n lần" ở màn cần hơn 20 vòng; bài giảng nói "Tới nơi là thắng ngay".
+   - *Đổi A1 thành "chỉ thắng khi hết chương trình":* "lặp đến khi" có nghĩa trọn vẹn, nhưng phải soạn lại W1–W2 và W4 (N phải đúng, không thừa).
+
+   *Tạm dùng:* giữ A1.
+3. **"Nhảy cóc" (nhảy qua ô đất, tiến 2 ô) là hợp lệ.** Nhờ vậy `lặp {nhảy}` thắng mọi đường mà hố nằm ở ô lẻ, không cần hỏi "có hố?". Mỗi màn hỏi về hố phải có bản đồ chặn lối này (luật R1); W3 `l08` dùng nhảy cóc làm lời giải. *Tạm dùng:* giữ luật, giữ R1. Có muốn đổi (vd chỉ được nhảy khi phía trước là hố) không? Đổi thì phải kiểm lại W1–W3.
+4. **Cành và thùng chỉ ở màn đoán / ghép hình / săn lỗi** ở W4–W5 (D3), vì "luôn cúi" (A2) và "luôn đá" (A4) thắng mà không cần hỏi. *Tạm dùng:* giữ luật A2/A4, giữ D3. Boss W5 chỉ có hố.
+5. **Khối mới "đã tới nơi?" (`runner_at_goal`) cho runner.** *Tạm dùng:* **thêm** (D10). Đây là cách thật duy nhất để viết "lặp tới khi tới nơi" cho đường chạy, và nó giống `đã tới đích?` đã có. Nếu anh không muốn: W5 `l10`, `l13`, boss chuyển sang mê cung cảnh bờ sông (đi dọc bờ tới bến đò, đón Gà con ở bến), giữ nguyên câu chuyện qua sông.
+6. **Hình dạng khối điều kiện:** hai khối riêng "nếu" và "nếu … nếu không"; không có "nếu không nếu", không có khối "không" (phủ định), không có "lặp khi" ở W4–W5. *Tạm dùng:* đúng vậy.
+7. **Lối khác bằng `par`.** Một số màn có cách giải khác cùng số khối, vd boss W5 "lặp đến khi phía trước có cành / có thùng" trên đường không có cành, thùng (vòng lặp chạy tới đích). *Tạm dùng:* chấp nhận khi bằng `par`; khi ít hơn thì sửa bản đồ.
+8. **Nhãn khối:** "nếu … thì", "nếu không thì", "lặp đến khi", "phía trước có …", "có đường …", "đã tới đích?", "đã tới nơi?" (`glossary.md`, các dòng "đề xuất"). Với bé gọi khối hỏi là "câu hỏi", không nói "cảm biến". *Tạm dùng:* như glossary.
+9. **Độ khó boss W4** (8 khối, hai câu hỏi, 3 mê cung + chìa khóa). Đã thêm bậc: `l13` đoán ngã ba → `l14` ghép hình → `l16` tự ghép trên 2 bản đồ. *Tạm dùng:* giữ. Phương án nhẹ: boss chỉ rẽ một phía (5 khối).
+10. **Boss W3 có 4 lỗi**, `parEdits` 4 (mỗi lần sửa lộ lỗi tiếp theo). *Tạm dùng:* giữ 4.
+11. **Màn đoán ở chặng thử thách** (W3 `l14`, W5 `l19`). *Tạm dùng:* có.
+12. **"Lặp đủ nhiều"** (W4 `l06`) thay cho một khối "lặp mãi". *Tạm dùng:* không thêm khối.
+13. **Vòng lặp không dừng:** phát lại tối đa bao lâu trước khi Măng "chóng mặt"? *Tạm dùng:* 3 giây.
+14. **Khối rời trong màn săn lỗi** (W3 `l05`): nối vào tính 1 thao tác. *Tạm dùng:* đồng ý.
+15. **Màn sáng tạo W3 "Giấu một lỗi, đố bạn tìm".** *Tạm dùng:* bé ghép chương trình có 1 lỗi, lưu và bấm Khoe (P2-06); trong buổi học nhóm, bạn mở trên tường tác phẩm, chạy xem và nói lỗi ở đâu. Không có tính năng "chỉ lỗi" trong app. Có muốn thêm chế độ "bạn sửa lỗi của mình" (cần mở tác phẩm của bạn thành màn săn lỗi) không?
+16. **Nhân vật lấy từ bộ hình đại diện.** Gấu trúc là Măng. Nhân vật có tên: Thỏ Bông (thỏ), bác Cú (cú), chú Ếch (ếch), Gà con (gà con). Dân làng: bác Heo, Mèo, Cáo, Gấu nâu, Hổ, Chim cánh cụt, Gấu túi. Như vậy **cả 12 hình đại diện** đều thành nhân vật trong truyện, và bé chọn hình nào cũng gặp "mình" trong truyện. *Tạm dùng:* chấp nhận. Anh muốn đổi tên, đổi con vật, hay giữ vài hình đại diện ngoài truyện không?
+17. **Kiểu đích mới** `rescue` (chìa khóa → lồng) và `escort` (đón bạn → về nhà), chỉ dùng ở W4 `l17` (chìa khóa trên đường, chưa có lồng), W4 boss, W5 boss. "Điểm phải đi qua theo thứ tự" để sau. *Tạm dùng:* như vậy.
+18. **Dòng nhiệm vụ** (`mission`) hiện cùng mục tiêu màn (`objective`): nhiệm vụ là câu chuyện, mục tiêu là việc cần làm (vd "dùng không quá 5 khối"). *Tạm dùng:* hiện cả hai, nhiệm vụ ở trên. Hay gộp làm một?
+19. **⭐⭐⭐ cần chương trình "lắc".** Vét cạn cho thấy ở W5 `l14` (có mục tiêu măng) và W5 `l17` (thử thách), chương trình ít khối nhất là kiểu "lắc": `lặp đến khi đã tới đích {nếu có đường phía trước {tiến, rẽ phải} nếu không {rẽ trái}}` (ở `l17` là bản đối xứng: `{tiến, rẽ trái} nếu không {rẽ phải}`). Đây là cách khó nghĩ ra, nên `par` = 7 thay vì 9 (cách hai câu hỏi quen thuộc). *Tạm dùng:* `par` 7, `maxBlocks` 9 (cách 9 khối vẫn được ⭐⭐). Phương án khác: `l14` bỏ mục tiêu măng, `l17` ghi rõ trong gợi ý tư duy "có cách 7 khối".
+20. **Giới hạn lồng vòng lặp** `maxLoopDepth: 1` (trường mới) cho W3 `l11` và mọi màn W4–W5 có vòng lặp, vì lặp lồng (dạy ở W9) hay cho lời giải ngắn hơn. Blockly sẽ không cho thả vòng lặp vào trong vòng lặp ở các màn này. *Tạm dùng:* đặt. Hay để bé lồng thoải mái và chấp nhận `par` thấp hơn?
