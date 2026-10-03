@@ -23,6 +23,16 @@ Nguồn chuẩn cho mọi con số liên quan tới sao, xu, gợi ý, huy hiệ
 | ⭐⭐ | Hoàn thành **và** số khối ≤ `par` |
 | ⭐⭐⭐ | ⭐⭐ **và** không dùng gợi ý tầng 2 hoặc 3 trong phiên màn đó |
 
+**Màn có mục tiêu sao** (`starGoals`, HLV duyệt 03/10/2026, cài đặt ở P2-21). Từ Thế giới 3, màn `build`/`bughunt` có thể khai báo mục tiêu riêng (nhặt đủ măng, về đích với ≤ N bước, không đá thùng…), hiện thành thẻ "Mục tiêu ⭐" trước khi chơi. Khi đó bảng trên được thay bằng:
+
+| Sao | Điều kiện |
+|---|---|
+| ⭐ | Hoàn thành màn |
+| ⭐⭐ | Hoàn thành **và** đạt mọi mục tiêu trong `starGoals` |
+| ⭐⭐⭐ | ⭐⭐ **và** số khối ≤ `par` (`bughunt`: số khối thay đổi ≤ `parEdits`) **và** không dùng gợi ý tầng 2 hoặc 3 |
+
+`par` của màn có mục tiêu sao là số khối ít nhất của chương trình **vừa thắng vừa đạt mọi mục tiêu** (`npm run par` kiểm). Màn không khai báo `starGoals` giữ bảng cũ, nên Thế giới 1–2 không đổi.
+
 Trần sao do gợi ý (áp dụng cho **phiên màn hiện tại**, tức từ lúc vào màn tới lúc rời màn):
 - Đã mua gợi ý **tầng 2** → tối đa ⭐⭐
 - Đã mua gợi ý **tầng 3** → tối đa ⭐

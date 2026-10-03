@@ -29,6 +29,7 @@
 | P2-18 | Deploy production, thư phụ huynh, ghép máy cho 6 bé | P2-09, P2-16, P2-17 (H3, H4) | HLV + AI | ⛔ |
 | P2-19 | Chơi thử cả nhóm, sửa, phát hành `v0.2.0` | tất cả | HLV + AI | ⛔ |
 | P2-20 | Màn Ghép máy của bé + giao diện tài khoản trong Góc HLV (với client giả) | P2-03, P2-05 | AI | ⬜ |
+| P2-21 | Sao theo mục tiêu màn: nhiều đường giải, đường tối ưu được nhiều sao nhất (góp ý HLV 03/10) | P2-10, P2-15 | AI (luật HLV đã duyệt 03/10) | ⬜ |
 
 Thay đổi so với khung ở `later-phases.md`: P2-08 khung (nội dung Thế giới 3–5) tách thành **P2-08** (W3), **P2-13** (W4), **P2-14** (W5). Phần "sorter tối thiểu nếu Thế giới 4 cần" **hủy**: Thế giới 4 dùng `runner` và `maze` (`curriculum.md` §2), sorter để GĐ 4. P2-09 khung tách thành **P2-09** (PWA, AI làm ngay) và **P2-18** (deploy, cần Vercel). Thêm P2-10…P2-20. "Thợ săn lỗi" trong `master-plan.md` §9 là mode `bughunt`, đã có từ P1-06.
 
@@ -255,3 +256,14 @@ Buổi học nhóm theo `playbooks/playtest.md`: 6 bé chơi W3 trên máy riên
 8. **Giao diện Thế giới 3–5:** dùng lại tileset Làng Tre đổi màu, hay cần tileset riêng (xưởng, ngã ba, bờ sông)? Tileset mới làm chậm P2-08/13/14 (`playbooks/add-asset.md`).
 9. **Giọng đọc W3–5** phụ thuộc lựa chọn dịch vụ TTS ở P1-14 (câu E2).
 10. **Đổi chỗ GĐ 2 và GĐ 3** (`master-plan.md` §9, cảnh báo về thời gian thi AIROC): giữ thứ tự hiện tại?
+
+### P2-21 · Sao theo mục tiêu màn (góp ý HLV 03/10/2026)
+**Vấn đề:** Thế giới 1 chủ yếu là đường thẳng, đi hết đường là nhặt đủ đồ và dễ có 3 sao. HLV muốn từ các thế giới sau, mỗi màn có **nhiều cách giải**, và **cách tối ưu nhất mới được nhiều sao nhất**, để bé phải suy nghĩ thêm.
+
+**Đã duyệt 03/10/2026** (luật ghi ở `rewards-economy.md` §1):
+- Mỗi màn (build/bughunt) có thể khai báo thêm **mục tiêu sao** `starGoals` trong JSON, hiện thành thẻ "Mục tiêu ⭐" trước khi chơi để bé biết đang được chấm gì. Ví dụ: nhặt đủ măng; về đích với ≤ N bước đi; không đá thùng nào; dùng ≤ `par` khối.
+- Bản đồ có **ngã rẽ thật**: đường ngắn thì bỏ sót măng, đường vòng thì nhặt được nhưng cần chương trình khéo hơn. Bé tự chọn đánh đổi.
+- Luật sao vẫn là **hàm thuần** trong `packages/rewards`, có unit test; trần sao do gợi ý giữ nguyên. Màn không khai báo `starGoals` vẫn dùng luật cũ, nên Thế giới 1–2 không đổi.
+- `npm run par` tính **tối ưu theo từng mục tiêu** (ít khối nhất mà vẫn nhặt đủ măng…), để mức 3 sao luôn đạt được và không có lối tắt rẻ hơn.
+
+**Nghiệm thu:** schema `starGoals` + luật sao có test; validator/par kiểm từng mục tiêu; thẻ "Mục tiêu ⭐" và màn kết quả hiện mục tiêu đạt/chưa đạt (e2e + ảnh); bảng Thế giới 3–5 (P2-10) ghi mục tiêu sao cho từng màn.
