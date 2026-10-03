@@ -1,11 +1,11 @@
 // Edge cases of rules 3–8 and 12–18 on top of fixtures/baseline (one fixture per rule lives in
 // fixtures.test.ts).
 import { fileURLToPath } from 'node:url';
+import { countWords } from '@codequest/validator';
 import { describe, expect, it, vi } from 'vitest';
 import { PROVISIONAL_WORLDS } from './curriculum';
 import { loadContentFiles } from './load';
 import { checkContent, publicAssetExists, type ContentFile, type Issue } from './rules';
-import { countWords } from './words';
 
 type Json = Record<string, unknown> & {
   hints?: Array<Record<string, unknown>>;

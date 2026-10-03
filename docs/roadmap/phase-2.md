@@ -23,7 +23,7 @@
 | P2-12 | Màn nhiều bản đồ (một chương trình, 2–3 bản đồ) | P2-10 (bản nháp) | AI | ⬜ |
 | P2-13 | Nội dung Thế giới 4 · Ngã Ba Quyết Định (20 màn + bài giảng) | P2-08, P2-11, P2-12 | AI soạn nháp · HLV duyệt | ⬜ |
 | P2-14 | Nội dung Thế giới 5 · Sông Chờ Đợi (20 màn + bài giảng) | P2-13 | AI soạn nháp · HLV duyệt | ⬜ |
-| P2-15 | Package `@codequest/validator` + công cụ vét cạn `par` | — | AI | ⬜ |
+| P2-15 | Package `@codequest/validator` + công cụ vét cạn `par` | — | AI | ✅ |
 | P2-16 | Nối Supabase thật: chạy migration, test SQL, deploy function, e2e có server | P2-01…P2-06, P2-17, P2-20 | AI · HLV cấp khóa | ⛔ |
 | P2-17 | Hạ tầng của HLV: Supabase, Docker, GitHub, Vercel (AI viết hướng dẫn trước) | — | AI viết hướng dẫn · HLV làm | ⬜ |
 | P2-18 | Deploy production, thư phụ huynh, ghép máy cho 6 bé | P2-09, P2-16, P2-17 (H3, H4) | HLV + AI | ⛔ |
@@ -169,7 +169,7 @@ Theo bảng ở `curriculum.md` (mục Thế giới 3 do P2-10 viết). `world.j
 - Danh sách tính năng cần cho P2-11/P2-12, mỗi mục ghi màn nào cần, ví dụ: hình dạng khối "nếu" / "nếu–không" trong toolbox, "lặp đến khi" + điều kiện nào (`đã tới đích?`, `có đường…?`, `phía trước có…?`), runner có cần cảm biến `đã tới cờ?` không, màn nhiều bản đồ cho W4 (boss "một chương trình thắng 3 bản đồ") và W5 ("qua sông không biết trước độ dài"), gợi ý chỉ vào nút Từng bước cho W3.
 - Ghi rõ phụ thuộc vào câu trả lời của HLV: A1 (thắng ngay khi chạm đích) ảnh hưởng thiết kế "lặp đến khi"; A5 (maze `đã tới đích?` khi còn măng).
 
-**Nghiệm thu:** mỗi thế giới đủ số màn (15/20/20) và mỗi bảng tuân §6 của `curriculum.md` (khối mới chỉ ở guided/practice, không quá 3 màn build liền, mỗi mode ≥ 1 lần, `par ≤ maxBlocks ≤ par + 2`); đã qua review sư phạm bằng agent riêng; **HLV duyệt** (ghi "Đã duyệt dd/mm" vào đầu mỗi mục).
+**Nghiệm thu:** mỗi thế giới đủ số màn (15/20/20) và mỗi bảng tuân §7 của `curriculum.md` (khối mới chỉ ở guided/practice, không quá 3 màn build liền, mỗi mode ≥ 1 lần, `par ≤ maxBlocks ≤ par + 2`); đã qua review sư phạm bằng agent riêng; **HLV duyệt** (ghi "Đã duyệt dd/mm" vào đầu mỗi mục).
 
 ### P2-11 · Khối điều kiện, lặp đến khi, cảm biến sáng khi kiểm
 **Mục tiêu:** engine, Blockly, gợi ý và validator hỗ trợ đủ khối của W4–W5; bé **thấy** điều kiện được kiểm mỗi lần chạy qua (ngộ nhận W4: "nếu là kiểm tra một lần").
@@ -208,6 +208,7 @@ Theo bảng ở `curriculum.md` (mục Thế giới 5). `world.json`, `w05-lesso
 - `npm run par -- <levelId> | --world <id>`: vét cạn mọi chương trình từ toolbox của màn (số lần lặp 2–20, cho phép lặp lồng, có giới hạn độ sâu / thời gian), báo lời giải ít khối nhất và nó có ít hơn `par` không. Hỗ trợ khối điều kiện khi P2-11 xong.
 
 **Nghiệm thu:** `content:check` cho kết quả **y hệt** trước khi tách (so output trên `content/` và mọi fixture); package mới chạy trong test `environment: 'node'` và qua `no-restricted-globals`; `npm run par -- --world w02` xác nhận lại mọi `par` của W2 (khớp ghi chú ở `curriculum.md` §4) trong < 2 phút.
+**Kết quả (03/10/2026):** `content:check` cho output giống từng ký tự trên `content/` và 19 fixture. `npm run par -- --world w02` xác nhận mọi `par` của màn build W2 (và W1) trong 10,9 giây. Phát hiện: `w02-l11` sửa được bằng **1** lần (thêm `đá` vào trong vòng lặp thay vì di chuyển khối), ít hơn `parEdits` 2 — `par` báo ⚠, chờ HLV quyết định giữ hay đổi `parEdits`. Khối điều kiện chưa được vét cạn (chờ P2-11).
 
 ### P2-16 · Nối Supabase thật
 **Mục tiêu:** mọi thứ đã viết offline chạy được trên Supabase thật.

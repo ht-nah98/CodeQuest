@@ -20,6 +20,7 @@ Trạng thái: **Đề xuất** → **Chấp nhận** → (**Đã bị thay th�
 | [0012](0012-art-direction-vietnamese-fonts.md) | Pixel ấm áp + font có tiếng Việt | Chấp nhận |
 | [0013](0013-vietnamese-ui-english-code.md) | Giao diện tiếng Việt, code tiếng Anh | Chấp nhận |
 | [0014](0014-tailwind-tokens-motion.md) | Tailwind 4 + CSS variables + Motion | Chấp nhận |
+| [0015](0015-validator-package.md) | Package headless `validator`: luật cấp màn + vét cạn `par` | Chấp nhận |
 
 ## Mẫu
 ```markdown

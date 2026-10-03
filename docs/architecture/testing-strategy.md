@@ -6,7 +6,8 @@ Nguồn chuẩn cho: loại test, công cụ, nơi đặt test, mức bao phủ,
 | Tầng | Công cụ | Ở đâu | Môi trường | Chạy khi |
 |---|---|---|---|---|
 | Unit headless | Vitest | `packages/*/src/**/*.test.ts` | `node` | mỗi commit (CI) |
-| **Kiểm chứng nội dung** | `tools/content-check` | `content/**` | node | mỗi commit (CI) |
+| **Kiểm chứng nội dung** | `tools/content-check` (luật cấp màn trong `packages/validator`) | `content/**` | node | mỗi commit (CI) |
+| Vét cạn `par` | `npm run par` (`tools/par`) | màn build/bughunt | node | khi soạn hoặc sửa màn (`content-model.md` §8); unit test của `validator` tái lập `par` mọi màn build W1–W2 |
 | Repository / sync | Vitest + `fake-indexeddb` | `apps/web/src/data/**/*.test.ts` | node | CI |
 | Component | Vitest + jsdom + Testing Library | `apps/web/src/**/*.test.tsx` | jsdom | CI |
 | End-to-end | Playwright (Chromium) | `apps/web/e2e/*.spec.ts` | 1280×720 và 1366×768 | CI (smoke), local (đầy đủ) |

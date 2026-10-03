@@ -1,0 +1,177 @@
+/**
+ * Every rule of content-model.md §5 that can be checked on one level alone: 1 (schema and
+ * config), 2 (ID pattern), 5–6 (pedagogy), 9–11 (the solution wins within par, maxBlocks and
+ * the toolbox) and 12–16. Runs on Node and in the browser (level editor).
+ */
+import { LevelSchema, type Level, type WorkspaceJson } from '@codequest/content-schema';
+import {
+  analyzeWorkspace,
+  CQ_START,
+  registerBlockSpecs,
+  runLevel,
+  type AnyGameKindDefinition,
+} from '@codequest/engine';
+import { getGameKind } from '@codequest/games';
+import { describeError, formatSchemaIssues, type GameKindLookup, type RuleIssue } from './issue';
+import { hintIssues, modeIssues, pedagogyIssues, shadowIssues, toolboxTypes } from './levelRules';
+import { blockTypesOf } from './workspace';
+
+/** Rule 2: ID patterns of content-model.md §2 (draft folders `worlds/_*` are exempt). */
+export const ID_PATTERNS = {
+  world: /^w\d{2}-[a-z0-9]+(?:-[a-z0-9]+)*$/,
+  level: /^w\d{2}-(?:l\d{2}|boss|creative|bonus\d{2})$/,
+  lesson: /^w\d{2}-lesson(?:-[a-z0-9]+(?:-[a-z0-9]+)*)?$/,
+} as const;
+
+export interface ValidateLevelOptions {
+  /**
+   * A draft (`worlds/_*`) skips the ID pattern (rule 2) and the pedagogy rules 5–6.
+   * Default false.
+   */
+  isDraft?: boolean;
+  /** Game kind registry; defaults to `getGameKind` of `@codequest/games`. */
+  getKind?: GameKindLookup;
+}
+
+export interface LevelValidation {
+  /** The parsed level, or null when it fails `LevelSchema`. */
+  level: Level | null;
+  /** Broken rules, in a stable order: schema, 5–6, 12, config, 9–11, 13–15, 16, then 2. */
+  issues: RuleIssue[];
+  /** Blocks used by `solution` when it could be counted (not for `predict` levels). */
+  solutionBlocks: number | null;
+}
+
+/** Rule 1 for a level beyond its own schema: `config` must match its kind's `configSchema`. */
+function levelConfigIssues(level: Level, kind: AnyGameKindDefinition | undefined): RuleIssue[] {
+  if (kind === undefined) {
+    return [{ rule: 1, message: `game kind "${level.kind}" is not implemented yet` }];
+  }
+  const config = kind.configSchema.safeParse(level.config);
+  return config.success ? [] : formatSchemaIssues(config.error, 'config');
+}
+
+/**
+ * Rules 9–11 for a level with a solution whose schema and config are valid. Returns the issues
+ * and the solution's block count (null if the solution cannot even be loaded).
+ */
+function solutionIssues(
+  level: Level,
+  solution: WorkspaceJson,
+  kind: AnyGameKindDefinition,
+): { issues: RuleIssue[]; blocksUsed: number | null } {
+  const issues: RuleIssue[] = [];
+
+  // Rule 9: the solution wins.
+  const outcome = runLevel({ kind, level, workspace: solution });
+  if (outcome.result !== 'success') {
+    // Rerun as a predict level to learn where it ended (`crash:FELL_IN_HOLE@2`, `stop@3`…).
+    const where = runLevel({
+      kind,
+      level: { ...level, mode: 'predict', initialWorkspace: solution },
+      workspace: solution,
+    }).answerKey;
+    const why = [
+      outcome.reasonCode,
+      where === undefined ? null : `(${where})`,
+      outcome.debug?.message,
+    ]
+      .filter((part) => part !== null && part !== undefined)
+      .join(' ');
+    issues.push({ rule: 9, message: `solution ends ${outcome.result} ${why}`.trim() });
+  }
+
+  // Rule 10: blocksUsed(solution) ≤ par ≤ maxBlocks.
+  let blocksUsed: number | null = null;
+  try {
+    registerBlockSpecs(kind.blocks);
+    blocksUsed = analyzeWorkspace(solution).blocksUsed;
+  } catch (error) {
+    issues.push({ rule: 10, message: `cannot count solution blocks: ${describeError(error)}` });
+  }
+  const { par, maxBlocks } = level;
+  if (blocksUsed !== null && par !== undefined && blocksUsed > par) {
+    issues.push({
+      rule: 10,
+      message: `solution uses ${String(blocksUsed)} blocks > par ${String(par)}`,
+    });
+  }
+  if (blocksUsed !== null && maxBlocks !== undefined && blocksUsed > maxBlocks) {
+    issues.push({
+      rule: 10,
+      message: `solution uses ${String(blocksUsed)} blocks > maxBlocks ${String(maxBlocks)}`,
+    });
+  }
+  if (par !== undefined && maxBlocks !== undefined && par > maxBlocks) {
+    issues.push({ rule: 10, message: `par ${String(par)} > maxBlocks ${String(maxBlocks)}` });
+  }
+
+  // Rule 11: solution blocks ⊆ toolbox (parsons: ⊆ initialWorkspace).
+  const available =
+    level.mode === 'parsons'
+      ? blockTypesOf(level.initialWorkspace ?? solution)
+      : toolboxTypes(level);
+  const source = level.mode === 'parsons' ? 'initialWorkspace' : 'toolbox';
+  for (const type of blockTypesOf(solution)) {
+    if (type !== CQ_START && !available.has(type)) {
+      issues.push({ rule: 11, message: `solution uses "${type}", which is not in ${source}` });
+    }
+  }
+
+  return { issues, blocksUsed };
+}
+
+/** Rules 1 (config), 5–6 (not in drafts), 9–16 for a schema-valid level. */
+function checkParsedLevel(
+  level: Level,
+  isDraft: boolean,
+  getKind: GameKindLookup,
+): { issues: RuleIssue[]; solutionBlocks: number | null } {
+  const kind = getKind(level.kind);
+  const issues = [...(isDraft ? [] : pedagogyIssues(level)), ...shadowIssues(level)];
+  const configIssues = levelConfigIssues(level, kind);
+  issues.push(...configIssues);
+  let solutionBlocks: number | null = null;
+  // The run rules 9–11 and 13–16 need a valid config of an implemented kind.
+  if (configIssues.length > 0 || kind === undefined) return { issues, solutionBlocks };
+  // A predict level runs initialWorkspace, never a solution (rule 15 checks it instead).
+  if (level.solution !== undefined && level.mode !== 'predict') {
+    const solved = solutionIssues(level, level.solution, kind);
+    issues.push(...solved.issues);
+    solutionBlocks = solved.blocksUsed;
+  }
+  issues.push(...modeIssues(level, kind), ...hintIssues(level, kind));
+  return { issues, solutionBlocks };
+}
+
+function readId(value: unknown): string | null {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) return null;
+  const id: unknown = (value as Record<string, unknown>)['id'];
+  return typeof id === 'string' ? id : null;
+}
+
+/**
+ * Checks one level (parsed JSON, or a draft object from the level editor) against every
+ * per-level rule. Rules that need other files (3–4, 7–8, 17–18, and the ID matching its file
+ * name or being unique) are left to `content:check`. Synchronous and deterministic; it runs
+ * the solution, `initialWorkspace` and predict program with the real engine.
+ */
+export function validateLevel(json: unknown, options: ValidateLevelOptions = {}): LevelValidation {
+  const isDraft = options.isDraft ?? false;
+  const parsed = LevelSchema.safeParse(json);
+  const issues: RuleIssue[] = parsed.success ? [] : formatSchemaIssues(parsed.error);
+  let solutionBlocks: number | null = null;
+  if (parsed.success) {
+    const checked = checkParsedLevel(parsed.data, isDraft, options.getKind ?? getGameKind);
+    issues.push(...checked.issues);
+    solutionBlocks = checked.solutionBlocks;
+  }
+  const id = readId(json);
+  if (!isDraft && id !== null && !ID_PATTERNS.level.test(id)) {
+    issues.push({
+      rule: 2,
+      message: `level id "${id}" does not match ${ID_PATTERNS.level.source}`,
+    });
+  }
+  return { level: parsed.success ? parsed.data : null, issues, solutionBlocks };
+}

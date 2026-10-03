@@ -1,0 +1,10 @@
+{
+  "name": "@codequest/par",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@codequest/content-schema": "*",
+    "@codequest/validator": "*"
+  }
+}

@@ -191,3 +191,11 @@ Từng bước ở `docs/playbooks/add-game-kind.md`. Tóm tắt:
 4. Thêm category màu (nếu có) vào theme.
 5. Viết ≥ 3 màn mẫu trong `content/` + chạy `content:check`.
 6. Cập nhật `docs/product/game-kinds.md`.
+
+## 4. Điều kiện để vét cạn `par` được (`@codequest/validator`)
+`npm run par` và nút "Tìm `par` nhỏ nhất" của level editor không chạy js-interpreter cho từng chương trình. Chúng ghi lại các lệnh gọi API của từng khối lệnh (chạy khối một mình bằng `runLevel`), rồi phát lại trên `createState` / `createApi` / `evaluate` thật, gộp các trạng thái giống nhau. Vì vậy một kiểu game phải giữ các điều kiện sau (ADR-0015):
+1. **Khối lệnh (statement) không đọc cảm biến:** generator của khối lệnh chỉ gọi API của khối lệnh, không gọi API của khối giá trị (`output`). Vi phạm → khối bị báo `not searched`.
+2. **`blockId` không vào state:** id khối chỉ được dùng cho event. Trạng thái sau một lệnh không được phụ thuộc id (validator kiểm bằng cách ghi khối dưới hai id khác nhau). Vi phạm → khối bị báo `not searched`.
+3. **API không dùng `ctx.rng`:** ngẫu nhiên chỉ được dùng trong `createState`. Vi phạm → cả màn báo ⚠ `unsearchable`.
+4. **State là dữ liệu thuần:** object, mảng, `Set`, `Map`, số, chuỗi, boolean (`structuredClone` sao được và so sánh được bằng nội dung). Không có hàm, class instance hay tham chiếu vòng.
+5. `maxSteps` / `maxActions` chỉ được kiểm ở bước chạy lại ví dụ bằng `runLevel`; lệch thì báo ✖ `runLevel disagrees`.

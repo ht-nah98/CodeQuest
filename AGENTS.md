@@ -23,7 +23,7 @@
 
 ## 3. Quy tắc vàng (không được phá)
 
-1. **Package headless không được đụng DOM.** `packages/engine`, `packages/games`, `packages/rewards`, `packages/content-schema` phải chạy được trên Node thuần. Không `window`, `document`, PixiJS, React. (`blockly` được phép vì chạy headless được.) Lý do: bộ kiểm chứng màn chơi và unit test chạy trên Node.
+1. **Package headless không được đụng DOM.** `packages/engine`, `packages/games`, `packages/rewards`, `packages/content-schema`, `packages/validator` phải chạy được trên Node thuần. Không `window`, `document`, PixiJS, React. (`blockly` được phép vì chạy headless được.) Lý do: bộ kiểm chứng màn chơi và unit test chạy trên Node.
 2. **Mô phỏng phải tất định (deterministic).** Trong code mô phỏng không dùng `Math.random()` hay `Date.now()`; dùng `ctx.rng` và bộ đếm bước. Cùng chương trình + cùng màn ⇒ cùng kết quả.
 3. **Nội dung là dữ liệu.** Màn chơi, bài giảng, gợi ý, vật phẩm cửa hàng nằm trong `content/` dạng JSON, được kiểm tra bằng schema zod. Không hard-code nội dung bài học trong code React.
 4. **Mọi màn chơi phải qua `npm run content:check`**: lời giải chạy thắng, số khối ≤ `par` ≤ `maxBlocks`, toolbox chứa đủ khối của lời giải.
@@ -42,6 +42,7 @@ packages/engine/     Runtime: sinh code → sandbox js-interpreter → event log
 packages/games/      Từng kiểu game: khối lệnh + generator + mô phỏng + chấm bài (headless)
 packages/rewards/    Sao, coin, huy hiệu, streak, mở khóa (hàm thuần)
 packages/content-schema/  Schema zod cho world/level/lesson/hint/shop + type TS
+packages/validator/  Luật kiểm chứng cấp màn + vét cạn par (dùng chung cho content:check và level editor)
 content/             Dữ liệu bài học (JSON) — nguồn của toàn bộ chương trình học
 assets/              Ảnh gốc (sprite, tileset) trước khi xử lý
 tools/               Script: làm sạch sprite, kiểm chứng nội dung, level editor
@@ -60,6 +61,7 @@ npm run typecheck        # tsc -b (project references) cho toàn bộ workspace
 npm run lint             # eslint
 npm run test             # vitest (unit, headless)
 npm run content:check    # kiểm chứng toàn bộ màn chơi
+npm run par -- --world w02   # vét cạn par/parEdits (hoặc: npm run par -- w02-l05)
 npm run e2e              # playwright (1280×720, 1366×768)
 npm run build            # build production
 npm run sprites -- <in.png> <outDir>   # làm sạch sprite sheet

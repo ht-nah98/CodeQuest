@@ -18,6 +18,7 @@
     "format": "prettier --write .",
     "test": "vitest run --passWithNoTests",
     "content:check": "tsx tools/content-check/src/main.ts",
+    "par": "tsx tools/par/src/main.ts",
     "audio:gen": "tsx tools/audio/src/main.ts",
     "voice": "tsx tools/voice/src/main.ts",
     "e2e": "npm -w apps/web run e2e --",

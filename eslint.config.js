@@ -163,6 +163,7 @@ export default defineConfig(
         [
           '@codequest/games',
           '@codequest/rewards',
+          '@codequest/validator',
           '@codequest/web',
           '@codequest/content-check',
           ...BROWSER_ONLY_LIBS,
@@ -176,7 +177,13 @@ export default defineConfig(
     files: [`packages/games/**/*.${SRC}`],
     rules: {
       'no-restricted-imports': restrictImports(
-        ['@codequest/rewards', '@codequest/web', '@codequest/content-check', ...BROWSER_ONLY_LIBS],
+        [
+          '@codequest/rewards',
+          '@codequest/validator',
+          '@codequest/web',
+          '@codequest/content-check',
+          ...BROWSER_ONLY_LIBS,
+        ],
         HEADLESS_REASON,
       ),
       'no-restricted-globals': ['error', ...HEADLESS_GLOBALS, WALL_CLOCK],
@@ -189,6 +196,7 @@ export default defineConfig(
         [
           '@codequest/engine',
           '@codequest/games',
+          '@codequest/validator',
           '@codequest/web',
           '@codequest/content-check',
           ...NODE_IO_MODULES,
@@ -199,6 +207,25 @@ export default defineConfig(
         ],
         'Rewards are pure functions over content-schema types (rewards-engine.md).',
       ),
+    },
+  },
+
+  {
+    // Runs in content:check, npm run par and the browser level editor (P2-07).
+    files: [`packages/validator/**/*.${SRC}`],
+    rules: {
+      'no-restricted-imports': restrictImports(
+        [
+          '@codequest/rewards',
+          '@codequest/web',
+          '@codequest/content-check',
+          '@codequest/par',
+          ...NODE_IO_MODULES,
+          ...BROWSER_ONLY_LIBS,
+        ],
+        HEADLESS_REASON,
+      ),
+      'no-restricted-globals': ['error', ...HEADLESS_GLOBALS, WALL_CLOCK],
     },
   },
 

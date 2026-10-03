@@ -1,8 +1,9 @@
 /**
  * content:check, all 18 rules of docs/architecture/content-model.md §5 (phases: §7).
- * This file: rules 1–2 (schema, IDs), 9–11 (the solution wins within par, maxBlocks and the
- * toolbox), 17 (feedback coverage) and 18 (assets), and wires in levelRules.ts (5–6, 12–16) and
- * curriculum.ts (3–4, 7–8). Draft folders `worlds/_*` skip the curriculum rules 3–8.
+ * The per-level rules (1–2, 5–6, 9–16) live in `@codequest/validator`, so the level editor
+ * runs the same code in the browser. This file reads every file, checks rules 1–2 for worlds,
+ * lessons and shared files, ID file names and uniqueness, 17 (feedback coverage) and 18
+ * (assets), and wires in curriculum.ts (3–4, 7–8). Draft folders `worlds/_*` skip rules 3–8.
  */
 import { statSync } from 'node:fs';
 import { isAbsolute, relative, resolve, sep } from 'node:path';
@@ -11,27 +12,24 @@ import {
   BadgesFileSchema,
   FeedbackFileSchema,
   LessonSchema,
-  LevelSchema,
   ShopFileSchema,
   WorldSchema,
   type FeedbackFile,
-  type GameKindId,
   type Level,
-  type WorkspaceJson,
 } from '@codequest/content-schema';
-import {
-  analyzeWorkspace,
-  CQ_START,
-  ENGINE_REASONS,
-  registerBlockSpecs,
-  runLevel,
-  type AnyGameKindDefinition,
-} from '@codequest/engine';
+import { ENGINE_REASONS, type AnyGameKindDefinition } from '@codequest/engine';
 import { gameKinds, getGameKind } from '@codequest/games';
+import {
+  formatSchemaIssues,
+  ID_PATTERNS,
+  validateLevel,
+  type GameKindLookup,
+  type RuleIssue,
+} from '@codequest/validator';
 import type { z } from 'zod';
 import { checkCurriculum, type CurriculumInput, type WorldFile } from './curriculum';
-import { hintIssues, modeIssues, pedagogyIssues, shadowIssues, toolboxTypes } from './levelRules';
-import { blockTypesOf } from './workspace';
+
+export type { GameKindLookup } from '@codequest/validator';
 
 export type ContentKind = 'world' | 'level' | 'lesson' | 'shared';
 
@@ -74,157 +72,31 @@ export function publicAssetExists(publicPath: string): boolean {
   return statSync(full, { throwIfNoEntry: false })?.isFile() === true;
 }
 
-const ID_PATTERNS: Record<Exclude<ContentKind, 'shared'>, RegExp> = {
-  world: /^w\d{2}-[a-z0-9]+(?:-[a-z0-9]+)*$/,
-  level: /^w\d{2}-(?:l\d{2}|boss|creative|bonus\d{2})$/,
-  lesson: /^w\d{2}-lesson(?:-[a-z0-9]+(?:-[a-z0-9]+)*)?$/,
-};
-
 const SHARED_FILES = new Set(['feedback.json', 'shop.json', 'badges.json']);
 const FEEDBACK_PATH = 'shared/feedback.json';
 
 const SHOP_ITEM_ID = /^(?:skin|pen|fx|music|bonus-level)-[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const BADGE_ID = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
-const ENTITY_SCHEMAS: Record<Exclude<ContentKind, 'shared'>, z.ZodType> = {
+const ENTITY_SCHEMAS: Record<'world' | 'lesson', z.ZodType> = {
   world: WorldSchema,
-  level: LevelSchema,
   lesson: LessonSchema,
 };
 
-/** Finds the game kind of a level; injectable so tests do not depend on real kinds. */
-export type GameKindLookup = (id: GameKindId) => AnyGameKindDefinition | undefined;
-
-function schemaIssues(path: string, error: z.ZodError, prefix = ''): Issue[] {
-  return error.issues.map((issue) => {
-    const where = [prefix, ...issue.path.map(String)].filter((part) => part !== '').join('.');
-    return { path, rule: 1, message: `${where === '' ? '' : `${where}: `}${issue.message}` };
-  });
+function schemaIssues(path: string, error: z.ZodError): Issue[] {
+  return withPath(path, formatSchemaIssues(error));
 }
 
-/** Rule 1 for a level beyond its own schema: `config` must match its kind's `configSchema`. */
-function levelConfigIssues(
-  path: string,
-  level: Level,
-  kind: AnyGameKindDefinition | undefined,
-): Issue[] {
-  if (kind === undefined) {
-    return [{ path, rule: 1, message: `game kind "${level.kind}" is not implemented yet` }];
-  }
-  const config = kind.configSchema.safeParse(level.config);
-  return config.success ? [] : schemaIssues(path, config.error, 'config');
+function withPath(path: string, issues: readonly RuleIssue[]): Issue[] {
+  return issues.map((issue) => ({ path, ...issue }));
 }
 
-function describeError(error: unknown): string {
-  return error instanceof Error ? error.message : String(error);
-}
-
-/**
- * Rules 9–11 for a level with a solution whose schema and config are valid. Returns the issues
- * and the solution's block count (null if the solution cannot even be loaded).
- */
-function solutionIssues(
-  path: string,
-  level: Level,
-  solution: WorkspaceJson,
-  kind: AnyGameKindDefinition,
-): { issues: Issue[]; blocksUsed: number | null } {
-  const issues: Issue[] = [];
-
-  // Rule 9: the solution wins.
-  const outcome = runLevel({ kind, level, workspace: solution });
-  if (outcome.result !== 'success') {
-    // Rerun as a predict level to learn where it ended (`crash:FELL_IN_HOLE@2`, `stop@3`…).
-    const where = runLevel({
-      kind,
-      level: { ...level, mode: 'predict', initialWorkspace: solution },
-      workspace: solution,
-    }).answerKey;
-    const why = [
-      outcome.reasonCode,
-      where === undefined ? null : `(${where})`,
-      outcome.debug?.message,
-    ]
-      .filter((part) => part !== null && part !== undefined)
-      .join(' ');
-    issues.push({ path, rule: 9, message: `solution ends ${outcome.result} ${why}`.trim() });
-  }
-
-  // Rule 10: blocksUsed(solution) ≤ par ≤ maxBlocks.
-  let blocksUsed: number | null = null;
-  try {
-    registerBlockSpecs(kind.blocks);
-    blocksUsed = analyzeWorkspace(solution).blocksUsed;
-  } catch (error) {
-    issues.push({
-      path,
-      rule: 10,
-      message: `cannot count solution blocks: ${describeError(error)}`,
-    });
-  }
-  const { par, maxBlocks } = level;
-  if (blocksUsed !== null && par !== undefined && blocksUsed > par) {
-    issues.push({
-      path,
-      rule: 10,
-      message: `solution uses ${String(blocksUsed)} blocks > par ${String(par)}`,
-    });
-  }
-  if (blocksUsed !== null && maxBlocks !== undefined && blocksUsed > maxBlocks) {
-    issues.push({
-      path,
-      rule: 10,
-      message: `solution uses ${String(blocksUsed)} blocks > maxBlocks ${String(maxBlocks)}`,
-    });
-  }
-  if (par !== undefined && maxBlocks !== undefined && par > maxBlocks) {
-    issues.push({ path, rule: 10, message: `par ${String(par)} > maxBlocks ${String(maxBlocks)}` });
-  }
-
-  // Rule 11: solution blocks ⊆ toolbox (parsons: ⊆ initialWorkspace).
-  const available =
-    level.mode === 'parsons'
-      ? blockTypesOf(level.initialWorkspace ?? solution)
-      : toolboxTypes(level);
-  const source = level.mode === 'parsons' ? 'initialWorkspace' : 'toolbox';
-  for (const type of blockTypesOf(solution)) {
-    if (type !== CQ_START && !available.has(type)) {
-      issues.push({
-        path,
-        rule: 11,
-        message: `solution uses "${type}", which is not in ${source}`,
-      });
-    }
-  }
-
-  return { issues, blocksUsed };
-}
-
-/**
- * Rules 1 (config), 5–6 (not in drafts), 9–16 for a schema-valid level, plus its table detail.
- * The run rules 9–11 and 13–16 need a valid config of an implemented kind.
- */
-function levelIssues(
-  path: string,
-  level: Level,
-  isDraft: boolean,
-  getKind: GameKindLookup,
-): { issues: Issue[]; detail: string } {
-  const kind = getKind(level.kind);
-  const issues = [...(isDraft ? [] : pedagogyIssues(path, level)), ...shadowIssues(path, level)];
-  const configIssues = levelConfigIssues(path, level, kind);
-  issues.push(...configIssues);
+/** Table detail of a level: `<kind>/<mode>`, then `par N` and `sol N` when known. */
+function levelDetail(level: Level, solutionBlocks: number | null): string {
   let detail = `${level.kind}/${level.mode}`;
   if (level.par !== undefined) detail += `  par ${String(level.par)}`;
-  if (configIssues.length > 0 || kind === undefined) return { issues, detail };
-  // A predict level runs initialWorkspace, never a solution (rule 15 checks it instead).
-  if (level.solution !== undefined && level.mode !== 'predict') {
-    const solved = solutionIssues(path, level, level.solution, kind);
-    issues.push(...solved.issues);
-    if (solved.blocksUsed !== null) detail += `  sol ${String(solved.blocksUsed)}`;
-  }
-  issues.push(...modeIssues(path, level, kind), ...hintIssues(path, level, kind));
-  return { issues, detail };
+  if (solutionBlocks !== null) detail += `  sol ${String(solutionBlocks)}`;
+  return detail;
 }
 
 /** Rule 17: every engine and game-kind reason code has a sentence in feedback.json. */
@@ -353,6 +225,26 @@ export function checkContent(
     }
     return { path, rule: 2, message: `duplicate id "${id}" (also in ${firstPath})` };
   };
+  /** Rule 2 checks that need the file's location: name, world prefix, uniqueness. */
+  const claimFileId = (location: Location, id: string, path: string): void => {
+    if (id !== location.expectedId) {
+      const where = location.kind === 'world' ? 'folder name' : 'file name';
+      issues.push({
+        path,
+        rule: 2,
+        message: `id "${id}" must equal its ${where} "${location.expectedId ?? ''}"`,
+      });
+    }
+    if (location.worldPrefix !== null && !id.startsWith(location.worldPrefix)) {
+      issues.push({
+        path,
+        rule: 2,
+        message: `id "${id}" must start with its world prefix "${location.worldPrefix}"`,
+      });
+    }
+    const duplicate = claimId(id, path);
+    if (duplicate !== null) issues.push(duplicate);
+  };
 
   for (const file of files) {
     const location = locate(file.path);
@@ -384,8 +276,6 @@ export function checkContent(
       continue;
     }
 
-    const entity = ENTITY_SCHEMAS[location.kind].safeParse(parsed);
-    if (!entity.success) issues.push(...schemaIssues(file.path, entity.error));
     const worldFile: WorldFile = {
       path: file.path,
       dir: location.worldDir ?? '',
@@ -394,14 +284,17 @@ export function checkContent(
     };
     if (location.kind === 'level') {
       hasLevels = true;
-      const level = entity.success ? LevelSchema.parse(parsed) : null;
-      if (level !== null) {
-        const checked = levelIssues(file.path, level, location.isDraft, getKind);
-        issues.push(...checked.issues);
-        entry.detail = checked.detail;
-      }
-      if (!location.isDraft) curriculum.levels.push({ ...worldFile, level });
+      // Rules 1, 2 (ID pattern), 5–6, 9–16, in the order content:check always printed them.
+      const checked = validateLevel(parsed, { isDraft: location.isDraft, getKind });
+      issues.push(...withPath(file.path, checked.issues));
+      if (checked.level !== null) entry.detail = levelDetail(checked.level, checked.solutionBlocks);
+      if (!location.isDraft) curriculum.levels.push({ ...worldFile, level: checked.level });
+      claimFileId(location, id, file.path);
+      continue;
     }
+
+    const entity = ENTITY_SCHEMAS[location.kind].safeParse(parsed);
+    if (!entity.success) issues.push(...schemaIssues(file.path, entity.error));
     if (location.kind === 'lesson') {
       const lesson = entity.success ? LessonSchema.parse(parsed) : null;
       for (const [index, card] of (lesson?.cards ?? []).entries()) {
@@ -431,23 +324,7 @@ export function checkContent(
         message: `${location.kind} id "${id}" does not match ${ID_PATTERNS[location.kind].source}`,
       });
     }
-    if (id !== location.expectedId) {
-      const where = location.kind === 'world' ? 'folder name' : 'file name';
-      issues.push({
-        path: file.path,
-        rule: 2,
-        message: `id "${id}" must equal its ${where} "${location.expectedId ?? ''}"`,
-      });
-    }
-    if (location.worldPrefix !== null && !id.startsWith(location.worldPrefix)) {
-      issues.push({
-        path: file.path,
-        rule: 2,
-        message: `id "${id}" must start with its world prefix "${location.worldPrefix}"`,
-      });
-    }
-    const duplicate = claimId(id, file.path);
-    if (duplicate !== null) issues.push(duplicate);
+    claimFileId(location, id, file.path);
   }
 
   // Rules 3–4, 7–8 across worlds.

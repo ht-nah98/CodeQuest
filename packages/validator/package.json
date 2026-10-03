@@ -1,13 +1,15 @@
 {
-  "name": "@codequest/content-check",
+  "name": "@codequest/validator",
   "version": "0.0.0",
   "private": true,
   "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
   "dependencies": {
     "@codequest/content-schema": "*",
     "@codequest/engine": "*",
     "@codequest/games": "*",
-    "@codequest/validator": "*",
     "zod": "^4.6.5"
   }
 }

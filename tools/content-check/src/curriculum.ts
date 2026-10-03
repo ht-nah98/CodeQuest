@@ -5,9 +5,8 @@
  */
 import { CQ_START } from '@codequest/engine';
 import type { Level, LevelMode, World } from '@codequest/content-schema';
+import { blockTypesOf, toolboxTypes } from '@codequest/validator';
 import type { Issue } from './rules';
-import { toolboxTypes } from './levelRules';
-import { blockTypesOf } from './workspace';
 
 /**
  * Worlds whose world.json is still a temporary stub (content-model.md §7), with the roadmap
