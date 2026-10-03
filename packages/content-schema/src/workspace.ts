@@ -57,12 +57,22 @@ function visitBlocks(
  * Workspace JSON as authored in `content/` (solution, initialWorkspace, lesson demos): like
  * `WorkspaceJsonSchema`, but every block, nested ones and shadows included, needs a unique id
  * from `CONTENT_BLOCK_ID`. Without one Blockly draws a random id, so highlights and predict
- * keys could not be reproduced. The output type stays `WorkspaceJson`.
+ * keys could not be reproduced. No block may be disabled (`"enabled": false` or
+ * `"disabledReasons"`). The output type stays `WorkspaceJson`.
  */
 export const ContentWorkspaceJsonSchema = WorkspaceJsonSchema.superRefine((workspace, ctx) => {
   const seen = new Set<string>();
   workspace.blocks.blocks.forEach((top, index) => {
     visitBlocks(top, ['blocks', 'blocks', index], (block, path) => {
+      // A disabled block never runs, and in parsons nothing re-enables it: the level could not
+      // be won. Editors that disable orphans (level editor, author mode) must strip these keys.
+      if (block['enabled'] === false || block['disabledReasons'] !== undefined) {
+        ctx.addIssue({
+          code: 'custom',
+          path: [...path, block['enabled'] === false ? 'enabled' : 'disabledReasons'],
+          message: 'blocks in content must not be disabled ("enabled": false or "disabledReasons")',
+        });
+      }
       const id = block['id'];
       if (typeof id !== 'string' || !CONTENT_BLOCK_ID.test(id)) {
         ctx.addIssue({

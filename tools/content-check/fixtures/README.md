@@ -9,6 +9,11 @@ so its fixture still exits 0.
 npm run content:check -- --dir tools/content-check/fixtures/rule-09-solution-loses   # exit 1
 ```
 
+`extra-01-disabled-block/` is a second rule-1 case (a loose parsons block that carries
+Blockly's `"disabledReasons"`, which the level editor once exported, P2-07 review; the level
+then drops out of the mode count, so a rule 8 warning follows); it is not named
+`rule-01-…` because the test expects exactly one `rule-NN` fixture per rule.
+
 `src/fixtures.test.ts` checks every fixture and fails if a rule has no fixture or a fixture
 reports any other rule. Assets (rule 18) are looked up in the real `apps/web/public/`.
 

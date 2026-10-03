@@ -7,6 +7,6 @@
 | `par/` | `npm run par -- <levelId \| level.json>… [--world <wNN>] [--max-size N] [--depth N] [--budget N] [--timeout <giây>]` | Vét cạn `par` (màn build) và `parEdits` (màn bughunt) bằng `@codequest/validator`, xem `content-model.md` §8 |
 | `audio/` | `npm run audio:gen [-- --wav-only]` | Tổng hợp tất định hiệu ứng + 2 bài nhạc nền chiptune → `apps/web/public/audio/{sfx,music}/*.mp3` (cần `ffmpeg`), xem `docs/architecture/audio.md` §4 |
 | `voice/` | `npm run voice -- lines \| check \| build --provider <id>` | Liệt kê câu cần giọng đọc, sinh trước file giọng qua adapter TTS (HLV chọn), xem `tools/voice/README.md` |
-| `level-editor/` | (GĐ 2, chạy trong web ở `/coach/editor`) | Phần logic không phụ thuộc UI của editor |
+| `level-editor/` | (không có lệnh: chạy trong web ở `/coach/editor`) | Chỉ còn README trỏ tới mã của editor trong `apps/web` (P2-07) |
 
 Tools được import `engine`, `games`, `content-schema`, `validator`; **không** import `apps/web`. Riêng `voice/` **đọc** `apps/web/src/i18n/vi.ts` như văn bản (parser TypeScript) và ghi `apps/web/src/audio/voiceManifest.json` + `apps/web/public/audio/`.

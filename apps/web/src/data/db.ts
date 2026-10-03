@@ -54,6 +54,21 @@ export interface DraftRow {
   updatedAt: string;
 }
 
+/**
+ * A level being written in the level editor (/coach/editor, P2-07). Local only, never synced
+ * or backed up: the exported JSON file is what goes into content/.
+ */
+export interface LevelDraftRow {
+  /** Random key of the draft (the level id can change while editing). */
+  key: string;
+  /** `level.id` when last saved, for the list. */
+  levelId: string;
+  /** The draft level (may not pass validation yet). */
+  level: unknown;
+  /** ISO */
+  updatedAt: string;
+}
+
 export interface AttemptRow {
   /** uuid */
   id: string;
@@ -133,6 +148,7 @@ export type CodeQuestDb = Dexie & {
   creations: Table<CreationRow, [string, string]>;
   outbox: Table<OutboxRow, number>;
   meta: Table<MetaRow, string>;
+  levelDrafts: Table<LevelDraftRow, string>;
 };
 
 export interface SchemaVersion {
@@ -167,6 +183,8 @@ export const SCHEMA_VERSIONS: readonly SchemaVersion[] = [
       meta: 'key',
     },
   },
+  // P2-07: level editor drafts (local only).
+  { version: 2, stores: { levelDrafts: 'key, updatedAt' } },
 ];
 
 /** Builds a Dexie instance; it opens lazily on first use. Tests pass their own versions. */

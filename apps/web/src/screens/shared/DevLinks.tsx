@@ -1,7 +1,8 @@
 import { Link } from 'react-router';
 
-// Dev builds only: links to the /dev/* showcase pages (read by the coach, not by children).
-const PAGES = ['/dev/ui', '/dev/blockly', '/dev/stage'] as const;
+// Dev builds only: links to the /dev/* showcase pages and the level editor (read by the coach,
+// not by children).
+const PAGES = ['/dev/ui', '/dev/blockly', '/dev/stage', '/coach/editor'] as const;
 
 export function DevLinks() {
   if (!import.meta.env.DEV) return null;

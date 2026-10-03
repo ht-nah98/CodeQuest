@@ -103,8 +103,19 @@ describe('ContentWorkspaceJsonSchema', () => {
       }),
     ],
     ['duplicate ids', withNested({ type: 'runner_walk', id: 'start' })],
+    [
+      'a block disabled as an orphan (P2-07 review)',
+      withNested({ type: 'runner_walk', id: 'w', disabledReasons: ['ORPHANED_BLOCK'] }),
+    ],
+    ['a block with enabled false', withNested({ type: 'runner_walk', id: 'w', enabled: false })],
   ])('rejects %s', (_name, value) => {
     expectInvalid(ContentWorkspaceJsonSchema, value);
+  });
+  it('accepts an explicitly enabled block', () => {
+    expectValid(
+      ContentWorkspaceJsonSchema,
+      withNested({ type: 'runner_walk', id: 'w', enabled: true }),
+    );
   });
   it('is stricter than the runtime schema, which accepts Blockly-generated ids', () => {
     expectValid(WorkspaceJsonSchema, withNested({ type: 'runner_walk', id: "#a'b" }));

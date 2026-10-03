@@ -10,6 +10,7 @@
     { "path": "../../packages/content-schema" },
     { "path": "../../packages/engine" },
     { "path": "../../packages/games" },
-    { "path": "../../packages/rewards" }
+    { "path": "../../packages/rewards" },
+    { "path": "../../packages/validator" }
   ]
 }

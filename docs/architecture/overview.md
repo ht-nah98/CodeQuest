@@ -45,11 +45,11 @@ flowchart TD
 | `@codequest/rewards` | Hàm thuần: tính sao, xu, huy hiệu, chuỗi ngày, mở khóa, số dư sổ xu | `content-schema` | `blockly`, DOM, I/O |
 | `@codequest/validator` | Luật kiểm chứng **cấp màn** của `content-model.md` §5 (1, 2, 5, 6, 9–16) trên một level, và vét cạn `par` / `parEdits` (`findShortestPrograms`, `findFixes`). Dùng chung cho `content:check`, `npm run par` và level editor trong trình duyệt (ADR-0015) | `games`, `engine`, `content-schema`, `zod` | `rewards`, `apps/web`, `tools`, `fs`/`node:*`, DOM, `Date` |
 | `apps/web` | Giao diện, Blockly có hiển thị, renderer sân chơi của từng kiểu game, âm thanh, lưu trữ, đồng bộ, router | tất cả ở trên | — |
-| `tools/*` | Script chạy bằng Node: kiểm chứng nội dung (`content-check`), vét cạn `par`, làm sạch sprite, giọng đọc | `validator`, `engine`, `games`, `content-schema` | `apps/web` |
+| `tools/*` | Script chạy bằng Node: kiểm chứng nội dung (`content-check`), vét cạn `par`, làm sạch sprite, giọng đọc. Level editor **không** ở đây mà ở route `/coach/editor` của `apps/web`, chỉ có trong bản dev tới P2-16 (P2-07; `tools/level-editor/README.md` trỏ tới) | `validator`, `engine`, `games`, `content-schema` | `apps/web` |
 
 **Vì sao chia như vậy:**
 - Mô phỏng và chấm bài **headless** nên `tools/content-check` chạy lời giải của mọi màn trên Node (CI) và cho đúng kết quả như trong trình duyệt.
-- Luật cấp màn nằm trong `validator` (không đọc file) nên level editor kiểm một màn ngay trên trình duyệt bằng đúng code của `content:check`.
+- Luật cấp màn nằm trong `validator` (không đọc file) nên level editor kiểm một màn ngay trên trình duyệt bằng đúng code của `content:check`. Vét cạn `par` của editor chạy trong một Web Worker (`apps/web/src/features/editor/parSearch.worker.ts`) để giao diện không bị đơ.
 - `engine` không biết có những kiểu game nào. Nó chỉ biết interface. Thêm kiểu game mới không phải sửa `engine`.
 - `rewards` tách riêng và thuần, nên test được kỹ và đồng bộ được (server có thể tính lại).
 

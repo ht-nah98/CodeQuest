@@ -1,0 +1,84 @@
+{
+  "id": "w01-l02",
+  "worldId": "w01-fixture",
+  "stage": "practice",
+  "kind": "runner",
+  "mode": "parsons",
+  "title": "Xếp lại khối",
+  "objective": "Xếp các khối cho Măng tới cờ nhé!",
+  "learningGoal": "Sắp xếp lệnh theo đúng thứ tự.",
+  "misconception": "Thứ tự khối không quan trọng.",
+  "toolbox": [],
+  "par": 3,
+  "config": {
+    "cells": ["ground", "ground", "hole", "ground", "flag"],
+    "start": 0
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false
+        },
+        {
+          "type": "runner_jump",
+          "id": "loose1",
+          "disabledReasons": ["ORPHANED_BLOCK"],
+          "x": 40,
+          "y": 120
+        },
+        {
+          "type": "runner_walk",
+          "id": "loose2",
+          "x": 40,
+          "y": 180
+        },
+        {
+          "type": "runner_walk",
+          "id": "loose3",
+          "x": 40,
+          "y": 240
+        }
+      ]
+    }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "runner_walk",
+              "id": "b1",
+              "next": {
+                "block": {
+                  "type": "runner_jump",
+                  "id": "b2",
+                  "next": {
+                    "block": {
+                      "type": "runner_walk",
+                      "id": "b3"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [],
+  "thinkingHint": "Khối nào phải chạy trước?"
+}

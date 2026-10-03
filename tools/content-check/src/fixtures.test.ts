@@ -64,6 +64,14 @@ describe('content:check fixtures', () => {
     }
   });
 
+  it('extra-01-disabled-block reports rule 1 for a disabled parsons block', () => {
+    const report = check('extra-01-disabled-block');
+    // The unreadable level drops out of the world's mode count: a rule 8 warning follows.
+    expect(report.warnings.map((issue) => issue.rule)).toEqual([8]);
+    expect(report.issues.map((issue) => issue.rule)).toEqual([1]);
+    expect(report.issues[0]?.message).toContain('disabledReasons');
+  });
+
   it('exits 0 on the baseline, 0 on warnings only and 1 on errors', () => {
     const baseline = cli('baseline');
     expect(baseline.status).toBe(0);

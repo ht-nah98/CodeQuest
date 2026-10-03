@@ -10,7 +10,7 @@ Nguồn chuẩn cho: dữ liệu lưu ở đâu, đồng bộ thế nào, bé v�
 - **Giai đoạn:** GĐ 1 chỉ có local (nhiều hồ sơ trên một máy + nút sao lưu/khôi phục file JSON). GĐ 2 thêm Supabase.
 
 ## 2. IndexedDB (Dexie) — `apps/web/src/data/db.ts`
-Database `codequest`, version 1:
+Database `codequest`, version 2 (version 2 thêm `levelDrafts`, P2-07):
 
 | Bảng | Khóa | Trường chính |
 |---|---|---|
@@ -25,11 +25,12 @@ Database `codequest`, version 1:
 | `creations` | `[profileId+levelId]` | workspace, title, sharedAt? |
 | `outbox` | `++seq` | table, payload, createdAt, tries |
 | `meta` | `key` | pairing, lastSyncAt, schemaVersion |
+| `levelDrafts` | `key` (chỉ mục `updatedAt`) | levelId, level (bản nháp của level editor), updatedAt |
 
 Truy cập **chỉ qua repository** (`apps/web/src/data/repos/*.ts`), không gọi Dexie trực tiếp từ component. Mỗi hàm ghi của repository vào **bảng có đồng bộ** tự đẩy một dòng vào `outbox` trong **cùng transaction**.
 
 Quyết định khi làm P1-09:
-- **Bảng có đồng bộ** (ghi kèm `outbox`): `lessons`, `progress`, `attempts`, `ledger`, `inventory`, `badges`, `creations` — đúng các bảng có ở Supabase (§3). `profiles`, `drafts`, `meta` **chỉ ở máy**, không vào outbox: `pinHash` không bao giờ rời máy (§5), hồ sơ phía server do huấn luyện viên tạo, bản nháp không có bảng server.
+- **Bảng có đồng bộ** (ghi kèm `outbox`): `lessons`, `progress`, `attempts`, `ledger`, `inventory`, `badges`, `creations` — đúng các bảng có ở Supabase (§3). `profiles`, `drafts`, `meta`, `levelDrafts` **chỉ ở máy**, không vào outbox: `pinHash` không bao giờ rời máy (§5), hồ sơ phía server do huấn luyện viên tạo, bản nháp không có bảng server. `levelDrafts` (màn đang soạn ở `/coach/editor`) cũng không vào file sao lưu: thứ đưa vào `content/` là file JSON xuất ra.
 - Mỗi bảng có thêm chỉ mục `profileId` (và `attempts` có `[profileId+levelId]`) để đọc theo hồ sơ. `meta.schemaVersion` được ghi khi tạo DB và sau mỗi lần nâng version.
 - Đổi schema: **thêm** một mục mới vào `SCHEMA_VERSIONS` trong `db.ts` (không sửa mục cũ), kèm hàm `upgrade` nếu cần viết lại dòng. Test mẫu ở `data/db.test.ts`.
 - Ghi tiến độ đi qua `mergeProgress` (chỉ tăng); không có gì tốt hơn thì không ghi và không thêm dòng outbox. Sổ xu bỏ qua dòng trùng khóa `[profileId+id]`.

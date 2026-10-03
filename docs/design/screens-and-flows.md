@@ -43,7 +43,7 @@ flowchart LR
 | `/coach` | **Góc huấn luyện viên** | Bảng 6 bé × thế giới, khái niệm yếu, màn hay kẹt, thời gian học, mở khóa thủ công, đặt mục tiêu nhóm | chưa đăng nhập · đang đồng bộ · bé lâu không học |
 | `/coach/editor` | **Level editor** | Vẽ bản đồ, chọn toolbox, ghép lời giải, xem trước, kiểm chứng, xuất JSON | hợp lệ / có lỗi kiểm chứng |
 
-Khóa người lớn để vào `/coach`: giải một phép nhân hai chữ số (vd 17 × 6), sau đó đăng nhập Supabase.
+Khóa người lớn để vào `/coach`: giải một phép nhân hai chữ số (vd 17 × 6), sau đó đăng nhập Supabase. Từ P2-07 khóa phép nhân đã có (`screens/coach/AdultGate.tsx`, giải một lần cho mỗi tab). Phép nhân thì bé 8–11 tuổi cũng giải được, mà editor lại hiện lời giải, nên **`/coach/editor` chỉ có trong bản dev** (`npm run dev`, HLV soạn nội dung trên máy mình) cho tới khi P2-16 thêm đăng nhập HLV; bản build cho bé không có route này.
 
 ## 3. Bố cục màn chơi (1366×768)
 

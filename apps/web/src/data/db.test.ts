@@ -3,6 +3,8 @@ import 'fake-indexeddb/auto';
 import { describe, expect, it } from 'vitest';
 import { createDb, SCHEMA_VERSIONS, type ProgressRow } from './db';
 
+const LATEST = Math.max(...SCHEMA_VERSIONS.map((v) => v.version));
+
 const row: ProgressRow = {
   profileId: 'p1',
   levelId: 'w01-l01',
@@ -15,10 +17,10 @@ const row: ProgressRow = {
 };
 
 describe('database schema', () => {
-  it('creates every table of data-sync-auth.md §2 at version 1', async () => {
+  it('creates every table of data-sync-auth.md §2 at the latest version', async () => {
     const db = createDb('schema-v1');
     await db.open();
-    expect(db.verno).toBe(1);
+    expect(db.verno).toBe(LATEST);
     expect(db.tables.map((t) => t.name).sort()).toEqual([
       'attempts',
       'badges',
@@ -27,24 +29,26 @@ describe('database schema', () => {
       'inventory',
       'ledger',
       'lessons',
+      'levelDrafts',
       'meta',
       'outbox',
       'profiles',
       'progress',
     ]);
-    expect(await db.meta.get('schemaVersion')).toEqual({ key: 'schemaVersion', value: 1 });
+    expect(await db.meta.get('schemaVersion')).toEqual({ key: 'schemaVersion', value: LATEST });
     db.close();
   });
 
   it('upgrades an existing version-1 database without losing rows', async () => {
-    const v1 = createDb('schema-upgrade');
+    const v1 = createDb('schema-upgrade', SCHEMA_VERSIONS.slice(0, 1));
     await v1.progress.put(row);
     v1.close();
 
+    const next = LATEST + 1;
     const v2 = createDb('schema-upgrade', [
       ...SCHEMA_VERSIONS,
       {
-        version: 2,
+        version: next,
         stores: { progress: '[profileId+levelId], profileId, bestStars' },
         upgrade: async (tx) => {
           await tx
@@ -57,11 +61,13 @@ describe('database schema', () => {
       },
     ]);
     await v2.open();
-    expect(v2.verno).toBe(2);
+    expect(v2.verno).toBe(next);
     expect(await v2.progress.where('bestStars').equals(3).toArray()).toEqual([
       { ...row, migrated: true },
     ]);
-    expect(await v2.meta.get('schemaVersion')).toEqual({ key: 'schemaVersion', value: 2 });
+    expect(await v2.meta.get('schemaVersion')).toEqual({ key: 'schemaVersion', value: next });
+    // Version 2 (P2-07) added the level editor's drafts on the way.
+    expect(await v2.levelDrafts.count()).toBe(0);
     v2.close();
   });
 });
