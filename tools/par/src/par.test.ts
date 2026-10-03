@@ -111,6 +111,42 @@ describe('judgeLevel', () => {
     expect(verdict.lines).toContain('fix search stopped (budget or --timeout)');
   });
 
+  describe('levels with starGoals (P2-21)', () => {
+    // W3 l11 as designed in curriculum.md §5.1: 5 blocks win, 7 also pick up the shoot on 16.
+    const cells = Array.from('..O..O..O.O.O.O....F', (char) =>
+      char === '.' ? 'ground' : char === 'O' ? 'hole' : 'flag',
+    );
+    const base = load('w01-lang-tre', 'w01-l03');
+    const l11: Level = {
+      ...base,
+      id: 'w03-l11',
+      toolbox: ['runner_walk', 'runner_jump', 'runner_crouch', 'runner_kick', 'cq_repeat'],
+      maxBlocks: 9,
+      par: 7,
+      config: { cells, start: 0, bamboo: [16] },
+      starGoals: [{ kind: 'collectAll' }],
+    };
+    const noNesting = { maxDepth: 1 };
+
+    it('judges par under the goals and shows the plain-win minimum', () => {
+      const verdict = judgeLevel(l11, noNesting);
+      expect(verdict.mark).toBe('✔');
+      expect(verdict.head).toMatch(
+        /^w03-l11 runner\/build {2}par 7 {2}min \(goals\) 7 \(\d+ shortest\) · plain win 5 \(32\)$/,
+      );
+      expect(verdict.lines.some((line) => line.startsWith('plain win: '))).toBe(true);
+    });
+
+    it('fails a par set to the plain win, and a par above the goal minimum', () => {
+      const low = judgeLevel({ ...l11, par: 5 }, noNesting);
+      expect(low.mark).toBe('✖');
+      expect(low.head).toContain('no win (goals) ≤ 5 blocks · plain win 5 (32)');
+      const high = judgeLevel({ ...l11, par: 8 }, noNesting);
+      expect(high.mark).toBe('✖');
+      expect(high.lines).toContain('par 8 is too high: 7 blocks win (goals)');
+    });
+  });
+
   it('skips modes whose blocks are given', () => {
     expect(judgeLevel(load('w01-lang-tre', 'w01-l04'), {}).mark).toBe('–');
   });

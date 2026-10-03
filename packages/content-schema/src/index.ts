@@ -15,13 +15,17 @@ export { ConditionSchema, HINT_TRIGGERS, HintRuleSchema, HintTargetSchema } from
 export type { AtomicCondition, Condition, HintRule, HintTarget, HintTrigger, NumCmp } from './hint';
 
 export {
+  GOAL_SPRITES,
+  GoalSpriteSchema,
   LEVEL_STAGES,
   LevelSchema,
   LevelStageSchema,
   MAX_VARIANTS,
+  STAR_GOAL_KINDS,
+  StarGoalSchema,
   ToolboxEntrySchema,
 } from './level';
-export type { Level, LevelStage, ToolboxEntry } from './level';
+export type { GoalSprite, Level, LevelStage, StarGoal, StarGoalKind, ToolboxEntry } from './level';
 
 export { LessonCardSchema, LessonSchema, MASCOT_POSES, MascotPoseSchema } from './lesson';
 export type { Lesson, LessonCard, MascotPose } from './lesson';

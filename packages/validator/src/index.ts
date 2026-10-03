@@ -1,7 +1,7 @@
 // Public API of @codequest/validator: per-level rules of content-model.md §5 and the
 // exhaustive par / fix searches. Headless (ADR-0006): runs on Node and in the browser.
 
-// Per-level rules 1–2, 5–6, 9–16 (content:check, level editor).
+// Per-level rules 1–2, 5–6, 9–16, 19 (content:check, level editor).
 export { validateLevel, ID_PATTERNS } from './validateLevel';
 export type { LevelValidation, ValidateLevelOptions } from './validateLevel';
 export { formatSchemaIssues } from './issue';

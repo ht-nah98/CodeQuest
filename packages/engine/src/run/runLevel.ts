@@ -135,6 +135,12 @@ export function runLevel<C, S, E extends GameEvent>(input: RunLevelInput<C, S, E
     outcome.maps = maps.map((run) => run.outcome);
     outcome.mapIndex = deciding;
   }
+  // A star goal holds for the level only when it holds on every map (P2-21, ADR-0017).
+  if (level.starGoals !== undefined && mapOutcome.result !== 'error') {
+    outcome.goals = level.starGoals.map((_, index) =>
+      maps.every((run) => run.outcome.goals?.[index] === true),
+    );
+  }
   if (mapOutcome.result === 'error') {
     // An engine error on a variant says which map it came from, as an invalid config does.
     if (deciding > 0 && mapOutcome.debug !== undefined) {
@@ -260,7 +266,26 @@ function runMap<C, S, E extends GameEvent>(
       };
     }
   }
-  return { outcome: { result, reasonCode, events, stats: stats() }, state };
+  const outcome: MapOutcome<E> = { result, reasonCode, events, stats: stats() };
+  if (level.starGoals !== undefined && state !== undefined) {
+    // A kind without `checkStarGoal` meets no goal; content:check rule 19 reports the level.
+    const finalState = state;
+    try {
+      outcome.goals = level.starGoals.map(
+        (goal) => kind.checkStarGoal?.(goal, finalState, config) ?? false,
+      );
+    } catch (error) {
+      return {
+        outcome: {
+          ...errorOutcome('INTERNAL_ERROR', blocksUsed, describe(error)),
+          events,
+          stats: stats(),
+        },
+        state,
+      };
+    }
+  }
+  return { outcome, state };
 }
 
 /** Sandbox with the game API, the highlight hook and a seeded `Math.random`. */

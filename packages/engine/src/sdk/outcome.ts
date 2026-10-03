@@ -24,6 +24,13 @@ export interface RunOutcome<E extends GameEvent = GameEvent> {
   /** Only when `result` is `error`, to help debugging. */
   debug?: { message: string };
   /**
+   * Levels with `starGoals` only (P2-21), when the program ran: whether each goal holds, in
+   * `starGoals` order. At the top level a goal holds only when it holds on every map (each map's
+   * own verdict is in `maps[i].goals`). Judged on the final state whatever the result; rewards
+   * only count it on a win.
+   */
+  goals?: boolean[];
+  /**
    * Levels with `variants` only (P2-12, ADR-0016): the run on each map, in map order (`config`,
    * then each variant). The top-level `result`, `reasonCode`, `events` and `stats` are those of
    * `maps[mapIndex]`. Absent when the program could not run at all (empty, too many blocks).
@@ -40,5 +47,5 @@ export interface RunOutcome<E extends GameEvent = GameEvent> {
 /** One map's run of a multi-map level: what `StageController.play` replays on that map. */
 export type MapOutcome<E extends GameEvent = GameEvent> = Pick<
   RunOutcome<E>,
-  'result' | 'reasonCode' | 'events' | 'stats' | 'debug'
+  'result' | 'reasonCode' | 'events' | 'stats' | 'debug' | 'goals'
 >;

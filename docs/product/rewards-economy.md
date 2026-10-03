@@ -33,6 +33,8 @@ Nguồn chuẩn cho mọi con số liên quan tới sao, xu, gợi ý, huy hiệ
 
 `par` của màn có mục tiêu sao là số khối ít nhất của chương trình **vừa thắng vừa đạt mọi mục tiêu** (`npm run par` kiểm). Màn không khai báo `starGoals` giữ bảng cũ, nên Thế giới 1–2 không đổi.
 
+Cài đặt (P2-21, ADR-0017): loại mục tiêu hiện có là **`collectAll`** "nhặt đủ măng" (runner, maze), đủ cho mọi màn §5 của `curriculum.md`. Màn nhiều bản đồ: mục tiêu phải đạt trên **mọi** bản đồ (bản đồ không có măng tự đạt). "Về đích với ≤ N bước" và "không đá thùng" chưa cài: chưa màn nào cần, và "không đá thùng" vô nghĩa ở runner (thùng luôn chắn đường, phải đá). Thêm loại mới khi một màn cần.
+
 Trần sao do gợi ý (áp dụng cho **phiên màn hiện tại**, tức từ lúc vào màn tới lúc rời màn):
 - Đã mua gợi ý **tầng 2** → tối đa ⭐⭐
 - Đã mua gợi ý **tầng 3** → tối đa ⭐

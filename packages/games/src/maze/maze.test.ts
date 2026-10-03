@@ -644,3 +644,44 @@ describe('maze definition', () => {
     expect(JSON.parse(JSON.stringify(outcome.events))).toEqual(outcome.events);
   });
 });
+
+describe('maze star goals (P2-21)', () => {
+  // Two ways to G: straight east (2 forwards) or down through the bamboo and back up.
+  const FORK = ['######', '#S.G.#', '#b####', '######'];
+  const goalRun = (chain: object[]): RunOutcome<MazeEvent> =>
+    runLevel({
+      kind: maze,
+      level: level({ map: FORK, startDir: 'E' }, { starGoals: [{ kind: 'collectAll' }] }),
+      workspace: program(chain),
+    });
+
+  it('wins without the bamboo but misses collectAll', () => {
+    expect(goalRun([forward('a'), forward('b')])).toMatchObject({
+      result: 'success',
+      goals: [false],
+    });
+  });
+
+  it('meets collectAll after the detour', () => {
+    const detour = [
+      right('a'),
+      forward('b'),
+      left('c'),
+      left('d'),
+      forward('e'),
+      right('f'),
+      forward('g'),
+      forward('h'),
+    ];
+    expect(goalRun(detour)).toMatchObject({ result: 'success', goals: [true] });
+  });
+
+  it('meets collectAll on a map without bamboo', () => {
+    const outcome = runLevel({
+      kind: maze,
+      level: level({ map: L_MAP, startDir: 'E' }, { starGoals: [{ kind: 'collectAll' }] }),
+      workspace: program([forward('a'), forward('b'), right('c'), forward('d'), forward('e')]),
+    });
+    expect(outcome).toMatchObject({ result: 'success', goals: [true] });
+  });
+});

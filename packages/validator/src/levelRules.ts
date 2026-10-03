@@ -1,11 +1,13 @@
 /**
- * Per-level rules 5–6 (pedagogy) and 12–16 (runnable modes and hints) of content-model.md §5.
- * Rules 1–2 and 9–11 live in validateLevel.ts next to the solution run.
+ * Per-level rules 5–6 (pedagogy), 12–16 (runnable modes and hints) and 19 (star goals) of
+ * content-model.md §5. Rules 1–2 and 9–11 live in validateLevel.ts next to the solution run.
  */
-import type { Condition, Level, WorkspaceJson } from '@codequest/content-schema';
+import type { Condition, Level, StarGoalKind, WorkspaceJson } from '@codequest/content-schema';
 import {
   ENGINE_REASONS,
   editDistance,
+  fnv1a,
+  mulberry32,
   runLevel,
   type AnyGameKindDefinition,
 } from '@codequest/engine';
@@ -17,6 +19,8 @@ import { countWords } from './words';
 const MAX_OBJECTIVE_WORDS = 12;
 const MAX_TITLE_WORDS = 5;
 const MAX_HINT_WORDS = 12;
+/** curriculum.md §5.0: the mission line is a speech bubble too. */
+const MAX_MISSION_WORDS = 12;
 
 /** Built-in Blockly loop whose number input is a shadow (blockly-integration.md §5). */
 const SHADOW_REPEAT = 'controls_repeat_ext';
@@ -35,6 +39,7 @@ export function pedagogyIssues(level: Level): RuleIssue[] {
   };
   limit('objective', level.objective, MAX_OBJECTIVE_WORDS);
   limit('title', level.title, MAX_TITLE_WORDS);
+  if (level.mission !== undefined) limit('mission', level.mission, MAX_MISSION_WORDS);
   for (const hint of level.hints) limit(`hint "${hint.id}" say`, hint.say, MAX_HINT_WORDS);
 
   if (
@@ -198,6 +203,77 @@ export function hintIssues(level: Level, kind: AnyGameKindDefinition): RuleIssue
           message: `hint "${hint.id}" waits for lastReason "${reason}", which neither the engine nor "${kind.id}" produces`,
         });
       }
+    }
+  }
+  return issues;
+}
+
+/** Star goal kinds that a map's `config.goal.collectAll` win condition already implies. */
+const IMPLIED_BY_WIN_COLLECT_ALL: ReadonlySet<StarGoalKind> = new Set(['collectAll']);
+
+/** `goal.collectAll` of a runner or maze config: bamboo is a win condition there. */
+function winNeedsAllBamboo(config: unknown): boolean {
+  if (typeof config !== 'object' || config === null) return false;
+  const goal: unknown = (config as Record<string, unknown>)['goal'];
+  return (
+    typeof goal === 'object' &&
+    goal !== null &&
+    (goal as Record<string, unknown>)['collectAll'] === true
+  );
+}
+
+/**
+ * Rule 19 (P2-21): the level's game kind can judge star goals, no goal already holds before
+ * Măng moves on every map (it would reward nothing), `collectAll` is not already implied by
+ * `config.goal.collectAll` on every map with bamboo, and the solution, when it wins, meets
+ * every goal on every map. Needs valid configs (rule 1).
+ */
+export function starGoalIssues(level: Level, kind: AnyGameKindDefinition): RuleIssue[] {
+  const goals = level.starGoals;
+  if (goals === undefined) return [];
+  const check = kind.checkStarGoal?.bind(kind);
+  if (check === undefined) {
+    return [{ rule: 19, message: `game kind "${kind.id}" has no star goals` }];
+  }
+  const issues: RuleIssue[] = [];
+  const configs = [level.config, ...(level.variants ?? [])].map((raw) =>
+    kind.configSchema.parse(raw),
+  );
+  for (const goal of goals) {
+    const metAtStart = configs.map((config) =>
+      check(goal, kind.createState(config, mulberry32(fnv1a(level.id))), config),
+    );
+    if (metAtStart.every((met) => met)) {
+      issues.push({
+        rule: 19,
+        message: `star goal "${goal.kind}" already holds before Măng moves on every map`,
+      });
+    } else if (
+      IMPLIED_BY_WIN_COLLECT_ALL.has(goal.kind) &&
+      configs.every((config, index) => metAtStart[index] === true || winNeedsAllBamboo(config))
+    ) {
+      // Every map with bamboo already makes it a win condition: every win meets the goal.
+      issues.push({
+        rule: 19,
+        message:
+          'star goal "collectAll" adds nothing: config.goal.collectAll already requires every shoot to win',
+      });
+    }
+  }
+  if (level.solution !== undefined) {
+    const outcome = runLevel({ kind, level, workspace: level.solution });
+    if (outcome.result === 'success') {
+      goals.forEach((goal, index) => {
+        if (outcome.goals?.[index] === true) return;
+        const missed = (outcome.maps ?? [outcome])
+          .map((map, mapIndex) => (map.goals?.[index] === true ? null : mapIndex + 1))
+          .filter((map) => map !== null);
+        const where = outcome.maps === undefined ? '' : ` on map ${missed.map(String).join(', ')}`;
+        issues.push({
+          rule: 19,
+          message: `solution wins but misses star goal "${goal.kind}"${where}`,
+        });
+      });
     }
   }
   return issues;

@@ -4,7 +4,7 @@ import type { z } from 'zod';
 
 /** One broken rule of content-model.md §5, without the file it was found in. */
 export interface RuleIssue {
-  /** Rule number, 1–18. */
+  /** Rule number, 1–19. */
   rule: number;
   message: string;
 }

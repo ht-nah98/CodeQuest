@@ -1,7 +1,7 @@
 import type { GameKindDefinition } from '@codequest/engine';
 import { mazeBlocks } from './blocks';
 import { mazeConfigSchema, type MazeConfig } from './config';
-import { evaluateMaze, mazePredictAnswer } from './evaluate';
+import { evaluateMaze, mazePredictAnswer, mazeStarGoal } from './evaluate';
 import type { MazeEvent } from './events';
 import { MAZE_REASONS } from './reasons';
 import { createMazeApi } from './sim';
@@ -18,6 +18,7 @@ export const maze: GameKindDefinition<MazeConfig, MazeState, MazeEvent> = {
   createApi: createMazeApi,
   evaluate: evaluateMaze,
   predictAnswer: mazePredictAnswer,
+  checkStarGoal: mazeStarGoal,
 };
 
 export {

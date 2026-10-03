@@ -1,7 +1,7 @@
 /**
  * Every rule of content-model.md §5 that can be checked on one level alone: 1 (schema and
  * config), 2 (ID pattern), 5–6 (pedagogy), 9–11 (the solution wins within par, maxBlocks and
- * the toolbox) and 12–16. Runs on Node and in the browser (level editor).
+ * the toolbox), 12–16 and 19 (star goals). Runs on Node and in the browser (level editor).
  */
 import { LevelSchema, type Level, type WorkspaceJson } from '@codequest/content-schema';
 import {
@@ -13,7 +13,14 @@ import {
 } from '@codequest/engine';
 import { getGameKind } from '@codequest/games';
 import { describeError, formatSchemaIssues, type GameKindLookup, type RuleIssue } from './issue';
-import { hintIssues, modeIssues, pedagogyIssues, shadowIssues, toolboxTypes } from './levelRules';
+import {
+  hintIssues,
+  modeIssues,
+  pedagogyIssues,
+  shadowIssues,
+  starGoalIssues,
+  toolboxTypes,
+} from './levelRules';
 import { blockTypesOf } from './workspace';
 
 /** Rule 2: ID patterns of content-model.md §2 (draft folders `worlds/_*` are exempt). */
@@ -36,7 +43,7 @@ export interface ValidateLevelOptions {
 export interface LevelValidation {
   /** The parsed level, or null when it fails `LevelSchema`. */
   level: Level | null;
-  /** Broken rules, in a stable order: schema, 5–6, 12, config, 9–11, 13–15, 16, then 2. */
+  /** Broken rules, in a stable order: schema, 5–6, 12, config, 9–11, 13–15, 16, 19, then 2. */
   issues: RuleIssue[];
   /** Blocks used by `solution` when it could be counted (not for `predict` levels). */
   solutionBlocks: number | null;
@@ -136,7 +143,7 @@ function solutionIssues(
   return { issues, blocksUsed };
 }
 
-/** Rules 1 (config), 5–6 (not in drafts), 9–16 for a schema-valid level. */
+/** Rules 1 (config), 5–6 (not in drafts), 9–16 and 19 for a schema-valid level. */
 function checkParsedLevel(
   level: Level,
   isDraft: boolean,
@@ -147,7 +154,7 @@ function checkParsedLevel(
   const configIssues = levelConfigIssues(level, kind);
   issues.push(...configIssues);
   let solutionBlocks: number | null = null;
-  // The run rules 9–11 and 13–16 need a valid config of an implemented kind.
+  // The run rules 9–11, 13–16 and 19 need a valid config of an implemented kind.
   if (configIssues.length > 0 || kind === undefined) return { issues, solutionBlocks };
   // A predict level runs initialWorkspace, never a solution (rule 15 checks it instead).
   if (level.solution !== undefined && level.mode !== 'predict') {
@@ -155,7 +162,11 @@ function checkParsedLevel(
     issues.push(...solved.issues);
     solutionBlocks = solved.blocksUsed;
   }
-  issues.push(...modeIssues(level, kind), ...hintIssues(level, kind));
+  issues.push(
+    ...modeIssues(level, kind),
+    ...hintIssues(level, kind),
+    ...starGoalIssues(level, kind),
+  );
   return { issues, solutionBlocks };
 }
 

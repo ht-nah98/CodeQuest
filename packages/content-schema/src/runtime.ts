@@ -40,4 +40,9 @@ export interface RunSummary {
   edits?: number;
   /** `predict` only: the option key the child picked. */
   predictChoice?: string;
+  /**
+   * Levels with `starGoals` only (P2-21): whether each goal was met on every map, in
+   * `starGoals` order (`RunOutcome.goals`). Missing on such a level means "not met".
+   */
+  goals?: boolean[];
 }

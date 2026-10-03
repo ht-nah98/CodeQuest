@@ -1,6 +1,6 @@
 /**
- * content:check, all 18 rules of docs/architecture/content-model.md §5 (phases: §7).
- * The per-level rules (1–2, 5–6, 9–16) live in `@codequest/validator`, so the level editor
+ * content:check, all 19 rules of docs/architecture/content-model.md §5 (phases: §7).
+ * The per-level rules (1–2, 5–6, 9–16, 19) live in `@codequest/validator`, so the level editor
  * runs the same code in the browser. This file reads every file, checks rules 1–2 for worlds,
  * lessons and shared files, ID file names and uniqueness, 17 (feedback coverage) and 18
  * (assets), and wires in curriculum.ts (3–4, 7–8). Draft folders `worlds/_*` skip rules 3–8.
@@ -93,13 +93,14 @@ function withPath(path: string, issues: readonly RuleIssue[]): Issue[] {
 
 /**
  * Table detail of a level: `<kind>/<mode>`, then `par N` and `sol N` when known, then `maps N`
- * for a multi-map level (P2-12).
+ * for a multi-map level (P2-12) and `goals N` for a level with star goals (P2-21).
  */
 function levelDetail(level: Level, solutionBlocks: number | null): string {
   let detail = `${level.kind}/${level.mode}`;
   if (level.par !== undefined) detail += `  par ${String(level.par)}`;
   if (solutionBlocks !== null) detail += `  sol ${String(solutionBlocks)}`;
   if (level.variants !== undefined) detail += `  maps ${String(level.variants.length + 1)}`;
+  if (level.starGoals !== undefined) detail += `  goals ${String(level.starGoals.length)}`;
   return detail;
 }
 
@@ -210,7 +211,7 @@ function readString(value: unknown, key: string): string | null {
   return typeof field === 'string' ? field : null;
 }
 
-/** Runs all 18 rules over every JSON file under `content/` (paths relative to it). */
+/** Runs all 19 rules over every JSON file under `content/` (paths relative to it). */
 export function checkContent(
   files: readonly ContentFile[],
   getKind: GameKindLookup = getGameKind,

@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 import { z } from 'zod';
 
 // Which lines get a pre-generated voice (ui-copy-guide.md §5) and their ids (content-model.md §2):
-//   <levelId>.objective · <levelId>.thinking · <levelId>.hint.<hintId> · <levelId>.feedback.<REASON>
+//   <levelId>.objective · <levelId>.mission · <levelId>.thinking · <levelId>.hint.<hintId> · <levelId>.feedback.<REASON>
 //   <lessonId>.c<n> (1-based card) · <lessonId>.c<n>.explain (quiz) · feedback.<REASON> · ui.<vi.ts key>
 // Only fixed text is voiced; lines with changing numbers are functions in vi.ts and never reach here.
 
@@ -29,6 +29,7 @@ export interface LineIssue {
 const LevelText = z.object({
   id: z.string().min(1),
   objective: z.string().min(1),
+  mission: z.string().min(1).optional(),
   thinkingHint: z.string().min(1).optional(),
   hints: z.array(z.object({ id: z.string().min(1), say: z.string().min(1) })).optional(),
   feedback: z.record(z.string(), z.string().min(1)).optional(),
@@ -94,6 +95,7 @@ export function extractContentLines(
       const l = parsed.data;
       if (l.retired === true) continue;
       add(`${l.id}.objective`, l.objective);
+      if (l.mission !== undefined) add(`${l.id}.mission`, l.mission);
       if (l.thinkingHint !== undefined) add(`${l.id}.thinking`, l.thinkingHint);
       for (const hint of l.hints ?? []) add(`${l.id}.hint.${hint.id}`, hint.say);
       for (const [reason, text] of Object.entries(l.feedback ?? {})) {

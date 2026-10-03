@@ -27,6 +27,7 @@ interface RunSummary {
   blocksUsed: number;
   edits?: number;                 // bughunt
   predictChoice?: string;         // predict
+  goals?: boolean[];              // màn có starGoals (P2-21): RunOutcome.goals, mỗi mục tiêu đạt trên mọi bản đồ chưa; thiếu = chưa đạt
 }
 
 interface LevelSession {          // một phiên màn: từ lúc vào tới lúc rời màn
@@ -50,6 +51,9 @@ interface LedgerEntry {
 ```ts
 computeStars(level: Level, session: LevelSession, winning: RunSummary, progress?: LevelProgress): 0 | 1 | 2 | 3
   // progress (như trước lượt này) để predict đếm lần chọn qua mọi phiên
+  // màn có starGoals (build/bughunt, P2-21): ⭐ thắng; ⭐⭐ + mọi mục tiêu (winning.goals); ⭐⭐⭐ + par/parEdits; rồi trần gợi ý.
+  // màn không có starGoals: luật cũ, không đọc winning.goals
+meetsStarGoals(level, run: RunSummary): boolean   // run.goals đủ một cờ true cho mỗi mục tiêu; true khi màn không có mục tiêu (màn kết quả dùng)
 computeLevelRewards(input: { level; session; winning; progress: LevelProgress | undefined; ledger: LedgerEntry[]; now: Date; profileId })
   : { stars; newProgress: LevelProgress; entries: LedgerEntry[]; newBadges: string[] }
   // entries gồm cả 'daily' và 'streak-7' nếu lượt thắng này là hoạt động đầu tiên của ngày / chạm mốc chuỗi
@@ -140,7 +144,7 @@ interface BadgeContext {
 `evaluateBadges` chỉ trả huy hiệu **mới** (chưa có trong `owned`). `bug-detective` = `{type:'count-levels', minStars:2, mode:'bughunt', gte:5}`. `persistent` do UI phát hiện (≥ 5 lượt thua rồi tự thắng, không mua tầng 2/3) và ghi vào `events`.
 
 ## 6. Kiểm thử bắt buộc
-- Bảng test cho `computeStars` phủ mọi dòng ở `rewards-economy.md` §1 (gồm trần sao do gợi ý, `predict`, `bughunt`).
+- Bảng test cho `computeStars` phủ mọi dòng ở `rewards-economy.md` §1 (gồm trần sao do gợi ý, `predict`, `bughunt`), cả bảng "màn có mục tiêu sao" (build, bughunt, thiếu/sai số cờ `goals`, màn nhiều bản đồ) và kiểm luật cũ không đổi khi màn không có `starGoals`.
 - Thưởng tối đa của một màn = 25 xu.
 - Ghi lại cùng một lượt thắng 2 lần (cùng `runId`) → sổ xu không đổi; hai lượt chơi lại khác nhau trên hai máy → 2 dòng `replay`, trần 5/ngày vẫn đúng sau khi gộp.
 - `localDay` tại 23:59 và 00:01 giờ Việt Nam khi máy để múi giờ UTC.

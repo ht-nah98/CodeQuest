@@ -37,6 +37,40 @@ export const MAX_VARIANTS = 2;
 /** Same pattern as feedback.json keys (coding-standards.md §2). */
 const REASON_CODE = /^[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)*$/;
 
+/**
+ * Star goal kinds (P2-21, rewards-economy.md §1): extra aims that turn ⭐ into ⭐⭐ but never
+ * decide the win. Only what the curriculum uses (curriculum.md §5.4 T19); add a kind here, in
+ * each game kind's `checkStarGoal` and in the search when a level needs it.
+ * - `collectAll`: every bamboo shoot of the map picked up (unlike `config.goal.collectAll`,
+ *   the flag still wins without them).
+ */
+export const STAR_GOAL_KINDS = ['collectAll'] as const;
+export const StarGoalSchema = z.discriminatedUnion('kind', [
+  z.strictObject({ kind: z.literal('collectAll') }),
+]);
+export type StarGoal = z.infer<typeof StarGoalSchema>;
+export type StarGoalKind = StarGoal['kind'];
+
+/**
+ * Picture drawn on the goal cell (P2-11c, curriculum.md §5.0 and §5.4 T17a). Decoration only:
+ * it never changes the rules. Without it the stage draws its kind's default (flag, exit).
+ */
+export const GOAL_SPRITES = [
+  'flag',
+  'machine',
+  'exit',
+  'home',
+  'footprints',
+  'friend',
+  'cage',
+  'dock',
+] as const;
+export const GoalSpriteSchema = z.enum(GOAL_SPRITES);
+export type GoalSprite = z.infer<typeof GoalSpriteSchema>;
+
+/** Game kinds whose map has one goal cell that `goalSprite` can dress up. */
+const GOAL_SPRITE_KINDS: ReadonlySet<string> = new Set(['runner', 'maze']);
+
 const PredictOptionSchema = z.strictObject({
   key: z.string().min(1),
   label: z.string().min(1),
@@ -58,6 +92,10 @@ export const LevelSchema = z
     objective: z.string().min(1),
     learningGoal: z.string().min(1),
     misconception: z.string().min(1).optional(),
+    /** Story line of the level (P2-11c): ≤ 12 words (rule 5), read aloud as `<id>.mission`. */
+    mission: z.string().min(1).optional(),
+    /** Runner and maze only (P2-11c). */
+    goalSprite: GoalSpriteSchema.optional(),
     toolbox: z.array(ToolboxEntrySchema),
     maxBlocks: positiveInt.optional(),
     maxInstances: z.record(z.string().min(1), z.number().int().nonnegative()).optional(),
@@ -69,6 +107,12 @@ export const LevelSchema = z
      * `config` and on every variant. Only modes `build` and `bughunt`.
      */
     variants: z.array(z.unknown()).min(1).max(MAX_VARIANTS).optional(),
+    /**
+     * Star goals (P2-21): with them ⭐⭐ = win + every goal, ⭐⭐⭐ = also ≤ par blocks (bughunt:
+     * ≤ parEdits) and no tier-2/3 hint. A goal must hold on every map. Only modes build and
+     * bughunt; each kind at most once.
+     */
+    starGoals: z.array(StarGoalSchema).min(1).max(STAR_GOAL_KINDS.length).optional(),
     initialWorkspace: ContentWorkspaceJsonSchema.optional(),
     solution: ContentWorkspaceJsonSchema.optional(),
     predict: z
@@ -135,6 +179,33 @@ export const LevelSchema = z
         code: 'custom',
         path: ['variants'],
         message: '"variants" only fits modes build and bughunt',
+      });
+    }
+    if (level.starGoals !== undefined) {
+      if (level.mode !== 'build' && level.mode !== 'bughunt') {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['starGoals'],
+          message: '"starGoals" only fits modes build and bughunt',
+        });
+      }
+      const kinds = new Set<string>();
+      level.starGoals.forEach((goal, index) => {
+        if (kinds.has(goal.kind)) {
+          ctx.addIssue({
+            code: 'custom',
+            path: ['starGoals', index, 'kind'],
+            message: `duplicate star goal "${goal.kind}"`,
+          });
+        }
+        kinds.add(goal.kind);
+      });
+    }
+    if (level.goalSprite !== undefined && !GOAL_SPRITE_KINDS.has(level.kind)) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['goalSprite'],
+        message: '"goalSprite" only fits kinds runner and maze',
       });
     }
     const ids = new Set<string>();

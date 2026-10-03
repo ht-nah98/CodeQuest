@@ -1,4 +1,4 @@
-import type { ReasonCode, RunResult } from '@codequest/content-schema';
+import type { ReasonCode, RunResult, StarGoal, StarGoalKind } from '@codequest/content-schema';
 import { cellKey, tileAt, type MazeState } from './state';
 
 /**
@@ -34,4 +34,15 @@ export function mazePredictAnswer(
     default:
       return outcome.result;
   }
+}
+
+/** How each star goal kind is judged on a final state (P2-21, ADR-0017). */
+const STAR_GOALS: Readonly<Record<StarGoalKind, (state: MazeState) => boolean>> = {
+  // Every bamboo shoot picked up; a map without bamboo meets it.
+  collectAll: (state) => state.collected.size === state.bambooTotal,
+};
+
+/** Star goals (P2-21) on the final state of one map. */
+export function mazeStarGoal(goal: StarGoal, state: MazeState): boolean {
+  return STAR_GOALS[goal.kind](state);
 }

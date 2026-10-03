@@ -37,9 +37,9 @@ function cli(name: string): { status: number; output: string } {
 }
 
 describe('content:check fixtures', () => {
-  it('has exactly one fixture for each of the 18 rules', () => {
+  it('has exactly one fixture for each of the 19 rules', () => {
     expect(ruleFixtures.map((fixture) => fixture.rule)).toEqual(
-      Array.from({ length: 18 }, (_, index) => index + 1),
+      Array.from({ length: 19 }, (_, index) => index + 1),
     );
   });
 
@@ -87,6 +87,21 @@ describe('content:check fixtures', () => {
     expect(report.warnings.map((issue) => issue.rule)).toEqual([8]);
     expect(report.issues.map((issue) => issue.rule)).toEqual([1]);
     expect(report.issues[0]?.message).toContain('"variants" only fits modes build and bughunt');
+  });
+
+  it('rule-19-star-goal-missed reports the solution that wins without the shoot (P2-21)', () => {
+    const report = check('rule-19-star-goal-missed');
+    expect(report.issues.map((issue) => issue.message)).toEqual([
+      'solution wins but misses star goal "collectAll"',
+    ]);
+  });
+
+  it('extra-04-star-goal-redundant reports rule 19: config.goal.collectAll already requires it', () => {
+    const report = check('extra-04-star-goal-redundant');
+    expect(report.warnings).toEqual([]);
+    expect(report.issues.map((issue) => issue.message)).toEqual([
+      'star goal "collectAll" adds nothing: config.goal.collectAll already requires every shoot to win',
+    ]);
   });
 
   it('exits 0 on the baseline, 0 on warnings only and 1 on errors', () => {

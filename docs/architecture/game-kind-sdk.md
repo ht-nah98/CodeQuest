@@ -38,6 +38,13 @@ export interface GameKindDefinition<C, S, E extends GameEvent> {
 
   /** Cho mode predict: mô tả kết quả thành một khóa so sánh được (định dạng ở product/game-kinds.md). */
   predictAnswer(state: S, outcome: { result: RunResult; reasonCode: ReasonCode | null }): string;
+
+  /**
+   * Tùy chọn (P2-21, ADR-0017): trạng thái cuối của một lượt chạy trên một bản đồ có đạt mục tiêu sao
+   * `goal` không. Thuần, chỉ đọc state (và config). Không có hàm này = kiểu game không hỗ trợ
+   * `starGoals` (content:check luật 19). runner, maze: `collectAll` = đã nhặt hết măng của bản đồ.
+   */
+  checkStarGoal?(goal: StarGoal, state: S, config: C): boolean;
 }
 
 /** Event cơ sở. Mọi event của kiểu game mở rộng từ đây (discriminated union theo `type`). */
@@ -199,3 +206,4 @@ Từng bước ở `docs/playbooks/add-game-kind.md`. Tóm tắt:
 3. **API không dùng `ctx.rng`:** ngẫu nhiên chỉ được dùng trong `createState`. Vi phạm → cả màn báo ⚠ `unsearchable`.
 4. **State là dữ liệu thuần:** object, mảng, `Set`, `Map`, số, chuỗi, boolean (`structuredClone` sao được và so sánh được bằng nội dung). Không có hàm, class instance hay tham chiếu vòng.
 5. `maxSteps` / `maxActions` chỉ được kiểm ở bước chạy lại ví dụ bằng `runLevel`; lệch thì báo ✖ `runLevel disagrees`.
+6. **Mục tiêu sao chỉ đọc state** (P2-21): `checkStarGoal` chỉ dựa vào trạng thái cuối và config, nên vét cạn chấm được trạng thái phát lại. Thông tin cần cho mục tiêu phải nằm trong state. Đừng thêm bộ đếm tăng mãi (số bước, số lần đá…) vào state chỉ để chấm: mỗi giá trị đếm là một trạng thái mới, vét cạn mất khả năng gộp trạng thái và chậm theo cấp số nhân. Mục tiêu kiểu "≤ N bước" cần cách tìm riêng (ADR-0017).

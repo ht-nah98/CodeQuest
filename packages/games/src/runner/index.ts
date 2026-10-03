@@ -1,7 +1,7 @@
 import type { GameKindDefinition } from '@codequest/engine';
 import { runnerBlocks } from './blocks';
 import { runnerConfigSchema, type RunnerConfig } from './config';
-import { evaluateRunner, runnerPredictAnswer } from './evaluate';
+import { evaluateRunner, runnerPredictAnswer, runnerStarGoal } from './evaluate';
 import type { RunnerEvent } from './events';
 import { RUNNER_REASONS } from './reasons';
 import { createRunnerApi } from './sim';
@@ -18,6 +18,7 @@ export const runner: GameKindDefinition<RunnerConfig, RunnerState, RunnerEvent> 
   createApi: createRunnerApi,
   evaluate: evaluateRunner,
   predictAnswer: runnerPredictAnswer,
+  checkStarGoal: runnerStarGoal,
 };
 
 export {

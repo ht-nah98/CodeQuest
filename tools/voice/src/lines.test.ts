@@ -48,6 +48,19 @@ describe('extractContentLines', () => {
     expect(lines[0]?.source).toBe('shared/feedback.json');
   });
 
+  it('voices the mission line as <id>.mission (P2-11c)', () => {
+    const { lines } = extractContentLines([
+      file('worlds/w03-xuong/levels/w03-l11.json', {
+        ...level,
+        id: 'w03-l11',
+        mission: 'Tự ghép chương trình cho máy mới của Hổ.',
+      }),
+    ]);
+    expect(lines.find((line) => line.id === 'w03-l11.mission')?.text).toBe(
+      'Tự ghép chương trình cho máy mới của Hổ.',
+    );
+  });
+
   it('skips sandbox worlds, retired levels and worlds outside --worlds', () => {
     const { lines } = extractContentLines(
       [

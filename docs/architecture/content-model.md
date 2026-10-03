@@ -39,7 +39,7 @@ content/
 | Block type | `<kind>_<verb>` hoặc `cq_<tên>` cho khối chung | `runner_jump`, `cq_repeat`, `cq_start` |
 | Badge | kebab-case | `loop-master` |
 | Shop item | `<loại>-<slug>` | `skin-astro-panda`, `fx-confetti` |
-| Câu thoại có giọng đọc | `<id>.<khóa>` (chỉ chữ, số, `.` `_` `-`; là tên file) | `w01-l03.objective` · `w01-l03.thinking` · `w01-l03.hint.<hintId>` · `w01-l03.feedback.<REASON>` (câu feedback riêng của màn) · `w01-lesson.c<n>` (thẻ thứ n, **đếm từ 1**) · `w01-lesson.c<n>.explain` (giải thích của thẻ quiz) · `feedback.FELL_IN_HOLE` · `ui.<khóa trong vi.ts>`. Danh sách đầy đủ: `npm run voice -- lines` (`docs/architecture/audio.md` §5) |
+| Câu thoại có giọng đọc | `<id>.<khóa>` (chỉ chữ, số, `.` `_` `-`; là tên file) | `w01-l03.objective` · `w03-l11.mission` · `w01-l03.thinking` · `w01-l03.hint.<hintId>` · `w01-l03.feedback.<REASON>` (câu feedback riêng của màn) · `w01-lesson.c<n>` (thẻ thứ n, **đếm từ 1**) · `w01-lesson.c<n>.explain` (giải thích của thẻ quiz) · `feedback.FELL_IN_HOLE` · `ui.<khóa trong vi.ts>`. Danh sách đầy đủ: `npm run voice -- lines` (`docs/architecture/audio.md` §5) |
 
 ID **không bao giờ đổi** sau khi đã có bé chơi, vì tiến độ gắn với ID. Muốn bỏ màn: đặt `"retired": true`.
 
@@ -72,6 +72,8 @@ interface Level {
   objective: string;                        // ≤ 12 chữ, Măng đọc khi vào màn
   learningGoal: string;                     // cho huấn luyện viên đọc
   misconception?: string;                   // bắt buộc với guided/practice
+  mission?: string;                         // dòng nhiệm vụ ≤ 12 chữ (luật 5), giọng đọc `<id>.mission` (P2-11c, curriculum.md §5.0)
+  goalSprite?: GoalSprite;                  // hình đích, chỉ runner/maze, chỉ để vẽ: 'flag' | 'machine' | 'exit' | 'home' | 'footprints' | 'friend' | 'cage' | 'dock'
   toolbox: ToolboxEntry[];                  // rỗng với parsons/predict
   maxBlocks?: number;
   maxInstances?: Record<string, number>;
@@ -79,6 +81,7 @@ interface Level {
   parEdits?: number;                        // bughunt, mặc định 1
   config: unknown;                          // kiểm bằng configSchema của kind; điều kiện thắng phụ (vd goal.collectAll) nằm TRONG config
   variants?: unknown[];                     // 1–2 bản đồ thêm, cùng kind (P2-12, ADR-0016); chỉ build/bughunt; chương trình phải thắng MỌI bản đồ
+  starGoals?: StarGoal[];                   // mục tiêu ⭐ (P2-21, ADR-0017); chỉ build/bughunt; StarGoal = { kind: 'collectAll' }
   initialWorkspace?: WorkspaceJson;         // bắt buộc với parsons (khối xáo trộn), predict, bughunt
   solution?: WorkspaceJson;                 // bắt buộc trừ predict/creative
   predict?: { options: Array<{ key: string; label: string }>; };  // key theo predictAnswer; label ≤ 4 chữ; hình vẽ từ key + config (AnswerPicture, stage-rendering.md §4); đáp án đúng do engine tính
@@ -114,6 +117,8 @@ Ghi chú cài đặt schema (P0-02):
 - Schema Level tự kiểm các trường bắt buộc mà engine cần: `par` (build/parsons), `initialWorkspace` (parsons/predict/bughunt), `solution` (trừ predict/creative), `predict` (chỉ và bắt buộc với predict, 3–4 phương án), `parEdits` chỉ cho bughunt, `id` của hint không trùng trong màn. Các luật sư phạm (`misconception`, `thinkingHint`, số chữ) vẫn thuộc luật 5–6.
 - `variants` (P2-12, ADR-0016): 1–2 phần tử, mỗi phần tử là một config đầy đủ của cùng kind ("Bản đồ 2", "Bản đồ 3"; `config` là "Bản đồ 1"). Chỉ mode `build` và `bughunt`; ở `parsons`, `predict`, `creative` schema báo lỗi luật 1. Vật phẩm, `goal` … khai báo riêng trong config của từng bản đồ.
 - **Bài "Khối mới"** (`lesson.beforeLevel`, góp ý HLV 03/10/2026): một bài giảng ngắn cho **một khối hành động mới**, hiện trên trang thế giới như một quyển sách nhỏ gắn ở viên đá của màn đầu tiên dùng khối đó (`design/screens-and-flows.md`) (thường là màn có gợi ý `enter` "Khối mới: …"). ID `w<NN>-lesson-<slug>` (vd `w01-lesson-nhay`), liệt kê trong `world.lessonIds` **sau** bài mở đầu. Thẻ `demo` của bài cho thấy Măng **đứng ở đâu** sau khối (đi 1 ô, cúi đi 1 ô, nhảy bay qua 1 ô đáp xuống ô thứ 2, đá đứng yên, rẽ quay tại chỗ); `tools/content-check/src/blockLessons.test.ts` chạy từng demo và kiểm ô Măng dừng. Bài mở đầu (`lessonIds[0]`, không có `beforeLevel`) vẫn là bài duy nhất khóa màn 1; bài "Khối mới" **không khóa** màn của nó (Măng nhắc "Có khối mới!" và quyển sách nhấp nháy, `coach-questions.md` F10). Vì sao không làm thẻ mới trong màn chơi: giữ nội dung là dữ liệu, không thêm UI vào màn chơi, dùng lại thẻ `demo` sẵn có; lời giới thiệu ngay trong màn vẫn là gợi ý tầng 0 `enter` "Khối mới: …" (luật 7).
+- **Mục tiêu sao** `starGoals` (P2-21, ADR-0017, luật sao ở `rewards-economy.md` §1): 1 phần tử trở lên, mỗi loại tối đa một lần, chỉ mode `build` và `bughunt` (khác → lỗi luật 1). Loại hiện có: `{ "kind": "collectAll" }` = nhặt hết măng (`config.bamboo` ở runner, ô `b` ở maze) của **mỗi** bản đồ; bản đồ không có măng tự đạt. Khác `config.goal.collectAll` (điều kiện thắng): mục tiêu sao **không** chặn cờ, Măng vẫn thắng khi bỏ sót măng, chỉ mất ⭐⭐. Muốn mục tiêu ở một bản đồ thì chỉ đặt măng ở bản đồ đó. Engine chấm trên trạng thái cuối (`RunOutcome.goals`, `runtime-engine.md` §7).
+- `mission` (dòng nhiệm vụ, ≤ 12 chữ, luật 5) và `goalSprite` (chỉ `runner`/`maze`, khác → lỗi luật 1) là P2-11c: chỉ để kể chuyện và vẽ, **không** đổi luật chơi hay cách chấm.
 - `world.unlock.minStarRatio` bắt buộc ghi rõ (giá trị chuẩn 0.6, `rewards-economy.md` §3).
 - Quiz: 2–4 phương án, `correct` phải là chỉ số hợp lệ.
 - **Block id trong nội dung** (`solution`, `initialWorkspace`, `workspace` của thẻ demo) dùng `ContentWorkspaceJsonSchema`: **mọi** khối, kể cả khối lồng trong `next`/`inputs` và shadow, phải có `id` khớp `^[A-Za-z0-9_\-.:]+$` và không trùng trong cùng workspace. Lý do: thiếu id thì Blockly sinh id ngẫu nhiên (event log không tất định, highlight của bài predict lệch giữa engine và UI); ký tự lạ (`'`, `\`, xuống dòng, U+2028) dễ làm hỏng code sinh ra. Kiểm ở schema (luật 1) chứ không chỉ ở luật 2, vì đây là điều kiện để nội dung chạy đúng. `WorkspaceJsonSchema` dùng cho dữ liệu lúc chạy (bài làm dở, IndexedDB) vẫn lỏng: `Blockly.serialization.workspaces.save` sinh id có ký tự ngoài bảng trên. Kiểu TS của các trường này vẫn là `WorkspaceJson`.
@@ -153,7 +158,7 @@ Kiểm tay: ô 0 → đi 1 → nhảy 3 → đi 4 → nhảy 6 → đi 7 → nh�
 ## 5. Luật của `content:check` (`tools/content-check`)
 Chạy `npm run content:check`. Báo lỗi (exit 1) nếu vi phạm bất kỳ luật nào:
 
-> Luật **cấp màn** (1, 2 mẫu ID, 5–6, 9–16) cài trong `@codequest/validator` (`validateLevel`), dùng chung với level editor trong trình duyệt. `tools/content-check` đọc file, kiểm luật liên file (2 tên file/trùng ID, 3–4, 7–8, 17–18) và in bảng (ADR-0015).
+> Luật **cấp màn** (1, 2 mẫu ID, 5–6, 9–16, 19) cài trong `@codequest/validator` (`validateLevel`), dùng chung với level editor trong trình duyệt. `tools/content-check` đọc file, kiểm luật liên file (2 tên file/trùng ID, 3–4, 7–8, 17–18) và in bảng (ADR-0015).
 
 **Cấu trúc**
 1. Mọi file đúng schema zod. `level.config` đúng `configSchema` của `kind`.
@@ -162,7 +167,7 @@ Chạy `npm run content:check`. Báo lỗi (exit 1) nếu vi phạm bất kỳ l
 4. Mỗi world có ≥ 1 lesson, đúng 1 `boss`, tối đa 1 `creative`.
 
 **Sư phạm**
-5. `objective` ≤ 12 chữ; `title` ≤ 5 chữ; mọi câu `say` trong hint ≤ 12 chữ.
+5. `objective` ≤ 12 chữ; `title` ≤ 5 chữ; `mission` ≤ 12 chữ; mọi câu `say` trong hint ≤ 12 chữ.
 6. `guided`/`practice` phải có `misconception`. Mọi màn trừ `creative` có `thinkingHint`.
 7. Khối xuất hiện lần đầu **trong toàn bộ chương trình học** (theo thứ tự `world.order`, rồi `levelIds`) phải ở màn `guided` hoặc `practice`, và màn đó có hint chỉ vào khối: `point: "toolbox:<type>"` (mode `build`) hoặc `point: "block:<type>"` (mode `parsons`). Mode `predict`/`bughunt` không được là nơi khối xuất hiện lần đầu. **Lỗi** (không chỉ cảnh báo). Thêm **cảnh báo** (góp ý HLV 03/10/2026): khối hành động (nhóm `move` trong `BlockSpec`) xuất hiện lần đầu mà không gợi ý nào của màn có `say` chứa nhãn khối (vd "nhảy") → `no hint names "<nhãn>" and says what it does` (`conventions/content-authoring.md` §5.1).
 8. Mỗi mode `build`, `parsons`, `predict`, `bughunt` xuất hiện ≥ 1 lần trong mỗi world; không quá 3 màn `build` liền nhau. Vi phạm thì chỉ báo **cảnh báo**.
@@ -177,6 +182,9 @@ Chạy `npm run content:check`. Báo lỗi (exit 1) nếu vi phạm bất kỳ l
 15. `predict`: chạy `initialWorkspace` lấy `answerKey`, phải trùng đúng 1 `options[].key`; số phương án 3–4.
 16. Hint: `point: "toolbox:<type>"` phải trỏ tới khối có trong toolbox; `point: "block:<type>"` phải trỏ tới khối có trong `initialWorkspace` hoặc `solution`; `when.lastReason` phải là reasonCode có thật của `kind` hoặc của engine.
 17. Mọi reasonCode của engine (`ENGINE_REASONS`) và của mọi kind có câu trong `content/shared/feedback.json` (nguồn duy nhất của câu phản hồi).
+
+**Mục tiêu sao** (P2-21)
+19. Màn có `starGoals`: kiểu game chấm được mục tiêu sao (`checkStarGoal`); không mục tiêu nào **đã đạt sẵn trên mọi bản đồ** trước khi Măng đi (vd `collectAll` mà không bản đồ nào có măng); `collectAll` không thừa (mọi bản đồ có măng đều đã đặt `config.goal.collectAll`, nên thắng là đạt); `solution` thắng thì phải đạt **mọi** mục tiêu trên **mọi** bản đồ. Chứng minh `par` đúng theo mục tiêu là việc của `npm run par` (§8).
 
 **Tài sản**
 18. Asset được tham chiếu (`theme.tileset`, `image`, `shop.asset`) tồn tại trong `apps/web/public/`.
@@ -197,6 +205,7 @@ Cách hiểu chi tiết (cài đặt ở P1-11):
 - **Luật 15:** số phương án 3–4 và khóa không trùng đã do schema (luật 1) kiểm.
 - **Luật 16:** `lastReason` được đọc cả trong `all`/`any`/`not` lồng nhau.
 - **Luật 17:** có màn mà thiếu `shared/feedback.json` cũng là lỗi luật 17.
+- **Luật 19:** lỗi ghi `rule 19: solution wins but misses star goal "collectAll"` (màn nhiều bản đồ thêm `on map 2`, đếm từ 1), `star goal "collectAll" already holds before Măng moves on every map`, `star goal "collectAll" adds nothing: config.goal.collectAll already requires every shoot to win`, hoặc `game kind "x" has no star goals`. Lời giải thua thì chỉ luật 9 báo. Dòng ✔ ghi thêm `goals N`. Fixture: `rule-19-star-goal-missed/`, `extra-04-star-goal-redundant/`.
 - **Luật 18:** đường dẫn phải bắt đầu bằng `/` (tính từ `apps/web/public/`) và không thoát ra ngoài thư mục đó. Kiểm `world.theme.tileset`, `world.theme.music`, `image` của thẻ bài giảng, `asset` của vật phẩm cửa hàng.
 
 ## 6. Phiên bản luật chơi
@@ -208,6 +217,7 @@ Cách hiểu chi tiết (cài đặt ở P1-11):
 - **P0-07:** thêm luật 9–11 cho `runner`. Luật 9 chạy `runLevel(solution)` đúng mode của màn; khi thua, chạy lại ở mode `predict` để in chỗ dừng, vd `rule 9: solution ends crash FELL_IN_HOLE (crash:FELL_IN_HOLE@2)`. Luật 11 đọc mọi khối (không tính shadow) trong JSON của `solution`, kể cả khối rời và khối lồng trong `inputs`. `world.json` của `w01-lang-tre` lúc này là **bản tạm**: chỉ liệt kê các màn đã có (`w01-l03`), `lessonIds` rỗng. Bổ sung dần khi soạn đủ Thế giới 1 (P1-12).
 - **P1-11:** đủ 18 luật, fixture cho từng luật (`tools/content-check/fixtures/`), tùy chọn `--dir`. **Thế giới tạm:** bảng `PROVISIONAL_WORLDS` trong `tools/content-check/src/curriculum.ts` ghi các thế giới mà `world.json` còn là bản tạm (từ P1-12 bảng đang rỗng; `w01-lang-tre` đã đủ bài giảng và boss). Với chúng, luật 4 và 7 chỉ **cảnh báo** (kèm chữ `provisional world until P1-12`) thay vì báo lỗi, vì thế giới còn thiếu bài giảng, boss và các màn đầu (vd `runner_walk` sẽ được giới thiệu ở `w01-l01`). Mọi luật khác vẫn là lỗi như thường. Không thêm trường mới vào schema cho việc này. Thế giới nào mới dựng dở có thể tạm thêm vào bảng, và phải xóa khi đủ bài giảng và boss.
 - **P2-12:** trường `variants` (màn nhiều bản đồ, ADR-0016); luật 1, 9, 14 xét mọi bản đồ; hai fixture `extra-02`, `extra-03`. Output của màn một bản đồ không đổi.
+- **P2-21 + P2-11c:** trường `starGoals`, `mission`, `goalSprite`; luật 5 đếm chữ `mission`; thêm **luật 19** (mục tiêu sao) và fixture `rule-19-star-goal-missed/`. Dòng tổng kết in `rules 1–19`; output của mọi màn không có `starGoals` không đổi.
 - **P2-15:** luật cấp màn chuyển sang package headless `@codequest/validator` (`validateLevel`); `content:check` cho output y hệt trước khi tách (đã so trên `content/` và cả 19 fixture). Thêm `npm run par` (§8).
 
 ## 8. Vét cạn `par` (`npm run par`)
@@ -216,6 +226,7 @@ Cách hiểu chi tiết (cài đặt ở P1-11):
 - **Màn `build`:** tìm theo số khối tăng dần tới `par` (không vượt `maxBlocks`); báo số khối nhỏ nhất, **số chương trình** thắng với số khối đó và vài ví dụ (mỗi trạng thái mô phỏng một ví dụ, nên số ví dụ có thể ít hơn số chương trình).
 - **Màn `bughunt`:** như trên (chỉ để biết), và tìm theo số lần sửa (`editDistance`) tăng dần tới `parEdits`: báo số lần sửa ít nhất và số cách sửa. Lần sửa chỉ được **thêm/đổi thành** khối có trong toolbox; khối chỉ có trong `initialWorkspace` thì giữ hoặc xóa. Cách sửa chỉ thêm một vòng lặp rỗng không được tính.
 - `parsons`, `predict`, `creative`: bỏ qua (khối đã cho sẵn).
+- **Màn có mục tiêu sao** (`starGoals`, P2-21): chỉ chương trình (hoặc cách sửa) **vừa thắng vừa đạt mọi mục tiêu trên mọi bản đồ** mới được tính, vì `par` / `parEdits` của màn này là mức ⭐⭐⭐. Trong vét cạn, lượt thắng mà thiếu mục tiêu được coi là thua (mục tiêu chấm bằng `checkStarGoal` trên trạng thái lúc thắng). CLI tìm thêm lần nữa **bỏ qua mục tiêu** (`ignoreStarGoals`) để in đánh đổi: `✔ w03-l11 runner/build  par 7  min (goals) 7 (68 shortest) · plain win 5 (32)`, kèm ví dụ `plain win: …`. Mức báo ✖/⚠ xét theo số có mục tiêu (`par 5 is too high`… ghi thêm `(goals)`; `no win (goals) ≤ 5 blocks`). Bughunt ghi `fix (goals) N`. Màn không có `starGoals` in y như trước (đã so `--world w01`, `--world w02`).
 - **Màn nhiều bản đồ** (`variants`, P2-12): chỉ chương trình (hoặc cách sửa) **thắng mọi bản đồ** mới được tính. Trạng thái tìm là bộ trạng thái của từng bản đồ (bản đồ đã thắng giữa chừng giữ nguyên là thắng); thua một bản đồ là loại ngay. Dòng kết quả ghi `maps N`, vd `✔ runner-maps runner/build  maps 3  par 3  min 3 (18 shortest)`. Màn một bản đồ tìm y như trước (cùng số trạng thái, cùng kết quả). Số bộ trạng thái có trần `MAX_TUPLE_STATES` (1 triệu, khoảng 100 MB): vượt trần thì dừng như hết ngân sách (`search stopped`, kết quả tối đa ⚠).
 - **Mức báo:** ✖ chỉ khi chắc chắn: có chương trình thật ít khối hơn `par`; `runLevel` không đồng ý với kết quả tìm; hoặc tìm **hết** (đủ ngân sách, mọi khối toolbox đều tìm được) mà không thắng trong `par` / không sửa được trong `parEdits`. Mọi trường hợp chưa chắc tối đa là ⚠: hết ngân sách, có khối không tìm được, kiểu game không phát lại được (API dùng `ctx.rng`), hoặc màn bughunt sửa được với ít lần hơn `parEdits`. Exit 1 khi có ✖.
 - **Tất định và giới hạn:** cùng màn và tùy chọn ⇒ cùng kết quả. Giới hạn bằng ngân sách công việc (`maxWork`, mặc định `DEFAULT_MAX_WORK` = 20 triệu; level editor trong Web Worker nên dùng `WORKER_MAX_WORK` = 2 triệu, đủ cho mọi `par` build W1–W2 và sửa ≤ 2 lần). Hết ngân sách hoặc quá `--timeout` thì **luôn** in dòng `search stopped …`; số khối / số lần sửa nhỏ nhất vẫn chính xác nếu đã tìm thấy (các mức nhỏ hơn đã tìm hết), còn số đếm có dấu `≥`. Mọi ví dụ in ra đều được chạy lại bằng `runLevel`.

@@ -22,6 +22,7 @@ Trạng thái: **Đề xuất** → **Chấp nhận** → (**Đã bị thay th�
 | [0014](0014-tailwind-tokens-motion.md) | Tailwind 4 + CSS variables + Motion | Chấp nhận |
 | [0015](0015-validator-package.md) | Package headless `validator`: luật cấp màn + vét cạn `par` | Chấp nhận |
 | [0016](0016-multi-map-levels.md) | Màn nhiều bản đồ (`variants`): một chương trình thắng mọi bản đồ | Chấp nhận |
+| [0017](0017-star-goals.md) | Mục tiêu sao (`starGoals`): chấm trên trạng thái cuối, đạt trên mọi bản đồ | Chấp nhận |
 
 ## Mẫu
 ```markdown

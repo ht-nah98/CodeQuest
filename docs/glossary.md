@@ -40,9 +40,9 @@ Dùng **đúng** các từ này. Cột "Trong code" là tên dùng cho type, bi�
 | Từng bước | nút `step` (`vi.play.step`, đã có); điểm gợi ý `step` (đề xuất, P2-11 thêm vào `HintTargetSchema`) | Nút chạy từng khối một, dùng để tìm khối gây lỗi (Thế giới 3) |
 | Lỗi (đề xuất) | `bug` | Khối làm chương trình chạy khác ý. "Sửa lỗi", "Săn lỗi" (mode `bughunt`) |
 | Bản đồ 1 · 2 · 3 | `level.variants` (P2-12) | Màn nhiều bản đồ: một chương trình phải thắng mọi bản đồ |
-| Nhiệm vụ (đề xuất) | `level.mission` (P2-11) | Câu ≤ 12 chữ nói Măng đang làm gì cho ai (vd "Lấy chìa khóa, mở lồng cứu Bông!"). Chỉ để tạo động lực, không đổi luật. Từ Thế giới 3 |
-| Hình đích (đề xuất) | `goalSprite` | Hình vẽ ở ô đích: cờ, máy, cửa ra, nhà, dấu chân, bạn, lồng, bến đò. Chỉ để trang trí |
-| Mục tiêu ⭐ | `starGoals` (P2-21) | Mục tiêu thêm để được ⭐⭐ (vd nhặt đủ măng), hiện ở thẻ "Mục tiêu ⭐". Luật: `product/rewards-economy.md` §1 |
+| Nhiệm vụ | `level.mission` (P2-11c) | Câu ≤ 12 chữ nói Măng đang làm gì cho ai (vd "Lấy chìa khóa, mở lồng cứu Bông!"). Chỉ để tạo động lực, không đổi luật. Từ Thế giới 3. `content:check` luật 5 đếm chữ |
+| Hình đích | `level.goalSprite` (P2-11c): `flag` cờ · `machine` máy · `exit` cửa ra · `home` nhà · `footprints` dấu chân · `friend` bạn · `cage` lồng · `dock` bến đò | Hình vẽ ở ô đích, chỉ runner và maze. Chỉ để trang trí |
+| Mục tiêu ⭐ (mục tiêu sao) | `level.starGoals` (P2-21), loại `collectAll` "nhặt đủ măng" | Mục tiêu thêm của màn build/bughunt, hiện ở thẻ "Mục tiêu ⭐": **không** quyết định thắng, chỉ quyết định ⭐⭐/⭐⭐⭐. Màn nhiều bản đồ: phải đạt trên mọi bản đồ. Luật: `product/rewards-economy.md` §1 |
 | Sự kiện | `GameEvent` | Một hành động mô phỏng ghi vào log (vd `{type:'walk', blockId, from, to}`) |
 | Nhật ký chạy | `eventLog` | Danh sách sự kiện của một lượt chạy |
 | Phát lại | `playback` | Diễn hoạt cảnh từ event log trên sân chơi |

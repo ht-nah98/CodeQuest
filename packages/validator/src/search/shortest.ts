@@ -16,7 +16,9 @@ import {
   DEFAULT_MAX_EXAMPLES,
   DEFAULT_REPEAT_TIMES,
   SearchAborted,
+  countedWin,
   searchableKind,
+  searchedLevel,
   type SearchOptions,
 } from './budget';
 import { formatProgram, programToWorkspace, type Program, type Statement } from './program';
@@ -200,10 +202,15 @@ class ShortestSearch {
 
 /**
  * Finds the fewest blocks that win `level` with its toolbox (modes build, parsons, bughunt),
- * how many programs of that size win, and a few examples verified with `runLevel`.
+ * how many programs of that size win, and a few examples verified with `runLevel`. On a level
+ * with `starGoals` a win must also meet every goal, unless `options.ignoreStarGoals`.
  * Throws for modes without a program (predict, creative) and unknown kinds.
  */
-export function findShortestPrograms(level: Level, options: ShortestOptions = {}): ShortestResult {
+export function findShortestPrograms(
+  original: Level,
+  options: ShortestOptions = {},
+): ShortestResult {
+  const level = searchedLevel(original, options);
   const kind = searchableKind(level, options);
   const sim = new FastSim(kind, level);
   const budget = new Budget(options);
@@ -275,9 +282,10 @@ export function findShortestPrograms(level: Level, options: ShortestOptions = {}
     const workspace = programToWorkspace(program);
     const outcome = runLevel({ kind, level, workspace });
     const blocks = analyzeWorkspace(workspace).blocksUsed;
-    if (outcome.result !== 'success' || blocks !== minBlocks) {
+    if (!countedWin(outcome) || blocks !== minBlocks) {
+      const missed = outcome.result === 'success' && !countedWin(outcome) ? ' misses a goal' : '';
       mismatches.push(
-        `${formatProgram(program)}: runLevel ${outcome.result} ${outcome.reasonCode ?? ''}, ${String(blocks)} blocks`.trim(),
+        `${formatProgram(program)}: runLevel ${outcome.result} ${outcome.reasonCode ?? ''}${missed}, ${String(blocks)} blocks`.trim(),
       );
     }
   }

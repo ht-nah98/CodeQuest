@@ -5,6 +5,11 @@
  * engine, so the generators stay the single source of truth. Results that matter are always
  * re-checked with `runLevel` (shortest.ts, fixes.ts), which also applies maxSteps / maxActions.
  *
+ * A level with `starGoals` (P2-21) only counts a win that meets every goal on its map: a win
+ * that misses one is a loss here, so the shortest "win" is the par under goals. Search the
+ * level without `starGoals` for plain wins. Goals are judged with `kind.checkStarGoal` on the
+ * final state, so they must depend on the state only (game-kind-sdk.md §4).
+ *
  * A level with `variants` (P2-12) is searched on every map at once: a search state is the tuple
  * of the per-map states, a program wins when it wins every map and loses as soon as one map is
  * lost. A level with one map uses its map's states directly (no tuple layer).
@@ -349,9 +354,17 @@ export class FastSim {
       }
     } catch (error) {
       if (error instanceof UnsearchableLevel) throw error;
-      return error instanceof StopSignal && error.result === 'success' ? WIN_STATE : LOSS_STATE;
+      const won = error instanceof StopSignal && error.result === 'success';
+      return won && this.meetsGoals(map, ctx.state) ? WIN_STATE : LOSS_STATE;
     }
     return ctx.state;
+  }
+
+  /** Whether a final state of one map meets every star goal (true without `starGoals`). */
+  meetsGoals(map: MapSim, state: unknown): boolean {
+    const goals = this.level.starGoals;
+    if (goals === undefined) return true;
+    return goals.every((goal) => this.kind.checkStarGoal?.(goal, state, map.config) ?? false);
   }
 
   /** Outcome key of replaying calls once from the initial state (for the block-id check). */
@@ -432,7 +445,7 @@ class MapSim {
     private readonly owner: FastSim,
     /** The level with this map as its `config` (what the API sees as `ctx.level`). */
     readonly level: Level,
-    private readonly config: unknown,
+    readonly config: unknown,
   ) {
     const rng = mulberry32(fnv1a(level.id));
     this.initial = this.intern(owner.kind.createState(config, rng));
@@ -470,9 +483,11 @@ class MapSim {
   finish(state: number): boolean {
     const known = this.finals[state];
     if (known !== undefined) return known;
+    const snapshot = structuredClone(this.snapshots[state]);
     const result =
       this.level.mode === 'creative' ||
-      this.owner.kind.evaluate(structuredClone(this.snapshots[state]), this.config).success;
+      (this.owner.kind.evaluate(snapshot, this.config).success &&
+        this.owner.meetsGoals(this, snapshot));
     this.finals[state] = result;
     return result;
   }

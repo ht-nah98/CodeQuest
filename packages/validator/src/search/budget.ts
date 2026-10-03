@@ -20,6 +20,11 @@ export interface SearchOptions {
   shouldStop?: () => boolean;
   /** Game kind registry; defaults to `getGameKind` of `@codequest/games`. */
   getKind?: GameKindLookup;
+  /**
+   * Count every win, as if the level had no `starGoals` (P2-21). Default false: on a level with
+   * star goals only wins that meet every goal on every map count (its `par` / `parEdits`).
+   */
+  ignoreStarGoals?: boolean;
 }
 
 export const DEFAULT_MAX_DEPTH = 2;
@@ -69,4 +74,17 @@ export function searchableKind(level: Level, options: SearchOptions): AnyGameKin
   const kind = (options.getKind ?? getGameKind)(level.kind);
   if (kind === undefined) throw new Error(`game kind "${level.kind}" is not implemented yet`);
   return kind;
+}
+
+/** The level a search runs on: without `starGoals` when `ignoreStarGoals` is set. */
+export function searchedLevel(level: Level, options: SearchOptions): Level {
+  if (options.ignoreStarGoals !== true || level.starGoals === undefined) return level;
+  const plain = { ...level };
+  delete plain.starGoals;
+  return plain;
+}
+
+/** Whether a `runLevel` outcome is a win the search counts (every star goal met, if any). */
+export function countedWin(outcome: { result: string; goals?: boolean[] }): boolean {
+  return outcome.result === 'success' && (outcome.goals ?? []).every((met) => met);
 }

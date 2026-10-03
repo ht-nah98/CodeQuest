@@ -106,6 +106,8 @@ function describeError(error: unknown): string {
  * after a complete search of every toolbox block. Everything uncertain is at most ⚠: the
  * budget ran out, some toolbox blocks could not be searched (sensors, conditions), or the game
  * kind cannot be replayed. A bughunt level fixable with fewer edits than `parEdits` is ⚠.
+ * With `starGoals` (P2-21) par / parEdits count only programs that meet every goal ("min
+ * (goals)"), and the head adds the cheapest plain win (" · plain win M") for the trade-off.
  */
 export function judgeLevel(level: Level, options: ShortestOptions): Verdict {
   // A multi-map level (P2-12): the search only counts programs that win every map.
@@ -127,21 +129,37 @@ export function judgeLevel(level: Level, options: ShortestOptions): Verdict {
     if (!shortest.complete) lines.push('search stopped (budget or --timeout)');
     const par = level.par === undefined ? 'no par' : `par ${String(level.par)}`;
     let head = `${name}  ${par}`;
+    // With star goals (P2-21) par counts only wins that meet every goal: "min (goals)".
+    const goals = level.starGoals === undefined ? '' : ' (goals)';
     if (shortest.minBlocks === null) {
-      head += `  no win ≤ ${String(shortest.complete ? shortest.maxSize : shortest.searchedSize)} blocks`;
+      head += `  no win${goals} ≤ ${String(shortest.complete ? shortest.maxSize : shortest.searchedSize)} blocks`;
       // A bughunt level is judged by its fixes; for build there must be a win within par.
       if (level.mode === 'build') marks.push(shortest.complete && !partial ? '✖' : '⚠');
     } else {
       const count = `${shortest.complete ? '' : '≥'}${String(shortest.count)}`;
-      head += `  min ${String(shortest.minBlocks)} (${count} shortest)`;
+      head += `  min${goals} ${String(shortest.minBlocks)} (${count} shortest)`;
       lines.push(...examples('shortest', shortest.examples));
       if (level.mode === 'build' && level.par !== undefined && shortest.minBlocks < level.par) {
         marks.push('✖');
         lines.push(
-          `par ${String(level.par)} is too high: ${String(shortest.minBlocks)} blocks win`,
+          `par ${String(level.par)} is too high: ${String(shortest.minBlocks)} blocks win${goals}`,
         );
       }
       if (level.mode === 'build' && level.par === undefined) marks.push('⚠');
+    }
+    if (level.starGoals !== undefined) {
+      // The trade-off the child sees: the cheapest plain win (⭐ only) next to par.
+      const plain = findShortestPrograms(level, { ...options, ignoreStarGoals: true });
+      lines.push(...plain.mismatches.map((text) => `runLevel disagrees: ${text}`));
+      if (plain.mismatches.length > 0) marks.push('✖');
+      if (!plain.complete) lines.push('plain-win search stopped (budget or --timeout)');
+      if (plain.minBlocks === null) {
+        head += ` · plain win none ≤ ${String(plain.complete ? plain.maxSize : plain.searchedSize)}`;
+      } else {
+        const count = `${plain.complete ? '' : '≥'}${String(plain.count)}`;
+        head += ` · plain win ${String(plain.minBlocks)} (${count})`;
+        lines.push(...examples('plain win', plain.examples));
+      }
     }
 
     if (level.mode === 'bughunt') {
@@ -151,11 +169,11 @@ export function judgeLevel(level: Level, options: ShortestOptions): Verdict {
       if (fixes.mismatches.length > 0) marks.push('✖');
       if (!fixes.complete) lines.push('fix search stopped (budget or --timeout)');
       if (fixes.minEdits === null) {
-        head += `  parEdits ${String(parEdits)}  no fix ≤ ${String(fixes.searchedEdits)} edits`;
+        head += `  parEdits ${String(parEdits)}  no fix${goals} ≤ ${String(fixes.searchedEdits)} edits`;
         marks.push(fixes.complete && !partial ? '✖' : '⚠');
       } else {
         const count = `${fixes.complete ? '' : '≥'}${String(fixes.count)}`;
-        head += `  parEdits ${String(parEdits)}  fix ${String(fixes.minEdits)} (${count} fixes)`;
+        head += `  parEdits ${String(parEdits)}  fix${goals} ${String(fixes.minEdits)} (${count} fixes)`;
         lines.push(...examples('fix', fixes.examples));
         if (fixes.minEdits < parEdits) {
           marks.push('⚠');

@@ -821,3 +821,52 @@ describe('runner blocks (Phase 1)', () => {
     }
   });
 });
+
+describe('runner star goals (P2-21)', () => {
+  const track: RunnerCell[] = ['ground', 'ground', 'hole', 'ground', 'flag'];
+  const goalLevel = (bamboo: number[]): Level =>
+    level(track, {
+      config: { cells: track, start: 0, bamboo },
+      starGoals: [{ kind: 'collectAll' }],
+    });
+  const outcome = (bamboo: number[], chain: object[]): RunOutcome<RunnerEvent> =>
+    runLevel({ kind: runner, level: goalLevel(bamboo), workspace: program(chain) });
+
+  it('meets collectAll when every shoot is picked up, without making it a win condition', () => {
+    // walk 1, jump 3 (picks up 3), walk 4 (flag).
+    expect(outcome([3], [walk('a'), jump('b'), walk('c')])).toMatchObject({
+      result: 'success',
+      goals: [true],
+    });
+  });
+
+  it('misses collectAll when a jump flies over the shoot, but still wins', () => {
+    const wide: RunnerCell[] = ['ground', 'ground', 'ground', 'flag'];
+    const result = runLevel({
+      kind: runner,
+      level: level(wide, {
+        config: { cells: wide, start: 0, bamboo: [1] },
+        starGoals: [{ kind: 'collectAll' }],
+      }),
+      workspace: program([jump('a'), walk('b')]),
+    });
+    expect(result).toMatchObject({ result: 'success', goals: [false] });
+  });
+
+  it('meets collectAll on a track without bamboo', () => {
+    expect(outcome([], [walk('a'), jump('b'), walk('c')]).goals).toEqual([true]);
+  });
+
+  it('checkStarGoal reads only the state', () => {
+    const state = createRunnerState(
+      runnerConfigSchema.parse({ cells: track, start: 0, bamboo: [3] }),
+    );
+    expect(runner.checkStarGoal?.({ kind: 'collectAll' }, state, { cells: track, start: 0 })).toBe(
+      false,
+    );
+    state.bamboo = [];
+    expect(runner.checkStarGoal?.({ kind: 'collectAll' }, state, { cells: track, start: 0 })).toBe(
+      true,
+    );
+  });
+});

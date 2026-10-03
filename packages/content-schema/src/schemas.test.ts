@@ -191,6 +191,49 @@ describe('LevelSchema', () => {
       variants: [map, map],
     });
   });
+  it('accepts mission, goalSprite and starGoals (P2-11c, P2-21)', () => {
+    expectValid(LevelSchema, {
+      ...buildLevel,
+      mission: 'Tự ghép chương trình cho máy mới của Hổ.',
+      goalSprite: 'machine',
+      starGoals: [{ kind: 'collectAll' }],
+    });
+    expectValid(LevelSchema, {
+      ...buildLevel,
+      mode: 'bughunt',
+      parEdits: 1,
+      initialWorkspace: workspace,
+      starGoals: [{ kind: 'collectAll' }],
+    });
+    expectValid(LevelSchema, { ...buildLevel, kind: 'maze', goalSprite: 'exit' });
+  });
+  it.each([
+    ['empty starGoals', { ...buildLevel, starGoals: [] }],
+    ['unknown star goal', { ...buildLevel, starGoals: [{ kind: 'noKick' }] }],
+    ['star goal with extra key', { ...buildLevel, starGoals: [{ kind: 'collectAll', at: 3 }] }],
+    [
+      'duplicate star goal',
+      { ...buildLevel, starGoals: [{ kind: 'collectAll' }, { kind: 'collectAll' }] },
+    ],
+    [
+      'starGoals in parsons',
+      {
+        ...buildLevel,
+        mode: 'parsons',
+        initialWorkspace: workspace,
+        starGoals: [{ kind: 'collectAll' }],
+      },
+    ],
+    [
+      'starGoals in creative',
+      { ...buildLevel, mode: 'creative', starGoals: [{ kind: 'collectAll' }] },
+    ],
+    ['unknown goalSprite', { ...buildLevel, goalSprite: 'castle' }],
+    ['goalSprite outside runner/maze', { ...buildLevel, kind: 'turtle', goalSprite: 'flag' }],
+    ['empty mission', { ...buildLevel, mission: '' }],
+  ])('rejects %s', (_name, level) => {
+    expectInvalid(LevelSchema, level);
+  });
   it.each([
     ['unknown kind', { ...buildLevel, kind: 'racing' }],
     ['empty variants', { ...buildLevel, variants: [] }],

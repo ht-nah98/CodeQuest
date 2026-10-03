@@ -118,12 +118,14 @@ interface RunOutcome<E extends GameEvent = GameEvent> {
   answerKey?: string;                   // cho mode predict (xem §8)
   edits?: number;                       // cho mode bughunt (xem §8, §9)
   debug?: { message: string };          // chỉ khi result = 'error'
+  goals?: boolean[];                    // chỉ màn có `starGoals` (P2-21, ADR-0017): mỗi mục tiêu đạt chưa, đạt khi đạt trên MỌI bản đồ
   maps?: MapOutcome<E>[];               // chỉ màn có `variants` (§7.1)
   mapIndex?: number;                    // chỉ màn có `variants`: bản đồ quyết định kết quả
   // Lỗi ném ra từ predictAnswer hoặc editDistance cũng thành result 'error' / INTERNAL_ERROR.
 }
-type MapOutcome<E> = Pick<RunOutcome<E>, 'result' | 'reasonCode' | 'events' | 'stats' | 'debug'>;
+type MapOutcome<E> = Pick<RunOutcome<E>, 'result' | 'reasonCode' | 'events' | 'stats' | 'debug' | 'goals'>;
 ```
+**Mục tiêu sao** (`goals`, P2-21, ADR-0017): chỉ có khi màn khai báo `starGoals` và chương trình đã chạy (không có ở `error` của chương trình rỗng / quá số khối). Mỗi bản đồ: `kind.checkStarGoal(goal, trạng thái cuối, config)` cho từng mục tiêu theo thứ tự `starGoals`; kiểu game không có `checkStarGoal` thì mọi mục tiêu `false`; `checkStarGoal` ném lỗi thì `INTERNAL_ERROR`. Cấp màn: mục tiêu đạt khi đạt trên **mọi** bản đồ. Xét trên trạng thái cuối bất kể kết quả; phần thưởng chỉ tính khi thắng. Mục tiêu **không bao giờ** đổi `result`.
 | result | Khi nào | Ví dụ reasonCode |
 |---|---|---|
 | `success` | `evaluate` trả thành công, hoặc `ctx.stop('success')` | — |

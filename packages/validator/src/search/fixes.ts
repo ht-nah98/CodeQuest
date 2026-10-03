@@ -12,7 +12,9 @@ import {
   DEFAULT_MAX_EXAMPLES,
   DEFAULT_REPEAT_TIMES,
   SearchAborted,
+  countedWin,
   searchableKind,
+  searchedLevel,
   type SearchOptions,
 } from './budget';
 import {
@@ -75,9 +77,11 @@ function hasEmptyLoop(code: Code): boolean {
 
 /**
  * Finds the fewest edits that fix a `bughunt` level's `initialWorkspace` with its toolbox, how
- * many fixes there are at that distance, and a few examples verified with `runLevel`.
+ * many fixes there are at that distance, and a few examples verified with `runLevel`. On a
+ * level with `starGoals` a fix must also meet every goal, unless `options.ignoreStarGoals`.
  */
-export function findFixes(level: Level, options: FixOptions = {}): FixResult {
+export function findFixes(original: Level, options: FixOptions = {}): FixResult {
+  const level = searchedLevel(original, options);
   const kind = searchableKind(level, options);
   if (level.mode !== 'bughunt' || level.initialWorkspace === undefined) {
     throw new Error('only bughunt levels with an initialWorkspace have fixes');
@@ -229,9 +233,10 @@ export function findFixes(level: Level, options: FixOptions = {}): FixResult {
     const workspace = programToWorkspace(program);
     const outcome = runLevel({ kind, level, workspace });
     const edits = editDistance(level.initialWorkspace, workspace);
-    if (outcome.result !== 'success' || edits !== minEdits) {
+    if (!countedWin(outcome) || edits !== minEdits) {
+      const missed = outcome.result === 'success' && !countedWin(outcome) ? ' misses a goal' : '';
       mismatches.push(
-        `${formatProgram(program)}: runLevel ${outcome.result} ${outcome.reasonCode ?? ''}, ${String(edits)} edits`,
+        `${formatProgram(program)}: runLevel ${outcome.result} ${outcome.reasonCode ?? ''}${missed}, ${String(edits)} edits`,
       );
     }
   }

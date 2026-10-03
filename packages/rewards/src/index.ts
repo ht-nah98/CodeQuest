@@ -31,7 +31,7 @@ export {
   starterEntry,
 } from './computeRewards';
 export type { LevelRewards, RunState } from './computeRewards';
-export { computeStars } from './computeStars';
+export { computeStars, meetsStarGoals } from './computeStars';
 export { buyHint, hintEntryId, hintPrice, isHintOwned } from './hints';
 export type { BuyHintResult } from './hints';
 export { isUnlocked } from './isUnlocked';

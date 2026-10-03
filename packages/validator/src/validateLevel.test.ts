@@ -1,6 +1,7 @@
 // The per-level rules, called directly as the level editor will (no files, no paths).
 // content:check keeps its fixture per rule (tools/content-check/fixtures/).
 import { describe, expect, it } from 'vitest';
+import { getGameKind } from '@codequest/games';
 import { programToWorkspace } from './search/program';
 import { validateLevel } from './validateLevel';
 import { countWords } from './words';
@@ -193,5 +194,93 @@ describe('validateLevel', () => {
       '16 hint "x" points to block:runner_kick, which is in neither initialWorkspace nor solution',
       '16 hint "x" waits for lastReason "HIT_WALL", which neither the engine nor "runner" produces',
     ]);
+  });
+
+  it('rule 5: the mission line has at most 12 words', () => {
+    expect(messages(level({ mission: 'Tự ghép chương trình cho máy mới của Hổ.' }))).toEqual([]);
+    expect(
+      messages(level({ mission: 'Một hai ba bốn năm sáu bảy tám chín mười mười một mười hai' })),
+    ).toEqual([
+      '5 mission has 14 words > 12: "Một hai ba bốn năm sáu bảy tám chín mười mười một mười hai"',
+    ]);
+  });
+
+  describe('rule 19: star goals', () => {
+    const flat = ['ground', 'ground', 'ground', 'ground', 'flag'];
+    const goals = [{ kind: 'collectAll' }];
+
+    it('passes when the solution picks up every shoot', () => {
+      const ok = level({
+        config: { ...(level()['config'] as object), bamboo: [1] },
+        starGoals: goals,
+      });
+      expect(messages(ok)).toEqual([]);
+    });
+
+    it('reports a goal that already holds on every map (no bamboo)', () => {
+      expect(messages(level({ starGoals: goals }))).toEqual([
+        '19 star goal "collectAll" already holds before Măng moves on every map',
+      ]);
+    });
+
+    it('reports collectAll that config.goal.collectAll already requires on every map', () => {
+      const required = { cells: flat, start: 0, bamboo: [1], goal: { collectAll: true } };
+      const redundant = level({
+        config: required,
+        variants: [{ cells: flat, start: 0 }],
+        solution: programToWorkspace([walk, jump, walk]),
+        starGoals: goals,
+      });
+      expect(messages(redundant)).toEqual([
+        '19 star goal "collectAll" adds nothing: config.goal.collectAll already requires every shoot to win',
+      ]);
+      // One map with optional bamboo is enough for the goal to mean something.
+      const mixed = level({
+        config: required,
+        variants: [{ cells: flat, start: 0, bamboo: [1] }],
+        solution: programToWorkspace([walk, jump, walk]),
+        starGoals: goals,
+      });
+      expect(messages(mixed)).toEqual([]);
+    });
+
+    it('reports a winning solution that misses a goal, with the maps on a multi-map level', () => {
+      const hop = programToWorkspace([jump, jump]);
+      const oneMap = level({
+        config: { cells: flat, start: 0, bamboo: [1] },
+        solution: hop,
+        starGoals: goals,
+      });
+      expect(messages(oneMap)).toEqual(['19 solution wins but misses star goal "collectAll"']);
+      const twoMaps = level({
+        config: { cells: flat, start: 0, bamboo: [2] },
+        variants: [{ cells: flat, start: 0, bamboo: [3] }],
+        solution: hop,
+        starGoals: goals,
+      });
+      expect(messages(twoMaps)).toEqual([
+        '19 solution wins but misses star goal "collectAll" on map 2',
+      ]);
+    });
+
+    it('does not judge goals of a solution that loses (rule 9 reports it)', () => {
+      const lost = level({
+        config: { cells: flat, start: 0, bamboo: [1] },
+        solution: programToWorkspace([walk]),
+        starGoals: goals,
+      });
+      expect(messages(lost).map((text) => text.split(' ')[0])).toEqual(['9']);
+    });
+
+    it('reports a game kind without star goals', () => {
+      const runner = getGameKind('runner');
+      if (runner === undefined) throw new Error('runner is registered');
+      const plain = { ...runner };
+      delete plain.checkStarGoal;
+      const withGoals = level({ config: { cells: flat, start: 0, bamboo: [1] }, starGoals: goals });
+      expect(messages(withGoals, { getKind: () => plain })).toEqual([
+        '19 game kind "runner" has no star goals',
+      ]);
+    });
   });
 });

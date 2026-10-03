@@ -24,18 +24,52 @@ function baseStars(
     case 'bughunt': {
       // Missing `edits` means the engine could not measure it: do not grant the par star.
       const parEdits = level.parEdits ?? DEFAULT_PAR_EDITS;
-      return winning.edits !== undefined && winning.edits <= parEdits ? 3 : 1;
+      return withStarGoals(
+        level,
+        winning,
+        winning.edits !== undefined && winning.edits <= parEdits,
+      );
     }
     case 'build':
     case 'parsons':
-      return level.par !== undefined && winning.blocksUsed <= level.par ? 3 : 1;
+      return withStarGoals(
+        level,
+        winning,
+        level.par !== undefined && winning.blocksUsed <= level.par,
+      );
   }
 }
 
 /**
- * Stars (0–3) for a winning run, rewards-economy.md §1: par condition by mode, then the cap
- * from hint tiers bought in this level session. A run that did not succeed scores 0.
- * Pass `progress` (as before this run) so `predict` picks count across sessions.
+ * Stars before hint caps from the par condition (`parMet`). Without `starGoals`: ⭐⭐⭐ on par,
+ * else ⭐. With them (P2-21): ⭐⭐ needs every goal, ⭐⭐⭐ needs par too.
+ */
+function withStarGoals(level: Level, winning: RunSummary, parMet: boolean): StarCount {
+  if (!hasStarGoals(level)) return parMet ? 3 : 1;
+  if (!meetsStarGoals(level, winning)) return 1;
+  return parMet ? 3 : 2;
+}
+
+/**
+ * Whether a run met every star goal of the level (`RunSummary.goals`, one flag per goal); true
+ * for a level without goals (or in a mode that ignores them). A run without flags, or with flags that do not match the goals,
+ * meets none.
+ */
+export function meetsStarGoals(level: Level, run: RunSummary): boolean {
+  if (!hasStarGoals(level) || level.starGoals === undefined) return true;
+  return run.goals?.length === level.starGoals.length && run.goals.every((met) => met);
+}
+
+/** Star goals only count in modes build and bughunt, as LevelSchema allows them. */
+function hasStarGoals(level: Level): boolean {
+  return level.starGoals !== undefined && (level.mode === 'build' || level.mode === 'bughunt');
+}
+
+/**
+ * Stars (0–3) for a winning run, rewards-economy.md §1: par condition by mode (and star goals
+ * when a build or bughunt level has `starGoals`), then the cap from hint tiers bought in this
+ * level session. A run that did not succeed scores 0. Pass `progress` (as before this run) so
+ * `predict` picks count across sessions.
  */
 export function computeStars(
   level: Level,

@@ -1,4 +1,4 @@
-import type { GameKindId, ReasonCode, RunResult } from '@codequest/content-schema';
+import type { GameKindId, ReasonCode, RunResult, StarGoal } from '@codequest/content-schema';
 import type { z } from 'zod';
 import type { BlockSpec } from './blockSpec';
 import type { SimContext } from './context';
@@ -27,6 +27,12 @@ export interface GameKindDefinition<C, S, E extends GameEvent> {
   evaluate(state: S, config: C): { success: true } | { success: false; reasonCode: ReasonCode };
   /** Mode predict: a comparable key such as `stop@5` (format in product/game-kinds.md). */
   predictAnswer(state: S, outcome: { result: RunResult; reasonCode: ReasonCode | null }): string;
+  /**
+   * Levels with `starGoals` (P2-21): whether the final state of a run on one map meets `goal`.
+   * Pure and deterministic, read only from the state (and config), so the par search can judge
+   * a replayed state the same way. A kind without it supports no star goals (rule 19).
+   */
+  checkStarGoal?(goal: StarGoal, state: S, config: C): boolean;
 }
 
 /**
