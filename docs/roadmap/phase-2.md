@@ -18,9 +18,9 @@
 | P2-07 | Level editor v0 (`/coach/editor`) | P2-15 | AI | 🟨 |
 | P2-08 | Nội dung Thế giới 3 · Xưởng Sửa Lỗi (15 màn + bài giảng) | P2-10, P2-11 (phần W3) | AI soạn nháp · HLV duyệt | ⬜ |
 | P2-09 | PWA offline (chưa deploy) | — | AI | ⬜ |
-| P2-10 | Chi tiết hóa chương trình học Thế giới 3–5 | — | AI soạn · HLV duyệt | ⬜ |
+| P2-10 | Chi tiết hóa chương trình học Thế giới 3–5 | — | AI soạn · HLV duyệt | ✅ HLV + phụ huynh duyệt 03/10 |
 | P2-11 | Khối điều kiện, lặp đến khi, cảm biến sáng khi kiểm | P2-10 (bản nháp) | AI | ⬜ |
-| P2-12 | Màn nhiều bản đồ (một chương trình, 2–3 bản đồ) | P2-10 (bản nháp) | AI | ⬜ |
+| P2-12 | Màn nhiều bản đồ (một chương trình, 2–3 bản đồ) | P2-10 (bản nháp) | AI | ✅ |
 | P2-13 | Nội dung Thế giới 4 · Ngã Ba Quyết Định (20 màn + bài giảng) | P2-08, P2-11, P2-12 | AI soạn nháp · HLV duyệt | ⬜ |
 | P2-14 | Nội dung Thế giới 5 · Sông Chờ Đợi (20 màn + bài giảng) | P2-13 | AI soạn nháp · HLV duyệt | ⬜ |
 | P2-15 | Package `@codequest/validator` + công cụ vét cạn `par` | — | AI | ✅ |
@@ -30,6 +30,7 @@
 | P2-19 | Chơi thử cả nhóm, sửa, phát hành `v0.2.0` | tất cả | HLV + AI | ⛔ |
 | P2-20 | Màn Ghép máy của bé + giao diện tài khoản trong Góc HLV (với client giả) | P2-03, P2-05 | AI | ⬜ |
 | P2-21 | Sao theo mục tiêu màn: nhiều đường giải, đường tối ưu được nhiều sao nhất (góp ý HLV 03/10) | P2-10, P2-15 | AI (luật HLV đã duyệt 03/10) | ⬜ |
+| P2-22 | Xem cả đường: phóng to bản đồ nhỏ, kéo trái/phải, vạch đếm ô (góp ý HLV 03/10) | — | AI | ⬜ |
 
 Thay đổi so với khung ở `later-phases.md`: P2-08 khung (nội dung Thế giới 3–5) tách thành **P2-08** (W3), **P2-13** (W4), **P2-14** (W5). Phần "sorter tối thiểu nếu Thế giới 4 cần" **hủy**: Thế giới 4 dùng `runner` và `maze` (`curriculum.md` §2), sorter để GĐ 4. P2-09 khung tách thành **P2-09** (PWA, AI làm ngay) và **P2-18** (deploy, cần Vercel). Thêm P2-10…P2-20. "Thợ săn lỗi" trong `master-plan.md` §9 là mode `bughunt`, đã có từ P1-06.
 
@@ -46,6 +47,25 @@ Thay đổi so với khung ở `later-phases.md`: P2-08 khung (nội dung Thế 
 7. **P2-02 → P2-03 → P2-04 → P2-20 → P2-06** phần offline (SQL + test bằng Postgres nhúng, function + test Vitest, sync và giao diện tài khoản với server/client giả, Góc nhóm với transport giả).
 
 **Luồng B — chờ HLV (P2-17):** P2-01 spike → P2-16 nối thật (gồm phần server của P2-05/P2-06/P2-20) → P2-18 deploy → P2-19.
+
+### Kế hoạch soạn Thế giới 3–5 (sau khi HLV duyệt P2-10, 03/10/2026)
+HLV và phụ huynh đã đọc và duyệt `curriculum.md` §5. Câu hỏi G2–G20 chưa trả lời thì giữ lựa chọn "tạm dùng". Làm tuần tự (mỗi lần một việc nặng, máy 7,8 GB):
+
+| Bước | Việc | Gồm (mục §5.4 của `curriculum.md`) | Xong khi |
+|---|---|---|---|
+| 1 | **P2-12** màn nhiều bản đồ, rồi **P2-22** xem cả đường | T3, T4, T11 | review độc lập + e2e, commit |
+| 2 | **P2-11a** khối mới | `cq_if`, `cq_if_else`, `cq_repeat_until`, `runner_at_goal`, câu hỏi sáng ✔/✘ khi kiểm, phát lại `TIMEOUT` (cả trong bài giảng), điểm gợi ý `step` (T1–T10, T18) | test headless + e2e từng khối |
+| 3 | **P2-11b** vét cạn có điều kiện | `npm run par` hiểu khối hỏi, `maxInstances`, `maxLoopDepth` (T16, T16b) | W1–W2 vẫn xanh; ví dụ W4/W5 trong §5.5 tái lập được |
+| 4 | **P2-21** mục tiêu ⭐ | `starGoals` (schema, luật sao hàm thuần + test, thẻ "Mục tiêu ⭐", màn kết quả, `par` theo mục tiêu) (T19) | test rewards + e2e |
+| 5 | **P2-11c** nhiệm vụ & đích mới | dòng nhiệm vụ, `goalSprite`, `rescue`/`escort` (chìa khóa, đón bạn), lý do `NEED_KEY`/`NEED_FRIEND`, hình đích lấy từ bộ sprite và hình đại diện (T17) | e2e + ảnh chụp |
+| 6 | **P2-08** nội dung W3 (15 màn + bài giảng) | soạn bằng level editor; mỗi màn qua `content:check` và `npm run par`; review sư phạm độc lập | **HLV chơi thử W3** |
+| 7 | **P2-13** nội dung W4 (20 màn) | như bước 6 | **HLV chơi thử W4** |
+| 8 | **P2-14** nội dung W5 (20 màn) | như bước 6 | **HLV chơi thử W5** |
+
+**Đổi thứ tự (03/10/2026, HLV đang chờ thế giới mới):** W3 không cần khối mới, nên làm **P2-21** + phần nhiệm vụ/hình đích của **P2-11c** (dòng nhiệm vụ, `goalSprite`) trước, rồi soạn **P2-08 (W3)** để HLV chơi sớm. P2-11a/b và `rescue`/`escort` làm trong lúc HLV chơi W3, trước P2-13.
+
+Chen vào lúc chờ HLV chơi thử: **P2-09** PWA offline, **P2-05** Góc huấn luyện viên trên dữ liệu local.
+Mỗi bước: viết → review độc lập → sửa → chạy lại lint/typecheck/test/content:check/e2e → commit local. Có `par` thật nào khác số trong §5 thì sửa bản đồ cho khớp ý dạy và ghi lại; đổi ý dạy thì hỏi HLV.
 
 Điểm chặn và ai gỡ:
 | Mã | Việc của HLV | Gỡ chặn cho |
@@ -97,6 +117,8 @@ H2 không bắt buộc nếu có H1 + H3: test SQL và function có thể chạy
 - Mọi lỗi trả mã lỗi ngắn (`CODE_EXPIRED`, `CODE_USED`, `TOO_MANY_ATTEMPTS`…) để giao diện hiện câu tiếng Việt.
 
 **Nghiệm thu:** test cho mã đúng, sai, hết hạn, đã dùng, quá 10 lần sai (mọi mã bị vô hiệu), người không phải HLV gọi `create-student`/`delete-student`/`pairing-code` bị từ chối; sau `delete-student` không còn dòng nào của bé trong mọi bảng và `auth.users` (phía máy bé: xem P2-04); không có `service_role` hay pepper trong repo (grep trong CI); `.env.example` liệt kê tên biến. Chạy thật bằng `supabase functions serve` để ở P2-16.
+
+> Ghi chú cho P2-04/P2-16 và mục tiêu chung (P2-05): hồ sơ "HLV" trên máy (`role: 'coach'`, bản dev, xem `data-sync-auth.md` §5) bị **loại** khỏi đồng bộ, sao lưu và mọi phép đếm tiến độ của bé.
 
 ### P2-04 · Bộ đồng bộ
 **Mục tiêu:** đẩy outbox lên và kéo dữ liệu về theo `data-sync-auth.md` §4, viết và test hoàn toàn với server giả.
@@ -155,7 +177,7 @@ H2 không bắt buộc nếu có H1 + H3: test SQL và function có thể chạy
 - **Thử chơi** là bảng xem trước trong editor: sân chơi PixiJS thật (`StageController`) + vùng ghép đúng mode/toolbox/`maxBlocks` của màn, không có hồ sơ, xu, gợi ý (để không ghi tiến độ của bé khi HLV thử). Không mở `/play/:id` với bản nháp.
 - Bản nháp tự lưu vào bảng IndexedDB mới `levelDrafts` (Dexie version 2, chỉ ở máy, không vào outbox hay file sao lưu; `data-sync-auth.md` §2), chỉ khi HLV thật sự sửa (mở hay tạo màn không sinh bản nháp rác). Mở lại: màn có sẵn trong `content/`, bản nháp đã lưu, hoặc file `.json` (nút "Chọn file .json"); trường lạ trong file được báo là bị bỏ. Mở một màn giữ nguyên `id` khối hợp lệ (gợi ý `block:`/tô sáng vẫn đúng).
 - Xuất: tải `<id>.json` hoặc sao chép JSON (chỉ giữ trường mode dùng, khóa theo thứ tự file nội dung). Vùng ghép của editor tắt khối rời (`disableOrphans`); dấu tắt (`enabled`, `disabledReasons`) bị bỏ khi lưu, và schema nội dung (luật 1) giờ từ chối khối bị tắt, vì màn `parsons` có khối tắt thì bé không bao giờ thắng (lỗi do review phát hiện; fixture `tools/content-check/fixtures/extra-01-disabled-block/`). **Không có** nút "Lưu vào `content/`" / middleware dev ghi file: theo chỉ đạo của luồng điều phối, trình duyệt không ghi vào `content/`, nên phần nghiệm thu "middleware không có trong `dist/`" không áp dụng.
-- Chưa có (v0): soạn bài giảng, thứ tự trong `world.json`, màn nhiều bản đồ, `feedback`/`limits`/`maxInstances` (giữ nguyên nếu màn mở lại có sẵn, chưa có ô sửa).
+- Chưa có (v0): soạn bài giảng, thứ tự trong `world.json`, `feedback`/`limits`/`maxInstances` (giữ nguyên nếu màn mở lại có sẵn, chưa có ô sửa). Màn nhiều bản đồ: P2-12 đã thêm vào editor (xem kết quả P2-12).
 - e2e `apps/web/e2e/coach-editor.spec.ts` (1280×720 và 1366×768): runner `build` từ đầu (lỗi luật 1/9 hiện → vẽ hố, tick `nhảy` → vét cạn ra 3 khối → dùng ví dụ + đặt par → hết lỗi → thử chơi thắng → tải file → `content:check --dir` trên bản sao `content/` có file trong `_sandbox/levels/` xanh); maze `bughunt` (dời đích, chương trình ban đầu chép từ lời giải bị luật 14 báo, sửa thành thua 1 bước → vét cạn sửa 1 lần = `parEdits` → thử chơi thắng → xuất → `content:check` xanh); runner `parsons` (tách lời giải thành khối rời, xê dịch một khối trong editor, sang Thử chơi ráp các khối rời dưới "khi bắt đầu" → không khối nào bị tắt → thắng → file xuất không có `disabledReasons` → `content:check` xanh; test này đỏ khi bỏ phần xóa dấu tắt); hủy một lần vét cạn dài. Bản build (`vite build`) không còn chunk của editor hay worker vét cạn.
 
 ### P2-08 · Nội dung Thế giới 3 · Xưởng Sửa Lỗi
@@ -204,6 +226,14 @@ Theo bảng ở `curriculum.md` (mục Thế giới 3 do P2-10 viết). `world.j
 - `content:check`: luật 9–10 chạy mọi bản đồ; `predict` và `parsons` không được có `variants` (schema chặn); `tools/content-check/fixtures/` thêm fixture sai.
 
 **Nghiệm thu:** unit test: thắng 2/3 bản đồ = thua với reason của bản đồ thua; snapshot event log từng bản đồ; fixture sai bị bắt; e2e: màn mẫu 3 bản đồ ở `_sandbox`, chương trình chỉ đúng bản đồ 1 thì thua ở bản đồ 2 và thẻ bản đồ 2 được chọn.
+
+**Kết quả (03/10/2026):** ADR-0016.
+- Schema: `variants` 1–2 config (`MAX_VARIANTS`), chỉ `build`/`bughunt` (schema chặn `parsons`, `predict`, `creative`). Engine: biên dịch một lần, chạy từng bản đồ như một màn riêng (state, `rng`, giới hạn riêng); `RunOutcome.maps` + `mapIndex` (bản đồ đầu tiên không thắng, hoặc bản đồ cuối); cấp trên là của bản đồ quyết định, nên rewards, gợi ý, khối bị lắc không đổi. Màn một bản đồ cho kết quả y hệt trước (snapshot cũ giữ nguyên).
+- Kiểm chứng: luật 1 kiểm config mọi bản đồ (`variants.<i>.…`), luật 9 ghi `on map N`, luật 14 hiểu "thua ít nhất một bản đồ"; bảng ✔ thêm `maps N`. Fixture `extra-02-variant-loses` (luật 9), `extra-03-variants-in-predict` (luật 1). Vét cạn `par`/`parEdits` (`FastSim`) tìm trên bộ trạng thái của mọi bản đồ: chỉ chương trình thắng mọi bản đồ được tính; màn một bản đồ không thêm tầng nào, `npm run par -- --world w01` / `w02` cho kết quả như trước.
+- Màn chơi: thẻ "Bản đồ 1 · 2 · 3" (`screens/play/MapTabs.tsx`) trên sân chơi; xem từng bản đồ trước khi chạy; Chạy phát lần lượt từ bản đồ 1 (`StageController.showMap` đổi cảnh trong cùng app PIXI, giữ tốc độ, Măng nói "Sang bản đồ N nào!"), dừng ở bản đồ đầu tiên thua, thẻ đó được chọn và giữ lại; ✔/✖ trên thẻ đã chạy và dòng "Chưa qua bản đồ N. Sửa rồi chạy lại nhé!" / "Qua cả N bản đồ!".
+- Level editor: mở/xuất `variants` không mất (khóa ngay sau `config`, chỉ giữ khi mode là build/bughunt), thẻ bản đồ trong phần "Bản đồ", thêm bản đồ (chép bản đồ đang xem, tối đa 3) và xóa; lỗi `variants.*` hiện cạnh bản đồ; "Thử chơi" có thẻ và phát lần lượt như màn chơi; "Tìm par nhỏ nhất" tìm trên mọi bản đồ.
+- Màn mẫu `content/worlds/_sandbox/levels/runner-maps.json` (3 bản đồ, `repeat 3 [walk, jump]`). Chưa có khối `nếu` (P2-11) nên bản đồ mẫu cố ý có chung một đường; màn W4–W5 thật dùng `variants` cùng khối hỏi.
+- e2e `apps/web/e2e/play-maps.spec.ts` (thẻ, chương trình chỉ đúng bản đồ 1 → bản đồ 1 ✔, thua ở bản đồ 2, thẻ 2 được chọn, sửa → thắng cả 3) và một test mới trong `coach-editor.spec.ts` (mở màn 3 bản đồ, sửa riêng bản đồ 2, Thử chơi thắng cả 3, xuất đúng `variants`, `content:check` xanh).
 
 ### P2-13 · Nội dung Thế giới 4 · Ngã Ba Quyết Định
 Theo bảng ở `curriculum.md` (mục Thế giới 4). `world.json`, `w04-lesson` (có thẻ `demo` dùng `nếu` trên 2 bản đồ khác nhau), 20 màn + `w04-creative`, unplugged. Boss: một chương trình thắng 3 bản đồ (P2-12).
@@ -278,3 +308,8 @@ Buổi học nhóm theo `playbooks/playtest.md`: 6 bé chơi W3 trên máy riên
 - `npm run par` tính **tối ưu theo từng mục tiêu** (ít khối nhất mà vẫn nhặt đủ măng…), để mức 3 sao luôn đạt được và không có lối tắt rẻ hơn.
 
 **Nghiệm thu:** schema `starGoals` + luật sao có test; validator/par kiểm từng mục tiêu; thẻ "Mục tiêu ⭐" và màn kết quả hiện mục tiêu đạt/chưa đạt (e2e + ảnh); bảng Thế giới 3–5 (P2-10) ghi mục tiêu sao cho từng màn.
+
+### P2-22 · Xem cả đường (góp ý HLV 03/10/2026)
+**Vấn đề:** đường dài (tới 40 ô ở W4–W5) chỉ thấy qua dải bản đồ nhỏ dưới sân chơi, quá bé để bé đếm ô và lên kế hoạch.
+**Làm:** nút "Xem cả đường" cạnh dải bản đồ nhỏ mở khung lớn: ô to, kéo trái/phải bằng chuột (và lăn chuột), vạch đếm từng ô ở mép dưới, bấm ô để đánh dấu, Esc/✕ để đóng. Khi Măng chưa chạy, kéo dải bản đồ nhỏ thì sân chơi cuộn theo. Dùng chung cho mê cung lớn và màn nhiều bản đồ (xem đúng bản đồ đang chọn).
+**Nghiệm thu:** e2e mở/kéo/đóng ở 1280 và 1366, ảnh chụp; không đổi luật chơi; HLV xem thử.

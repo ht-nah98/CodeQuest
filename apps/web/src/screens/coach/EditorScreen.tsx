@@ -320,11 +320,12 @@ function LevelEditor() {
             }}
           >
             <MapEditor
+              key={draftKey}
               level={draft}
               issues={validation.byField.get('config')}
-              onConfig={(update) => {
+              onLevel={(update) => {
                 // Functional: a mouse drag paints several cells between two renders.
-                setDraft((old) => ({ ...old, config: update(old.config) }));
+                setDraft(update);
               }}
             />
           </LevelForm>

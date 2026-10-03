@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import type { RunnerCell } from '@codequest/games';
-import sheetJson from '../../public/sprites/panda.json?raw';
+import sheetJson from 'virtual:panda-sheet';
 import { UI_COLORS } from '../ui/tokens';
 
 // SVG pieces shared by the small static pictures of a level (stage-rendering.md §4): the predict

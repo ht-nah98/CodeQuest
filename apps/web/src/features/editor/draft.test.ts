@@ -2,13 +2,16 @@ import { describe, expect, it } from 'vitest';
 import type { Level, WorkspaceJson } from '@codequest/content-schema';
 import type { MazeConfig, RunnerConfig } from '@codequest/games';
 import {
+  addMap,
   applyRunnerTool,
   draftFromJson,
+  draftMaps,
   issueField,
   levelFileText,
   levelJson,
   newDraft,
   paintMaze,
+  removeMap,
   resizeMaze,
   resizeRunner,
   scatterProgram,
@@ -16,6 +19,7 @@ import {
   unknownLevelKeys,
   blockLabel,
   toolboxChoices,
+  updateMap,
   withMode,
 } from './draft';
 import { validateDraft } from './validation';
@@ -263,5 +267,50 @@ describe('validation next to the fields', () => {
     expect(blockLabel('runner_is_ahead', 'runner')).toBe('phía trước có …');
     expect(blockLabel('maze_turn_left', 'maze')).toBe('rẽ trái');
     expect(blockLabel('unknown_block', 'maze')).toBe('unknown_block');
+  });
+});
+
+describe('maps of a multi-map draft (P2-12)', () => {
+  const one = runner(['ground', 'ground', 'flag']);
+  const two = runner(['ground', 'hole', 'ground', 'flag']);
+  const base = (): Level => ({ ...newDraft('runner'), config: one });
+
+  it('adds a copy of the shown map, up to 3 maps, and removes maps', () => {
+    let level = addMap(base(), 0);
+    expect(draftMaps(level)).toEqual([one, one]);
+    level = updateMap(level, 1, () => two);
+    expect(level.config).toEqual(one);
+    expect(level.variants).toEqual([two]);
+    level = addMap(level, 1);
+    expect(draftMaps(level)).toEqual([one, two, two]);
+    expect(addMap(level, 0)).toBe(level);
+    // Removing map 1 promotes map 2 to `config`; the last map stays.
+    level = removeMap(removeMap(level, 0), 1);
+    expect(level.config).toEqual(two);
+    expect('variants' in level).toBe(false);
+    expect(removeMap(level, 0)).toBe(level);
+  });
+
+  it('opens and exports variants without loss, after config, for build and bughunt only', () => {
+    const json = { ...levelJson(base()), variants: [two] };
+    expect(unknownLevelKeys(json)).toEqual([]);
+    const draft = draftFromJson(json);
+    if (draft === null) throw new Error('not a draft');
+    const exported = levelJson(draft);
+    expect(exported['variants']).toEqual([two]);
+    const keys = Object.keys(exported);
+    expect(keys.indexOf('variants')).toBe(keys.indexOf('config') + 1);
+    expect(levelJson(withMode(draft, 'bughunt'))['variants']).toEqual([two]);
+    expect(levelJson(withMode(draft, 'parsons'))['variants']).toBeUndefined();
+  });
+
+  it('shows variant issues with the map and runs every map in validation', () => {
+    expect(issueField({ rule: 1, message: 'variants.0.cells: Too small' })).toBe('config');
+    const texts = { title: 'Hai', objective: 'Tới cờ', learningGoal: 'Đi' };
+    const bad = { ...base(), ...texts, variants: [{ cells: [] }] };
+    const result = validateDraft(bad);
+    const mapIssues = (result.byField.get('config') ?? []).map((issue) => issue.message);
+    expect(mapIssues.some((message) => message.startsWith('variants.0.'))).toBe(true);
+    expect(result.playable).toBe(false);
   });
 });

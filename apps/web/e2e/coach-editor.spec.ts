@@ -329,3 +329,51 @@ test('a runner parsons level: loose blocks are not disabled and can be assembled
   expect(level).toMatchObject({ mode: 'parsons', par: 3 });
   expect(JSON.stringify(level)).not.toMatch(/disabledReasons|"enabled"/);
 });
+
+test('a multi-map level: opened, edited per map, played on every map, exported without loss (P2-12)', async ({
+  page,
+}, testInfo) => {
+  test.setTimeout(120_000);
+  const project = testInfo.project.name;
+  const shots = process.env['SHOTS_DIR'] ?? SHOTS;
+  const source = JSON.parse(
+    readFileSync(join(REPO, 'content/worlds/_sandbox/levels/runner-maps.json'), 'utf8'),
+  ) as { config: unknown; variants: unknown[] };
+  await openEditor(page);
+  await page.getByTestId('editor-open-content').selectOption('runner-maps');
+  await expect(page.getByTestId('editor-map-tab-3')).toBeVisible();
+  // Three maps already: no fourth.
+  await expect(page.getByTestId('editor-add-map')).toHaveCount(0);
+
+  // Map 2 is shown and edited on its own: its hole at cell 5 becomes a branch, then back.
+  await page.getByTestId('editor-map-tab-2').click();
+  await expect(page.getByTestId('runner-cell-5')).toHaveAttribute('data-cell', 'hole');
+  await page.getByTestId('runner-cell-5').click();
+  await expect(page.getByTestId('runner-cell-5')).toHaveAttribute('data-cell', 'branch');
+  await page.getByTestId('editor-map-tab-1').click();
+  await expect(page.getByTestId('runner-cell-5')).toHaveAttribute('data-cell', 'ground');
+  await page.getByTestId('editor-map-tab-2').click();
+  for (let i = 0; i < 3; i++) await page.getByTestId('runner-cell-5').click(); // → crate → ground → hole
+  await expect(page.getByTestId('runner-cell-5')).toHaveAttribute('data-cell', 'hole');
+
+  await page.screenshot({ path: `${shots}/${project}-editor-maps.png`, fullPage: true });
+
+  // Thử chơi: the solution wins every map, tab after tab.
+  await page.locator('[data-tab="preview"]').click();
+  const stage = page.getByTestId('editor-preview-stage');
+  await expect(stage).toHaveAttribute('data-ready', 'true', { timeout: 30_000 });
+  await page.getByTestId('preview-use-solution').click();
+  await page.getByTestId('preview-run').click();
+  await expect(page.getByTestId('preview-result')).toHaveAttribute('data-result', 'success', {
+    timeout: 30_000,
+  });
+  await expect(stage).toHaveAttribute('data-map', '3');
+  for (const n of [1, 2, 3]) {
+    await expect(page.getByTestId(`map-tab-${String(n)}`)).toHaveAttribute('data-result', 'won');
+  }
+  await page.screenshot({ path: `${shots}/${project}-editor-preview.png`, fullPage: true });
+
+  const level = await exportAndCheck(page, 'runner-maps');
+  expect(level['config']).toEqual(source.config);
+  expect(level['variants']).toEqual(source.variants);
+});

@@ -5,7 +5,7 @@ import { registerBlockSpecs } from '../blocks/registerBlockSpecs';
 import type { SimContext } from '../sdk/context';
 import type { DistributiveOmit, GameEvent, HighlightEvent } from '../sdk/events';
 import type { GameKindApi, GameKindDefinition, Primitive } from '../sdk/gameKind';
-import type { RunOutcome } from '../sdk/outcome';
+import type { MapOutcome, RunOutcome } from '../sdk/outcome';
 import { fnv1a } from '../rng/fnv1a';
 import { mulberry32 } from '../rng/mulberry32';
 import { analyzeLoaded, type WorkspaceAnalysis } from './analyzeWorkspace';
@@ -101,12 +101,88 @@ export function runLevel<C, S, E extends GameEvent>(input: RunLevelInput<C, S, E
       : errorOutcome('TOO_MANY_BLOCKS', analysis.blocksUsed);
   }
 
-  const config = kind.configSchema.safeParse(level.config);
-  if (!config.success) {
-    return errorOutcome('INTERNAL_ERROR', analysis.blocksUsed, `config: ${config.error.message}`);
+  // One map per config: `config`, then each variant (P2-12, ADR-0016).
+  const configs: C[] = [];
+  for (const [index, raw] of [level.config, ...(level.variants ?? [])].entries()) {
+    const config = kind.configSchema.safeParse(raw);
+    if (!config.success) {
+      const where = index === 0 ? 'config' : `variants[${String(index - 1)}]`;
+      return errorOutcome(
+        'INTERNAL_ERROR',
+        analysis.blocksUsed,
+        `${where}: ${config.error.message}`,
+      );
+    }
+    configs.push(config.data);
   }
 
-  const rng = mulberry32(input.seed ?? fnv1a(level.id));
+  const maps: Array<MapRun<S, E>> = [];
+  for (const [index, config] of configs.entries()) {
+    const mapLevel = index === 0 ? level : { ...level, config: level.variants?.[index - 1] };
+    const run = runMap(kind, mapLevel, config, code, analysis.blocksUsed, input.seed);
+    maps.push(run);
+    // A run that broke inside the engine says nothing about the other maps.
+    if (run.outcome.result === 'error') break;
+  }
+  // The result comes from the first map that is not won (or the last map when all are won).
+  const firstLoss = maps.findIndex((run) => run.outcome.result !== 'success');
+  const deciding = firstLoss === -1 ? maps.length - 1 : firstLoss;
+  const chosen = maps[deciding];
+  if (chosen === undefined) return errorOutcome('INTERNAL_ERROR', analysis.blocksUsed, 'no map');
+  const { state, outcome: mapOutcome } = chosen;
+  const outcome: RunOutcome<E> = { ...mapOutcome };
+  if (configs.length > 1) {
+    outcome.maps = maps.map((run) => run.outcome);
+    outcome.mapIndex = deciding;
+  }
+  if (mapOutcome.result === 'error') {
+    // An engine error on a variant says which map it came from, as an invalid config does.
+    if (deciding > 0 && mapOutcome.debug !== undefined) {
+      outcome.debug = {
+        message: `variants[${String(deciding - 1)}]: ${mapOutcome.debug.message}`,
+      };
+    }
+    return outcome;
+  }
+  try {
+    if (level.mode === 'predict' && state !== undefined) {
+      outcome.answerKey = kind.predictAnswer(state, {
+        result: outcome.result,
+        reasonCode: outcome.reasonCode,
+      });
+    }
+    if (level.mode === 'bughunt' && level.initialWorkspace !== undefined) {
+      outcome.edits = editDistance(level.initialWorkspace, workspace);
+    }
+  } catch (error) {
+    return {
+      ...errorOutcome('INTERNAL_ERROR', analysis.blocksUsed, describe(error)),
+      events: outcome.events,
+      stats: outcome.stats,
+    };
+  }
+  return outcome;
+}
+
+/** One map's run and the final state (for `predictAnswer`). */
+interface MapRun<S, E extends GameEvent> {
+  outcome: MapOutcome<E>;
+  state: S | undefined;
+}
+
+/**
+ * Interprets the compiled program on one map: a fresh state, rng, event log and limits, so each
+ * map's run is the same as if the level had only that map.
+ */
+function runMap<C, S, E extends GameEvent>(
+  kind: GameKindDefinition<C, S, E>,
+  level: Level,
+  config: C,
+  code: string,
+  blocksUsed: number,
+  seed: number | undefined,
+): MapRun<S, E> {
+  const rng = mulberry32(seed ?? fnv1a(level.id));
   const maxSteps = level.limits?.maxSteps ?? DEFAULT_MAX_STEPS;
   const maxActions = level.limits?.maxActions ?? DEFAULT_MAX_ACTIONS;
   const events: Array<E | HighlightEvent> = [];
@@ -122,14 +198,14 @@ export function runLevel<C, S, E extends GameEvent>(input: RunLevelInput<C, S, E
     // Re-adding the omitted blockId restores the original E variant.
     events.push({ ...event, blockId } as unknown as E);
   };
-  const stats = (): RunOutcome['stats'] => ({ steps, actions, blocksUsed: analysis.blocksUsed });
+  const stats = (): RunOutcome['stats'] => ({ steps, actions, blocksUsed });
 
   let state: S | undefined;
   let result: RunResult;
   let reasonCode: ReasonCode | null = null;
   try {
     const ctx: SimContext<S, E> = {
-      state: kind.createState(config.data, rng),
+      state: kind.createState(config, rng),
       emit,
       stop,
       rng,
@@ -162,7 +238,7 @@ export function runLevel<C, S, E extends GameEvent>(input: RunLevelInput<C, S, E
     } else if (level.mode === 'creative') {
       result = 'success';
     } else {
-      const verdict = kind.evaluate(ctx.state, config.data);
+      const verdict = kind.evaluate(ctx.state, config);
       result = verdict.success ? 'success' : 'incomplete';
       reasonCode = verdict.success ? null : verdict.reasonCode;
     }
@@ -175,29 +251,16 @@ export function runLevel<C, S, E extends GameEvent>(input: RunLevelInput<C, S, E
       reasonCode = 'TIMEOUT';
     } else {
       return {
-        ...errorOutcome('INTERNAL_ERROR', analysis.blocksUsed, describe(error)),
-        events,
-        stats: stats(),
+        outcome: {
+          ...errorOutcome('INTERNAL_ERROR', blocksUsed, describe(error)),
+          events,
+          stats: stats(),
+        },
+        state,
       };
     }
   }
-
-  const outcome: RunOutcome<E> = { result, reasonCode, events, stats: stats() };
-  try {
-    if (level.mode === 'predict' && state !== undefined) {
-      outcome.answerKey = kind.predictAnswer(state, { result, reasonCode });
-    }
-    if (level.mode === 'bughunt' && level.initialWorkspace !== undefined) {
-      outcome.edits = editDistance(level.initialWorkspace, workspace);
-    }
-  } catch (error) {
-    return {
-      ...errorOutcome('INTERNAL_ERROR', analysis.blocksUsed, describe(error)),
-      events,
-      stats: stats(),
-    };
-  }
-  return outcome;
+  return { outcome: { result, reasonCode, events, stats: stats() }, state };
 }
 
 /** Sandbox with the game API, the highlight hook and a seeded `Math.random`. */

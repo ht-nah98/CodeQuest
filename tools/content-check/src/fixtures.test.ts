@@ -72,6 +72,23 @@ describe('content:check fixtures', () => {
     expect(report.issues[0]?.message).toContain('disabledReasons');
   });
 
+  it('extra-02-variant-loses reports rule 9 on the map the solution loses (P2-12)', () => {
+    const report = check('extra-02-variant-loses');
+    expect(report.warnings).toEqual([]);
+    expect(report.issues.map((issue) => issue.rule)).toEqual([9]);
+    expect(report.issues[0]?.message).toBe(
+      'solution ends crash FELL_IN_HOLE (crash:FELL_IN_HOLE@3) on map 2',
+    );
+  });
+
+  it('extra-03-variants-in-predict reports rule 1: variants only fit build and bughunt', () => {
+    const report = check('extra-03-variants-in-predict');
+    // The unreadable level drops out of the world's mode count: a rule 8 warning follows.
+    expect(report.warnings.map((issue) => issue.rule)).toEqual([8]);
+    expect(report.issues.map((issue) => issue.rule)).toEqual([1]);
+    expect(report.issues[0]?.message).toContain('"variants" only fits modes build and bughunt');
+  });
+
   it('exits 0 on the baseline, 0 on warnings only and 1 on errors', () => {
     const baseline = cli('baseline');
     expect(baseline.status).toBe(0);

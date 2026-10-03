@@ -14,7 +14,13 @@ export type { WorkspaceJson } from './workspace';
 export { ConditionSchema, HINT_TRIGGERS, HintRuleSchema, HintTargetSchema } from './hint';
 export type { AtomicCondition, Condition, HintRule, HintTarget, HintTrigger, NumCmp } from './hint';
 
-export { LEVEL_STAGES, LevelSchema, LevelStageSchema, ToolboxEntrySchema } from './level';
+export {
+  LEVEL_STAGES,
+  LevelSchema,
+  LevelStageSchema,
+  MAX_VARIANTS,
+  ToolboxEntrySchema,
+} from './level';
 export type { Level, LevelStage, ToolboxEntry } from './level';
 
 export { LessonCardSchema, LessonSchema, MASCOT_POSES, MascotPoseSchema } from './lesson';

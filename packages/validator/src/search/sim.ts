@@ -5,6 +5,10 @@
  * engine, so the generators stay the single source of truth. Results that matter are always
  * re-checked with `runLevel` (shortest.ts, fixes.ts), which also applies maxSteps / maxActions.
  *
+ * A level with `variants` (P2-12) is searched on every map at once: a search state is the tuple
+ * of the per-map states, a program wins when it wins every map and loses as soon as one map is
+ * lost. A level with one map uses its map's states directly (no tuple layer).
+ *
  * Assumptions (game-kind-sdk.md §"Vét cạn"), enforced where possible:
  * - a statement block's API calls depend only on the block (its fields), never on sensor
  *   results: a statement block whose code calls a value block's API is unsupported;
@@ -28,11 +32,25 @@ import {
   type SimContext,
 } from '@codequest/engine';
 import type { GameEvent } from '@codequest/engine';
+import { SearchAborted } from './budget';
 import { programToWorkspace, type Program, type Statement } from './program';
 
 /** Step outcome: a state id (≥ 0) while the program runs, or one of these. */
 export const WIN = -1;
 export const LOSS = -2;
+/**
+ * Most tuple states a multi-map search keeps (one small Int32Array and its key each, about
+ * 100 bytes): past it the search stops like a spent budget (`SearchAborted`, so the result says
+ * `complete: false`), instead of running the Web Worker or the CLI out of memory.
+ */
+export const MAX_TUPLE_STATES = 1_000_000;
+
+/** Not computed yet, in the transition tables. */
+const UNKNOWN = -3;
+
+/** What `FastSim.compute` returns instead of a state when the run stopped. */
+const WIN_STATE = Symbol('win');
+const LOSS_STATE = Symbol('loss');
 
 /** A program with atoms as indices into `FastSim.atoms`. */
 export type Code = ReadonlyArray<number | RepeatCode>;
@@ -131,19 +149,30 @@ export class FastSim {
   /** Atom steps computed so far (each one runs the real API once). */
   steps = 0;
 
-  private readonly config: unknown;
-  private readonly rng: () => number;
-  private readonly snapshots: unknown[] = [];
-  private readonly ids = new Map<string, number>();
+  /** One per map: `config`, then each variant. */
+  private readonly maps: MapSim[];
+  // Multi-map levels only: tuples of per-map states (WIN for a map already won).
+  private readonly tuples: Int32Array[] = [];
+  private readonly tupleIds = new Map<string, number>();
   private readonly transitions: Int32Array[] = [];
   private readonly finals: Array<boolean | undefined> = [];
 
-  constructor(kind: AnyGameKindDefinition, level: Level, extraBlocks: readonly Statement[] = []) {
+  constructor(
+    kind: AnyGameKindDefinition,
+    level: Level,
+    extraBlocks: readonly Statement[] = [],
+    /** Cap on tuple states (tests lower it). */
+    private readonly maxTupleStates = MAX_TUPLE_STATES,
+  ) {
     this.kind = kind;
     this.level = level;
-    this.config = kind.configSchema.parse(level.config);
-    this.rng = mulberry32(fnv1a(level.id));
-    this.initial = this.intern(kind.createState(this.config, this.rng));
+    this.maps = [level.config, ...(level.variants ?? [])].map(
+      (config) => new MapSim(this, { ...level, config }, kind.configSchema.parse(config)),
+    );
+    this.initial =
+      this.maps.length === 1
+        ? this.firstMap.initial
+        : this.internTuple(Int32Array.from(this.maps, (map) => map.initial));
 
     let hasRepeat = false;
     const seen = new Set<string>();
@@ -180,9 +209,15 @@ export class FastSim {
     this.hasRepeat = hasRepeat;
   }
 
+  private get firstMap(): MapSim {
+    const map = this.maps[0];
+    if (map === undefined) throw new Error('a level has at least one map');
+    return map;
+  }
+
   /** Distinct simulation states reached so far. */
   get stateCount(): number {
-    return this.snapshots.length;
+    return this.maps.length === 1 ? this.firstMap.stateCount : this.tuples.length;
   }
 
   /** Index of the atom for a block statement, or -1. */
@@ -193,25 +228,29 @@ export class FastSim {
 
   /** Outcome of running one atom from a state. */
   step(state: number, atom: number): number {
+    if (this.maps.length === 1) return this.firstMap.step(state, atom);
     let row = this.transitions[state];
     if (row === undefined) {
-      row = new Int32Array(this.atoms.length).fill(-3);
+      row = new Int32Array(this.atoms.length).fill(UNKNOWN);
       this.transitions[state] = row;
     }
-    const known = row[atom] ?? -3;
-    if (known !== -3) return known;
-    const result = this.compute(state, atom);
+    const known = row[atom] ?? UNKNOWN;
+    if (known !== UNKNOWN) return known;
+    const result = this.stepTuple(state, atom);
     row[atom] = result;
     return result;
   }
 
-  /** Whether a program that ends (without a stop) in this state wins. */
+  /** Whether a program that ends (without a stop) in this state wins (on every map). */
   finish(state: number): boolean {
+    if (this.maps.length === 1) return this.firstMap.finish(state);
     const known = this.finals[state];
     if (known !== undefined) return known;
-    const result =
-      this.level.mode === 'creative' ||
-      this.kind.evaluate(structuredClone(this.snapshots[state]), this.config).success;
+    const tuple = this.tuples[state] ?? new Int32Array();
+    const result = this.maps.every((map, index) => {
+      const sub = tuple[index] ?? LOSS;
+      return sub === WIN || (sub >= 0 && map.finish(sub));
+    });
     this.finals[state] = result;
     return result;
   }
@@ -255,24 +294,43 @@ export class FastSim {
     return end === WIN || (end >= 0 && this.finish(end));
   }
 
-  private intern(state: unknown): number {
-    const key = stateKey(state);
-    const known = this.ids.get(key);
+  /** One atom on every map not won yet: LOSS as soon as one map is lost, WIN when all are won. */
+  private stepTuple(state: number, atom: number): number {
+    const tuple = this.tuples[state] ?? new Int32Array();
+    const next = new Int32Array(tuple.length);
+    let running = false;
+    for (const [index, map] of this.maps.entries()) {
+      const sub = tuple[index] ?? LOSS;
+      const result = sub === WIN ? WIN : map.step(sub, atom);
+      if (result === LOSS) return LOSS;
+      next[index] = result;
+      if (result !== WIN) running = true;
+    }
+    return running ? this.internTuple(next) : WIN;
+  }
+
+  private internTuple(tuple: Int32Array): number {
+    const key = tuple.join(',');
+    const known = this.tupleIds.get(key);
     if (known !== undefined) return known;
-    const id = this.snapshots.length;
-    this.snapshots.push(structuredClone(state));
-    this.ids.set(key, id);
+    const id = this.tuples.length;
+    if (id >= this.maxTupleStates) {
+      throw new SearchAborted(`more than ${String(this.maxTupleStates)} multi-map states`);
+    }
+    this.tuples.push(tuple);
+    this.tupleIds.set(key, id);
     return id;
   }
 
-  private compute(state: number, atom: number): number {
+  /** Runs atom `atom`'s calls from a state of one map (used by `MapSim`). */
+  compute(map: MapSim, state: unknown, atom: number): unknown {
     this.steps++;
     const calls = this.atoms[atom]?.calls ?? [];
     const stop = (result: 'success' | 'crash' | 'incomplete', reasonCode?: string): never => {
       throw new StopSignal(result, reasonCode ?? null);
     };
     const ctx: SimContext<unknown, GameEvent> = {
-      state: structuredClone(this.snapshots[state]),
+      state: structuredClone(state),
       emit: () => undefined,
       stop,
       rng: () => {
@@ -280,20 +338,20 @@ export class FastSim {
           `unsearchable: the ${this.kind.id} API uses ctx.rng, so runs cannot be replayed`,
         );
       },
-      level: this.level,
+      level: map.level,
     };
     try {
       const api = this.kind.createApi(ctx);
       for (const call of calls) {
         const fn = api[call.name];
-        if (fn === undefined) return LOSS;
+        if (fn === undefined) return LOSS_STATE;
         fn(...call.args);
       }
     } catch (error) {
       if (error instanceof UnsearchableLevel) throw error;
-      return error instanceof StopSignal && error.result === 'success' ? WIN : LOSS;
+      return error instanceof StopSignal && error.result === 'success' ? WIN_STATE : LOSS_STATE;
     }
-    return this.intern(ctx.state);
+    return ctx.state;
   }
 
   /** Outcome key of replaying calls once from the initial state (for the block-id check). */
@@ -301,8 +359,9 @@ export class FastSim {
     const index = this.atoms.length;
     this.atoms.push({ statement: { block: '?' }, calls, inToolbox: false });
     try {
-      const result = this.compute(this.initial, index);
-      return result < 0 ? String(result) : stateKey(this.snapshots[result]);
+      const map = this.firstMap;
+      const result = map.computeStep(map.initial, index);
+      return result < 0 ? String(result) : stateKey(map.snapshot(result));
     } finally {
       this.atoms.pop();
     }
@@ -341,9 +400,12 @@ export class FastSim {
     const workspace = programToWorkspace([statement]);
     const start = workspace.blocks.blocks[0] as { next?: { block: { id: string } } };
     if (start.next !== undefined) start.next.block.id = id;
+    // One map is enough to record the calls (variants would record them once per map).
+    const level: Level = { ...this.level, mode: 'creative' };
+    delete level.variants;
     const outcome = runLevel({
       kind: { ...this.kind, createApi: () => recorder },
-      level: { ...this.level, mode: 'creative' },
+      level,
       workspace,
     });
     if (outcome.result === 'error') {
@@ -352,5 +414,76 @@ export class FastSim {
       );
     }
     return calls;
+  }
+}
+
+/**
+ * The states of one map, interned (ids count per map), with every (state, atom) step and every
+ * final verdict memoized. The API calls themselves run in `FastSim.compute`.
+ */
+class MapSim {
+  readonly initial: number;
+  private readonly snapshots: unknown[] = [];
+  private readonly ids = new Map<string, number>();
+  private readonly transitions: Int32Array[] = [];
+  private readonly finals: Array<boolean | undefined> = [];
+
+  constructor(
+    private readonly owner: FastSim,
+    /** The level with this map as its `config` (what the API sees as `ctx.level`). */
+    readonly level: Level,
+    private readonly config: unknown,
+  ) {
+    const rng = mulberry32(fnv1a(level.id));
+    this.initial = this.intern(owner.kind.createState(config, rng));
+  }
+
+  get stateCount(): number {
+    return this.snapshots.length;
+  }
+
+  snapshot(state: number): unknown {
+    return this.snapshots[state];
+  }
+
+  step(state: number, atom: number): number {
+    let row = this.transitions[state];
+    if (row === undefined) {
+      row = new Int32Array(this.owner.atoms.length).fill(UNKNOWN);
+      this.transitions[state] = row;
+    }
+    const known = row[atom] ?? UNKNOWN;
+    if (known !== UNKNOWN) return known;
+    const result = this.computeStep(state, atom);
+    row[atom] = result;
+    return result;
+  }
+
+  /** Runs one atom from a state, without memo: WIN, LOSS or the interned next state. */
+  computeStep(state: number, atom: number): number {
+    const result = this.owner.compute(this, this.snapshots[state], atom);
+    if (result === WIN_STATE) return WIN;
+    if (result === LOSS_STATE) return LOSS;
+    return this.intern(result);
+  }
+
+  finish(state: number): boolean {
+    const known = this.finals[state];
+    if (known !== undefined) return known;
+    const result =
+      this.level.mode === 'creative' ||
+      this.owner.kind.evaluate(structuredClone(this.snapshots[state]), this.config).success;
+    this.finals[state] = result;
+    return result;
+  }
+
+  private intern(state: unknown): number {
+    const key = stateKey(state);
+    const known = this.ids.get(key);
+    if (known !== undefined) return known;
+    const id = this.snapshots.length;
+    this.snapshots.push(structuredClone(state));
+    this.ids.set(key, id);
+    return id;
   }
 }

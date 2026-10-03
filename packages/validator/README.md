@@ -1,6 +1,6 @@
 # @codequest/validator (headless)
 
-Luật kiểm chứng **cấp màn** (`content-model.md` §5: 1, 2 mẫu ID, 5–6, 9–16) và vét cạn `par` / `parEdits`. Dùng chung cho `tools/content-check`, `tools/par` (`npm run par`) và level editor trong trình duyệt (P2-07). Quyết định: ADR-0015.
+Luật kiểm chứng **cấp màn** (`content-model.md` §5: 1, 2 mẫu ID, 5–6, 9–16) và vét cạn `par` / `parEdits`. Màn nhiều bản đồ (`variants`, ADR-0016): luật 1 và 9 xét mọi bản đồ, vét cạn chỉ nhận chương trình thắng mọi bản đồ (`FastSim` dùng bộ trạng thái, mỗi bản đồ một `MapSim`; trần `MAX_TUPLE_STATES` bộ, vượt thì dừng bằng `SearchAborted` như hết ngân sách). Dùng chung cho `tools/content-check`, `tools/par` (`npm run par`) và level editor trong trình duyệt (P2-07). Quyết định: ADR-0015.
 
 **Đọc trước:** `docs/architecture/content-model.md` §5, §8, `runtime-engine.md`.
 

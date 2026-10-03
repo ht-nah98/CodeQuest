@@ -21,6 +21,7 @@ Trạng thái: **Đề xuất** → **Chấp nhận** → (**Đã bị thay th�
 | [0013](0013-vietnamese-ui-english-code.md) | Giao diện tiếng Việt, code tiếng Anh | Chấp nhận |
 | [0014](0014-tailwind-tokens-motion.md) | Tailwind 4 + CSS variables + Motion | Chấp nhận |
 | [0015](0015-validator-package.md) | Package headless `validator`: luật cấp màn + vét cạn `par` | Chấp nhận |
+| [0016](0016-multi-map-levels.md) | Màn nhiều bản đồ (`variants`): một chương trình thắng mọi bản đồ | Chấp nhận |
 
 ## Mẫu
 ```markdown

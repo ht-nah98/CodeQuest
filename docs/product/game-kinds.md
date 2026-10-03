@@ -34,6 +34,8 @@ Riêng với `predict`: đáp án đúng **được tính bằng cách chạy m�
 
 Gợi ý trong `predict`: chỉ có tầng 1 (gợi ý tư duy); tầng 2–3 bị ẩn vì không có lời giải để chỉ.
 
+**Màn nhiều bản đồ** (P2-12, `level.variants`, ADR-0016): một màn `build` hoặc `bughunt` có 2–3 bản đồ cùng kiểu game; **một chương trình** phải thắng **mọi** bản đồ. Mục đích: ép bé viết chương trình tổng quát (dùng khối hỏi) thay vì ghép thuộc lòng một đường. Bé thấy thẻ "Bản đồ 1 · 2 · 3" trên sân chơi, xem từng bản đồ trước khi chạy; Chạy phát lần lượt từng bản đồ và dừng ở bản đồ đầu tiên thua (thẻ đó được chọn, có dấu ✖). Thua ở bản đồ nào thì câu phản hồi và gợi ý theo lý do thua ở bản đồ đó. Sao, xu chấm như màn thường: thắng mọi bản đồ là một lượt thắng. Không dùng cho `parsons`, `predict`, `creative`.
+
 ## 3. Kiểu game (`GameKind`)
 
 ### 3.1 `runner` — Đường chạy của Măng · **GĐ 1**

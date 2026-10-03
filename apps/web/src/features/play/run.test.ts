@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { Level, WorkspaceJson } from '@codequest/content-schema';
 import { CQ_REPEAT, CQ_START } from '@codequest/engine';
 import { loadPlayContent } from '../content/content';
-import { offendingBlockId, resultLine, runProgram } from './run';
+import { mapReplays, mapsOf, offendingBlockId, resultLine, runProgram } from './run';
 
 type Block = { type: string; id: string; fields?: Record<string, unknown>; inputs?: unknown };
 
@@ -101,5 +101,41 @@ describe('resultLine', () => {
   it('uses the feedback line of the reason', () => {
     const fell = { result: 'crash', reasonCode: 'FELL_IN_HOLE', events: [], stats } as const;
     expect(resultLine(fell, {}, feedback)).toBe('Ối, hố! Thử khối nhảy nhé.');
+  });
+});
+
+describe('multi-map levels (P2-12)', () => {
+  async function maps(): Promise<Level> {
+    const content = await loadPlayContent('runner-maps');
+    if (!content) throw new Error('runner-maps missing');
+    return content.level;
+  }
+
+  it('lists the maps in order: config, then each variant', async () => {
+    const lvl = await maps();
+    expect(mapsOf(lvl)).toEqual([lvl.config, ...(lvl.variants ?? [])]);
+    expect(mapsOf({ config: 1 })).toEqual([1]);
+  });
+
+  it('replays every map up to the first one not won, which decides the result', async () => {
+    const lvl = await maps();
+    // Right for map 1 only: walk, jump, then walk to the flag; map 2 has a hole at cell 5.
+    const outcome = runProgram(lvl, program(walk('a'), jump('b'), repeat('r', walk('c'))));
+    expect(outcome).toMatchObject({ result: 'crash', reasonCode: 'FELL_IN_HOLE', mapIndex: 1 });
+    const replays = mapReplays(outcome);
+    expect(replays.map((replay) => [replay.map, replay.outcome.result])).toEqual([
+      [0, 'success'],
+      [1, 'crash'],
+    ]);
+    expect(offendingBlockId(outcome)).toBe('c');
+  });
+
+  it('replays all maps on a win, and the run itself when it could not start', async () => {
+    const lvl = await maps();
+    const solution = lvl.solution;
+    if (!solution) throw new Error('no solution');
+    expect(mapReplays(runProgram(lvl, solution)).map((replay) => replay.map)).toEqual([0, 1, 2]);
+    const empty = runProgram(lvl, program());
+    expect(mapReplays(empty)).toEqual([{ map: null, outcome: empty }]);
   });
 });

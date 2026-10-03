@@ -118,8 +118,11 @@ interface RunOutcome<E extends GameEvent = GameEvent> {
   answerKey?: string;                   // cho mode predict (xem §8)
   edits?: number;                       // cho mode bughunt (xem §8, §9)
   debug?: { message: string };          // chỉ khi result = 'error'
+  maps?: MapOutcome<E>[];               // chỉ màn có `variants` (§7.1)
+  mapIndex?: number;                    // chỉ màn có `variants`: bản đồ quyết định kết quả
   // Lỗi ném ra từ predictAnswer hoặc editDistance cũng thành result 'error' / INTERNAL_ERROR.
 }
+type MapOutcome<E> = Pick<RunOutcome<E>, 'result' | 'reasonCode' | 'events' | 'stats' | 'debug'>;
 ```
 | result | Khi nào | Ví dụ reasonCode |
 |---|---|---|
@@ -130,6 +133,13 @@ interface RunOutcome<E extends GameEvent = GameEvent> {
 | `error` | Chương trình rỗng, quá số khối, lỗi nội bộ | `EMPTY_PROGRAM`, `TOO_MANY_BLOCKS`, `INTERNAL_ERROR` |
 
 `ReasonCode` là `string` (khai báo trong `@codequest/content-schema/runtime`), không phải union đóng, vì engine không biết trước các kiểu game. Mã chung của engine là hằng số `ENGINE_REASONS = ['EMPTY_PROGRAM', 'TOO_MANY_BLOCKS', 'TIMEOUT', 'INTERNAL_ERROR']`; mã của kiểu game nằm trong `GameKindDefinition.reasonCodes`. **Nguồn duy nhất** của câu tiếng Việt là `content/shared/feedback.json`; `content:check` (luật 17) đảm bảo mọi mã đều có câu.
+
+### 7.1 Màn nhiều bản đồ (`variants`, P2-12, ADR-0016)
+- Bản đồ theo thứ tự: `config` (bản đồ 1), rồi từng phần tử của `level.variants`. Config nào không hợp `configSchema` thì cả lượt chạy là `error` / `INTERNAL_ERROR` (`debug`: `variants[i]: …`), không chạy gì.
+- Chương trình được phân tích, kiểm số khối và **biên dịch một lần** (`EMPTY_PROGRAM`, `TOO_MANY_BLOCKS` không có `maps`). Sau đó chạy trên **từng** bản đồ như một màn riêng: state mới, `rng` mới cùng seed, event log riêng, `maxSteps` / `maxActions` tính riêng; `ctx.level.config` là config của bản đồ đó. Mọi bản đồ đều được chạy (trừ khi một bản đồ gặp lỗi nội bộ thì dừng ở đó).
+- `mapIndex` = bản đồ **đầu tiên không thắng**, hoặc bản đồ cuối khi thắng hết. `result`, `reasonCode`, `events`, `stats` (và `debug`) ở cấp trên **là của `maps[mapIndex]`**, nên rewards (thắng = thắng mọi bản đồ), gợi ý `lastReason` và khối bị lắc không cần biết có nhiều bản đồ. `answerKey` lấy từ trạng thái cuối của bản đồ quyết định; `edits` (bughunt) tính một lần.
+- Màn một bản đồ: không có `maps`, `mapIndex`; kết quả y hệt trước P2-12 (snapshot cũ không đổi). Tất định: cùng đầu vào ⇒ cùng `maps` (test snapshot `multiMap.test.ts`).
+- Phát lại ở web: `features/play/run.ts` `mapReplays(outcome)` cho danh sách bản đồ cần phát (mọi bản đồ tới `mapIndex`); `StageController.showMap(config)` đổi cảnh trong cùng ứng dụng PIXI rồi `play(maps[i])` (`stage-rendering.md`).
 
 ## 8. Theo từng cách chơi
 | Mode | Engine làm gì thêm |

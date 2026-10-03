@@ -62,7 +62,7 @@ npm run lint             # eslint
 npm run test             # vitest (unit, headless)
 npm run content:check    # kiểm chứng toàn bộ màn chơi
 npm run par -- --world w02   # vét cạn par/parEdits (hoặc: npm run par -- w02-l05)
-npm run e2e              # playwright (1280×720, 1366×768)
+npm run e2e              # playwright (1280×720, 1366×768), tự chạy server riêng ở cổng 5199 (không dùng 5173 của HLV)
 npm run build            # build production
 npm run sprites -- <in.png> <outDir>   # làm sạch sprite sheet
 npm run sprites:pack -- <dir>          # tạo spritesheet cho PixiJS (pack.py có từ P0-06)

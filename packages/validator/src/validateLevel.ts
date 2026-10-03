@@ -42,13 +42,25 @@ export interface LevelValidation {
   solutionBlocks: number | null;
 }
 
-/** Rule 1 for a level beyond its own schema: `config` must match its kind's `configSchema`. */
+/**
+ * Rule 1 for a level beyond its own schema: `config` and every map in `variants` must match its
+ * kind's `configSchema`.
+ */
 function levelConfigIssues(level: Level, kind: AnyGameKindDefinition | undefined): RuleIssue[] {
   if (kind === undefined) {
     return [{ rule: 1, message: `game kind "${level.kind}" is not implemented yet` }];
   }
-  const config = kind.configSchema.safeParse(level.config);
-  return config.success ? [] : formatSchemaIssues(config.error, 'config');
+  const maps: Array<[unknown, string]> = [
+    [level.config, 'config'],
+    ...(level.variants ?? []).map((variant, index): [unknown, string] => [
+      variant,
+      `variants.${String(index)}`,
+    ]),
+  ];
+  return maps.flatMap(([config, path]) => {
+    const parsed = kind.configSchema.safeParse(config);
+    return parsed.success ? [] : formatSchemaIssues(parsed.error, path);
+  });
 }
 
 /**
@@ -71,9 +83,12 @@ function solutionIssues(
       level: { ...level, mode: 'predict', initialWorkspace: solution },
       workspace: solution,
     }).answerKey;
+    // Multi-map levels (P2-12): which map the solution loses on, counted from 1 as the child sees.
+    const map = outcome.mapIndex === undefined ? null : `on map ${String(outcome.mapIndex + 1)}`;
     const why = [
       outcome.reasonCode,
       where === undefined ? null : `(${where})`,
+      map,
       outcome.debug?.message,
     ]
       .filter((part) => part !== null && part !== undefined)

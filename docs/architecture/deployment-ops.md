@@ -45,6 +45,8 @@ Chạy trên mỗi push và pull request:
 
 Mọi bước phải xanh mới được merge vào `main`.
 
+Ghi chú về e2e (`apps/web/playwright.config.ts`): `npm run e2e` tự bật **hai** dev server riêng, không bao giờ dùng cổng 5173 của HLV: cổng `PW_PORT` (mặc định 5199) cho các spec của bé (không có PIN) và cổng `PW_PORT + 1` với PIN giả `E2E_COACH_PIN` (mặc định 2468) chỉ cho `coach-profile.spec.ts`. Chạy 4 worker (8 worker làm sân chơi quá tải trên máy 8 GB). Chromium chạy với `--mute-audio` vì WSL2/CI không có thiết bị âm thanh.
+
 ## Deploy
 | Môi trường | Nơi | Khi nào |
 |---|---|---|

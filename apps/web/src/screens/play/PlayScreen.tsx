@@ -32,14 +32,20 @@ import {
   type PlayContent,
   UnplayableLevelError,
 } from '../../features/content/content';
-import { offendingBlockId, resultLine, runProgram } from '../../features/play/run';
+import {
+  mapReplays,
+  mapsOf,
+  offendingBlockId,
+  resultLine,
+  runProgram,
+} from '../../features/play/run';
 import type { WinReward } from '../../features/play/session';
 import { usePlaySession } from '../../features/play/usePlaySession';
 import { useSignedInProfile } from '../../features/profiles';
 import { vi } from '../../i18n/vi';
 import type { PandaAnimation } from '../../stages/panda';
 import { trackFeedFor } from '../../stages/runner/trackStrip';
-import { type Speed, StageController } from '../../stages/StageController';
+import { type PlayResult, type Speed, StageController } from '../../stages/StageController';
 import { TrackStrip } from '../../stages/TrackStrip';
 import { Bubble, Button, CapacityBricks, Panel, PixelIcon, SpeakButton } from '../../ui';
 import { canOpenLevel } from '../../features/content/catalog';
@@ -49,6 +55,7 @@ import { MangPortrait, type PortraitPose } from './MangPortrait';
 import { PlayTopBar } from './PlayTopBar';
 import { type PickMark, PredictCards } from './PredictCards';
 import { HintBox } from './HintBox';
+import { type MapMark, MapTabs } from './MapTabs';
 import { ResultsOverlay } from './ResultsOverlay';
 import { SolutionViewer } from './SolutionViewer';
 import { type PlayLine, usePlayHints } from './usePlayHints';
@@ -241,8 +248,19 @@ function PlaySession({
   const rootRef = useRef<HTMLElement>(null);
   const navigate = useNavigate();
   const stageBoxRef = useRef<HTMLDivElement>(null);
+  // Multi-map levels (P2-12): map 1 is `config`, then each variant; the stage shows one at a time.
+  const maps = useMemo(() => mapsOf(level), [level]);
+  const [mapIndex, setMapIndex] = useState(0);
+  /** The map on the stage, readable in callbacks and stage hooks. */
+  const mapIndexRef = useRef(0);
+  /** How each map did in the last run (cleared by a new run or an edit). */
+  const [mapMarks, setMapMarks] = useState<ReadonlyArray<MapMark | undefined>>([]);
   // Runner only: the full-track strip under the stage follows the replay (stage-rendering.md §2).
-  const trackFeed = useMemo(() => trackFeedFor(level.kind, level.config), [level]);
+  const trackFeeds = useMemo(
+    () => maps.map((config) => trackFeedFor(level.kind, config)),
+    [level.kind, maps],
+  );
+  const trackFeed = trackFeeds[mapIndex] ?? null;
   const stageRef = useRef<StageController | null>(null);
   const workspaceRef = useRef<Blockly.WorkspaceSvg | null>(null);
   const handleRef = useRef<WorkspaceHandle | null>(null);
@@ -263,6 +281,11 @@ function PlaySession({
   /** The chosen speed, for a stage mounted later (level change, dev Fast Refresh). */
   const speedRef = useRef<Speed>(1);
   const [stepping, setStepping] = useState(false);
+  /** Step mode now, for the next map of a multi-map replay (the child may switch mid-run). */
+  const steppingRef = useRef(false);
+  useEffect(() => {
+    steppingRef.current = stepping;
+  });
   const [paused, setPaused] = useState(false);
   const [capacity, setCapacity] = useState<number | null>(level.maxBlocks ?? null);
   // Rewards and progress of this level session (features/play/usePlaySession.ts).
@@ -321,6 +344,11 @@ function PlaySession({
     [clearTip],
   );
   const [reward, setReward] = useState<WinReward | null>(null);
+  /** `reward`, readable in callbacks. */
+  const rewardRef = useRef<WinReward | null>(null);
+  useEffect(() => {
+    rewardRef.current = reward;
+  });
   /** Mode predict: the cards picked in this session. */
   const [marks, setMarks] = useState<Record<string, PickMark>>({});
   /** Plus the wrong picks of the session a reload left open: still marked and locked. */
@@ -371,9 +399,10 @@ function PlaySession({
     const container = stageBoxRef.current;
     if (!container) return;
     const controller = new AbortController();
+    const feedOf = () => trackFeeds[mapIndexRef.current] ?? null;
     StageController.mount(container, controller.signal, {
       kind: level.kind,
-      config: level.config,
+      config: maps[mapIndexRef.current],
       onHighlight: highlight,
       onAnimation: (animation: PandaAnimation) => {
         container.dataset.panda = animation;
@@ -386,9 +415,9 @@ function PlaySession({
         const sfx = stageSfx(event.type);
         lastEventSfxRef.current = sfx;
         audio.playSfx(sfx);
-        trackFeed?.event(event);
+        feedOf()?.event(event);
       },
-      onReset: () => trackFeed?.reset(),
+      onReset: () => feedOf()?.reset(),
       ...(import.meta.env.DEV && {
         onClockSpeed: (clockSpeed: number) => {
           container.dataset.stageSpeed = String(clockSpeed);
@@ -424,7 +453,25 @@ function PlaySession({
       stageRef.current = null;
       setStageReady(false);
     };
-  }, [level, trackFeed, highlight, readyLine, say]);
+  }, [level, maps, trackFeeds, highlight, readyLine, say]);
+
+  /** Puts map `map` on the stage (a fresh scene at its start) and selects its tab. */
+  const showMap = useCallback(
+    (map: number) => {
+      if (map === mapIndexRef.current) return;
+      // Set first: showMap resets the scene, and onReset resets the strip of the map shown.
+      const previous = mapIndexRef.current;
+      mapIndexRef.current = map;
+      try {
+        stageRef.current?.showMap(maps[map]);
+      } catch (error) {
+        mapIndexRef.current = previous;
+        throw error;
+      }
+      setMapIndex(map);
+    },
+    [maps],
+  );
 
   /** Bumped by every run: a reward that resolves after the next run started is not shown. */
   const runTokenRef = useRef(0);
@@ -515,7 +562,29 @@ function PlaySession({
       setStepping(step);
       setPaused(false);
       say(step ? uiLine('play.stepping', t.stepping) : uiLine('play.running', t.running));
-      stage.play(outcome, { step }).then((result) => {
+      setMapMarks([]);
+      // A multi-map level replays map after map and stops on the first map not won, which stays
+      // on the stage with its tab selected (P2-12).
+      const playMaps = async (): Promise<PlayResult> => {
+        for (const [order, replay] of mapReplays(outcome).entries()) {
+          if (replay.map !== null) {
+            showMap(replay.map);
+            if (order > 0) say({ text: t.maps.next(replay.map + 1) });
+          }
+          // The first map starts in the mode asked for; later ones follow the child's switches.
+          const result = await stage.play(replay.outcome, {
+            step: order === 0 ? step : steppingRef.current,
+          });
+          if (result !== 'finished') return result;
+          const { map } = replay;
+          if (map !== null) {
+            const mark: MapMark = replay.outcome.result === 'success' ? 'won' : 'lost';
+            setMapMarks((marks) => Object.assign([...marks], { [map]: mark }));
+          }
+        }
+        return 'finished';
+      };
+      playMaps().then((result) => {
         if (result === 'finished') finish(outcome, rewardOf);
       }, fail);
     },
@@ -530,7 +599,25 @@ function PlaySession({
       say,
       closeStepPopover,
       cancelPendingTips,
+      showMap,
     ],
+  );
+
+  /** A tab of a multi-map level: shows that map at its start; the marks of the last run stay. */
+  const chooseMap = useCallback(
+    (map: number) => {
+      if (phaseRef.current === 'running') return;
+      // A win waits for its results overlay: the tabs stay put until it shows.
+      if (phaseRef.current === 'success' && rewardRef.current === null) return;
+      if (map === mapIndexRef.current) stageRef.current?.reset();
+      else showMap(map);
+      cancelPendingTips();
+      clearShake();
+      setStepping(false);
+      setPaused(false);
+      setPhase('idle');
+    },
+    [showMap, cancelPendingTips, clearShake],
   );
 
   /**
@@ -724,7 +811,11 @@ function PlaySession({
       const key = programKey(state.json);
       // Editing the program makes the replay on screen stale: put the stage back (before the
       // `change` tip is scheduled, as a reset cancels pending tips).
-      if (phase !== 'idle' && key !== ranJsonRef.current) reset();
+      if (key !== ranJsonRef.current) {
+        if (phase !== 'idle') reset();
+        // The map marks belong to the program that ran (multi-map levels).
+        setMapMarks((marks) => (marks.length === 0 ? marks : []));
+      }
       if (key !== lastProgramRef.current) {
         lastProgramRef.current = key;
         hintChanged();
@@ -776,6 +867,19 @@ function PlaySession({
 
       <div className="grid min-h-0 grid-cols-[minmax(0,42fr)_minmax(0,58fr)] gap-3">
         <Panel className="flex min-h-0 flex-col overflow-hidden">
+          {maps.length > 1 && (
+            <MapTabs
+              count={maps.length}
+              selected={mapIndex}
+              marks={mapMarks}
+              disabled={running || !stageReady || (phase === 'success' && reward === null)}
+              status={mapStatus(mapMarks, maps.length)}
+              onSelect={(map) => {
+                chooseMap(map);
+                focusStage();
+              }}
+            />
+          )}
           <div className="relative min-h-0 flex-1 border-b-3 border-ink bg-sky">
             <div
               ref={stageBoxRef}
@@ -786,6 +890,7 @@ function PlaySession({
               data-ready={stageReady}
               data-phase={phase}
               data-paused={paused}
+              data-map={mapIndex + 1}
               data-hint-anchor="stage"
               className="absolute inset-0 outline-none focus-visible:outline-3 focus-visible:-outline-offset-4 focus-visible:outline-brand-deep"
             />
@@ -1044,4 +1149,12 @@ function BughuntBar({ edits, parEdits }: { edits: number; parEdits: number }) {
       <span className="font-pixel text-pixel text-ink-soft">{t.bughunt.par(parEdits)}</span>
     </div>
   );
+}
+
+/** The line next to the map tabs: the last run's verdict, else what the level asks. */
+function mapStatus(marks: ReadonlyArray<MapMark | undefined>, count: number): string {
+  const lost = marks.indexOf('lost');
+  if (lost !== -1) return t.maps.lostOn(lost + 1);
+  if (marks.filter((mark) => mark === 'won').length === count) return t.maps.allWon(count);
+  return t.maps.intro(count);
 }

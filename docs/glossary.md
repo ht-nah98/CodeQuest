@@ -10,6 +10,7 @@ Dùng **đúng** các từ này. Cột "Trong code" là tên dùng cho type, bi�
 | Chặng | `LevelStage` | Vai trò của màn trong thế giới: `guided`, `practice`, `challenge`, `boss`, `creative`, `bonus`. (Bài giảng không phải một chặng) |
 | Bài giảng | `Lesson` | Chuỗi thẻ giải thích khái niệm, có ví dụ chạy được |
 | Thẻ (bài giảng) | `LessonCard` | Một trang trong bài giảng |
+| Bài "Khối mới" | `Lesson` có `beforeLevel` | Bài giảng ngắn cho một khối hành động mới, đặt ngay trước màn đầu tiên dùng khối đó (`architecture/content-model.md` §3) |
 | Kiểu game | `GameKind` | Thế giới mô phỏng + sân chơi: `runner`, `maze`, `robotlab`, `turtle`, `farm`, `sorter`, `music` |
 | Cách chơi | `LevelMode` | Cách bé tương tác: `build` (tự ghép), `parsons` (ghép hình), `predict` (đoán kết quả), `bughunt` (săn lỗi), `creative` (sáng tạo). Xem `product/game-kinds.md` |
 | Mục tiêu | `objective` | Câu ngắn nói bé cần làm gì trong màn |
@@ -38,7 +39,7 @@ Dùng **đúng** các từ này. Cột "Trong code" là tên dùng cho type, bi�
 | Vòng lặp không dừng (đề xuất) | `TIMEOUT` | Vòng lặp mà điều kiện không bao giờ đúng; Măng "chóng mặt". Không gọi là "lặp vô hạn" với bé |
 | Từng bước | nút `step` (`vi.play.step`, đã có); điểm gợi ý `step` (đề xuất, P2-11 thêm vào `HintTargetSchema`) | Nút chạy từng khối một, dùng để tìm khối gây lỗi (Thế giới 3) |
 | Lỗi (đề xuất) | `bug` | Khối làm chương trình chạy khác ý. "Sửa lỗi", "Săn lỗi" (mode `bughunt`) |
-| Bản đồ 1 · 2 · 3 (đề xuất) | `level.variants` (P2-12) | Màn nhiều bản đồ: một chương trình phải thắng mọi bản đồ |
+| Bản đồ 1 · 2 · 3 | `level.variants` (P2-12) | Màn nhiều bản đồ: một chương trình phải thắng mọi bản đồ |
 | Nhiệm vụ (đề xuất) | `level.mission` (P2-11) | Câu ≤ 12 chữ nói Măng đang làm gì cho ai (vd "Lấy chìa khóa, mở lồng cứu Bông!"). Chỉ để tạo động lực, không đổi luật. Từ Thế giới 3 |
 | Hình đích (đề xuất) | `goalSprite` | Hình vẽ ở ô đích: cờ, máy, cửa ra, nhà, dấu chân, bạn, lồng, bến đò. Chỉ để trang trí |
 | Mục tiêu ⭐ | `starGoals` (P2-21) | Mục tiêu thêm để được ⭐⭐ (vd nhặt đủ măng), hiện ở thẻ "Mục tiêu ⭐". Luật: `product/rewards-economy.md` §1 |
@@ -60,12 +61,12 @@ Dùng **đúng** các từ này. Cột "Trong code" là tên dùng cho type, bi�
 | Hố | `hole` | Ô runner phải **nhảy** qua |
 | Cờ (lá cờ) | `flag` | Ô đích của runner, luôn là ô cuối |
 | Măng (vật phẩm) | `bamboo` | Măng tre để nhặt; `goal.collectAll` bắt nhặt hết. Khác với Măng (mascot) |
-| Đi | `runner_walk` / `walk` | Sang ô kế bên |
-| Nhảy | `runner_jump` / `jump` | Bay qua 1 ô, đáp ô sau đó |
-| Cúi | `runner_crouch` / `crouch` | Cúi người đi sang ô kế, chui qua cành |
-| Đá | `runner_kick` / `kick` | Đá ô phía trước, đứng yên |
-| Tiến | `maze_forward` / `forward` | Đi 1 ô theo hướng đang nhìn (mê cung) |
-| Rẽ trái / rẽ phải | `maze_turn_left` / `maze_turn_right` (API `turn`) | Quay tại chỗ |
+| Đi | `runner_walk` / `walk` | Sang ô kế bên. Câu cho bé: "Đi 1 ô về phía trước" |
+| Nhảy | `runner_jump` / `jump` | Bay qua ô kế bên (p+1), đáp xuống ô p+2: đi xa **2 ô**, cả trên đất bằng. Câu cho bé: "Nhảy: bay qua 1 ô, đáp xuống ô thứ 2" (tooltip "Bay qua 1 ô, đáp xuống ô thứ 2"). Không nói "nhảy 1 ô" hay "đáp ô sau đó" (bé hiểu là đi 1 ô / "rồi sau đó") |
+| Cúi | `runner_crouch` / `crouch` | Cúi người **và đi 1 ô** (không phải cúi tại chỗ), chui qua cành. Câu cho bé: "Cúi xuống và đi 1 ô" |
+| Đá | `runner_kick` / `kick` | Đá ô phía trước (đổ thùng), Măng **đứng yên**; muốn đi phải thêm khối đi. Câu cho bé: "Đá ô phía trước, Măng đứng yên" |
+| Tiến | `maze_forward` / `forward` | Đi 1 ô theo hướng đang nhìn (mê cung). Câu cho bé: "Tiến 1 ô theo hướng Măng đang nhìn" |
+| Rẽ trái / rẽ phải | `maze_turn_left` / `maze_turn_right` (API `turn`) | Quay 90° **tại chỗ, không đi**; muốn đi phải thêm tiến. Câu cho bé: "Quay sang trái tại chỗ, chưa đi" |
 | Phía trước có [hố / cành / thùng / ô trống] | `runner_is_ahead` (giá trị `HOLE`, `BRANCH`, `CRATE`, `CLEAR`) | Cảm biến runner: nhìn **ô ngay trước mặt** Măng. "ô trống" = đất hoặc cờ (câu C2). Thế giới 4 |
 | Có đường [phía trước / bên trái / bên phải] | `maze_is_path` (`AHEAD`, `LEFT`, `RIGHT`) | Cảm biến mê cung, theo hướng **của Măng** (Măng nhìn xuống thì bên trái của Măng là phía phải màn hình). Thế giới 4 |
 | Đã tới đích? | `maze_at_goal` | Cảm biến mê cung: Măng đang đứng ở ô đích. Thế giới 5. Vì Măng thắng ngay khi chạm đích (câu A1), khối này **không bao giờ trả ✔ trong lúc chạy**; "lặp đến khi đã tới đích" dừng nhờ luật thắng |

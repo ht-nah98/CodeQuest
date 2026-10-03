@@ -1,4 +1,9 @@
-import type { Level, LevelMode, WorkspaceJson } from '@codequest/content-schema';
+import {
+  type Level,
+  type LevelMode,
+  MAX_VARIANTS,
+  type WorkspaceJson,
+} from '@codequest/content-schema';
 import { COMMON_BLOCKS, CQ_REPEAT, CQ_START } from '@codequest/engine';
 import {
   getGameKind,
@@ -88,9 +93,9 @@ export function draftFromJson(json: unknown): Level | null {
 
 /** Fields of the draft that only some modes use (content-model.md §3, LevelSchema). */
 const MODE_FIELDS: Record<LevelMode, ReadonlyArray<keyof Level>> = {
-  build: ['par', 'solution'],
+  build: ['par', 'solution', 'variants'],
   parsons: ['par', 'solution', 'initialWorkspace'],
-  bughunt: ['par', 'parEdits', 'solution', 'initialWorkspace'],
+  bughunt: ['par', 'parEdits', 'solution', 'initialWorkspace', 'variants'],
   predict: ['initialWorkspace', 'predict'],
   creative: [],
 };
@@ -100,6 +105,7 @@ const MODE_ONLY_FIELDS = new Set<keyof Level>([
   'solution',
   'initialWorkspace',
   'predict',
+  'variants',
 ]);
 
 /** Whether `mode` uses `field` (the editor hides the others and export drops them). */
@@ -153,6 +159,7 @@ const KEY_ORDER: ReadonlyArray<keyof Level> = [
   'maxInstances',
   'parEdits',
   'config',
+  'variants',
   'initialWorkspace',
   'solution',
   'predict',
@@ -200,6 +207,53 @@ export function levelFileText(level: Level): string {
 /** Validation options matching content:check: sandbox worlds (`_*`) are drafts. */
 export function isDraftWorld(worldId: string): boolean {
   return worldId.startsWith('_');
+}
+
+// ---- Maps (multi-map levels, P2-12) ---------------------------------------------------------
+
+/** The maps of the draft: `config` is map 1, then each variant. */
+export function draftMaps(level: Pick<Level, 'config' | 'variants'>): unknown[] {
+  return [level.config, ...(level.variants ?? [])];
+}
+
+/** The draft with maps `maps` (map 1 becomes `config`; no variants when only one is left). */
+function withMaps(level: Level, maps: readonly unknown[]): Level {
+  const [config, ...variants] = maps;
+  const next: Level = { ...level, config };
+  if (variants.length > 0) next.variants = variants;
+  else delete next.variants;
+  return next;
+}
+
+/** Applies `update` to map `index` (0 = `config`); out of range leaves the draft as it is. */
+export function updateMap(
+  level: Level,
+  index: number,
+  update: (config: unknown) => unknown,
+): Level {
+  const maps = draftMaps(level);
+  if (index < 0 || index >= maps.length) return level;
+  return withMaps(
+    level,
+    maps.map((config, at) => (at === index ? update(config) : config)),
+  );
+}
+
+/** Adds a copy of map `from` as the last map, up to 1 + MAX_VARIANTS maps. */
+export function addMap(level: Level, from: number): Level {
+  const maps = draftMaps(level);
+  if (maps.length > MAX_VARIANTS || from < 0 || from >= maps.length) return level;
+  return withMaps(level, [...maps, structuredClone(maps[from])]);
+}
+
+/** Removes map `index`; the last map left cannot be removed (removing map 1 promotes map 2). */
+export function removeMap(level: Level, index: number): Level {
+  const maps = draftMaps(level);
+  if (maps.length <= 1 || index < 0 || index >= maps.length) return level;
+  return withMaps(
+    level,
+    maps.filter((_, at) => at !== index),
+  );
 }
 
 // ---- Runner track -------------------------------------------------------------------------
@@ -440,6 +494,8 @@ export function issueField(issue: RuleIssue): EditorField {
     case 1: {
       if (message.startsWith('game kind')) return 'other';
       const head = /^([A-Za-z]+)[.:]/.exec(message)?.[1];
+      // A variant is a map too: its issues show with the map editor.
+      if (head === 'variants') return 'config';
       return head !== undefined && SCHEMA_FIELDS.has(head) ? (head as EditorField) : 'other';
     }
     case 2:

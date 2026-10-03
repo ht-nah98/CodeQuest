@@ -49,7 +49,7 @@ export interface CheckedEntry {
   path: string;
   kind: ContentKind;
   id: string | null;
-  /** Levels only: `<kind>/<mode>`, then `par N` and `sol N` when known. */
+  /** Levels only: `<kind>/<mode>`, then `par N`, `sol N` and `maps N` when known. */
   detail?: string;
 }
 
@@ -91,11 +91,15 @@ function withPath(path: string, issues: readonly RuleIssue[]): Issue[] {
   return issues.map((issue) => ({ path, ...issue }));
 }
 
-/** Table detail of a level: `<kind>/<mode>`, then `par N` and `sol N` when known. */
+/**
+ * Table detail of a level: `<kind>/<mode>`, then `par N` and `sol N` when known, then `maps N`
+ * for a multi-map level (P2-12).
+ */
 function levelDetail(level: Level, solutionBlocks: number | null): string {
   let detail = `${level.kind}/${level.mode}`;
   if (level.par !== undefined) detail += `  par ${String(level.par)}`;
   if (solutionBlocks !== null) detail += `  sol ${String(solutionBlocks)}`;
+  if (level.variants !== undefined) detail += `  maps ${String(level.variants.length + 1)}`;
   return detail;
 }
 
@@ -302,7 +306,9 @@ export function checkContent(
           shared.assets.push([file.path, `cards.${String(index)}.image`, card.image]);
         }
       }
-      if (!location.isDraft) curriculum.lessons.push(worldFile);
+      if (!location.isDraft) {
+        curriculum.lessons.push({ ...worldFile, beforeLevel: lesson?.beforeLevel ?? null });
+      }
     }
     if (location.kind === 'world') {
       const world = entity.success ? WorldSchema.parse(parsed) : null;

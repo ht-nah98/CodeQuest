@@ -2,7 +2,7 @@ import type { Application } from 'pixi.js';
 import type { GameKindId } from '@codequest/content-schema';
 import type { GameEvent, RunOutcome } from '@codequest/engine';
 import { createStageApp, destroyStageApp } from './createStageApp';
-import { getStageKind } from './registry';
+import { getStageKind, type StageFactory } from './registry';
 import { type PlayResult, Replay, type Speed } from './replay';
 import { isAborted, type PandaAnimationListener, type StageRenderer } from './types';
 
@@ -38,8 +38,9 @@ export class StageController {
 
   private constructor(
     private readonly app: Application,
-    private readonly renderer: StageRenderer<GameEvent>,
-    options: StageControllerOptions,
+    private readonly create: StageFactory,
+    private renderer: StageRenderer<GameEvent>,
+    private readonly options: StageControllerOptions,
     container: HTMLElement,
   ) {
     this.replay = new Replay(app.ticker, renderer, options);
@@ -48,7 +49,7 @@ export class StageController {
       const height = Math.max(1, Math.floor(container.clientHeight));
       if (width === app.screen.width && height === app.screen.height) return;
       app.renderer.resize(width, height);
-      renderer.resize(width, height);
+      this.renderer.resize(width, height);
     });
     this.resizeObserver.observe(container);
   }
@@ -75,7 +76,7 @@ export class StageController {
     if (!app) return null;
     try {
       const renderer = create(app, options.config, options);
-      return new StageController(app, renderer, options, container);
+      return new StageController(app, create, renderer, options, container);
     } catch (error) {
       destroyStageApp(app);
       throw error;
@@ -122,6 +123,31 @@ export class StageController {
   /** Stops any replay at once, puts the scene back at the start and clears the highlight. */
   reset(): void {
     this.replay.reset();
+  }
+
+  /**
+   * Shows another map of the level (multi-map levels, P2-12): stops any replay, swaps the scene
+   * for a fresh renderer of `config` in the same PIXI application (no reload, the speed is kept)
+   * and puts it at its start. The new renderer is built first: when `config` does not fit the
+   * kind the factory throws, nothing it added stays and the current map keeps working.
+   */
+  showMap(config: unknown): void {
+    const stage = this.app.stage;
+    const previous = new Set(stage.children);
+    let next: StageRenderer<GameEvent>;
+    try {
+      next = this.create(this.app, config, this.options);
+    } catch (error) {
+      for (const child of [...stage.children]) {
+        if (!previous.has(child)) stage.removeChild(child).destroy({ children: true });
+      }
+      throw error;
+    }
+    this.replay.stop();
+    this.renderer.destroy();
+    for (const child of previous) stage.removeChild(child).destroy({ children: true });
+    this.renderer = next;
+    this.replay.setRenderer(next);
   }
 
   destroy(): void {

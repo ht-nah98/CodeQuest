@@ -23,4 +23,22 @@ export interface RunOutcome<E extends GameEvent = GameEvent> {
   edits?: number;
   /** Only when `result` is `error`, to help debugging. */
   debug?: { message: string };
+  /**
+   * Levels with `variants` only (P2-12, ADR-0016): the run on each map, in map order (`config`,
+   * then each variant). The top-level `result`, `reasonCode`, `events` and `stats` are those of
+   * `maps[mapIndex]`. Absent when the program could not run at all (empty, too many blocks).
+   * Ends early at a map where the engine itself broke (`error`, debug `variants[i]: …`).
+   */
+  maps?: Array<MapOutcome<E>>;
+  /**
+   * With `maps`: the map the result comes from, the first map not won (the level is lost there),
+   * or the last map when every map is won.
+   */
+  mapIndex?: number;
 }
+
+/** One map's run of a multi-map level: what `StageController.play` replays on that map. */
+export type MapOutcome<E extends GameEvent = GameEvent> = Pick<
+  RunOutcome<E>,
+  'result' | 'reasonCode' | 'events' | 'stats' | 'debug'
+>;

@@ -108,7 +108,9 @@ function describeError(error: unknown): string {
  * kind cannot be replayed. A bughunt level fixable with fewer edits than `parEdits` is ⚠.
  */
 export function judgeLevel(level: Level, options: ShortestOptions): Verdict {
-  const name = `${level.id} ${level.kind}/${level.mode}`;
+  // A multi-map level (P2-12): the search only counts programs that win every map.
+  const maps = level.variants === undefined ? '' : `  maps ${String(level.variants.length + 1)}`;
+  const name = `${level.id} ${level.kind}/${level.mode}${maps}`;
   if (level.mode !== 'build' && level.mode !== 'bughunt') {
     return { mark: '–', head: `${name}  skipped (blocks are given)`, lines: [] };
   }

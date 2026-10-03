@@ -87,6 +87,18 @@ export const vi = {
       winPar: (n: number) => `Chỉ sửa ${String(n)} khối, giỏi quá!`,
       win: 'Hết lỗi rồi! Thử sửa ít khối hơn nhé?',
     },
+    // Multi-map levels (P2-12): one tab per map over the stage, one program for every map.
+    // Lines with a number have no voice (ui-copy-guide.md §5); the tabs carry the meaning.
+    maps: {
+      label: 'Các bản đồ của màn',
+      tab: (n: number) => `Bản đồ ${String(n)}`,
+      won: 'đã qua',
+      lost: 'chưa qua',
+      intro: (count: number) => `Một chương trình cho cả ${String(count)} bản đồ`,
+      next: (n: number) => `Sang bản đồ ${String(n)} nào!`,
+      lostOn: (n: number) => `Chưa qua bản đồ ${String(n)}. Sửa rồi chạy lại nhé!`,
+      allWon: (count: number) => `Qua cả ${String(count)} bản đồ!`,
+    },
     creative: {
       label: 'Sáng tạo: không có đúng sai',
       save: 'Lưu',
@@ -181,6 +193,7 @@ export const vi = {
     settings: 'Cài đặt',
     switchProfile: 'Đổi người chơi',
     back: 'Quay lại',
+    coachBadge: 'HLV',
   },
 
   // "/" Chọn hồ sơ (screens-and-flows.md §2).
@@ -251,6 +264,9 @@ export const vi = {
     backToMap: 'Bản đồ',
     lesson: 'Bài giảng',
     lessonFirst: 'Xem bài giảng trước nhé!',
+    // Block lesson stone (lesson.beforeLevel) and Măng's nudge when it is next.
+    newBlock: 'Khối mới',
+    newBlockFirst: 'Có khối mới! Xem bài khối mới trước nhé.',
     allDone: 'Con qua hết các màn ở đây rồi!',
     levelLabel: (n: number, title: string) => `Màn ${String(n)}: ${title}`,
     stage: {
@@ -494,6 +510,12 @@ export const vi = {
     startDir: 'Hướng xuất phát',
     dirs: { N: 'Lên', E: 'Phải', S: 'Xuống', W: 'Trái' },
     collectAll: 'Phải nhặt hết măng mới thắng',
+    // Multi-map levels (P2-12): `config` is Bản đồ 1, each variant the next one.
+    mapsHelp: 'Chương trình phải thắng mọi bản đồ. Chỉ màn build và bughunt.',
+    addMap: 'Thêm bản đồ (chép bản đồ đang xem)',
+    removeMap: 'Xóa bản đồ này',
+    mapsUnused: (count: number) =>
+      `Mode này không dùng bản đồ thêm: ${String(count)} bản đồ thêm bị bỏ khi xuất.`,
     mapUnreadable: 'Bản đồ của màn này không đọc được. Sửa trong file JSON.',
 
     predict: 'Thẻ đoán (3–4 thẻ)',

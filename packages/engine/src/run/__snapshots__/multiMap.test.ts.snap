@@ -1,0 +1,226 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`runLevel on a level with variants > keeps a separate event log per map (snapshot), the same on every run 1`] = `
+[
+  {
+    "events": [
+      {
+        "blockId": "start",
+        "type": "highlight",
+      },
+      {
+        "blockId": "a",
+        "type": "highlight",
+      },
+      {
+        "blockId": "a",
+        "from": 0,
+        "to": 1,
+        "type": "step",
+      },
+      {
+        "blockId": "b",
+        "type": "highlight",
+      },
+      {
+        "blockId": "b",
+        "from": 1,
+        "to": 2,
+        "type": "step",
+      },
+      {
+        "blockId": "c",
+        "type": "highlight",
+      },
+      {
+        "blockId": "c",
+        "from": 2,
+        "to": 3,
+        "type": "step",
+      },
+      {
+        "blockId": "d",
+        "type": "highlight",
+      },
+      {
+        "blockId": "d",
+        "from": 3,
+        "to": 4,
+        "type": "step",
+      },
+      {
+        "blockId": "e",
+        "type": "highlight",
+      },
+      {
+        "blockId": "e",
+        "from": 4,
+        "to": 5,
+        "type": "step",
+      },
+      {
+        "blockId": "f",
+        "type": "highlight",
+      },
+      {
+        "blockId": "f",
+        "from": 5,
+        "to": 6,
+        "type": "step",
+      },
+    ],
+    "reasonCode": "NOT_AT_GOAL",
+    "result": "incomplete",
+    "stats": {
+      "actions": 6,
+      "blocksUsed": 6,
+      "steps": 118,
+    },
+  },
+  {
+    "events": [
+      {
+        "blockId": "start",
+        "type": "highlight",
+      },
+      {
+        "blockId": "a",
+        "type": "highlight",
+      },
+      {
+        "blockId": "a",
+        "from": 0,
+        "to": 1,
+        "type": "step",
+      },
+      {
+        "blockId": "b",
+        "type": "highlight",
+      },
+      {
+        "blockId": "b",
+        "from": 1,
+        "to": 2,
+        "type": "step",
+      },
+      {
+        "blockId": "c",
+        "type": "highlight",
+      },
+      {
+        "blockId": "c",
+        "from": 2,
+        "to": 3,
+        "type": "step",
+      },
+      {
+        "blockId": "d",
+        "type": "highlight",
+      },
+      {
+        "blockId": "d",
+        "from": 3,
+        "to": 4,
+        "type": "step",
+      },
+      {
+        "blockId": "e",
+        "type": "highlight",
+      },
+      {
+        "blockId": "e",
+        "from": 4,
+        "to": 5,
+        "type": "step",
+      },
+      {
+        "at": 5,
+        "blockId": "e",
+        "type": "fall",
+      },
+    ],
+    "reasonCode": "FELL_IN_HOLE",
+    "result": "crash",
+    "stats": {
+      "actions": 6,
+      "blocksUsed": 6,
+      "steps": 96,
+    },
+  },
+  {
+    "events": [
+      {
+        "blockId": "start",
+        "type": "highlight",
+      },
+      {
+        "blockId": "a",
+        "type": "highlight",
+      },
+      {
+        "blockId": "a",
+        "from": 0,
+        "to": 1,
+        "type": "step",
+      },
+      {
+        "blockId": "b",
+        "type": "highlight",
+      },
+      {
+        "blockId": "b",
+        "from": 1,
+        "to": 2,
+        "type": "step",
+      },
+      {
+        "blockId": "c",
+        "type": "highlight",
+      },
+      {
+        "blockId": "c",
+        "from": 2,
+        "to": 3,
+        "type": "step",
+      },
+      {
+        "blockId": "d",
+        "type": "highlight",
+      },
+      {
+        "blockId": "d",
+        "from": 3,
+        "to": 4,
+        "type": "step",
+      },
+      {
+        "blockId": "e",
+        "type": "highlight",
+      },
+      {
+        "blockId": "e",
+        "from": 4,
+        "to": 5,
+        "type": "step",
+      },
+      {
+        "blockId": "f",
+        "type": "highlight",
+      },
+      {
+        "blockId": "f",
+        "from": 5,
+        "to": 6,
+        "type": "step",
+      },
+    ],
+    "reasonCode": "NOT_AT_GOAL",
+    "result": "incomplete",
+    "stats": {
+      "actions": 6,
+      "blocksUsed": 6,
+      "steps": 118,
+    },
+  },
+]
+`;

@@ -1,0 +1,119 @@
+{
+  "id": "runner-maps",
+  "worldId": "_sandbox",
+  "stage": "practice",
+  "kind": "runner",
+  "mode": "build",
+  "title": "Ba bản đồ",
+  "objective": "Một chương trình, thắng cả ba bản đồ!",
+  "learningGoal": "Viết một chương trình đúng trên mọi bản đồ, không chỉ bản đồ đang nhìn.",
+  "misconception": "Đúng ở bản đồ này là đúng ở mọi bản đồ.",
+  "toolbox": [
+    "runner_walk",
+    "runner_jump",
+    {
+      "type": "cq_repeat",
+      "fields": {
+        "TIMES": 3
+      }
+    }
+  ],
+  "par": 3,
+  "maxBlocks": 6,
+  "config": {
+    "cells": [
+      "ground",
+      "ground",
+      "hole",
+      "ground",
+      "ground",
+      "ground",
+      "ground",
+      "ground",
+      "ground",
+      "flag"
+    ],
+    "start": 0
+  },
+  "variants": [
+    {
+      "cells": [
+        "ground",
+        "ground",
+        "hole",
+        "ground",
+        "ground",
+        "hole",
+        "ground",
+        "ground",
+        "ground",
+        "flag"
+      ],
+      "start": 0
+    },
+    {
+      "cells": [
+        "ground",
+        "ground",
+        "hole",
+        "ground",
+        "ground",
+        "hole",
+        "ground",
+        "ground",
+        "hole",
+        "flag"
+      ],
+      "start": 0
+    }
+  ],
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "rep",
+              "fields": {
+                "TIMES": 3
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "runner_walk",
+                    "id": "walk",
+                    "next": {
+                      "block": {
+                        "type": "runner_jump",
+                        "id": "jump"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "other-map",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "FELL_IN_HOLE"
+      },
+      "say": "Xem bản đồ khác, hố nằm chỗ khác!",
+      "point": "stage"
+    }
+  ],
+  "thinkingHint": "Ba bản đồ giống nhau ở chỗ nào?"
+}

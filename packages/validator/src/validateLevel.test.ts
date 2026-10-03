@@ -143,6 +143,38 @@ describe('validateLevel', () => {
     ).toEqual([]);
   });
 
+  it('variants (P2-12): every map is checked and must be won', () => {
+    const second = { cells: ['ground', 'ground', 'ground', 'hole', 'ground', 'flag'], start: 0 };
+    const straight = {
+      cells: ['ground', 'ground', 'ground', 'ground', 'ground', 'flag'],
+      start: 0,
+    };
+    // walk, jump, walk: wins map 1, stops at cell 4 of map 2 (one cell short of the flag).
+    expect(messages(level({ variants: [straight] }))).toEqual([
+      '9 solution ends incomplete NOT_AT_GOAL (stop@4) on map 2',
+    ]);
+    const solution = programToWorkspace([walk, jump, walk, walk]);
+    const twoMaps = level({
+      config: { cells: ['ground', 'ground', 'hole', 'ground', 'ground', 'flag'], start: 0 },
+      variants: [second],
+      par: 4,
+      solution,
+    });
+    expect(messages(twoMaps)).toEqual([
+      '9 solution ends crash FELL_IN_HOLE (crash:FELL_IN_HOLE@3) on map 2',
+    ]);
+    expect(messages(level({ variants: [{ cells: [] }] }))[0]).toMatch(/^1 variants\.0\.cells: /);
+    expect(
+      messages(
+        level({
+          mode: 'parsons',
+          initialWorkspace: programToWorkspace([walk]),
+          variants: [second],
+        }),
+      ),
+    ).toEqual(['1 variants: "variants" only fits modes build and bughunt']);
+  });
+
   it('rule 16: hint targets and reason codes', () => {
     expect(
       messages(

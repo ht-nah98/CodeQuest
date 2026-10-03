@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { Level } from '@codequest/content-schema';
+import { type Level, MAX_VARIANTS } from '@codequest/content-schema';
 import {
   MAZE_DIRS,
   MAZE_MAX_SIZE,
@@ -14,11 +14,16 @@ import {
 } from '@codequest/games';
 import type { RuleIssue } from '@codequest/validator';
 import {
+  addMap,
   applyRunnerTool,
+  draftMaps,
+  modeUses,
   paintMaze,
+  removeMap,
   resizeMaze,
   resizeRunner,
   type RunnerTool,
+  updateMap,
 } from '../../../features/editor/draft';
 import { vi } from '../../../i18n/vi';
 import { Button } from '../../../ui';
@@ -26,6 +31,7 @@ import { FOCUS_RING } from '../../../ui/focusRing';
 import { CommitNumberInput, Field, FieldIssues, INPUT_CLASS, Section } from './parts';
 
 const t = vi.editor;
+const tMaps = vi.play.maps;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -49,18 +55,28 @@ function isMazeConfig(config: unknown): config is MazeConfig {
   );
 }
 
-/** The map of the draft: a runner track or a maze grid, plus the goal option. */
+/**
+ * The maps of the draft: tabs "Bản đồ 1 · 2 · 3" when the mode allows variants (P2-12), and the
+ * selected map as a runner track or a maze grid, plus its goal option.
+ */
 export function MapEditor({
   level,
   issues,
-  onConfig,
+  onLevel,
 }: {
   level: Level;
   issues: readonly RuleIssue[] | undefined;
-  /** Applies `update` to the latest config (functional: a drag paints between renders). */
-  onConfig: (update: (config: unknown) => unknown) => void;
+  /** Applies `update` to the latest draft (functional: a drag paints between renders). */
+  onLevel: (update: (level: Level) => Level) => void;
 }) {
-  const { config } = level;
+  const maps = draftMaps(level);
+  const [picked, setPicked] = useState(0);
+  const selected = Math.min(picked, maps.length - 1);
+  const config = maps[selected];
+  const onConfig = (update: (config: unknown) => unknown) => {
+    onLevel((latest) => updateMap(latest, selected, update));
+  };
+  const usesMaps = modeUses(level.mode, 'variants');
   let body;
   if (level.kind === 'runner' && isRunnerConfig(config)) {
     body = (
@@ -87,6 +103,56 @@ export function MapEditor({
     isRecord(config) && isRecord(config['goal']) && config['goal']['collectAll'] === true;
   return (
     <Section title={t.map} id="editor-map">
+      {(usesMaps || maps.length > 1) && (
+        <div className="grid gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <div role="tablist" aria-label={tMaps.label} className="flex gap-1">
+              {maps.map((_, index) => (
+                <Button
+                  key={index}
+                  size="sm"
+                  role="tab"
+                  aria-selected={index === selected}
+                  variant={index === selected ? 'coin' : 'plain'}
+                  data-testid={`editor-map-tab-${String(index + 1)}`}
+                  onClick={() => {
+                    setPicked(index);
+                  }}
+                >
+                  {tMaps.tab(index + 1)}
+                </Button>
+              ))}
+            </div>
+            {usesMaps && maps.length <= MAX_VARIANTS && (
+              <Button
+                size="sm"
+                data-testid="editor-add-map"
+                onClick={() => {
+                  onLevel((latest) => addMap(latest, selected));
+                  setPicked(maps.length);
+                }}
+              >
+                {t.addMap}
+              </Button>
+            )}
+            {maps.length > 1 && (
+              <Button
+                size="sm"
+                data-testid="editor-remove-map"
+                onClick={() => {
+                  onLevel((latest) => removeMap(latest, selected));
+                  setPicked(Math.max(0, selected - 1));
+                }}
+              >
+                {t.removeMap}
+              </Button>
+            )}
+          </div>
+          <p className="m-0 text-small text-ink-soft">
+            {usesMaps ? t.mapsHelp : t.mapsUnused(maps.length - 1)}
+          </p>
+        </div>
+      )}
       {body}
       {(isRunnerConfig(config) || isMazeConfig(config)) && (
         <label className="flex items-center gap-2 font-bold">

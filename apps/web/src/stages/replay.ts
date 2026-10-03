@@ -49,9 +49,19 @@ export class Replay {
 
   constructor(
     private readonly ticker: Ticker,
-    private readonly renderer: StageRenderer<GameEvent>,
+    private renderer: StageRenderer<GameEvent>,
     private readonly hooks: ReplayHooks,
   ) {}
+
+  /**
+   * Replays on another renderer from now on (another map of a multi-map level, P2-12): stops any
+   * replay, then resets like `reset()` on the new scene. The chosen speed is kept.
+   */
+  setRenderer(renderer: StageRenderer<GameEvent>): void {
+    this.stop();
+    this.renderer = renderer;
+    this.reset();
+  }
 
   /**
    * Replays a run from the start: highlight events light up their block for HIGHLIGHT_MS,

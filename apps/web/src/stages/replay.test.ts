@@ -114,6 +114,26 @@ describe('Replay', () => {
     expect(renderer.calls.at(-1)).toBe('finish');
   });
 
+  it('setRenderer aborts the replay, resets the new scene and keeps the speed (P2-12)', async () => {
+    replay.setSpeed(2);
+    const done = replay.play(outcome('success', 3));
+    await advance(HIGHLIGHT_MS / 2);
+    const before = [...renderer.played];
+    const next = new FakeRenderer(ticker);
+    replay.setRenderer(next);
+    await flush();
+    await expect(done).resolves.toBe('aborted');
+    expect(next.calls).toEqual(['reset']);
+    expect(ticker.speed).toBe(2);
+
+    const again = replay.play(outcome('success', 1));
+    await advance(1000);
+    await expect(again).resolves.toBe('finished');
+    expect(next.played).toEqual(['walk']);
+    // The old scene got nothing more after the swap.
+    expect(renderer.played).toEqual(before);
+  });
+
   it('calls finish after rest for an unfinished run, never after an abort or between steps', async () => {
     const stepped = replay.play(outcome('incomplete', 2), { step: true });
     await advance(HIGHLIGHT_MS * 2);

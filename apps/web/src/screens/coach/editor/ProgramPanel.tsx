@@ -51,8 +51,17 @@ export interface ProgramPanelProps {
 
 /** What Thử chơi depends on: texts, hints and numbers do not restart the stage. */
 function previewKey(level: Level): string {
-  const { kind, mode, config, toolbox, maxBlocks, initialWorkspace, solution } = level;
-  return JSON.stringify({ kind, mode, config, toolbox, maxBlocks, initialWorkspace, solution });
+  const { kind, mode, config, variants, toolbox, maxBlocks, initialWorkspace, solution } = level;
+  return JSON.stringify({
+    kind,
+    mode,
+    config,
+    variants,
+    toolbox,
+    maxBlocks,
+    initialWorkspace,
+    solution,
+  });
 }
 
 /** "Chương trình": the solution and the start program in Blockly, and Thử chơi. */

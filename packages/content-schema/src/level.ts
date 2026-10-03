@@ -31,6 +31,9 @@ export type ToolboxEntry = z.infer<typeof ToolboxEntrySchema>;
 
 const positiveInt = z.number().int().positive();
 
+/** At most 3 maps per level: `config` plus 2 variants (P2-12). */
+export const MAX_VARIANTS = 2;
+
 /** Same pattern as feedback.json keys (coding-standards.md §2). */
 const REASON_CODE = /^[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)*$/;
 
@@ -61,6 +64,11 @@ export const LevelSchema = z
     par: positiveInt.optional(),
     parEdits: positiveInt.optional(),
     config: z.unknown(),
+    /**
+     * Extra maps (P2-12, ADR-0016): 1–2 more configs of the same kind. One program must win on
+     * `config` and on every variant. Only modes `build` and `bughunt`.
+     */
+    variants: z.array(z.unknown()).min(1).max(MAX_VARIANTS).optional(),
     initialWorkspace: ContentWorkspaceJsonSchema.optional(),
     solution: ContentWorkspaceJsonSchema.optional(),
     predict: z
@@ -120,6 +128,13 @@ export const LevelSchema = z
         code: 'custom',
         path: ['parEdits'],
         message: '"parEdits" only fits mode bughunt',
+      });
+    }
+    if (level.variants !== undefined && level.mode !== 'build' && level.mode !== 'bughunt') {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['variants'],
+        message: '"variants" only fits modes build and bughunt',
       });
     }
     const ids = new Set<string>();

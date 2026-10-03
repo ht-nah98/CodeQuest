@@ -1,4 +1,4 @@
-import sheetJson from '../../../public/sprites/panda.json?raw';
+import sheetJson from 'virtual:panda-sheet';
 
 interface Rect {
   x: number;

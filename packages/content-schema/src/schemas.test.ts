@@ -180,8 +180,44 @@ describe('LevelSchema', () => {
       },
     });
   });
+  it('accepts 1–2 variants in modes build and bughunt', () => {
+    const map = { cells: ['ground', 'ground', 'flag'], start: 0 };
+    expectValid(LevelSchema, { ...buildLevel, variants: [map] });
+    expectValid(LevelSchema, {
+      ...buildLevel,
+      mode: 'bughunt',
+      parEdits: 1,
+      initialWorkspace: workspace,
+      variants: [map, map],
+    });
+  });
   it.each([
     ['unknown kind', { ...buildLevel, kind: 'racing' }],
+    ['empty variants', { ...buildLevel, variants: [] }],
+    ['three variants', { ...buildLevel, variants: [{}, {}, {}] }],
+    [
+      'variants in parsons',
+      { ...buildLevel, mode: 'parsons', initialWorkspace: workspace, variants: [{}] },
+    ],
+    [
+      'variants in predict',
+      {
+        ...buildLevel,
+        mode: 'predict',
+        par: undefined,
+        solution: undefined,
+        initialWorkspace: workspace,
+        predict: {
+          options: [
+            { key: 'win', label: 'a' },
+            { key: 'stop@1', label: 'b' },
+            { key: 'stop@2', label: 'c' },
+          ],
+        },
+        variants: [{}],
+      },
+    ],
+    ['variants in creative', { ...buildLevel, mode: 'creative', variants: [{}] }],
     ['unknown mode', { ...buildLevel, mode: 'quiz' }],
     ['unknown stage', { ...buildLevel, stage: 'lesson' }],
     ['typo in a key', { ...buildLevel, objectve: 'x' }],

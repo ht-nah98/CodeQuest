@@ -22,6 +22,7 @@ class StageController {
   step(): void;                                     // diễn khối tiếp theo; xem quy tắc bấm sớm bên dưới
   setSpeed(speed: 0.5 | 1 | 2): void;
   reset(): void;                                    // dừng phát ngay, renderer.reset, bỏ highlight
+  showMap(config: unknown): void;                   // màn nhiều bản đồ (P2-12): renderer mới cho config này, cùng app PIXI, giữ tốc độ
   destroy(): void;
   readonly playing: boolean; readonly paused: boolean; readonly waitingForStep: boolean;
 }
@@ -42,6 +43,7 @@ class StageController {
 - Một `AbortController` cho mỗi lần play. Bấm Làm lại / rời màn thì abort, renderer phải dừng tween ngay.
 - `ResizeObserver` trên container → `app.renderer.resize` + `renderer.resize`.
 - Sau khi diễn xong: thắng → báo màn hình Kết quả; thua → rung khối gây lỗi + gọi hint engine.
+- **Màn nhiều bản đồ** (`variants`, P2-12, ADR-0016): thẻ "Bản đồ 1 · 2 · 3" (`screens/play/MapTabs.tsx`, `role="tablist"`) nằm trên sân chơi. Trước khi chạy, bấm thẻ để xem từng bản đồ. Chạy: luôn bắt đầu từ bản đồ 1, phát lần lượt `outcome.maps` tới `mapIndex` (`mapReplays`); trước mỗi bản đồ gọi `showMap` (gỡ cảnh cũ khỏi `app.stage`, tạo renderer mới, `Replay.setRenderer` giữ tốc độ), Măng nói "Sang bản đồ N nào!". Dừng ở bản đồ đầu tiên thua: thẻ đó được chọn và giữ lại, thẻ đã chạy có ✔/✖ (kèm chữ cho trình đọc màn hình), dòng bên cạnh ghi "Chưa qua bản đồ N…" hoặc "Qua cả N bản đồ!". Thẻ khóa khi đang diễn; dấu ✔/✖ mất khi bé sửa chương trình hoặc chạy lại. Chế độ từng bước giữ nguyên khi sang bản đồ sau. Dải cả đường (runner) theo bản đồ đang hiện. "Thử chơi" của level editor dùng cùng thẻ và cùng cách phát.
 
 ## 2. Hệ tọa độ & tỷ lệ
 - Mỗi kiểu game định nghĩa **kích thước logic** (vd runner: 3–40 ô × 1 làn; maze: 3–12 × 3–12 ô). Renderer tính lại bố cục theo kích thước thật của khung (ResizeObserver), không phóng to một canvas cố định.

@@ -2,7 +2,7 @@ import { type Level, LevelSchema } from '@codequest/content-schema';
 import { runLevel } from '@codequest/engine';
 import { getGameKind } from '@codequest/games';
 import { type RuleIssue, validateLevel } from '@codequest/validator';
-import { type EditorField, isDraftWorld, issueField, levelJson } from './draft';
+import { draftMaps, type EditorField, isDraftWorld, issueField, levelJson } from './draft';
 
 /** What the editor shows about the draft after every change. */
 export interface DraftValidation {
@@ -38,8 +38,11 @@ export function validateDraft(draft: Level): DraftValidation {
   }
   const runnable = runnableLevel(json);
   const kind = runnable === null ? undefined : getGameKind(runnable.kind);
+  // Every map must fit its kind (multi-map levels, P2-12): Thử chơi shows each one.
   const playable =
-    runnable !== null && kind !== undefined && kind.configSchema.safeParse(runnable.config).success;
+    runnable !== null &&
+    kind !== undefined &&
+    draftMaps(runnable).every((config) => kind.configSchema.safeParse(config).success);
   let answerKey: string | null = null;
   if (playable && runnable.mode === 'predict' && runnable.initialWorkspace !== undefined) {
     answerKey =

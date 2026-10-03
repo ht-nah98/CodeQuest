@@ -51,6 +51,12 @@ describe('findLevelFiles', () => {
 });
 
 describe('judgeLevel', () => {
+  it('searches a multi-map level on every map (P2-12)', () => {
+    const verdict = judgeLevel(load('_sandbox', 'runner-maps'), {});
+    expect(verdict.mark).toBe('✔');
+    expect(verdict.head).toBe('runner-maps runner/build  maps 3  par 3  min 3 (18 shortest)');
+  });
+
   it('passes a level whose par is the true minimum', () => {
     const verdict = judgeLevel(load('w02-rung-lap-lai', 'w02-l05'), {});
     expect(verdict.mark).toBe('✔');

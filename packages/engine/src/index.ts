@@ -8,7 +8,7 @@ export type {
   GameKindDefinition,
   Primitive,
 } from './sdk/gameKind';
-export type { RunOutcome, RunStats } from './sdk/outcome';
+export type { MapOutcome, RunOutcome, RunStats } from './sdk/outcome';
 
 // Common blocks and registration (blockly-integration.md §1).
 export { COMMON_BLOCKS, CQ_REPEAT, CQ_REPEAT_MAX_TIMES, CQ_START } from './blocks/common';
