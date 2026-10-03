@@ -58,7 +58,7 @@ Gom từ các task P1-01 → P1-15. Mỗi câu ghi lựa chọn AI đang dùng t
 ## G. Chương trình học Thế giới 3–5 (P2-10)
 Bảng màn, lý do, quyết định D1–D12 và luật soạn R1–R3: `product/curriculum.md` §5. Danh sách câu hỏi **chỉ để ở đây**; §5.5 trỏ về đây. Luật sao theo mục tiêu đã duyệt (`product/rewards-economy.md` §1), không hỏi lại.
 
-1. **Duyệt chương trình W3–5.** *Đã duyệt 03/10/2026 (hướng chung), kèm yêu cầu thêm nhiệm vụ/cốt truyện.* Sau đó bảng đã sửa theo hai vòng review sư phạm độc lập, thêm nhiệm vụ và mục tiêu ⭐, nên anh xác nhận từng màn khi chơi thử (P2-08/13/14).
+1. **Duyệt chương trình W3–5.** *Đã duyệt 03/10/2026 (hướng chung; sau đó HLV và phụ huynh đọc bản sửa và duyệt nội dung cùng ngày), kèm yêu cầu thêm nhiệm vụ/cốt truyện.* Sau đó bảng đã sửa theo hai vòng review sư phạm độc lập, thêm nhiệm vụ và mục tiêu ⭐, nên anh xác nhận từng màn khi chơi thử (P2-08/13/14).
 2. **Luật A1 và "lặp đến khi".** Măng thắng ngay khi chạm đích, nên `đã tới đích?` / `đã tới nơi?` không bao giờ trả ✔ khi đang chạy, và `lặp 20 lần` làm được việc của "lặp đến khi tới đích" khi đường ≤ 20 vòng.
    - *Giữ A1:* W1–W2 không đổi. W4 dùng "lặp đủ nhiều" (`l06`). W5 chỉ cho "lặp n lần" ở màn cần hơn 20 vòng; bài giảng nói "Tới nơi là thắng ngay".
    - *Đổi A1 thành "chỉ thắng khi hết chương trình":* "lặp đến khi" có nghĩa trọn vẹn, nhưng phải soạn lại W1–W2 và W4 (N phải đúng, không thừa).
