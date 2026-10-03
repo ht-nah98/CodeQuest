@@ -241,15 +241,18 @@ export function parseBackup(text: string): ParseBackupResult {
   return parsed.success ? { ok: true, backup: parsed.data } : { ok: false, error: 'invalid' };
 }
 
-/** Snapshot of the given profiles (all profiles on this laptop by default). */
+/**
+ * Snapshot of the given profiles (all children on this laptop by default). The coach review
+ * profile (role 'coach') is never exported: it is recreated from VITE_COACH_PIN on each laptop.
+ */
 export function exportBackup(
   profileIds?: readonly string[],
   now: Date = new Date(),
 ): Promise<Backup> {
   return db.transaction('r', db.tables, async () => {
-    const profiles = profileIds
-      ? (await db.profiles.bulkGet([...profileIds])).filter((p) => p !== undefined)
-      : await db.profiles.toArray();
+    const profiles = (
+      profileIds ? await db.profiles.bulkGet([...profileIds]) : await db.profiles.toArray()
+    ).filter((p): p is ProfileRow => p !== undefined && p.role !== 'coach');
     const backups: ProfileBackup[] = [];
     for (const profile of profiles) {
       const owned = <T, K extends IndexableType>(table: Table<T, K>) =>

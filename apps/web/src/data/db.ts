@@ -7,6 +7,9 @@ import type { HintTier, LedgerEntry, LevelProgress } from '@codequest/rewards';
 
 export const DB_NAME = 'codequest';
 
+/** Fixed id of the coach review profile (role 'coach'): lets the outbox skip it without a read. */
+export const COACH_PROFILE_ID = 'coach-hlv';
+
 export interface ProfileSettings {
   /** 0..1 */
   musicVolume: number;
@@ -26,6 +29,11 @@ export interface ProfileRow {
   /** `pbkdf2-sha256$<iterations>$<salt b64>$<hash b64>`, see data/pin.ts. */
   pinHash: string;
   settings: ProfileSettings;
+  /**
+   * `'coach'` marks the review profile of the coach (dev builds, P2-16 replaces it with a real
+   * login): opens every level, never counted as a child, never exported or synced. Not indexed.
+   */
+  role?: 'coach';
   /** Set when the device is paired to a Supabase student (phase 2). */
   remoteStudentId?: string;
   /** ISO */

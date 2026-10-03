@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { useLocation } from 'react-router';
+import { useCurrentProfile } from '../profiles';
 import { allIds, type Catalog } from '../content/catalog';
 import { SANDBOX_WORLD_ID } from '../content/sandbox';
 
@@ -47,14 +48,26 @@ export function useAuthorFlags(): AuthorFlags {
   return useMemo(() => authorFlags(search), [search]);
 }
 
+/** Ids opened by hand, see useUnlockOverrides. Pure, so it is unit-tested without React. */
+export function unlockOverrideIds(
+  catalog: Catalog | null,
+  options: { dev: boolean; unlockAll: boolean; coach: boolean },
+): Set<string> {
+  if (!options.dev || catalog === null) return new Set<string>();
+  return new Set(options.unlockAll || options.coach ? allIds(catalog) : [SANDBOX_WORLD_ID]);
+}
+
 /**
  * Ids opened by hand (isUnlocked `overrides`): in dev builds the sandbox world, and with
- * `?unlock=all` every world and level. Coach overrides arrive with sync in phase 2.
+ * `?unlock=all` or the signed-in coach profile (role 'coach') every world and level. Reads the
+ * role from the current profile, so it must run under <CurrentProfileProvider> (every screen
+ * after sign-in does).
  */
 export function useUnlockOverrides(catalog: Catalog | null): Set<string> {
   const { unlockAll } = useAuthorFlags();
-  return useMemo(() => {
-    if (!import.meta.env.DEV || catalog === null) return new Set<string>();
-    return new Set(unlockAll ? allIds(catalog) : [SANDBOX_WORLD_ID]);
-  }, [catalog, unlockAll]);
+  const coach = useCurrentProfile().profile?.role === 'coach';
+  return useMemo(
+    () => unlockOverrideIds(catalog, { dev: import.meta.env.DEV, unlockAll, coach }),
+    [catalog, unlockAll, coach],
+  );
 }

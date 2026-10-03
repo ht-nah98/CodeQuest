@@ -1,7 +1,8 @@
 // @vitest-environment node
 import 'fake-indexeddb/auto';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { db } from '../db';
+import { COACH_PROFILE_ID, db } from '../db';
+import { hashPin } from '../pin';
 import { getBalance, listLedger } from './ledger';
 import { listOutbox } from './outbox';
 import { saveProgress } from './progress';
@@ -12,6 +13,7 @@ import {
   changePin,
   createProfile,
   deleteProfile,
+  ensureCoachProfile,
   getProfile,
   listProfiles,
   ProfileError,
@@ -182,5 +184,99 @@ describe('profiles repository', () => {
     expect(created).not.toHaveProperty('pinHash');
     expect(await getProfile(created.id)).not.toHaveProperty('pinHash');
     expect((await listProfiles())[0]).not.toHaveProperty('pinHash');
+  });
+});
+
+async function theCoach() {
+  const coach = (await listProfiles()).find((p) => p.role === 'coach');
+  if (!coach) throw new Error('no coach profile');
+  return coach;
+}
+
+describe('coach review profile', () => {
+  it('is seeded once, with the PIN hashed and without starter coins', async () => {
+    expect(await ensureCoachProfile('2468', NOW)).toBe(true);
+    expect(await ensureCoachProfile('2468', NOW)).toBe(false);
+    expect(await listProfiles()).toHaveLength(1);
+    const coach = await theCoach();
+    expect(coach).toMatchObject({ nickname: 'HLV', role: 'coach' });
+    expect(await getBalance(coach.id)).toBe(0);
+    expect(await verifyPin(coach.id, '2468')).toBe(true);
+    expect(await verifyPin(coach.id, '0000')).toBe(false);
+    expect(JSON.stringify(await db.profiles.toArray())).not.toContain('2468');
+  });
+
+  it('keeps the existing profile and its progress, even with another PIN', async () => {
+    await ensureCoachProfile('2468', NOW);
+    const coach = await theCoach();
+    await saveProgress(
+      coach.id,
+      {
+        levelId: 'w01-l01',
+        bestStars: 2,
+        bestBlocks: 5,
+        completedAt: NOW.toISOString(),
+        firstTryWin: false,
+        attempts: 1,
+      },
+      NOW,
+    );
+    expect(await ensureCoachProfile('1357', NOW)).toBe(false);
+    expect(await verifyPin(coach.id, '2468')).toBe(true);
+    expect(await db.progress.count()).toBe(1);
+  });
+
+  it('coach progress never reaches the outbox', async () => {
+    await ensureCoachProfile('2468', NOW);
+    const coach = await theCoach();
+    await saveProgress(
+      coach.id,
+      {
+        levelId: 'w01-l01',
+        bestStars: 3,
+        bestBlocks: 4,
+        completedAt: NOW.toISOString(),
+        firstTryWin: true,
+        attempts: 1,
+      },
+      NOW,
+    );
+    await markLessonDone(coach.id, 'w01-lesson', [], NOW);
+    expect(await db.progress.count()).toBe(1);
+    expect(await listOutbox()).toEqual([]);
+  });
+
+  it('re-keys a legacy coach profile to the fixed id, keeping the PIN', async () => {
+    await ensureCoachProfile('2468', NOW);
+    const current = await theCoach();
+    await db.profiles.delete(current.id);
+    const row = { ...current, id: 'legacy-uuid' };
+    await db.profiles.add({ ...row, pinHash: await hashPin('1357') });
+    await db.progress.add({
+      profileId: 'legacy-uuid',
+      levelId: 'w01-l01',
+      bestStars: 1,
+      bestBlocks: 4,
+      completedAt: NOW.toISOString(),
+      firstTryWin: true,
+      attempts: 1,
+      updatedAt: NOW.toISOString(),
+    });
+    expect(await ensureCoachProfile('2468', NOW)).toBe(false);
+    const all = await listProfiles();
+    expect(all.map((p) => p.id)).toEqual([COACH_PROFILE_ID]);
+    expect(all[0]).toMatchObject({ nickname: 'HLV', role: 'coach' });
+    expect(await verifyPin(COACH_PROFILE_ID, '1357')).toBe(true);
+    expect(await db.progress.count()).toBe(0);
+    expect(await ensureCoachProfile('2468', NOW)).toBe(false);
+    expect((await listProfiles()).map((p) => p.id)).toEqual([COACH_PROFILE_ID]);
+  });
+
+  it('does nothing for an invalid PIN or when a child already uses the nickname', async () => {
+    expect(await ensureCoachProfile('12', NOW)).toBe(false);
+    expect(await listProfiles()).toHaveLength(0);
+    await createProfile({ nickname: 'hlv', avatarId: 'panda', pin: '0000' }, NOW);
+    expect(await ensureCoachProfile('2468', NOW)).toBe(false);
+    expect(await listProfiles()).toHaveLength(1);
   });
 });

@@ -99,6 +99,10 @@ Mục tiêu: bé không bao giờ phải nhớ email hay mật khẩu.
 3. Trên laptop của bé: màn "Ghép máy" → nhập mã → Edge Function `pair-device` kiểm mã, dùng Admin API `generateLink({ type: 'magiclink' })` lấy `hashed_token` → client gọi `supabase.auth.verifyOtp({ token_hash, type: 'magiclink' })` để nhận phiên. supabase-js tự lưu và làm mới phiên.
 4. Mỗi lần mở app: bé chọn avatar + **PIN 4 số**. PIN chỉ là **khóa cục bộ** giữa các hồ sơ trên cùng một máy (vd anh chị em dùng chung), lưu dạng hash, không gửi lên server.
 
+### Hồ sơ HLV trên máy (bản dev, trước P2-16)
+Trong bản dev, nếu `apps/web/.env.local` (gitignored, không commit) có `VITE_COACH_PIN` (4 số), app tự tạo hồ sơ **"HLV"** (`role: 'coach'` trên `ProfileRow`, không đánh index nên không nâng version Dexie; PIN băm bằng `data/pin.ts`). Hồ sơ đã có thì giữ nguyên, không tạo lại, không xóa tiến độ. Khi đăng nhập bằng hồ sơ này, `useUnlockOverrides` mở mọi thế giới, màn và thế giới sandbox để HLV xem bài không cần chơi tuần tự; hồ sơ của bé không đổi. Biến chỉ được đọc trong nhánh `import.meta.env.DEV` nên bản production build không chứa PIN (test `coachProfile.test.ts` canh mã nguồn; đã kiểm bằng `vite build` + grep). Muốn đổi PIN: sửa `.env.local`, xóa hồ sơ HLV (DevTools > IndexedDB > codequest > profiles), khởi động lại để tạo lại. Hồ sơ có id cố định `coach-hlv`, nên outbox bỏ qua mọi dòng của nó. Bản production: P2-16 thay bằng đăng nhập HLV thật.
+Hồ sơ HLV **không phải một bé**: không vào sao lưu (`exportBackup` bỏ qua, kể cả khi truyền id), **không bao giờ đồng bộ** (P2-04 phải bỏ qua mọi hồ sơ có `role === 'coach'`, không ghép máy, không đẩy outbox) và không được tính vào số liệu của bé (mục tiêu chung, bảng góc HLV).
+
 ### Trước GĐ 2
 Hồ sơ chỉ tồn tại trên máy. Cài đặt có "Sao lưu tiến độ" (tải file `.json`) và "Khôi phục". Khi lên GĐ 2, file này (hoặc dữ liệu local) được đẩy lên tài khoản học sinh tương ứng trong lần ghép máy đầu tiên.
 

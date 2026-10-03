@@ -5,6 +5,7 @@ import { useCoinBalance, useStreakDays, useTotalStars } from '../../features/pro
 import { vi } from '../../i18n/vi';
 import { Avatar, Button, Hud, PixelIcon } from '../../ui';
 import { FOCUS_RING } from '../../ui/focusRing';
+import { CoachBadge } from './CoachBadge';
 
 export interface TopBarProps {
   /** Back button (label + route); omitted on the map, the hub of the app. */
@@ -83,6 +84,7 @@ export function TopBar({ back, children, fullHud = false }: TopBarProps) {
         <span className="max-w-[9ch] truncate font-display text-body font-extrabold text-ink">
           {profile.nickname}
         </span>
+        {profile.role === 'coach' && <CoachBadge />}
       </Link>
     </header>
   );

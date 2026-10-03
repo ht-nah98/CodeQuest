@@ -1,5 +1,5 @@
 import { starterEntry } from '@codequest/rewards';
-import { db, type ProfileRow, type ProfileSettings } from '../db';
+import { COACH_PROFILE_ID, db, type ProfileRow, type ProfileSettings } from '../db';
 import { hashPin, isValidPin, verifyPinHash } from '../pin';
 import { addLedgerEntries } from './ledger';
 
@@ -31,8 +31,9 @@ export class ProfileError extends Error {
 export type ProfileSummary = Omit<ProfileRow, 'pinHash'>;
 
 export function toSummary(row: ProfileRow): ProfileSummary {
-  const { id, nickname, avatarId, settings, remoteStudentId, createdAt } = row;
+  const { id, nickname, avatarId, settings, remoteStudentId, createdAt, role } = row;
   const summary: ProfileSummary = { id, nickname, avatarId, settings, createdAt };
+  if (role !== undefined) summary.role = role;
   if (remoteStudentId !== undefined) summary.remoteStudentId = remoteStudentId;
   return summary;
 }
@@ -105,6 +106,57 @@ export async function createProfile(
     await addLedgerEntries([starterEntry(profile.id, now)], now);
   });
   return toSummary(profile);
+}
+
+export const COACH_NICKNAME = 'HLV';
+export const COACH_AVATAR_ID = 'owl';
+
+/**
+ * A coach profile created before the fixed id existed (random uuid) is re-created under
+ * COACH_PROFILE_ID with the same PIN hash, avatar, settings and createdAt. Its rows (coach
+ * progress, which does not matter) and outbox lines are dropped. Returns false: nothing new.
+ */
+async function migrateLegacyCoach(): Promise<boolean> {
+  await db.transaction('rw', db.tables, async () => {
+    const legacy = await db.profiles
+      .filter((p) => p.role === 'coach' && p.id !== COACH_PROFILE_ID)
+      .first();
+    if (!legacy) return;
+    await deleteProfile(legacy.id);
+    await db.profiles.put({ ...legacy, id: COACH_PROFILE_ID });
+  });
+  return false;
+}
+
+/**
+ * Dev builds: makes sure the coach review profile exists. An existing one (found by role) is
+ * left alone, progress included. Creates no starter coins: it is not a child. Returns whether
+ * a profile was created; skips (false) when a child already took the nickname (a console warning in dev).
+ */
+export async function ensureCoachProfile(pin: string, now: Date = new Date()): Promise<boolean> {
+  if (!isValidPin(pin)) return false;
+  const exists = async () => (await db.profiles.filter((p) => p.role === 'coach').count()) > 0;
+  if (await exists()) return migrateLegacyCoach();
+  const pinHash = await hashPin(pin);
+  return db.transaction('rw', db.profiles, async () => {
+    if (await exists()) return false;
+    const key = nicknameKey(COACH_NICKNAME);
+    if ((await db.profiles.filter((p) => nicknameKey(p.nickname) === key).count()) > 0) {
+      // eslint-disable-next-line no-console -- dev-only hint for the coach
+      if (import.meta.env.DEV) console.warn('Coach profile not created: nickname "HLV" is taken.');
+      return false;
+    }
+    await db.profiles.add({
+      id: COACH_PROFILE_ID,
+      nickname: COACH_NICKNAME,
+      avatarId: COACH_AVATAR_ID,
+      pinHash,
+      role: 'coach',
+      settings: { ...DEFAULT_SETTINGS },
+      createdAt: now.toISOString(),
+    });
+    return true;
+  });
 }
 
 export async function verifyPin(profileId: string, pin: string): Promise<boolean> {

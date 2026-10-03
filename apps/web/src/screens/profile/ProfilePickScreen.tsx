@@ -12,6 +12,7 @@ import { FOCUS_RING } from '../../ui/focusRing';
 import { MangPortrait } from '../play/MangPortrait';
 import { ScreenMessage } from '../shared/ScreenMessage';
 import { DevLinks } from '../shared/DevLinks';
+import { CoachBadge } from '../shared/CoachBadge';
 import { PinPad } from './PinPad';
 
 const t = vi.profiles;
@@ -60,7 +61,7 @@ export default function ProfilePickScreen() {
             <button
               type="button"
               className={TILE}
-              data-testid="profile-tile"
+              data-testid={profile.role === 'coach' ? 'coach-tile' : 'profile-tile'}
               onClick={() => {
                 setWrong(false);
                 setPicked(profile);
@@ -72,6 +73,7 @@ export default function ProfilePickScreen() {
               <span className="max-w-full truncate font-display text-[26px] font-extrabold">
                 {profile.nickname}
               </span>
+              {profile.role === 'coach' && <CoachBadge />}
             </button>
           </li>
         ))}

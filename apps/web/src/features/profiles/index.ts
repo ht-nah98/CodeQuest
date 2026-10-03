@@ -7,6 +7,7 @@ export {
   useSignedInProfile,
 } from './CurrentProfile';
 export { installDevHook } from './devHook';
+export { seedCoachProfile, seedCoachProfileBounded } from './coachProfile';
 export {
   changePin,
   createProfile,

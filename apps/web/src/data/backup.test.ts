@@ -17,7 +17,7 @@ import { loadDraft, saveDraft } from './repos/drafts';
 import { addLedgerEntries, getBalance } from './repos/ledger';
 import { markLessonDone } from './repos/lessons';
 import { countOutbox } from './repos/outbox';
-import { createProfile, listProfiles, verifyPin } from './repos/profiles';
+import { createProfile, ensureCoachProfile, listProfiles, verifyPin } from './repos/profiles';
 import { listProgress, saveProgress } from './repos/progress';
 
 const NOW = new Date('2026-10-02T02:00:00.000Z');
@@ -322,5 +322,18 @@ describe('backup and restore', () => {
     expect(await db.lessons.count()).toBe(1);
     expect(await db.attempts.count()).toBe(1);
     expect(await getBalance(id)).toBe(35);
+  });
+});
+
+describe('coach review profile and backups', () => {
+  it('is left out of exports, by default and when asked for by id', async () => {
+    await ensureCoachProfile('2468', NOW);
+    const kid = await createProfile({ nickname: 'Na', avatarId: 'panda', pin: '1234' }, NOW);
+    const coach = (await listProfiles()).find((p) => p.role === 'coach');
+    if (!coach) throw new Error('no coach profile');
+    expect((await exportBackup(undefined, NOW)).profiles.map((p) => p.profile.id)).toEqual([
+      kid.id,
+    ]);
+    expect(await exportBackup([coach.id], NOW)).toMatchObject({ profiles: [] });
   });
 });
