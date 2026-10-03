@@ -106,6 +106,43 @@ describe('rule 3', () => {
     expect(rules(run(t).errors)).toEqual([3]);
   });
 
+  describe('block lessons (beforeLevel)', () => {
+    const LESSON = `${W}/lessons/w01-lesson.json`;
+    const BLOCK = `${W}/lessons/w01-lesson-nhay.json`;
+    function withBlockLesson(beforeLevel: string): Tree {
+      const t = tree();
+      t.set(BLOCK, { ...get(t, LESSON), id: 'w01-lesson-nhay', beforeLevel });
+      world(t).lessonIds = ['w01-lesson', 'w01-lesson-nhay'];
+      return t;
+    }
+
+    it('accepts a block lesson placed before a level of its world', () => {
+      expect(run(withBlockLesson('w01-l02')).errors).toEqual([]);
+    });
+
+    it('reports a beforeLevel outside the world', () => {
+      expect(run(withBlockLesson('w01-l99')).errors).toEqual([
+        {
+          path: BLOCK,
+          rule: 3,
+          message: 'beforeLevel "w01-l99" is not in the levelIds of w01-fixture',
+        },
+      ]);
+    });
+
+    it('reports beforeLevel on the opening lesson', () => {
+      const t = withBlockLesson('w01-l02');
+      world(t).lessonIds = ['w01-lesson-nhay', 'w01-lesson'];
+      expect(run(t).errors).toEqual([
+        {
+          path: BLOCK,
+          rule: 3,
+          message: 'opening lesson "w01-lesson-nhay" must not set beforeLevel',
+        },
+      ]);
+    });
+  });
+
   it('requires worldId to match the world folder', () => {
     const t = tree();
     level(t, 'w01-l02').worldId = 'w01-other';
@@ -175,6 +212,33 @@ describe('rule 4', () => {
 });
 
 describe('rule 7', () => {
+  it('warns when the level introducing an action block never names it', () => {
+    const t = tree();
+    const hints = level(t, 'w01-l01').hints ?? [];
+    level(t, 'w01-l01').hints = hints.map((hint) =>
+      hint.point === 'toolbox:runner_jump' ? { ...hint, say: 'Bay qua hố đi nào!' } : hint,
+    );
+    const report = run(t);
+    expect(report.errors).toEqual([]);
+    expect(report.warnings.map((issue) => `${String(issue.rule)} ${issue.message}`)).toEqual([
+      '7 block "runner_jump" first appears here (guided/build); no hint mentions "nhảy" (introduce it in kid words)',
+    ]);
+  });
+
+  it('matches the block name as a whole word only', () => {
+    const t = tree();
+    const hints = level(t, 'w01-l01').hints ?? [];
+    // "nhảyy" is not "nhảy"; the walk hint still names "đi" ("Khối đi giúp…").
+    level(t, 'w01-l01').hints = hints.map((hint) =>
+      hint.point === 'toolbox:runner_jump'
+        ? { ...hint, say: 'Khối nhảyy giúp Măng bay qua hố.' }
+        : hint,
+    );
+    expect(run(t).warnings.map((issue) => issue.message)).toEqual([
+      'block "runner_jump" first appears here (guided/build); no hint mentions "nhảy" (introduce it in kid words)',
+    ]);
+  });
+
   it('rejects a new block in a predict level', () => {
     const t = tree();
     level(t, 'w01-l03').initialWorkspace = program(['runner_walk', 'runner_crouch']);

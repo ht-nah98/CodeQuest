@@ -29,6 +29,28 @@ Theo `docs/design/ui-copy-guide.md`. `content:check` tự kiểm độ dài.
 - 3–6 thẻ. Thẻ đầu kể chuyện; ít nhất 1 thẻ `demo` chạy được; thẻ cuối là `quiz` 1 câu.
 - Mỗi thẻ ≤ 2 câu.
 - `demo` dùng đúng kiểu game mà bé sắp chơi.
+- **Bài "Khối mới"** (`beforeLevel`, `architecture/content-model.md` §3): mỗi khối hành động mới có một bài 3–5 thẻ đặt trước màn đầu tiên dùng nó. Thẻ đầu `say` gọi tên khối ("Khối mới: nhảy!"); thẻ `demo` cho thấy Măng **dừng ở ô nào** sau khối (so với khối "đi" khi cần); thẻ cuối `quiz` hỏi "Măng đi mấy ô / đứng ở đâu?". Câu tả chuyển động dùng đúng các câu ở `glossary.md` (dòng Đi, Nhảy, Cúi, Đá, Tiến, Rẽ), giống chú thích khối và gợi ý `enter` của màn.
+
+### 5.1 Giới thiệu khối mới (luật cố định cho mọi thế giới)
+Góp ý HLV 03/10/2026: bé hay đoán sai một khối làm Măng đi bao xa. **Mọi khối hành động / tác động mới** (khối làm Măng di chuyển hoặc làm đổi thế giới; về sau cả khối điều khiển và khối hỏi) phải được giới thiệu bằng đủ 3 thứ:
+1. **Một câu cho bé** nói chính xác khối làm gì: Măng **có đi không**, **đi mấy ô**, **cái gì đổi**. Câu này nằm trong gợi ý tầng 0 `enter` "Khối mới: …" ở màn đầu tiên dùng khối, và giống câu trong `glossary.md`.
+2. **Một ví dụ chạy được** bé xem tận mắt: thẻ `demo` trong bài "Khối mới" (`beforeLevel`, §5) hoặc trong bài mở đầu thế giới, cho thấy Măng **dừng ở ô nào** (so với khối đi khi cần).
+3. **Chú thích khối (tooltip) chính xác** trong `packages/games/src/<kind>/blocks.ts`, cùng cách nói với câu ở (1).
+
+⚙ `content:check` luật 7 cảnh báo khi màn đầu tiên dùng một khối hành động không có gợi ý nào nhắc tên khối. Ví dụ chạy được và câu đúng nghĩa thì người soạn và người review kiểm (với Thế giới 1 có `tools/content-check/src/blockLessons.test.ts`).
+
+**Bảng tra các khối hiện có.** Cột cuối là tooltip, **đúng từng chữ**; gợi ý `enter`, thẻ bài giảng và `glossary.md` dùng lại câu này (hoặc phần đầu của nó, vd "Cúi xuống và đi 1 ô"), không nói cách khác. Mỗi câu một ý: không nối thêm "Rồi đi!" vào câu tả khối.
+
+| Khối | Măng có đi? | Câu chuẩn (tooltip) |
+|---|---|---|
+| đi (runner) | đi 1 ô | Đi 1 ô về phía trước |
+| tiến (mê cung) | đi 1 ô theo hướng mặt | Tiến 1 ô theo hướng Măng đang nhìn |
+| cúi | cúi **và** đi 1 ô | Cúi xuống và đi 1 ô, chui qua cành thấp |
+| nhảy | bay qua 1 ô, đáp ô thứ 2 (xa 2 ô, cả trên đất bằng) | Bay qua 1 ô, đáp xuống ô thứ 2 |
+| đá | **đứng yên**, ô phía trước đổi (thùng đổ) | Đá ô phía trước, Măng đứng yên |
+| rẽ trái / rẽ phải | **không đi**, chỉ quay 90° | Quay sang trái (phải) tại chỗ, chưa đi |
+
+Khối mới của Thế giới 3–5 (`nếu`, `nếu … nếu không`, `lặp đến khi`, `đã tới nơi?`, chìa khóa / đón bạn) cần đúng 3 thứ trên khi xây (`product/curriculum.md` §5.4 T20).
 
 ## 6. Review nội dung
 Màn mới phải được huấn luyện viên **chơi thử một lần trên trình duyệt** trước khi merge, ngoài việc qua `content:check`. Màn do AI soạn nháp phải ghi `Co-authored` trong PR và được huấn luyện viên duyệt.

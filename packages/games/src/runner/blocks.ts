@@ -21,14 +21,14 @@ export const runnerBlocks: readonly BlockSpec[] = [
     type: 'runner_walk',
     category: 'move',
     apiNames: ['walk'],
-    json: { message0: 'đi', tooltip: 'Măng đi sang ô kế bên', ...statement },
+    json: { message0: 'đi', tooltip: 'Đi 1 ô về phía trước', ...statement },
     generator: (block, gen) => `walk(${gen.quote_(block.id)});\n`,
   },
   {
     type: 'runner_jump',
     category: 'move',
     apiNames: ['jump'],
-    json: { message0: 'nhảy', tooltip: 'Măng nhảy qua ô trước mặt, đáp ô sau đó', ...statement },
+    json: { message0: 'nhảy', tooltip: 'Bay qua 1 ô, đáp xuống ô thứ 2', ...statement },
     generator: (block, gen) => `jump(${gen.quote_(block.id)});\n`,
   },
   {
@@ -37,7 +37,7 @@ export const runnerBlocks: readonly BlockSpec[] = [
     apiNames: ['crouch'],
     json: {
       message0: 'cúi',
-      tooltip: 'Măng cúi người chui qua cành thấp, sang ô kế bên',
+      tooltip: 'Cúi xuống và đi 1 ô, chui qua cành thấp',
       ...statement,
     },
     generator: (block, gen) => `crouch(${gen.quote_(block.id)});\n`,
@@ -46,7 +46,7 @@ export const runnerBlocks: readonly BlockSpec[] = [
     type: 'runner_kick',
     category: 'move',
     apiNames: ['kick'],
-    json: { message0: 'đá', tooltip: 'Măng đá đổ thùng phía trước, đứng yên', ...statement },
+    json: { message0: 'đá', tooltip: 'Đá ô phía trước, Măng đứng yên', ...statement },
     generator: (block, gen) => `kick(${gen.quote_(block.id)});\n`,
   },
   {

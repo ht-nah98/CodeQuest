@@ -1,0 +1,96 @@
+{
+  "id": "w01-lesson-da",
+  "worldId": "w01-lang-tre",
+  "title": "Khối đá",
+  "beforeLevel": "w01-l10",
+  "cards": [
+    {
+      "type": "say",
+      "pose": "point",
+      "text": "Khối mới: đá! Thùng gỗ chắn đường thì đá đổ."
+    },
+    {
+      "type": "demo",
+      "text": "Đá ô phía trước, Măng đứng yên.",
+      "kind": "runner",
+      "config": {
+        "cells": ["ground", "crate", "ground", "flag"],
+        "start": 0
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "runner_kick",
+                  "id": "kick1"
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "demo",
+      "text": "Muốn đi tiếp thì thêm khối đi.",
+      "kind": "runner",
+      "config": {
+        "cells": ["ground", "crate", "ground", "flag"],
+        "start": 0
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "runner_kick",
+                  "id": "kick1",
+                  "next": {
+                    "block": {
+                      "type": "runner_walk",
+                      "id": "walk1",
+                      "next": {
+                        "block": {
+                          "type": "runner_walk",
+                          "id": "walk2",
+                          "next": {
+                            "block": {
+                              "type": "runner_walk",
+                              "id": "walk3"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "quiz",
+      "text": "Măng đá thùng xong. Măng đứng ở đâu?",
+      "options": ["Chỗ cũ", "Chỗ cái thùng", "Ở lá cờ"],
+      "correct": 0,
+      "explain": "Đá ô phía trước, Măng đứng yên."
+    }
+  ]
+}

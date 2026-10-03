@@ -54,6 +54,11 @@ Gom từ các task P1-01 → P1-15. Mỗi câu ghi lựa chọn AI đang dùng t
 7. W2-l18: bé di chuyển khối nhảy thay vì chép thì phải sửa 4 chỗ (1 sao). Chấp nhận cho màn thử thách?
 8. Giao diện Thế giới 2 đang dùng chung bộ tile với Thế giới 1. Có muốn khác màu/khác cảnh?
 9. Nhãn thẻ đoán W2-l10 "Đụng tường góc trên bên phải" dài 6 chữ (giới hạn khuyến nghị 4). Rút gọn?
+10. **Bài "Khối mới"** (góp ý 03/10/2026: bé hiểu sai mỗi khối làm Măng đi bao xa). Thế giới 1 có thêm 4 bài ngắn, mỗi bài là một quyển sách nhỏ gắn trên viên đá của màn có khối mới: nhảy (trước `l03`), cúi (trước `l07`), đá (trước `l10`), tiến và rẽ (trước `l12`). Mỗi bài có ví dụ chạy được cho thấy Măng dừng ở ô nào. Còn hai điều chưa rõ:
+    - **Có khóa màn tới khi xem bài không?** *Tạm dùng:* không khóa. Măng nhắc "Có khối mới! Xem bài khối mới trước nhé." và quyển sách nhấp nháy. Khóa thì chắc bé xem, nhưng bé đã qua màn đó (hồ sơ cũ) cũng không bị chặn.
+    - **Xu:** mỗi bài giảng xem lần đầu +5 xu, nên Thế giới 1 thêm 20 xu. *Tạm dùng:* giữ +5 cho mọi bài.
+    - Câu dạy nhảy: anh nói "nhảy đến trước 1 ô"; luật thật là bay qua ô kế bên, đáp xuống ô thứ 2 (đi xa 2 ô, cả trên đất bằng). Mọi chỗ (bài, gợi ý, chú thích khối) nói "Nhảy: bay qua 1 ô, đáp xuống ô thứ 2"; bài có thêm ví dụ nhảy trên đất bằng. Anh xem câu này đã dễ hiểu chưa.
+11. **Thưởng ngày khi đọc lại bài giảng** (câu B6). Bài "Khối mới" chỉ 4–5 thẻ, nên đọc lại một bài cũ là cách rất rẻ để lấy +10 xu thưởng ngày và giữ chuỗi ngày học. *Đề xuất:* chỉ bài **chưa đọc** mới tính là "ngày có học"; đọc lại vẫn được, không thưởng. *Hiện tại:* giữ như cũ (đọc lại vẫn tính) tới khi anh chọn.
 
 ## G. Chương trình học Thế giới 3–5 (P2-10)
 Bảng màn, lý do, quyết định D1–D12 và luật soạn R1–R3: `product/curriculum.md` §5. Danh sách câu hỏi **chỉ để ở đây**; §5.5 trỏ về đây. Luật sao theo mục tiêu đã duyệt (`product/rewards-economy.md` §1), không hỏi lại.

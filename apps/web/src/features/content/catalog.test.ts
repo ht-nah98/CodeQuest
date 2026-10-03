@@ -10,6 +10,8 @@ import {
   canOpenLesson,
   canOpenLevel,
   firstPlayableLevelId,
+  lessonsBefore,
+  levelAfterLesson,
   pendingLessonId,
   worldViews,
 } from './catalog';
@@ -158,6 +160,45 @@ describe('catalog views', () => {
     expect(canOpenLesson(withLessons, 'w01-lesson', child())).toBe(true);
     expect(canOpenLesson(withLessons, 'w02-lesson', child())).toBe(false);
     expect(canOpenLesson(withLessons, 'nope', child())).toBe(false);
+  });
+});
+
+describe('block lessons (beforeLevel)', () => {
+  const w = world('w01-a', 1, ['w01-l01', 'w01-l02', 'w01-boss'], ['w01-lesson', 'w01-lesson-x']);
+  const opening = { id: 'w01-lesson', worldId: 'w01-a', title: 't', cards: [] };
+  const block = { ...opening, id: 'w01-lesson-x', beforeLevel: 'w01-l02' };
+  const withLessons: Catalog = {
+    ...catalog,
+    worlds: [w, w2],
+    worldById: new Map([
+      [w.id, w],
+      [w2.id, w2],
+    ]),
+    lessons: new Map([
+      [opening.id, opening],
+      [block.id, block],
+    ]),
+  };
+
+  it('puts the opening lesson first and a block lesson before its level', () => {
+    expect(lessonsBefore(withLessons, w, null).map((l) => l.id)).toEqual(['w01-lesson']);
+    expect(lessonsBefore(withLessons, w, 'w01-l01')).toEqual([]);
+    expect(lessonsBefore(withLessons, w, 'w01-l02').map((l) => l.id)).toEqual(['w01-lesson-x']);
+  });
+
+  it('only the opening lesson gates level 1', () => {
+    expect(levelViews(withLessons, w, child([], ['w01-lesson']))[0]?.status).toBe('open');
+  });
+
+  it('"Vào chơi" leads to the block lesson\'s level once it is open', () => {
+    const early = child([], ['w01-lesson']);
+    expect(levelAfterLesson(withLessons, w, block, early)).toBe('w01-l01');
+    const ready = child([done('w01-l01')], ['w01-lesson']);
+    expect(levelAfterLesson(withLessons, w, block, ready)).toBe('w01-l02');
+    expect(levelAfterLesson(withLessons, w, opening, ready)).toBe('w01-l02');
+    // Re-reading after the level is won: on to the next open level, not a replay.
+    const past = child([done('w01-l01'), done('w01-l02')], ['w01-lesson', 'w01-lesson-x']);
+    expect(levelAfterLesson(withLessons, w, block, past)).toBe('w01-boss');
   });
 });
 

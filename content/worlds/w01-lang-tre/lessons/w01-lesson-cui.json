@@ -1,0 +1,101 @@
+{
+  "id": "w01-lesson-cui",
+  "worldId": "w01-lang-tre",
+  "title": "Khối cúi",
+  "beforeLevel": "w01-l07",
+  "cards": [
+    {
+      "type": "say",
+      "pose": "point",
+      "text": "Khối mới: cúi! Cành tre thấp thì phải cúi."
+    },
+    {
+      "type": "demo",
+      "text": "Cúi xuống và đi 1 ô. Thế là chui qua cành!",
+      "kind": "runner",
+      "config": {
+        "cells": ["ground", "branch", "ground", "flag"],
+        "start": 0
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "runner_crouch",
+                  "id": "crouch1",
+                  "next": {
+                    "block": {
+                      "type": "runner_walk",
+                      "id": "walk1",
+                      "next": {
+                        "block": {
+                          "type": "runner_walk",
+                          "id": "walk2"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "demo",
+      "text": "Nhảy qua cành thì sao? Bấm Chạy xem nhé!",
+      "kind": "runner",
+      "config": {
+        "cells": ["ground", "branch", "ground", "flag"],
+        "start": 0
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "runner_jump",
+                  "id": "jump1",
+                  "next": {
+                    "block": {
+                      "type": "runner_walk",
+                      "id": "walk1"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "say",
+      "pose": "oops",
+      "text": "Nhảy thì cụng đầu vào cành. Phải cúi cơ!"
+    },
+    {
+      "type": "quiz",
+      "text": "Măng cúi 1 lần. Măng đi mấy ô?",
+      "options": ["Đứng yên", "1 ô", "2 ô"],
+      "correct": 1,
+      "explain": "Cúi xuống và đi 1 ô, giống khối đi."
+    }
+  ]
+}

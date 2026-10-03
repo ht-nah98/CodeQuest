@@ -42,7 +42,7 @@
     {
       "id": "jump-new",
       "when": { "trigger": "enter" },
-      "say": "Khối mới: nhảy! Măng bay qua được hố.",
+      "say": "Khối mới: nhảy! Bay qua 1 ô, đáp xuống ô thứ 2.",
       "point": "toolbox:runner_jump",
       "spotlight": true
     },

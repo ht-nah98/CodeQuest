@@ -4,7 +4,7 @@ import type { LessonCard, MascotPose } from '@codequest/content-schema';
 import { computeLessonRewards } from '@codequest/rewards';
 import { useAudio, useMusic } from '../../audio/useAudio';
 import { lessonCardVoiceId, uiVoiceId } from '../../audio/voiceIds';
-import { canOpenLesson, firstPlayableLevelId } from '../../features/content/catalog';
+import { canOpenLesson, levelAfterLesson } from '../../features/content/catalog';
 import { useSignedInProfile } from '../../features/profiles';
 import { listLedger, markLessonDone } from '../../features/progress';
 import { vi } from '../../i18n/vi';
@@ -63,9 +63,10 @@ export default function LessonScreen() {
   const answered = card?.type !== 'quiz' || answers[index] !== undefined;
   // This lesson counts as done as soon as it is finished (the live query catches up later), so
   // "Vào chơi" is there, focused, together with the done panel.
+  // A block lesson leads to its own level ("Vào chơi"), the opening lesson to the first open one.
   const firstLevelId =
-    catalog && world && child
-      ? firstPlayableLevelId(catalog, world, {
+    catalog && world && child && lesson
+      ? levelAfterLesson(catalog, world, lesson, {
           ...child,
           lessonsDone: finished ? new Set([...child.lessonsDone, lessonId]) : child.lessonsDone,
         })

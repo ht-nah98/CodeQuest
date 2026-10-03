@@ -1,0 +1,131 @@
+{
+  "id": "w01-lesson-nhay",
+  "worldId": "w01-lang-tre",
+  "title": "Khối nhảy",
+  "beforeLevel": "w01-l03",
+  "cards": [
+    {
+      "type": "say",
+      "pose": "point",
+      "text": "Khối mới: nhảy! Xem Măng đi xa bao nhiêu nhé."
+    },
+    {
+      "type": "demo",
+      "text": "Khối đi: mỗi khối, Măng bước 1 ô.",
+      "kind": "runner",
+      "config": {
+        "cells": ["ground", "ground", "ground", "flag"],
+        "start": 0
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "runner_walk",
+                  "id": "walk1",
+                  "next": {
+                    "block": {
+                      "type": "runner_walk",
+                      "id": "walk2",
+                      "next": {
+                        "block": {
+                          "type": "runner_walk",
+                          "id": "walk3"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "demo",
+      "text": "Nhảy: bay qua 1 ô, đáp xuống ô thứ 2.",
+      "kind": "runner",
+      "config": {
+        "cells": ["ground", "hole", "ground", "flag"],
+        "start": 0
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "runner_jump",
+                  "id": "jump1",
+                  "next": {
+                    "block": {
+                      "type": "runner_walk",
+                      "id": "walk1"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "demo",
+      "text": "Đất bằng cũng vậy: nhảy là xa 2 ô!",
+      "kind": "runner",
+      "config": {
+        "cells": ["ground", "ground", "ground", "flag"],
+        "start": 0
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "runner_jump",
+                  "id": "jump1",
+                  "next": {
+                    "block": {
+                      "type": "runner_walk",
+                      "id": "walk1"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "quiz",
+      "text": "Măng nhảy 1 lần. Măng đi xa mấy ô?",
+      "options": ["1 ô", "2 ô", "3 ô"],
+      "correct": 1,
+      "explain": "Nhảy: bay qua 1 ô, đáp xuống ô thứ 2."
+    }
+  ]
+}

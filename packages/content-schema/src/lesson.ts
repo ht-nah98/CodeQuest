@@ -42,6 +42,11 @@ export const LessonSchema = z.strictObject({
   id: z.string().min(1),
   worldId: z.string().min(1),
   title: z.string().min(1),
+  /**
+   * A block lesson ("Khối mới"): shown on the world path right before this level, where its
+   * block first appears. Omitted for the world's opening lesson (content-model.md §3).
+   */
+  beforeLevel: z.string().min(1).optional(),
   cards: z.array(LessonCardSchema).min(1),
 });
 export type Lesson = z.infer<typeof LessonSchema>;

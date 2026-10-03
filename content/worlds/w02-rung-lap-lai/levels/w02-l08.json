@@ -118,6 +118,18 @@
       },
       "say": "Đếm xem có mấy bậc thang nhé!",
       "point": "stage"
+    },
+    {
+      "id": "turn-stay",
+      "when": {
+        "all": [
+          { "trigger": "run-end", "lastReason": "NOT_AT_GOAL", "missing": "maze_forward" },
+          { "any": [{ "has": "maze_turn_left" }, { "has": "maze_turn_right" }] }
+        ]
+      },
+      "say": "Rẽ chỉ quay tại chỗ. Muốn đi thì thêm tiến!",
+      "point": "toolbox:maze_forward",
+      "priority": 1
     }
   ],
   "thinkingHint": "Leo một bậc thang, Măng phải làm những gì?"

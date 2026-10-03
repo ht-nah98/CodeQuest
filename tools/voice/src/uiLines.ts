@@ -53,6 +53,7 @@ export const VOICED_UI_KEYS: readonly string[] = [
   'newProfile.pinAgainTitle',
   'newProfile.pinMismatch',
   'world.lessonFirst',
+  'world.newBlockFirst',
   'world.allDone',
   'world.lockedWorld',
   'lesson.quizRight',

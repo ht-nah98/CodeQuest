@@ -45,20 +45,26 @@ Kèm mỗi thế giới có **1 hoạt động ngoài màn hình** (unplugged) 5
 | — | `w01-lesson` | (bài giảng) | — | — | Chương trình là gì? Máy làm đúng từng bước bạn ghép | — | — | — | — |
 | 1 | `w01-l01` | guided | runner | parsons | Kéo khối và nối vào "khi bắt đầu" | đi | — | 2 | — |
 | 2 | `w01-l02` | guided | runner | build | Ghép 3 bước đi | đi | — | 3 | — |
+| — | `w01-lesson-nhay` | (bài Khối mới) | runner | — | Đi 1 ô so với **nhảy: bay qua 1 ô, đáp xuống ô thứ 2** (xa 2 ô, cả trên đất bằng) | đi, nhảy | — | — | — |
 | 3 | `w01-l03` | guided | runner | build | Khối **nhảy** qua hố | đi, nhảy | — | 3 | — |
 | 4 | `w01-l04` | practice | runner | predict | Đoán Măng dừng ở đâu | (chỉ xem) | — | — | — |
 | 5 | `w01-l05` | practice | runner | build | Hai hố | đi, nhảy | — | 5 | — |
 | 6 | `w01-l06` | practice | runner | parsons | Thứ tự quan trọng: xếp lại 5 khối | đi, nhảy | — | 5 | — |
+| — | `w01-lesson-cui` | (bài Khối mới) | runner | — | **Cúi xuống và đi 1 ô**, chui qua cành; nhảy vào cành là cụng đầu (thẻ sau giải thích) | đi, nhảy, cúi | — | — | — |
 | 7 | `w01-l07` | practice | runner | build | Khối **cúi** dưới cành tre | đi, nhảy, cúi | — | 4 | — |
 | 8 | `w01-l08` | practice | runner | predict | Đoán Măng vướng ở đâu | (chỉ xem) | — | — | — |
 | 9 | `w01-l09` | practice | runner | bughunt | Thiếu một khối nhảy | đi, nhảy, cúi | — | 6 | 1 |
+| — | `w01-lesson-da` | (bài Khối mới) | runner | — | **Đá ô phía trước, Măng đứng yên** (ví dụ chỉ có khối đá); đi tiếp phải thêm khối đi | đi, đá | — | — | — |
 | 10 | `w01-l10` | practice | runner | build | Khối **đá** thùng gỗ | đi, nhảy, cúi, đá | — | 5 | — |
 | 11 | `w01-l11` | practice | runner | bughunt | Hai khối đặt sai thứ tự | đi, nhảy, cúi, đá | — | 6 | 2 |
+| — | `w01-lesson-re` | (bài Khối mới) | maze | — | **Tiến 1 ô**; **rẽ chỉ quay tại chỗ, chưa đi**; rẽ rồi mới tiến | tiến, rẽ phải | — | — | — |
 | 12 | `w01-l12` | practice | maze | build | Mê cung đầu tiên: **tiến**, **rẽ** | tiến, rẽ trái, rẽ phải | — | 4 | — |
 | 13 | `w01-l13` | challenge | runner | build | Đường dài đủ mọi chướng ngại | đi, nhảy, cúi, đá | 12 | 10 | — |
 | 14 | `w01-l14` | challenge | maze | bughunt | Mê cung chữ Z có 2 lỗi | tiến, rẽ trái, rẽ phải | — | 8 | 2 |
 | 15 | `w01-boss` | boss | runner | build | "Mang măng về làng": nhặt 3 măng (`collectAll`); nhảy qua măng là bỏ sót | đi, nhảy, cúi, đá | 11 | 9 | — |
 | ✦ | `w01-creative` | creative | runner | creative | Sân chơi tự do trên đường chạy có sẵn (chưa có trình xây đường) | tất cả | — | — | — |
+
+**Bài "Khối mới"** (góp ý HLV 03/10/2026): bé hay hiểu sai mỗi khối làm Măng đi bao xa (tưởng cúi là cúi tại chỗ, nhảy chỉ 1 ô, đá xong Măng tự đi, rẽ là rẽ và đi). Mỗi khối hành động mới có một bài 3–5 thẻ (`lesson.beforeLevel`, `architecture/content-model.md` §3) gắn trên viên đá của màn đầu tiên dùng khối đó; ví dụ chạy được cho thấy Măng dừng ở ô nào. Bài mở đầu `w01-lesson` đã dạy "mỗi khối đi là 1 bước" nên khối đi không có bài riêng. Trong màn, gợi ý `enter` "Khối mới: …" nhắc lại đúng câu đó (`l03`, `l07`, `l10`, `l12`), cùng câu với chú thích khối và `glossary.md`. Bài không khóa màn (`coach-questions.md` F10).
 
 Thế giới 1 dạy tuần tự nên **không giới hạn số khối** ở các màn guided/practice: bé được thử thoải mái. `par` vẫn dùng để chấm ⭐⭐.
 
@@ -100,6 +106,7 @@ Ghi chú khi soạn nháp (P1-13, đã sửa sau review sư phạm):
 - ¹ ² ³ **Mê cung xoắn ốc** (dòng 9, 17 bản đầu) bỏ: trên lưới, xoắn ốc cạnh 2 ô luôn đặt đích sát ô xuất phát (đi tắt 2 khối), còn cạnh 3 ô thì lặp lồng `lặp 4 { lặp 3 {tiến}, rẽ }` chỉ 4 khối, ít hơn `par`, mà thế giới này chưa dạy lặp lồng. **Hình vuông kín** (dòng 12) cũng tạo đường tắt sang đích, nên đường quanh khóm tre là 3 cạnh (chữ C). Dòng 17 giờ là bậc thang + hành lang (`par` 7, `maxBlocks` 8).
 - ⁴ Măng **thắng ngay khi chạm cờ / đích**, kể cả giữa vòng lặp, nên đặt số lần lặp **lớn hơn** cần vẫn thắng nếu ngay sau vòng lặp là đích. Để kỹ năng "đếm đúng số lần lặp" thật sự cần, các màn này có **đoạn cuối khác mẫu** ngay sau vòng lặp (hố cuối): lặp thừa 1 vòng là Măng rơi hố / đụng cành, lặp thiếu thì khối sau vòng lặp va vào chướng ngại. Các màn vẫn để số lặp thừa thắng được: `l01`, `l03`, `l05`, `l08`, `l12`, `l19` (màn dạy ý khác, hoặc mê cung nhìn thấy hết đường).
 - ⁵ `l14` bản đầu bắt đầu nhìn lên (thêm 1 khối rẽ đầu tiên để `par` 6); đổi sang nhìn sang phải, `par` 5, `maxBlocks` 6. Lặp thừa ở đoạn ngang là đụng tường.
+- Thế giới 2 không có khối hành động mới. `l08` (mê cung đầu tiên của thế giới) có thêm gợi ý `turn-stay` "Rẽ chỉ quay tại chỗ. Muốn đi thì thêm tiến!" khi bé thiếu khối tiến (góp ý HLV 03/10/2026, `glossary.md` dòng Rẽ).
 - Mọi `par` đã được kiểm bằng vét cạn trên thanh khối của màn (số lần lặp 2–20, cho phép cả lặp lồng): không có lời giải nào ít khối hơn.
 
 ## 5. Thế giới 3–5 (chi tiết, bản nháp P2-10)
@@ -387,6 +394,8 @@ Chi tiết từng màn:
 | T18 | Trình phát bài giảng chạy được thẻ `demo` kết thúc `TIMEOUT` (phát lại có giới hạn + hoạt ảnh chóng mặt) | P2-11 | `w05-lesson` thẻ 5 |
 | T19 | `starGoals` (P2-21): mục tiêu "nhặt đủ măng" **không** phải điều kiện thắng (khác `collectAll`); thẻ "Mục tiêu ⭐"; `npm run par` tính `par` theo "thắng + đạt mọi mục tiêu" | P2-21 | W3 `l11`, W4 `l16`, W5 `l14` (và màn thêm sau) |
 
+| T20 | **Giới thiệu khối mới** (luật cố định, `conventions/content-authoring.md` §5.1): `nếu`, `nếu … nếu không`, `lặp đến khi`, `đã tới nơi?`, chìa khóa / đón bạn (T17) mỗi thứ cần câu cho bé ở gợi ý `enter` + ví dụ chạy được (bài "Khối mới" `beforeLevel` hoặc thẻ `demo` bài mở đầu) + tooltip chính xác (khối hỏi: trả ✔/✘ khi nào; lặp đến khi: hỏi trước mỗi vòng) | P2-11 | màn đầu tiên dùng mỗi khối |
+
 Runner **không** cần thêm khối hỏi nào khác ngoài T6.
 
 ### 5.5 Quyết định thiết kế, luật soạn, phụ thuộc
@@ -453,6 +462,7 @@ Phụ thuộc vào các câu đang mở ở GĐ 1:
 `content:check` tự kiểm các luật có dấu ⚙ (luật 7–8 ở `architecture/content-model.md` §5).
 - Mỗi màn chỉ giới thiệu **tối đa 1 ý mới**.
 - ⚙ Khối mới (lần đầu trong toàn bộ chương trình học) xuất hiện lần đầu ở màn `guided` hoặc `practice` (**không** ở `challenge`/`boss`, vì `challenge` là tùy chọn), và màn đó có gợi ý tầng 0 chỉ vào khối: `toolbox:<type>` (mode build) hoặc `block:<type>` (mode parsons).
+- ⚙ **Giới thiệu khối mới bằng 3 thứ** (luật cố định, HLV 03/10/2026): (1) một câu cho bé nói đúng khối làm gì (Măng có đi không, mấy ô, cái gì đổi) trong gợi ý `enter` "Khối mới: …"; (2) một ví dụ chạy được (thẻ `demo` của bài "Khối mới" `beforeLevel` hoặc bài mở đầu); (3) tooltip chính xác. Bảng tra và chi tiết: `conventions/content-authoring.md` §5.1. `content:check` cảnh báo (luật 7) khi màn giới thiệu khối hành động không có gợi ý nào nhắc tên khối.
 - ⚙ **Không quá 3 màn `build` liền nhau.** Mỗi cách chơi `build`, `parsons`, `predict`, `bughunt` xuất hiện ≥ 1 lần trong mỗi thế giới.
 - Màn `challenge` không giới thiệu khái niệm hoặc khối mới.
 - Boss dùng **mọi khối của kiểu game của boss** đã được giới thiệu trong thế giới, và kể tiếp câu chuyện.

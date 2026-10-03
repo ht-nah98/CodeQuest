@@ -58,7 +58,7 @@
       "when": {
         "trigger": "enter"
       },
-      "say": "Khối mới: tiến! Măng bước 1 ô theo hướng mặt.",
+      "say": "Khối mới: tiến! Tiến 1 ô theo hướng Măng đang nhìn.",
       "point": "toolbox:maze_forward",
       "spotlight": true
     },
@@ -69,7 +69,7 @@
         "has": "maze_forward",
         "missing": "maze_turn_right"
       },
-      "say": "Rẽ trái, rẽ phải: Măng chỉ quay người, không bước.",
+      "say": "Rẽ trái, rẽ phải: quay tại chỗ, chưa đi.",
       "point": "toolbox:maze_turn_left"
     },
     {

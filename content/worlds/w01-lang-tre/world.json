@@ -9,7 +9,13 @@
     "tileset": "/tiles/ground.png",
     "palette": "day"
   },
-  "lessonIds": ["w01-lesson"],
+  "lessonIds": [
+    "w01-lesson",
+    "w01-lesson-nhay",
+    "w01-lesson-cui",
+    "w01-lesson-da",
+    "w01-lesson-re"
+  ],
   "levelIds": [
     "w01-l01",
     "w01-l02",

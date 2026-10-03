@@ -59,7 +59,7 @@
       "when": {
         "trigger": "enter"
       },
-      "say": "Khối mới: cúi! Măng cúi người, bước qua cành.",
+      "say": "Khối mới: cúi! Măng cúi xuống và đi 1 ô.",
       "point": "toolbox:runner_crouch",
       "spotlight": true
     },

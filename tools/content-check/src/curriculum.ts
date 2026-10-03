@@ -5,6 +5,7 @@
  */
 import { CQ_START } from '@codequest/engine';
 import type { Level, LevelMode, World } from '@codequest/content-schema';
+import { gameKinds } from '@codequest/games';
 import { blockTypesOf, toolboxTypes } from '@codequest/validator';
 import type { Issue } from './rules';
 
@@ -28,8 +29,8 @@ export interface CurriculumInput {
   worlds: Array<{ path: string; dir: string; world: World }>;
   /** Level files outside draft folders; `level` is null when the schema failed. */
   levels: Array<WorldFile & { level: Level | null }>;
-  /** Lesson files outside draft folders. */
-  lessons: WorldFile[];
+  /** Lesson files outside draft folders; `beforeLevel` is null for opening lessons. */
+  lessons: Array<WorldFile & { beforeLevel?: string | null }>;
 }
 
 export interface CurriculumReport {
@@ -40,6 +41,25 @@ export interface CurriculumReport {
 /** The four modes every world should practise (rule 8). */
 const WORLD_MODES: readonly LevelMode[] = ['build', 'parsons', 'predict', 'bughunt'];
 const MAX_BUILD_RUN = 3;
+
+/**
+ * Kid-facing label of every action block (category `move`: it moves Măng or changes the world),
+ * e.g. `runner_jump` → "nhảy". Rule 7 warns when the level introducing one never names it.
+ */
+const ACTION_LABELS: ReadonlyMap<string, string> = new Map(
+  Object.values(gameKinds)
+    .flatMap((kind) => kind.blocks)
+    .filter((spec) => spec.category === 'move' && typeof spec.json.message0 === 'string')
+    .map((spec) => [spec.type, spec.json.message0.replace(/%\d+/g, '').trim().toLowerCase()]),
+);
+
+/** Lower-case words of a sentence, space-padded, for whole-word matching ("đi" ≠ "đích"). */
+function words(text: string): string {
+  return ` ${text
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}]+/gu, ' ')
+    .trim()} `;
+}
 
 function count<T>(items: readonly T[], keep: (item: T) => boolean): number {
   return items.filter(keep).length;
@@ -93,6 +113,28 @@ export function checkCurriculum(input: CurriculumInput): CurriculumReport {
         rule: 3,
         message: `worldId "${file.worldId}" must equal its world folder "${file.dir}"`,
       });
+    }
+  }
+  // Rule 3, block lessons: `beforeLevel` names a level of the same world, and never on the
+  // world's opening lesson (lessonIds[0] gates level 1, so it must come first on the path).
+  for (const { world } of input.worlds) {
+    for (const [index, id] of world.lessonIds.entries()) {
+      const file = lessonById.get(id);
+      const before = file?.beforeLevel ?? null;
+      if (file === undefined || before === null) continue;
+      if (index === 0) {
+        errors.push({
+          path: file.path,
+          rule: 3,
+          message: `opening lesson "${id}" must not set beforeLevel`,
+        });
+      } else if (!world.levelIds.includes(before)) {
+        errors.push({
+          path: file.path,
+          rule: 3,
+          message: `beforeLevel "${before}" is not in the levelIds of ${world.id}`,
+        });
+      }
     }
   }
   for (const file of input.levels) {
@@ -170,6 +212,22 @@ export function checkCurriculum(input: CurriculumInput): CurriculumReport {
               path,
               rule: 7,
               message: `${prefix}; needs a hint with point "${target}"`,
+            });
+            continue;
+          }
+          // Warning: an action block's first level should say in kid words what it does
+          // (content-authoring.md §5.1). Cheap proxy: at least one hint names the block (whole
+          // words, so "đi" does not match "đích"); whether it explains the move is for review.
+          const label = ACTION_LABELS.get(type);
+          if (
+            label !== undefined &&
+            label !== '' &&
+            !level.hints.some((hint) => words(hint.say).includes(` ${label} `))
+          ) {
+            warnings.push({
+              path,
+              rule: 7,
+              message: `${prefix}; no hint mentions "${label}" (introduce it in kid words)`,
             });
           }
         }

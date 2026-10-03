@@ -1,0 +1,149 @@
+{
+  "id": "w01-lesson-re",
+  "worldId": "w01-lang-tre",
+  "title": "Tiến và rẽ",
+  "beforeLevel": "w01-l12",
+  "cards": [
+    {
+      "type": "say",
+      "pose": "point",
+      "text": "Mê cung mới! Khối mới: tiến, rẽ trái, rẽ phải."
+    },
+    {
+      "type": "demo",
+      "text": "Tiến 1 ô theo hướng Măng đang nhìn.",
+      "kind": "maze",
+      "config": {
+        "map": ["#####", "#S..#", "###.#", "###G#", "#####"],
+        "startDir": "E"
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "maze_forward",
+                  "id": "forward1",
+                  "next": {
+                    "block": {
+                      "type": "maze_forward",
+                      "id": "forward2"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "demo",
+      "text": "Rẽ phải: quay sang phải tại chỗ, chưa đi.",
+      "kind": "maze",
+      "config": {
+        "map": ["#####", "#S..#", "###.#", "###G#", "#####"],
+        "startDir": "E"
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "maze_forward",
+                  "id": "forward1",
+                  "next": {
+                    "block": {
+                      "type": "maze_forward",
+                      "id": "forward2",
+                      "next": {
+                        "block": {
+                          "type": "maze_turn_right",
+                          "id": "right1"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "demo",
+      "text": "Rẽ xong, thêm tiến thì Măng mới đi.",
+      "kind": "maze",
+      "config": {
+        "map": ["#####", "#S..#", "###.#", "###G#", "#####"],
+        "startDir": "E"
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "maze_forward",
+                  "id": "forward1",
+                  "next": {
+                    "block": {
+                      "type": "maze_forward",
+                      "id": "forward2",
+                      "next": {
+                        "block": {
+                          "type": "maze_turn_right",
+                          "id": "right1",
+                          "next": {
+                            "block": {
+                              "type": "maze_forward",
+                              "id": "forward3",
+                              "next": {
+                                "block": {
+                                  "type": "maze_forward",
+                                  "id": "forward4"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "quiz",
+      "text": "Măng rẽ trái 1 lần. Măng đi mấy ô?",
+      "options": ["Không đi, chỉ quay", "1 ô", "2 ô"],
+      "correct": 0,
+      "explain": "Quay sang trái tại chỗ, chưa đi."
+    }
+  ]
+}

@@ -65,7 +65,7 @@
       "when": {
         "trigger": "enter"
       },
-      "say": "Khối mới: đá! Măng đá đổ thùng gỗ.",
+      "say": "Khối mới: đá! Đá ô phía trước, Măng đứng yên.",
       "point": "toolbox:runner_kick",
       "spotlight": true
     },

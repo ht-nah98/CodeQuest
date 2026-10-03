@@ -233,10 +233,39 @@ export function canOpenLevel(catalog: Catalog, levelId: string, child: ChildStat
 /** Lessons are always open (rewards-economy.md §3), inside a world the child can enter. */
 export function canOpenLesson(catalog: Catalog, lessonId: string, child: ChildState): boolean {
   const lesson = catalog.lessons.get(lessonId);
-  return lesson !== undefined && isUnlocked({ worldId: lesson.worldId }, unlockContext(catalog, child));
+  return (
+    lesson !== undefined && isUnlocked({ worldId: lesson.worldId }, unlockContext(catalog, child))
+  );
 }
 
 /** First lesson the child has not finished yet, or null when all are done. */
 export function pendingLessonId(world: World, lessonsDone: ReadonlySet<string>): string | null {
   return world.lessonIds.find((id) => !lessonsDone.has(id)) ?? null;
+}
+
+/**
+ * The world's lessons placed right before `levelId` on the path (block lessons, `beforeLevel`,
+ * content-model.md §3), or with `null` the opening lessons that come before every level.
+ */
+export function lessonsBefore(catalog: Catalog, world: World, levelId: string | null): Lesson[] {
+  return world.lessonIds.flatMap((id) => {
+    const lesson = catalog.lessons.get(id);
+    return lesson !== undefined && (lesson.beforeLevel ?? null) === levelId ? [lesson] : [];
+  });
+}
+
+/**
+ * Where "Vào chơi" leads after a lesson: a block lesson's own level while it is open and not won
+ * yet; otherwise (opening lesson, or a level already done when re-reading) the first open level.
+ */
+export function levelAfterLesson(
+  catalog: Catalog,
+  world: World,
+  lesson: Lesson,
+  child: ChildState,
+): string | null {
+  const own = lesson.beforeLevel;
+  const view = own && levelViews(catalog, world, child).find((v) => v.level.id === own);
+  if (view && view.status === 'open') return view.level.id;
+  return firstPlayableLevelId(catalog, world, child);
 }

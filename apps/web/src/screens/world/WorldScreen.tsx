@@ -1,10 +1,12 @@
 import { type ReactNode, useEffect, useMemo, useRef } from 'react';
 import { Link, useNavigate, useParams } from 'react-router';
+import type { Lesson } from '@codequest/content-schema';
 import { isUnlocked } from '@codequest/rewards';
 import { useMusic } from '../../audio/useAudio';
 import { levelVoiceId, uiVoiceId } from '../../audio/voiceIds';
 import { useUnlockOverrides } from '../../features/author/authorMode';
 import {
+  lessonsBefore,
   levelViews,
   type LevelView,
   pendingLessonId,
@@ -37,7 +39,10 @@ const STONE_LIVE = `${STONE} cursor-pointer shadow-hard hover:-translate-y-1 act
  */
 const PATH_COLUMNS = 6;
 
-/** "/w/:worldId" Trang thế giới: the lesson, then the levels as stepping stones. */
+/**
+ * "/w/:worldId" Trang thế giới: the opening lesson, then the levels as stepping stones; a block
+ * lesson ("Khối mới", `lesson.beforeLevel`) is a book on the stone where its block first appears.
+ */
 export default function WorldScreen() {
   const { worldId = '' } = useParams();
   const profile = useSignedInProfile();
@@ -83,12 +88,63 @@ export default function WorldScreen() {
   // and nothing is "next" while the lesson comes first.
   const open = needsLesson ? [] : views.filter((v) => v.status === 'open');
   const nextUp = open.find((v) => v.level.mode !== 'creative') ?? open[0];
-  const mangLine = needsLesson ? t.lessonFirst : (nextUp?.level.objective ?? t.allDone);
+  // A block lesson not seen yet right before the next level comes first (it does not lock it).
+  const blockFirst =
+    nextUp &&
+    lessonsBefore(catalog, world, nextUp.level.id).find((l) => !child.lessonsDone.has(l.id));
+  const mangLine = needsLesson
+    ? t.lessonFirst
+    : blockFirst
+      ? t.newBlockFirst
+      : (nextUp?.level.objective ?? t.allDone);
   const mangVoice = needsLesson
     ? uiVoiceId('world.lessonFirst')
-    : nextUp
-      ? levelVoiceId(nextUp.level.id, 'objective')
-      : uiVoiceId('world.allDone');
+    : blockFirst
+      ? uiVoiceId('world.newBlockFirst')
+      : nextUp
+        ? levelVoiceId(nextUp.level.id, 'objective')
+        : uiVoiceId('world.allDone');
+  const lessonStone = (lesson: Lesson): PathStone => {
+    const done = child.lessonsDone.has(lesson.id);
+    return {
+      key: lesson.id,
+      dimAfter: false,
+      node: (
+        <Link
+          to={`/w/${world.id}/lesson/${lesson.id}`}
+          aria-label={`${t.lesson}: ${lesson.title}`}
+          data-testid="lesson-stone"
+          data-lesson={lesson.id}
+          data-done={done}
+          className={`${STONE_LIVE} ${done ? 'bg-brand-soft' : 'bg-coin'}`}
+        >
+          <PixelIcon name="book" scale={3} />
+          <span className="font-display text-[15px] leading-5 font-extrabold">{t.lesson}</span>
+          {!done && <Pulse />}
+        </Link>
+      ),
+    };
+  };
+  // A block lesson is a small book on the corner of its level's stone (the path keeps 3 rows).
+  const blockChip = (lesson: Lesson) => {
+    const done = child.lessonsDone.has(lesson.id);
+    return (
+      <Link
+        key={lesson.id}
+        to={`/w/${world.id}/lesson/${lesson.id}`}
+        aria-label={`${t.lesson}: ${lesson.title}`}
+        title={t.newBlock}
+        data-testid="block-lesson-stone"
+        data-lesson={lesson.id}
+        data-done={done}
+        data-next={lesson === blockFirst}
+        className={`absolute -top-4 -left-5 z-10 grid size-12 place-items-center rounded-chip border-3 border-ink shadow-hard transition-transform duration-150 hover:-translate-y-0.5 ${FOCUS_RING} ${done ? 'bg-brand-soft' : 'bg-coin'}`}
+      >
+        <PixelIcon name="book" scale={2} />
+        {lesson === blockFirst && <Pulse />}
+      </Link>
+    );
+  };
   const sandbox = world.id === SANDBOX_WORLD_ID;
 
   return (
@@ -128,42 +184,20 @@ export default function WorldScreen() {
         >
           <StonePath
             stones={[
-              ...world.lessonIds.flatMap((lessonId) => {
-                const lesson = catalog.lessons.get(lessonId);
-                if (!lesson) return [];
-                const done = child.lessonsDone.has(lessonId);
-                return [
-                  {
-                    key: lessonId,
-                    dimAfter: false,
-                    node: (
-                      <Link
-                        to={`/w/${world.id}/lesson/${lessonId}`}
-                        aria-label={`${t.lesson}: ${lesson.title}`}
-                        data-testid="lesson-stone"
-                        data-done={done}
-                        className={`${STONE_LIVE} ${done ? 'bg-brand-soft' : 'bg-coin'}`}
-                      >
-                        <PixelIcon name="book" scale={3} />
-                        <span className="font-display text-[15px] leading-5 font-extrabold">
-                          {t.lesson}
-                        </span>
-                        {!done && <Pulse />}
-                      </Link>
-                    ),
-                  },
-                ];
-              }),
+              ...lessonsBefore(catalog, world, null).map(lessonStone),
               ...views.map((view, index) => ({
                 key: view.level.id,
                 dimAfter: view === firstLocked,
                 node: (
-                  <LevelStone
-                    view={view}
-                    number={levelNumberOf(view.level.id) ?? index + 1}
-                    next={view === nextUp}
-                    worldId={world.id}
-                  />
+                  <div className="relative">
+                    {lessonsBefore(catalog, world, view.level.id).map(blockChip)}
+                    <LevelStone
+                      view={view}
+                      number={levelNumberOf(view.level.id) ?? index + 1}
+                      next={view === nextUp && !blockFirst}
+                      worldId={world.id}
+                    />
+                  </div>
                 ),
               })),
             ]}
@@ -218,10 +252,7 @@ function StonePath({ stones }: { stones: PathStone[] }) {
           >
             {stone.node}
             {!last && (
-              <Connector
-                dim={stone.dimAfter}
-                way={turn ? 'down' : reversed ? 'left' : 'right'}
-              />
+              <Connector dim={stone.dimAfter} way={turn ? 'down' : reversed ? 'left' : 'right'} />
             )}
           </li>
         );

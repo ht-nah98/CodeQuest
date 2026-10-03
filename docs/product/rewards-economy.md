@@ -93,7 +93,7 @@ Tối đa một màn mang lại **25 xu** (10 + 5 + 5 + 5), chưa kể thưởng
 | Màn `creative` | Mở ngay khi vào thế giới |
 | Màn `bonus` | Mua bằng 30 xu ở trang thế giới, sau khi đã thắng boss |
 | Thế giới tiếp theo | Đã thắng `boss` **và** có ≥ 60% tổng số sao tối đa (tính trên màn `guided`, `practice`, `boss` của thế giới) |
-| Bài giảng | Luôn mở; màn đầu tiên của thế giới yêu cầu đã xem bài giảng 1 lần |
+| Bài giảng | Luôn mở; màn đầu tiên của thế giới yêu cầu đã xem bài giảng **mở đầu** 1 lần. Bài "Khối mới" (`beforeLevel`) không khóa màn nào |
 
 Huấn luyện viên có quyền **mở khóa thủ công** cho từng bé trong Góc huấn luyện viên.
 

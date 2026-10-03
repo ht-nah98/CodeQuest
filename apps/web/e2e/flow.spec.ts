@@ -214,7 +214,12 @@ test.describe('screen flow', () => {
         '3 trên 3 sao',
       );
     }
-    await expect(page.locator('[data-level="w01-l03"]')).toHaveAttribute('data-next', 'true');
+    // Level 3 brings the jump block: its "Khối mới" lesson is next (it does not lock the level).
+    await expect(page.locator('[data-level="w01-l03"]')).toHaveAttribute('data-status', 'open');
+    await expect(page.locator('[data-lesson="w01-lesson-nhay"]')).toHaveAttribute(
+      'data-next',
+      'true',
+    );
     await expect(page.locator('[data-level="w01-l04"]')).toHaveAttribute('data-status', 'locked');
     await expect(hudCoins(page)).toContainText('95');
     await shot(page, 'world-after-reload', project);

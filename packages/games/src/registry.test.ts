@@ -27,3 +27,24 @@ describe('registerAllBlocks', () => {
     }
   });
 });
+
+describe('action block tooltips', () => {
+  // Coach feedback 03/10/2026: every action tooltip says exactly how Măng moves (glossary.md).
+  it('state the movement of each action block', () => {
+    const tooltips = Object.fromEntries(
+      Object.values(gameKinds)
+        .flatMap((kind) => kind.blocks)
+        .filter((spec) => spec.category === 'move')
+        .map((spec) => [spec.type, spec.json.tooltip]),
+    );
+    expect(tooltips).toEqual({
+      runner_walk: 'Đi 1 ô về phía trước',
+      runner_jump: 'Bay qua 1 ô, đáp xuống ô thứ 2',
+      runner_crouch: 'Cúi xuống và đi 1 ô, chui qua cành thấp',
+      runner_kick: 'Đá ô phía trước, Măng đứng yên',
+      maze_forward: 'Tiến 1 ô theo hướng Măng đang nhìn',
+      maze_turn_left: 'Quay sang trái tại chỗ, chưa đi',
+      maze_turn_right: 'Quay sang phải tại chỗ, chưa đi',
+    });
+  });
+});
