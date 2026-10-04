@@ -1,0 +1,102 @@
+{
+  "id": "w03-l04",
+  "worldId": "w03-xuong-sua-loi",
+  "stage": "practice",
+  "kind": "runner",
+  "mode": "predict",
+  "title": "Máy tưới chạy tới đâu?",
+  "objective": "Đọc vòng lặp, đoán Măng dừng ở đâu nhé!",
+  "learningGoal": "Mỗi vòng lặp làm lại đúng các khối bên trong, dù đường phía trước đã đổi: vòng 1 đúng, vòng 2 gặp cành.",
+  "misconception": "Vòng đầu chạy đúng thì cả vòng lặp đúng.",
+  "mission": "Máy tưới của Gà con chạy tới đâu?",
+  "goalSprite": "machine",
+  "toolbox": [],
+  "config": {
+    "cells": [
+      "ground",
+      "ground",
+      "hole",
+      "ground",
+      "branch",
+      "ground",
+      "hole",
+      "ground",
+      "flag"
+    ],
+    "start": 0
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "rep1",
+              "fields": {
+                "TIMES": 3
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "runner_walk",
+                    "id": "walk1",
+                    "next": {
+                      "block": {
+                        "type": "runner_jump",
+                        "id": "jump1"
+                      }
+                    }
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "type": "runner_walk",
+                  "id": "walk2"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "predict": {
+    "options": [
+      {
+        "key": "crash:HIT_BRANCH@4",
+        "label": "Cụng cành tre"
+      },
+      {
+        "key": "win",
+        "label": "Tới nơi"
+      },
+      {
+        "key": "crash:FELL_IN_HOLE@6",
+        "label": "Rơi hố thứ hai"
+      },
+      {
+        "key": "crash:FELL_IN_HOLE@2",
+        "label": "Rơi hố đầu"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "read",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Mỗi vòng: đi, rồi nhảy. Xem đường từng vòng!",
+      "point": "block:cq_repeat"
+    }
+  ],
+  "thinkingHint": "Vòng thứ hai, trước mặt Măng có gì?"
+}

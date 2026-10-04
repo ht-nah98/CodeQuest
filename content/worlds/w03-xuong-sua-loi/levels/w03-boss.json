@@ -1,0 +1,278 @@
+{
+  "id": "w03-boss",
+  "worldId": "w03-xuong-sua-loi",
+  "stage": "boss",
+  "kind": "runner",
+  "mode": "bughunt",
+  "title": "Máy nhặt măng",
+  "objective": "4 lỗi! Sửa từng lỗi, nhặt đủ 3 măng nhé!",
+  "learningGoal": "Tổng hợp quy trình sửa lỗi: 4 lỗi khác loại (sai số lần lặp, thiếu khối đá, sai khối trong vòng lặp, nhảy qua măng). Mỗi lần sửa lộ lỗi tiếp theo.",
+  "mission": "Sửa máy nhặt măng lớn của cả làng!",
+  "goalSprite": "machine",
+  "toolbox": [
+    {
+      "type": "cq_repeat",
+      "fields": {
+        "TIMES": 2
+      }
+    },
+    "runner_walk",
+    "runner_jump",
+    "runner_crouch",
+    "runner_kick"
+  ],
+  "par": 11,
+  "parEdits": 4,
+  "config": {
+    "cells": [
+      "ground",
+      "ground",
+      "hole",
+      "ground",
+      "ground",
+      "hole",
+      "ground",
+      "ground",
+      "hole",
+      "ground",
+      "crate",
+      "ground",
+      "branch",
+      "branch",
+      "branch",
+      "ground",
+      "ground",
+      "flag"
+    ],
+    "start": 0,
+    "bamboo": [
+      4,
+      11,
+      15
+    ],
+    "goal": {
+      "collectAll": true
+    }
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "rep1",
+              "fields": {
+                "TIMES": 2
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "runner_walk",
+                    "id": "walk1",
+                    "next": {
+                      "block": {
+                        "type": "runner_jump",
+                        "id": "jump1"
+                      }
+                    }
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "type": "runner_walk",
+                  "id": "walk2",
+                  "next": {
+                    "block": {
+                      "type": "runner_walk",
+                      "id": "walk3",
+                      "next": {
+                        "block": {
+                          "type": "cq_repeat",
+                          "id": "rep2",
+                          "fields": {
+                            "TIMES": 3
+                          },
+                          "inputs": {
+                            "DO": {
+                              "block": {
+                                "type": "runner_walk",
+                                "id": "walk4"
+                              }
+                            }
+                          },
+                          "next": {
+                            "block": {
+                              "type": "runner_jump",
+                              "id": "jump2",
+                              "next": {
+                                "block": {
+                                  "type": "runner_walk",
+                                  "id": "walk5",
+                                  "next": {
+                                    "block": {
+                                      "type": "runner_walk",
+                                      "id": "walk6"
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "rep1",
+              "fields": {
+                "TIMES": 3
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "runner_walk",
+                    "id": "walk1",
+                    "next": {
+                      "block": {
+                        "type": "runner_jump",
+                        "id": "jump1"
+                      }
+                    }
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "type": "runner_kick",
+                  "id": "kick1",
+                  "next": {
+                    "block": {
+                      "type": "runner_walk",
+                      "id": "walk2",
+                      "next": {
+                        "block": {
+                          "type": "runner_walk",
+                          "id": "walk3",
+                          "next": {
+                            "block": {
+                              "type": "cq_repeat",
+                              "id": "rep2",
+                              "fields": {
+                                "TIMES": 3
+                              },
+                              "inputs": {
+                                "DO": {
+                                  "block": {
+                                    "type": "runner_crouch",
+                                    "id": "crouch1"
+                                  }
+                                }
+                              },
+                              "next": {
+                                "block": {
+                                  "type": "runner_walk",
+                                  "id": "walk4",
+                                  "next": {
+                                    "block": {
+                                      "type": "runner_walk",
+                                      "id": "walk5",
+                                      "next": {
+                                        "block": {
+                                          "type": "runner_walk",
+                                          "id": "walk6"
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "one-at-a-time",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "4 lỗi đó! Sửa 1 lỗi, rồi chạy lại.",
+      "point": "run"
+    },
+    {
+      "id": "count",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "FELL_IN_HOLE"
+      },
+      "say": "Đoạn đầu có mấy hố? Vòng lặp chạy mấy vòng?",
+      "point": "stage"
+    },
+    {
+      "id": "crate",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "HIT_CRATE"
+      },
+      "say": "Thùng chắn đường. Thiếu khối nào nhỉ?",
+      "point": "toolbox:runner_kick"
+    },
+    {
+      "id": "branch",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "HIT_BRANCH"
+      },
+      "say": "3 cành thấp liền nhau. Măng phải làm gì?",
+      "point": "stage"
+    },
+    {
+      "id": "missed",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "MISSED_ITEMS"
+      },
+      "say": "Măng nhảy qua cây măng rồi. Khối nào phải đổi?",
+      "point": "stage"
+    }
+  ],
+  "thinkingHint": "Sau mỗi lần sửa, Măng đi được tới đâu?"
+}

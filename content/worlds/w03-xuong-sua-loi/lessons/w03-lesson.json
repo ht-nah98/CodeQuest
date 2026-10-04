@@ -1,0 +1,148 @@
+{
+  "id": "w03-lesson",
+  "worldId": "w03-xuong-sua-loi",
+  "title": "Măng làm thợ sửa",
+  "cards": [
+    {
+      "type": "say",
+      "pose": "oops",
+      "text": "Gió thổi lệch khối của máy. Măng làm thợ sửa!"
+    },
+    {
+      "type": "say",
+      "pose": "talk",
+      "text": "Măng làm đúng từng khối. Khối lạc chỗ, Măng đi lạc."
+    },
+    {
+      "type": "demo",
+      "text": "Bấm Chạy thử. Khối đang chạy sẽ sáng lên.",
+      "kind": "runner",
+      "config": {
+        "cells": [
+          "ground",
+          "ground",
+          "hole",
+          "ground",
+          "ground",
+          "branch",
+          "ground",
+          "flag"
+        ],
+        "start": 0
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "runner_walk",
+                  "id": "walk1",
+                  "next": {
+                    "block": {
+                      "type": "runner_jump",
+                      "id": "jump1",
+                      "next": {
+                        "block": {
+                          "type": "runner_walk",
+                          "id": "walk2",
+                          "next": {
+                            "block": {
+                              "type": "runner_crouch",
+                              "id": "crouch1",
+                              "next": {
+                                "block": {
+                                  "type": "runner_walk",
+                                  "id": "walk3",
+                                  "next": {
+                                    "block": {
+                                      "type": "runner_walk",
+                                      "id": "walk4"
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "demo",
+      "text": "Măng ngã ở hố, nhưng chỗ thiếu khối ở trước đó.",
+      "kind": "runner",
+      "config": {
+        "cells": [
+          "ground",
+          "ground",
+          "ground",
+          "hole",
+          "ground",
+          "flag"
+        ],
+        "start": 0
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "runner_walk",
+                  "id": "walk1",
+                  "next": {
+                    "block": {
+                      "type": "runner_jump",
+                      "id": "jump1",
+                      "next": {
+                        "block": {
+                          "type": "runner_walk",
+                          "id": "walk2"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "say",
+      "pose": "point",
+      "text": "Sửa ít nhất: đổi 1 khối, rồi bấm Chạy."
+    },
+    {
+      "type": "quiz",
+      "text": "Măng rơi hố. Con làm gì trước?",
+      "options": [
+        "Xóa hết ghép lại",
+        "Chạy từng bước"
+      ],
+      "correct": 1,
+      "explain": "Chạy từng bước để tìm đúng khối gây lỗi."
+    }
+  ]
+}

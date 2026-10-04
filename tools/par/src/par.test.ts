@@ -108,7 +108,7 @@ describe('judgeLevel', () => {
   it('notes a stopped search even when it found the minimum', () => {
     const verdict = judgeLevel(load('w02-rung-lap-lai', 'w02-l18'), { maxWork: 200_000 });
     expect(verdict.mark).toBe('⚠');
-    expect(verdict.lines).toContain('fix search stopped (budget or --timeout)');
+    expect(verdict.lines).toContain('fix search stopped (budget, memory cap or --timeout)');
   });
 
   describe('levels with starGoals (P2-21)', () => {

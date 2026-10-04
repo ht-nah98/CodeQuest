@@ -126,6 +126,14 @@ describe('findFixes', () => {
     expect(result).toMatchObject({ minEdits: null, complete: false, searchedEdits: 0 });
   });
 
+  it('stops on the memory cap of kept programs instead of running out of memory', async () => {
+    const level = await loadLevel('w01-l14');
+    const result = findFixes(level, { maxKept: 10 });
+    expect(result).toMatchObject({ minEdits: null, complete: false, searchedEdits: 0 });
+    // One edit never keeps anything (the last distance is not expanded): no cap needed.
+    expect(findFixes(level, { maxEdits: 1, maxKept: 0 }).complete).toBe(true);
+  });
+
   it('only searches bughunt levels', async () => {
     const level = await loadLevel('w01-l02');
     expect(() => findFixes(level)).toThrow('only bughunt levels');

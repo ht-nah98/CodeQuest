@@ -28,6 +28,7 @@ function level(extra: Record<string, unknown> = {}): Record<string, unknown> {
     solution: programToWorkspace([walk, jump, walk]),
     hints: [
       { id: 'walk-new', when: { trigger: 'enter' }, say: 'Khối đi.', point: 'toolbox:runner_walk' },
+      { id: 'hole', when: { lastReason: 'FELL_IN_HOLE' }, say: 'Nhảy sát hố.', point: 'stage' },
     ],
     ...extra,
   };
@@ -89,7 +90,7 @@ describe('validateLevel', () => {
       '10 solution uses 3 blocks > par 2',
       '10 solution uses 3 blocks > maxBlocks 2',
     ]);
-    expect(messages(level({ toolbox: ['runner_walk'], hints: [] }))).toEqual([
+    expect(messages(level({ stage: 'practice', toolbox: ['runner_walk'], hints: [] }))).toEqual([
       '11 solution uses "runner_jump", which is not in toolbox',
     ]);
   });
@@ -180,6 +181,7 @@ describe('validateLevel', () => {
     expect(
       messages(
         level({
+          stage: 'practice',
           hints: [
             {
               id: 'x',
@@ -194,6 +196,41 @@ describe('validateLevel', () => {
       '16 hint "x" points to block:runner_kick, which is in neither initialWorkspace nor solution',
       '16 hint "x" waits for lastReason "HIT_WALL", which neither the engine nor "runner" produces',
     ]);
+  });
+
+  it('rule 6: a guided level needs at least 2 tier-0 hints (content-authoring.md §3)', () => {
+    const oneHint = level({
+      hints: [{ id: 'only', when: { trigger: 'enter' }, say: 'Khối đi.', point: 'run' }],
+    });
+    expect(messages(oneHint)).toEqual(['6 stage guided needs at least 2 tier-0 hints, has 1']);
+    expect(messages({ ...oneHint, stage: 'practice' })).toEqual([]);
+  });
+
+  it('rule 16: in predict and bughunt a block pointer names exactly one block', () => {
+    const bughunt = (point: string, when: Record<string, unknown> = { trigger: 'enter' }) =>
+      messages(
+        level({
+          mode: 'bughunt',
+          stage: 'practice',
+          parEdits: 1,
+          initialWorkspace: {
+            blocks: {
+              languageVersion: 0,
+              blocks: [
+                ...programToWorkspace([walk, walk, walk]).blocks.blocks,
+                { type: 'runner_jump', id: 'loose', x: 300, y: 40 },
+              ],
+            },
+          },
+          hints: [{ id: 'p', when, say: 'Xem khối này.', point }],
+        }),
+      );
+    expect(bughunt('block:runner_walk')).toEqual([
+      '16 hint "p" points to block:runner_walk, but initialWorkspace has 3 such blocks; the arrow lands on the first one',
+    ]);
+    // One program jump-less, one loose jump: a loose-block hint lands on it unambiguously.
+    expect(bughunt('block:runner_jump', { orphans: true })).toEqual([]);
+    expect(bughunt('block:runner_jump')).toEqual([]);
   });
 
   it('rule 5: the mission line has at most 12 words', () => {

@@ -4,6 +4,7 @@
  */
 import type { Condition, Level, StarGoalKind, WorkspaceJson } from '@codequest/content-schema';
 import {
+  CQ_START,
   ENGINE_REASONS,
   editDistance,
   fnv1a,
@@ -12,7 +13,7 @@ import {
   type AnyGameKindDefinition,
 } from '@codequest/engine';
 import type { RuleIssue } from './issue';
-import { blockSignatures, blockTypesOf, countShadows } from './workspace';
+import { blockSignatures, blockTypesOf, countBlocksOfType, countShadows } from './workspace';
 import { countWords } from './words';
 
 /** ui-copy-guide.md §2 and content-model.md §3. */
@@ -25,7 +26,13 @@ const MAX_MISSION_WORDS = 12;
 /** Built-in Blockly loop whose number input is a shadow (blockly-integration.md §5). */
 const SHADOW_REPEAT = 'controls_repeat_ext';
 
-/** Rules 5–6: word limits, `misconception` and `thinkingHint`. */
+/**
+ * content-authoring.md §3: a guided level needs at least 2 tier-0 hint rules. (Its "practice ≥ 1"
+ * is not enforced: practice predict/parsons levels in the fixtures and drafts have none.)
+ */
+const MIN_TIER0_HINTS: Partial<Record<Level['stage'], number>> = { guided: 2 };
+
+/** Rules 5–6: word limits, `misconception`, `thinkingHint` and enough tier-0 hints. */
 export function pedagogyIssues(level: Level): RuleIssue[] {
   const issues: RuleIssue[] = [];
   const limit = (what: string, text: string, max: number): void => {
@@ -51,6 +58,13 @@ export function pedagogyIssues(level: Level): RuleIssue[] {
   const creative = level.stage === 'creative' || level.mode === 'creative';
   if (!creative && level.thinkingHint === undefined) {
     issues.push({ rule: 6, message: 'every non-creative level needs a thinkingHint' });
+  }
+  const minHints = MIN_TIER0_HINTS[level.stage] ?? 0;
+  if (level.hints.length < minHints) {
+    issues.push({
+      rule: 6,
+      message: `stage ${level.stage} needs at least ${String(minHints)} tier-0 hints, has ${String(level.hints.length)}`,
+    });
   }
   return issues;
 }
@@ -173,7 +187,23 @@ function lastReasons(condition: Condition): string[] {
   return condition.lastReason === undefined ? [] : [condition.lastReason];
 }
 
-/** Rule 16: hint targets exist and `lastReason` codes are real. */
+/** Whether a hint condition is about loose blocks: the play screen then prefers a loose block. */
+function mentionsLooseBlocks(condition: Condition): boolean {
+  if ('all' in condition) return condition.all.some(mentionsLooseBlocks);
+  if ('any' in condition) return condition.any.some(mentionsLooseBlocks);
+  if ('not' in condition) return false;
+  return condition.orphans === true;
+}
+
+/** Modes whose given program has a fixed meaning, so each of its blocks plays its own part. */
+const FIXED_PROGRAM_MODES: ReadonlySet<Level['mode']> = new Set(['predict', 'bughunt']);
+
+/**
+ * Rule 16: hint targets exist, `lastReason` codes are real, and in predict/bughunt a
+ * `block:<type>` pointer is unambiguous: the play screen points at the first block of that type
+ * (a program block, or a loose one for a hint about loose blocks; `hintPointer.ts`), so the
+ * program shown must hold exactly one candidate.
+ */
 export function hintIssues(level: Level, kind: AnyGameKindDefinition): RuleIssue[] {
   const issues: RuleIssue[] = [];
   const toolbox = toolboxTypes(level);
@@ -195,6 +225,20 @@ export function hintIssues(level: Level, kind: AnyGameKindDefinition): RuleIssue
         rule: 16,
         message: `hint "${hint.id}" points to ${point}, which is in neither initialWorkspace nor solution`,
       });
+    } else if (
+      point?.startsWith('block:') === true &&
+      level.initialWorkspace !== undefined &&
+      FIXED_PROGRAM_MODES.has(level.mode)
+    ) {
+      const counts = countBlocksOfType(level.initialWorkspace, point.slice('block:'.length), CQ_START);
+      const preferred = mentionsLooseBlocks(hint.when) ? counts.loose : counts.attached;
+      const candidates = preferred > 0 ? preferred : counts.attached + counts.loose;
+      if (candidates > 1) {
+        issues.push({
+          rule: 16,
+          message: `hint "${hint.id}" points to ${point}, but initialWorkspace has ${String(candidates)} such blocks; the arrow lands on the first one`,
+        });
+      }
     }
     for (const reason of lastReasons(hint.when)) {
       if (!reasons.has(reason)) {

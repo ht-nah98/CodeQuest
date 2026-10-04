@@ -1,0 +1,163 @@
+{
+  "id": "w03-l05",
+  "worldId": "w03-xuong-sua-loi",
+  "stage": "practice",
+  "kind": "runner",
+  "mode": "bughunt",
+  "title": "Khối rơi ra",
+  "objective": "Nối khối đá vào đúng chỗ nhé!",
+  "learningGoal": "Khối rời (không nối vào khi bắt đầu) không bao giờ chạy. Nối khối đá vào ngay trước thùng là 1 lần sửa.",
+  "misconception": "Khối nằm trong vùng ghép là sẽ chạy, dù chưa nối.",
+  "mission": "Một khối rơi khỏi máy của Cáo. Nối lại!",
+  "goalSprite": "machine",
+  "toolbox": [
+    "runner_walk",
+    "runner_jump",
+    "runner_kick"
+  ],
+  "par": 6,
+  "parEdits": 1,
+  "config": {
+    "cells": [
+      "ground",
+      "ground",
+      "crate",
+      "ground",
+      "hole",
+      "ground",
+      "flag"
+    ],
+    "start": 0
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "runner_walk",
+              "id": "walk1",
+              "next": {
+                "block": {
+                  "type": "runner_walk",
+                  "id": "walk2",
+                  "next": {
+                    "block": {
+                      "type": "runner_walk",
+                      "id": "walk3",
+                      "next": {
+                        "block": {
+                          "type": "runner_jump",
+                          "id": "jump1",
+                          "next": {
+                            "block": {
+                              "type": "runner_walk",
+                              "id": "walk4"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "runner_kick",
+          "id": "kick1",
+          "x": 300,
+          "y": 60
+        }
+      ]
+    }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "runner_walk",
+              "id": "walk1",
+              "next": {
+                "block": {
+                  "type": "runner_kick",
+                  "id": "kick1",
+                  "next": {
+                    "block": {
+                      "type": "runner_walk",
+                      "id": "walk2",
+                      "next": {
+                        "block": {
+                          "type": "runner_walk",
+                          "id": "walk3",
+                          "next": {
+                            "block": {
+                              "type": "runner_jump",
+                              "id": "jump1",
+                              "next": {
+                                "block": {
+                                  "type": "runner_walk",
+                                  "id": "walk4"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "run-first",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Bấm Chạy trước, xem Măng vấp ở đâu nhé!",
+      "point": "run"
+    },
+    {
+      "id": "loose",
+      "when": {
+        "trigger": "run-end",
+        "orphans": true
+      },
+      "say": "Khối xám này chưa nối nên không chạy.",
+      "point": "block:runner_kick",
+      "priority": 1
+    },
+    {
+      "id": "where",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "HIT_CRATE",
+        "orphans": false
+      },
+      "say": "Măng phải đá khi đứng sát thùng.",
+      "point": "block:runner_kick"
+    }
+  ],
+  "thinkingHint": "Măng đứng ở ô nào thì thùng ở ngay trước mặt?"
+}

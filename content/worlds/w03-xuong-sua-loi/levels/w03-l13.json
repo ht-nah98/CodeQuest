@@ -1,0 +1,203 @@
+{
+  "id": "w03-l13",
+  "worldId": "w03-xuong-sua-loi",
+  "stage": "challenge",
+  "kind": "maze",
+  "mode": "bughunt",
+  "title": "Kho lớn",
+  "objective": "Kho lớn có 2 lỗi. Sửa ít nhất nhé!",
+  "learningGoal": "Mê cung có vòng lặp và 2 lỗi khác loại: số lần lặp thiếu và rẽ sai phía. Sửa lỗi đầu, chạy lại để thấy lỗi sau.",
+  "mission": "Kho lớn có 2 lỗi. Tìm lối ra!",
+  "goalSprite": "exit",
+  "toolbox": [
+    {
+      "type": "cq_repeat",
+      "fields": {
+        "TIMES": 2
+      }
+    },
+    "maze_forward",
+    "maze_turn_left",
+    "maze_turn_right"
+  ],
+  "par": 8,
+  "parEdits": 2,
+  "config": {
+    "map": [
+      "########",
+      "#.....##",
+      "#.###.##",
+      "#.###G##",
+      "#.######",
+      "#S######",
+      "########"
+    ],
+    "startDir": "N"
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "rep1",
+              "fields": {
+                "TIMES": 3
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "maze_forward",
+                    "id": "fwd1"
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "type": "maze_turn_right",
+                  "id": "right1",
+                  "next": {
+                    "block": {
+                      "type": "cq_repeat",
+                      "id": "rep2",
+                      "fields": {
+                        "TIMES": 4
+                      },
+                      "inputs": {
+                        "DO": {
+                          "block": {
+                            "type": "maze_forward",
+                            "id": "fwd2"
+                          }
+                        }
+                      },
+                      "next": {
+                        "block": {
+                          "type": "maze_turn_left",
+                          "id": "left1",
+                          "next": {
+                            "block": {
+                              "type": "cq_repeat",
+                              "id": "rep3",
+                              "fields": {
+                                "TIMES": 2
+                              },
+                              "inputs": {
+                                "DO": {
+                                  "block": {
+                                    "type": "maze_forward",
+                                    "id": "fwd3"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "rep1",
+              "fields": {
+                "TIMES": 4
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "maze_forward",
+                    "id": "fwd1"
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "type": "maze_turn_right",
+                  "id": "right1",
+                  "next": {
+                    "block": {
+                      "type": "cq_repeat",
+                      "id": "rep2",
+                      "fields": {
+                        "TIMES": 4
+                      },
+                      "inputs": {
+                        "DO": {
+                          "block": {
+                            "type": "maze_forward",
+                            "id": "fwd2"
+                          }
+                        }
+                      },
+                      "next": {
+                        "block": {
+                          "type": "maze_turn_right",
+                          "id": "right2",
+                          "next": {
+                            "block": {
+                              "type": "cq_repeat",
+                              "id": "rep3",
+                              "fields": {
+                                "TIMES": 2
+                              },
+                              "inputs": {
+                                "DO": {
+                                  "block": {
+                                    "type": "maze_forward",
+                                    "id": "fwd3"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "wall",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "HIT_WALL"
+      },
+      "say": "Bấm Từng bước. Khối nào làm Măng đi khác ý?",
+      "point": "stage"
+    }
+  ],
+  "thinkingHint": "Đoạn đầu dài mấy ô? Tới góc, Măng nhìn về đâu?"
+}

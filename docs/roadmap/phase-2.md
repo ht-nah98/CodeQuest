@@ -16,7 +16,7 @@
 | P2-05 | Góc huấn luyện viên trên dữ liệu local + file sao lưu | — | AI | ⬜ |
 | P2-06 | Góc nhóm: mục tiêu chung, tường tác phẩm | P2-04, P2-05 | AI | ⬜ |
 | P2-07 | Level editor v0 (`/coach/editor`) | P2-15 | AI | 🟨 |
-| P2-08 | Nội dung Thế giới 3 · Xưởng Sửa Lỗi (15 màn + bài giảng) | P2-10, P2-11 (phần W3) | AI soạn nháp · HLV duyệt | ⬜ |
+| P2-08 | Nội dung Thế giới 3 · Xưởng Sửa Lỗi (15 màn + bài giảng) | P2-10, P2-11 (phần W3) | AI soạn nháp · HLV duyệt | 🟨 chờ HLV chơi thử |
 | P2-09 | PWA offline (chưa deploy) | — | AI | ⬜ |
 | P2-10 | Chi tiết hóa chương trình học Thế giới 3–5 | — | AI soạn · HLV duyệt | ✅ HLV + phụ huynh duyệt 03/10 |
 | P2-11 | Khối điều kiện, lặp đến khi, cảm biến sáng khi kiểm | P2-10 (bản nháp) | AI | ⬜ |
@@ -30,7 +30,7 @@
 | P2-19 | Chơi thử cả nhóm, sửa, phát hành `v0.2.0` | tất cả | HLV + AI | ⛔ |
 | P2-20 | Màn Ghép máy của bé + giao diện tài khoản trong Góc HLV (với client giả) | P2-03, P2-05 | AI | ⬜ |
 | P2-21 | Sao theo mục tiêu màn: nhiều đường giải, đường tối ưu được nhiều sao nhất (góp ý HLV 03/10) | P2-10, P2-15 | AI (luật HLV đã duyệt 03/10) | ⬜ |
-| P2-22 | Xem cả đường: phóng to bản đồ nhỏ, kéo trái/phải, vạch đếm ô (góp ý HLV 03/10) | — | AI | ⬜ |
+| P2-22 | Xem cả đường: phóng to bản đồ nhỏ, kéo trái/phải, vạch đếm ô (góp ý HLV 03/10) | — | AI | 🟨 chờ HLV xem |
 
 Thay đổi so với khung ở `later-phases.md`: P2-08 khung (nội dung Thế giới 3–5) tách thành **P2-08** (W3), **P2-13** (W4), **P2-14** (W5). Phần "sorter tối thiểu nếu Thế giới 4 cần" **hủy**: Thế giới 4 dùng `runner` và `maze` (`curriculum.md` §2), sorter để GĐ 4. P2-09 khung tách thành **P2-09** (PWA, AI làm ngay) và **P2-18** (deploy, cần Vercel). Thêm P2-10…P2-20. "Thợ săn lỗi" trong `master-plan.md` §9 là mode `bughunt`, đã có từ P1-06.
 
@@ -184,6 +184,7 @@ H2 không bắt buộc nếu có H1 + H3: test SQL và function có thể chạy
 Theo bảng ở `curriculum.md` (mục Thế giới 3 do P2-10 viết). `world.json`, `w03-lesson`, 15 màn + `w03-creative`, hoạt động unplugged. Chỉ dùng khối đã có (tuần tự + lặp), nặng về `bughunt`, `predict` và chạy từng bước.
 **Quy trình** (như W1–W2): AI soạn nháp → vét cạn `par` cho mọi màn build/bughunt (P2-15) → review sư phạm bằng agent riêng (critic) theo `content-authoring.md` → sửa → HLV chơi thử.
 **Nghiệm thu:** `content:check` xanh, không cảnh báo luật 4/7/8; `npm run par -- --world w03` không tìm thấy lời giải ít khối hơn `par`; mỗi mode `build`, `parsons`, `predict`, `bughunt` xuất hiện ≥ 1 lần; review sư phạm đã xử lý hết (ghi trong PR); `w03-xuong-sua-loi` không nằm trong `PROVISIONAL_WORLDS`; e2e smoke mở được `w03-l01`; khi đã có giọng đọc (P1-14): `npm run voice -- check --worlds w03` sạch. **HLV chơi thử từng màn** trước khi merge.
+**Trạng thái (04/10/2026):** 🟨 đã soạn nháp `world.json`, `w03-lesson`, 15 màn + `w03-creative`; `content:check` xanh không cảnh báo; `npm run par -- --world w03` ✔ mọi màn trừ ⚠ `w03-boss` (vét cạn sửa 3 thao tác dừng ở trần bộ nhớ/ngân sách; vét cạn riêng ≤ 3 thao tác không có cách thắng, `curriculum.md` §5.1 "Ghi chú khi soạn"); test `tools/content-check/src/w03.test.ts` (mỗi lần sửa lộ lỗi tiếp theo). Review sư phạm độc lập đã xử lý (04/10): sửa câu chữ, điểm chỉ gợi ý, bài giảng thẻ 3–4; thêm luật `content:check` (6: màn guided ≥ 2 gợi ý tầng 0; 16: `block:<type>` chỉ đúng một khối ở predict/bughunt) và trần bộ nhớ cho vét cạn sửa lỗi. Còn: e2e smoke `w03-l01`, điểm chỉ `step` và `maxLoopDepth` (P2-11a/b), **HLV chơi thử**.
 
 ### P2-09 · PWA offline
 **Mục tiêu:** bé mở app và chơi được khi mất mạng, kể cả tải lại trang.
@@ -214,6 +215,7 @@ Theo bảng ở `curriculum.md` (mục Thế giới 3 do P2-10 viết). `world.j
 - `TIMEOUT` (lặp vô hạn): phát lại tối đa vài giây rồi dừng với hoạt ảnh "chóng mặt"; gợi ý tầng 0 riêng cho lặp vô hạn.
 - `analyzeWorkspace`, `editDistance`, hint `matches` và vét cạn `par` (P2-15) đúng với khối lồng trong nhánh `DO`/`ELSE`.
 - Nếu P2-10 cần: điểm chỉ gợi ý `ui:step` (chỉ vào nút Từng bước) cho W3.
+  - **TODO khi làm (P2-08 đã soạn, 04/10/2026):** gợi ý `step` của `w03-l02` ("Bấm Từng bước, xem khối nào sáng.") đang tạm `point: "run"`; đổi sang điểm chỉ mới và ghi lại ở `curriculum.md` §5.1 "Ghi chú khi soạn".
 
 **Nghiệm thu:** unit test: mỗi khối mới có generator test + `runLevel` thắng/thua; vòng `lặp đến khi` không bao giờ đúng → `TIMEOUT`, **tất định** (2 lần chạy cùng event log); `editDistance` trên ví dụ có nhánh nếu–không; validator bắt shadow trong khối điều kiện ở màn có `maxBlocks` (luật 12). E2E: kéo `nếu` + cảm biến vào màn mẫu ở `_sandbox`, chạy thấy khối cảm biến sáng ✔/✘ đúng số lần; màn lặp vô hạn hiện câu `TIMEOUT` và không treo trình duyệt. Coverage `engine` ≥ 90%, `games` ≥ 85% giữ nguyên.
 
@@ -309,7 +311,17 @@ Buổi học nhóm theo `playbooks/playtest.md`: 6 bé chơi W3 trên máy riên
 
 **Nghiệm thu:** schema `starGoals` + luật sao có test; validator/par kiểm từng mục tiêu; thẻ "Mục tiêu ⭐" và màn kết quả hiện mục tiêu đạt/chưa đạt (e2e + ảnh); bảng Thế giới 3–5 (P2-10) ghi mục tiêu sao cho từng màn.
 
+**Tiến độ 03/10/2026 — phần headless xong** (ADR-0017): schema `starGoals` (loại `collectAll`), `RunOutcome.goals` (đạt trên mọi bản đồ), `computeStars` + `meetsStarGoals` có bảng test, luật 19 + fixture, `npm run par` in `min (goals) N · plain win M`. Cùng đợt, phần dữ liệu của **P2-11c**: `mission` (luật 5 đếm chữ) và `goalSprite`. **Còn lại (web):**
+- schema `RunSchema` của phiên màn (Dexie) và `RunSummarySchema` của file sao lưu phải giữ trường `goals` (không thì mất khi lưu / khôi phục);
+- `toRunSummary` chép `RunOutcome.goals` sang `RunSummary.goals` (chưa chép thì màn có `starGoals` chỉ được ⭐);
+- thẻ "Mục tiêu ⭐" trước khi chơi;
+- màn kết quả hiện từng mục tiêu đạt/chưa đạt (`meetsStarGoals`, `outcome.goals`, `maps[i].goals`);
+- vẽ `goalSprite` và dòng nhiệm vụ `mission` (giọng `<id>.mission` đã được `tools/voice` trích);
+- level editor hiện thêm số khối "thắng thường" (`ignoreStarGoals`) cạnh `par` theo mục tiêu;
+- e2e + ảnh chụp.
+
 ### P2-22 · Xem cả đường (góp ý HLV 03/10/2026)
 **Vấn đề:** đường dài (tới 40 ô ở W4–W5) chỉ thấy qua dải bản đồ nhỏ dưới sân chơi, quá bé để bé đếm ô và lên kế hoạch.
 **Làm:** nút "Xem cả đường" cạnh dải bản đồ nhỏ mở khung lớn: ô to, kéo trái/phải bằng chuột (và lăn chuột), vạch đếm từng ô ở mép dưới, bấm ô để đánh dấu, Esc/✕ để đóng. Khi Măng chưa chạy, kéo dải bản đồ nhỏ thì sân chơi cuộn theo. Dùng chung cho mê cung lớn và màn nhiều bản đồ (xem đúng bản đồ đang chọn).
 **Nghiệm thu:** e2e mở/kéo/đóng ở 1280 và 1366, ảnh chụp; không đổi luật chơi; HLV xem thử.
+**Trạng thái (03/10/2026):** 🟨 AI làm xong (khung `PlanView`, kéo dải cuộn sân, thước số ô chỉ trong khung này, e2e `play-plan.spec.ts` ở 1280 và 1366); chờ HLV xem thử.

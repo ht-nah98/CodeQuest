@@ -1,0 +1,45 @@
+{
+  "id": "w03-xuong-sua-loi",
+  "order": 3,
+  "title": "Xưởng Sửa Lỗi",
+  "emoji": "🔧",
+  "concept": "Gỡ lỗi: đọc, tìm, sửa",
+  "story": "Phù thủy gió làm lệch khối trong máy của cả làng. Măng giúp bác Cú sửa từng máy.",
+  "theme": {
+    "tileset": "/tiles/ground.png",
+    "palette": "day"
+  },
+  "lessonIds": ["w03-lesson"],
+  "levelIds": [
+    "w03-l01",
+    "w03-l02",
+    "w03-l03",
+    "w03-l04",
+    "w03-l05",
+    "w03-l06",
+    "w03-l07",
+    "w03-l08",
+    "w03-l09",
+    "w03-l10",
+    "w03-l11",
+    "w03-l12",
+    "w03-l13",
+    "w03-l14",
+    "w03-boss",
+    "w03-creative"
+  ],
+  "unlock": {
+    "minStarRatio": 0.6
+  },
+  "unplugged": {
+    "title": "Robot đọc thẻ",
+    "steps": [
+      "Dán băng keo thành một con đường có 2 khúc rẽ.",
+      "Huấn luyện viên xếp một chuỗi thẻ lệnh (tiến, rẽ trái, rẽ phải) có 1 thẻ lạc chỗ.",
+      "Một bé làm \"robot\", đi đúng từng thẻ, không tự sửa.",
+      "Các bé khác làm \"thợ\": hô \"Dừng!\" khi robot đi khác ý, rồi chỉ ra thẻ nào phải đổi. Chỉ được đổi 1 thẻ.",
+      "Vòng 2: thẻ thiếu nằm trước chỗ robot đâm tường. Hỏi: robot đâm ở đâu, thẻ sai nằm ở đâu?",
+      "Vòng 3: các bé tự giấu 1 lỗi cho nhóm bạn tìm."
+    ]
+  }
+}

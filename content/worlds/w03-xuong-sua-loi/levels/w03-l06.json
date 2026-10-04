@@ -1,0 +1,166 @@
+{
+  "id": "w03-l06",
+  "worldId": "w03-xuong-sua-loi",
+  "stage": "practice",
+  "kind": "maze",
+  "mode": "bughunt",
+  "title": "Lối ra kho",
+  "objective": "Măng đụng tường. Sửa 1 khối rẽ nhé!",
+  "learningGoal": "Rẽ trái/phải tính theo hướng Măng đang nhìn. Măng nhìn xuống thì muốn sang phải màn hình phải rẽ trái.",
+  "misconception": "Rẽ trái là rẽ về phía trái màn hình.",
+  "mission": "Tìm lối ra khỏi kho của bác Cú.",
+  "goalSprite": "exit",
+  "toolbox": [
+    {
+      "type": "cq_repeat",
+      "fields": {
+        "TIMES": 2
+      }
+    },
+    "maze_forward",
+    "maze_turn_left",
+    "maze_turn_right"
+  ],
+  "par": 5,
+  "parEdits": 1,
+  "config": {
+    "map": [
+      "########",
+      "##S#####",
+      "##.#####",
+      "##.#####",
+      "##....G.",
+      "##.#####",
+      "########"
+    ],
+    "startDir": "S"
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "rep1",
+              "fields": {
+                "TIMES": 3
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "maze_forward",
+                    "id": "fwd1"
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "type": "maze_turn_right",
+                  "id": "right1",
+                  "next": {
+                    "block": {
+                      "type": "cq_repeat",
+                      "id": "rep2",
+                      "fields": {
+                        "TIMES": 4
+                      },
+                      "inputs": {
+                        "DO": {
+                          "block": {
+                            "type": "maze_forward",
+                            "id": "fwd2"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "rep1",
+              "fields": {
+                "TIMES": 3
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "maze_forward",
+                    "id": "fwd1"
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "type": "maze_turn_left",
+                  "id": "left1",
+                  "next": {
+                    "block": {
+                      "type": "cq_repeat",
+                      "id": "rep2",
+                      "fields": {
+                        "TIMES": 4
+                      },
+                      "inputs": {
+                        "DO": {
+                          "block": {
+                            "type": "maze_forward",
+                            "id": "fwd2"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "run-first",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Bấm Chạy trước, xem Măng đụng ở đâu nhé!",
+      "point": "run"
+    },
+    {
+      "id": "side",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "HIT_WALL"
+      },
+      "say": "Măng nhìn xuống. Tay trái của Măng chỉ phía nào?",
+      "point": "block:maze_turn_right"
+    }
+  ],
+  "thinkingHint": "Con thử quay người như Măng, nhìn xuống dưới xem."
+}

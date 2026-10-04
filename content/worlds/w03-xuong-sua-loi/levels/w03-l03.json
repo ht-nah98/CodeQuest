@@ -1,0 +1,186 @@
+{
+  "id": "w03-l03",
+  "worldId": "w03-xuong-sua-loi",
+  "stage": "guided",
+  "kind": "runner",
+  "mode": "bughunt",
+  "title": "Xe đẩy bị kẹt",
+  "objective": "Măng rơi hố. Tìm khối gây lỗi nhé!",
+  "learningGoal": "Khối gây lỗi có thể nằm trước chỗ Măng ngã: ở đây thiếu một khối đi nên Măng nhảy sớm 1 ô. Khối nhảy đang sáng lúc ngã không sai.",
+  "misconception": "Khối gây lỗi là khối đang sáng lúc Măng ngã.",
+  "mission": "Xe đẩy của Mèo bị kẹt. Tìm khối gây lỗi!",
+  "goalSprite": "machine",
+  "toolbox": [
+    "runner_walk",
+    "runner_jump",
+    "runner_crouch",
+    "runner_kick"
+  ],
+  "par": 9,
+  "parEdits": 1,
+  "config": {
+    "cells": [
+      "ground",
+      "branch",
+      "ground",
+      "ground",
+      "ground",
+      "hole",
+      "ground",
+      "crate",
+      "ground",
+      "flag"
+    ],
+    "start": 0
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "runner_crouch",
+              "id": "crouch1",
+              "next": {
+                "block": {
+                  "type": "runner_walk",
+                  "id": "walk1",
+                  "next": {
+                    "block": {
+                      "type": "runner_walk",
+                      "id": "walk2",
+                      "next": {
+                        "block": {
+                          "type": "runner_jump",
+                          "id": "jump1",
+                          "next": {
+                            "block": {
+                              "type": "runner_kick",
+                              "id": "kick1",
+                              "next": {
+                                "block": {
+                                  "type": "runner_walk",
+                                  "id": "walk3",
+                                  "next": {
+                                    "block": {
+                                      "type": "runner_walk",
+                                      "id": "walk4",
+                                      "next": {
+                                        "block": {
+                                          "type": "runner_walk",
+                                          "id": "walk5"
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "runner_crouch",
+              "id": "crouch1",
+              "next": {
+                "block": {
+                  "type": "runner_walk",
+                  "id": "walk1",
+                  "next": {
+                    "block": {
+                      "type": "runner_walk",
+                      "id": "walk2",
+                      "next": {
+                        "block": {
+                          "type": "runner_walk",
+                          "id": "walk3",
+                          "next": {
+                            "block": {
+                              "type": "runner_jump",
+                              "id": "jump1",
+                              "next": {
+                                "block": {
+                                  "type": "runner_kick",
+                                  "id": "kick1",
+                                  "next": {
+                                    "block": {
+                                      "type": "runner_walk",
+                                      "id": "walk4",
+                                      "next": {
+                                        "block": {
+                                          "type": "runner_walk",
+                                          "id": "walk5",
+                                          "next": {
+                                            "block": {
+                                              "type": "runner_walk",
+                                              "id": "walk6"
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "run-first",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Bấm Chạy trước, xem Măng ngã ở đâu nhé!",
+      "point": "run"
+    },
+    {
+      "id": "early",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "FELL_IN_HOLE"
+      },
+      "say": "Trước khi nhảy, Măng đứng sát hố chưa?",
+      "point": "stage"
+    }
+  ],
+  "thinkingHint": "Măng nhảy từ ô nào? Ô đó sát hố chưa?"
+}

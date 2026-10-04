@@ -1,0 +1,116 @@
+{
+  "id": "w03-l01",
+  "worldId": "w03-xuong-sua-loi",
+  "stage": "guided",
+  "kind": "runner",
+  "mode": "predict",
+  "title": "Máy xay chạy lạ",
+  "objective": "Đọc chương trình, đoán xem Măng gặp nạn ở đâu!",
+  "learningGoal": "Đọc một chương trình có lỗi và đoán Măng đi tới đâu, trước khi bấm Chạy (bước Đoán của quy trình sửa lỗi).",
+  "misconception": "Chương trình máy đã có sẵn thì luôn đúng.",
+  "mission": "Máy xay của bác Heo chạy lạ. Đoán xem!",
+  "goalSprite": "machine",
+  "toolbox": [],
+  "config": {
+    "cells": [
+      "ground",
+      "ground",
+      "hole",
+      "ground",
+      "ground",
+      "branch",
+      "ground",
+      "flag"
+    ],
+    "start": 0
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "runner_walk",
+              "id": "walk1",
+              "next": {
+                "block": {
+                  "type": "runner_jump",
+                  "id": "jump1",
+                  "next": {
+                    "block": {
+                      "type": "runner_walk",
+                      "id": "walk2",
+                      "next": {
+                        "block": {
+                          "type": "runner_walk",
+                          "id": "walk3",
+                          "next": {
+                            "block": {
+                              "type": "runner_walk",
+                              "id": "walk4",
+                              "next": {
+                                "block": {
+                                  "type": "runner_walk",
+                                  "id": "walk5"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "predict": {
+    "options": [
+      {
+        "key": "crash:HIT_BRANCH@5",
+        "label": "Cụng cành tre"
+      },
+      {
+        "key": "win",
+        "label": "Tới nơi"
+      },
+      {
+        "key": "crash:FELL_IN_HOLE@2",
+        "label": "Rơi xuống hố"
+      },
+      {
+        "key": "stop@6",
+        "label": "Đứng trước máy"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "read",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Chỉ tay theo từng khối, xem Măng đi tới đâu!",
+      "point": "stage"
+    },
+    {
+      "id": "jump",
+      "when": {
+        "trigger": "idle"
+      },
+      "say": "Nhảy: bay qua 1 ô, đáp xuống ô thứ 2.",
+      "point": "block:runner_jump"
+    }
+  ],
+  "thinkingHint": "Sau cú nhảy, Măng gặp gì? Khối đi qua được không?"
+}

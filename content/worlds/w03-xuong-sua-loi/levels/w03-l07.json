@@ -1,0 +1,180 @@
+{
+  "id": "w03-l07",
+  "worldId": "w03-xuong-sua-loi",
+  "stage": "practice",
+  "kind": "runner",
+  "mode": "parsons",
+  "title": "Lắp lại máy đá thùng",
+  "objective": "Xếp lại các khối cho đúng chỗ nhé!",
+  "learningGoal": "Gió thổi tung chương trình: khối nào lặp lại thì nằm trong vòng lặp, khối chỉ chạy 1 lần thì nằm sau vòng lặp.",
+  "misconception": "Khối đi nằm trong hay sau vòng lặp đều như nhau.",
+  "mission": "Gió thổi tung khối. Lắp lại máy đá thùng!",
+  "goalSprite": "machine",
+  "toolbox": [],
+  "par": 7,
+  "config": {
+    "cells": [
+      "ground",
+      "crate",
+      "ground",
+      "crate",
+      "ground",
+      "crate",
+      "ground",
+      "ground",
+      "hole",
+      "ground",
+      "flag"
+    ],
+    "start": 0
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false
+        },
+        {
+          "type": "runner_jump",
+          "id": "jump1",
+          "x": 300,
+          "y": 60
+        },
+        {
+          "type": "runner_walk",
+          "id": "walk1",
+          "x": 420,
+          "y": 130
+        },
+        {
+          "type": "cq_repeat",
+          "id": "rep1",
+          "fields": {
+            "TIMES": 3
+          },
+          "x": 300,
+          "y": 200
+        },
+        {
+          "type": "runner_walk",
+          "id": "walk2",
+          "x": 420,
+          "y": 270
+        },
+        {
+          "type": "runner_kick",
+          "id": "kick1",
+          "x": 300,
+          "y": 340
+        },
+        {
+          "type": "runner_walk",
+          "id": "walk3",
+          "x": 420,
+          "y": 410
+        },
+        {
+          "type": "runner_walk",
+          "id": "walk4",
+          "x": 300,
+          "y": 480
+        }
+      ]
+    }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "rep1",
+              "fields": {
+                "TIMES": 3
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "runner_kick",
+                    "id": "kick1",
+                    "next": {
+                      "block": {
+                        "type": "runner_walk",
+                        "id": "walk1",
+                        "next": {
+                          "block": {
+                            "type": "runner_walk",
+                            "id": "walk2"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "type": "runner_walk",
+                  "id": "walk3",
+                  "next": {
+                    "block": {
+                      "type": "runner_jump",
+                      "id": "jump1",
+                      "next": {
+                        "block": {
+                          "type": "runner_walk",
+                          "id": "walk4"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "pattern",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Mẫu nào lặp 3 lần? Mẫu đó vào trong vòng lặp.",
+      "point": "block:cq_repeat"
+    },
+    {
+      "id": "inside",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "HIT_CRATE",
+        "orphans": false
+      },
+      "say": "Mỗi vòng cần đá, đi, đi. Đếm khối đi nhé!",
+      "point": "block:cq_repeat"
+    },
+    {
+      "id": "loose",
+      "when": {
+        "trigger": "run-end",
+        "orphans": true
+      },
+      "say": "Còn khối rời. Nối hết vào khi bắt đầu nhé!"
+    }
+  ],
+  "thinkingHint": "Giữa hai thùng có mấy ô đất?"
+}

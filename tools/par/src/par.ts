@@ -167,7 +167,7 @@ export function judgeLevel(level: Level, options: ShortestOptions): Verdict {
       const parEdits = level.parEdits ?? 1;
       lines.push(...fixes.mismatches.map((text) => `runLevel disagrees: ${text}`));
       if (fixes.mismatches.length > 0) marks.push('✖');
-      if (!fixes.complete) lines.push('fix search stopped (budget or --timeout)');
+      if (!fixes.complete) lines.push('fix search stopped (budget, memory cap or --timeout)');
       if (fixes.minEdits === null) {
         head += `  parEdits ${String(parEdits)}  no fix${goals} ≤ ${String(fixes.searchedEdits)} edits`;
         marks.push(fixes.complete && !partial ? '✖' : '⚠');

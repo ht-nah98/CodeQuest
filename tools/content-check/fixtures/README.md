@@ -14,6 +14,10 @@ Blockly's `"disabledReasons"`, which the level editor once exported, P2-07 revie
 then drops out of the mode count, so a rule 8 warning follows); it is not named
 `rule-01-…` because the test expects exactly one `rule-NN` fixture per rule.
 
+`extra-05-guided-one-hint/` (a guided level with fewer than 2 tier-0 hints) and
+`extra-06-ambiguous-pointer/` (a predict hint `block:runner_walk` over two walk blocks) are
+second cases of rules 6 and 16.
+
 `src/fixtures.test.ts` checks every fixture and fails if a rule has no fixture or a fixture
 reports any other rule. Assets (rule 18) are looked up in the real `apps/web/public/`.
 

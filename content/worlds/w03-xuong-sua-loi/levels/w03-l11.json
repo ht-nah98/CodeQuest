@@ -1,0 +1,167 @@
+{
+  "id": "w03-l11",
+  "worldId": "w03-xuong-sua-loi",
+  "stage": "practice",
+  "kind": "runner",
+  "mode": "build",
+  "title": "Máy mới của Hổ",
+  "objective": "Ghép từng đoạn, chạy thử sau mỗi đoạn nhé!",
+  "learningGoal": "Tự ghép chương trình dài theo từng đoạn: ghép đoạn đầu, bấm Chạy, xem Măng dừng ở đâu rồi ghép tiếp. Mục tiêu ⭐: nhặt măng ở bãi đất cuối.",
+  "misconception": "Phải ghép xong cả chương trình rồi mới được chạy thử.",
+  "mission": "Tự ghép chương trình cho máy mới của Hổ.",
+  "goalSprite": "machine",
+  "toolbox": [
+    {
+      "type": "cq_repeat",
+      "fields": {
+        "TIMES": 3
+      }
+    },
+    "runner_walk",
+    "runner_jump",
+    "runner_crouch",
+    "runner_kick"
+  ],
+  "maxBlocks": 9,
+  "par": 7,
+  "config": {
+    "cells": [
+      "ground",
+      "ground",
+      "hole",
+      "ground",
+      "ground",
+      "hole",
+      "ground",
+      "ground",
+      "hole",
+      "ground",
+      "hole",
+      "ground",
+      "hole",
+      "ground",
+      "hole",
+      "ground",
+      "ground",
+      "flag"
+    ],
+    "start": 0,
+    "bamboo": [
+      16
+    ]
+  },
+  "starGoals": [
+    {
+      "kind": "collectAll"
+    }
+  ],
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "rep1",
+              "fields": {
+                "TIMES": 3
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "runner_walk",
+                    "id": "walk1",
+                    "next": {
+                      "block": {
+                        "type": "runner_jump",
+                        "id": "jump1"
+                      }
+                    }
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "type": "cq_repeat",
+                  "id": "rep2",
+                  "fields": {
+                    "TIMES": 3
+                  },
+                  "inputs": {
+                    "DO": {
+                      "block": {
+                        "type": "runner_jump",
+                        "id": "jump2"
+                      }
+                    }
+                  },
+                  "next": {
+                    "block": {
+                      "type": "cq_repeat",
+                      "id": "rep3",
+                      "fields": {
+                        "TIMES": 2
+                      },
+                      "inputs": {
+                        "DO": {
+                          "block": {
+                            "type": "runner_walk",
+                            "id": "walk2"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "chunk",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Ghép đoạn đầu rồi bấm Chạy xem.",
+      "point": "run"
+    },
+    {
+      "id": "next",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "NOT_AT_GOAL"
+      },
+      "say": "Đoạn này xong rồi! Ghép đoạn tiếp theo nhé.",
+      "point": "stage"
+    },
+    {
+      "id": "hole",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "FELL_IN_HOLE"
+      },
+      "say": "Ối! Bấm Từng bước xem khối nào làm Măng ngã.",
+      "point": "stage"
+    },
+    {
+      "id": "cap",
+      "when": {
+        "capacityFull": true,
+        "missing": "cq_repeat"
+      },
+      "say": "Hết chỗ rồi! Thử dùng khối lặp nhé.",
+      "point": "toolbox:cq_repeat"
+    }
+  ],
+  "thinkingHint": "Đường có mấy đoạn khác nhau? Mỗi đoạn lặp mẫu nào?"
+}

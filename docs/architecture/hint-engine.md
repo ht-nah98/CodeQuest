@@ -38,7 +38,7 @@ interface HintRule {
   priority?: number;                // mặc định 0; số lớn thắng
 }
 type Target = `toolbox:${string}` | `block:${string}` | 'run' | 'capacity' | 'stage';
-// toolbox:<type> = khối loại đó trong thanh khối · block:<type> = khối loại đó đầu tiên trong vùng ghép (dùng cho parsons/bughunt)
+// toolbox:<type> = khối loại đó trong thanh khối · block:<type> = khối loại đó đầu tiên trong vùng ghép (dùng cho parsons/bughunt; ở predict/bughunt chương trình cho sẵn phải có đúng một khối loại đó, content:check luật 16)
 
 type Condition =
   | { all: Condition[] } | { any: Condition[] } | { not: Condition }

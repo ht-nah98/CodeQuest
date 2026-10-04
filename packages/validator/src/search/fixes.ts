@@ -29,7 +29,17 @@ import { FastSim, type Code, type RepeatCode } from './sim';
 export interface FixOptions extends SearchOptions {
   /** Largest number of edits tried. Default `parEdits` (1 when missing). */
   maxEdits?: number;
+  /** Cap on programs kept for expanding (tests lower it). Default `MAX_KEPT_FIXES`. */
+  maxKept?: number;
 }
+
+/**
+ * Most programs the fix search keeps to expand at the next distance (each about 300 bytes: its
+ * token list and its key in `seen`). Past it the search stops like a spent budget
+ * (`SearchAborted`, `complete: false`, CLI "search stopped"), instead of running Node out of
+ * memory: `w03-boss` (parEdits 4) passed 2 GB of heap at 3 edits without it.
+ */
+export const MAX_KEPT_FIXES = 2_000_000;
 
 export interface FixResult {
   /** Fewest edits that make `initialWorkspace` win, or null when none was found. */
@@ -93,6 +103,7 @@ export function findFixes(original: Level, options: FixOptions = {}): FixResult 
   const maxEdits = options.maxEdits ?? level.parEdits ?? 1;
   const maxExamples = options.maxExamples ?? DEFAULT_MAX_EXAMPLES;
   const maxDepth = options.maxDepth ?? DEFAULT_MAX_DEPTH;
+  const maxKept = options.maxKept ?? MAX_KEPT_FIXES;
 
   const symbols: TokenSymbol[] = sim.atoms.map((_, atom) => ({ atom }));
   const counts = new Set(repeatCounts(initial));
@@ -179,6 +190,7 @@ export function findFixes(original: Level, options: FixOptions = {}): FixResult 
     const key = tokens.join(',');
     if (seen.has(key)) return;
     if (keep !== null) {
+      if (seen.size >= maxKept) throw new SearchAborted('memory cap: too many programs kept');
       seen.add(key);
       keep.push(tokens);
     }

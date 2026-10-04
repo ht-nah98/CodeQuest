@@ -1,0 +1,135 @@
+{
+  "id": "w03-l09",
+  "worldId": "w03-xuong-sua-loi",
+  "stage": "practice",
+  "kind": "maze",
+  "mode": "predict",
+  "title": "Ra khỏi kho?",
+  "objective": "Đọc chương trình, đoán Măng dừng ở đâu nhé!",
+  "learningGoal": "Đọc chương trình mê cung có rẽ: sau mỗi khối rẽ, xác định lại Măng đang nhìn về đâu.",
+  "misconception": "Rẽ phải là luôn quay sang phải màn hình.",
+  "mission": "Măng có ra khỏi kho không? Đoán xem!",
+  "goalSprite": "exit",
+  "toolbox": [],
+  "config": {
+    "map": [
+      "#######",
+      "#S..#G#",
+      "###.#.#",
+      "###...#",
+      "#######"
+    ],
+    "startDir": "E"
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "maze_forward",
+              "id": "fwd1",
+              "next": {
+                "block": {
+                  "type": "maze_forward",
+                  "id": "fwd2",
+                  "next": {
+                    "block": {
+                      "type": "maze_turn_right",
+                      "id": "right1",
+                      "next": {
+                        "block": {
+                          "type": "maze_forward",
+                          "id": "fwd3",
+                          "next": {
+                            "block": {
+                              "type": "maze_forward",
+                              "id": "fwd4",
+                              "next": {
+                                "block": {
+                                  "type": "maze_turn_right",
+                                  "id": "right2",
+                                  "next": {
+                                    "block": {
+                                      "type": "maze_forward",
+                                      "id": "fwd5",
+                                      "next": {
+                                        "block": {
+                                          "type": "maze_forward",
+                                          "id": "fwd6",
+                                          "next": {
+                                            "block": {
+                                              "type": "maze_turn_left",
+                                              "id": "left1",
+                                              "next": {
+                                                "block": {
+                                                  "type": "maze_forward",
+                                                  "id": "fwd7",
+                                                  "next": {
+                                                    "block": {
+                                                      "type": "maze_forward",
+                                                      "id": "fwd8"
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "predict": {
+    "options": [
+      {
+        "key": "crash:HIT_WALL@3,3",
+        "label": "Đụng tường góc dưới"
+      },
+      {
+        "key": "win",
+        "label": "Ra được cửa"
+      },
+      {
+        "key": "crash:HIT_WALL@1,3",
+        "label": "Đụng góc trên"
+      },
+      {
+        "key": "stop@2,5",
+        "label": "Đứng dưới cửa"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "read",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Sau mỗi lần rẽ, Măng nhìn về đâu?",
+      "point": "stage"
+    }
+  ],
+  "thinkingHint": "Sau khối rẽ phải thứ hai, Măng nhìn về phía nào?"
+}

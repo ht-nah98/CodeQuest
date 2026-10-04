@@ -1,0 +1,153 @@
+{
+  "id": "w03-l14",
+  "worldId": "w03-xuong-sua-loi",
+  "stage": "challenge",
+  "kind": "runner",
+  "mode": "predict",
+  "title": "Chương trình dài",
+  "objective": "Đọc 3 vòng lặp, đoán Măng dừng ở đâu!",
+  "learningGoal": "Đọc chương trình dài có 3 vòng lặp nối tiếp, theo dõi vị trí Măng sau từng vòng lặp.",
+  "mission": "Đọc chương trình dài của Gấu túi.",
+  "goalSprite": "machine",
+  "toolbox": [],
+  "config": {
+    "cells": [
+      "ground",
+      "ground",
+      "hole",
+      "ground",
+      "ground",
+      "hole",
+      "ground",
+      "branch",
+      "branch",
+      "crate",
+      "ground",
+      "ground",
+      "hole",
+      "ground",
+      "flag"
+    ],
+    "start": 0
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "rep1",
+              "fields": {
+                "TIMES": 2
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "runner_walk",
+                    "id": "walk1",
+                    "next": {
+                      "block": {
+                        "type": "runner_jump",
+                        "id": "jump1"
+                      }
+                    }
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "type": "cq_repeat",
+                  "id": "rep2",
+                  "fields": {
+                    "TIMES": 2
+                  },
+                  "inputs": {
+                    "DO": {
+                      "block": {
+                        "type": "runner_crouch",
+                        "id": "crouch1"
+                      }
+                    }
+                  },
+                  "next": {
+                    "block": {
+                      "type": "runner_kick",
+                      "id": "kick1",
+                      "next": {
+                        "block": {
+                          "type": "cq_repeat",
+                          "id": "rep3",
+                          "fields": {
+                            "TIMES": 2
+                          },
+                          "inputs": {
+                            "DO": {
+                              "block": {
+                                "type": "runner_walk",
+                                "id": "walk2"
+                              }
+                            }
+                          },
+                          "next": {
+                            "block": {
+                              "type": "runner_jump",
+                              "id": "jump2",
+                              "next": {
+                                "block": {
+                                  "type": "runner_walk",
+                                  "id": "walk3"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "predict": {
+    "options": [
+      {
+        "key": "crash:FELL_IN_HOLE@12",
+        "label": "Rơi vào hố cuối"
+      },
+      {
+        "key": "win",
+        "label": "Tới nơi"
+      },
+      {
+        "key": "crash:HIT_CRATE@9",
+        "label": "Đụng thùng gỗ"
+      },
+      {
+        "key": "crash:FELL_IN_HOLE@5",
+        "label": "Rơi hố thứ hai"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "read",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Hết mỗi vòng lặp, chỉ tay vào chỗ Măng đứng!",
+      "point": "stage"
+    }
+  ],
+  "thinkingHint": "Hết vòng lặp thứ ba, Măng đứng ở ô nào?"
+}

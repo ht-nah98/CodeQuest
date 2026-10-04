@@ -1,0 +1,63 @@
+{
+  "id": "w03-creative",
+  "worldId": "w03-xuong-sua-loi",
+  "stage": "creative",
+  "kind": "runner",
+  "mode": "creative",
+  "title": "Giấu một lỗi",
+  "objective": "Ghép chương trình có một lỗi, đố bạn tìm!",
+  "learningGoal": "Tự ghép một chương trình có đúng 1 lỗi, lưu và khoe; trong buổi học nhóm, bạn chạy xem và nói lỗi ở đâu (coach-questions G15).",
+  "mission": "Giấu một lỗi, đố bạn tìm!",
+  "goalSprite": "machine",
+  "toolbox": [
+    {
+      "type": "cq_repeat",
+      "fields": {
+        "TIMES": 3
+      }
+    },
+    "runner_walk",
+    "runner_jump",
+    "runner_crouch",
+    "runner_kick"
+  ],
+  "config": {
+    "cells": [
+      "ground",
+      "ground",
+      "hole",
+      "ground",
+      "ground",
+      "branch",
+      "ground",
+      "ground",
+      "crate",
+      "ground",
+      "ground",
+      "hole",
+      "ground",
+      "branch",
+      "ground",
+      "crate",
+      "ground",
+      "ground",
+      "flag"
+    ],
+    "start": 0,
+    "bamboo": [
+      4,
+      10,
+      16
+    ]
+  },
+  "hints": [
+    {
+      "id": "free",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Giấu một lỗi thật khéo, rồi đố bạn nhé!",
+      "point": "stage"
+    }
+  ]
+}

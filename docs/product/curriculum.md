@@ -186,8 +186,8 @@ Chi tiết từng màn (bản đồ → chương trình ban đầu → lời gi�
 8. `l08` `...O.O.B.F`. Ban đầu `lặp 3 {đi}, cúi, đi, đi`: vòng 1–2 đúng, vòng 3 rơi hố (`FELL_IN_HOLE@3`). Lời giải `lặp 3 {nhảy}, cúi, đi, đi` ("nhảy cóc" qua cả đất lẫn hố, câu G3).
 9. `l09` `#######/#S..#G#/###.#.#/###...#/#######`, nhìn `E`. Chương trình `tiến, tiến, rẽ phải, tiến, tiến, rẽ phải, tiến, tiến, rẽ trái, tiến, tiến` → `crash:HIT_WALL@3,3`. Thẻ: **Đụng tường góc dưới** ✔ · Ra được cửa (`win`) · Đụng góc trên (`@1,3`) · Đứng dưới cửa (`stop@2,5`).
 10. `l10` `#######/###..G#/###.###/#S..###/#######`, nhìn `E`. Ban đầu `tiến, rẽ trái, tiến, tiến, tiến, rẽ phải, tiến, tiến` → `HIT_WALL@3,2`. Lời giải: đổi chỗ khối 2–3 (2 thao tác, thắng).
-11. `l11` `..O..O..O.O.O.O....F` (20 ô, măng ở ô 16), `maxLoopDepth: 1`. Chỉ ghép đoạn 1 (`lặp 3 {đi, nhảy}`) rồi bấm Chạy: Măng dừng ở ô 9, ngay trước dãy hố sát nhau (`stop@9`), đúng lúc ghép đoạn 2. Gợi ý `enter`: "Ghép đoạn đầu rồi bấm Chạy xem."
-    - **Đánh đổi sao:** `lặp 3 {đi, nhảy}, lặp 5 {nhảy}` (5 khối) thắng nhưng nhảy qua măng ở ô 16 (chỉ ⭐). `lặp 3 {đi, nhảy}, lặp 3 {nhảy}, lặp 4 {đi}` (7 khối) thắng và nhặt măng.
+11. `l11` `..O..O..O.O.O.O..F` (18 ô, măng ở ô 16), `maxLoopDepth: 1` (khi P2-11b có trường này). **Sửa khi soạn (P2-08, 04/10/2026):** bản đồ nháp 20 ô (`…O.O....F`) để lặp lồng `lặp 2 {lặp 3 {đi, nhảy}, lặp 3 {nhảy}}` thắng và nhặt măng với 6 khối (< `par` 7), mà `maxLoopDepth` chưa có. Cờ dời về ô 17: vòng ngoài thứ hai đi 16 rồi nhảy ra ngoài đường (`OFF_TRACK`), nên lặp lồng cần 7 khối (bằng `par`, câu G7). Lời giải đổi đoạn cuối thành `lặp 2 {đi}`; đánh đổi giữ nguyên: `npm run par` ra `min (goals) 7 · plain win 5` cả khi có và không lặp lồng (`--depth 1`). Lối 5 khối thành `lặp 3 {đi, nhảy}, lặp 4 {nhảy}`. Chỉ ghép đoạn 1 (`lặp 3 {đi, nhảy}`) rồi bấm Chạy: Măng dừng ở ô 9, ngay trước dãy hố sát nhau (`stop@9`), đúng lúc ghép đoạn 2. Gợi ý `enter`: "Ghép đoạn đầu rồi bấm Chạy xem."
+    - **Đánh đổi sao:** `lặp 3 {đi, nhảy}, lặp 4 {nhảy}` (5 khối) thắng nhưng nhảy qua măng ở ô 16 (chỉ ⭐). `lặp 3 {đi, nhảy}, lặp 3 {nhảy}, lặp 2 {đi}` (7 khối) thắng và nhặt măng.
     - **VC ≤ 6** (không lặp lồng; 2,36 triệu chương trình ở cỡ 6): thắng nhỏ nhất 5 (32 cách, đều bỏ sót măng); không cách ≤ 6 khối nào vừa thắng vừa nhặt măng, nên `par` = 7. Cỡ 7 chưa vét cạn (≈ 4,5 × 10⁷ chương trình). Bỏ thùng để mất lối tắt "luôn đá"; cấm lặp lồng để mất lối tắt `lặp 2 {…}`.
 12. `l12` `..O..O..O.B.F`. Ban đầu `lặp 2 {đi, nhảy}, đi, đi, đi` → `FELL_IN_HOLE@8`; sửa 2 → 3 → `HIT_BRANCH@10`; sửa đi → cúi → thắng. Gợi ý `run-end` + `lastReason: HIT_BRANCH`: "Lỗi mới! Lỗi cũ con sửa được rồi đó."
 13. `l13` `########/#.....##/#.###.##/#.###G##/#.######/#S######/########`, nhìn `N`. Ban đầu `lặp 3 {tiến}, rẽ phải, lặp 4 {tiến}, rẽ trái, lặp 2 {tiến}` → `HIT_WALL@2,1`; sửa 3 → 4 → `HIT_WALL@1,5`; sửa rẽ trái → rẽ phải → thắng.
@@ -199,6 +199,19 @@ Chi tiết từng màn (bản đồ → chương trình ban đầu → lời gi�
     - nhảy → đi ở đoạn cuối (nhảy qua măng: `missed@17`)
 
     Lời giải `lặp 3 {đi, nhảy}, đá, đi, đi, lặp 3 {cúi}, đi, đi, đi` (11 khối, 4 thao tác, thắng). Hình đích: máy nhặt măng; vật phẩm vẫn là măng nên câu phản hồi `MISSED_ITEMS` ("Còn măng chưa nhặt kìa!") đúng với hình.
+
+Ghi chú khi soạn (P2-08, 04/10/2026; đã qua review sư phạm độc lập, chờ HLV chơi thử):
+- Mọi màn qua `content:check`. `npm run par`: mọi màn build/bughunt ✔, `par`/`parEdits` đúng như bảng (bughunt: `par` = số khối của lời giải, ⭐⭐⭐ chỉ dựa vào `parEdits`). Riêng `l11` sửa bản đồ (dòng 11 trên); `npm run par -- w03-l11` ra `min (goals) 7 · plain win 5 (34 cách)`.
+- `boss`, `parEdits` 4 là nhỏ nhất:
+  - `npm run par` chứng minh không có cách sửa ≤ 2 thao tác; tìm 3 thao tác dừng ở trần (ngân sách 20 triệu, trần 2 triệu chương trình giữ lại, khoảng 850 MB) nên báo ⚠ "fix search stopped". Không cần `NODE_OPTIONS` nữa; muốn heap lớn hơn thì `NODE_OPTIONS=--max-old-space-size=3500` và không chạy việc nặng khác.
+  - Vét cạn riêng của review (04/10/2026, bộ mô phỏng Node độc lập, số lần lặp 1–20, lồng 2 tầng): mọi chương trình cách ban đầu ≤ 3 thao tác (41 triệu lần chạy; thao tác thứ 3 chỉ xét thêm khối đá / cúi khi còn thiếu, vì thắng cần cả hai), **không có cách nào thắng**.
+  - Đường sửa khác: nếu lỗi đầu tiên bé sửa `đi → nhảy` (khối đi thứ hai sau vòng lặp, để nhảy qua hố ô 8) thay vì đổi số lần lặp, thì cả bài cần 5 thao tác (chỉ ⭐⭐). HLV để ý khi chơi thử.
+- Điểm chỉ `step` (T10, P2-11a) chưa có trong schema: gợi ý "Bấm Từng bước, xem khối nào sáng." của `l02` tạm chỉ vào nút `run` (nút Từng bước nằm cạnh). Đổi sang `step` khi P2-11a xong (đã ghi ở P2-11a, `roadmap/phase-2.md`).
+- `maxLoopDepth` (T16b) chưa có: `l11` chặn lặp lồng bằng bản đồ (dòng 11), thêm trường khi P2-11b xong.
+- Gợi ý `point: "block:<type>"` chỉ dùng khi chương trình cho sẵn có **đúng một** khối loại đó (màn chơi chỉ vào khối đầu tiên), còn lại chỉ `stage`. `content:check` luật 16 kiểm điều này ở `predict`/`bughunt`.
+- Bài giảng: thẻ 3 chạy **chương trình đã sửa** của `l01` trên bản đồ `l01` (thắng; câu "Bấm Chạy thử", vì thẻ demo không có nút Từng bước, nút này giới thiệu ở `l02`), để không lộ đáp án màn đoán `l01`. Thẻ 4 (thiếu một khối đi) dùng bản đồ nhỏ `...O.F` với `đi, nhảy, đi` (Măng nhảy sớm, rơi hố).
+- `l07`: các khối rời được xáo trộn (nhảy, đi, lặp, đi, đá, đi, đi), không xếp sẵn theo thứ tự lời giải.
+- Kết truyện "bác Cú báo: Thỏ Bông vào Ngã Ba chưa về!": `world.json` chưa có trường kết thế giới, nên câu này chuyển thành **thẻ 1 của `w04-lesson`** (P2-13).
 
 ### 5.2 Thế giới 4 — 🔀 Ngã Ba Quyết Định (chi tiết)
 

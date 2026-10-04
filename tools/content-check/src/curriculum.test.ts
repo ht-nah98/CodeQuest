@@ -288,6 +288,7 @@ describe('rule 7', () => {
     w02l01.toolbox = ['runner_walk', 'runner_jump', 'runner_crouch'];
     w02l01.hints = [
       { id: 'c', when: { trigger: 'enter' }, say: 'Khối cúi', point: 'toolbox:runner_crouch' },
+      { id: 'h', when: { lastReason: 'FELL_IN_HOLE' }, say: 'Nhảy sát hố', point: 'stage' },
     ];
     expect(run(t).errors).toEqual([]);
     // Swapping the order makes world 2 the first place for runner_walk/jump: no hint there now.
@@ -303,13 +304,15 @@ describe('rule 7', () => {
 describe('retired levels', () => {
   it('do not count as the first appearance of a block (rule 7)', () => {
     const t = tree();
-    const intro = { ...level(t, 'w01-l01'), id: 'w01-l00', retired: true };
+    // Practice, so that its empty hint list breaks nothing but rule 7 would.
+    const intro = { ...level(t, 'w01-l01'), id: 'w01-l00', stage: 'practice', retired: true };
     intro.hints = [];
     t.set(`${W}/levels/w01-l00.json`, intro);
     world(t).levelIds = ['w01-l00', 'w01-l01', 'w01-l02', 'w01-l03', 'w01-boss'];
     expect(run(t).errors).toEqual([]);
     level(t, 'w01-l01').hints = [];
-    expect(run(t).errors.map((issue) => issue.path)).toEqual([
+    const rule7 = run(t).errors.filter((issue) => issue.rule === 7);
+    expect(rule7.map((issue) => issue.path)).toEqual([
       `${W}/levels/w01-l01.json`,
       `${W}/levels/w01-l01.json`,
     ]);

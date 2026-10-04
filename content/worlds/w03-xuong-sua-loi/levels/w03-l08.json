@@ -1,0 +1,159 @@
+{
+  "id": "w03-l08",
+  "worldId": "w03-xuong-sua-loi",
+  "stage": "practice",
+  "kind": "runner",
+  "mode": "bughunt",
+  "title": "Hỏng ở vòng ba",
+  "objective": "Sửa 1 khối để mọi vòng đều đúng nhé!",
+  "learningGoal": "Thân vòng lặp phải đúng cho mọi vòng chứ không chỉ vòng đầu. Đổi đi thành nhảy: nhảy qua ô đất cũng tiến 2 ô như nhảy qua hố.",
+  "misconception": "Vòng đầu chạy đúng thì cả vòng lặp đúng.",
+  "mission": "Máy của Gấu nâu hỏng ở vòng thứ ba.",
+  "goalSprite": "machine",
+  "toolbox": [
+    {
+      "type": "cq_repeat",
+      "fields": {
+        "TIMES": 3
+      }
+    },
+    "runner_walk",
+    "runner_jump",
+    "runner_crouch"
+  ],
+  "par": 5,
+  "parEdits": 1,
+  "config": {
+    "cells": [
+      "ground",
+      "ground",
+      "ground",
+      "hole",
+      "ground",
+      "hole",
+      "ground",
+      "branch",
+      "ground",
+      "flag"
+    ],
+    "start": 0
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "rep1",
+              "fields": {
+                "TIMES": 3
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "runner_walk",
+                    "id": "walk1"
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "type": "runner_crouch",
+                  "id": "crouch1",
+                  "next": {
+                    "block": {
+                      "type": "runner_walk",
+                      "id": "walk2",
+                      "next": {
+                        "block": {
+                          "type": "runner_walk",
+                          "id": "walk3"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "rep1",
+              "fields": {
+                "TIMES": 3
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "runner_jump",
+                    "id": "jump1"
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "type": "runner_crouch",
+                  "id": "crouch1",
+                  "next": {
+                    "block": {
+                      "type": "runner_walk",
+                      "id": "walk1",
+                      "next": {
+                        "block": {
+                          "type": "runner_walk",
+                          "id": "walk2"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "run-first",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Bấm Chạy trước, xem Măng ngã ở vòng nào!",
+      "point": "run"
+    },
+    {
+      "id": "every",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "FELL_IN_HOLE"
+      },
+      "say": "Khối trong vòng lặp phải hợp với mọi vòng.",
+      "point": "block:cq_repeat"
+    }
+  ],
+  "thinkingHint": "Vòng thứ ba, đường trước mặt Măng khác gì vòng một?"
+}

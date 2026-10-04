@@ -1,0 +1,153 @@
+{
+  "id": "w03-l02",
+  "worldId": "w03-xuong-sua-loi",
+  "stage": "guided",
+  "kind": "runner",
+  "mode": "bughunt",
+  "title": "Sửa máy xay",
+  "objective": "Đổi đúng 1 khối để Măng tới máy xay nhé!",
+  "learningGoal": "Sửa đúng chương trình vừa đoán ở màn 1: chạy, dùng nút Từng bước để thấy khối nào đang chạy khi Măng cụng cành, rồi đổi chỉ khối đó.",
+  "misconception": "Chương trình sai thì phải xóa hết ghép lại.",
+  "mission": "Sửa máy xay cho bác Heo nhé!",
+  "goalSprite": "machine",
+  "toolbox": [
+    "runner_walk",
+    "runner_jump",
+    "runner_crouch"
+  ],
+  "par": 6,
+  "parEdits": 1,
+  "config": {
+    "cells": [
+      "ground",
+      "ground",
+      "hole",
+      "ground",
+      "ground",
+      "branch",
+      "ground",
+      "flag"
+    ],
+    "start": 0
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "runner_walk",
+              "id": "walk1",
+              "next": {
+                "block": {
+                  "type": "runner_jump",
+                  "id": "jump1",
+                  "next": {
+                    "block": {
+                      "type": "runner_walk",
+                      "id": "walk2",
+                      "next": {
+                        "block": {
+                          "type": "runner_walk",
+                          "id": "walk3",
+                          "next": {
+                            "block": {
+                              "type": "runner_walk",
+                              "id": "walk4",
+                              "next": {
+                                "block": {
+                                  "type": "runner_walk",
+                                  "id": "walk5"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "runner_walk",
+              "id": "walk1",
+              "next": {
+                "block": {
+                  "type": "runner_jump",
+                  "id": "jump1",
+                  "next": {
+                    "block": {
+                      "type": "runner_walk",
+                      "id": "walk2",
+                      "next": {
+                        "block": {
+                          "type": "runner_crouch",
+                          "id": "crouch1",
+                          "next": {
+                            "block": {
+                              "type": "runner_walk",
+                              "id": "walk3",
+                              "next": {
+                                "block": {
+                                  "type": "runner_walk",
+                                  "id": "walk4"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "run-first",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Bấm Chạy trước, xem máy chạy thế nào nhé!",
+      "point": "run"
+    },
+    {
+      "id": "step",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "HIT_BRANCH"
+      },
+      "say": "Bấm Từng bước, xem khối nào sáng.",
+      "point": "run"
+    }
+  ],
+  "thinkingHint": "Tới cành tre, Măng phải làm gì?"
+}

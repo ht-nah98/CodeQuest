@@ -104,6 +104,22 @@ describe('content:check fixtures', () => {
     ]);
   });
 
+  it('extra-05-guided-one-hint reports rule 6: a guided level needs 2 tier-0 hints', () => {
+    const report = check('extra-05-guided-one-hint');
+    expect(report.warnings).toEqual([]);
+    expect(report.issues.map((issue) => issue.message)).toEqual([
+      'stage guided needs at least 2 tier-0 hints, has 0',
+    ]);
+  });
+
+  it('extra-06-ambiguous-pointer reports rule 16: block:<type> must name one block', () => {
+    const report = check('extra-06-ambiguous-pointer');
+    expect(report.warnings).toEqual([]);
+    expect(report.issues.map((issue) => issue.message)).toEqual([
+      'hint "read" points to block:runner_walk, but initialWorkspace has 2 such blocks; the arrow lands on the first one',
+    ]);
+  });
+
   it('exits 0 on the baseline, 0 on warnings only and 1 on errors', () => {
     const baseline = cli('baseline');
     expect(baseline.status).toBe(0);

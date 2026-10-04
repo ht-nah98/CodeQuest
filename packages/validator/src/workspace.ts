@@ -34,6 +34,26 @@ export function blockTypesOf(workspace: WorkspaceJson): Set<string> {
   return types;
 }
 
+/**
+ * Non-shadow blocks of one type, split by whether their stack starts with `rootType` (the
+ * program) or not (loose blocks). Rule 16 uses it to see which block a `block:<type>` hint
+ * pointer lands on.
+ */
+export function countBlocksOfType(
+  workspace: WorkspaceJson,
+  type: string,
+  rootType: string,
+): { attached: number; loose: number } {
+  const counts = { attached: 0, loose: 0 };
+  for (const top of workspace.blocks.blocks) {
+    const attached = top.type === rootType;
+    visitBlocks({ blocks: { languageVersion: 0, blocks: [top] } }, (block, shadow) => {
+      if (!shadow && block['type'] === type) counts[attached ? 'attached' : 'loose'] += 1;
+    });
+  }
+  return counts;
+}
+
 /** Number of shadow blocks in a workspace JSON (rule 12). */
 export function countShadows(workspace: WorkspaceJson): number {
   let shadows = 0;

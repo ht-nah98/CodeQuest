@@ -15,7 +15,7 @@ export { countWords } from './words';
 // Exhaustive searches (npm run par, level editor).
 export { findShortestPrograms } from './search/shortest';
 export type { ShortestOptions, ShortestResult } from './search/shortest';
-export { findFixes } from './search/fixes';
+export { MAX_KEPT_FIXES, findFixes } from './search/fixes';
 export type { FixOptions, FixResult } from './search/fixes';
 export { DEFAULT_MAX_WORK, WORKER_MAX_WORK } from './search/budget';
 export type { SearchOptions } from './search/budget';

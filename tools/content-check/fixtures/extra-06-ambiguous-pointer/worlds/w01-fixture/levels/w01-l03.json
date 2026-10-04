@@ -1,0 +1,75 @@
+{
+  "id": "w01-l03",
+  "worldId": "w01-fixture",
+  "stage": "practice",
+  "kind": "runner",
+  "mode": "predict",
+  "title": "Đoán xem",
+  "objective": "Đoán xem Măng dừng ở đâu nhé!",
+  "learningGoal": "Đọc chương trình và đoán kết quả.",
+  "misconception": "Măng tự nhảy khi gặp hố.",
+  "toolbox": [],
+  "config": {
+    "cells": [
+      "ground",
+      "ground",
+      "hole",
+      "ground",
+      "flag"
+    ],
+    "start": 0
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "runner_walk",
+              "id": "b1",
+              "next": {
+                "block": {
+                  "type": "runner_walk",
+                  "id": "b2"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "predict": {
+    "options": [
+      {
+        "key": "win",
+        "label": "Tới cờ"
+      },
+      {
+        "key": "stop@1",
+        "label": "Dừng ở ô 1"
+      },
+      {
+        "key": "crash:FELL_IN_HOLE@2",
+        "label": "Rơi hố ở ô 2"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "read",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Đếm từng khối đi nhé.",
+      "point": "block:runner_walk"
+    }
+  ],
+  "thinkingHint": "Ô thứ 2 có gì?"
+}

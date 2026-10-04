@@ -1,0 +1,183 @@
+{
+  "id": "w03-l12",
+  "worldId": "w03-xuong-sua-loi",
+  "stage": "practice",
+  "kind": "runner",
+  "mode": "bughunt",
+  "title": "Hai lỗi",
+  "objective": "Có 2 lỗi. Sửa từng lỗi, chạy lại nhé!",
+  "learningGoal": "Sửa một lỗi, chạy lại, thấy lỗi thứ hai lộ ra ở chỗ mới. Lỗi mới nghĩa là lỗi cũ đã sửa được.",
+  "misconception": "Sửa xong mà vẫn ngã nghĩa là sửa sai.",
+  "mission": "Máy của Chim cánh cụt có 2 lỗi.",
+  "goalSprite": "machine",
+  "toolbox": [
+    {
+      "type": "cq_repeat",
+      "fields": {
+        "TIMES": 2
+      }
+    },
+    "runner_walk",
+    "runner_jump",
+    "runner_crouch"
+  ],
+  "par": 6,
+  "parEdits": 2,
+  "config": {
+    "cells": [
+      "ground",
+      "ground",
+      "hole",
+      "ground",
+      "ground",
+      "hole",
+      "ground",
+      "ground",
+      "hole",
+      "ground",
+      "branch",
+      "ground",
+      "flag"
+    ],
+    "start": 0
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "rep1",
+              "fields": {
+                "TIMES": 2
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "runner_walk",
+                    "id": "walk1",
+                    "next": {
+                      "block": {
+                        "type": "runner_jump",
+                        "id": "jump1"
+                      }
+                    }
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "type": "runner_walk",
+                  "id": "walk2",
+                  "next": {
+                    "block": {
+                      "type": "runner_walk",
+                      "id": "walk3",
+                      "next": {
+                        "block": {
+                          "type": "runner_walk",
+                          "id": "walk4"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "rep1",
+              "fields": {
+                "TIMES": 3
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "runner_walk",
+                    "id": "walk1",
+                    "next": {
+                      "block": {
+                        "type": "runner_jump",
+                        "id": "jump1"
+                      }
+                    }
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "type": "runner_crouch",
+                  "id": "crouch1",
+                  "next": {
+                    "block": {
+                      "type": "runner_walk",
+                      "id": "walk2",
+                      "next": {
+                        "block": {
+                          "type": "runner_walk",
+                          "id": "walk3"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "one-at-a-time",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Sửa 1 lỗi, rồi bấm Chạy lại nhé!",
+      "point": "run"
+    },
+    {
+      "id": "count",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "FELL_IN_HOLE"
+      },
+      "say": "Đường có mấy hố? Vòng lặp chạy mấy vòng?",
+      "point": "block:cq_repeat"
+    },
+    {
+      "id": "new-bug",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "HIT_BRANCH"
+      },
+      "say": "Lỗi mới! Lỗi cũ con sửa được rồi đó.",
+      "point": "stage"
+    }
+  ],
+  "thinkingHint": "Sửa xong lỗi đầu, Măng đi được xa hơn chưa?"
+}
