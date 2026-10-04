@@ -29,8 +29,9 @@
 | P2-18 | Deploy production, thư phụ huynh, ghép máy cho 6 bé | P2-09, P2-16, P2-17 (H3, H4) | HLV + AI | ⛔ |
 | P2-19 | Chơi thử cả nhóm, sửa, phát hành `v0.2.0` | tất cả | HLV + AI | ⛔ |
 | P2-20 | Màn Ghép máy của bé + giao diện tài khoản trong Góc HLV (với client giả) | P2-03, P2-05 | AI | ⬜ |
-| P2-21 | Sao theo mục tiêu màn: nhiều đường giải, đường tối ưu được nhiều sao nhất (góp ý HLV 03/10) | P2-10, P2-15 | AI (luật HLV đã duyệt 03/10) | ⬜ |
+| P2-21 | Sao theo mục tiêu màn: nhiều đường giải, đường tối ưu được nhiều sao nhất (góp ý HLV 03/10) | P2-10, P2-15 | AI (luật HLV đã duyệt 03/10) | 🟨 chờ HLV xem |
 | P2-22 | Xem cả đường: phóng to bản đồ nhỏ, kéo trái/phải, vạch đếm ô (góp ý HLV 03/10) | — | AI | 🟨 chờ HLV xem |
+| P2-23 | Cảnh riêng cho từng thế giới: nền, nền đất, ô tường, đồ trang trí (góp ý HLV 04/10) | P2-21 (UI) | AI (HLV duyệt chủ đề 04/10, không cần duyệt ảnh) | ⬜ |
 
 Thay đổi so với khung ở `later-phases.md`: P2-08 khung (nội dung Thế giới 3–5) tách thành **P2-08** (W3), **P2-13** (W4), **P2-14** (W5). Phần "sorter tối thiểu nếu Thế giới 4 cần" **hủy**: Thế giới 4 dùng `runner` và `maze` (`curriculum.md` §2), sorter để GĐ 4. P2-09 khung tách thành **P2-09** (PWA, AI làm ngay) và **P2-18** (deploy, cần Vercel). Thêm P2-10…P2-20. "Thợ săn lỗi" trong `master-plan.md` §9 là mode `bughunt`, đã có từ P1-06.
 
@@ -218,6 +219,12 @@ Theo bảng ở `curriculum.md` (mục Thế giới 3 do P2-10 viết). `world.j
   - **TODO khi làm (P2-08 đã soạn, 04/10/2026):** gợi ý `step` của `w03-l02` ("Bấm Từng bước, xem khối nào sáng.") đang tạm `point: "run"`; đổi sang điểm chỉ mới và ghi lại ở `curriculum.md` §5.1 "Ghi chú khi soạn".
 
 **Nghiệm thu:** unit test: mỗi khối mới có generator test + `runLevel` thắng/thua; vòng `lặp đến khi` không bao giờ đúng → `TIMEOUT`, **tất định** (2 lần chạy cùng event log); `editDistance` trên ví dụ có nhánh nếu–không; validator bắt shadow trong khối điều kiện ở màn có `maxBlocks` (luật 12). E2E: kéo `nếu` + cảm biến vào màn mẫu ở `_sandbox`, chạy thấy khối cảm biến sáng ✔/✘ đúng số lần; màn lặp vô hạn hiện câu `TIMEOUT` và không treo trình duyệt. Coverage `engine` ≥ 90%, `games` ≥ 85% giữ nguyên.
+**Tiến độ 04/10/2026 — phần headless P2-11a + P2-11b xong** (ADR-0018), chưa commit:
+- Khối `cq_if`, `cq_if_else`, `cq_repeat_until` (engine, input `COND`, không mutator, tooltip theo luật giới thiệu khối) và cảm biến runner `runner_at_goal`; tooltip cảm biến nói rõ ✔/✘ khi nào. Ô điều kiện trống → `error` / `EMPTY_CONDITION` (mã engine mới, có câu trong `feedback.json` và mọi fixture).
+- Event `sense{blockId, value}` qua `ctx.sense`, **tính vào `maxActions`**: vòng lặp chỉ hỏi dừng `TIMEOUT` tất định sau 1 000 câu hỏi; khóa đoán `timeout` (T9) đã có sẵn.
+- Schema: `maxLoopDepth`, điểm gợi ý `step`. Luật 20 (`maxLoopDepth`, `maxInstances` trên `solution`/`initialWorkspace`) + fixture `rule-20-block-limits/`. Engine export `loopDepth`, `blockTypeCounts`.
+- Vét cạn hiểu khối điều kiện, `maxInstances`, `maxLoopDepth`, cả tìm cách sửa; tái lập số §5.5 (W4 `l02` 28 cách, `l16` 75 / 8, W5 `l09` đúng 1, `l14`, `l17`, boss) trong `packages/validator/src/search/conditions.test.ts`. `npm run par -- --world w01|w02|w03` giống từng ký tự trước thay đổi.
+- **Còn (web, task sau):** thanh khối/Blockly của màn chơi và editor (`toolboxChoices` chưa có `cq_if`…), `Replay` xử lý `sense` (khối sáng ✔/✘), phát lại `TIMEOUT` + hoạt ảnh chóng mặt (cả thẻ `demo`), mũi tên `step` (rồi mới đổi `w03-l02` sang `point: "step"`, TODO ở trên), chặn thả khối theo `maxLoopDepth`, khóa cache vét cạn của editor tính `maxInstances`/`maxLoopDepth`, e2e. Chưa tái lập W4 `l17` / boss (cần `rescue`, P2-11c).
 
 ### P2-12 · Màn nhiều bản đồ
 **Mục tiêu:** ép bé viết chương trình **tổng quát** (dùng cảm biến) thay vì ghép thuộc lòng một đường cố định.
@@ -320,8 +327,16 @@ Buổi học nhóm theo `playbooks/playtest.md`: 6 bé chơi W3 trên máy riên
 - level editor hiện thêm số khối "thắng thường" (`ignoreStarGoals`) cạnh `par` theo mục tiêu;
 - e2e + ảnh chụp.
 
+**Tiến độ 04/10/2026 — phần web xong, chờ HLV xem** (chưa commit): `RunSchema` (phiên đang mở) và `RunSummarySchema` (sao lưu) giữ `goals`, `toRunSummary` chép `outcome.goals` (test cả vòng sao lưu → khôi phục); thẻ "Mục tiêu sao" khi vào màn + nút ba ngôi sao cuối dòng mục tiêu; màn kết quả có chip ✔/✖ từng mục tiêu, số khối, gợi ý (màn nhiều bản đồ ghi bản đồ chưa đạt), câu Măng theo bảng mới; lượt thắng thiếu mục tiêu không còn khen số khối; dòng "Nhiệm vụ" trên dòng "Mục tiêu" (giọng `<id>.mission`); `goalSprite` vẽ ở sân runner/maze, dải cả đường, "Xem cả đường", thẻ đáp án (hình tạm ở `stages/goalArt.ts`, danh sách chờ họa sĩ ở `playbooks/add-asset.md`); level editor sửa `mission`, `goalSprite`, `starGoals` và in "par (mục tiêu) N · thắng thường M". e2e `play-goals.spec.ts` (màn `_sandbox` `runner-goals` + ảnh W3 `machine`/`exit`/`home`) ở 1280 và 1366. Chi tiết giao diện: `design/screens-and-flows.md` §3, `architecture/stage-rendering.md` §4 "Hình đích". Còn: HLV xem thẻ, kết quả và hình tạm; `rescue`/`escort` + hình chìa khóa, lồng mở (phần còn lại của P2-11c).
+
 ### P2-22 · Xem cả đường (góp ý HLV 03/10/2026)
 **Vấn đề:** đường dài (tới 40 ô ở W4–W5) chỉ thấy qua dải bản đồ nhỏ dưới sân chơi, quá bé để bé đếm ô và lên kế hoạch.
 **Làm:** nút "Xem cả đường" cạnh dải bản đồ nhỏ mở khung lớn: ô to, kéo trái/phải bằng chuột (và lăn chuột), vạch đếm từng ô ở mép dưới, bấm ô để đánh dấu, Esc/✕ để đóng. Khi Măng chưa chạy, kéo dải bản đồ nhỏ thì sân chơi cuộn theo. Dùng chung cho mê cung lớn và màn nhiều bản đồ (xem đúng bản đồ đang chọn).
 **Nghiệm thu:** e2e mở/kéo/đóng ở 1280 và 1366, ảnh chụp; không đổi luật chơi; HLV xem thử.
 **Trạng thái (03/10/2026):** 🟨 AI làm xong (khung `PlanView`, kéo dải cuộn sân, thước số ô chỉ trong khung này, e2e `play-plan.spec.ts` ở 1280 và 1366); chờ HLV xem thử.
+
+### P2-23 · Cảnh riêng cho từng thế giới (góp ý HLV 04/10/2026)
+**Vấn đề:** mọi thế giới đang dùng chung cảnh rừng tre của Thế giới 1, nên đổi thế giới mà không thấy đổi nơi.
+**Làm:** trường `theme` trong `world.json` (mặc định `lang-tre`); sân chơi runner/mê cung, dải bản đồ, khung "Xem cả đường", hình thẻ đoán và đảo trên bản đồ phiêu lưu đều vẽ theo theme. Cảnh vẽ bằng code pixel-art như hiện nay (`scenery.ts`, `pixelArt.ts`), giữ phong cách "Pixel ấm áp" và độ tương phản của ô nguy hiểm (hố, cành, thùng luôn dễ nhận ra).
+- W1 `lang-tre` (giữ), W2 `rung-lap-lai` (rừng sâu, tre đậm, đom đóm), W3 `xuong` (xưởng gỗ: bánh răng, đèn lồng, sàn ván, dây cót), W4 `nga-ba` (đường núi, biển chỉ đường, đá), W5 `song` (bờ sông, nước, bến đò, cầu tre ở boss).
+**Nghiệm thu:** ảnh chụp mỗi theme ở 1280/1366, e2e mở một màn mỗi thế giới; ô nguy hiểm vẫn phân biệt rõ (kiểm tương phản); review nội bộ (HLV đã duyệt chủ đề 04/10, không cần gửi ảnh).

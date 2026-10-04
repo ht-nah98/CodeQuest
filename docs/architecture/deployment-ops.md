@@ -54,7 +54,7 @@ Ghi chú về e2e (`apps/web/playwright.config.ts`): `npm run e2e` tự bật **
 | Production | Vercel (Hobby; dự án cá nhân, phi thương mại) | Merge vào `main` |
 | Backend | 1 Supabase project `codequest` (gói Free) | Migration chạy tay: `npx supabase db push` |
 
-Cấu hình Vercel: framework *Vite*, root `apps/web`, install `cd ../.. && npm ci`, build `npm run build`, output `dist`, Node 22.x, rewrite mọi route về `index.html` (SPA, file `apps/web/vercel.json`). Chi tiết: mục H4 bên dưới.
+Cấu hình Vercel nằm trong `vercel.json` **ở gốc repo** (Root Directory để trống = gốc): framework *Vite*, install `npm ci`, build `npm run build` (typecheck rồi `vite build` của `apps/web`), output `apps/web/dist`, rewrite mọi route về `index.html` (SPA). Node 22.x lấy từ `engines` trong `package.json`. Chi tiết: mục H4 bên dưới.
 
 ## Vận hành
 - **Supabase gói Free tạm dừng project sau ~1 tuần không có hoạt động.** App vẫn chạy local khi project bị dừng, nhưng không đồng bộ được. Kỳ nghỉ dài: vào dashboard bấm Restore. Nếu thấy phiền thì nâng gói hoặc đặt một GitHub Action ping hằng ngày.
@@ -225,16 +225,17 @@ Cần H3 xong (Vercel đọc code từ GitHub).
 
 1. Vào https://vercel.com → **Sign up with GitHub** (gói **Hobby**, dự án cá nhân phi thương mại).
 2. **Add New… → Project → Import Git Repository** → cấp quyền cho Vercel vào repo `codequest` (*Only select repositories*) → **Import**.
-3. Cấu hình (theo https://vercel.com/docs/monorepos và https://vercel.com/docs/builds/configure-a-build):
-   | Mục | Giá trị |
+3. Cấu hình: **không cần sửa gì** ở màn Import. Repo có `vercel.json` ở gốc, Vercel tự đọc:
+   | Mục | Giá trị (trong `vercel.json`) |
    |---|---|
    | Framework Preset | **Vite** |
-   | Root Directory | `apps/web` (bấm **Edit**). Nếu có công tắc **Include source files outside of the Root Directory**, giữ **bật** (repo là npm workspaces: `apps/web` dùng các package trong `packages/`). Tài liệu Vercel chưa nêu rõ công tắc này; nếu build báo không thấy `packages/`, báo AI |
-   | Install Command | bật **Override**: `cd ../.. && npm ci` (cài từ gốc repo, dùng `package-lock.json` ở gốc) |
-   | Build Command | `npm run build` (trong `apps/web` chạy `vite build`; kiểm kiểu `typecheck` do CI lo, không do Vercel) |
-   | Output Directory | `dist` |
-   | Node.js Version | **22.x**: **Settings → Build and Deployment → Node.js Version** (repo yêu cầu Node `>=22 <23`) |
-4. **Environment Variables** (đặt trước khi bấm Deploy; mỗi biến một hàng cho từng môi trường):
+   | Root Directory | để trống (gốc repo, vì `apps/web` dùng các package trong `packages/` và nội dung trong `content/`) |
+   | Install Command | `npm ci` (gốc repo, `package-lock.json` ở gốc) |
+   | Build Command | `npm run build` (typecheck toàn repo rồi `vite build` trong `apps/web`) |
+   | Output Directory | `apps/web/dist` |
+   | Node.js Version | **22.x**, tự lấy từ `"engines": {"node": ">=22 <23"}`; nếu build báo sai phiên bản, đặt tay ở **Settings → Build and Deployment → Node.js Version** |
+4. **Hiện tại chưa cần biến môi trường nào**: app chạy local-first, chưa nối Supabase (tới P2-16). Bản deploy đầu tiên bỏ qua bước này; khi có H1 thì thêm như bảng dưới rồi Redeploy.
+   4. **Environment Variables** (đặt trước khi bấm Deploy; mỗi biến một hàng cho từng môi trường):
    | Name | Value | Environment |
    |---|---|---|
    | `VITE_SUPABASE_URL` | Project URL (H1) | Production, Preview |
@@ -244,7 +245,7 @@ Cần H3 xong (Vercel đọc code từ GitHub).
    
    `VITE_APP_ENV` thành **hai hàng**: bỏ tick Preview ở hàng `production`, bỏ tick Production ở hàng `preview`. **Không** thêm khóa Secret/`service_role` hay pepper vào Vercel (biến `VITE_*` bị nhúng vào JavaScript công khai).
 5. Bấm **Deploy**. Build đỏ: gửi log cho AI (xem "Khi bị kẹt"), đừng sửa lung tung.
-6. **Rewrite SPA (đường dẫn con):** file `apps/web/vercel.json` đã có trong repo (`{ "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }] }`); P2-18 sẽ thêm header CSP vào cùng file. Kiểm tra: mở `<link>/map`, bấm **F5** (tải lại) vẫn hiện app, không 404.
+6. **Rewrite SPA (đường dẫn con):** nằm trong `vercel.json` ở gốc repo (`"rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]`); P2-18 sẽ thêm header CSP vào cùng file. Kiểm tra: mở `<link>/map`, bấm **F5** (tải lại) vẫn hiện app, không 404.
 7. **Bản preview:** mở một PR từ nhánh `feat/...` vào `main`; bot Vercel bình luận link preview trong PR.
 8. **Ai xem được:** theo tài liệu hiện tại (https://vercel.com/docs/deployment-protection), mặc định *Standard Protection* bảo vệ mọi URL **trừ domain production**. Vậy ở gói Hobby, URL production `*.vercel.app` là **công khai** (ai có link đều mở được; app không chứa dữ liệu cá nhân của bé nằm sẵn trong bản build), còn **link preview cần đăng nhập Vercel**: gửi link preview cho người khác sẽ bị chặn. Kiểm ở **Settings → Deployment Protection**.
 
@@ -257,7 +258,7 @@ Cần H3 xong (Vercel đọc code từ GitHub).
 | `npm ci` báo lockfile không khớp | Chạy `npm install` ở gốc repo, commit `package-lock.json` (nhờ AI), push lại |
 | Build báo sai phiên bản Node | Đặt Node.js Version **22.x** (bảng trên) rồi Redeploy |
 | Trang trắng, console báo thiếu Supabase | Biến `VITE_*` thêm sau lần build: **Redeploy** (biến chỉ có hiệu lực ở lần build sau) |
-| Mở `/map` bị 404 | `apps/web/vercel.json` thiếu hoặc Root Directory sai; kiểm lại bước 3 và 6 |
+| Mở `/map` bị 404 | `vercel.json` ở gốc thiếu, hoặc Root Directory bị đặt khác gốc repo; kiểm lại bước 3 và 6 |
 | Không thấy repo trong danh sách | GitHub → Settings → Applications → Vercel → *Configure* → thêm repo `codequest` |
 | Link preview đòi đăng nhập | Đúng thiết kế (bước 8) |
 
