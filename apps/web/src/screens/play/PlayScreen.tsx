@@ -40,6 +40,7 @@ import {
   runProgram,
 } from '../../features/play/run';
 import type { WinReward } from '../../features/play/session';
+import { hasStarGoals } from '../../features/play/starGoals';
 import { usePlaySession } from '../../features/play/usePlaySession';
 import { useSignedInProfile } from '../../features/profiles';
 import { vi } from '../../i18n/vi';
@@ -59,6 +60,7 @@ import { HintBox } from './HintBox';
 import { type MapMark, MapTabs } from './MapTabs';
 import { ResultsOverlay } from './ResultsOverlay';
 import { SolutionViewer } from './SolutionViewer';
+import { StarGoalsCard } from './StarGoalsCard';
 import { type PlayLine, usePlayHints } from './usePlayHints';
 import './play.css';
 
@@ -198,6 +200,7 @@ const uiLine = (path: string, text: string): PlayLine => ({ text, voiceId: uiVoi
 /** Fixed win lines of `resultLine` that have a voice; the others (with numbers) have none. */
 const VOICED_WIN_LINES: readonly PlayLine[] = [
   uiLine('play.win', t.win),
+  uiLine('play.goalMissed.collectAll', t.goalMissed.collectAll),
   uiLine('play.bughunt.win', t.bughunt.win),
   uiLine('play.creative.done', t.creative.done),
 ];
@@ -259,8 +262,8 @@ function PlaySession({
   // Runner / maze: the full-track strip under the stage and the "Xem cả đường" view follow the
   // replay through one feed per map (stage-rendering.md §2, §4).
   const planSources = useMemo(
-    () => maps.map((config) => planSourceFor(level.kind, config)),
-    [level.kind, maps],
+    () => maps.map((config) => planSourceFor(level.kind, config, level.goalSprite)),
+    [level.kind, level.goalSprite, maps],
   );
   const planSource = planSources[mapIndex] ?? null;
   const trackFeed = planSource?.kind === 'runner' ? planSource.feed : null;
@@ -351,6 +354,11 @@ function PlaySession({
     [clearTip],
   );
   const [reward, setReward] = useState<WinReward | null>(null);
+  /** Each map's star goal flags of the last win (multi-map levels, P2-21), for the results. */
+  const [winMapGoals, setWinMapGoals] = useState<ReadonlyArray<boolean[] | undefined>>();
+  /** "Mục tiêu ⭐" (P2-21): shown on entering a level with star goals, and from its button. */
+  const starGoals = hasStarGoals(level);
+  const [goalsCardOpen, setGoalsCardOpen] = useState(starGoals);
   /** `reward`, readable in callbacks. */
   const rewardRef = useRef<WinReward | null>(null);
   useEffect(() => {
@@ -410,6 +418,7 @@ function PlaySession({
     StageController.mount(container, controller.signal, {
       kind: level.kind,
       config: maps[mapIndexRef.current],
+      ...(level.goalSprite !== undefined && { goalSprite: level.goalSprite }),
       onHighlight: highlight,
       onAnimation: (animation: PandaAnimation) => {
         container.dataset.panda = animation;
@@ -503,6 +512,7 @@ function PlaySession({
       // the run would sit on top of them (P2-22).
       setPlanOpen(false);
       if (outcome.result === 'success') {
+        setWinMapGoals(outcome.maps?.map((map) => map.goals));
         setPhase('success');
       } else {
         setPhase('fail');
@@ -802,13 +812,24 @@ function PlaySession({
     delete window.__cqPlay;
   }, [setWorkspaceFlush]);
 
-  // Tier-0 "enter" hint: once, when both the stage and the workspace are up (hint-engine.md §5).
+  // Tier-0 "enter" hint: once, when both the stage and the workspace are up (hint-engine.md §5),
+  // and the "Mục tiêu ⭐" card shown on entry is closed (its pointer would sit under the card).
   const enteredRef = useRef(false);
   useEffect(() => {
     if (!stageReady || !workspaceReady || enteredRef.current) return;
+    if (goalsCardOpen) return;
     enteredRef.current = true;
     hintEntered();
-  }, [stageReady, workspaceReady, hintEntered]);
+  }, [stageReady, workspaceReady, hintEntered, goalsCardOpen]);
+
+  // Closing the "Mục tiêu ⭐" card: the Dialog gives focus back to where it was (the star
+  // button) as it unmounts, so Space would reopen the card. This runs after that cleanup and
+  // puts focus on the stage, where Space runs the program.
+  const goalsCardWasOpenRef = useRef(goalsCardOpen);
+  useEffect(() => {
+    if (goalsCardWasOpenRef.current && !goalsCardOpen) stageBoxRef.current?.focus();
+    goalsCardWasOpenRef.current = goalsCardOpen;
+  }, [goalsCardOpen]);
 
   const onChange = useCallback(
     (state: WorkspaceState) => {
@@ -932,6 +953,7 @@ function PlaySession({
               data-phase={phase}
               data-paused={paused}
               data-map={mapIndex + 1}
+              data-goal-sprite={level.goalSprite ?? 'flag'}
               data-hint-anchor="stage"
               className="absolute inset-0 outline-none focus-visible:outline-3 focus-visible:-outline-offset-4 focus-visible:outline-brand-deep"
             />
@@ -951,20 +973,58 @@ function PlaySession({
           {trackFeed && (
             <TrackStrip
               feed={trackFeed}
+              {...(level.goalSprite !== undefined && { goalSprite: level.goalSprite })}
               action={planButton}
               onShownChange={setStripShown}
               {...(stageReady && !running && { onPeek: peekStage })}
             />
           )}
 
-          <p className="m-0 flex items-center gap-2 border-b-3 border-ink bg-paper-2 px-4 py-2 font-bold">
-            <span className="rounded-kbd bg-brand-deep px-2 pt-0.5 font-pixel text-pixel-sm font-normal text-paper uppercase">
-              {t.objectiveLabel}
-            </span>
-            {level.objective}
-            {/* Renders only once the line has a voice file (audio.md §3). */}
-            <SpeakButton voiceId={levelVoiceId(level.id, 'objective')} className="ml-auto" />
-          </p>
+          <div className="border-b-3 border-ink bg-paper-2 px-4 py-1.5">
+            {/* Story line (P2-11c) above the task: why Măng goes, then what to do. */}
+            {level.mission !== undefined && (
+              <p
+                data-testid="play-mission"
+                className="m-0 flex items-center gap-2 text-small font-bold text-ink-soft"
+              >
+                <span className="shrink-0 rounded-kbd bg-brand px-2 pt-0.5 font-pixel text-pixel-sm font-normal whitespace-nowrap text-paper uppercase">
+                  {t.missionLabel}
+                </span>
+                {level.mission}
+                <SpeakButton voiceId={levelVoiceId(level.id, 'mission')} className="ml-auto" />
+              </p>
+            )}
+            <p
+              data-testid="play-objective"
+              className="m-0 flex min-h-8 items-center gap-2 font-bold"
+            >
+              <span className="shrink-0 rounded-kbd bg-brand-deep px-2 pt-0.5 font-pixel text-pixel-sm font-normal whitespace-nowrap text-paper uppercase">
+                {t.objectiveLabel}
+              </span>
+              {level.objective}
+              <span className="ml-auto flex shrink-0 items-center gap-2">
+                {/* Renders only once the line has a voice file (audio.md §3). */}
+                <SpeakButton voiceId={levelVoiceId(level.id, 'objective')} />
+                {starGoals && (
+                  <button
+                    type="button"
+                    aria-label={t.starGoals.open}
+                    title={t.starGoals.open}
+                    aria-haspopup="dialog"
+                    data-testid="star-goals-open"
+                    onClick={() => {
+                      setGoalsCardOpen(true);
+                    }}
+                    className="flex min-h-9 shrink-0 cursor-pointer items-center gap-0.5 rounded-key border-2 border-ink bg-coin-shine px-2 shadow-key transition-transform duration-150 hover:-translate-y-px active:translate-y-0.5 active:shadow-button-pressed focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-brand-deep"
+                  >
+                    <PixelIcon name="star" scale={1} />
+                    <PixelIcon name="star" scale={1} />
+                    <PixelIcon name="star" scale={1} />
+                  </button>
+                )}
+              </span>
+            </p>
+          </div>
 
           {/* Mode predict has no run controls: the answer cards sit under the program. */}
           {predict ? null : (
@@ -1076,6 +1136,7 @@ function PlaySession({
               <PredictCards
                 kind={level.kind}
                 config={level.config}
+                {...(level.goalSprite !== undefined && { goalSprite: level.goalSprite })}
                 options={predict.options}
                 marks={allMarks}
                 disabled={
@@ -1177,12 +1238,21 @@ function PlaySession({
       {playHints.solutionOpen && level.solution !== undefined && (
         <SolutionViewer solution={level.solution} onClose={playHints.closeSolution} />
       )}
+      {goalsCardOpen && (
+        <StarGoalsCard
+          level={level}
+          onClose={() => {
+            setGoalsCardOpen(false);
+          }}
+        />
+      )}
       {reward !== null && phase === 'success' && (
         <ResultsOverlay
           profileId={profile.id}
           level={level}
           world={world}
           reward={reward}
+          {...(winMapGoals !== undefined && { mapGoals: winMapGoals })}
           onReplay={() => {
             setReward(null);
             // Playing again: the right card can be picked again, wrong ones stay locked.

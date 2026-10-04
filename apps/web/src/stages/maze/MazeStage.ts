@@ -9,13 +9,16 @@ import {
   type Ticker,
 } from 'pixi.js';
 import type { RunOutcome } from '@codequest/engine';
+import type { GoalSprite } from '@codequest/content-schema';
 import type { MazeCell, MazeConfig, MazeDir, MazeEvent } from '@codequest/games';
 import { UI_COLORS } from '../../ui/tokens';
 import type { PandaTextures } from '../assets';
 import { shade } from '../colors';
 import { reducedMotion } from '../motion';
 import type { PandaAnimation } from '../panda';
+import { type GoalArt, goalArt, goalScale } from '../goalArt';
 import { createPanda, type Panda } from '../pandaSprite';
+import { goalTexture } from '../tiles';
 import { isAborted, type PandaAnimationListener, type StageRenderer, tween } from '../types';
 import {
   arrowDistance,
@@ -122,7 +125,9 @@ export class MazeStage implements StageRenderer<MazeEvent> {
   /** Static outlines around missed bamboo (also the whole cue under reduced motion). */
   private readonly marks = new Graphics();
   private readonly hud = new Container();
+  /** The goal: the waving flag, or the level's goal picture (`goalSprite`) as one frame. */
   private readonly flag: AnimatedSprite;
+  private readonly goalArt: GoalArt | null;
   private readonly goalPad: Sprite;
   private readonly bamboo = new Map<string, Sprite>();
   private readonly dizzyStars: Sprite[] = [];
@@ -155,7 +160,9 @@ export class MazeStage implements StageRenderer<MazeEvent> {
     private readonly config: MazeConfig,
     pandaTextures: PandaTextures,
     private readonly onAnimation?: PandaAnimationListener,
+    goalSprite?: GoalSprite,
   ) {
+    this.goalArt = goalArt(goalSprite);
     this.start = cellsOf(config.map, 'S')[0] ?? [0, 0];
     this.goal = cellsOf(config.map, 'G')[0] ?? [0, 0];
     this.bambooCells = cellsOf(config.map, 'b');
@@ -165,7 +172,9 @@ export class MazeStage implements StageRenderer<MazeEvent> {
 
     this.goalPad = new Sprite(this.textures.goalPad);
     this.flag = new AnimatedSprite({
-      textures: [this.textures.flag1, this.textures.flag2],
+      textures: this.goalArt
+        ? [goalTexture(this.goalArt)]
+        : [this.textures.flag1, this.textures.flag2],
       animationSpeed: 3 / 60,
       autoUpdate: false,
     });
@@ -622,12 +631,23 @@ export class MazeStage implements StageRenderer<MazeEvent> {
     const [gr, gc] = this.goal;
     this.goalPad.scale.set(tileScale);
     this.goalPad.position.set(layout.originX + gc * cellPx, layout.originY + gr * cellPx);
-    this.flag.scale.set(tileScale);
-    // Pole (texels 2–3 of the flag) a little left of the centre; base near the cell's bottom.
-    this.flag.position.set(
-      layout.originX + gc * cellPx + 2 * tileScale,
-      layout.originY + gr * cellPx - 1 * tileScale,
-    );
+    if (this.goalArt) {
+      // A goal picture fills the cell (12 texels) or sits centred in it (the 16-texel friend).
+      const scale = goalScale(this.goalArt, cellPx);
+      const inset = (cellPx - this.goalArt.rows.length * scale) / 2;
+      this.flag.scale.set(scale);
+      this.flag.position.set(
+        Math.round(layout.originX + gc * cellPx + inset),
+        Math.round(layout.originY + gr * cellPx + inset),
+      );
+    } else {
+      this.flag.scale.set(tileScale);
+      // Pole (texels 2–3 of the flag) a little left of the centre; base near the cell's bottom.
+      this.flag.position.set(
+        layout.originX + gc * cellPx + 2 * tileScale,
+        layout.originY + gr * cellPx - 1 * tileScale,
+      );
+    }
     this.flag.animationSpeed = this.flagSpeed;
     // Visibility is left alone: a shoot rising out of its cell finishes its own animation.
     for (const [key, sprite] of this.bamboo) {

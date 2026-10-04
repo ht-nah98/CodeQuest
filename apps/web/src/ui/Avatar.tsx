@@ -22,7 +22,7 @@ export function isAvatarId(id: string): id is AvatarId {
   return (AVATAR_IDS as readonly string[]).includes(id);
 }
 
-interface AvatarArt {
+export interface AvatarArt {
   map: readonly string[];
   /** Map letter → token fill class; '.' is transparent. */
   fills: Readonly<Record<string, string>>;
@@ -395,6 +395,14 @@ const ART: Record<AvatarId, AvatarArt> = {
     },
   },
 };
+
+/**
+ * The pixel map of one avatar (16×16, '.' transparent) and its token fill classes, for pictures
+ * that reuse a face elsewhere (the "friend" goal sprite of P2-11c, stages/goalArt.ts).
+ */
+export function avatarArt(id: AvatarId): AvatarArt {
+  return ART[id];
+}
 
 const GRID = 16;
 

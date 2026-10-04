@@ -3,16 +3,18 @@ import {
   type Application,
   Container,
   Graphics,
-  type Sprite,
+  Sprite,
   type Ticker,
 } from 'pixi.js';
+import type { GoalSprite } from '@codequest/content-schema';
 import type { RunnerCell, RunnerConfig, RunnerEvent } from '@codequest/games';
 import { UI_COLORS } from '../../ui/tokens';
 import type { PandaTextures, TileTextures } from '../assets';
 import { shade } from '../colors';
 import type { PandaAnimation } from '../panda';
 import { createPanda, type Panda } from '../pandaSprite';
-import { createFlag, tileSprite } from '../tiles';
+import { type GoalArt, goalArt, goalScale } from '../goalArt';
+import { createFlag, goalTexture, tileSprite } from '../tiles';
 import { reducedMotion } from '../motion';
 import { isAborted, type PandaAnimationListener, type StageRenderer, tween } from '../types';
 import {
@@ -165,6 +167,8 @@ export class RunnerStage implements StageRenderer<RunnerEvent> {
   /** Set by destroy(): a replay still awaiting a tween must not touch the scene afterwards. */
   private destroyed = false;
   private readonly cells: readonly RunnerCell[];
+  /** `goalSprite` (P2-11c): drawn on the flag cell instead of the flag; `null` = the flag. */
+  private readonly goalArt: GoalArt | null;
 
   constructor(
     private readonly app: Application,
@@ -172,7 +176,9 @@ export class RunnerStage implements StageRenderer<RunnerEvent> {
     private readonly tiles: TileTextures,
     pandaTextures: PandaTextures,
     private readonly onAnimation?: PandaAnimationListener,
+    goalSprite?: GoalSprite,
   ) {
+    this.goalArt = goalArt(goalSprite);
     this.cells = config.cells;
     this.layout = computeRunnerLayout(config.cells.length, app.screen.width, app.screen.height);
     this.pose = restingPose(config.start);
@@ -869,11 +875,25 @@ export class RunnerStage implements StageRenderer<RunnerEvent> {
     this.terrain.addChild(seams);
 
     const flagCell = cells.indexOf('flag');
-    const flagScale = tileScale + 1;
-    const poleX = cellCenterX(layout, flagCell) + cellPx * 0.18;
-    const { pole, flag } = createFlag(tiles, flagScale, Math.round(poleX), groundTop);
-    this.terrain.addChild(pole, flag);
-    this.flag = flag;
+    if (this.goalArt) {
+      // The goal picture stands on the grass of the flag cell, a little right of its centre (as
+      // the flag pole), so Măng arriving on the cell does not hide it all.
+      const scale = goalScale(this.goalArt, cellPx);
+      const size = this.goalArt.rows.length * scale;
+      const goal = new Sprite(goalTexture(this.goalArt));
+      goal.scale.set(scale);
+      goal.position.set(
+        Math.round(cellCenterX(layout, flagCell) + cellPx * 0.18 - size / 2),
+        groundTop + 2 * tileScale - size,
+      );
+      this.terrain.addChild(goal);
+    } else {
+      const flagScale = tileScale + 1;
+      const poleX = cellCenterX(layout, flagCell) + cellPx * 0.18;
+      const { pole, flag } = createFlag(tiles, flagScale, Math.round(poleX), groundTop);
+      this.terrain.addChild(pole, flag);
+      this.flag = flag;
+    }
 
     for (const [cell, kind] of cells.entries()) {
       if (kind === 'crate') this.buildCrate(cell);

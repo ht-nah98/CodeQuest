@@ -232,6 +232,69 @@ describe('modes other than build (P1-06)', () => {
     expect(win(2)).toMatchObject({ stars: 1, edits: 2, overPar: true });
   });
 
+  describe('star goals (P2-21)', () => {
+    const goalLevel: Level = {
+      ...level,
+      id: 'p-goals',
+      par: 4,
+      starGoals: [{ kind: 'collectAll' }],
+    };
+    const win = (goals: boolean[] | undefined, blocks: number, tiers: Array<2 | 3> = []) => {
+      let state = openSession(goalLevel.id, { progress: undefined, ledger: [] });
+      for (const tier of tiers) state = addHint(state, tier);
+      const run = toRunSummary(
+        { ...outcome('success', blocks), ...(goals !== undefined && { goals }) },
+        `r${String(blocks)}`,
+      );
+      return addRun(state, { level: goalLevel, run, now: NOW, profileId: PROFILE }).reward;
+    };
+
+    it('toRunSummary copies the goal flags (a copy, not the engine array)', () => {
+      const goals = [true];
+      const run = toRunSummary({ ...outcome('success'), goals }, 'r1');
+      expect(run.goals).toEqual([true]);
+      expect(run.goals).not.toBe(goals);
+      expect('goals' in toRunSummary(outcome('success'), 'r2')).toBe(false);
+    });
+
+    it('a plain win is ⭐, goals met is ⭐⭐, goals + par is ⭐⭐⭐', () => {
+      expect(win([false], 3)).toMatchObject({ stars: 1, goals: [false], goalsMet: false });
+      expect(win(undefined, 3)).toMatchObject({ stars: 1, goalsMet: false });
+      expect(win([true], 6)).toMatchObject({ stars: 2, goalsMet: true, overPar: true });
+      expect(win([true], 4)).toMatchObject({
+        stars: 3,
+        goalsMet: true,
+        overPar: false,
+        hintCapped: false,
+      });
+    });
+
+    it('hintCapped: only when a hint took stars away', () => {
+      expect(win([true], 4, [2])).toMatchObject({ stars: 2, hintCapped: true });
+      expect(win([true], 4, [3])).toMatchObject({ stars: 1, hintCapped: true });
+      // Already ⭐ from the missed goal: the tier-3 cap took nothing away.
+      expect(win([false], 4, [3])).toMatchObject({ stars: 1, hintCapped: false });
+    });
+
+    it('a level without goals: goalsMet is true and no flags', () => {
+      const reward = add(fresh(), 'success', 'r1').reward;
+      expect(reward).toMatchObject({ goalsMet: true, hintCapped: false });
+      expect(reward && 'goals' in reward).toBe(false);
+    });
+
+    it('the open session record keeps the flags', () => {
+      const state = addRun(openSession(goalLevel.id, { progress: undefined, ledger: [] }), {
+        level: goalLevel,
+        run: toRunSummary({ ...outcome('success'), goals: [false] }, 'r1'),
+        now: NOW,
+        profileId: PROFILE,
+      }).state;
+      const record = toOpenRecord(state, { attemptId: 'a1', profileId: PROFILE, startedAt: NOW });
+      const back = parseOpenRecord(JSON.stringify(record), PROFILE, goalLevel.id);
+      expect(back?.session.runs[0]?.goals).toEqual([false]);
+    });
+  });
+
   it('creative: the first save pays 10 coins once and marks the level done', () => {
     const creative: Level = { ...level, id: 'p-creative', mode: 'creative', stage: 'creative' };
     const start = openSession(creative.id, { progress: undefined, ledger: [] });

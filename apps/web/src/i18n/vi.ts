@@ -1,3 +1,4 @@
+import type { GoalSprite, StarGoalKind } from '@codequest/content-schema';
 import type { BlockCategory, GlobalHintId } from '@codequest/engine';
 import type { PandaAnimation } from '../stages/panda';
 
@@ -31,6 +32,8 @@ export const vi = {
     where: (world: string, levelNumber: number | null) =>
       levelNumber === null ? world : `${world} · Màn ${String(levelNumber)}`,
     objectiveLabel: 'Mục tiêu',
+    // Story line of the level (`mission`, P2-11c), above the objective (the task).
+    missionLabel: 'Nhiệm vụ',
     stageLabel: 'Sân chơi',
     // Runner full-track strip under the stage (screen readers; cells counted from 1).
     trackStrip: (cells: number, at: number) =>
@@ -53,6 +56,23 @@ export const vi = {
     winPar: (blocks: number) => `Chỉ ${String(blocks)} khối, đúng bằng số chuẩn!`,
     winUnderPar: (blocks: number) => `Chỉ ${String(blocks)} khối, ít hơn cả số chuẩn!`,
     win: 'Qua màn rồi! Thử ít khối hơn nhé?',
+    // A win that missed a star goal (P2-21): said instead of the par praise, by the first goal
+    // missed (ui-copy-guide.md §2: say what happened).
+    goalMissed: {
+      collectAll: 'Tới nơi rồi! Nhưng còn măng chưa nhặt.',
+    } satisfies Record<StarGoalKind, string>,
+    // "Mục tiêu ⭐" card (P2-21, rewards-economy.md §1): what earns each star, before playing.
+    // Rows with a number have no voice (ui-copy-guide.md §5).
+    starGoals: {
+      title: 'Mục tiêu sao',
+      open: 'Xem mục tiêu sao',
+      win: 'Tới nơi',
+      kinds: { collectAll: 'Nhặt hết măng' } satisfies Record<StarGoalKind, string>,
+      blocks: (n: number) => `Không quá ${String(n)} khối`,
+      edits: (n: number) => `Sửa không quá ${String(n)} khối`,
+      hintNote: 'Xem bước tiếp hay lời giải thì bớt sao.',
+      go: 'Chơi thôi!',
+    },
     successTitle: 'Qua màn rồi!',
     successBody: (blocks: number) => `Con dùng ${String(blocks)} khối.`,
     playAgain: 'Chơi lại',
@@ -370,6 +390,21 @@ export const vi = {
       stars2: 'Sửa ít khối lắm! Không cần gợi ý là được 3 sao.',
       stars1: 'Hết lỗi rồi! Thử sửa ít khối hơn nhé?',
     },
+    // Levels with star goals (P2-21): Măng's line and the goal checklist.
+    goals: {
+      stars2: 'Đạt mục tiêu rồi! Thử ít khối hơn nhé?',
+      stars2Edits: 'Đạt mục tiêu rồi! Thử sửa ít khối hơn nhé?',
+      stars1: { collectAll: 'Qua màn rồi! Nhặt hết măng là thêm sao.' } satisfies Record<
+        StarGoalKind,
+        string
+      >,
+      label: 'Mục tiêu sao',
+      met: 'đạt',
+      missed: 'chưa đạt',
+      hint: 'Không xem bước tiếp hay lời giải',
+      onMaps: (maps: readonly number[]) =>
+        `Chưa đạt ở bản đồ ${maps.map((n) => String(n)).join(', ')}`,
+    },
   },
 
   // Nhắc nghỉ sau 25 phút (ui-copy-guide.md §4).
@@ -488,11 +523,29 @@ export const vi = {
       learningGoal: 'Bé học được gì',
       misconception: 'Ngộ nhận nhắm tới',
       thinkingHint: 'Câu hỏi gợi suy nghĩ',
+      mission: 'Nhiệm vụ (câu chuyện của màn)',
+      goalSprite: 'Hình đích',
+      starGoals: 'Mục tiêu sao (⭐⭐)',
       par: 'par (số khối chuẩn)',
       maxBlocks: 'maxBlocks (tối đa)',
       parEdits: 'parEdits (số lần sửa chuẩn)',
     },
     words: (n: number, max: number) => `${String(n)}/${String(max)} chữ`,
+    // `goalSprite` (P2-11c): the picture on the goal cell; `flag` is the kind's own flag.
+    goalSprites: {
+      none: '(mặc định: cờ)',
+      flag: 'cờ',
+      machine: 'máy',
+      exit: 'cửa ra',
+      home: 'nhà',
+      footprints: 'dấu chân',
+      friend: 'bạn (Thỏ Bông)',
+      cage: 'lồng',
+      dock: 'bến đò',
+    } satisfies Record<GoalSprite | 'none', string>,
+    // `starGoals` (P2-21): build / bughunt only; ⭐⭐ needs every ticked goal.
+    starGoalKinds: { collectAll: 'Nhặt hết măng' } satisfies Record<StarGoalKind, string>,
+    starGoalsHelp: 'Không quyết định thắng. ⭐⭐ = thắng + đạt mục tiêu; ⭐⭐⭐ thêm ≤ par.',
     solutionBlocks: (n: number) => `lời giải: ${String(n)} khối`,
     stages: {
       guided: 'guided · có dẫn',
@@ -596,6 +649,12 @@ export const vi = {
       failed: 'Worker bị lỗi, không tìm được.',
       error: (message: string) => `Không tìm được: ${message}`,
       min: (blocks: number, count: string) => `Ít nhất ${String(blocks)} khối · ${count} lời giải`,
+      // Levels with star goals (P2-21): par counts goal-meeting wins; the plain win beside it.
+      minGoals: (blocks: number, count: string) =>
+        `par (mục tiêu) ${String(blocks)} khối · ${count} lời giải`,
+      plainWin: (blocks: number, count: string) =>
+        `thắng thường ${String(blocks)} khối · ${count} lời giải`,
+      noPlainWin: 'Không tìm thấy cách thắng thường.',
       noWinFound: 'Không tìm thấy lời giải.',
       fixes: (edits: number, count: string) => `Sửa ít nhất ${String(edits)} lần · ${count} cách`,
       noFixFound: 'Không tìm thấy cách sửa.',
@@ -631,6 +690,7 @@ export const vi = {
     intro: 'Mọi thành phần giao diện dùng chung, vẽ bằng token của style board "Pixel ấm áp".',
     greeting: 'Chào con! Mình là Măng.',
     sample: 'Măng nhảy qua hố, rẽ phải!',
+    labelGoalSprites: 'HÌNH ĐÍCH · goalSprite (P2-11c, hình tạm chờ họa sĩ)',
 
     typeEyebrow: 'CHỮ',
     typeTitle: 'Ba font, tất cả đều có đủ dấu tiếng Việt',

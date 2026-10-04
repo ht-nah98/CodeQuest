@@ -8,6 +8,7 @@
   "objective": "Đoán xem Măng dừng ở đâu nhé!",
   "learningGoal": "Đọc chương trình và đoán Măng đi tới đâu, có đâm tường không.",
   "misconception": "Măng tự rẽ khi gặp góc.",
+  "goalSprite": "exit",
   "toolbox": [],
   "config": {
     "map": ["#####", "#S..#", "###.#", "###G.", "#####"],

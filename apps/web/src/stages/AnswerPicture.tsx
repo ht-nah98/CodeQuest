@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import type { GameKindId } from '@codequest/content-schema';
+import type { GameKindId, GoalSprite } from '@codequest/content-schema';
 import {
   mazeConfigSchema,
   type MazeConfig,
@@ -100,12 +100,21 @@ const C = TRACK_CELL;
 const SKY = TRACK_SKY;
 const GRASS = TRACK_GRASS;
 
-function RunnerAnswer({ config, answer }: { config: RunnerConfig; answer: ParsedAnswer }) {
+function RunnerAnswer({
+  config,
+  answer,
+  goalSprite,
+}: {
+  config: RunnerConfig;
+  answer: ParsedAnswer;
+  goalSprite: GoalSprite | undefined;
+}) {
   const { cells } = config;
   const flagCell = cells.indexOf('flag');
   const cell = answer.outcome === 'win' ? flagCell : runnerCell(answer);
   const lit = cell !== null && cell >= 0 && cell < cells.length ? cell : null;
-  const width = cells.length * C;
+  // Room right of the last cell: the flag or goal picture sticks out of its cell a little.
+  const width = cells.length * C + 0.2 * C;
   const height = SKY + GRASS;
   let mark: ReactNode = null;
   if (lit !== null) {
@@ -145,7 +154,7 @@ function RunnerAnswer({ config, answer }: { config: RunnerConfig; answer: Parsed
     >
       <rect x={0} y={0} width={width} height={SKY + GRASS} fill={UI_COLORS.sky} />
       {lit !== null && <Spot x={lit * C + 1} y={1} w={C - 2} h={SKY + GRASS - 2} />}
-      <TrackCells cells={cells} bamboo={config.bamboo ?? []} />
+      <TrackCells cells={cells} bamboo={config.bamboo ?? []} goalSprite={goalSprite} />
       {mark}
     </svg>
   );
@@ -205,7 +214,15 @@ function wallDir(config: MazeConfig, start: [number, number], cell: [number, num
   );
 }
 
-function MazeAnswer({ config, answer }: { config: MazeConfig; answer: ParsedAnswer }) {
+function MazeAnswer({
+  config,
+  answer,
+  goalSprite,
+}: {
+  config: MazeConfig;
+  answer: ParsedAnswer;
+  goalSprite: GoalSprite | undefined;
+}) {
   const { map } = config;
   const rows = map.length;
   const cols = map[0]?.length ?? 0;
@@ -236,7 +253,7 @@ function MazeAnswer({ config, answer }: { config: MazeConfig; answer: ParsedAnsw
       aria-hidden="true"
       style={{ imageRendering: 'pixelated' }}
     >
-      <MazeBoard config={config} />
+      <MazeBoard config={config} goalSprite={goalSprite} />
       {cell && (
         <g data-answer-cell={`${String(cell[0])},${String(cell[1])}`}>
           <Spot x={cell[1] * M + 0.6} y={cell[0] * M + 0.6} w={M - 1.2} h={M - 1.2} />
@@ -273,20 +290,27 @@ export function AnswerPicture({
   kind,
   config,
   answerKey,
+  goalSprite,
 }: {
   kind: GameKindId;
   config: unknown;
   answerKey: string;
+  /** `level.goalSprite` (P2-11c): the goal cell's picture instead of the flag. */
+  goalSprite?: GoalSprite | undefined;
 }) {
   const answer = parseAnswerKey(answerKey);
   if (answer === null) return null;
   if (kind === 'runner') {
     const parsed = runnerConfigSchema.safeParse(config);
-    return parsed.success ? <RunnerAnswer config={parsed.data} answer={answer} /> : null;
+    return parsed.success ? (
+      <RunnerAnswer config={parsed.data} answer={answer} goalSprite={goalSprite} />
+    ) : null;
   }
   if (kind === 'maze') {
     const parsed = mazeConfigSchema.safeParse(config);
-    return parsed.success ? <MazeAnswer config={parsed.data} answer={answer} /> : null;
+    return parsed.success ? (
+      <MazeAnswer config={parsed.data} answer={answer} goalSprite={goalSprite} />
+    ) : null;
   }
   return null;
 }

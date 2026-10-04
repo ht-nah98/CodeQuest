@@ -1,5 +1,5 @@
 import type { Application } from 'pixi.js';
-import type { GameKindId } from '@codequest/content-schema';
+import type { GameKindId, GoalSprite } from '@codequest/content-schema';
 import type { GameEvent } from '@codequest/engine';
 import { runnerConfigSchema } from '@codequest/games';
 import { UI_COLORS } from '../ui/tokens';
@@ -11,6 +11,8 @@ import type { PandaAnimationListener, StageRenderer } from './types';
 /** Callbacks a renderer may report through (e2e / debug). */
 export interface StageHooks {
   onAnimation?: PandaAnimationListener;
+  /** `level.goalSprite` (P2-11c): the picture on the goal cell instead of the flag. */
+  goalSprite?: GoalSprite;
 }
 
 /**
@@ -45,7 +47,14 @@ const runnerStage: StageKind = {
   async prepare() {
     const [panda, tiles] = await Promise.all([loadPandaSheet(), loadTiles()]);
     return (app, config, hooks) =>
-      new RunnerStage(app, runnerConfigSchema.parse(config), tiles, panda, hooks.onAnimation);
+      new RunnerStage(
+        app,
+        runnerConfigSchema.parse(config),
+        tiles,
+        panda,
+        hooks.onAnimation,
+        hooks.goalSprite,
+      );
   },
 };
 

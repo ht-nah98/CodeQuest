@@ -1,5 +1,5 @@
 import type { Application } from 'pixi.js';
-import type { GameKindId } from '@codequest/content-schema';
+import type { GameKindId, GoalSprite } from '@codequest/content-schema';
 import type { GameEvent, RunOutcome } from '@codequest/engine';
 import { createStageApp, destroyStageApp } from './createStageApp';
 import { getStageKind, type StageFactory } from './registry';
@@ -14,6 +14,8 @@ export interface StageControllerOptions {
   kind: GameKindId;
   /** `level.config`, validated by the kind's renderer factory. */
   config: unknown;
+  /** `level.goalSprite` (P2-11c): drawn on the goal cell instead of the flag, on every map. */
+  goalSprite?: GoalSprite;
   /** Lights up the block that runs now; `null` clears it (Blockly `highlightBlock`). */
   onHighlight: (blockId: string | null) => void;
   onAnimation?: PandaAnimationListener;

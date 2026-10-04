@@ -11,6 +11,7 @@ import {
   useState,
   useSyncExternalStore,
 } from 'react';
+import type { GoalSprite } from '@codequest/content-schema';
 import type { MazeConfig, RunnerConfig } from '@codequest/games';
 import { uiVoiceId } from '../../audio';
 import { vi } from '../../i18n/vi';
@@ -105,6 +106,7 @@ function runnerPicture(
   config: RunnerConfig,
   { cells, bamboo, at }: TrackStripState,
   marks: readonly string[],
+  goalSprite: GoalSprite | undefined,
 ): Picture {
   const C = TRACK_CELL;
   const height = TRACK_SKY + TRACK_GRASS;
@@ -130,7 +132,7 @@ function runnerPicture(
         style={{ imageRendering: 'pixelated' }}
       >
         <rect x={0} y={0} width={width} height={height} fill={UI_COLORS.sky} />
-        <TrackCells cells={cells} bamboo={bamboo} />
+        <TrackCells cells={cells} bamboo={bamboo} goalSprite={goalSprite} />
         {marks.map((key) => (
           <MarkRect key={key} id={key} x={Number(key) * C + 1} y={1} w={C - 2} h={height - 2} />
         ))}
@@ -157,6 +159,7 @@ function mazePicture(
   config: MazeConfig,
   { at, dir, bamboo }: MazePlanState,
   marks: readonly string[],
+  goalSprite: GoalSprite | undefined,
 ): Picture {
   const M = MAZE_CELL;
   const rows = config.map.length;
@@ -181,7 +184,7 @@ function mazePicture(
         aria-hidden="true"
         style={{ imageRendering: 'pixelated' }}
       >
-        <MazeBoard config={config} bamboo={bamboo} />
+        <MazeBoard config={config} bamboo={bamboo} goalSprite={goalSprite} />
         {marks.map((key) => {
           const [mr = 0, mc = 0] = key.split(',').map(Number);
           return (
@@ -369,8 +372,8 @@ export function PlanView({
   const picture = useMemo(
     () =>
       source.kind === 'runner'
-        ? runnerPicture(source.config, snapshot as TrackStripState, marks)
-        : mazePicture(source.config, snapshot as MazePlanState, marks),
+        ? runnerPicture(source.config, snapshot as TrackStripState, marks, source.goalSprite)
+        : mazePicture(source.config, snapshot as MazePlanState, marks, source.goalSprite),
     [source, snapshot, marks],
   );
 

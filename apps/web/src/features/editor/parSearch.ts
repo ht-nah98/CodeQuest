@@ -19,7 +19,16 @@ export interface ParSearchRequest {
 
 /** What one search found; plain data, so it crosses `postMessage`. */
 export type ParSearchReply =
-  | { ok: true; shortest: ShortestResult; fixes: FixResult | null }
+  | {
+      ok: true;
+      shortest: ShortestResult;
+      fixes: FixResult | null;
+      /**
+       * Levels with `starGoals` (P2-21): the cheapest win that ignores the goals (⭐ only), next
+       * to `shortest`, whose minimum then counts only goal-meeting wins (par under goals).
+       */
+      plain: ShortestResult | null;
+    }
   | { ok: false; message: string; unsearchable: boolean };
 
 /** Largest program tried when the level has no `maxBlocks` (and a smaller `par`). */
@@ -55,8 +64,17 @@ export function canSearchPar(level: Pick<Level, 'mode'>): boolean {
  * hints and a `par` / `parEdits` within the limits (set from the result) do not make it stale.
  */
 export function searchKey(level: Level): string {
-  const { kind, mode, toolbox, config, initialWorkspace } = level;
-  return JSON.stringify({ kind, mode, toolbox, config, initialWorkspace, ...searchLimits(level) });
+  const { kind, mode, toolbox, config, variants, starGoals, initialWorkspace } = level;
+  return JSON.stringify({
+    kind,
+    mode,
+    toolbox,
+    config,
+    variants,
+    starGoals,
+    initialWorkspace,
+    ...searchLimits(level),
+  });
 }
 
 /** Runs the searches of one level (inside the worker; also callable in tests). */
@@ -66,7 +84,12 @@ export function searchPar(level: Level, shouldStop?: () => boolean): ParSearchRe
     const { maxSize, maxEdits } = searchLimits(level);
     const shortest = findShortestPrograms(level, { ...options, maxSize });
     const fixes = level.mode === 'bughunt' ? findFixes(level, { ...options, maxEdits }) : null;
-    return { ok: true, shortest, fixes };
+    // As `npm run par`: the plain win shows the trade-off the child sees (ADR-0017).
+    const plain =
+      level.starGoals === undefined
+        ? null
+        : findShortestPrograms(level, { ...options, maxSize, ignoreStarGoals: true });
+    return { ok: true, shortest, fixes, plain };
   } catch (error) {
     return {
       ok: false,

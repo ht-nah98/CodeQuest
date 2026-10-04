@@ -6,6 +6,7 @@ import { useAudio } from '../../audio/useAudio';
 import { useUnlockOverrides } from '../../features/author/authorMode';
 import { nextLevelId, unlockContext, useCatalog } from '../../features/content/catalog';
 import type { WinReward } from '../../features/play/session';
+import { goalLineKey, goalVerdicts } from '../../features/play/starGoals';
 import { prefersReducedMotion } from '../../features/profiles';
 import { useLessonsDone, useProgressMap } from '../../features/progress';
 import { vi } from '../../i18n/vi';
@@ -20,6 +21,8 @@ export interface ResultsOverlayProps {
   level: Level;
   world: World;
   reward: WinReward;
+  /** Multi-map levels with star goals: each map's goal flags (`RunOutcome.maps[i].goals`). */
+  mapGoals?: ReadonlyArray<readonly boolean[] | undefined>;
   onReplay: () => void;
   onWorld: () => void;
   onNext: (levelId: string) => void;
@@ -44,6 +47,9 @@ const LINE_TEXT = {
   'predict.stars1': t.predict.stars1,
   'bughunt.stars2': t.bughunt.stars2,
   'bughunt.stars1': t.bughunt.stars1,
+  'goals.stars2': t.goals.stars2,
+  'goals.stars2Edits': t.goals.stars2Edits,
+  'goals.stars1.collectAll': t.goals.stars1.collectAll,
 } as const;
 
 const STAR_LINES: Record<
@@ -64,6 +70,11 @@ const STAR_LINES: Record<
     stars1Hint: 'stars1Hint',
   },
 };
+/** Goal chips: ✔ met, ✖ missed, dimmed when not graded (⭐⭐⭐ line after a missed goal). */
+function chipClass(met: boolean | null): string {
+  if (met === null) return 'border-ink/30 bg-paper-2 text-ink-soft opacity-70';
+  return met ? 'border-go-deep bg-go/15' : 'border-oops bg-oops-soft';
+}
 const MAX_FLYING_COINS = 8;
 const FLY_FROM_RIGHT = 96;
 
@@ -87,6 +98,7 @@ export function ResultsOverlay({
   level,
   world,
   reward,
+  mapGoals,
   onReplay,
   onWorld,
   onNext,
@@ -183,7 +195,9 @@ export function ResultsOverlay({
     STAR_LINES[level.mode === 'predict' || level.mode === 'bughunt' ? level.mode : 'build'][
       starKey
     ];
-  const line = LINE_TEXT[linePath];
+  const lineVoice = goalLineKey(level, reward) ?? linePath;
+  const line = LINE_TEXT[lineVoice];
+  const verdicts = goalVerdicts(level, reward, mapGoals);
   // Bughunt counts edits; without a measured `edits` it falls back to the blocks line.
   const chip =
     level.mode === 'bughunt' && reward.edits !== undefined
@@ -227,7 +241,7 @@ export function ResultsOverlay({
         <Bubble
           text={line}
           tail="left"
-          voiceId={uiVoiceId(`results.${linePath}`)}
+          voiceId={uiVoiceId(`results.${lineVoice}`)}
           className="mb-6 text-left"
         />
       </div>
@@ -238,6 +252,44 @@ export function ResultsOverlay({
       >
         {chip}
       </p>
+
+      {verdicts.length > 0 && (
+        <ul
+          aria-label={t.goals.label}
+          data-testid="results-goals"
+          data-goals-met={reward.goalsMet}
+          className="m-0 flex w-full list-none flex-wrap justify-center gap-2 p-0"
+        >
+          {verdicts.map((verdict) => (
+            <li
+              key={verdict.key}
+              data-goal={verdict.key}
+              data-met={verdict.met ?? 'none'}
+              className={`flex items-center gap-1.5 rounded-chip border-2 px-2 py-0.5 ${chipClass(verdict.met)}`}
+            >
+              {verdict.met !== null && (
+                <span
+                  aria-hidden="true"
+                  className={`grid size-6 shrink-0 place-items-center rounded-full border-2 border-ink text-small font-extrabold text-paper ${verdict.met ? 'bg-go-deep' : 'bg-oops'}`}
+                >
+                  {verdict.met ? '✔' : '✖'}
+                </span>
+              )}
+              <span className="font-display font-extrabold">
+                {verdict.text}
+                {verdict.met !== null && (
+                  <span className="sr-only">: {verdict.met ? t.goals.met : t.goals.missed}</span>
+                )}
+              </span>
+              {verdict.missedOn !== undefined && (
+                <span className="text-small font-bold text-oops" data-testid="results-goal-maps">
+                  ({t.goals.onMaps(verdict.missedOn)})
+                </span>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
 
       {opened?.newWorld && (
         <p className="m-0 flex items-center gap-2 font-display text-button font-extrabold text-go-deep">

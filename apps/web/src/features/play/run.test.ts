@@ -93,6 +93,19 @@ describe('resultLine', () => {
     expect(resultLine({ ...win, edits: 2 }, { mode: 'bughunt' }, feedback)).toBe(
       'Hết lỗi rồi! Thử sửa ít khối hơn nhé?',
     );
+    // Star goals (P2-21): a win that missed one says so, not the par praise.
+    const goalLevel: Pick<Level, 'mode' | 'par' | 'starGoals'> = {
+      mode: 'build',
+      par: 4,
+      starGoals: [{ kind: 'collectAll' }],
+    };
+    expect(resultLine({ ...win, goals: [false] }, goalLevel, feedback)).toBe(
+      'Tới nơi rồi! Nhưng còn măng chưa nhặt.',
+    );
+    expect(resultLine(win, goalLevel, feedback)).toBe('Tới nơi rồi! Nhưng còn măng chưa nhặt.');
+    expect(resultLine({ ...win, goals: [true] }, goalLevel, feedback)).toBe(
+      'Chỉ 3 khối, ít hơn cả số chuẩn!',
+    );
     expect(resultLine(win, { mode: 'creative', par: 1 }, feedback)).toBe(
       'Măng diễn xong rồi! Bấm Lưu để giữ nhé.',
     );

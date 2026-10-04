@@ -16,6 +16,7 @@ class StageController {
     onClockSpeed?(speed: number): void;             // tốc độ đồng hồ sau mỗi lần đổi; chỉ bản dev, e2e đọc data-stage-speed
     onEvent?(event: GameEvent): void;               // event hành động bắt đầu diễn (âm thanh, dải cả đường)
     onReset?(): void;                               // cảnh về đầu màn (Làm lại, Dừng, và đầu mỗi lượt chạy)
+    goalSprite?: GoalSprite;                        // level.goalSprite (P2-11c): hình ở ô đích thay cho cờ, mọi bản đồ
   }): Promise<StageController | null>;              // null nếu signal abort trước (StrictMode); reject nếu kiểu game chưa có sân chơi
   play(outcome: RunOutcome, opts?: { step?: boolean }): Promise<'finished' | 'aborted'>;
   pause(): void; resume(): void;                    // đóng băng giữa chừng / chạy tiếp
@@ -114,6 +115,13 @@ Mỗi thẻ đáp án có một **hình thu nhỏ tĩnh** của sân chơi, vẽ
 - Màn nhiều bản đồ: tiêu đề ghi "Cả đường · Bản đồ N" (bản đồ đang chọn); không có thẻ đổi bản đồ trong khung.
 - Giảm chuyển động: kéo/lăn/phím đổi vị trí ngay, không có hiệu ứng trượt; khung hiện bằng `animate-pop` đã bị tắt theo `index.css`.
 - e2e (`e2e/play-plan.spec.ts`): `plan-view`, `plan-viewport` (`data-pan-x/y`, `data-max-pan-x/y`), `plan-ruler-cols|rows` (`data-count`, `[data-tick]`, `[data-pill]`), `[data-marked]`, `[data-mark="mang"][data-at]`.
+
+### Hình đích `goalSprite` (P2-11c)
+`level.goalSprite` (`machine`, `exit`, `home`, `footprints`, `friend`, `cage`, `dock`; `flag` hoặc không có = cờ như cũ) chỉ để trang trí, không đổi luật. Hình tạm vẽ bằng mã trong `stages/goalArt.ts` (thuần, có test): mẫu pixel 12×12 dạng chuỗi như tile maze, màu token (`PALETTE` của maze + nâu gỗ `block-robot`, nước `sky`); `friend` dùng lại mặt Thỏ Bông 16×16 của `ui/Avatar.tsx` (`avatarArt('bunny')`, lớp `fill-*` đổi ra mã màu token). Danh sách chờ họa sĩ: `playbooks/add-asset.md` "Hình đích"; xem hết ở `/dev/ui`.
+- Hệ số phóng **nguyên** `goalScale = max(1, floor(ô / cỡ mẫu))`: mẫu 12 lấp đúng ô maze (`tileScale`) và ô runner (3 × `tileScale`); `friend` 16 nhỏ hơn ô một chút, căn giữa.
+- **Runner** (`RunnerStage.build`): thay cờ + cột bằng một `Sprite` (texture `nearest` tạo một lần cho mỗi hình, `tiles.ts` `goalTexture`), đứng trên cỏ ô cờ, lệch phải 0,18 ô như cột cờ để Măng tới nơi không che hết. Không vẫy, nên không có `update`.
+- **Maze** (`MazeStage`): hình là khung duy nhất của `AnimatedSprite` đích, nên luật khóa đích của `collectAll` (tím xám, mờ) và khung vàng `goalPad` giữ nguyên.
+- **SVG** (`TrackSvg.tsx` `GoalSvg`, một `rect` mỗi đoạn cùng màu, `shapeRendering="crispEdges"`): `TrackCells` / `MazeBoard` nhận `goalSprite`, nên dải cả đường, "Xem cả đường" (`PlanSource.goalSprite`, từ `planSourceFor(kind, config, goalSprite)`) và thẻ đáp án predict (`AnswerPicture` → `PredictCards`) vẽ cùng hình. e2e đọc `[data-goal-sprite]` (cả `data-goal-sprite` trên `play-stage`).
 
 ## 5. Âm thanh
 Nguồn chuẩn: [`audio.md`](audio.md). Tóm tắt cho sân chơi: `apps/web/src/audio/` bọc Howler (`useAudio()` → `playSfx`, `playVoice`, `playMusic`); event của sân chơi đổi ra hiệu ứng bằng `stageSfx(event.type)`; ba kênh âm lượng riêng (nhạc, hiệu ứng, giọng đọc) lưu trong cài đặt của hồ sơ; chỉ phát sau lần tương tác đầu tiên (autoplay); file ở `apps/web/public/audio/{sfx,music,voice}/`, định dạng `.mp3`.

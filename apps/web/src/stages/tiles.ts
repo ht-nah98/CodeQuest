@@ -1,5 +1,6 @@
-import { AnimatedSprite, Sprite } from 'pixi.js';
+import { AnimatedSprite, BufferImageSource, Sprite, Texture } from 'pixi.js';
 import type { TileName, TileTextures } from './assets';
+import { type GoalArt, goalPixels } from './goalArt';
 
 /** One grid-aligned tile at an integer scale, top-left at (x, y). */
 export function tileSprite(
@@ -37,4 +38,19 @@ export function createFlag(
   flag.position.set(x, groundTop - 2 * size);
   flag.play();
   return { pole, flag };
+}
+
+/** Goal pictures as textures, made once per picture (they are small and shared by every stage). */
+const goalTextures = new Map<GoalArt, Texture>();
+
+/** The texture of a goal picture (`goalSprite`, stages/goalArt.ts), `nearest` for crisp texels. */
+export function goalTexture(art: GoalArt): Texture {
+  let texture = goalTextures.get(art);
+  if (texture === undefined) {
+    const { width, height, data } = goalPixels(art);
+    const source = new BufferImageSource({ resource: data, width, height, scaleMode: 'nearest' });
+    texture = new Texture({ source });
+    goalTextures.set(art, texture);
+  }
+  return texture;
 }

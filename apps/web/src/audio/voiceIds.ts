@@ -1,8 +1,8 @@
 // Voice line ids (content-model.md §2). tools/voice/src/lines.ts makes the same ids when it
 // lists the lines to record; both sides are tested against the documented examples.
 
-/** `<levelId>.objective` · `<levelId>.thinking` */
-export const levelVoiceId = (levelId: string, key: 'objective' | 'thinking'): string =>
+/** `<levelId>.objective` · `<levelId>.mission` · `<levelId>.thinking` */
+export const levelVoiceId = (levelId: string, key: 'objective' | 'mission' | 'thinking'): string =>
   `${levelId}.${key}`;
 
 /** `<levelId>.hint.<hintId>`: a hint rule's `say` line. */

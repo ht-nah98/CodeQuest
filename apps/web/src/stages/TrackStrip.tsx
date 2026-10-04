@@ -7,6 +7,7 @@ import {
   useState,
   useSyncExternalStore,
 } from 'react';
+import type { GoalSprite } from '@codequest/content-schema';
 import { vi } from '../i18n/vi';
 import { UI_COLORS } from '../ui/tokens';
 import {
@@ -32,9 +33,12 @@ export function TrackStripView({
   state,
   stageWidth,
   onDragCell,
+  goalSprite,
 }: {
   state: TrackStripState;
   stageWidth: number;
+  /** `level.goalSprite` (P2-11c): drawn on the flag cell instead of the flag. */
+  goalSprite?: GoalSprite | undefined;
   /**
    * While set (Măng idle), pressing and dragging on the strip reports the cell under the
    * pointer (fractional), so the play screen can move the stage's view there (P2-22).
@@ -96,7 +100,7 @@ export function TrackStripView({
         })}
       >
         <rect x={0} y={0} width={width} height={HEIGHT} fill={UI_COLORS.sky} />
-        <TrackCells cells={cells} bamboo={bamboo} seam={3} />
+        <TrackCells cells={cells} bamboo={bamboo} seam={3} goalSprite={goalSprite} />
         {/* What the big stage shows now: the rest of the strip is dimmed, the part framed. */}
         <g className={glide} style={{ transform: `translateX(${String(viewX)}px)` }}>
           <rect
@@ -163,8 +167,10 @@ export function TrackStrip({
   action,
   onShownChange,
   onPeek,
+  goalSprite,
 }: {
   feed: TrackFeed;
+  goalSprite?: GoalSprite;
   action?: ReactNode;
   onShownChange?: (shown: boolean) => void;
   onPeek?: (look: number) => void;
@@ -199,6 +205,7 @@ export function TrackStrip({
       <TrackStripView
         state={state}
         stageWidth={width}
+        goalSprite={goalSprite}
         {...(onPeek && {
           onDragCell: (cell: number) => {
             onPeek(stripLook(cellCount, width, cell));

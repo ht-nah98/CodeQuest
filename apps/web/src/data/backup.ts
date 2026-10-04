@@ -108,6 +108,7 @@ const RunSummarySchema: z.ZodType<RunSummary> = z.object({
   blocksUsed: z.number().int().nonnegative(),
   edits: z.number().int().nonnegative().exactOptional(),
   predictChoice: z.string().exactOptional(),
+  goals: z.array(z.boolean()).exactOptional(),
 });
 
 const AttemptSchema: z.ZodType<AttemptRow> = z.object({

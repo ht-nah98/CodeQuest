@@ -103,3 +103,22 @@ describe('AnswerPicture fallbacks', () => {
     ).toBe('');
   });
 });
+
+describe('AnswerPicture goal sprite (P2-11c)', () => {
+  const withSprite = (kind: 'runner' | 'maze', config: unknown, sprite: 'machine' | 'exit') =>
+    render(<AnswerPicture kind={kind} config={config} answerKey="win" goalSprite={sprite} />)
+      .container;
+
+  it('draws the goal picture instead of the flag tiles', () => {
+    const track = withSprite('runner', runner, 'machine');
+    expect(track.querySelector('[data-goal-sprite="machine"] rect')).not.toBeNull();
+    expect(track.querySelector('image[href="/tiles/flag_1.png"]')).toBeNull();
+    cleanup();
+    const board = withSprite('maze', maze, 'exit');
+    expect(board.querySelectorAll('[data-mark="goal"]')).toHaveLength(1);
+    expect(board.querySelector('[data-goal-sprite="exit"]')).not.toBeNull();
+    cleanup();
+    // No sprite: the flag as before.
+    expect(draw('maze', maze, 'win').querySelector('image[data-mark="goal"]')).not.toBeNull();
+  });
+});

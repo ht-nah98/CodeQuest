@@ -93,9 +93,9 @@ export function draftFromJson(json: unknown): Level | null {
 
 /** Fields of the draft that only some modes use (content-model.md §3, LevelSchema). */
 const MODE_FIELDS: Record<LevelMode, ReadonlyArray<keyof Level>> = {
-  build: ['par', 'solution', 'variants'],
+  build: ['par', 'solution', 'variants', 'starGoals'],
   parsons: ['par', 'solution', 'initialWorkspace'],
-  bughunt: ['par', 'parEdits', 'solution', 'initialWorkspace', 'variants'],
+  bughunt: ['par', 'parEdits', 'solution', 'initialWorkspace', 'variants', 'starGoals'],
   predict: ['initialWorkspace', 'predict'],
   creative: [],
 };
@@ -106,6 +106,7 @@ const MODE_ONLY_FIELDS = new Set<keyof Level>([
   'initialWorkspace',
   'predict',
   'variants',
+  'starGoals',
 ]);
 
 /** Whether `mode` uses `field` (the editor hides the others and export drops them). */
@@ -153,6 +154,8 @@ const KEY_ORDER: ReadonlyArray<keyof Level> = [
   'objective',
   'learningGoal',
   'misconception',
+  'mission',
+  'goalSprite',
   'toolbox',
   'par',
   'maxBlocks',
@@ -160,6 +163,7 @@ const KEY_ORDER: ReadonlyArray<keyof Level> = [
   'parEdits',
   'config',
   'variants',
+  'starGoals',
   'initialWorkspace',
   'solution',
   'predict',
@@ -181,7 +185,7 @@ export function unknownLevelKeys(json: unknown): string[] {
 }
 
 /** Optional texts: an empty input means "not set". */
-const OPTIONAL_TEXT = new Set<keyof Level>(['misconception', 'thinkingHint']);
+const OPTIONAL_TEXT = new Set<keyof Level>(['misconception', 'thinkingHint', 'mission']);
 
 /**
  * The level as it is validated and exported: fields its mode does not use are dropped, as are
@@ -455,6 +459,9 @@ export type EditorField =
   | 'learningGoal'
   | 'misconception'
   | 'thinkingHint'
+  | 'mission'
+  | 'goalSprite'
+  | 'starGoals'
   | 'toolbox'
   | 'par'
   | 'maxBlocks'
@@ -476,6 +483,9 @@ const SCHEMA_FIELDS = new Set<string>([
   'learningGoal',
   'misconception',
   'thinkingHint',
+  'mission',
+  'goalSprite',
+  'starGoals',
   'toolbox',
   'par',
   'maxBlocks',
@@ -505,7 +515,9 @@ export function issueField(issue: RuleIssue): EditorField {
         ? 'objective'
         : message.startsWith('title')
           ? 'title'
-          : 'hints';
+          : message.startsWith('mission')
+            ? 'mission'
+            : 'hints';
     case 6:
       return message.includes('misconception') ? 'misconception' : 'thinkingHint';
     case 9:
@@ -529,6 +541,8 @@ export function issueField(issue: RuleIssue): EditorField {
       return 'predict';
     case 16:
       return 'hints';
+    case 19:
+      return 'starGoals';
     default:
       return 'other';
   }

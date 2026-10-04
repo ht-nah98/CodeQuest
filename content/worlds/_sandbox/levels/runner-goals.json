@@ -1,0 +1,64 @@
+{
+  "id": "runner-goals",
+  "worldId": "_sandbox",
+  "stage": "practice",
+  "kind": "runner",
+  "mode": "build",
+  "title": "Măng cho Bông",
+  "objective": "Tới chỗ Thỏ Bông nhé!",
+  "learningGoal": "Nhảy thì nhanh hơn nhưng bỏ sót măng; nhặt hết măng cần chương trình khéo hơn (mục tiêu sao).",
+  "misconception": "Chương trình ít khối nhất luôn được nhiều sao nhất.",
+  "mission": "Mang măng về cho Thỏ Bông nhé!",
+  "goalSprite": "friend",
+  "toolbox": ["runner_walk", "runner_jump"],
+  "par": 4,
+  "maxBlocks": 8,
+  "config": {
+    "cells": ["ground", "ground", "ground", "ground", "ground", "ground", "flag"],
+    "start": 0,
+    "bamboo": [5]
+  },
+  "starGoals": [{ "kind": "collectAll" }],
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "runner_jump",
+              "id": "j1",
+              "next": {
+                "block": {
+                  "type": "runner_jump",
+                  "id": "j2",
+                  "next": {
+                    "block": {
+                      "type": "runner_walk",
+                      "id": "w1",
+                      "next": { "block": { "type": "runner_walk", "id": "w2" } }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "bamboo",
+      "when": { "trigger": "enter" },
+      "say": "Măng ở gần chỗ Bông. Nhảy qua là sót đó!",
+      "point": "stage"
+    }
+  ],
+  "thinkingHint": "Khối nào đáp đúng ô có măng?"
+}

@@ -4,7 +4,9 @@ import type { RunOutcome } from '@codequest/engine';
 import {
   applyRun,
   computeCreativeSaveRewards,
+  computeStars,
   DEFAULT_PAR_EDITS,
+  meetsStarGoals,
   predictPickSummary,
   recordSession,
   WRONG_ANSWER,
@@ -38,6 +40,8 @@ export function toRunSummary(outcome: RunOutcome, runId: string, pickedKey?: str
     blocksUsed: outcome.stats.blocksUsed,
   };
   if (outcome.edits !== undefined) summary.edits = outcome.edits;
+  // Levels with star goals (P2-21): without the flags rewards counts the goals as missed.
+  if (outcome.goals !== undefined) summary.goals = [...outcome.goals];
   return summary;
 }
 
@@ -56,6 +60,14 @@ export interface WinReward {
    * line asks for fewer blocks / edits (else the cap came from a hint).
    */
   overPar: boolean;
+  /**
+   * Levels with `starGoals` (P2-21): whether each goal was met on every map (`RunSummary.goals`)
+   * and whether all were (`meetsStarGoals`; always true on a level without goals).
+   */
+  goals?: boolean[];
+  goalsMet: boolean;
+  /** A hint bought in this session (tier 2 / 3) took stars away from this win. */
+  hintCapped: boolean;
   /** Progress right before this win, to tell what the win newly opened. */
   progressBefore: LevelProgress | undefined;
   progressAfter: LevelProgress;
@@ -90,6 +102,7 @@ export function addRun(
     level.mode === 'bughunt'
       ? (run.edits ?? Infinity) > (level.parEdits ?? DEFAULT_PAR_EDITS)
       : level.par !== undefined && run.blocksUsed > level.par;
+  const uncapped = computeStars(level, { ...session, hintTiersBought: [] }, run, state.progress);
   return {
     state: nextState,
     reward: {
@@ -99,6 +112,9 @@ export function addRun(
       blocksUsed: run.blocksUsed,
       ...(run.edits !== undefined && { edits: run.edits }),
       overPar,
+      ...(run.goals !== undefined && { goals: run.goals }),
+      goalsMet: meetsStarGoals(level, run),
+      hintCapped: stars < uncapped,
       progressBefore: state.progress,
       progressAfter: newProgress,
     },
@@ -217,6 +233,7 @@ const RunSchema = z.object({
   blocksUsed: z.number(),
   edits: z.number().exactOptional(),
   predictChoice: z.string().exactOptional(),
+  goals: z.array(z.boolean()).exactOptional(),
 });
 const OpenSessionSchema = z.object({
   attemptId: z.string().min(1),

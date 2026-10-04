@@ -1,4 +1,4 @@
-import type { GameKindId } from '@codequest/content-schema';
+import type { GameKindId, GoalSprite } from '@codequest/content-schema';
 import { vi } from '../../i18n/vi';
 import { AnswerPicture } from '../../stages/AnswerPicture';
 import { FOCUS_RING } from '../../ui/focusRing';
@@ -10,6 +10,8 @@ export type PickMark = 'right' | 'wrong';
 export interface PredictCardsProps {
   kind: GameKindId;
   config: unknown;
+  /** `level.goalSprite` (P2-11c): the goal picture on the cards. */
+  goalSprite?: GoalSprite;
   options: ReadonlyArray<{ key: string; label: string }>;
   /** Cards already picked in this session, and how they turned out. */
   marks: Readonly<Record<string, PickMark>>;
@@ -32,6 +34,7 @@ const MARK_CLASS: Record<PickMark | 'none', string> = {
 export function PredictCards({
   kind,
   config,
+  goalSprite,
   options,
   marks,
   disabled,
@@ -67,7 +70,12 @@ export function PredictCards({
             className={`relative grid min-h-11 grid-rows-[minmax(0,1fr)_auto] gap-1 overflow-hidden rounded-key border-3 p-1.5 text-left shadow-key transition-transform duration-150 ${locked ? 'cursor-default' : 'cursor-pointer hover:-translate-y-px'} ${MARK_CLASS[mark ?? 'none']} ${disabled && mark === undefined ? 'opacity-70' : ''} ${FOCUS_RING}`}
           >
             <span className="block h-[88px] overflow-hidden [@media(max-height:660px)]:h-[60px] rounded-[6px] border-2 border-ink/60 bg-sky">
-              <AnswerPicture kind={kind} config={config} answerKey={option.key} />
+              <AnswerPicture
+                kind={kind}
+                config={config}
+                answerKey={option.key}
+                goalSprite={goalSprite}
+              />
             </span>
             <span className="block text-center font-display text-body leading-tight font-extrabold">
               {option.label}

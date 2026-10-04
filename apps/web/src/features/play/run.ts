@@ -4,6 +4,7 @@ import { getGameKind } from '@codequest/games';
 import { DEFAULT_PAR_EDITS } from '@codequest/rewards';
 import { vi } from '../../i18n/vi';
 import { feedbackLine } from '../content/files';
+import { firstMissedGoal } from './starGoals';
 
 /**
  * Runs the child's program headlessly with the level's game kind (run-then-replay,
@@ -46,15 +47,22 @@ export function offendingBlockId(outcome: RunOutcome): string | null {
 
 /**
  * What Măng says after a replay: specific praise on a win (by mode: blocks against `par`, edits
- * against `parEdits`, nothing to grade in `creative`), the feedback line otherwise.
+ * against `parEdits`, nothing to grade in `creative`; a missed star goal says so instead), the
+ * feedback line otherwise.
  */
 export function resultLine(
   outcome: RunOutcome,
-  level: Pick<Level, 'feedback' | 'par'> & Partial<Pick<Level, 'mode' | 'parEdits'>>,
+  level: Pick<Level, 'feedback' | 'par'> & Partial<Pick<Level, 'mode' | 'parEdits' | 'starGoals'>>,
   feedback: FeedbackFile,
 ): string {
   if (outcome.result === 'success') {
     if (level.mode === 'creative') return vi.play.creative.done;
+    // A star goal missed (P2-21): no par praise, whatever the block count (the win is ⭐ only).
+    const missed =
+      level.mode === undefined
+        ? null
+        : firstMissedGoal({ ...level, mode: level.mode }, outcome.goals);
+    if (missed !== null) return vi.play.goalMissed[missed];
     if (level.mode === 'bughunt') {
       const { edits } = outcome;
       return edits !== undefined && edits <= (level.parEdits ?? DEFAULT_PAR_EDITS)

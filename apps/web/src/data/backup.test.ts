@@ -71,7 +71,11 @@ async function seed(): Promise<string> {
       levelId: 'w01-l01',
       startedAt: NOW.toISOString(),
       endedAt: NOW.toISOString(),
-      runs: [{ runId: 'r1', result: 'success', reasonCode: null, blocksUsed: 5 }],
+      runs: [
+        { runId: 'r1', result: 'success', reasonCode: null, blocksUsed: 5 },
+        // Star goal flags (P2-21) must survive the round trip.
+        { runId: 'r2', result: 'success', reasonCode: null, blocksUsed: 7, goals: [false] },
+      ],
       hintTiersBought: [2],
       won: true,
     },
@@ -122,6 +126,7 @@ describe('backup and restore', () => {
     expect(await verifyPin(id, '9999')).toBe(false);
     expect(await db.lessons.count()).toBe(1);
     expect(await db.attempts.count()).toBe(1);
+    expect((await db.attempts.toArray())[0]?.runs[1]?.goals).toEqual([false]);
     expect(await db.inventory.count()).toBe(1);
     expect(await db.badges.count()).toBe(1);
     // Restored synced rows are queued so phase 2 can push them to the student account.

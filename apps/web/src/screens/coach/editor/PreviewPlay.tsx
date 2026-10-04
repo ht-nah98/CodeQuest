@@ -70,8 +70,8 @@ export function PreviewPlay({ level }: { level: Level }) {
     workspace.highlightBlock(blockId);
   }, []);
 
-  // The stage only depends on the kind and the maps: other edits do not reload it.
-  const { kind } = level;
+  // The stage only depends on the kind, the maps and the goal picture: other edits do not reload it.
+  const { kind, goalSprite } = level;
   const mapsKey = JSON.stringify(mapsOf(level));
   const maps = useMemo(() => JSON.parse(mapsKey) as unknown[], [mapsKey]);
   // Multi-map levels (P2-12): the map on the stage, as on the play screen.
@@ -97,6 +97,7 @@ export function PreviewPlay({ level }: { level: Level }) {
     StageController.mount(container, controller.signal, {
       kind,
       config: maps[map],
+      ...(goalSprite !== undefined && { goalSprite }),
       onHighlight: highlight,
       onAnimation: (animation) => {
         container.dataset.panda = animation;
@@ -120,7 +121,7 @@ export function PreviewPlay({ level }: { level: Level }) {
       stageRef.current?.destroy();
       stageRef.current = null;
     };
-  }, [kind, maps, highlight]);
+  }, [kind, maps, goalSprite, highlight]);
 
   const showMap = (map: number) => {
     if (map === mapIndexRef.current) return;

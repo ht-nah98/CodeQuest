@@ -4,6 +4,8 @@ import mangTalk from '../../../../../assets/sprites/panda/talk.png';
 import { vi } from '../../i18n/vi';
 import { Bubble, Button, CapacityBricks, Hud, Panel, PixelIcon, Stars } from '../../ui';
 import type { PixelIconName, PixelIconScale } from '../../ui';
+import { GOAL_SPRITES } from '@codequest/content-schema';
+import { GoalSvg, tile } from '../../stages/TrackSvg';
 
 const t = vi.devUi;
 
@@ -265,6 +267,31 @@ export default function DevUiScreen() {
               <span className="font-display text-[18px] font-bold">{t.topBarWhere}</span>
               <Stars earned={2} />
               <Hud coins={120} />
+            </div>
+          </Demo>
+          <Demo label={t.labelGoalSprites} wide>
+            <div className="flex flex-wrap items-end gap-4" data-testid="demo-goal-sprites">
+              {GOAL_SPRITES.map((sprite) => (
+                <figure key={sprite} className="m-0 grid justify-items-center gap-1">
+                  <svg
+                    width={60}
+                    height={60}
+                    viewBox="0 0 12 12"
+                    className="rounded-key border-2 border-ink bg-paper-2"
+                    style={{ imageRendering: 'pixelated' }}
+                    aria-hidden="true"
+                  >
+                    {sprite === 'flag' ? (
+                      <image href={tile('flag_1')} x={1} y={1} width={10} height={10} />
+                    ) : (
+                      <GoalSvg sprite={sprite} x={0.5} y={0.5} size={11} />
+                    )}
+                  </svg>
+                  <figcaption className="font-pixel text-pixel-sm text-ink-soft">
+                    {vi.editor.goalSprites[sprite]}
+                  </figcaption>
+                </figure>
+              ))}
             </div>
           </Demo>
           <Demo label={t.labelIcons}>

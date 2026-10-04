@@ -103,11 +103,26 @@ export function ParSearchPanel({
           >
             {reply.shortest.minBlocks === null
               ? t.noWinFound
-              : t.min(
+              : (reply.plain === null ? t.min : t.minGoals)(
                   reply.shortest.minBlocks,
                   `${reply.shortest.complete ? '' : '≥'}${String(reply.shortest.count)}`,
                 )}
           </p>
+          {/* Star goals (P2-21): the cheapest plain win (⭐ only), the trade-off the child sees. */}
+          {reply.plain !== null && (
+            <p
+              className="m-0 font-bold text-ink-soft"
+              data-testid="par-search-plain"
+              data-min={reply.plain.minBlocks ?? ''}
+            >
+              {reply.plain.minBlocks === null
+                ? t.noPlainWin
+                : t.plainWin(
+                    reply.plain.minBlocks,
+                    `${reply.plain.complete ? '' : '≥'}${String(reply.plain.count)}`,
+                  )}
+            </p>
+          )}
           {reply.fixes !== null && (
             <p
               className="m-0 font-bold"

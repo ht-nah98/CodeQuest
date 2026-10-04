@@ -41,6 +41,7 @@ describe('voice ids (content-model.md §2 examples)', () => {
   it('match the documented patterns', () => {
     expect(levelVoiceId('w01-l03', 'objective')).toBe('w01-l03.objective');
     expect(levelVoiceId('w01-l03', 'thinking')).toBe('w01-l03.thinking');
+    expect(levelVoiceId('w03-l11', 'mission')).toBe('w03-l11.mission');
     expect(hintVoiceId('w01-l03', 'jump-new')).toBe('w01-l03.hint.jump-new');
     expect(lessonCardVoiceId('w01-lesson', 0)).toBe('w01-lesson.c1');
     expect(lessonCardVoiceId('w01-lesson', 5, true)).toBe('w01-lesson.c6.explain');

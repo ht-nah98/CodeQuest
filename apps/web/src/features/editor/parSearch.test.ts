@@ -46,6 +46,27 @@ describe('par search of the level editor', () => {
     ]);
   });
 
+  it('star goals (P2-21): par counts goal-meeting wins, the plain win is shown beside it', () => {
+    // 7 cells, bamboo on cell 5: three jumps win without it, collecting needs a fourth block.
+    const draft = level({
+      par: 4,
+      config: {
+        cells: ['ground', 'ground', 'ground', 'ground', 'ground', 'ground', 'flag'],
+        start: 0,
+        bamboo: [5],
+      },
+      starGoals: [{ kind: 'collectAll' }],
+    });
+    const reply = searchPar(draft);
+    if (!reply.ok) throw new Error(reply.message);
+    expect(reply.shortest.minBlocks).toBe(4);
+    expect(reply.plain?.minBlocks).toBe(3);
+    const noGoals = searchPar({ ...draft, starGoals: undefined });
+    if (!noGoals.ok) throw new Error(noGoals.message);
+    expect(noGoals.plain).toBeNull();
+    expect(searchKey(draft)).not.toBe(searchKey({ ...draft, starGoals: undefined }));
+  });
+
   it('is an error only when a complete search finds no win', () => {
     // Without "nhảy" the hole cannot be crossed.
     const reply = searchPar(level({ par: 3, toolbox: ['runner_walk'] }));
@@ -171,6 +192,7 @@ describe('par search of the level editor', () => {
         mismatches: [],
         unsupported: [],
       },
+      plain: null,
     };
     expect(parAdvice({ mode: 'bughunt', parEdits: 1 }, reply)).toContainEqual({
       tone: 'error',

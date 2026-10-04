@@ -1,8 +1,10 @@
 import type { ReactNode } from 'react';
+import type { GoalSprite } from '@codequest/content-schema';
 import type { MazeCell, MazeConfig, RunnerCell } from '@codequest/games';
 import sheetJson from 'virtual:panda-sheet';
 import { BLOCK_COLORS, UI_COLORS } from '../ui/tokens';
 import { shade } from './colors';
+import { type GoalArt, goalArt, goalRuns } from './goalArt';
 
 // SVG pieces shared by the static pictures of a level (stage-rendering.md §4): the predict
 // answer cards (AnswerPicture), the runner's full-track strip (TrackStrip) and the big
@@ -55,6 +57,61 @@ export function SvgPanda({
   );
 }
 
+/** Rects of each goal picture, made once (the pictures never change). */
+const GOAL_RECTS = new Map<GoalArt, ReactNode[]>();
+
+function goalRects(art: GoalArt): ReactNode[] {
+  let rects = GOAL_RECTS.get(art);
+  if (rects === undefined) {
+    rects = goalRuns(art).map((run) => (
+      <rect
+        key={`${String(run.x)},${String(run.y)}`}
+        x={run.x}
+        y={run.y}
+        width={run.w}
+        height={1}
+        fill={run.color}
+      />
+    ));
+    GOAL_RECTS.set(art, rects);
+  }
+  return rects;
+}
+
+/**
+ * The goal picture of `goalSprite` (P2-11c, stages/goalArt.ts) in a `size` square at (x, y):
+ * the same pixel art as the PixiJS stage. `null` for the default flag (callers draw their own).
+ */
+export function GoalSvg({
+  sprite,
+  x,
+  y,
+  size,
+}: {
+  sprite: GoalSprite | undefined;
+  x: number;
+  y: number;
+  size: number;
+}) {
+  const art = goalArt(sprite);
+  if (art === null) return null;
+  const n = art.rows.length;
+  return (
+    <svg
+      x={x}
+      y={y}
+      width={size}
+      height={size}
+      viewBox={`0 0 ${String(n)} ${String(n)}`}
+      shapeRendering="crispEdges"
+      data-mark="goal"
+      data-goal-sprite={sprite}
+    >
+      {goalRects(art)}
+    </svg>
+  );
+}
+
 // ---- Runner: one lane of cells -----------------------------------------------------------------
 
 /** Width of one runner cell in picture units. */
@@ -72,11 +129,14 @@ export function TrackCells({
   cells,
   bamboo,
   seam = 1.5,
+  goalSprite,
 }: {
   cells: readonly RunnerCell[];
   bamboo: readonly number[];
   /** Width of the line between two ground cells (thicker where cells are drawn small). */
   seam?: number;
+  /** `level.goalSprite` (P2-11c): drawn on the flag cell instead of the flag. */
+  goalSprite?: GoalSprite | undefined;
 }) {
   const C = TRACK_CELL;
   const SKY = TRACK_SKY;
@@ -158,7 +218,12 @@ export function TrackCells({
         />,
       );
     }
-    if (kind === 'flag') {
+    if (kind === 'flag' && goalArt(goalSprite) !== null) {
+      // On the grass, a little right of the cell's centre like the stage (Măng stands in front).
+      items.push(
+        <GoalSvg key="goal" sprite={goalSprite} x={x + C * 0.18} y={SKY + 1 - C} size={C} />,
+      );
+    } else if (kind === 'flag') {
       items.push(
         <image
           key="pole"
@@ -252,9 +317,12 @@ export function MazeArrow({
 export function MazeBoard({
   config,
   bamboo,
+  goalSprite,
 }: {
   config: MazeConfig;
   bamboo?: readonly MazeCell[];
+  /** `level.goalSprite` (P2-11c): drawn on the goal cell instead of the flag. */
+  goalSprite?: GoalSprite | undefined;
 }) {
   const M = MAZE_CELL;
   const { map } = config;
@@ -306,7 +374,10 @@ export function MazeBoard({
   return (
     <>
       {cells}
-      {goal && (
+      {goal && goalArt(goalSprite) !== null && (
+        <GoalSvg sprite={goalSprite} x={goal[1] * M + 0.5} y={goal[0] * M + 0.5} size={M - 1} />
+      )}
+      {goal && goalArt(goalSprite) === null && (
         <image
           href={tile('flag_1')}
           x={goal[1] * M + 1}

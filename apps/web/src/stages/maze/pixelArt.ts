@@ -153,8 +153,14 @@ export interface PixelImage {
   data: Uint8Array;
 }
 
-/** Turns a pattern into RGBA texels; throws on ragged rows or unknown characters. */
-export function patternPixels(pattern: readonly string[]): PixelImage {
+/**
+ * Turns a pattern into RGBA texels (colours from `palette`, the maze's by default); throws on
+ * ragged rows or unknown characters.
+ */
+export function patternPixels(
+  pattern: readonly string[],
+  palette: Readonly<Record<string, string>> = PALETTE,
+): PixelImage {
   const height = pattern.length;
   const width = pattern[0]?.length ?? 0;
   const data = new Uint8Array(width * height * 4);
@@ -164,7 +170,7 @@ export function patternPixels(pattern: readonly string[]): PixelImage {
     for (let x = 0; x < width; x++) {
       const char = row.charAt(x);
       if (char === '.') continue;
-      const hex = PALETTE[char];
+      const hex = palette[char];
       if (hex === undefined) throw new Error(`unknown pattern colour "${char}"`);
       const value = Number.parseInt(hex.slice(1), 16);
       const i = (y * width + x) * 4;

@@ -11,4 +11,10 @@ describe('planSourceFor', () => {
     expect(planSourceFor('runner', { cells: [] })).toBeNull();
     expect(planSourceFor('maze', { cells: ['ground'], start: 0 })).toBeNull();
   });
+
+  it('carries the level goal picture (P2-11c), none by default', () => {
+    const config = { map: ['S.G', '...', '...'], startDir: 'E' };
+    expect(planSourceFor('maze', config, 'exit')?.goalSprite).toBe('exit');
+    expect(planSourceFor('maze', config)).not.toHaveProperty('goalSprite');
+  });
 });

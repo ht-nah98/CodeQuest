@@ -2,11 +2,15 @@ import { type ReactNode, useState } from 'react';
 import {
   type Condition,
   ConditionSchema,
+  GOAL_SPRITES,
+  type GoalSprite,
   type HintRule,
   type Level,
   type LevelMode,
   type LevelStage,
   LEVEL_STAGES,
+  STAR_GOAL_KINDS,
+  type StarGoalKind,
 } from '@codequest/content-schema';
 import type { RuleIssue } from '@codequest/validator';
 import {
@@ -54,7 +58,8 @@ export function LevelForm(props: LevelFormProps) {
     onChange(next as unknown as Level);
   };
   const text = (
-    key: 'id' | 'title' | 'objective' | 'learningGoal' | 'misconception' | 'thinkingHint',
+    key:
+      'id' | 'title' | 'objective' | 'learningGoal' | 'misconception' | 'thinkingHint' | 'mission',
   ) => (
     <input
       name={key}
@@ -69,6 +74,7 @@ export function LevelForm(props: LevelFormProps) {
     />
   );
   const words = (value: string | undefined, max: number) => t.words(countWords(value ?? ''), max);
+  const goalKinds = new Set<StarGoalKind>(level.starGoals?.map((goal) => goal.kind));
 
   return (
     <>
@@ -155,6 +161,34 @@ export function LevelForm(props: LevelFormProps) {
         <Field label={t.fields.learningGoal} issues={issues.get('learningGoal')}>
           {text('learningGoal')}
         </Field>
+        {/* Story line and goal picture (P2-11c): decoration only, never the rules. */}
+        <div className="grid grid-cols-[2fr_1fr] gap-3">
+          <Field
+            label={t.fields.mission}
+            note={words(level.mission, MAX_TEXT_WORDS)}
+            issues={issues.get('mission')}
+          >
+            {text('mission')}
+          </Field>
+          <Field label={t.fields.goalSprite} issues={issues.get('goalSprite')}>
+            <select
+              name="goalSprite"
+              value={level.goalSprite ?? ''}
+              onChange={(event) => {
+                const value = event.target.value;
+                set('goalSprite', value === '' ? undefined : (value as GoalSprite));
+              }}
+              className={INPUT_CLASS}
+            >
+              <option value="">{t.goalSprites.none}</option>
+              {GOAL_SPRITES.map((sprite) => (
+                <option key={sprite} value={sprite}>
+                  {t.goalSprites[sprite]}
+                </option>
+              ))}
+            </select>
+          </Field>
+        </div>
         <div className="grid grid-cols-2 gap-3">
           <Field label={t.fields.misconception} issues={issues.get('misconception')}>
             {text('misconception')}
@@ -204,6 +238,34 @@ export function LevelForm(props: LevelFormProps) {
             </Field>
           )}
         </div>
+        {modeUses(level.mode, 'starGoals') && (
+          <fieldset className="m-0 grid gap-1 border-0 p-0">
+            <legend className="flex w-full flex-wrap items-baseline justify-between gap-x-2 p-0 font-display font-bold">
+              {t.fields.starGoals}
+              <span className="font-pixel text-pixel-sm font-normal text-ink-soft">
+                {t.starGoalsHelp}
+              </span>
+            </legend>
+            <div className="flex flex-wrap gap-x-5 gap-y-2">
+              {STAR_GOAL_KINDS.map((kind) => (
+                <label key={kind} className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    name={`starGoal-${kind}`}
+                    checked={goalKinds.has(kind)}
+                    onChange={(event) => {
+                      set('starGoals', toggleStarGoal(level.starGoals, kind, event.target.checked));
+                    }}
+                    className="size-5 accent-brand-deep"
+                  />
+                  <span className="font-display font-bold">{t.starGoalKinds[kind]}</span>
+                  <span className="font-mono text-small text-ink-soft">{kind}</span>
+                </label>
+              ))}
+            </div>
+            <FieldIssues issues={issues.get('starGoals')} testId="issues-starGoals" />
+          </fieldset>
+        )}
         <FieldIssues issues={issues.get('other')} testId="issues-other" />
       </Section>
 
@@ -220,6 +282,19 @@ export function LevelForm(props: LevelFormProps) {
       <HintList level={level} issues={issues.get('hints')} onChange={onChange} />
     </>
   );
+}
+
+/** The goals with `kind` ticked or not, in STAR_GOAL_KINDS order; none ticked = no field. */
+function toggleStarGoal(
+  goals: Level['starGoals'],
+  kind: StarGoalKind,
+  on: boolean,
+): Level['starGoals'] {
+  const kinds = new Set((goals ?? []).map((goal) => goal.kind));
+  if (on) kinds.add(kind);
+  else kinds.delete(kind);
+  const next = STAR_GOAL_KINDS.filter((k) => kinds.has(k)).map((k) => ({ kind: k }));
+  return next.length > 0 ? next : undefined;
 }
 
 function ToolboxPicker({
