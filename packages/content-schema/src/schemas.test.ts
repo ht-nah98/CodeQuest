@@ -148,6 +148,9 @@ describe('HintRuleSchema', () => {
       priority: 2,
     });
   });
+  it('accepts the "Từng bước" button as a target (P2-11 T10)', () => {
+    expectValid(HintRuleSchema, { id: 'h', when: {}, say: 'Bấm Từng bước', point: 'step' });
+  });
   it.each([
     ['unknown condition key', { id: 'h', when: { hasBlock: 'x' }, say: 'x' }],
     ['bad target', { id: 'h', when: {}, say: 'x', point: 'workspace' }],
@@ -162,6 +165,11 @@ describe('HintRuleSchema', () => {
 describe('LevelSchema', () => {
   it('accepts the example level of content-model.md §4', () => {
     expectValid(LevelSchema, buildLevel);
+  });
+  it('accepts maxLoopDepth ≥ 1 and rejects 0 or a fraction (P2-11 T16b)', () => {
+    expectValid(LevelSchema, { ...buildLevel, maxLoopDepth: 1 });
+    expectInvalid(LevelSchema, { ...buildLevel, maxLoopDepth: 0 });
+    expectInvalid(LevelSchema, { ...buildLevel, maxLoopDepth: 1.5 });
   });
   it('accepts a predict level without solution', () => {
     expectValid(LevelSchema, {

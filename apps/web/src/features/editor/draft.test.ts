@@ -156,6 +156,7 @@ describe('modes, toolbox and export', () => {
       'runner_crouch',
       'runner_kick',
       'runner_is_ahead',
+      'runner_at_goal',
       'cq_repeat',
     ]);
     let level: Level = {

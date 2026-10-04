@@ -1,9 +1,17 @@
 /**
- * Fast replay of straight-line programs on a game kind's real simulation (createState,
- * createApi, evaluate), with every reached state interned and every (state, block) step
- * memoized. What each block calls is recorded once by compiling and running it with the real
- * engine, so the generators stay the single source of truth. Results that matter are always
- * re-checked with `runLevel` (shortest.ts, fixes.ts), which also applies maxSteps / maxActions.
+ * Fast replay of programs on a game kind's real simulation (createState, createApi, evaluate),
+ * with every reached state interned and every (state, block) step memoized. What each block
+ * calls is recorded once by compiling and running it with the real engine, so the generators
+ * stay the single source of truth. Results that matter are always re-checked with `runLevel`
+ * (shortest.ts, fixes.ts), which also applies maxSteps / maxActions.
+ *
+ * Conditions (P2-11, ADR-0018): a sensor block is recorded the same way (its one API call,
+ * inside a `cq_if`), and its answer is computed by calling the real API on a copy of the state,
+ * memoized per (state, sensor). So `cq_if`, `cq_if_else` and `cq_repeat_until` are interpreted
+ * per map: each map takes its own branch. A `cq_repeat_until` whose state comes back to a state
+ * it already asked from never stops (the engine ends it with TIMEOUT), and one that runs more
+ * passes than `maxActions` would time out too (each question is a `sense` action): both lose.
+ * An empty condition slot loses (the engine refuses it: EMPTY_CONDITION).
  *
  * A level with `starGoals` (P2-21) only counts a win that meets every goal on its map: a win
  * that misses one is a loss here, so the shortest "win" is the par under goals. Search the
@@ -14,9 +22,11 @@
  * of the per-map states, a program wins when it wins every map and loses as soon as one map is
  * lost. A level with one map uses its map's states directly (no tuple layer).
  *
- * Assumptions (game-kind-sdk.md §"Vét cạn"), enforced where possible:
+ * Assumptions (game-kind-sdk.md §4), enforced where possible:
  * - a statement block's API calls depend only on the block (its fields), never on sensor
  *   results: a statement block whose code calls a value block's API is unsupported;
+ * - a sensor block makes exactly one API call, which returns a boolean and does not change the
+ *   state (else the level is unsearchable);
  * - the state after a call does not depend on the block id (checked by recording each block
  *   under two ids); ids may only go into events;
  * - the API never uses `ctx.rng` (randomness only in `createState`): a call to it throws
@@ -26,7 +36,12 @@
  */
 import type { Level, ToolboxEntry } from '@codequest/content-schema';
 import {
+  COND_INPUT,
+  CQ_IF,
+  CQ_IF_ELSE,
   CQ_REPEAT,
+  CQ_REPEAT_UNTIL,
+  DEFAULT_MAX_ACTIONS,
   fnv1a,
   mulberry32,
   runLevel,
@@ -38,7 +53,7 @@ import {
 } from '@codequest/engine';
 import type { GameEvent } from '@codequest/engine';
 import { SearchAborted } from './budget';
-import { programToWorkspace, type Program, type Statement } from './program';
+import { programToWorkspace, type Condition, type Program, type Statement } from './program';
 
 /** Step outcome: a state id (≥ 0) while the program runs, or one of these. */
 export const WIN = -1;
@@ -57,18 +72,43 @@ const UNKNOWN = -3;
 const WIN_STATE = Symbol('win');
 const LOSS_STATE = Symbol('loss');
 
-/** A program with atoms as indices into `FastSim.atoms`. */
-export type Code = ReadonlyArray<number | RepeatCode>;
+/** Condition index of an empty slot in compiled code. */
+export const EMPTY_SLOT = -1;
+
+/** A program with atoms and sensors as indices into `FastSim.atoms` / `FastSim.conds`. */
+export type Code = readonly CodeItem[];
+export type CodeItem = number | RepeatCode | IfCode | UntilCode;
 export interface RepeatCode {
   times: number;
   body: Code;
 }
+/** `cq_if` (`else` null) or `cq_if_else` (`else` a list, maybe empty). */
+export interface IfCode {
+  cond: number;
+  then: Code;
+  else: Code | null;
+}
+export interface UntilCode {
+  until: number;
+  body: Code;
+}
+
+/** Control blocks the search builds programs from (when the toolbox offers them). */
+export const CONTROL_TYPES: readonly string[] = [CQ_REPEAT, CQ_IF, CQ_IF_ELSE, CQ_REPEAT_UNTIL];
 
 /** A toolbox block a program can use as a plain statement. */
 export interface Atom {
   statement: Statement & { block: string };
   calls: ReadonlyArray<{ name: string; args: Primitive[] }>;
   /** False for blocks that only appear in `initialWorkspace` (bughunt): keep or delete only. */
+  inToolbox: boolean;
+}
+
+/** A toolbox sensor block (with its field values) a condition slot can hold. */
+export interface Cond {
+  condition: Condition;
+  call: { name: string; args: Primitive[] };
+  /** False for sensors that only appear in `initialWorkspace` (bughunt): keep or delete only. */
   inToolbox: boolean;
 }
 
@@ -102,20 +142,19 @@ export function stateKey(value: unknown): string {
   return value === undefined ? 'u' : JSON.stringify(value);
 }
 
-/** Why a toolbox entry cannot be searched, or null when it is a plain statement block. */
+/** Why a toolbox entry cannot be searched as a statement, or null when it is a plain one. */
 function unsupportedReason(kind: AnyGameKindDefinition, type: string): string | null {
   const spec = kind.blocks.find((block) => block.type === type);
   if (spec === undefined) return 'not a block of this game kind';
-  if (spec.json.output !== undefined) return 'value block (needs a condition block)';
   const inputs = (spec.json.args0 ?? []).filter((arg) => String(arg['type']).startsWith('input_'));
   if (inputs.some((arg) => arg['type'] !== 'input_dummy')) return 'has inputs';
   return null;
 }
 
 /**
- * Field values to try for a statement block: the toolbox entry's own fields, plus every
- * option of each `field_dropdown` the entry leaves open (one atom per combination). Other
- * open fields keep their Blockly default.
+ * Field values to try for a block: the toolbox entry's own fields, plus every option of each
+ * `field_dropdown` the entry leaves open (one atom or sensor per combination). Other open
+ * fields keep their Blockly default.
  */
 function dropdownChoices(
   kind: AnyGameKindDefinition,
@@ -141,18 +180,42 @@ function dropdownChoices(
   return choices;
 }
 
+/**
+ * Whether compiled code has an empty condition slot anywhere, reached or not: `runLevel` then
+ * refuses the whole program (EMPTY_CONDITION), so it can never win.
+ */
+export function hasEmptySlot(code: Code): boolean {
+  return code.some((item) => {
+    if (typeof item === 'number') return false;
+    if ('times' in item) return hasEmptySlot(item.body);
+    if ('until' in item) return item.until === EMPTY_SLOT || hasEmptySlot(item.body);
+    return item.cond === EMPTY_SLOT || hasEmptySlot(item.then) || hasEmptySlot(item.else ?? []);
+  });
+}
+
+/** Whether a compiled statement is a control block (not a plain atom). */
+export function isCompound(item: CodeItem): item is RepeatCode | IfCode | UntilCode {
+  return typeof item !== 'number';
+}
+
 export class FastSim {
   readonly kind: AnyGameKindDefinition;
   readonly level: Level;
   /** Searchable toolbox blocks, in toolbox order. */
   readonly atoms: Atom[] = [];
+  /** Searchable sensor blocks (one per dropdown choice), in toolbox order. */
+  readonly conds: Cond[] = [];
   /** Toolbox entries the search cannot use, with the reason. */
   readonly unsupported: string[] = [];
+  /** Control blocks the toolbox offers (`cq_repeat`, `cq_if`, `cq_if_else`, `cq_repeat_until`). */
+  readonly controls: ReadonlySet<string>;
   /** Whether the toolbox offers `cq_repeat`. */
   readonly hasRepeat: boolean;
   readonly initial: number;
   /** Atom steps computed so far (each one runs the real API once). */
   steps = 0;
+  /** Passes after which a `cq_repeat_until` counts as never stopping (its questions alone time out). */
+  readonly untilCap: number;
 
   /** One per map: `config`, then each variant. */
   private readonly maps: MapSim[];
@@ -168,9 +231,12 @@ export class FastSim {
     extraBlocks: readonly Statement[] = [],
     /** Cap on tuple states (tests lower it). */
     private readonly maxTupleStates = MAX_TUPLE_STATES,
+    /** Sensors of `initialWorkspace` (bughunt) that the toolbox may not offer. */
+    extraConditions: readonly Condition[] = [],
   ) {
     this.kind = kind;
     this.level = level;
+    this.untilCap = level.limits?.maxActions ?? DEFAULT_MAX_ACTIONS;
     this.maps = [level.config, ...(level.variants ?? [])].map(
       (config) => new MapSim(this, { ...level, config }, kind.configSchema.parse(config)),
     );
@@ -179,17 +245,26 @@ export class FastSim {
         ? this.firstMap.initial
         : this.internTuple(Int32Array.from(this.maps, (map) => map.initial));
 
-    let hasRepeat = false;
+    const controls = new Set<string>();
     const seen = new Set<string>();
-    const entries: Array<[ToolboxEntry | Statement, boolean]> = [
-      ...level.toolbox.map((entry): [ToolboxEntry, boolean] => [entry, true]),
-      ...extraBlocks.map((entry): [Statement, boolean] => [entry, false]),
+    const entries: Array<[ToolboxEntry | Statement, boolean, boolean]> = [
+      ...level.toolbox.map((entry): [ToolboxEntry, boolean, boolean] => [entry, true, false]),
+      ...extraBlocks.map((entry): [Statement, boolean, boolean] => [entry, false, false]),
+      ...extraConditions.map((entry): [Statement, boolean, boolean] => [entry, false, true]),
     ];
-    for (const [entry, inToolbox] of entries) {
-      if (typeof entry !== 'string' && 'repeat' in entry) continue;
+    for (const [entry, inToolbox, asCondition] of entries) {
+      if (typeof entry !== 'string' && ('repeat' in entry || 'if' in entry || 'until' in entry)) {
+        continue;
+      }
       const type = typeof entry === 'string' ? entry : 'type' in entry ? entry.type : entry.block;
-      if (type === CQ_REPEAT) {
-        hasRepeat = true;
+      if (CONTROL_TYPES.includes(type)) {
+        if (inToolbox) controls.add(type);
+        continue;
+      }
+      const spec = kind.blocks.find((block) => block.type === type);
+      const given = typeof entry === 'string' ? undefined : entry.fields;
+      if (asCondition || spec?.json.output !== undefined) {
+        this.addConditions(type, given, inToolbox);
         continue;
       }
       const reason = unsupportedReason(kind, type);
@@ -197,7 +272,6 @@ export class FastSim {
         this.unsupported.push(`${type}: ${reason}`);
         continue;
       }
-      const given = typeof entry === 'string' ? undefined : entry.fields;
       for (const fields of dropdownChoices(kind, type, given)) {
         const statement = fields === undefined ? { block: type } : { block: type, fields };
         const key = stateKey(statement);
@@ -211,13 +285,46 @@ export class FastSim {
         }
       }
     }
-    this.hasRepeat = hasRepeat;
+    this.controls = controls;
+    this.hasRepeat = controls.has(CQ_REPEAT);
+  }
+
+  /** Records a sensor block for every open dropdown choice (duplicates are skipped). */
+  private addConditions(
+    type: string,
+    given: Readonly<Record<string, unknown>> | undefined,
+    inToolbox: boolean,
+  ): void {
+    const spec = this.kind.blocks.find((block) => block.type === type);
+    const inputs = (spec?.json.args0 ?? []).filter((arg) =>
+      String(arg['type']).startsWith('input_'),
+    );
+    if (spec === undefined || inputs.some((arg) => arg['type'] !== 'input_dummy')) {
+      const why = spec === undefined ? 'not a block of this game kind' : 'has inputs';
+      this.unsupported.push(`${type}: ${why}`);
+      return;
+    }
+    for (const fields of dropdownChoices(this.kind, type, given)) {
+      const condition = fields === undefined ? { block: type } : { block: type, fields };
+      if (this.condIndex(condition) !== -1) continue;
+      try {
+        this.conds.push({ condition, call: this.recordCondition(condition), inToolbox });
+      } catch (error) {
+        if (!(error instanceof UnsupportedBlock)) throw error;
+        this.unsupported.push(`${type}: ${error.message}`);
+      }
+    }
   }
 
   private get firstMap(): MapSim {
     const map = this.maps[0];
     if (map === undefined) throw new Error('a level has at least one map');
     return map;
+  }
+
+  /** Number of maps (`config` plus variants). */
+  get mapCount(): number {
+    return this.maps.length;
   }
 
   /** Distinct simulation states reached so far. */
@@ -229,6 +336,12 @@ export class FastSim {
   atomIndex(statement: Statement): number {
     const key = stateKey(statement);
     return this.atoms.findIndex((atom) => stateKey(atom.statement) === key);
+  }
+
+  /** Index of the sensor for a condition, or -1. */
+  condIndex(condition: Condition): number {
+    const key = stateKey(condition);
+    return this.conds.findIndex((cond) => stateKey(cond.condition) === key);
   }
 
   /** Outcome of running one atom from a state. */
@@ -260,14 +373,50 @@ export class FastSim {
     return result;
   }
 
-  /** Atom indices instead of block statements, or null if a block is not an atom. */
+  /** Bit i set: map i still runs in this state (not won yet). */
+  liveMask(state: number): number {
+    if (this.maps.length === 1) return state >= 0 ? 1 : 0;
+    const tuple = this.tuples[state] ?? new Int32Array();
+    let mask = 0;
+    tuple.forEach((sub, index) => {
+      if (sub >= 0) mask |= 1 << index;
+    });
+    return mask;
+  }
+
+  /** Bit i set: map i still runs and sensor `cond` answers ✔ there. */
+  trueMask(state: number, cond: number): number {
+    if (this.maps.length === 1) return state >= 0 && this.firstMap.test(state, cond) ? 1 : 0;
+    const tuple = this.tuples[state] ?? new Int32Array();
+    let mask = 0;
+    this.maps.forEach((map, index) => {
+      const sub = tuple[index] ?? LOSS;
+      if (sub >= 0 && map.test(sub, cond)) mask |= 1 << index;
+    });
+    return mask;
+  }
+
+  /** Atom indices and sensor indices instead of blocks, or null if a block is not searchable. */
   compile(program: Program): Code | null {
-    const out: Array<number | RepeatCode> = [];
+    const out: CodeItem[] = [];
     for (const statement of program) {
       if ('repeat' in statement) {
         const body = this.compile(statement.body);
         if (body === null) return null;
         out.push({ times: statement.repeat, body });
+      } else if ('if' in statement || 'until' in statement) {
+        const condition = 'if' in statement ? statement.if : statement.until;
+        const cond = condition === null ? EMPTY_SLOT : this.condIndex(condition);
+        if (cond === -1 && condition !== null) return null;
+        const body = this.compile('if' in statement ? statement.then : statement.body);
+        if (body === null) return null;
+        if ('until' in statement) {
+          out.push({ until: cond, body });
+          continue;
+        }
+        const otherwise = statement.else === undefined ? null : this.compile(statement.else);
+        if (statement.else !== undefined && otherwise === null) return null;
+        out.push({ cond, then: body, else: otherwise });
       } else {
         const atom = this.atomIndex(statement);
         if (atom === -1) return null;
@@ -277,23 +426,50 @@ export class FastSim {
     return out;
   }
 
-  /** Runs compiled code from a state (memoized per atom step only). */
+  /** Runs compiled code from a state on every map still running. */
   run(state: number, code: Code): number {
     let current = state;
     for (const item of code) {
       if (typeof item === 'number') {
         current = this.step(current, item);
-      } else {
+      } else if ('times' in item) {
         for (let i = 0; i < item.times && current >= 0; i++) current = this.run(current, item.body);
+      } else {
+        current = this.runMasked(current, [item], this.liveMask(current));
       }
       if (current < 0) return current;
     }
     return current;
   }
 
-  /** Whether compiled code of `size` blocks wins (empty code and code over maxBlocks lose). */
+  /**
+   * Runs compiled code only on the maps of `mask` (bit i = map i), leaving the others as they
+   * are: how one branch of a top-level `cq_if` acts on a multi-map state. LOSS as soon as one
+   * map is lost, WIN when every map is won.
+   */
+  runMasked(state: number, code: Code, mask: number): number {
+    if (this.maps.length === 1) return (mask & 1) === 0 ? state : this.firstMap.run(state, code);
+    const tuple = this.tuples[state] ?? new Int32Array();
+    const next = Int32Array.from(tuple);
+    let running = false;
+    for (const [index, map] of this.maps.entries()) {
+      const sub = tuple[index] ?? LOSS;
+      if (sub >= 0 && (mask & (1 << index)) !== 0) {
+        const result = map.run(sub, code);
+        if (result === LOSS) return LOSS;
+        next[index] = result;
+      }
+      if ((next[index] ?? LOSS) !== WIN) running = true;
+    }
+    return running ? this.internTuple(next) : WIN;
+  }
+
+  /**
+   * Whether compiled code of `size` blocks wins (empty code, code over maxBlocks and code with
+   * an empty condition slot anywhere lose: the engine refuses the latter before running).
+   */
   wins(code: Code, size: number): boolean {
-    if (code.length === 0) return false;
+    if (code.length === 0 || hasEmptySlot(code)) return false;
     if (this.level.maxBlocks !== undefined && size > this.level.maxBlocks) return false;
     const end = this.run(this.initial, code);
     return end === WIN || (end >= 0 && this.finish(end));
@@ -327,17 +503,15 @@ export class FastSim {
     return id;
   }
 
-  /** Runs atom `atom`'s calls from a state of one map (used by `MapSim`). */
-  compute(map: MapSim, state: unknown, atom: number): unknown {
-    this.steps++;
-    const calls = this.atoms[atom]?.calls ?? [];
-    const stop = (result: 'success' | 'crash' | 'incomplete', reasonCode?: string): never => {
-      throw new StopSignal(result, reasonCode ?? null);
-    };
-    const ctx: SimContext<unknown, GameEvent> = {
+  /** A sandbox context on a copy of `state` that turns rng use into `UnsearchableLevel`. */
+  private context(map: MapSim, state: unknown): SimContext<unknown, GameEvent> {
+    return {
       state: structuredClone(state),
       emit: () => undefined,
-      stop,
+      sense: (value) => value,
+      stop: (result: 'success' | 'crash' | 'incomplete', reasonCode?: string): never => {
+        throw new StopSignal(result, reasonCode ?? null);
+      },
       rng: () => {
         throw new UnsearchableLevel(
           `unsearchable: the ${this.kind.id} API uses ctx.rng, so runs cannot be replayed`,
@@ -345,6 +519,13 @@ export class FastSim {
       },
       level: map.level,
     };
+  }
+
+  /** Runs atom `atom`'s calls from a state of one map (used by `MapSim`). */
+  compute(map: MapSim, state: unknown, atom: number): unknown {
+    this.steps++;
+    const calls = this.atoms[atom]?.calls ?? [];
+    const ctx = this.context(map, state);
     try {
       const api = this.kind.createApi(ctx);
       for (const call of calls) {
@@ -358,6 +539,29 @@ export class FastSim {
       return won && this.meetsGoals(map, ctx.state) ? WIN_STATE : LOSS_STATE;
     }
     return ctx.state;
+  }
+
+  /** The answer of sensor `cond` in a state of one map (used by `MapSim`). */
+  answer(map: MapSim, state: unknown, cond: number): boolean {
+    const call = this.conds[cond]?.call;
+    if (call === undefined) throw new Error(`no sensor ${String(cond)}`);
+    const ctx = this.context(map, state);
+    let value: unknown;
+    try {
+      const fn = this.kind.createApi(ctx)[call.name];
+      if (fn === undefined) throw new UnsearchableLevel(`unsearchable: no API ${call.name}`);
+      value = fn(...call.args);
+    } catch (error) {
+      if (error instanceof UnsearchableLevel) throw error;
+      throw new UnsearchableLevel(`unsearchable: the sensor ${call.name} threw (${String(error)})`);
+    }
+    if (typeof value !== 'boolean') {
+      throw new UnsearchableLevel(`unsearchable: the sensor ${call.name} returned ${typeof value}`);
+    }
+    if (stateKey(ctx.state) !== stateKey(state)) {
+      throw new UnsearchableLevel(`unsearchable: the sensor ${call.name} changes the state`);
+    }
+    return value;
   }
 
   /** Whether a final state of one map meets every star goal (true without `starGoals`). */
@@ -380,15 +584,20 @@ export class FastSim {
     }
   }
 
+  /** API names of the kind's value (sensor) blocks. */
+  private sensorNames(): Set<string> {
+    return new Set(
+      this.kind.blocks.filter((spec) => spec.json.output !== undefined).flatMap((s) => s.apiNames),
+    );
+  }
+
   /**
    * The API calls one block makes, recorded by running it alone with the real engine under two
    * block ids. Throws `UnsupportedBlock` when it calls a sensor or its effect depends on the id.
    */
   private record(statement: Statement): Atom['calls'] {
-    const sensors = new Set(
-      this.kind.blocks.filter((spec) => spec.json.output !== undefined).flatMap((s) => s.apiNames),
-    );
-    const [first, second] = RECORD_IDS.map((id) => this.recordAs(statement, id, sensors));
+    const sensors = this.sensorNames();
+    const [first, second] = RECORD_IDS.map((id) => this.recordAs([statement], id, sensors));
     if (first === undefined || second === undefined) throw new UnsupportedBlock('not recorded');
     const names = (calls: Atom['calls']): string => calls.map((call) => call.name).join(',');
     if (names(first) !== names(second) || this.probe(first) !== this.probe(second)) {
@@ -397,25 +606,68 @@ export class FastSim {
     return first;
   }
 
-  private recordAs(statement: Statement, id: string, sensors: ReadonlySet<string>): Atom['calls'] {
+  /**
+   * The one API call of a sensor block, recorded inside a `cq_if` under two block ids. Throws
+   * `UnsupportedBlock` unless it makes exactly one call to a sensor API whose answer does not
+   * depend on the id.
+   */
+  private recordCondition(condition: Condition): Cond['call'] {
+    const sensors = this.sensorNames();
+    const calls = RECORD_IDS.map((id) =>
+      this.recordAs([{ if: condition, then: [] }], id, new Set(), COND_INPUT),
+    );
+    const [first, second] = calls.map((list) => list[0]);
+    if (calls.some((list) => list.length !== 1) || first === undefined || second === undefined) {
+      throw new UnsupportedBlock('a sensor must make exactly one API call');
+    }
+    if (!sensors.has(first.name) || first.name !== second.name) {
+      throw new UnsupportedBlock(`calls ${first.name}, which is not a sensor API`);
+    }
+    const index = this.conds.length;
+    const answers = [first, second].map((call) => {
+      this.conds.push({ condition, call, inToolbox: false });
+      try {
+        return this.answer(this.firstMap, this.firstMap.snapshot(this.firstMap.initial), index);
+      } finally {
+        this.conds.pop();
+      }
+    });
+    if (answers[0] !== answers[1]) throw new UnsupportedBlock('its answer depends on the block id');
+    return first;
+  }
+
+  /**
+   * Runs `program` once with a recording API and returns the calls made. The first block under
+   * `cq_start` (or, with `input`, the block in that input of it) gets the id `id`.
+   */
+  private recordAs(
+    program: Program,
+    id: string,
+    forbidden: ReadonlySet<string>,
+    input?: string,
+  ): Array<{ name: string; args: Primitive[] }> {
     const calls: Array<{ name: string; args: Primitive[] }> = [];
     const names = this.kind.blocks.flatMap((spec) => spec.apiNames);
     const recorder: GameKindApi = Object.fromEntries(
       names.map((name) => [
         name,
         (...args: Primitive[]) => {
-          if (sensors.has(name)) throw new Error(`calls the sensor ${name}`);
+          if (forbidden.has(name)) throw new Error(`calls the sensor ${name}`);
           calls.push({ name, args });
           return undefined;
         },
       ]),
     );
-    const workspace = programToWorkspace([statement]);
-    const start = workspace.blocks.blocks[0] as { next?: { block: { id: string } } };
-    if (start.next !== undefined) start.next.block.id = id;
+    const workspace = programToWorkspace(program);
+    type Json = { id: string; inputs?: Record<string, { block: Json }>; next?: { block: Json } };
+    const start = workspace.blocks.blocks[0] as Json;
+    const first = start.next?.block;
+    const target = input === undefined ? first : first?.inputs?.[input]?.block;
+    if (target !== undefined) target.id = id;
     // One map is enough to record the calls (variants would record them once per map).
     const level: Level = { ...this.level, mode: 'creative' };
     delete level.variants;
+    delete level.maxBlocks;
     const outcome = runLevel({
       kind: { ...this.kind, createApi: () => recorder },
       level,
@@ -431,14 +683,16 @@ export class FastSim {
 }
 
 /**
- * The states of one map, interned (ids count per map), with every (state, atom) step and every
- * final verdict memoized. The API calls themselves run in `FastSim.compute`.
+ * The states of one map, interned (ids count per map), with every (state, atom) step, every
+ * (state, sensor) answer and every final verdict memoized. The API calls themselves run in
+ * `FastSim.compute` / `FastSim.answer`.
  */
 class MapSim {
   readonly initial: number;
   private readonly snapshots: unknown[] = [];
   private readonly ids = new Map<string, number>();
   private readonly transitions: Int32Array[] = [];
+  private readonly answers: Int8Array[] = [];
   private readonly finals: Array<boolean | undefined> = [];
 
   constructor(
@@ -478,6 +732,50 @@ class MapSim {
     if (result === WIN_STATE) return WIN;
     if (result === LOSS_STATE) return LOSS;
     return this.intern(result);
+  }
+
+  /** The answer of sensor `cond` in a state (memoized). */
+  test(state: number, cond: number): boolean {
+    let row = this.answers[state];
+    if (row === undefined) {
+      row = new Int8Array(this.owner.conds.length).fill(-1);
+      this.answers[state] = row;
+    }
+    const known = row[cond] ?? -1;
+    if (known !== -1) return known === 1;
+    const value = this.owner.answer(this, this.snapshots[state], cond);
+    row[cond] = value ? 1 : 0;
+    return value;
+  }
+
+  /**
+   * Runs compiled code on this map: atoms through `step`, branches by the sensor's answer. A
+   * `cq_repeat_until` that asks again from a state it already asked from, or runs more than
+   * `untilCap` passes, never stops: LOSS (the engine's TIMEOUT). An empty slot is LOSS too.
+   */
+  run(state: number, code: Code): number {
+    let current = state;
+    for (const item of code) {
+      if (typeof item === 'number') {
+        current = this.step(current, item);
+      } else if ('times' in item) {
+        for (let i = 0; i < item.times && current >= 0; i++) current = this.run(current, item.body);
+      } else if ('then' in item) {
+        if (item.cond === EMPTY_SLOT) return LOSS;
+        if (this.test(current, item.cond)) current = this.run(current, item.then);
+        else if (item.else !== null) current = this.run(current, item.else);
+      } else {
+        if (item.until === EMPTY_SLOT) return LOSS;
+        const asked = new Set<number>();
+        while (current >= 0 && !this.test(current, item.until)) {
+          if (asked.has(current) || asked.size >= this.owner.untilCap) return LOSS;
+          asked.add(current);
+          current = this.run(current, item.body);
+        }
+      }
+      if (current < 0) return current;
+    }
+    return current;
   }
 
   finish(state: number): boolean {

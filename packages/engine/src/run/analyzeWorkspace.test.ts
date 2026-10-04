@@ -60,4 +60,23 @@ describe('analyzeWorkspace', () => {
   it('throws on a block type that is not registered', () => {
     expect(() => analyzeWorkspace(program([{ type: 'nope_block', id: 'x' }]))).toThrow();
   });
+
+  it('counts the question and both branches of cq_if_else (P2-11)', () => {
+    const analysis = analyzeWorkspace(
+      program([
+        {
+          type: 'cq_if_else',
+          id: 'if',
+          inputs: {
+            COND: { block: { type: 'line_at_goal', id: 'q' } },
+            DO: { block: step('a') },
+            ELSE: { block: { ...step('b'), next: { block: step('c') } } },
+          },
+        },
+      ]),
+    );
+    expect(analysis.programBlockIds).toEqual(['if', 'q', 'a', 'b', 'c']);
+    expect(analysis.blocksUsed).toBe(5);
+    expect(analysis.blockTypesUsed).toEqual({ cq_if_else: 1, line_at_goal: 1, line_step: 3 });
+  });
 });

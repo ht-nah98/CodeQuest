@@ -93,9 +93,11 @@ function run(config: MazeConfig, chain: object[]): RunOutcome<MazeEvent> {
   return runLevel({ kind: maze, level: level(config), workspace: program(chain) });
 }
 
-/** Game events without the engine's highlight events. */
+/** Game events without the engine's highlight and sense events. */
 function actions(outcome: RunOutcome<MazeEvent>): MazeEvent[] {
-  return outcome.events.filter((event): event is MazeEvent => event.type !== 'highlight');
+  return outcome.events.filter(
+    (event): event is MazeEvent => event.type !== 'highlight' && event.type !== 'sense',
+  );
 }
 
 const L_SOLUTION = [forward('f1'), forward('f2'), right('r1'), forward('f3'), forward('f4')];
@@ -482,6 +484,7 @@ describe('maze sensors', () => {
     const ctx: SimContext<MazeState, MazeEvent> = {
       state,
       emit: () => undefined,
+      sense: (value) => value,
       stop: () => {
         throw new Error('stop');
       },

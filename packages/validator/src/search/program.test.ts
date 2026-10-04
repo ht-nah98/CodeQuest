@@ -3,7 +3,9 @@ import { getGameKind } from '@codequest/games';
 import { describe, expect, it } from 'vitest';
 import {
   formatProgram,
+  programBlockTypes,
   programFromWorkspace,
+  programLoopDepth,
   programSize,
   programToWorkspace,
   type Program,
@@ -31,6 +33,41 @@ describe('programs', () => {
   it('formats without the kind prefix', () => {
     expect(formatProgram(program)).toBe('walk, repeat 3 [jump, repeat 2 [walk]], kick');
     expect(formatProgram([{ block: 'maze_turn_left', fields: { X: 1 } }])).toBe('turn_left(X=1)');
+  });
+
+  it('round-trips conditions and counts them like analyzeWorkspace (P2-11)', () => {
+    const hole = { block: 'runner_is_ahead', fields: { KIND: 'HOLE' } };
+    const conditional: Program = [
+      {
+        until: { block: 'runner_at_goal' },
+        body: [{ if: hole, then: [{ block: 'runner_jump' }], else: [{ block: 'runner_walk' }] }],
+      },
+      { if: hole, then: [{ repeat: 2, body: [{ block: 'runner_walk' }] }] },
+      { if: null, then: [], else: [] },
+    ];
+    const workspace = programToWorkspace(conditional);
+    expect(programFromWorkspace(workspace)).toEqual(conditional);
+    expect(programSize(conditional)).toBe(11);
+    const runner = getGameKind('runner');
+    if (runner === undefined) throw new Error('runner missing');
+    registerBlockSpecs(runner.blocks);
+    expect(analyzeWorkspace(workspace).blocksUsed).toBe(11);
+    expect(formatProgram(conditional)).toBe(
+      'until at_goal [if is_ahead(KIND=HOLE) [jump] else [walk]], ' +
+        'if is_ahead(KIND=HOLE) [repeat 2 [walk]], if ? [] else []',
+    );
+    expect(programLoopDepth(conditional)).toBe(1);
+    expect(programLoopDepth([{ until: null, body: conditional }])).toBe(2);
+    expect(Object.fromEntries(programBlockTypes(conditional))).toEqual({
+      cq_repeat_until: 1,
+      runner_at_goal: 1,
+      cq_if_else: 2,
+      runner_is_ahead: 2,
+      runner_jump: 1,
+      runner_walk: 2,
+      cq_if: 1,
+      cq_repeat: 1,
+    });
   });
 
   it('reads an empty program and rejects value inputs', () => {
@@ -76,12 +113,23 @@ describe('FastSim', () => {
     expect(sim.compile([{ block: 'runner_kick' }])).toBeNull();
   });
 
-  it('skips sensor blocks of the toolbox', async () => {
+  it('records sensor blocks of the toolbox as conditions, one per dropdown value', async () => {
     const level = { ...(await loadLevel('w01-l03')), toolbox: ['runner_walk', 'runner_is_ahead'] };
     const runner = getGameKind('runner');
     if (runner === undefined) throw new Error('runner missing');
-    expect(new FastSim(runner, level).unsupported).toEqual([
-      'runner_is_ahead: value block (needs a condition block)',
+    const sim = new FastSim(runner, level);
+    expect(sim.unsupported).toEqual([]);
+    expect(sim.conds.map((cond) => cond.condition.fields?.['KIND'])).toEqual([
+      'HOLE',
+      'BRANCH',
+      'CRATE',
+      'CLEAR',
+    ]);
+    expect(sim.conds.map((cond) => cond.call.name)).toEqual([
+      'isAhead',
+      'isAhead',
+      'isAhead',
+      'isAhead',
     ]);
   });
 });

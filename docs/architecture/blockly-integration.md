@@ -45,8 +45,8 @@ Tùy chọn `inject` chuẩn (viết bằng conditional spread vì `exactOptiona
 | blockStyle | Dùng cho | Màu |
 |---|---|---|
 | `move_blocks` | khối di chuyển của mọi kiểu game | `#3A7BD5` |
-| `loop_blocks` | `cq_repeat`, `controls_whileUntil` | `#D9730D` |
-| `logic_blocks` | `controls_if`, `logic_*` | `#8A5CD1` |
+| `loop_blocks` | `cq_repeat`, `cq_repeat_until` (`controls_whileUntil`) | `#D9730D` |
+| `logic_blocks` | `cq_if`, `cq_if_else` (`controls_if`), `logic_*` | `#8A5CD1` |
 | `sensor_blocks` | cảm biến (`*_is_ahead`, `*_is_path`…) | `#178A7E` |
 | `robot_blocks` | gắp, thả… | `#A0612B` |
 | `variable_blocks` | `variables_*`, `math_*` | `#D13F73` |
@@ -71,7 +71,9 @@ Tùy chọn `inject` chuẩn (viết bằng conditional spread vì `exactOptiona
 
 Vì vậy:
 - Truyền `maxBlocks: level.maxBlocks + 1` vào `inject` (+1 cho `cq_start`).
-- **Khối dùng trong màn có `maxBlocks` không được có shadow.** Lặp dùng khối riêng `cq_repeat` (số lần là `field_number` nằm trong khối), không dùng `controls_repeat_ext`. Khối điều kiện (`controls_if`, `controls_whileUntil`) nhận khối cảm biến thật (không phải shadow) nên vẫn dùng được.
+- **Khối dùng trong màn có `maxBlocks` không được có shadow.** Lặp dùng khối riêng `cq_repeat` (số lần là `field_number` nằm trong khối), không dùng `controls_repeat_ext`. Khối điều kiện `cq_if`, `cq_if_else`, `cq_repeat_until` nhận khối cảm biến thật (không phải shadow) ở input `COND`, nên mỗi câu hỏi là 1 khối, đúng như bé đếm.
+- **Khối điều kiện riêng thay cho `controls_if` / `controls_whileUntil` (P2-11, chốt 04/10/2026):** ba type `cq_if` ("nếu ◇ thì"), `cq_if_else` ("nếu ◇ thì … nếu không thì") và `cq_repeat_until` ("lặp đến khi ◇") trong `packages/engine/src/blocks/common.ts`, không có bánh răng (mutator). Lý do: (1) bé kéo thẳng từ thanh khối, không phải bấm bánh răng; (2) luật 7 của `content:check` (khối mới xuất hiện lần đầu) và `maxInstances` của Blockly làm việc theo **type**, nên "nếu" và "nếu … nếu không" là hai khối riêng thì đếm, giới thiệu, giới hạn riêng được (T1); (3) "lặp đến khi" không có dropdown WHILE/UNTIL để lỡ đổi; (4) không cần `extraState` trong `ToolboxEntrySchema`. Nhãn tiếng Việt viết thẳng trong `message0…3` như khối riêng khác (không qua `messages.ts`). Ô điều kiện trống → engine không chạy (`EMPTY_CONDITION`, `runtime-engine.md` §2).
+- **`maxLoopDepth`** (T16b): Blockly không có tùy chọn này. Web cần một bộ chặn thả khối (như `maxInstances`) dùng hàm thuần `loopDepth(workspaceJson)` của engine; **chưa làm** (task giao diện sau P2-11). `content:check` luật 20 đã kiểm `solution` / `initialWorkspace`.
 - `content:check` báo lỗi nếu màn có `maxBlocks` mà toolbox chứa khối có shadow.
 - Từ Thế giới 7 (biến, phép toán có shadow): viết **capacity guard** riêng trong `apps/web/src/blockly/capacity.ts` (đếm theo `analysis.blocksUsed`, chặn `BLOCK_CREATE` vượt mức) rồi mới dùng shadow trong màn có giới hạn. Việc này nằm trong roadmap GĐ 4.
 - Mọi chỗ hiển thị và chấm điểm dùng `analysis.blocksUsed` (không tính `cq_start`, không tính shadow).

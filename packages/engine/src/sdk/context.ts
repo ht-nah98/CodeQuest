@@ -7,6 +7,12 @@ export interface SimContext<S, E extends GameEvent> {
   state: S;
   /** Appends an event to the log and counts it towards `maxActions`. */
   emit(event: DistributiveOmit<E, 'blockId'>, blockId: string | null): void;
+  /**
+   * Every sensor API reports its answer through this (P2-11): the engine logs a `sense` event for
+   * the sensor block `blockId` (counted towards `maxActions`) and returns `value` unchanged, so a
+   * sensor ends with `return ctx.sense(answer, blockId)`.
+   */
+  sense(value: boolean, blockId: string | null): boolean;
   /** Ends the run immediately by throwing `StopSignal`. */
   stop(result: 'success'): never;
   stop(result: 'crash' | 'incomplete', reasonCode: ReasonCode): never;

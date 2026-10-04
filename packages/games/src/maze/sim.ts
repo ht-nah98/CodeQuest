@@ -70,10 +70,11 @@ export function createMazeApi(ctx: MazeContext): GameKindApi {
       ctx.state.dir = to;
       ctx.emit({ type: 'turn', from, to }, String(blockId));
     },
-    isPath: (dir) => {
+    isPath: (dir, blockId) => {
       const state = ctx.state;
-      return isOpen(state, neighbour(state.pos, rotate(state.dir, SENSE_TURNS[senseDir(dir)])));
+      const ahead = neighbour(state.pos, rotate(state.dir, SENSE_TURNS[senseDir(dir)]));
+      return ctx.sense(isOpen(state, ahead), String(blockId));
     },
-    atGoal: () => tileAt(ctx.state.map, ctx.state.pos) === 'G',
+    atGoal: (blockId) => ctx.sense(tileAt(ctx.state.map, ctx.state.pos) === 'G', String(blockId)),
   };
 }

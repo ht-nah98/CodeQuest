@@ -37,7 +37,8 @@ interface HintRule {
   once?: boolean;                   // mặc định true: hiện tối đa 1 lần mỗi phiên màn
   priority?: number;                // mặc định 0; số lớn thắng
 }
-type Target = `toolbox:${string}` | `block:${string}` | 'run' | 'capacity' | 'stage';
+type Target = `toolbox:${string}` | `block:${string}` | 'run' | 'capacity' | 'stage' | 'step';
+// 'step' (P2-11, T10): nút "Từng bước". Schema đã nhận; màn chơi chưa vẽ mũi tên cho nó (task giao diện).
 // toolbox:<type> = khối loại đó trong thanh khối · block:<type> = khối loại đó đầu tiên trong vùng ghép (dùng cho parsons/bughunt; ở predict/bughunt chương trình cho sẵn phải có đúng một khối loại đó, content:check luật 16)
 
 type Condition =

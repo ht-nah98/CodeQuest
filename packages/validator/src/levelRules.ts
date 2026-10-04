@@ -1,11 +1,14 @@
 /**
- * Per-level rules 5–6 (pedagogy), 12–16 (runnable modes and hints) and 19 (star goals) of
- * content-model.md §5. Rules 1–2 and 9–11 live in validateLevel.ts next to the solution run.
+ * Per-level rules 5–6 (pedagogy), 12–16 (runnable modes and hints), 19 (star goals) and 20
+ * (block limits) of content-model.md §5. Rules 1–2 and 9–11 live in validateLevel.ts next to
+ * the solution run.
  */
 import type { Condition, Level, StarGoalKind, WorkspaceJson } from '@codequest/content-schema';
 import {
+  blockTypeCounts,
   CQ_START,
   ENGINE_REASONS,
+  loopDepth,
   editDistance,
   fnv1a,
   mulberry32,
@@ -230,7 +233,11 @@ export function hintIssues(level: Level, kind: AnyGameKindDefinition): RuleIssue
       level.initialWorkspace !== undefined &&
       FIXED_PROGRAM_MODES.has(level.mode)
     ) {
-      const counts = countBlocksOfType(level.initialWorkspace, point.slice('block:'.length), CQ_START);
+      const counts = countBlocksOfType(
+        level.initialWorkspace,
+        point.slice('block:'.length),
+        CQ_START,
+      );
       const preferred = mentionsLooseBlocks(hint.when) ? counts.loose : counts.attached;
       const candidates = preferred > 0 ? preferred : counts.attached + counts.loose;
       if (candidates > 1) {
@@ -318,6 +325,41 @@ export function starGoalIssues(level: Level, kind: AnyGameKindDefinition): RuleI
           message: `solution wins but misses star goal "${goal.kind}"${where}`,
         });
       });
+    }
+  }
+  return issues;
+}
+
+/**
+ * Rule 20 (P2-11, curriculum.md §5.4 T16b): `solution` and `initialWorkspace` stay within the
+ * level's block limits, `maxLoopDepth` (loops nested inside loops, `loopDepth`) and
+ * `maxInstances` (blocks of one type, loose ones included, as Blockly counts them). Otherwise
+ * the child could never build the solution, or is handed a program the editor would refuse.
+ */
+export function limitIssues(level: Level): RuleIssue[] {
+  const issues: RuleIssue[] = [];
+  const workspaces: Array<[string, WorkspaceJson | undefined]> = [
+    ['solution', level.solution],
+    ['initialWorkspace', level.initialWorkspace],
+  ];
+  for (const [name, workspace] of workspaces) {
+    if (workspace === undefined) continue;
+    const depth = loopDepth(workspace);
+    if (level.maxLoopDepth !== undefined && depth > level.maxLoopDepth) {
+      issues.push({
+        rule: 20,
+        message: `${name} nests loops ${String(depth)} deep > maxLoopDepth ${String(level.maxLoopDepth)}`,
+      });
+    }
+    const counts = blockTypeCounts(workspace);
+    for (const [type, max] of Object.entries(level.maxInstances ?? {})) {
+      const used = counts.get(type) ?? 0;
+      if (used > max) {
+        issues.push({
+          rule: 20,
+          message: `${name} has ${String(used)} "${type}" > maxInstances ${String(max)}`,
+        });
+      }
     }
   }
   return issues;

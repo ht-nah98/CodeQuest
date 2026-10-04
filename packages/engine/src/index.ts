@@ -1,7 +1,7 @@
 // SDK: the contract every game kind implements (game-kind-sdk.md).
 export type { BlockCategory, BlocklyBlockJson, BlockSpec } from './sdk/blockSpec';
 export type { SimContext } from './sdk/context';
-export type { DistributiveOmit, GameEvent, HighlightEvent } from './sdk/events';
+export type { DistributiveOmit, GameEvent, HighlightEvent, SenseEvent } from './sdk/events';
 export type {
   AnyGameKindDefinition,
   GameKindApi,
@@ -11,7 +11,18 @@ export type {
 export type { MapOutcome, RunOutcome, RunStats } from './sdk/outcome';
 
 // Common blocks and registration (blockly-integration.md §1).
-export { COMMON_BLOCKS, CQ_REPEAT, CQ_REPEAT_MAX_TIMES, CQ_START } from './blocks/common';
+export {
+  COMMON_BLOCKS,
+  COND_INPUT,
+  CONDITION_BLOCK_TYPES,
+  CQ_IF,
+  CQ_IF_ELSE,
+  CQ_REPEAT,
+  CQ_REPEAT_MAX_TIMES,
+  CQ_REPEAT_UNTIL,
+  CQ_START,
+  LOOP_BLOCK_TYPES,
+} from './blocks/common';
 export { registerBlockSpecs } from './blocks/registerBlockSpecs';
 
 // Running a program (runtime-engine.md).
@@ -19,6 +30,7 @@ export { analyzeWorkspace } from './run/analyzeWorkspace';
 export type { WorkspaceAnalysis } from './run/analyzeWorkspace';
 export { compileProgram } from './run/compileProgram';
 export { editDistance } from './run/editDistance';
+export { blockTypeCounts, loopDepth } from './run/loopDepth';
 export { normalizeIds } from './run/normalizeIds';
 export { DEFAULT_MAX_ACTIONS, DEFAULT_MAX_STEPS, ENGINE_REASONS } from './run/limits';
 export type { EngineReason } from './run/limits';

@@ -7,6 +7,7 @@ export const DEFAULT_MAX_ACTIONS = 1_000;
 export const ENGINE_REASONS = [
   'EMPTY_PROGRAM',
   'TOO_MANY_BLOCKS',
+  'EMPTY_CONDITION',
   'TIMEOUT',
   'INTERNAL_ERROR',
 ] as const;

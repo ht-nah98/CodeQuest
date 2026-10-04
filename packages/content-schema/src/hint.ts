@@ -45,11 +45,14 @@ export const ConditionSchema: z.ZodType<Condition> = z.lazy(() =>
   ]),
 );
 
-/** Where Măng points: a toolbox block, a workspace block, the run button, capacity bar or stage. */
+/**
+ * Where Măng points: a toolbox block, a workspace block, the run button, the capacity bar, the
+ * stage, or the "Từng bước" button (`step`, P2-11 T10).
+ */
 export const HintTargetSchema = z.union([
   z.templateLiteral(['toolbox:', z.string().min(1)]),
   z.templateLiteral(['block:', z.string().min(1)]),
-  z.enum(['run', 'capacity', 'stage']),
+  z.enum(['run', 'capacity', 'stage', 'step']),
 ]);
 export type HintTarget = z.infer<typeof HintTargetSchema>;
 

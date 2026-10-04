@@ -21,7 +21,7 @@ export function runLevel<C, S, E extends GameEvent>(input: {
   seed?: number;                        // mặc định: hash(level.id)
 }): RunOutcome<E>;
 ```
-`runLevel` **đồng bộ**, **thuần** (không I/O), chạy được trên Node và trình duyệt. Lần đầu gặp một kiểu game, `runLevel` gọi `registerBlockSpecs(kind.blocks)` (idempotent) để định nghĩa khối + generator; khối chung `cq_start`, `cq_repeat` được engine tự đăng ký. Nhờ vậy test, tools và web không phải nhớ bước đăng ký.
+`runLevel` **đồng bộ**, **thuần** (không I/O), chạy được trên Node và trình duyệt. Lần đầu gặp một kiểu game, `runLevel` gọi `registerBlockSpecs(kind.blocks)` (idempotent) để định nghĩa khối + generator; khối chung `cq_start`, `cq_repeat`, `cq_if`, `cq_if_else`, `cq_repeat_until` được engine tự đăng ký. Nhờ vậy test, tools và web không phải nhớ bước đăng ký.
 
 ## 2. Phân tích workspace (`analyzeWorkspace`)
 Nạp JSON vào một `Blockly.Workspace` headless rồi trả về:
@@ -44,6 +44,8 @@ Quy tắc:
 - Chương trình rỗng (không có khối nào nối dưới `cq_start`, kể cả khi có định nghĩa hàm) → trả ngay `{ result: 'error', reasonCode: 'EMPTY_PROGRAM' }`, không chạy. Workspace không có `cq_start` cũng tính là rỗng. Nếu có hơn một `cq_start`, khối đầu tiên là chương trình, các khối còn lại tính là khối rời.
 - `DISCONNECTED_BLOCKS` **không** phải kết quả chạy. Nó là mã cho gợi ý (hint engine dùng `analysis.orphanBlockIds`).
 - `blocksUsed > level.maxBlocks` → không chạy, trả `{ result: 'error', reasonCode: 'TOO_MANY_BLOCKS' }`. Bình thường UI đã chặn việc này bằng tùy chọn `maxBlocks` của Blockly; đây là lớp bảo vệ thứ hai.
+- Một khối `cq_if` / `cq_if_else` / `cq_repeat_until` **trong chương trình** có ô điều kiện (`COND`) trống → không chạy, trả `{ result: 'error', reasonCode: 'EMPTY_CONDITION' }` (P2-11, ADR-0018). Blockly đọc ô trống là `false`, nên `lặp đến khi ◇` trống thành "lặp mãi" và thắng nhờ luật "chạm đích là thắng"; engine không đoán thay bé. Khối rời có ô trống không sao (không chạy).
+- `maxLoopDepth` và `maxInstances` **không** được `runLevel` kiểm (Blockly chặn khi thả khối; `content:check` luật 20 kiểm lời giải). Hàm thuần `loopDepth(workspaceJson)` (số tầng vòng lặp lồng nhau, tính cả khối rời) và `blockTypeCounts(workspaceJson)` export từ engine cho validator, vét cạn và bộ chặn thả khối của web.
 
 ## 3. Biên dịch (`compileProgram`)
 - Dùng generator riêng của engine (xem các gạch đầu dòng dưới), chỉ sinh code từ `cq_start` trở xuống và từ các định nghĩa hàm ở gốc (không dùng `workspaceToCode`, vì hàm đó sinh cả khối rời). Trình tự bắt buộc (đã chạy thử):
@@ -59,7 +61,8 @@ Quy tắc:
 - Generator riêng còn: (1) dùng **danh sách reserved words cố định** (từ khóa JS + biến toàn cục của js-interpreter + `__hl`) thay cho mặc định của Blockly (mặc định thêm mọi biến toàn cục của môi trường chạy, nên Node và trình duyệt sinh code khác nhau); (2) **dựng lại `nameDB_` mỗi lần `init`**, vì `Names.reset()` của Blockly 13.3.0 không đọc lại reserved words, nên tên API đăng ký sau lần biên dịch đầu sẽ không được giữ chỗ.
 - Generator của khối kiểu game gọi API theo mẫu `walk(<id>);`, trong đó **id luôn được quote bằng `gen.quote_(block.id)`** (`gen` là generator được truyền vào). Không ghép chuỗi `'${id}'` bằng tay: block id của Blockly có thể chứa ký tự đặc biệt.
 - Tên API của các kiểu game phải được thêm vào `addReservedWords`, để biến của bé không trùng tên. `registerBlockSpecs` tự làm việc này từ `BlockSpec.apiNames`; vd khi kiểu game có API `walk`, biến tên `walk` của bé được sinh thành `walk2` (có test, kể cả khi kiểu game được đăng ký sau lần biên dịch đầu).
-- Khối điều khiển: **lặp dùng khối riêng `cq_repeat`** (số lần là field trong khối, không có shadow, xem `blockly-integration.md` §5). Các khối khác dùng khối có sẵn của Blockly (`controls_if`, `controls_whileUntil`, `logic_*`, `variables_*`, `procedures_*`), đổi màu bằng theme. Generator của `cq_repeat` lấy tên biến đếm bằng `gen.nameDB_.getDistinctName('count', Blockly.Names.NameType.VARIABLE)`.
+- Khối điều khiển: **lặp dùng khối riêng `cq_repeat`** (số lần là field trong khối, không có shadow, xem `blockly-integration.md` §5). Generator của `cq_repeat` lấy tên biến đếm bằng `gen.nameDB_.getDistinctName('count', Blockly.Names.NameType.VARIABLE)`.
+- **Khối điều kiện riêng** (P2-11): `cq_if` → `if (<cond>) {…}`, `cq_if_else` → `if (<cond>) {…} else {…}`, `cq_repeat_until` → `while (!<cond>) {…}` (có `addLoopTrap`, nên khối lặp được highlight lại cuối mỗi vòng như `cq_repeat`). `<cond>` là code của khối cảm biến cắm ở input `COND`. Ba khối có `STATEMENT_PREFIX` như mọi câu lệnh, nên mỗi lần chạy tới `nếu` hoặc mỗi vòng `lặp đến khi` đều có `highlight`. Các khối khác vẫn dùng khối có sẵn của Blockly (`logic_*`, `variables_*`, `procedures_*`), đổi màu bằng theme; `controls_if` / `controls_whileUntil` vẫn chạy được nhưng nội dung dùng `cq_*` (`blockly-integration.md` §5).
 
 Đã kiểm chứng ngày 01/10/2026: Blockly 13.3.0 + js-interpreter 6.0.2 chạy headless trên Node 22, sinh code có `STATEMENT_PREFIX` và gọi native function đúng thứ tự.
 
@@ -81,9 +84,11 @@ const interpreter = new Interpreter(code, (it, globalObj) => {
 | Giới hạn | Mặc định | Ghi đè | Khi vượt |
 |---|---|---|---|
 | `maxSteps` (bước interpreter) | 100 000 | `level.limits.maxSteps` | `timeout` / `TIMEOUT` |
-| `maxActions` (số GameEvent không phải highlight) | 1 000 | `level.limits.maxActions` | `timeout` / `TIMEOUT` |
+| `maxActions` (số GameEvent không phải highlight, **tính cả `sense`**) | 1 000 | `level.limits.maxActions` | `timeout` / `TIMEOUT` |
 
 Chương trình chạy đúng `maxSteps` bước mà chưa xong thì là `timeout` (`stats.steps = maxSteps`). Event thứ `maxActions + 1` không được ghi; log có đúng `maxActions` event hành động.
+
+**Vòng lặp không dừng** (P2-11, curriculum T14): `sense` được tính vào `maxActions` (quyết định ở ADR-0018). Vì vậy `lặp đến khi ◇ {}` (thân rỗng) dừng sau 1 000 câu hỏi (vài chục nghìn bước, trước `maxSteps`), log ngắn (≈ 1 000 `sense` + 1 000 `highlight`) thay vì hàng chục nghìn event; thân chỉ có `rẽ` dừng sau 500 vòng. Cả hai đường (`maxActions` hay `maxSteps`, cái nào tới trước) đều ra `timeout` / `TIMEOUT` **tất định** (test: hai lần chạy cùng event log). Câu phản hồi: khóa `TIMEOUT` của `feedback.json`; web chỉ phát lại phần đầu (`TIMEOUT_REPLAY_EVENTS`) rồi hoạt ảnh chóng mặt (phần giao diện, chưa làm).
 
 - **Dừng sớm:** khi mô phỏng gặp va chạm hoặc thắng giữa chừng, API gọi `ctx.stop(result, reasonCode)`. Hàm này ném `StopSignal` (một class riêng của engine). `runLevel` bắt `StopSignal` bên ngoài vòng `interpreter.step()`. Lỗi khác bị bắt → `result: 'error'`, `reasonCode: 'INTERNAL_ERROR'`, kèm thông tin để debug.
 - Chạy trên **main thread**. Màn thông thường mất < 20 ms. Nếu đo được > 50 ms thì chuyển sang Web Worker (làm được vì engine không đụng DOM).
@@ -94,12 +99,14 @@ Chương trình chạy đúng `maxSteps` bước mà chưa xong thì là `timeou
 interface SimContext<S, E extends GameEvent> {
   state: S;                                       // trạng thái có thể đổi của lượt chạy
   emit(event: DistributiveOmit<E, 'blockId'>, blockId: string | null): void;  // ghi vào log, tăng bộ đếm action
+  sense(value: boolean, blockId: string | null): boolean;  // cảm biến báo câu trả lời: ghi event `sense`, tăng bộ đếm action, trả lại value
   stop(result: 'success'): never;
   stop(result: 'crash' | 'incomplete', reasonCode: ReasonCode): never;
   rng: () => number;                              // [0,1), có seed (mulberry32)
   readonly level: Level;
 }
 ```
+**Cảm biến báo câu trả lời qua `ctx.sense`** (P2-11): API của khối giá trị (cảm biến) kết thúc bằng `return ctx.sense(answer, blockId)`. Engine ghi `{ type: 'sense', blockId, value }` (sau `highlight` của câu lệnh đang hỏi, vd khối `nếu`) và trả `value`. Event này thuộc engine (như `highlight`), không nằm trong union event của kiểu game: `Replay` (web) phải xử lý riêng như `highlight` (khối hỏi sáng ✔/✘, T7) và không đưa nó cho renderer. **Chưa làm ở web** (task giao diện sau P2-11a/b): hiện `Replay` đưa mọi event không phải `highlight` cho renderer, renderer runner/maze bỏ qua kiểu lạ.
 
 ## 6. Tất định (bắt buộc)
 - Trong **toàn bộ** `packages/games/src/**` và `packages/engine/src/**` (trừ file `*.test.ts`) **cấm** dùng `Math.random`, `Date`, `performance`, `setTimeout` (ESLint `no-restricted-properties` / `no-restricted-globals`).
@@ -113,7 +120,7 @@ type RunResult = 'success' | 'incomplete' | 'crash' | 'timeout' | 'error';
 interface RunOutcome<E extends GameEvent = GameEvent> {
   result: RunResult;
   reasonCode: ReasonCode | null;        // null khi success
-  events: ReadonlyArray<E | HighlightEvent>;
+  events: ReadonlyArray<E | HighlightEvent | SenseEvent>;   // SenseEvent = { type: 'sense', blockId, value: boolean } (P2-11)
   stats: { steps: number; actions: number; blocksUsed: number };
   answerKey?: string;                   // cho mode predict (xem §8)
   edits?: number;                       // cho mode bughunt (xem §8, §9)
@@ -132,9 +139,9 @@ type MapOutcome<E> = Pick<RunOutcome<E>, 'result' | 'reasonCode' | 'events' | 's
 | `incomplete` | Chương trình chạy hết nhưng `evaluate` báo chưa đạt, hoặc mô phỏng gọi `ctx.stop('incomplete', …)` (vd tới cờ khi còn măng) | `NOT_AT_GOAL`, `MISSED_ITEMS` |
 | `crash` | Mô phỏng dừng vì va chạm | `HIT_WALL`, `FELL_IN_HOLE`, `HIT_BRANCH`, `HIT_CRATE` |
 | `timeout` | Vượt `maxSteps` / `maxActions` | `TIMEOUT` |
-| `error` | Chương trình rỗng, quá số khối, lỗi nội bộ | `EMPTY_PROGRAM`, `TOO_MANY_BLOCKS`, `INTERNAL_ERROR` |
+| `error` | Chương trình rỗng, quá số khối, ô điều kiện trống, lỗi nội bộ | `EMPTY_PROGRAM`, `TOO_MANY_BLOCKS`, `EMPTY_CONDITION`, `INTERNAL_ERROR` |
 
-`ReasonCode` là `string` (khai báo trong `@codequest/content-schema/runtime`), không phải union đóng, vì engine không biết trước các kiểu game. Mã chung của engine là hằng số `ENGINE_REASONS = ['EMPTY_PROGRAM', 'TOO_MANY_BLOCKS', 'TIMEOUT', 'INTERNAL_ERROR']`; mã của kiểu game nằm trong `GameKindDefinition.reasonCodes`. **Nguồn duy nhất** của câu tiếng Việt là `content/shared/feedback.json`; `content:check` (luật 17) đảm bảo mọi mã đều có câu.
+`ReasonCode` là `string` (khai báo trong `@codequest/content-schema/runtime`), không phải union đóng, vì engine không biết trước các kiểu game. Mã chung của engine là hằng số `ENGINE_REASONS = ['EMPTY_PROGRAM', 'TOO_MANY_BLOCKS', 'EMPTY_CONDITION', 'TIMEOUT', 'INTERNAL_ERROR']`; mã của kiểu game nằm trong `GameKindDefinition.reasonCodes`. **Nguồn duy nhất** của câu tiếng Việt là `content/shared/feedback.json`; `content:check` (luật 17) đảm bảo mọi mã đều có câu.
 
 ### 7.1 Màn nhiều bản đồ (`variants`, P2-12, ADR-0016)
 - Bản đồ theo thứ tự: `config` (bản đồ 1), rồi từng phần tử của `level.variants`. Config nào không hợp `configSchema` thì cả lượt chạy là `error` / `INTERNAL_ERROR` (`debug`: `variants[i]: …`), không chạy gì.

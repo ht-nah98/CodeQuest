@@ -72,4 +72,49 @@ describe('editDistance (runtime-engine.md §9)', () => {
     const empty = { blocks: { languageVersion: 0 as const, blocks: [] } };
     expect(editDistance(empty, program([step('a'), jump('b')]))).toBe(2);
   });
+
+  describe('with cq_if_else and cq_repeat_until (P2-11, T13)', () => {
+    const sensor = (kind: string): object => ({
+      type: 'runner_is_ahead',
+      id: `s${kind}`,
+      fields: { KIND: kind },
+    });
+    const cqIfElse = (cond: object | null, then: object | null, otherwise: object | null) => ({
+      type: 'cq_if_else',
+      id: 'i',
+      inputs: {
+        ...(cond !== null && { COND: { block: cond } }),
+        ...(then !== null && { DO: { block: then } }),
+        ...(otherwise !== null && { ELSE: { block: otherwise } }),
+      },
+    });
+    const loop = (body: object): object => repeat(8, body);
+
+    it('W4 l05: asking "ô trống" instead of "hố" is 1 edit; swapping the branches is 2', () => {
+      const initial = program([loop(cqIfElse(sensor('HOLE'), step('w'), jump('j')))]);
+      expect(
+        editDistance(initial, program([loop(cqIfElse(sensor('CLEAR'), step('w'), jump('j')))])),
+      ).toBe(1);
+      expect(
+        editDistance(initial, program([loop(cqIfElse(sensor('HOLE'), jump('j'), step('w')))])),
+      ).toBe(2);
+    });
+
+    it('W5 l12: one block added to an empty else-branch is 1 edit', () => {
+      const initial = program([cqIfElse(sensor('HOLE'), step('w'), null)]);
+      expect(editDistance(initial, program([cqIfElse(sensor('HOLE'), step('w'), jump('j'))]))).toBe(
+        1,
+      );
+    });
+
+    it('W5 l13: repeat → repeat-until plus a plugged question is 2 edits', () => {
+      const body = cqIfElse(sensor('HOLE'), jump('j'), step('w'));
+      const until = {
+        type: 'cq_repeat_until',
+        id: 'u',
+        inputs: { COND: { block: { type: 'runner_at_goal', id: 'g' } }, DO: { block: body } },
+      };
+      expect(editDistance(program([repeat(20, body)]), program([until]))).toBe(2);
+    });
+  });
 });

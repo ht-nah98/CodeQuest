@@ -59,9 +59,11 @@ function run(cells: RunnerCell[], chain: object[]): RunOutcome<RunnerEvent> {
   return runLevel({ kind: runner, level: level(cells), workspace: program(chain) });
 }
 
-/** Game events without the engine's highlight events. */
+/** Game events without the engine's highlight and sense events. */
 function actions(outcome: RunOutcome<RunnerEvent>): RunnerEvent[] {
-  return outcome.events.filter((event): event is RunnerEvent => event.type !== 'highlight');
+  return outcome.events.filter(
+    (event): event is RunnerEvent => event.type !== 'highlight' && event.type !== 'sense',
+  );
 }
 
 describe('runner config', () => {
@@ -309,6 +311,7 @@ describe('runner definition', () => {
       'runner_crouch',
       'runner_kick',
       'runner_is_ahead',
+      'runner_at_goal',
     ]);
   });
 
@@ -643,6 +646,7 @@ describe('runner sensor isAhead', () => {
     const api = runner.createApi({
       state,
       emit: () => undefined,
+      sense: (value) => value,
       stop: () => {
         throw new Error('stop');
       },

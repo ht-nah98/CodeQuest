@@ -1,7 +1,7 @@
 // Public API of @codequest/validator: per-level rules of content-model.md §5 and the
 // exhaustive par / fix searches. Headless (ADR-0006): runs on Node and in the browser.
 
-// Per-level rules 1–2, 5–6, 9–16, 19 (content:check, level editor).
+// Per-level rules 1–2, 5–6, 9–16, 19–20 (content:check, level editor).
 export { validateLevel, ID_PATTERNS } from './validateLevel';
 export type { LevelValidation, ValidateLevelOptions } from './validateLevel';
 export { formatSchemaIssues } from './issue';
@@ -13,7 +13,11 @@ export { blockTypesOf } from './workspace';
 export { countWords } from './words';
 
 // Exhaustive searches (npm run par, level editor).
-export { findShortestPrograms } from './search/shortest';
+export {
+  findShortestPrograms,
+  MAX_CATALOG_ENTRIES,
+  WORKER_MAX_CATALOG_ENTRIES,
+} from './search/shortest';
 export type { ShortestOptions, ShortestResult } from './search/shortest';
 export { MAX_KEPT_FIXES, findFixes } from './search/fixes';
 export type { FixOptions, FixResult } from './search/fixes';
@@ -22,8 +26,10 @@ export type { SearchOptions } from './search/budget';
 export { UnsearchableLevel } from './search/sim';
 export {
   formatProgram,
+  programBlockTypes,
   programFromWorkspace,
+  programLoopDepth,
   programSize,
   programToWorkspace,
 } from './search/program';
-export type { Program, Statement } from './search/program';
+export type { Condition, Program, Statement } from './search/program';

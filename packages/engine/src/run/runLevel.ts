@@ -1,9 +1,10 @@
 import Interpreter from 'js-interpreter';
 import type { Level, ReasonCode, RunResult, WorkspaceJson } from '@codequest/content-schema';
+import { COND_INPUT, CONDITION_BLOCK_TYPES } from '../blocks/common';
 import { HIGHLIGHT_FN } from '../blocks/generator';
 import { registerBlockSpecs } from '../blocks/registerBlockSpecs';
 import type { SimContext } from '../sdk/context';
-import type { DistributiveOmit, GameEvent, HighlightEvent } from '../sdk/events';
+import type { DistributiveOmit, GameEvent, HighlightEvent, SenseEvent } from '../sdk/events';
 import type { GameKindApi, GameKindDefinition, Primitive } from '../sdk/gameKind';
 import type { MapOutcome, RunOutcome } from '../sdk/outcome';
 import { fnv1a } from '../rng/fnv1a';
@@ -29,7 +30,7 @@ class ActionLimitSignal extends Error {}
 
 interface Compiled {
   analysis: WorkspaceAnalysis;
-  code: string | { kind: 'empty' } | { kind: 'too-many' };
+  code: string | { kind: 'empty' } | { kind: 'too-many' } | { kind: 'empty-condition' };
 }
 
 /** Arguments must be string, number or boolean; `undefined` (a missing value) is rejected too. */
@@ -88,6 +89,16 @@ export function runLevel<C, S, E extends GameEvent>(input: RunLevelInput<C, S, E
       if (level.maxBlocks !== undefined && analysis.blocksUsed > level.maxBlocks) {
         return { analysis, code: { kind: 'too-many' } };
       }
+      // A question slot left empty (P2-11): refuse to guess (Blockly would read it as false).
+      const emptyCondition = analysis.programBlockIds.some((id) => {
+        const block = ws.getBlockById(id);
+        return (
+          block !== null &&
+          CONDITION_BLOCK_TYPES.includes(block.type) &&
+          block.getInputTargetBlock(COND_INPUT) === null
+        );
+      });
+      if (emptyCondition) return { analysis, code: { kind: 'empty-condition' } };
       return { analysis, code: compileLoaded(ws, start.id) };
     });
   } catch (error) {
@@ -96,9 +107,12 @@ export function runLevel<C, S, E extends GameEvent>(input: RunLevelInput<C, S, E
 
   const { analysis, code } = compiled;
   if (typeof code !== 'string') {
-    return code.kind === 'empty'
-      ? errorOutcome('EMPTY_PROGRAM', analysis.blocksUsed)
-      : errorOutcome('TOO_MANY_BLOCKS', analysis.blocksUsed);
+    const reasons = {
+      empty: 'EMPTY_PROGRAM',
+      'too-many': 'TOO_MANY_BLOCKS',
+      'empty-condition': 'EMPTY_CONDITION',
+    } as const;
+    return errorOutcome(reasons[code.kind], analysis.blocksUsed);
   }
 
   // One map per config: `config`, then each variant (P2-12, ADR-0016).
@@ -191,7 +205,7 @@ function runMap<C, S, E extends GameEvent>(
   const rng = mulberry32(seed ?? fnv1a(level.id));
   const maxSteps = level.limits?.maxSteps ?? DEFAULT_MAX_STEPS;
   const maxActions = level.limits?.maxActions ?? DEFAULT_MAX_ACTIONS;
-  const events: Array<E | HighlightEvent> = [];
+  const events: Array<E | HighlightEvent | SenseEvent> = [];
   let actions = 0;
   let steps = 0;
 
@@ -204,6 +218,12 @@ function runMap<C, S, E extends GameEvent>(
     // Re-adding the omitted blockId restores the original E variant.
     events.push({ ...event, blockId } as unknown as E);
   };
+  const sense = (value: boolean, blockId: string | null): boolean => {
+    if (actions >= maxActions) throw new ActionLimitSignal();
+    actions++;
+    events.push({ type: 'sense', blockId, value });
+    return value;
+  };
   const stats = (): RunOutcome['stats'] => ({ steps, actions, blocksUsed });
 
   let state: S | undefined;
@@ -213,6 +233,7 @@ function runMap<C, S, E extends GameEvent>(
     const ctx: SimContext<S, E> = {
       state: kind.createState(config, rng),
       emit,
+      sense,
       stop,
       rng,
       level,

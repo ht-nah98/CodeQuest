@@ -3,7 +3,10 @@ import { describe, expect, it, vi } from 'vitest';
 import {
   COMMON_BLOCKS,
   compileProgram,
+  CQ_IF,
+  CQ_IF_ELSE,
   CQ_REPEAT,
+  CQ_REPEAT_UNTIL,
   CQ_START,
   registerBlockSpecs,
   type BlockSpec,
@@ -21,11 +24,30 @@ describe('registerBlockSpecs', () => {
     expect(Blocks).toHaveProperty('line_step');
   });
 
-  it('always registers cq_start and cq_repeat', () => {
+  it('always registers the common blocks', () => {
     registerBlockSpecs([]);
-    expect(COMMON_BLOCKS.map((spec) => spec.type)).toEqual([CQ_START, CQ_REPEAT]);
-    expect(Blocks).toHaveProperty(CQ_START);
-    expect(Blocks).toHaveProperty(CQ_REPEAT);
+    expect(COMMON_BLOCKS.map((spec) => spec.type)).toEqual([
+      CQ_START,
+      CQ_REPEAT,
+      CQ_IF,
+      CQ_IF_ELSE,
+      CQ_REPEAT_UNTIL,
+    ]);
+    for (const spec of COMMON_BLOCKS) expect(Blocks).toHaveProperty(spec.type);
+  });
+
+  it('describes the control blocks in kid words (block-intro rule, glossary.md)', () => {
+    const tooltips = Object.fromEntries(
+      COMMON_BLOCKS.map((spec) => [spec.type, spec.json.tooltip]),
+    );
+    expect(tooltips).toEqual({
+      cq_start: 'Chương trình chạy từ đây',
+      cq_repeat: 'Làm các khối bên trong nhiều lần',
+      cq_if: 'Hỏi mỗi lần chạy tới đây: ✔ thì làm các khối bên trong, ✘ thì bỏ qua',
+      cq_if_else: 'Hỏi mỗi lần chạy tới đây: ✔ thì làm nhánh trên, ✘ thì làm nhánh dưới',
+      cq_repeat_until:
+        'Hỏi trước mỗi vòng: ✘ thì làm thêm một vòng, ✔ thì dừng và chạy khối bên dưới',
+    });
   });
 
   it('replaces the generator when a new spec object reuses a type', () => {

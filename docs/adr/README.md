@@ -23,6 +23,7 @@ Trạng thái: **Đề xuất** → **Chấp nhận** → (**Đã bị thay th�
 | [0015](0015-validator-package.md) | Package headless `validator`: luật cấp màn + vét cạn `par` | Chấp nhận |
 | [0016](0016-multi-map-levels.md) | Màn nhiều bản đồ (`variants`): một chương trình thắng mọi bản đồ | Chấp nhận |
 | [0017](0017-star-goals.md) | Mục tiêu sao (`starGoals`): chấm trên trạng thái cuối, đạt trên mọi bản đồ | Chấp nhận |
+| [0018](0018-conditional-search.md) | Khối điều kiện riêng, event `sense`, vét cạn `par` có điều kiện | Chấp nhận |
 
 ## Mẫu
 ```markdown

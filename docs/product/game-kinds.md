@@ -36,6 +36,21 @@ Gợi ý trong `predict`: chỉ có tầng 1 (gợi ý tư duy); tầng 2–3 b�
 
 **Màn nhiều bản đồ** (P2-12, `level.variants`, ADR-0016): một màn `build` hoặc `bughunt` có 2–3 bản đồ cùng kiểu game; **một chương trình** phải thắng **mọi** bản đồ. Mục đích: ép bé viết chương trình tổng quát (dùng khối hỏi) thay vì ghép thuộc lòng một đường. Bé thấy thẻ "Bản đồ 1 · 2 · 3" trên sân chơi, xem từng bản đồ trước khi chạy; Chạy phát lần lượt từng bản đồ và dừng ở bản đồ đầu tiên thua (thẻ đó được chọn, có dấu ✖). Thua ở bản đồ nào thì câu phản hồi và gợi ý theo lý do thua ở bản đồ đó. Sao, xu chấm như màn thường: thắng mọi bản đồ là một lượt thắng. Không dùng cho `parsons`, `predict`, `creative`.
 
+### 2.1 Khối điều khiển chung (mọi kiểu game)
+Khối của engine (`packages/engine/src/blocks/common.ts`), dùng chung cho mọi kiểu game; thêm vào `toolbox` như khối thường.
+
+| Khối | Nhãn | Ý nghĩa |
+|---|---|---|
+| `cq_repeat` | lặp N lần | Làm các khối bên trong N lần (1–20) |
+| `cq_if` | nếu ◇ thì | **Mỗi lần chạy tới** thì hỏi; ✔ làm các khối bên trong, ✘ bỏ qua (Thế giới 4) |
+| `cq_if_else` | nếu ◇ thì … nếu không thì … | ✔ làm nhánh trên, ✘ làm nhánh dưới; mỗi lần chỉ một nhánh (Thế giới 4) |
+| `cq_repeat_until` | lặp đến khi ◇ | **Trước mỗi vòng** hỏi: ✘ làm thêm một vòng, ✔ dừng và chạy khối bên dưới; có thể chạy 0 vòng (Thế giới 5) |
+
+- Ô ◇ (điều kiện, input `COND`) nhận **một** khối hỏi (cảm biến) của kiểu game. Ô để trống thì chương trình không chạy: `error` / `EMPTY_CONDITION` ("Ô câu hỏi còn trống. Cắm một khối hỏi vào nhé!"), không đoán thay bé.
+- Mỗi lần cảm biến được hỏi, engine ghi event `sense{blockId, value}` (`blockId` = khối hỏi, `value` = ✔/✘) để sân chơi cho khối hỏi sáng ✔/✘. `sense` **tính vào `maxActions`**.
+- Vòng lặp không dừng (điều kiện không bao giờ ✔, thân rỗng, thân không làm Măng đổi chỗ) kết thúc `timeout` / `TIMEOUT` khi hết `maxActions` (mỗi câu hỏi là một action, nên thường tới trước) hoặc `maxSteps`; tất định (cùng chương trình ⇒ cùng event log). Khóa đoán của `predict` là `timeout`.
+- `level.maxLoopDepth` (P2-11, T16b): số tầng vòng lặp lồng nhau tối đa (`cq_repeat`, `cq_repeat_until`); `1` = không lặp lồng. `maxInstances` đếm theo từng loại khối nên không chặn được một `lặp đến khi` nằm trong một `lặp`.
+
 ## 3. Kiểu game (`GameKind`)
 
 ### 3.1 `runner` — Đường chạy của Măng · **GĐ 1**
@@ -62,6 +77,7 @@ interface RunnerConfig {
 | `runner_crouch` | cúi | `crouch(id)` | Cúi người đi sang ô p+1 |
 | `runner_kick` | đá | `kick(id)` | Đá vào ô p+1, Măng **đứng yên** |
 | `runner_is_ahead` | phía trước có [hố ▾ / cành ▾ / thùng ▾ / ô trống ▾] | `isAhead(kind, id)` → boolean | Cảm biến (Thế giới 4). Giá trị dropdown: `HOLE`, `BRANCH`, `CRATE`, `CLEAR` |
+| `runner_at_goal` | đã tới nơi? | `atGoal(id)` → boolean | Cảm biến (Thế giới 5, P2-11): Măng đang đứng ở cờ. Tới cờ là kết thúc lượt chạy, nên trong lúc chạy luôn ✘; dùng trong "lặp đến khi đã tới nơi" |
 
 **Bảng luật** (p = ô hiện tại, `t` = ô đích của hành động). "→ crash X" nghĩa là emit event thất bại rồi `stop('crash', X)`.
 
@@ -77,13 +93,13 @@ interface RunnerConfig {
 - **Va chạm** (`HIT_BRANCH`/`HIT_CRATE`): Măng bật lại, **vẫn đứng ở ô p**; không emit `walk`/`crouch`/`jump` trước `bump`. Khi nhảy, xét ô bay qua trước rồi mới tới ô tiếp đất.
 - **Tới cờ:** ngay khi Măng dừng ở ô `flag`, lượt chạy **kết thúc**: nếu `goal.collectAll` và còn măng chưa nhặt → emit `missed` (thay cho `win`), `incomplete` / `MISSED_ITEMS`; ngược lại → emit `win`, `success`. Vì cờ luôn là ô cuối, Măng không bao giờ đi quá đường.
 - **Hết chương trình** mà chưa tới cờ → `incomplete` / `NOT_AT_GOAL`.
-- **Cảm biến** `isAhead(kind)` nhìn ô p+1: `HOLE`/`BRANCH`/`CRATE` đúng khi ô đó đúng loại; `CLEAR` đúng khi ô đó là `ground` hoặc `flag`. Ô p+1 nằm ngoài đường → mọi giá trị đều `false`.
+- **Cảm biến** `isAhead(kind)` nhìn ô p+1: `HOLE`/`BRANCH`/`CRATE` đúng khi ô đó đúng loại; `CLEAR` đúng khi ô đó là `ground` hoặc `flag`. Ô p+1 nằm ngoài đường → mọi giá trị đều `false`. `atGoal` đúng khi ô p là cờ (không bao giờ trong lúc chạy). Mỗi lần cảm biến được hỏi, engine ghi event `sense{blockId, value}` (§2.1).
 
 **Event** (`events.ts`, mọi event có `blockId`): `walk{from,to}` · `crouch{from,to}` · `jump{from,to}` · `kick{at,hit}` · `collect{at}` · `fall{at}` · `bump{from,at,obstacle:'branch'|'crate',move:'walk'|'crouch'|'jump'}` · `offTrack{from}` · `win{at}` · `missed{at,left:number[]}` (`left` = các ô còn măng). Thứ tự, ý nghĩa từng trường: `architecture/game-kind-sdk.md` §1.1.
 
 **reasonCodes:** `FELL_IN_HOLE`, `HIT_BRANCH`, `HIT_CRATE`, `OFF_TRACK`, `NOT_AT_GOAL`, `MISSED_ITEMS`.
 
-**`predictAnswer`:** `win` · `stop@<ô>` (hết chương trình ở ô đó) · `missed@<ô cờ>` · `crash:<REASON>@<ô>` (ô nơi xảy ra va chạm). Ví dụ `crash:FELL_IN_HOLE@3`.
+**`predictAnswer`:** `win` · `stop@<ô>` (hết chương trình ở ô đó) · `missed@<ô cờ>` · `crash:<REASON>@<ô>` (ô nơi xảy ra va chạm) · `timeout` (vòng lặp không dừng, T9). Ví dụ `crash:FELL_IN_HOLE@3`.
 
 **Sprite:** đã đủ (đi, nhảy, cúi, đá, ăn mừng).
 
@@ -109,7 +125,7 @@ Tọa độ ô viết `r,c` (hàng, cột, từ 0, hàng 0 ở trên cùng).
 | `maze_forward` | tiến | `forward(id)` | Sang ô kế tiếp theo hướng đang nhìn |
 | `maze_turn_left` / `maze_turn_right` | rẽ trái / rẽ phải | `turn(dir, id)` | Quay 90° tại chỗ |
 | `maze_is_path` | có đường [phía trước ▾ / bên trái ▾ / bên phải ▾] | `isPath(dir, id)` → boolean | Cảm biến (Thế giới 4). Giá trị: `AHEAD`, `LEFT`, `RIGHT` |
-| `maze_at_goal` | đã tới đích? | `atGoal(id)` → boolean | Dùng với "lặp đến khi" (Thế giới 5) |
+| `maze_at_goal` | đã tới đích? | `atGoal(id)` → boolean | Dùng với "lặp đến khi" (Thế giới 5). Tới `G` là thắng ngay (khi không còn măng phải nhặt), nên trong lúc chạy thường ✘ |
 
 **Luật**
 | Hành động | Kết quả |
@@ -122,7 +138,7 @@ Tọa độ ô viết `r,c` (hàng, cột, từ 0, hàng 0 ở trên cùng).
 
 **Event:** `move{from:[r,c],to:[r,c],dir}` · `turn{from,to}` · `bump{at:[r,c],dir}` · `collect{at}` · `win{at}`.
 **reasonCodes:** `HIT_WALL`, `NOT_AT_GOAL`, `MISSED_ITEMS`.
-**`predictAnswer`:** `win` · `stop@r,c` · `missed@r,c` · `crash:HIT_WALL@r,c` (ô Măng đang đứng khi đâm).
+**`predictAnswer`:** `win` · `stop@r,c` · `missed@r,c` · `crash:HIT_WALL@r,c` (ô Măng đang đứng khi đâm) · `timeout` (vòng lặp không dừng, T9). Cảm biến ghi `sense` như runner (§2.1).
 
 **Thiết kế màn:** đường đi kéo dài quá điểm xuất phát và đích (bài học từ Blockly Games: mục tiêu là tới đích, không phải đi hết mọi ô).
 **Sprite:** cần thêm đi lên / đi xuống (task P0-08). Trước khi có, tạm lật sprite ngang + mũi tên chỉ hướng.

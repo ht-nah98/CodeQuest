@@ -66,7 +66,11 @@ function program(items: Item[]): WorkspaceJson {
 }
 
 /** Where a run ends, as a predict answer key ("win", "crash:HIT_WALL@3,2", "missed@17"…). */
-function outcomeKey(kindId: Level['kind'], config: unknown, workspace: WorkspaceJson): string | undefined {
+function outcomeKey(
+  kindId: Level['kind'],
+  config: unknown,
+  workspace: WorkspaceJson,
+): string | undefined {
   const kind = getGameKind(kindId);
   if (kind === undefined) throw new Error(`no game kind ${kindId}`);
   const level: Level = {
@@ -124,7 +128,10 @@ describe('World 3 levels: each fix reveals the next bug (curriculum.md §5.1)', 
 
   it('l11: the first chunk stops at cell 9; the 5-block jump win skips the shoot', () => {
     expect(keyOf('w03-l11', [{ r: 3, b: ['w', 'j'] }])).toBe('stop@9');
-    const cheap = program([{ r: 3, b: ['w', 'j'] }, { r: 4, b: ['j'] }]);
+    const cheap = program([
+      { r: 3, b: ['w', 'j'] },
+      { r: 4, b: ['j'] },
+    ]);
     const level = levelById('w03-l11');
     const kind = getGameKind(level.kind);
     if (kind === undefined) throw new Error('no runner');
@@ -153,7 +160,9 @@ describe('World 3 levels: each fix reveals the next bug (curriculum.md §5.1)', 
   });
 
   it('l06: turning right while facing down hits the wall; turning left wins', () => {
-    expect(keyOf('w03-l06', [{ r: 3, b: ['f'] }, 'R', { r: 4, b: ['f'] }])).toBe('crash:HIT_WALL@4,2');
+    expect(keyOf('w03-l06', [{ r: 3, b: ['f'] }, 'R', { r: 4, b: ['f'] }])).toBe(
+      'crash:HIT_WALL@4,2',
+    );
     expect(keyOf('w03-l06', [{ r: 3, b: ['f'] }, 'L', { r: 4, b: ['f'] }])).toBe('win');
   });
 

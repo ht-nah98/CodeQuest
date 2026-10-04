@@ -64,11 +64,23 @@ export const runnerBlocks: readonly BlockSpec[] = [
       ],
       output: 'Boolean',
       style: 'sensor_blocks',
-      tooltip: 'Đúng khi ô phía trước là thứ con chọn',
+      tooltip: '✔ khi ô ngay trước Măng là thứ con chọn, ✘ khi không phải',
     },
     generator: (block, gen) => [
       `isAhead(${gen.quote_(String(block.getFieldValue('KIND')))}, ${gen.quote_(block.id)})`,
       Order.FUNCTION_CALL,
     ],
+  },
+  {
+    type: 'runner_at_goal',
+    category: 'sensor',
+    apiNames: ['atGoal'],
+    json: {
+      message0: 'đã tới nơi?',
+      output: 'Boolean',
+      style: 'sensor_blocks',
+      tooltip: '✔ khi Măng đã tới nơi, ✘ khi chưa tới. Tới nơi là thắng ngay',
+    },
+    generator: (block, gen) => [`atGoal(${gen.quote_(block.id)})`, Order.FUNCTION_CALL],
   },
 ];

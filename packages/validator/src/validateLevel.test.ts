@@ -320,4 +320,60 @@ describe('validateLevel', () => {
       ]);
     });
   });
+
+  describe('rule 20: maxLoopDepth and maxInstances (P2-11)', () => {
+    const flat = ['ground', 'ground', 'ground', 'ground', 'ground', 'flag'];
+    // repeat 1 [repeat 5 [walk]]: two loops nested.
+    const nested = programToWorkspace([{ repeat: 1, body: [{ repeat: 5, body: [walk] }] }]);
+    const toolbox = ['runner_walk', 'cq_repeat'];
+
+    it('passes loops nested within maxLoopDepth', () => {
+      const ok = level({
+        toolbox,
+        config: { cells: flat, start: 0 },
+        solution: nested,
+        maxLoopDepth: 2,
+      });
+      expect(messages(ok)).toEqual([]);
+    });
+
+    it('reports a solution or initialWorkspace nesting loops deeper', () => {
+      const deep = level({
+        toolbox,
+        mode: 'bughunt',
+        par: undefined,
+        config: { cells: flat, start: 0 },
+        solution: nested,
+        initialWorkspace: programToWorkspace([{ repeat: 1, body: [{ repeat: 4, body: [walk] }] }]),
+        maxLoopDepth: 1,
+      });
+      expect(messages(deep)).toEqual([
+        '20 solution nests loops 2 deep > maxLoopDepth 1',
+        '20 initialWorkspace nests loops 2 deep > maxLoopDepth 1',
+      ]);
+    });
+
+    it('counts a repeat-until inside a repeat, which maxInstances alone cannot stop', () => {
+      const until = programToWorkspace([
+        {
+          repeat: 2,
+          body: [{ until: { block: 'runner_at_goal' }, body: [walk] }],
+        },
+      ]);
+      const limited = level({
+        toolbox: [...toolbox, 'cq_repeat_until', 'runner_at_goal'],
+        config: { cells: flat, start: 0 },
+        par: 4,
+        solution: until,
+        maxInstances: { cq_repeat: 1, cq_repeat_until: 1 },
+        maxLoopDepth: 1,
+      });
+      expect(messages(limited)).toEqual(['20 solution nests loops 2 deep > maxLoopDepth 1']);
+    });
+
+    it('reports more blocks of a type than maxInstances', () => {
+      const over = level({ maxInstances: { runner_walk: 1, runner_jump: 1 } });
+      expect(messages(over)).toEqual(['20 solution has 2 "runner_walk" > maxInstances 1']);
+    });
+  });
 });

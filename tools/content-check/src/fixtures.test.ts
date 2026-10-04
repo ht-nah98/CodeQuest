@@ -37,9 +37,9 @@ function cli(name: string): { status: number; output: string } {
 }
 
 describe('content:check fixtures', () => {
-  it('has exactly one fixture for each of the 19 rules', () => {
+  it('has exactly one fixture for each of the 20 rules', () => {
     expect(ruleFixtures.map((fixture) => fixture.rule)).toEqual(
-      Array.from({ length: 19 }, (_, index) => index + 1),
+      Array.from({ length: 20 }, (_, index) => index + 1),
     );
   });
 
@@ -101,6 +101,13 @@ describe('content:check fixtures', () => {
     expect(report.warnings).toEqual([]);
     expect(report.issues.map((issue) => issue.message)).toEqual([
       'star goal "collectAll" adds nothing: config.goal.collectAll already requires every shoot to win',
+    ]);
+  });
+
+  it('rule-20-block-limits reports a solution over maxInstances (P2-11)', () => {
+    const report = check('rule-20-block-limits');
+    expect(report.issues.map((issue) => issue.message)).toEqual([
+      'solution has 2 "runner_walk" > maxInstances 1',
     ]);
   });
 

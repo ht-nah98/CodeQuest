@@ -1,11 +1,20 @@
 /**
  * Exhaustive search for the fewest edits that fix a `bughunt` level: breadth-first over the
  * programs at edit distance 1, 2, … from `initialWorkspace`, with the same block-token edits
- * as `editDistance` (insert, delete or change one block; a `cq_repeat` count change is one
- * change). The first distance with a win is the minimum; all fixes at it are counted.
+ * as `editDistance` (insert, delete or change one block; a `cq_repeat` count change, a sensor's
+ * dropdown, a block moved into another input are one change each, P2-11). The first distance
+ * with a win is the minimum; all fixes at it are counted.
  */
 import type { Level } from '@codequest/content-schema';
-import { editDistance, registerBlockSpecs, runLevel } from '@codequest/engine';
+import {
+  COND_INPUT,
+  CQ_IF,
+  CQ_IF_ELSE,
+  CQ_REPEAT_UNTIL,
+  editDistance,
+  registerBlockSpecs,
+  runLevel,
+} from '@codequest/engine';
 import {
   Budget,
   DEFAULT_MAX_DEPTH,
@@ -17,20 +26,27 @@ import {
   searchedLevel,
   type SearchOptions,
 } from './budget';
+import { InstanceLimits } from './limits';
 import {
   formatProgram,
+  programBlockTypes,
   programFromWorkspace,
+  programLoopDepth,
   programToWorkspace,
+  type Condition,
   type Program,
   type Statement,
 } from './program';
-import { FastSim, type Code, type RepeatCode } from './sim';
+import { searchedTypes } from './shortest';
+import { EMPTY_SLOT, FastSim, type Code } from './sim';
 
 export interface FixOptions extends SearchOptions {
   /** Largest number of edits tried. Default `parEdits` (1 when missing). */
   maxEdits?: number;
   /** Cap on programs kept for expanding (tests lower it). Default `MAX_KEPT_FIXES`. */
   maxKept?: number;
+  /** Tests only: try every writable token at the last distance too (checks the depth filter). */
+  unfilteredEdits?: boolean;
 }
 
 /**
@@ -60,35 +76,103 @@ export interface FixResult {
   unsupported: string[];
 }
 
-/** `cq_repeat` or a block, as one token symbol. */
-type TokenSymbol = { repeat: number } | { atom: number };
+/** One token symbol: a block, a sensor, a `cq_repeat` count or a conditional control block. */
+type TokenSymbol = { repeat: number } | { atom: number } | { cond: number } | { control: string };
+
+/** Input names of tokens, as in `editDistance`: '' under `cq_start`, then the inputs. */
+const INPUTS = ['', 'DO', 'ELSE', COND_INPUT] as const;
+const TOP = 0;
+const DO = 1;
+const ELSE = 2;
+const COND = 3;
+/** Order of a block's inputs in a pre-order token list (sorted by name: COND, DO, ELSE). */
+const INPUT_ORDER: readonly number[] = [-1, 1, 2, 0];
 
 function blockStatements(program: Program): Statement[] {
-  return program.flatMap((statement) =>
-    'repeat' in statement ? blockStatements(statement.body) : [statement],
-  );
+  return program.flatMap((statement): Statement[] => {
+    if ('repeat' in statement || 'until' in statement) return blockStatements(statement.body);
+    if ('if' in statement) {
+      return [...blockStatements(statement.then), ...blockStatements(statement.else ?? [])];
+    }
+    return [statement];
+  });
+}
+
+function conditionsOf(program: Program): Condition[] {
+  return program.flatMap((statement): Condition[] => {
+    if ('repeat' in statement) return conditionsOf(statement.body);
+    if ('until' in statement) {
+      return [
+        ...(statement.until === null ? [] : [statement.until]),
+        ...conditionsOf(statement.body),
+      ];
+    }
+    if ('if' in statement) {
+      return [
+        ...(statement.if === null ? [] : [statement.if]),
+        ...conditionsOf(statement.then),
+        ...conditionsOf(statement.else ?? []),
+      ];
+    }
+    return [];
+  });
 }
 
 function repeatCounts(program: Program): number[] {
-  return program.flatMap((statement) =>
-    'repeat' in statement ? [statement.repeat, ...repeatCounts(statement.body)] : [],
-  );
+  return program.flatMap((statement): number[] => {
+    if ('repeat' in statement) return [statement.repeat, ...repeatCounts(statement.body)];
+    if ('until' in statement) return repeatCounts(statement.body);
+    if ('if' in statement)
+      return [...repeatCounts(statement.then), ...repeatCounts(statement.else ?? [])];
+    return [];
+  });
+}
+
+function controlTypes(program: Program, out = new Set<string>()): Set<string> {
+  for (const statement of program) {
+    if ('repeat' in statement) controlTypes(statement.body, out);
+    else if ('until' in statement) {
+      out.add(CQ_REPEAT_UNTIL);
+      controlTypes(statement.body, out);
+    } else if ('if' in statement) {
+      out.add(statement.else === undefined ? CQ_IF : CQ_IF_ELSE);
+      controlTypes(statement.then, out);
+      controlTypes(statement.else ?? [], out);
+    }
+  }
+  return out;
 }
 
 /**
- * An empty `cq_repeat` changes nothing, so fixes that add one are not counted (unless the
- * initial program already has one).
+ * A loop or `cq_if` with an empty body, or a `cq_if_else` with both branches empty, changes
+ * nothing, so fixes that add one are not counted (unless the initial program already has one).
  */
-function hasEmptyLoop(code: Code): boolean {
-  return code.some(
-    (item) => typeof item !== 'number' && (item.body.length === 0 || hasEmptyLoop(item.body)),
-  );
+function hasEmptyBody(code: Code): boolean {
+  return code.some((item) => {
+    if (typeof item === 'number') return false;
+    if ('times' in item || 'until' in item)
+      return item.body.length === 0 || hasEmptyBody(item.body);
+    const otherwise = item.else ?? [];
+    return (
+      (item.then.length === 0 && (item.else === null || otherwise.length === 0)) ||
+      hasEmptyBody(item.then) ||
+      hasEmptyBody(otherwise)
+    );
+  });
 }
+
+type MutableItem =
+  | number
+  | { times: number; body: MutableItem[] }
+  | { cond: number; then: MutableItem[]; else: MutableItem[] | null }
+  | { until: number; body: MutableItem[] };
 
 /**
  * Finds the fewest edits that fix a `bughunt` level's `initialWorkspace` with its toolbox, how
  * many fixes there are at that distance, and a few examples verified with `runLevel`. On a
  * level with `starGoals` a fix must also meet every goal, unless `options.ignoreStarGoals`.
+ * A fix must respect `maxBlocks`, `maxInstances` and `maxLoopDepth` (programs on the way need
+ * not: `editDistance` does not depend on the order of the edits).
  */
 export function findFixes(original: Level, options: FixOptions = {}): FixResult {
   const level = searchedLevel(original, options);
@@ -97,82 +181,228 @@ export function findFixes(original: Level, options: FixOptions = {}): FixResult 
     throw new Error('only bughunt levels with an initialWorkspace have fixes');
   }
   const initial = programFromWorkspace(level.initialWorkspace);
-  if (initial === null) throw new Error('initialWorkspace is not a straight-line program');
-  const sim = new FastSim(kind, level, blockStatements(initial));
+  if (initial === null) throw new Error('initialWorkspace is not a program the search can read');
+  const sim = new FastSim(kind, level, blockStatements(initial), undefined, conditionsOf(initial));
   const budget = new Budget(options);
   const maxEdits = options.maxEdits ?? level.parEdits ?? 1;
   const maxExamples = options.maxExamples ?? DEFAULT_MAX_EXAMPLES;
-  const maxDepth = options.maxDepth ?? DEFAULT_MAX_DEPTH;
+  const loopDepth = Math.min(
+    options.maxDepth ?? DEFAULT_MAX_DEPTH,
+    level.maxLoopDepth ?? Number.POSITIVE_INFINITY,
+  );
   const maxKept = options.maxKept ?? MAX_KEPT_FIXES;
+
+  // Controls a token can be: the toolbox's, and those of initialWorkspace (keep or delete only).
+  const initialControls = controlTypes(initial);
+  const controls = [CQ_IF, CQ_IF_ELSE, CQ_REPEAT_UNTIL].filter(
+    (type) => sim.controls.has(type) || initialControls.has(type),
+  );
+  const conditional = controls.length > 0 || sim.conds.length > 0;
 
   const symbols: TokenSymbol[] = sim.atoms.map((_, atom) => ({ atom }));
   const counts = new Set(repeatCounts(initial));
   if (sim.hasRepeat)
     for (const times of options.repeatTimes ?? DEFAULT_REPEAT_TIMES) counts.add(times);
   for (const times of [...counts].sort((a, b) => a - b)) symbols.push({ repeat: times });
+  for (const control of controls) symbols.push({ control });
+  sim.conds.forEach((_, cond) => symbols.push({ cond }));
   const base = symbols.length;
-  // Tokens an edit may write: toolbox blocks at every depth, loops above the deepest level.
-  // Blocks only found in initialWorkspace can be kept or deleted, never added.
-  const writable: number[] = [];
-  for (let depth = 0; depth <= maxDepth; depth++) {
-    symbols.forEach((symbol, index) => {
-      const allowed =
-        'repeat' in symbol ? depth < maxDepth : sim.atoms[symbol.atom]?.inToolbox === true;
-      if (allowed) writable.push(depth * base + index);
-    });
-  }
-  const symbolOf = (token: number): TokenSymbol => symbols[token % base] ?? { atom: 0 };
-  const depthOf = (token: number): number => Math.floor(token / base);
+  const token = (depth: number, input: number, symbol: number): number =>
+    (depth * INPUTS.length + input) * base + symbol;
+  const symbolOf = (value: number): TokenSymbol => symbols[value % base] ?? { atom: 0 };
+  const inputOf = (value: number): number => Math.floor(value / base) % INPUTS.length;
+  const depthOf = (value: number): number => Math.floor(value / base / INPUTS.length);
 
-  const toTokens = (program: Program, depth: number, out: number[]): void => {
+  const toTokens = (program: Program, depth: number, input: number, out: number[]): void => {
+    const find = (match: (symbol: TokenSymbol) => boolean): number => symbols.findIndex(match);
     for (const statement of program) {
       if ('repeat' in statement) {
         out.push(
-          depth * base + symbols.findIndex((s) => 'repeat' in s && s.repeat === statement.repeat),
+          token(
+            depth,
+            input,
+            find((s) => 'repeat' in s && s.repeat === statement.repeat),
+          ),
         );
-        toTokens(statement.body, depth + 1, out);
+        toTokens(statement.body, depth + 1, DO, out);
+      } else if ('if' in statement || 'until' in statement) {
+        const isIf = 'if' in statement;
+        const type = isIf ? (statement.else === undefined ? CQ_IF : CQ_IF_ELSE) : CQ_REPEAT_UNTIL;
+        out.push(
+          token(
+            depth,
+            input,
+            find((s) => 'control' in s && s.control === type),
+          ),
+        );
+        const condition = isIf ? statement.if : statement.until;
+        if (condition !== null) {
+          const cond = sim.condIndex(condition);
+          out.push(
+            token(
+              depth + 1,
+              COND,
+              find((s) => 'cond' in s && s.cond === cond),
+            ),
+          );
+        }
+        toTokens(isIf ? statement.then : statement.body, depth + 1, DO, out);
+        if (isIf) toTokens(statement.else ?? [], depth + 1, ELSE, out);
       } else {
         const atom = sim.atomIndex(statement);
         if (atom === -1)
           throw new Error(`initialWorkspace block ${statement.block} is not searchable`);
-        out.push(depth * base + atom);
+        out.push(token(depth, input, atom));
       }
     }
   };
   const start: number[] = [];
-  toTokens(initial, 0, start);
+  toTokens(initial, 0, TOP, start);
   const initialCode = sim.compile(initial);
-  const allowEmptyLoops = initialCode !== null && hasEmptyLoop(initialCode);
+  const allowEmptyBodies = initialCode !== null && hasEmptyBody(initialCode);
 
-  /** Code of a well-formed token list, or null (a child needs a loop right above it). */
+  // Tokens an edit may write. Without conditions: toolbox blocks at every depth up to the loop
+  // depth, loops above it (as before P2-11). With them: any depth an edit can reach (the initial
+  // nesting plus one per edit), in every input; loop nesting is checked on each fix instead.
+  // Blocks only found in initialWorkspace can be kept or deleted, never added.
+  const maxTokenDepth = conditional
+    ? start.reduce((deepest, value) => Math.max(deepest, depthOf(value)), 0) + maxEdits
+    : loopDepth;
+  const writableAt: number[][] = [];
+  for (let depth = 0; depth <= maxTokenDepth; depth++) {
+    const here: number[] = [];
+    const inputs = depth === 0 ? [TOP] : conditional ? [DO, ELSE, COND] : [DO];
+    for (const input of inputs) {
+      if (input === ELSE && !controls.includes(CQ_IF_ELSE)) continue;
+      symbols.forEach((symbol, index) => {
+        let allowed: boolean;
+        if ('cond' in symbol)
+          allowed = input === COND && sim.conds[symbol.cond]?.inToolbox === true;
+        else if (input === COND) allowed = false;
+        else if ('atom' in symbol) allowed = sim.atoms[symbol.atom]?.inToolbox === true;
+        else if ('repeat' in symbol) allowed = sim.hasRepeat && depth < maxTokenDepth;
+        else allowed = sim.controls.has(symbol.control) && depth < maxTokenDepth;
+        if (!conditional && 'repeat' in symbol) allowed = depth < loopDepth;
+        if (allowed) here.push(token(depth, input, index));
+      });
+    }
+    writableAt.push(here);
+  }
+  const writable = writableAt.flat();
+  /**
+   * Tokens worth writing between `before` and `after`. In a well-formed (pre-order) list a token
+   * is at most one level deeper than the one before it, and the one after it is at most one
+   * level deeper than it; any other token makes a list that `parse` rejects. So on the **last**
+   * distance, whose lists are only checked for a win and never expanded, only those depths are
+   * tried. Earlier distances try every writable token: an ill-formed list there can still be
+   * completed by a later edit. Without conditions every writable token is tried, as before.
+   */
+  const between = (
+    before: number | undefined,
+    after: number | undefined,
+    last: boolean,
+  ): number[] => {
+    if (!conditional || !last || options.unfilteredEdits === true) return writable;
+    const deepest = before === undefined ? 0 : depthOf(before) + 1;
+    const shallowest = after === undefined ? 0 : Math.max(0, depthOf(after) - 1);
+    return writableAt.slice(shallowest, deepest + 1).flat();
+  };
+
+  /** Code of a well-formed token list, or null (pre-order of blocks and their inputs). */
   const parse = (tokens: readonly number[]): Code | null => {
-    const root: Array<number | RepeatCode> = [];
-    const stack: Array<Array<number | RepeatCode>> = [root];
-    let previous: TokenSymbol | null = null;
-    for (const token of tokens) {
-      const depth = depthOf(token);
-      if (depth > stack.length - 1) {
-        if (depth !== stack.length || previous === null || !('repeat' in previous)) return null;
-        const parent = stack[stack.length - 1];
-        const loop = parent?.[parent.length - 1];
-        if (loop === undefined || typeof loop === 'number') return null;
-        stack.push(loop.body as Array<number | RepeatCode>);
+    const root: MutableItem[] = [];
+    // The last block placed at each depth, and the open input chain at each depth > 0.
+    const last: Array<MutableItem | undefined> = [];
+    const chains: Array<{ owner: MutableItem; input: number; list: MutableItem[] | null }> = [];
+    let previousDepth = -1;
+    for (const value of tokens) {
+      const depth = depthOf(value);
+      const input = inputOf(value);
+      const symbol = symbolOf(value);
+      if (depth > previousDepth + 1) return null;
+      previousDepth = depth;
+      if (depth === 0) {
+        if (input !== TOP || 'cond' in symbol) return null;
+        const item = make(symbol);
+        root.push(item);
+        last.length = 0;
+        last.push(item);
+        chains.length = 0;
+        continue;
       }
-      stack.length = depth + 1;
-      const symbol = symbolOf(token);
-      const list = stack[depth];
-      if (list === undefined) return null;
-      list.push('repeat' in symbol ? { times: symbol.repeat, body: [] } : symbol.atom);
-      previous = symbol;
+      const owner = last[depth - 1];
+      if (owner === undefined || typeof owner === 'number') return null;
+      let chain = chains[depth];
+      if (chain?.owner !== owner || chain.input !== input) {
+        if (
+          chain?.owner === owner &&
+          (INPUT_ORDER[input] ?? -1) <= (INPUT_ORDER[chain.input] ?? -1)
+        ) {
+          return null;
+        }
+        const list = openInput(owner, input);
+        if (list === undefined) return null;
+        chain = { owner, input, list };
+        chains[depth] = chain;
+      } else if (input === COND) {
+        return null;
+      }
+      chains.length = depth + 1;
+      if (input === COND) {
+        if (!('cond' in symbol)) return null;
+        if ('until' in owner) owner.until = symbol.cond;
+        else if ('cond' in owner) owner.cond = symbol.cond;
+        last[depth] = symbol.cond;
+        last.length = depth + 1;
+        continue;
+      }
+      if ('cond' in symbol || chain.list === null) return null;
+      const item = make(symbol);
+      chain.list.push(item);
+      last[depth] = item;
+      last.length = depth + 1;
     }
     return root;
   };
+  /** A fresh code item for a statement symbol. */
+  function make(symbol: TokenSymbol): MutableItem {
+    if ('atom' in symbol) return symbol.atom;
+    if ('repeat' in symbol) return { times: symbol.repeat, body: [] };
+    if ('control' in symbol) {
+      if (symbol.control === CQ_REPEAT_UNTIL) return { until: EMPTY_SLOT, body: [] };
+      return { cond: EMPTY_SLOT, then: [], else: symbol.control === CQ_IF_ELSE ? [] : null };
+    }
+    return -1;
+  }
+  /** The list an input of `owner` holds (null for the condition slot), or undefined if none. */
+  function openInput(owner: MutableItem, input: number): MutableItem[] | null | undefined {
+    if (typeof owner === 'number') return undefined;
+    if (input === COND) return 'times' in owner ? undefined : null;
+    if (input === DO) return 'then' in owner ? owner.then : owner.body;
+    if (input === ELSE && 'then' in owner && owner.else !== null) return owner.else;
+    return undefined;
+  }
   const toProgram = (code: Code): Program =>
-    code.map((item): Statement =>
-      typeof item === 'number'
-        ? (sim.atoms[item]?.statement ?? { block: '?' })
-        : { repeat: item.times, body: toProgram(item.body) },
-    );
+    code.map((item): Statement => {
+      if (typeof item === 'number') return sim.atoms[item]?.statement ?? { block: '?' };
+      if ('times' in item) return { repeat: item.times, body: toProgram(item.body) };
+      const conditionOf = (index: number): Condition | null =>
+        index === EMPTY_SLOT ? null : (sim.conds[index]?.condition ?? null);
+      if ('until' in item) return { until: conditionOf(item.until), body: toProgram(item.body) };
+      return item.else === null
+        ? { if: conditionOf(item.cond), then: toProgram(item.then) }
+        : { if: conditionOf(item.cond), then: toProgram(item.then), else: toProgram(item.else) };
+    });
+  const limits = new InstanceLimits(
+    level.maxInstances,
+    new Set([...searchedTypes(sim), ...initialControls]),
+  );
+  /** maxInstances and maxLoopDepth on a fix (maxBlocks is checked by `sim.wins`). */
+  const withinLimits = (code: Code): boolean => {
+    if (limits.types.length === 0 && level.maxLoopDepth === undefined && !conditional) return true;
+    const program = toProgram(code);
+    return limits.allows(programBlockTypes(program)) && programLoopDepth(program) <= loopDepth;
+  };
 
   // Every list of the earlier distances (needed to expand them); the last distance is never
   // expanded, so only its winners are remembered, which keeps memory flat at parEdits 3.
@@ -197,8 +427,9 @@ export function findFixes(original: Level, options: FixOptions = {}): FixResult 
     const code = parse(tokens);
     if (
       code !== null &&
-      (allowEmptyLoops || !hasEmptyLoop(code)) &&
-      sim.wins(code, tokens.length)
+      (allowEmptyBodies || !hasEmptyBody(code)) &&
+      sim.wins(code, tokens.length) &&
+      withinLimits(code)
     ) {
       if (winners.has(key)) return;
       winners.add(key);
@@ -213,16 +444,16 @@ export function findFixes(original: Level, options: FixOptions = {}): FixResult 
       for (const tokens of frontier) {
         for (let i = 0; i < tokens.length; i++) {
           consider([...tokens.slice(0, i), ...tokens.slice(i + 1)], next);
-          for (const token of writable) {
-            if (token === tokens[i]) continue;
+          for (const value of between(tokens[i - 1], tokens[i + 1], next === null)) {
+            if (value === tokens[i]) continue;
             const changed = [...tokens];
-            changed[i] = token;
+            changed[i] = value;
             consider(changed, next);
           }
         }
         for (let i = 0; i <= tokens.length; i++) {
-          for (const token of writable) {
-            consider([...tokens.slice(0, i), token, ...tokens.slice(i)], next);
+          for (const value of between(tokens[i - 1], tokens[i], next === null)) {
+            consider([...tokens.slice(0, i), value, ...tokens.slice(i)], next);
           }
         }
       }

@@ -109,11 +109,14 @@ export function createRunnerApi(ctx: RunnerContext): GameKindApi {
       if (hit) state.cells[at] = 'ground';
       ctx.emit({ type: 'kick', at, hit }, String(blockId));
     },
-    isAhead: (kind) => {
+    isAhead: (kind, blockId) => {
       if (!isAheadKind(kind)) throw new Error(`isAhead: unknown kind ${String(kind)}`);
       const cell = ctx.state.cells[ctx.state.pos + 1];
       // Past the end of the track every value is false.
-      return cell !== undefined && AHEAD_MATCHES[kind].includes(cell);
+      return ctx.sense(cell !== undefined && AHEAD_MATCHES[kind].includes(cell), String(blockId));
     },
+    // Reaching the flag ends the run at once, so while a program runs this is always false
+    // (curriculum.md §5.4 T6, like the maze's `atGoal`).
+    atGoal: (blockId) => ctx.sense(ctx.state.cells[ctx.state.pos] === 'flag', String(blockId)),
   };
 }

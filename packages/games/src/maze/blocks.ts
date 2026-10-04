@@ -47,7 +47,7 @@ export const mazeBlocks: readonly BlockSpec[] = [
           ],
         },
       ],
-      tooltip: 'Đúng nếu Măng đi tiếp được hướng đó',
+      tooltip: '✔ khi phía đó của Măng có đường đi, ✘ khi là tường',
       ...sensor,
     },
     generator: (block, gen) => [
@@ -59,7 +59,11 @@ export const mazeBlocks: readonly BlockSpec[] = [
     type: 'maze_at_goal',
     category: 'sensor',
     apiNames: ['atGoal'],
-    json: { message0: 'đã tới đích?', tooltip: 'Đúng nếu Măng đang đứng ở đích', ...sensor },
+    json: {
+      message0: 'đã tới đích?',
+      tooltip: '✔ khi Măng đã đứng ở đích, ✘ khi chưa tới. Tới đích là thắng ngay',
+      ...sensor,
+    },
     generator: (block, gen) => [`atGoal(${gen.quote_(block.id)})`, Order.FUNCTION_CALL],
   },
 ];

@@ -107,6 +107,7 @@ jump: (blockId) => {
 3. Mỗi event hành động mang `blockId` của khối gây ra nó.
 4. Va chạm phải emit một event thất bại **trước** khi `stop`, để sân chơi diễn được cảnh ngã/đâm.
 5. Mọi `reasonCode` mới phải được liệt kê trong `reasonCodes` **và** có câu tiếng Việt trong `content/shared/feedback.json`.
+6. **Cảm biến** (khối giá trị, `json.output`, P2-11): generator gọi **một** API, block id là tham số cuối (`isAhead('HOLE', id)`); API chỉ đọc state, trả boolean qua `return ctx.sense(answer, String(blockId))` để engine ghi `sense` (khối hỏi sáng ✔/✘). Không `emit`, không `stop`, không đổi state (vét cạn kiểm và báo `unsearchable` nếu vi phạm).
 
 ### 1.1 Event của `runner` (P0-07, đủ luật ở P1-01)
 Type: `RunnerEvent` export từ `@codequest/games` (`packages/games/src/runner/events.ts`), kèm `RunnerObstacle` (`'branch' | 'crate'`), `RunnerMove` (`'walk' | 'crouch' | 'jump'`), `RUNNER_AHEAD_KINDS`. Mọi event có `blockId` của khối gây ra nó; engine chèn thêm `highlight` trước mỗi câu lệnh. Luật đầy đủ: `product/game-kinds.md` §3.1.
@@ -124,16 +125,16 @@ Type: `RunnerEvent` export từ `@codequest/games` (`packages/games/src/runner/e
 | `win` | `at` | Đứng trên cờ ở ô `at`: ăn mừng. Đi ngay sau `walk`/`crouch`/`jump` tới cờ, cùng `blockId`; lượt chạy kết thúc `success` |
 | `missed` | `at`, `left` | Tới cờ ở ô `at` nhưng `goal.collectAll` và còn măng ở các ô `left` (tăng dần): Măng tiếc, măng còn lại nhấp nháy. Thay cho `win`; lượt chạy kết thúc `incomplete` / `MISSED_ITEMS` |
 
-Thứ tự trong một khối: kiểm tra chướng ngại (`bump` / `offTrack`) → di chuyển (`walk`/`crouch`/`jump`) → `fall` **hoặc** `collect` → `win` / `missed`. Nhảy: xét ô bay qua trước, rồi tới cuối đường, rồi ô tiếp đất (cành ở ô bay qua + hố ở ô tiếp đất → `HIT_BRANCH`). Cảm biến `isAhead` không emit event (chỉ đọc ô from+1; ô ngoài đường → `false`); khối `controls_if` chứa nó được highlight như mọi câu lệnh.
+Thứ tự trong một khối: kiểm tra chướng ngại (`bump` / `offTrack`) → di chuyển (`walk`/`crouch`/`jump`) → `fall` **hoặc** `collect` → `win` / `missed`. Nhảy: xét ô bay qua trước, rồi tới cuối đường, rồi ô tiếp đất (cành ở ô bay qua + hố ở ô tiếp đất → `HIT_BRANCH`). Cảm biến `isAhead` (đọc ô from+1; ô ngoài đường → `false`) và `atGoal` (`runner_at_goal`, P2-11: Măng đứng ở cờ, nên trong lúc chạy luôn `false`) không emit event của runner; chúng báo câu trả lời qua `ctx.sense`, engine ghi event chung `sense{blockId, value}` (`runtime-engine.md` §5). Khối `cq_if` / `cq_if_else` / `cq_repeat_until` chứa chúng được highlight như mọi câu lệnh, rồi tới `sense`.
 
 Hết chương trình mà chưa tới cờ: không có event riêng, lượt chạy kết thúc `incomplete` / `NOT_AT_GOAL` (sân chơi giữ Măng đứng ở ô cuối cùng). Khối gây lỗi để rung = `blockId` của event cuối cùng.
 
-Config: `cells` (`ground`/`hole`/`branch`/`crate`/`flag`), `start`, `bamboo?: number[]` (ô `ground`/`branch`, nằm **sau** `start`, không trùng), `goal?: { collectAll?: boolean }` (`collectAll: true` cần ≥ 1 măng). `RUNNER_AHEAD_KINDS` nằm ở `config.ts`. `state.cells` là bản sao vì thùng bị đá thành `ground`; `level.config` không bị sửa. Khối tạm chỉ có chữ (chưa có `field_image`) vì `apps/web/public/icons/` chưa có icon. Cảm biến `runner_is_ahead` là khối giá trị (`output: 'Boolean'`, `sensor_blocks`), dropdown `KIND` = `HOLE`/`BRANCH`/`CRATE`/`CLEAR` (nhãn hố/cành/thùng/ô trống), generator `isAhead('<KIND>', '<blockId>')`.
+Config: `cells` (`ground`/`hole`/`branch`/`crate`/`flag`), `start`, `bamboo?: number[]` (ô `ground`/`branch`, nằm **sau** `start`, không trùng), `goal?: { collectAll?: boolean }` (`collectAll: true` cần ≥ 1 măng). `RUNNER_AHEAD_KINDS` nằm ở `config.ts`. `state.cells` là bản sao vì thùng bị đá thành `ground`; `level.config` không bị sửa. Khối tạm chỉ có chữ (chưa có `field_image`) vì `apps/web/public/icons/` chưa có icon. Cảm biến `runner_is_ahead` là khối giá trị (`output: 'Boolean'`, `sensor_blocks`), dropdown `KIND` = `HOLE`/`BRANCH`/`CRATE`/`CLEAR` (nhãn hố/cành/thùng/ô trống), generator `isAhead('<KIND>', '<blockId>')`. Cảm biến `runner_at_goal` ("đã tới nơi?", P2-11) generator `atGoal('<blockId>')`.
 
 `predictAnswer` của runner: `win` · `stop@<ô>` (hết chương trình ở ô đó, `NOT_AT_GOAL`) · `missed@<ô cờ>` (`MISSED_ITEMS`) · `crash:<REASON>@<ô>`. Ô của crash là ô hố (`FELL_IN_HOLE`) hoặc ô chướng ngại bị va (`HIT_BRANCH`/`HIT_CRATE`, tức `bump.at`); với `OFF_TRACK` là **ô Măng nhảy đi** (ô tiếp đất không tồn tại). Kết quả `timeout`/`error` trả đúng tên kết quả (`timeout`, `error`).
 
 ### 1.2 Event của `maze` (P1-02)
-Type: `MazeEvent` export từ `@codequest/games` (`packages/games/src/maze/events.ts`). Ô viết `[r, c]` (hàng, cột, từ 0, hàng 0 ở trên cùng); hướng là `'N' | 'E' | 'S' | 'W'` (N = lên trên). Mọi event có `blockId` của khối gây ra nó; engine chèn thêm `highlight` trước mỗi câu lệnh (khối cảm biến là khối giá trị nên không có `highlight` riêng và không emit event).
+Type: `MazeEvent` export từ `@codequest/games` (`packages/games/src/maze/events.ts`). Ô viết `[r, c]` (hàng, cột, từ 0, hàng 0 ở trên cùng); hướng là `'N' | 'E' | 'S' | 'W'` (N = lên trên). Mọi event có `blockId` của khối gây ra nó; engine chèn thêm `highlight` trước mỗi câu lệnh (khối cảm biến là khối giá trị nên không có `highlight` riêng; nó báo câu trả lời qua `ctx.sense`, engine ghi `sense{blockId, value}`).
 
 | Event | Trường | Ý nghĩa cho sân chơi |
 |---|---|---|
@@ -202,6 +203,7 @@ Từng bước ở `docs/playbooks/add-game-kind.md`. Tóm tắt:
 ## 4. Điều kiện để vét cạn `par` được (`@codequest/validator`)
 `npm run par` và nút "Tìm `par` nhỏ nhất" của level editor không chạy js-interpreter cho từng chương trình. Chúng ghi lại các lệnh gọi API của từng khối lệnh (chạy khối một mình bằng `runLevel`), rồi phát lại trên `createState` / `createApi` / `evaluate` thật, gộp các trạng thái giống nhau. Vì vậy một kiểu game phải giữ các điều kiện sau (ADR-0015):
 1. **Khối lệnh (statement) không đọc cảm biến:** generator của khối lệnh chỉ gọi API của khối lệnh, không gọi API của khối giá trị (`output`). Vi phạm → khối bị báo `not searched`.
+1b. **Cảm biến (P2-11, ADR-0018):** khối giá trị gọi đúng **một** API cảm biến, trả boolean, không đổi state, không phụ thuộc block id. Vét cạn ghi lời gọi đó (trong một `cq_if`) rồi hỏi API thật trên bản sao trạng thái, nhớ theo (trạng thái, cảm biến). Gọi nhiều API hoặc không phải API cảm biến → `not searched`; trả không phải boolean, đổi state, `stop` → cả màn ⚠ `unsearchable`.
 2. **`blockId` không vào state:** id khối chỉ được dùng cho event. Trạng thái sau một lệnh không được phụ thuộc id (validator kiểm bằng cách ghi khối dưới hai id khác nhau). Vi phạm → khối bị báo `not searched`.
 3. **API không dùng `ctx.rng`:** ngẫu nhiên chỉ được dùng trong `createState`. Vi phạm → cả màn báo ⚠ `unsearchable`.
 4. **State là dữ liệu thuần:** object, mảng, `Set`, `Map`, số, chuỗi, boolean (`structuredClone` sao được và so sánh được bằng nội dung). Không có hàm, class instance hay tham chiếu vòng.

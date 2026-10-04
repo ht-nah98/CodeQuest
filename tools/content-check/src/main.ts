@@ -44,7 +44,7 @@ for (const issue of [...issues, ...warnings]) {
 }
 
 console.log(
-  `\ncontent:check (rules 1–19) ${relative(process.cwd(), contentDir) || '.'}: ${String(files.length)} files, ` +
+  `\ncontent:check (rules 1–20) ${relative(process.cwd(), contentDir) || '.'}: ${String(files.length)} files, ` +
     `${String(issues.length)} errors, ${String(warnings.length)} warnings`,
 );
 process.exitCode = issues.length > 0 ? 1 : 0;

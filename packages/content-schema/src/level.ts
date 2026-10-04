@@ -99,6 +99,12 @@ export const LevelSchema = z
     toolbox: z.array(ToolboxEntrySchema),
     maxBlocks: positiveInt.optional(),
     maxInstances: z.record(z.string().min(1), z.number().int().nonnegative()).optional(),
+    /**
+     * Deepest nesting of loop blocks (`cq_repeat`, `cq_repeat_until`) allowed (P2-11, T16b):
+     * 1 = no loop inside another loop. `maxInstances` counts per type, so it cannot stop a
+     * `cq_repeat_until` inside a `cq_repeat`. Checked by rule 20 and the par search.
+     */
+    maxLoopDepth: positiveInt.optional(),
     par: positiveInt.optional(),
     parEdits: positiveInt.optional(),
     config: z.unknown(),

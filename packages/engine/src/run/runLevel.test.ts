@@ -195,6 +195,64 @@ describe('runLevel', () => {
     expect(outcome.stats.actions).toBe(3);
   });
 
+  describe('sense events and empty conditions (P2-11)', () => {
+    // The line kind with a sensor that reports through ctx.sense, as runner and maze do.
+    const sensing: typeof lineKind = {
+      ...lineKind,
+      createApi: (ctx) => ({
+        ...lineKind.createApi(ctx),
+        atGoal: () => ctx.sense(ctx.state.pos === ctx.state.config.goal, 'g'),
+      }),
+    };
+    const until = (cond: object | null, body?: object): object => ({
+      type: 'cq_repeat_until',
+      id: 'u',
+      inputs: {
+        ...(cond !== null && { COND: { block: cond } }),
+        ...(body !== undefined && { DO: { block: body } }),
+      },
+    });
+
+    it('logs each answer as a sense event that counts towards maxActions', () => {
+      const outcome = runLevel({
+        kind: sensing,
+        level: lineLevel({ config: { length: 10, goal: 2 } }),
+        workspace: program([until({ type: 'line_at_goal', id: 'g' }, step('s')), step('t')]),
+      });
+      expect(outcome.result).toBe('incomplete');
+      expect(
+        outcome.events
+          .filter((event) => event.type === 'sense')
+          .map((event) => ('value' in event ? event.value : null)),
+      ).toEqual([false, false, true]);
+      expect(outcome.stats.actions).toBe(6);
+    });
+
+    it('stops a loop that only asks at maxActions, with TIMEOUT', () => {
+      const outcome = runLevel({
+        kind: sensing,
+        level: lineLevel({ config: { length: 10, goal: 2 }, limits: { maxActions: 50 } }),
+        workspace: program([until({ type: 'line_at_goal', id: 'g' })]),
+      });
+      expect(outcome).toMatchObject({ result: 'timeout', reasonCode: 'TIMEOUT' });
+      expect(outcome.stats.actions).toBe(50);
+    });
+
+    it('refuses a program with an empty question slot (EMPTY_CONDITION)', () => {
+      const outcome = runLevel({
+        kind: sensing,
+        level: lineLevel(),
+        workspace: program([until(null, step('s'))]),
+      });
+      expect(outcome).toEqual({
+        result: 'error',
+        reasonCode: 'EMPTY_CONDITION',
+        events: [],
+        stats: { steps: 0, actions: 0, blocksUsed: 2 },
+      });
+    });
+  });
+
   it('is deterministic: the same input gives the same outcome', () => {
     const input = {
       kind: lineKind,

@@ -86,12 +86,11 @@ describe('judgeLevel', () => {
 
   it('caps at ⚠ when toolbox blocks could not be searched', () => {
     const base = load('w01-lang-tre', 'w01-l05');
-    const level = { ...base, toolbox: [...base.toolbox, 'runner_is_ahead'], par: 4 };
+    // Blockly's own controls_if is not searched (the curriculum uses cq_if).
+    const level = { ...base, toolbox: [...base.toolbox, 'controls_if'], par: 4 };
     const verdict = judgeLevel(level, {});
     expect(verdict.mark).toBe('⚠');
-    expect(verdict.lines).toContain(
-      'not searched: runner_is_ahead: value block (needs a condition block)',
-    );
+    expect(verdict.lines).toContain('not searched: controls_if: not a block of this game kind');
     // A real smaller program is still certain.
     expect(judgeLevel({ ...level, par: 6 }, {}).mark).toBe('✖');
   });
