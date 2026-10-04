@@ -9,7 +9,8 @@ export type PixelIconName =
   | 'lock'
   | 'gear'
   | 'book'
-  | 'crown';
+  | 'crown'
+  | 'magnifier';
 
 /** Integer zoom of the 16×16 grid; pixel art is only scaled by whole multiples (art-direction.md §4, §7). */
 export type PixelIconScale = 1 | 2 | 3 | 4;
@@ -234,6 +235,25 @@ const MAPS: Record<PixelIconName, readonly string[]> = {
     '................',
     '................',
     '................',
+  ],
+  // "Xem cả đường" (P2-22): look closer at the whole track.
+  magnifier: [
+    '....OOOOO.......',
+    '..OOwwwwwOO.....',
+    '.OwwWWeeeeeO....',
+    '.OwWWeeeeeeO....',
+    'OwwWeeeeeeeeO...',
+    'OwWeeeeeeeeeO...',
+    'OweeeeeeeeeeO...',
+    'OweeeeeeeeeeO...',
+    'OeeeeeeeeeeeO...',
+    '.OeeeeeeeeeO....',
+    '.OeeeeeeeeeOO...',
+    '..OOeeeeeOODDO..',
+    '....OOOOO.ODDDO.',
+    '...........ODDDO',
+    '............ODDO',
+    '.............OO.',
   ],
 };
 

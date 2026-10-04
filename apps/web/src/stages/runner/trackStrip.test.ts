@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { RunnerConfig } from '@codequest/games';
-import { cameraX, cellCenterX, computeRunnerLayout } from './layout';
-import { createTrackFeed, initialStrip, stripStep, stripView, trackFeedFor } from './trackStrip';
+import { cameraX, cellCenterX, computeRunnerLayout, peekCameraX } from './layout';
+import { createTrackFeed, initialStrip, stripLook, stripStep, stripView } from './trackStrip';
 
 const config: RunnerConfig = {
   cells: ['ground', 'ground', 'crate', 'hole', 'ground', 'branch', 'ground', 'flag'],
@@ -93,9 +93,51 @@ describe('createTrackFeed', () => {
     expect(calls).toBe(3);
   });
 
-  it('exists only for valid runner levels', () => {
-    expect(trackFeedFor('runner', config)).not.toBeNull();
-    expect(trackFeedFor('runner', { cells: [] })).toBeNull();
-    expect(trackFeedFor('maze', config)).toBeNull();
+  it('peeks where the child dragged the strip; a reset follows Măng again', () => {
+    const feed = createTrackFeed(config);
+    let calls = 0;
+    feed.subscribe(() => {
+      calls += 1;
+    });
+    feed.peek(3.5);
+    expect(feed.getSnapshot().look).toBe(3.5);
+    feed.peek(3.5);
+    expect(calls).toBe(1);
+    feed.peek(null);
+    expect(feed.getSnapshot().look).toBeUndefined();
+    feed.peek(2);
+    feed.reset();
+    expect(feed.getSnapshot()).toEqual(initialStrip(config));
+    feed.peek(null);
+    expect(calls).toBe(4);
+  });
+});
+
+describe('stripLook', () => {
+  const long = 30;
+  const width = 516;
+
+  it('centres the view on the dragged cell, as the stage camera shows it', () => {
+    const layout = computeRunnerLayout(long, width, 1);
+    const viewCells = layout.width / layout.cellPx;
+    const look = stripLook(long, width, 15);
+    expect(look).toBeCloseTo(15 - viewCells / 2);
+    const view = stripView(long, width, 0, look);
+    expect(view).not.toBeNull();
+    expect(((view?.from ?? 0) + (view?.to ?? 0)) / 2).toBeCloseTo(15);
+    expect(peekCameraX(layout, look)).toBeCloseTo(layout.originX + look * layout.cellPx);
+  });
+
+  it('stops at both ends of the world (one margin cell), like the camera', () => {
+    const layout = computeRunnerLayout(long, width, 1);
+    expect(stripLook(long, width, 0)).toBe(-1);
+    expect(stripView(long, width, 0, stripLook(long, width, -5))?.from).toBe(0);
+    const end = stripView(long, width, 0, stripLook(long, width, 99));
+    expect(end?.to).toBe(long);
+    expect(peekCameraX(layout, 99)).toBe(layout.worldWidth - layout.width);
+  });
+
+  it('is 0 when the track fits (no camera)', () => {
+    expect(stripLook(5, 1200, 3)).toBe(0);
   });
 });

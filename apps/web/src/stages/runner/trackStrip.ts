@@ -1,15 +1,10 @@
 // State and geometry of the runner's full-track strip (stage-rendering.md §2 "Dải cả đường"),
 // Pixi- and React-free so it is unit tested. The strip follows the replay through the controller's
 // own hooks (onEvent / onReset): no second clock.
-import type { GameKindId } from '@codequest/content-schema';
 import type { GameEvent } from '@codequest/engine';
-import {
-  type RunnerCell,
-  type RunnerConfig,
-  runnerConfigSchema,
-  type RunnerEvent,
-} from '@codequest/games';
-import { cameraX, cellCenterX, computeRunnerLayout } from './layout';
+import { type RunnerCell, type RunnerConfig, type RunnerEvent } from '@codequest/games';
+import { createEventFeed, type EventFeed } from '../feed';
+import { cameraX, cellCenterX, computeRunnerLayout, peekCameraX } from './layout';
 
 /** Widest a strip cell gets (CSS px): a short track stays a compact strip, not a second stage. */
 export const STRIP_MAX_CELL_PX = 24;
@@ -22,6 +17,11 @@ export interface TrackStripState {
   bamboo: readonly number[];
   /** Măng's cell (a hole she fell into, the flag she reached). */
   at: number;
+  /**
+   * Set while the child has dragged the strip with Măng idle (P2-22): the cell at the left edge
+   * of the stage's view, which then no longer follows Măng. Cleared by the next reset / run.
+   */
+  look?: number;
 }
 
 export function initialStrip(config: RunnerConfig): TrackStripState {
@@ -62,16 +62,20 @@ export function stripStep(state: TrackStripState, gameEvent: GameEvent): TrackSt
  * Which cells the big stage shows (fractional, clamped to 0…cellCount) while Măng stands on `at`,
  * for a stage `stageWidth` px wide; `null` when the whole track fits the stage, so no strip is
  * needed. Same layout and camera as the stage (layout.ts); only the width matters to both.
+ * With `look` (the child dragged the strip) the view starts there instead of following Măng.
  */
 export function stripView(
   cellCount: number,
   stageWidth: number,
   at: number,
+  look?: number,
 ): { from: number; to: number } | null {
   if (stageWidth <= 0) return null;
   const layout = computeRunnerLayout(cellCount, stageWidth, 1);
   if (!layout.scrolls) return null;
-  const left = cameraX(layout, cellCenterX(layout, at)) - layout.originX;
+  const camera =
+    look === undefined ? cameraX(layout, cellCenterX(layout, at)) : peekCameraX(layout, look);
+  const left = camera - layout.originX;
   const clamp = (cell: number) => Math.min(cellCount, Math.max(0, cell));
   return {
     from: clamp(left / layout.cellPx),
@@ -79,45 +83,37 @@ export function stripView(
   };
 }
 
-/** A tiny store the play screen feeds from the stage hooks and the strip reads. */
-export interface TrackFeed {
-  subscribe: (listener: () => void) => () => void;
-  getSnapshot: () => TrackStripState;
-  /** An action event's animation starts (StageController `onEvent`). */
-  event: (event: GameEvent) => void;
-  /** The stage went back to the start (StageController `onReset`). */
-  reset: () => void;
+/**
+ * The `look` (left edge of the view, in cells) that centres the stage's view on `cell` while
+ * the child drags the strip, clamped like the stage camera so strip and stage agree. May be
+ * a little below 0 or past the last cell: the stage keeps a margin cell at each end.
+ */
+export function stripLook(cellCount: number, stageWidth: number, cell: number): number {
+  const layout = computeRunnerLayout(cellCount, Math.max(1, stageWidth), 1);
+  if (!layout.scrolls) return 0;
+  const viewCells = layout.width / layout.cellPx;
+  const camera = peekCameraX(layout, cell - viewCells / 2);
+  return (camera - layout.originX) / layout.cellPx;
+}
+
+/** The strip's store (feed.ts), plus the view the child dragged to while Măng is idle. */
+export interface TrackFeed extends EventFeed<TrackStripState> {
+  /** Moves the strip's view to start at cell `look` (P2-22); `null` follows Măng again. */
+  peek: (look: number | null) => void;
 }
 
 export function createTrackFeed(config: RunnerConfig): TrackFeed {
-  const start = initialStrip(config);
-  let state = start;
-  const listeners = new Set<() => void>();
-  const set = (next: TrackStripState) => {
-    if (next === state) return;
-    state = next;
-    for (const listener of listeners) listener();
-  };
+  const feed = createEventFeed(initialStrip(config), stripStep);
   return {
-    subscribe: (listener) => {
-      listeners.add(listener);
-      return () => {
-        listeners.delete(listener);
-      };
-    },
-    getSnapshot: () => state,
-    event: (event) => {
-      set(stripStep(state, event));
-    },
-    reset: () => {
-      set(start);
+    ...feed,
+    peek: (look) => {
+      const state = feed.getSnapshot();
+      if (look === null) {
+        if (state.look === undefined) return;
+        feed.set({ cells: state.cells, bamboo: state.bamboo, at: state.at });
+      } else if (state.look !== look) {
+        feed.set({ ...state, look });
+      }
     },
   };
-}
-
-/** The strip's feed for a level, or `null` when the level has no strip (not a runner level). */
-export function trackFeedFor(kind: GameKindId, config: unknown): TrackFeed | null {
-  if (kind !== 'runner') return null;
-  const parsed = runnerConfigSchema.safeParse(config);
-  return parsed.success ? createTrackFeed(parsed.data) : null;
 }

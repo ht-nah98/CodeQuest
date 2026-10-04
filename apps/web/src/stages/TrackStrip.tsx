@@ -1,12 +1,22 @@
-import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
+import {
+  type PointerEvent as ReactPointerEvent,
+  type ReactNode,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from 'react';
 import { vi } from '../i18n/vi';
 import { UI_COLORS } from '../ui/tokens';
 import {
   STRIP_MAX_CELL_PX,
+  stripLook,
   stripView,
   type TrackFeed,
   type TrackStripState,
 } from './runner/trackStrip';
+import { isClick } from './planView';
 import { SvgPanda, TRACK_CELL, TRACK_GRASS, TRACK_SKY, TrackCells } from './TrackSvg';
 
 const C = TRACK_CELL;
@@ -21,12 +31,19 @@ const FLAG_ROOM = 0.2 * C;
 export function TrackStripView({
   state,
   stageWidth,
+  onDragCell,
 }: {
   state: TrackStripState;
   stageWidth: number;
+  /**
+   * While set (Măng idle), pressing and dragging on the strip reports the cell under the
+   * pointer (fractional), so the play screen can move the stage's view there (P2-22).
+   */
+  onDragCell?: (cell: number) => void;
 }) {
-  const { cells, bamboo, at } = state;
-  const view = stripView(cells.length, stageWidth, at);
+  const { cells, bamboo, at, look } = state;
+  const pressRef = useRef<{ x: number; y: number; moved: boolean } | null>(null);
+  const view = stripView(cells.length, stageWidth, at, look);
   if (view === null) return null;
   const width = cells.length * C + FLAG_ROOM;
   const viewX = view.from * C;
@@ -34,6 +51,16 @@ export function TrackStripView({
   // CSS transforms in SVG user units: the marker and the frame glide to the next cell (a short
   // transition, killed by reduced motion in index.css), not timed by a clock of their own.
   const glide = 'transition-transform duration-200 ease-out';
+  const report = (event: ReactPointerEvent<SVGSVGElement>) => {
+    // A plain click does nothing: the view moves only once the press really drags.
+    const press = pressRef.current;
+    if (press === null) return;
+    if (!press.moved && isClick(event.clientX - press.x, event.clientY - press.y)) return;
+    press.moved = true;
+    const box = event.currentTarget.getBoundingClientRect();
+    if (box.width <= 0) return;
+    onDragCell?.(((event.clientX - box.left) / box.width) * (width / C));
+  };
   return (
     <div
       role="img"
@@ -42,13 +69,31 @@ export function TrackStripView({
       data-cells={cells.length}
       data-at={at}
       data-view={`${view.from.toFixed(2)}-${view.to.toFixed(2)}`}
-      className="border-b-3 border-ink bg-paper-2 px-2 py-1"
+      data-peek={look !== undefined}
+      className="min-w-0 flex-1 px-2 py-1"
     >
       <svg
         viewBox={`0 0 ${String(width)} ${String(HEIGHT)}`}
-        className="mx-auto block h-auto w-full"
+        className={`mx-auto block h-auto w-full touch-none ${onDragCell ? 'cursor-grab active:cursor-grabbing' : ''}`}
         aria-hidden="true"
         style={{ imageRendering: 'pixelated', maxWidth: (width / C) * STRIP_MAX_CELL_PX }}
+        {...(onDragCell && {
+          onPointerDown: (event: ReactPointerEvent<SVGSVGElement>) => {
+            if (event.button !== 0) return;
+            event.currentTarget.setPointerCapture(event.pointerId);
+            pressRef.current = { x: event.clientX, y: event.clientY, moved: false };
+          },
+          onPointerMove: (event: ReactPointerEvent<SVGSVGElement>) => {
+            if (event.buttons === 0) pressRef.current = null;
+            report(event);
+          },
+          onPointerUp: () => {
+            pressRef.current = null;
+          },
+          onLostPointerCapture: () => {
+            pressRef.current = null;
+          },
+        })}
       >
         <rect x={0} y={0} width={width} height={HEIGHT} fill={UI_COLORS.sky} />
         <TrackCells cells={cells} bamboo={bamboo} seam={3} />
@@ -109,8 +154,21 @@ export function TrackStripView({
  * The runner's full-track strip under the stage (stage-rendering.md §2, screens-and-flows.md §3):
  * every cell, Măng's live cell and the part the big stage shows. Shown only while the track is
  * wider than the stage. Its width is the stage's (same column), so it measures itself.
+ * `action` (the "Xem cả đường" button) sits at its right end; `onShownChange` tells the play
+ * screen whether the strip is up, so the button can sit on the stage instead when it is not.
+ * `onPeek` (Măng idle only): dragging the strip moves the stage's view (P2-22).
  */
-export function TrackStrip({ feed }: { feed: TrackFeed }) {
+export function TrackStrip({
+  feed,
+  action,
+  onShownChange,
+  onPeek,
+}: {
+  feed: TrackFeed;
+  action?: ReactNode;
+  onShownChange?: (shown: boolean) => void;
+  onPeek?: (look: number) => void;
+}) {
   const state = useSyncExternalStore(feed.subscribe, feed.getSnapshot);
   const boxRef = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(0);
@@ -127,9 +185,27 @@ export function TrackStrip({ feed }: { feed: TrackFeed }) {
       observer.disconnect();
     };
   }, []);
+  const cellCount = state.cells.length;
+  const shown = stripView(cellCount, width, state.at) !== null;
+  // Before paint, so the button never shows in both places for a frame.
+  useLayoutEffect(() => {
+    onShownChange?.(shown);
+  }, [shown, onShownChange]);
   return (
-    <div ref={boxRef}>
-      <TrackStripView state={state} stageWidth={width} />
+    <div
+      ref={boxRef}
+      className={shown ? 'flex items-center border-b-3 border-ink bg-paper-2' : undefined}
+    >
+      <TrackStripView
+        state={state}
+        stageWidth={width}
+        {...(onPeek && {
+          onDragCell: (cell: number) => {
+            onPeek(stripLook(cellCount, width, cell));
+          },
+        })}
+      />
+      {shown && action !== undefined && <div className="shrink-0 py-0.5 pr-2">{action}</div>}
     </div>
   );
 }

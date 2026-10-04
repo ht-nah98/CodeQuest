@@ -15,7 +15,14 @@ import { createPanda, type Panda } from '../pandaSprite';
 import { createFlag, tileSprite } from '../tiles';
 import { reducedMotion } from '../motion';
 import { isAborted, type PandaAnimationListener, type StageRenderer, tween } from '../types';
-import { CELL_TILES, cameraX, cellCenterX, computeRunnerLayout, type RunnerLayout } from './layout';
+import {
+  CELL_TILES,
+  cameraX,
+  cellCenterX,
+  computeRunnerLayout,
+  peekCameraX,
+  type RunnerLayout,
+} from './layout';
 import { drawClouds, drawFarBamboo, drawHills, drawSky, PARALLAX } from './scenery';
 
 /** Durations at speed 1, in ms. */
@@ -132,6 +139,8 @@ export class RunnerStage implements StageRenderer<RunnerEvent> {
   private shake = 0;
   /** The camera looks at this cell instead of Măng (missed shoots), when set. */
   private focus: { cell: number; mix: number } | null = null;
+  /** The child dragged the strip while Măng is idle: the view's left edge in cells (P2-22). */
+  private look: number | null = null;
   /** Măng is seeing stars after a bump (until reset). */
   private stunned = 0;
   private readonly stars = new Graphics();
@@ -190,6 +199,7 @@ export class RunnerStage implements StageRenderer<RunnerEvent> {
     this.pose = restingPose(this.config.start);
     this.shake = 0;
     this.focus = null;
+    this.look = null;
     this.stunned = 0;
     this.tip.clear();
     this.rise.clear();
@@ -239,6 +249,10 @@ export class RunnerStage implements StageRenderer<RunnerEvent> {
 
   hold(): void {
     this.panda.sprite.stop();
+  }
+
+  peek(leftCell: number | null): void {
+    this.look = leftCell;
   }
 
   /**
@@ -532,7 +546,7 @@ export class RunnerStage implements StageRenderer<RunnerEvent> {
     this.updateParticles(ticker);
 
     const target = this.focus ? x + (cellCenterX(layout, this.focus.cell) - x) * this.focus.mix : x;
-    const camera = cameraX(layout, target);
+    const camera = this.look === null ? cameraX(layout, target) : peekCameraX(layout, this.look);
     const amplitude = this.calm ? 0 : 4;
     const wobble =
       this.shake > 0 ? Math.round(Math.sin(this.shake * 40) * amplitude * this.shake) : 0;

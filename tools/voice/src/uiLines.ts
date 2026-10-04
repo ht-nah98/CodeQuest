@@ -26,6 +26,7 @@ export const VOICED_UI_KEYS: readonly string[] = [
   'play.creative.done',
   'play.creative.saved',
   'play.creative.saveError',
+  'play.plan.help',
   'hints.freeNote',
   'hints.missingTip',
   'hints.error',

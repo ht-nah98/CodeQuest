@@ -44,7 +44,7 @@ import { usePlaySession } from '../../features/play/usePlaySession';
 import { useSignedInProfile } from '../../features/profiles';
 import { vi } from '../../i18n/vi';
 import type { PandaAnimation } from '../../stages/panda';
-import { trackFeedFor } from '../../stages/runner/trackStrip';
+import { planSourceFor } from '../../stages/planSource';
 import { type PlayResult, type Speed, StageController } from '../../stages/StageController';
 import { TrackStrip } from '../../stages/TrackStrip';
 import { Bubble, Button, CapacityBricks, Panel, PixelIcon, SpeakButton } from '../../ui';
@@ -52,6 +52,7 @@ import { canOpenLevel } from '../../features/content/catalog';
 import { ScreenMessage } from '../shared/ScreenMessage';
 import { useChild } from '../shared/useChild';
 import { MangPortrait, type PortraitPose } from './MangPortrait';
+import { PlanView } from './PlanView';
 import { PlayTopBar } from './PlayTopBar';
 import { type PickMark, PredictCards } from './PredictCards';
 import { HintBox } from './HintBox';
@@ -255,12 +256,18 @@ function PlaySession({
   const mapIndexRef = useRef(0);
   /** How each map did in the last run (cleared by a new run or an edit). */
   const [mapMarks, setMapMarks] = useState<ReadonlyArray<MapMark | undefined>>([]);
-  // Runner only: the full-track strip under the stage follows the replay (stage-rendering.md §2).
-  const trackFeeds = useMemo(
-    () => maps.map((config) => trackFeedFor(level.kind, config)),
+  // Runner / maze: the full-track strip under the stage and the "Xem cả đường" view follow the
+  // replay through one feed per map (stage-rendering.md §2, §4).
+  const planSources = useMemo(
+    () => maps.map((config) => planSourceFor(level.kind, config)),
     [level.kind, maps],
   );
-  const trackFeed = trackFeeds[mapIndex] ?? null;
+  const planSource = planSources[mapIndex] ?? null;
+  const trackFeed = planSource?.kind === 'runner' ? planSource.feed : null;
+  /** "Xem cả đường" (P2-22): open, the strip is up (the button sits on it), marks per map. */
+  const [planOpen, setPlanOpen] = useState(false);
+  const [stripShown, setStripShown] = useState(false);
+  const [planMarks, setPlanMarks] = useState<ReadonlyArray<readonly string[] | undefined>>([]);
   const stageRef = useRef<StageController | null>(null);
   const workspaceRef = useRef<Blockly.WorkspaceSvg | null>(null);
   const handleRef = useRef<WorkspaceHandle | null>(null);
@@ -399,7 +406,7 @@ function PlaySession({
     const container = stageBoxRef.current;
     if (!container) return;
     const controller = new AbortController();
-    const feedOf = () => trackFeeds[mapIndexRef.current] ?? null;
+    const feedOf = () => planSources[mapIndexRef.current]?.feed ?? null;
     StageController.mount(container, controller.signal, {
       kind: level.kind,
       config: maps[mapIndexRef.current],
@@ -453,7 +460,7 @@ function PlaySession({
       stageRef.current = null;
       setStageReady(false);
     };
-  }, [level, maps, trackFeeds, highlight, readyLine, say]);
+  }, [level, maps, planSources, highlight, readyLine, say]);
 
   /** Puts map `map` on the stage (a fresh scene at its start) and selects its tab. */
   const showMap = useCallback(
@@ -492,6 +499,9 @@ function PlaySession({
       void rewardOf.then((won) => {
         if (won && runTokenRef.current === token) setReward(won);
       });
+      // The results overlay or the fail line takes over: a "Xem cả đường" view left open from
+      // the run would sit on top of them (P2-22).
+      setPlanOpen(false);
       if (outcome.result === 'success') {
         setPhase('success');
       } else {
@@ -652,6 +662,7 @@ function PlaySession({
           : feedbackPlayLine('WRONG_ANSWER', level, feedback),
       );
       const won = () => {
+        setPlanOpen(false);
         setPhase('success');
         say(uiLine('play.predict.rightDone', t.predict.rightDone));
         void rewardOf.then((result) => {
@@ -665,6 +676,7 @@ function PlaySession({
             won();
             return;
           }
+          setPlanOpen(false);
           setPhase('fail');
           say(uiLine('play.predict.tryAgain', t.predict.tryAgain));
           playFailSfx();
@@ -835,6 +847,35 @@ function PlaySession({
     stageBoxRef.current?.focus();
   };
 
+  /**
+   * Măng idle: dragging the full-track strip moves the stage's view there (P2-22). The next
+   * reset or run gives the camera back to Măng (StageController.peek, the feed's reset).
+   */
+  const peekStage = useCallback(
+    (look: number) => {
+      const stage = stageRef.current;
+      if (!stage || stage.playing) return;
+      stage.peek(look);
+      trackFeed?.peek(look);
+    },
+    [trackFeed],
+  );
+  const planLabel = level.kind === 'maze' ? t.plan.openMaze : t.plan.open;
+  const planButton = planSource && (
+    <button
+      type="button"
+      aria-label={planLabel}
+      title={planLabel}
+      data-testid="plan-open"
+      onClick={() => {
+        setPlanOpen(true);
+      }}
+      className="grid size-11 shrink-0 cursor-pointer place-items-center rounded-key border-2 border-ink bg-paper shadow-key transition-transform duration-150 hover:-translate-y-px active:translate-y-0.5 active:shadow-button-pressed focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-brand-deep"
+    >
+      <PixelIcon name="magnifier" scale={2} />
+    </button>
+  );
+
   // Radio group keyboard pattern: arrows move the choice, only the checked radio is tabbable.
   const speedRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const onSpeedKey = (event: ReactKeyboardEvent, index: number) => {
@@ -902,8 +943,19 @@ function PlaySession({
                 {t.stageError}
               </p>
             )}
+            {/* No strip (a maze, a track that fits): the "Xem cả đường" button sits on the stage. */}
+            {planButton && !(trackFeed && stripShown) && (
+              <div className="absolute top-2 right-2 z-10">{planButton}</div>
+            )}
           </div>
-          {trackFeed && <TrackStrip feed={trackFeed} />}
+          {trackFeed && (
+            <TrackStrip
+              feed={trackFeed}
+              action={planButton}
+              onShownChange={setStripShown}
+              {...(stageReady && !running && { onPeek: peekStage })}
+            />
+          )}
 
           <p className="m-0 flex items-center gap-2 border-b-3 border-ink bg-paper-2 px-4 py-2 font-bold">
             <span className="rounded-kbd bg-brand-deep px-2 pt-0.5 font-pixel text-pixel-sm font-normal text-paper uppercase">
@@ -1103,6 +1155,23 @@ function PlaySession({
           notice={playHints.notice}
           onBuy={playHints.buy}
           onClose={playHints.closeBox}
+        />
+      )}
+      {planOpen && planSource && (
+        <PlanView
+          source={planSource}
+          mapNumber={maps.length > 1 ? mapIndex + 1 : null}
+          marks={planMarks[mapIndex] ?? []}
+          onMarks={(next) => {
+            setPlanMarks((current) => {
+              const copy = [...current];
+              copy[mapIndex] = next;
+              return copy;
+            });
+          }}
+          onClose={() => {
+            setPlanOpen(false);
+          }}
         />
       )}
       {playHints.solutionOpen && level.solution !== undefined && (

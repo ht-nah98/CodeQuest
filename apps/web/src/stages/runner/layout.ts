@@ -86,3 +86,12 @@ export function cameraX(layout: RunnerLayout, pandaX: number): number {
   if (!layout.scrolls) return 0;
   return clamp(pandaX - layout.width * 0.4, 0, layout.worldWidth - layout.width);
 }
+
+/**
+ * Camera offset that puts the left edge of the view at cell `leftCell` (fractional), clamped to
+ * the world like `cameraX`: the child drags the full-track strip while Măng is idle (P2-22).
+ */
+export function peekCameraX(layout: RunnerLayout, leftCell: number): number {
+  if (!layout.scrolls) return 0;
+  return clamp(layout.originX + leftCell * layout.cellPx, 0, layout.worldWidth - layout.width);
+}

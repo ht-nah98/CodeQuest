@@ -99,6 +99,29 @@ export const vi = {
       lostOn: (n: number) => `Chưa qua bản đồ ${String(n)}. Sửa rồi chạy lại nhé!`,
       allWon: (count: number) => `Qua cả ${String(count)} bản đồ!`,
     },
+    // "Xem cả đường" (P2-22): the big planning view of the track or the maze. The ruler counts
+    // cells from 1 here only; the stage itself has no numbers (stage-rendering.md §4).
+    plan: {
+      open: 'Xem cả đường',
+      openMaze: 'Xem cả mê cung',
+      title: 'Cả đường',
+      titleMaze: 'Cả mê cung',
+      // Multi-map levels: which map the view shows.
+      onMap: (n: number) => `Bản đồ ${String(n)}`,
+      help: 'Kéo để xem. Bấm ô để đánh dấu.',
+      close: 'Đóng',
+      // Screen readers: what the picture window is and how to use it from the keyboard.
+      viewRole: 'bản đồ',
+      keys: 'Phím mũi tên để xem. Enter để đánh dấu ô ở giữa.',
+      start: 'Xuất phát',
+      goal: 'Đích',
+      mang: 'Măng đang đứng',
+      marked: 'Ô đã đánh dấu',
+      // Screen readers: where the child is looking (cells counted from 1, like the ruler).
+      track: (cells: number, at: number) => `Đường dài ${String(cells)} ô. Măng ở ô ${String(at)}.`,
+      maze: (rows: number, cols: number) => `Mê cung ${String(rows)} hàng, ${String(cols)} cột.`,
+      marks: (n: number) => `Đã đánh dấu ${String(n)} ô`,
+    },
     creative: {
       label: 'Sáng tạo: không có đúng sai',
       save: 'Lưu',

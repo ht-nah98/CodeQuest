@@ -18,6 +18,7 @@
 - Mỗi màn `guided` có ≥ 2 luật gợi ý tầng 0; `practice` ≥ 1.
 - `thinkingHint` là **câu hỏi**, không chứa tên khối cần dùng.
 - Gợi ý theo `lastReason` nên nói **vì sao** chuyện đó xảy ra, không chỉ lặp lại câu phản hồi.
+- Số ô chỉ hiện trong khung "Xem cả đường" (thước đếm ô, P2-22, `architecture/stage-rendering.md` §4), không có trên sân chơi. Gợi ý, mục tiêu và nhãn đáp án vẫn nói theo vật mốc, **không bao giờ** viết "ô số N".
 
 ### Màn `predict`: khóa đáp án
 Khóa `crash:<REASON>@<ô>` chỉ **ô nơi va chạm xảy ra** (ô hố, ô cành/thùng bị đụng), không phải ô Măng đứng; riêng runner `OFF_TRACK` là ô Măng nhảy đi. Nhãn lựa chọn nói rõ chỗ đó bằng **vật mốc trên sân chơi**, không dùng số ô (sân chơi không hiện số, bé đếm dễ lệch), vd `crash:HIT_BRANCH@2` → "Cụng đầu vào cành tre", `stop@4` → "Đứng ngay trước lá cờ". **Riêng maze `HIT_WALL`** (`crash:HIT_WALL@r,c`): ô là ô Măng **đứng khi đâm** (ô bước ra), không phải ô tường, vì tường không phải chỗ Măng tới được (`mazePredictAnswer`, sự thật của engine); hình thẻ vẽ Măng ở ô đó, vụ nổ ở cạnh tường. `stop@<ô>` là ô Măng đứng khi hết chương trình; `missed@<ô cờ>` là tới cờ mà còn măng. Định dạng: `product/game-kinds.md` §3.

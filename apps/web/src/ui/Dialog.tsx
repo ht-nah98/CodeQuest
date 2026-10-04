@@ -1,4 +1,5 @@
 import { type ReactNode, type RefObject, useEffect, useId, useRef } from 'react';
+import { closeModal, isTopModal, openModal } from './modalStack';
 
 export interface DialogProps {
   /** Visible title; also the dialog's accessible name. */
@@ -14,9 +15,6 @@ export interface DialogProps {
   children?: ReactNode;
   'data-testid'?: string;
 }
-
-/** Open dialogs, oldest first: only the top-most one handles Esc and Tab. */
-const openStack: symbol[] = [];
 
 const FOCUSABLE =
   'a[href], button:not([disabled]), input:not([disabled]), select, textarea, [tabindex]:not([tabindex="-1"])';
@@ -53,11 +51,10 @@ export function Dialog({
   }, [initialFocus]);
 
   useEffect(() => {
-    const me = Symbol('dialog');
-    openStack.push(me);
+    const me = openModal();
     const onKeyDown = (event: KeyboardEvent) => {
       const card = cardRef.current;
-      if (!card || openStack.at(-1) !== me) return;
+      if (!card || !isTopModal(me)) return;
       if (event.key === 'Escape' && onCloseRef.current) {
         event.preventDefault();
         event.stopPropagation();
@@ -81,7 +78,7 @@ export function Dialog({
     window.addEventListener('keydown', onKeyDown, { capture: true });
     return () => {
       window.removeEventListener('keydown', onKeyDown, { capture: true });
-      openStack.splice(openStack.indexOf(me), 1);
+      closeModal(me);
     };
   }, []);
 

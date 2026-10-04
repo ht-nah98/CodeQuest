@@ -120,6 +120,16 @@ export class StageController {
     this.replay.setSpeed(speed);
   }
 
+  /**
+   * Moves the camera to start at cell `leftCell` (P2-22: the child drags the full-track strip),
+   * or back onto Măng with `null`. Ignored while a replay runs (even paused) and on stages that
+   * always show the whole board; the next reset / run gives the camera back to Măng.
+   */
+  peek(leftCell: number | null): void {
+    if (this.replay.playing) return;
+    this.renderer.peek?.(leftCell);
+  }
+
   /** Stops any replay at once, puts the scene back at the start and clears the highlight. */
   reset(): void {
     this.replay.reset();

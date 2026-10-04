@@ -1,10 +1,12 @@
 import type { ReactNode } from 'react';
-import type { RunnerCell } from '@codequest/games';
+import type { MazeCell, MazeConfig, RunnerCell } from '@codequest/games';
 import sheetJson from 'virtual:panda-sheet';
-import { UI_COLORS } from '../ui/tokens';
+import { BLOCK_COLORS, UI_COLORS } from '../ui/tokens';
+import { shade } from './colors';
 
-// SVG pieces shared by the small static pictures of a level (stage-rendering.md §4): the predict
-// answer cards (AnswerPicture) and the runner's full-track strip (TrackStrip). Same Kenney tiles
+// SVG pieces shared by the static pictures of a level (stage-rendering.md §4): the predict
+// answer cards (AnswerPicture), the runner's full-track strip (TrackStrip) and the big
+// "Xem cả đường" view (screens/play/PlanView). Same Kenney tiles
 // and panda sheet as the PixiJS stage, so a child recognises every cell.
 
 const PANDA_SHEET = JSON.parse(sheetJson) as {
@@ -191,4 +193,134 @@ export function TrackCells({
     );
   }
   return <>{items}</>;
+}
+
+// ---- Maze: the whole grid from above ------------------------------------------------------------
+
+/** Width of one maze cell in picture units. */
+export const MAZE_CELL = 12;
+const MAZE_ARROW: Record<MazeConfig['startDir'], number> = { N: 0, E: 90, S: 180, W: 270 };
+
+/** The start `S` and goal `G` cells of a maze map (`[row, column]`), `null` if missing. */
+export function mazeLandmarks(map: readonly string[]): {
+  start: [number, number] | null;
+  goal: [number, number] | null;
+} {
+  let start: [number, number] | null = null;
+  let goal: [number, number] | null = null;
+  map.forEach((row, r) => {
+    Array.from(row).forEach((ch, c) => {
+      if (ch === 'S') start = [r, c];
+      if (ch === 'G') goal = [r, c];
+    });
+  });
+  return { start, goal };
+}
+
+/** A small arrow pointing `dir`, centred on (cx, cy), `size` units tall. */
+export function MazeArrow({
+  dir,
+  cx,
+  cy,
+  size = MAZE_CELL,
+}: {
+  dir: MazeConfig['startDir'];
+  cx: number;
+  cy: number;
+  size?: number;
+}) {
+  const k = size / MAZE_CELL;
+  return (
+    <g
+      transform={`translate(${String(cx)} ${String(cy)}) rotate(${String(MAZE_ARROW[dir])}) scale(${String(k)})`}
+      data-dir={dir}
+    >
+      <polygon
+        points="0,-4.5 4,2.5 0,0.8 -4,2.5"
+        fill={BLOCK_COLORS.move}
+        stroke={UI_COLORS.ink}
+        strokeWidth={0.6}
+      />
+    </g>
+  );
+}
+
+/**
+ * Every cell of a maze map (wall, path, bamboo), the goal flag and the start arrow, cell [r, c]
+ * at (c × MAZE_CELL, r × MAZE_CELL). `bamboo` overrides the map's shoots (those not picked up yet).
+ */
+export function MazeBoard({
+  config,
+  bamboo,
+}: {
+  config: MazeConfig;
+  bamboo?: readonly MazeCell[];
+}) {
+  const M = MAZE_CELL;
+  const { map } = config;
+  const shoots = bamboo?.map(([r, c]) => `${String(r)},${String(c)}`);
+  const cells: ReactNode[] = [];
+  map.forEach((row, r) => {
+    Array.from(row).forEach((ch, c) => {
+      const x = c * M;
+      const y = r * M;
+      const key = `${String(r)},${String(c)}`;
+      if (ch === '#') {
+        cells.push(
+          <g key={key}>
+            <rect x={x} y={y} width={M} height={M} fill={UI_COLORS.goDeep} />
+            <rect x={x + 2} y={y} width={2} height={M} fill={shade(UI_COLORS.go, 1.35)} />
+            <rect x={x + 7} y={y} width={2} height={M} fill={UI_COLORS.go} />
+          </g>,
+        );
+        return;
+      }
+      cells.push(
+        <rect
+          key={key}
+          x={x}
+          y={y}
+          width={M}
+          height={M}
+          fill={UI_COLORS.paper2}
+          stroke={shade(UI_COLORS.paper2, 0.85)}
+          strokeWidth={0.5}
+        />,
+      );
+      if (shoots ? shoots.includes(key) : ch === 'b') {
+        cells.push(
+          <image
+            key={`b${key}`}
+            href={tile('bamboo')}
+            x={x + 2}
+            y={y + 2}
+            width={M - 4}
+            height={M - 4}
+            data-bamboo={key}
+          />,
+        );
+      }
+    });
+  });
+  const { start, goal } = mazeLandmarks(map);
+  return (
+    <>
+      {cells}
+      {goal && (
+        <image
+          href={tile('flag_1')}
+          x={goal[1] * M + 1}
+          y={goal[0] * M + 1}
+          width={M - 2}
+          height={M - 2}
+          data-mark="goal"
+        />
+      )}
+      {start && (
+        <g data-mark="start">
+          <MazeArrow dir={config.startDir} cx={start[1] * M + M / 2} cy={start[0] * M + M / 2} />
+        </g>
+      )}
+    </>
+  );
 }

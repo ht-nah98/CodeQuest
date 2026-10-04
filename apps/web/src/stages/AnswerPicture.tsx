@@ -13,12 +13,13 @@ import {
   type ParsedAnswer,
   runnerCell,
 } from '../features/play/answerKey';
-import { BLOCK_COLORS, UI_COLORS } from '../ui/tokens';
-import { shade } from './colors';
+import { UI_COLORS } from '../ui/tokens';
 import {
+  MAZE_CELL,
+  MazeBoard,
+  mazeLandmarks,
   SvgPanda,
   type SvgPandaPose,
-  tile,
   TRACK_CELL,
   TRACK_GRASS,
   TRACK_SKY,
@@ -152,10 +153,9 @@ function RunnerAnswer({ config, answer }: { config: RunnerConfig; answer: Parsed
 
 // ---- Maze: the whole grid from above ------------------------------------------------------------
 
-const M = 12;
+const M = MAZE_CELL;
 /** Wall cells kept around the open area of the picture. */
 const BORDER = 0.35;
-const ARROW: Record<MazeConfig['startDir'], number> = { N: 0, E: 90, S: 180, W: 270 };
 const STEP: Record<MazeConfig['startDir'], readonly [number, number]> = {
   N: [-1, 0],
   E: [0, 1],
@@ -209,57 +209,10 @@ function MazeAnswer({ config, answer }: { config: MazeConfig; answer: ParsedAnsw
   const { map } = config;
   const rows = map.length;
   const cols = map[0]?.length ?? 0;
-  let goal: [number, number] | null = null;
-  let start: [number, number] | null = null;
-  const cells: ReactNode[] = [];
-  map.forEach((row, r) => {
-    Array.from(row).forEach((ch, c) => {
-      const x = c * M;
-      const y = r * M;
-      const key = `${String(r)},${String(c)}`;
-      if (ch === '#') {
-        cells.push(
-          <g key={key}>
-            <rect x={x} y={y} width={M} height={M} fill={UI_COLORS.goDeep} />
-            <rect x={x + 2} y={y} width={2} height={M} fill={shade(UI_COLORS.go, 1.35)} />
-            <rect x={x + 7} y={y} width={2} height={M} fill={UI_COLORS.go} />
-          </g>,
-        );
-        return;
-      }
-      cells.push(
-        <rect
-          key={key}
-          x={x}
-          y={y}
-          width={M}
-          height={M}
-          fill={UI_COLORS.paper2}
-          stroke={shade(UI_COLORS.paper2, 0.85)}
-          strokeWidth={0.5}
-        />,
-      );
-      if (ch === 'G') goal = [r, c];
-      if (ch === 'S') start = [r, c];
-      if (ch === 'b') {
-        cells.push(
-          <image
-            key={`b${key}`}
-            href={tile('bamboo')}
-            x={x + 2}
-            y={y + 2}
-            width={M - 4}
-            height={M - 4}
-          />,
-        );
-      }
-    });
-  });
+  const { start, goal } = mazeLandmarks(map);
   const keyed = answer.outcome === 'win' ? goal : mazeCell(answer);
   // A key pointing outside the map or into a wall is a content error: draw no answer mark.
   const cell = keyed !== null && isOpen(map, keyed[0], keyed[1]) ? keyed : null;
-  const goalCell = goal as [number, number] | null;
-  const startCell = start as [number, number] | null;
   // Crop to the open cells plus a strip of the surrounding grove: a bordered map's outer wall
   // ring would otherwise take a third of a small card.
   const open = map.flatMap((row, r) =>
@@ -272,8 +225,8 @@ function MazeAnswer({ config, answer }: { config: MazeConfig; answer: ParsedAnsw
   const viewBox = [left * M, top * M, (right - left) * M, (bottom - top) * M].map(String).join(' ');
   // HIT_WALL keys the cell Măng bumped FROM: she stands there, the burst sits on the wall edge.
   const wall =
-    cell !== null && startCell !== null && answer.outcome === 'crash'
-      ? wallDir(config, startCell, cell)
+    cell !== null && start !== null && answer.outcome === 'crash'
+      ? wallDir(config, start, cell)
       : null;
   return (
     <svg
@@ -283,29 +236,7 @@ function MazeAnswer({ config, answer }: { config: MazeConfig; answer: ParsedAnsw
       aria-hidden="true"
       style={{ imageRendering: 'pixelated' }}
     >
-      {cells}
-      {goalCell && (
-        <image
-          href={tile('flag_1')}
-          x={goalCell[1] * M + 1}
-          y={goalCell[0] * M + 1}
-          width={M - 2}
-          height={M - 2}
-        />
-      )}
-      {startCell && (
-        <g
-          transform={`translate(${String(startCell[1] * M + M / 2)} ${String(startCell[0] * M + M / 2)}) rotate(${String(ARROW[config.startDir])})`}
-          data-mark="start"
-        >
-          <polygon
-            points="0,-4.5 4,2.5 0,0.8 -4,2.5"
-            fill={BLOCK_COLORS.move}
-            stroke={UI_COLORS.ink}
-            strokeWidth={0.6}
-          />
-        </g>
-      )}
+      <MazeBoard config={config} />
       {cell && (
         <g data-answer-cell={`${String(cell[0])},${String(cell[1])}`}>
           <Spot x={cell[1] * M + 0.6} y={cell[0] * M + 0.6} w={M - 1.2} h={M - 1.2} />

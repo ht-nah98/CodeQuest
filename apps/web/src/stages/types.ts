@@ -27,6 +27,12 @@ export interface StageRenderer<E extends GameEvent> {
    * steps. E.g. the maze shows its MISSED_ITEMS cue here.
    */
   finish?(outcome: RunOutcome<E>): void;
+  /**
+   * Optional camera peek while no replay runs (P2-22): the child drags the full-track strip and
+   * the view starts at cell `leftCell` instead of following Măng; `null` (and `reset()`) gives
+   * the camera back to Măng. Kinds whose stage always shows the whole board leave it out.
+   */
+  peek?(leftCell: number | null): void;
   /** New stage size in CSS px (ResizeObserver). */
   resize(width: number, height: number): void;
   destroy(): void;

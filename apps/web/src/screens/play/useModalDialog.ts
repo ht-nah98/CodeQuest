@@ -1,15 +1,21 @@
 import { type RefObject, useEffect, useRef } from 'react';
+import { closeModal, isTopModal, openModal } from '../../ui/modalStack';
 
 const FOCUSABLE = 'button:not([disabled]), [href], input, [tabindex]:not([tabindex="-1"])';
 
 /**
- * Keyboard behaviour of a modal overlay (`aria-modal="true"`): focuses the first control when it
- * opens, keeps Tab inside, closes on Escape (screens-and-flows.md §4) and gives focus back to
- * whatever had it before. Keys are caught on `document` in the capture phase, so Escape and Tab
- * work wherever focus is. App shortcuts are already off while an `aria-modal` overlay is open
+ * Keyboard behaviour of a modal overlay (`aria-modal="true"`): focuses `initialFocus` (else the
+ * first control) when it opens, keeps Tab inside, closes on Escape (screens-and-flows.md §4) and
+ * gives focus back to whatever had it before. Keys are caught on `document` in the capture phase,
+ * so Escape and Tab work wherever focus is; only the top-most open modal (ui/modalStack.ts, shared
+ * with Dialog) handles them. App shortcuts are already off while an `aria-modal` overlay is open
  * (blockly-integration.md §13).
  */
-export function useModalDialog(ref: RefObject<HTMLElement | null>, onClose: () => void): void {
+export function useModalDialog(
+  ref: RefObject<HTMLElement | null>,
+  onClose: () => void,
+  initialFocus?: RefObject<HTMLElement | null>,
+): void {
   // The latest onClose, without re-running the effect (and refocusing) on every parent render.
   const onCloseRef = useRef(onClose);
   useEffect(() => {
@@ -19,9 +25,11 @@ export function useModalDialog(ref: RefObject<HTMLElement | null>, onClose: () =
   useEffect(() => {
     const dialog = ref.current;
     if (!dialog) return;
+    const me = openModal();
     const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-    dialog.querySelector<HTMLElement>(FOCUSABLE)?.focus();
+    (initialFocus?.current ?? dialog.querySelector<HTMLElement>(FOCUSABLE))?.focus();
     const onKeyDown = (event: KeyboardEvent) => {
+      if (!isTopModal(me)) return;
       if (event.key === 'Escape') {
         event.preventDefault();
         event.stopPropagation();
@@ -45,7 +53,8 @@ export function useModalDialog(ref: RefObject<HTMLElement | null>, onClose: () =
     document.addEventListener('keydown', onKeyDown, true);
     return () => {
       document.removeEventListener('keydown', onKeyDown, true);
+      closeModal(me);
       if (opener?.isConnected) opener.focus();
     };
-  }, [ref]);
+  }, [ref, initialFocus]);
 }
