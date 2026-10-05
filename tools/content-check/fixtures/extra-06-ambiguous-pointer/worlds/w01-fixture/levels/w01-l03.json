@@ -10,13 +10,7 @@
   "misconception": "Măng tự nhảy khi gặp hố.",
   "toolbox": [],
   "config": {
-    "cells": [
-      "ground",
-      "ground",
-      "hole",
-      "ground",
-      "flag"
-    ],
+    "cells": ["ground", "ground", "hole", "ground", "flag"],
     "start": 0
   },
   "initialWorkspace": {

@@ -14,6 +14,12 @@
 - Bản đồ nhỏ trước, to sau. Thế giới 1: runner ≤ 12 ô, maze ≤ 6×6.
 - Không đặt bẫy "ăn gian" (chướng ngại khó thấy, ô giống nhau gây nhầm).
 
+### 2.1 Màn có câu hỏi (từ Thế giới 4; `product/curriculum.md` §5.5 R1–R3)
+- **Chặn "nhảy cóc" (R1).** Màn runner muốn ép hỏi về hố phải có ít nhất một bản đồ có hố ở ô **chẵn** tính từ ô 0, hoặc chìa khóa / bạn ở ô mà nhảy cóc bay qua. Kiểm bằng `npm run par`: lời giải ngắn nhất phải có khối hỏi (test của thế giới bỏ khối hỏi khỏi thanh khối và kiểm không gì thắng trong `maxBlocks`, vd `tools/content-check/src/w04.test.ts`).
+- **Chống lặp lồng (R2).** Màn build/bughunt có vòng lặp đặt `maxLoopDepth: 1`; Thế giới 4 thêm `maxInstances: { cq_repeat: 1 }` (cả màn ghép hình).
+- **Vét cạn (R3).** Mọi màn build/bughunt chạy `npm run par`; số nào khác bảng ở `curriculum.md` thì sửa bản đồ cho giữ ý dạy và ghi lại ở mục "Ghi chú khi soạn" của thế giới đó.
+- Cành và thùng chỉ ở màn ghép hình, đoán, săn lỗi (D3), vì "luôn cúi", "luôn đá" thắng mà không cần hỏi.
+
 ## 3. Gợi ý
 - Mỗi màn `guided` có ≥ 2 luật gợi ý tầng 0; `practice` ≥ 1.
 - `thinkingHint` là **câu hỏi**, không chứa tên khối cần dùng.

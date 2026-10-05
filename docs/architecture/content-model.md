@@ -179,7 +179,7 @@ Chạy `npm run content:check`. Báo lỗi (exit 1) nếu vi phạm bất kỳ l
 10. `blocksUsed(solution) ≤ par ≤ maxBlocks` (nếu có).
 11. Mọi block type trong `solution` có trong `toolbox` (trừ `cq_start`; trừ mode `parsons`, khi đó so với `initialWorkspace`).
 12. Màn có `maxBlocks`: `solution` và `initialWorkspace` không chứa shadow block, và toolbox không chứa `controls_repeat_ext` (dùng `cq_repeat`). Lý do: `blockly-integration.md` §5. Schema `ToolboxEntry` chỉ cho `fields`, không cho `inputs`, nên khối kéo từ toolbox không bao giờ mang shadow.
-13. `parsons`: tập khối của `initialWorkspace` = tập khối của `solution` (chỉ khác thứ tự/vị trí), và `initialWorkspace` **không** tự thắng.
+13. `parsons`: tập khối của `initialWorkspace` = tập khối của `solution` (chỉ khác thứ tự/vị trí), và `initialWorkspace` **không** tự thắng. Vì vậy màn ghép hình không có khối gây nhiễu: lúc chơi, bé phải ghép **mọi** khối được cho, thắng mà còn khối rời là `incomplete` / `LOOSE_BLOCKS` (câu G22, `runtime-engine.md` §2); luật 9 chạy `solution` đúng mode nên lời giải có khối rời sẽ đỏ.
 14. `bughunt`: `initialWorkspace` **phải thua**; `editDistance(initial, solution) ≤ parEdits`.
 15. `predict`: chạy `initialWorkspace` lấy `answerKey`, phải trùng đúng 1 `options[].key`; số phương án 3–4.
 16. Hint: `point: "toolbox:<type>"` phải trỏ tới khối có trong toolbox; `point: "block:<type>"` phải trỏ tới khối có trong `initialWorkspace` hoặc `solution`, và ở mode `predict`/`bughunt` chương trình cho sẵn chỉ có **đúng một** khối loại đó (màn chơi chỉ vào khối đầu tiên: khối trong chương trình, hoặc khối rời khi điều kiện có `orphans: true`; `apps/web/src/blockly/hintPointer.ts`), nên câu gợi ý không chỉ nhầm khối; `when.lastReason` phải là reasonCode có thật của `kind` hoặc của engine.
@@ -227,6 +227,7 @@ Cách hiểu chi tiết (cài đặt ở P1-11):
 - **P2-21 + P2-11c:** trường `starGoals`, `mission`, `goalSprite`; luật 5 đếm chữ `mission`; thêm **luật 19** (mục tiêu sao) và fixture `rule-19-star-goal-missed/`. Dòng tổng kết in `rules 1–19`; output của mọi màn không có `starGoals` không đổi.
 - **P2-11 (a/b):** khối `cq_if`, `cq_if_else`, `cq_repeat_until`, `runner_at_goal`; trường `maxLoopDepth`; điểm gợi ý `step`; mã engine `EMPTY_CONDITION` (luật 17: `feedback.json` của nội dung và mọi fixture có câu cho nó); thêm **luật 20** (giới hạn khối) và fixture `rule-20-block-limits/`. Dòng tổng kết in `rules 1–20`; output các màn khác không đổi.
 - **P2-11c (vật phẩm nhiệm vụ):** `config.goal.items` của runner, maze; mã `NEED_KEY`, `NEED_FRIEND` (luật 17: `feedback.json` của nội dung và mọi fixture, trừ fixture luật 17, có câu cho cả hai). Output các màn hiện có không đổi.
+- **P2-13 (05/10/2026):** mã engine `LOOSE_BLOCKS` (mode `parsons`, câu G22; luật 17: `feedback.json` của nội dung và mọi fixture có câu). Mọi màn ghép hình W1–W4 vẫn xanh.
 - **P2-15:** luật cấp màn chuyển sang package headless `@codequest/validator` (`validateLevel`); `content:check` cho output y hệt trước khi tách (đã so trên `content/` và cả 19 fixture). Thêm `npm run par` (§8).
 
 ## 8. Vét cạn `par` (`npm run par`)

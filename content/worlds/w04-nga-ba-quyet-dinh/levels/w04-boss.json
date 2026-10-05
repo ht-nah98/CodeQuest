@@ -1,0 +1,194 @@
+{
+  "id": "w04-boss",
+  "worldId": "w04-nga-ba-quyet-dinh",
+  "stage": "boss",
+  "kind": "maze",
+  "mode": "build",
+  "title": "Cứu Bông",
+  "objective": "Một chương trình cho 3 mê cung. Không quá 9 khối!",
+  "learningGoal": "Một chương trình hai câu hỏi thắng 3 mê cung. Hỏi bên trái trước thì Măng vào nhánh trái lấy chìa khóa rồi mới tới lồng.",
+  "mission": "Lấy chìa khóa, mở lồng cứu Bông!",
+  "goalSprite": "cage",
+  "toolbox": [
+    "maze_forward",
+    "maze_turn_left",
+    "maze_turn_right",
+    {
+      "type": "cq_repeat",
+      "fields": {
+        "TIMES": 3
+      }
+    },
+    "cq_if",
+    "cq_if_else",
+    "maze_is_path"
+  ],
+  "maxBlocks": 9,
+  "maxInstances": {
+    "cq_repeat": 1
+  },
+  "maxLoopDepth": 1,
+  "par": 8,
+  "config": {
+    "map": [
+      "#########",
+      "#S..#####",
+      "###.#####",
+      "###...###",
+      "###.#####",
+      "#G..#####",
+      "#########"
+    ],
+    "startDir": "E",
+    "goal": {
+      "items": [
+        {
+          "kind": "key",
+          "at": [3, 5]
+        }
+      ]
+    }
+  },
+  "variants": [
+    {
+      "map": [
+        "########",
+        "#....G##",
+        "#.######",
+        "#.######",
+        "#...####",
+        "###.####",
+        "#S..####",
+        "########"
+      ],
+      "startDir": "E",
+      "goal": {
+        "items": [
+          {
+            "kind": "key",
+            "at": [4, 2]
+          }
+        ]
+      }
+    },
+    {
+      "map": ["#########", "#S.######", "##.....##", "######.##", "##G....##", "#########"],
+      "startDir": "E",
+      "goal": {
+        "items": [
+          {
+            "kind": "key",
+            "at": [2, 4]
+          }
+        ]
+      }
+    }
+  ],
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "rep1",
+              "fields": {
+                "TIMES": 20
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "cq_if",
+                    "id": "if1",
+                    "inputs": {
+                      "COND": {
+                        "block": {
+                          "type": "maze_is_path",
+                          "id": "ask1",
+                          "fields": {
+                            "DIR": "LEFT"
+                          }
+                        }
+                      },
+                      "DO": {
+                        "block": {
+                          "type": "maze_turn_left",
+                          "id": "left1"
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "cq_if_else",
+                        "id": "ifelse1",
+                        "inputs": {
+                          "COND": {
+                            "block": {
+                              "type": "maze_is_path",
+                              "id": "ask2",
+                              "fields": {
+                                "DIR": "AHEAD"
+                              }
+                            }
+                          },
+                          "DO": {
+                            "block": {
+                              "type": "maze_forward",
+                              "id": "fwd1"
+                            }
+                          },
+                          "ELSE": {
+                            "block": {
+                              "type": "maze_turn_right",
+                              "id": "right1"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "key",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "NEED_KEY"
+      },
+      "say": "Chìa khóa ở ngõ bên trái của Măng. Hỏi bên nào trước?",
+      "point": "stage"
+    },
+    {
+      "id": "wall",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "HIT_WALL"
+      },
+      "say": "Hỏi trước khi tiến: phía trước có đường không?",
+      "point": "toolbox:maze_is_path"
+    },
+    {
+      "id": "more",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "NOT_AT_GOAL"
+      },
+      "say": "Mê cung dài. Lặp thêm nhiều vòng nhé!",
+      "point": "block:cq_repeat"
+    }
+  ],
+  "thinkingHint": "Ở mê cung 1, chìa khóa nằm bên nào của Măng?"
+}

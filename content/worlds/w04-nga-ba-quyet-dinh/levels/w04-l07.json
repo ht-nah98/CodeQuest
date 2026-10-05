@@ -1,0 +1,103 @@
+{
+  "id": "w04-l07",
+  "worldId": "w04-nga-ba-quyet-dinh",
+  "stage": "practice",
+  "kind": "maze",
+  "mode": "predict",
+  "title": "Bên trái của Măng",
+  "objective": "Đọc chương trình, chọn chỗ Măng dừng lại.",
+  "learningGoal": "\"Có đường bên trái\" hỏi bên trái của Măng. Măng nhìn xuống thì bên trái của Măng là phía phải màn hình.",
+  "misconception": "Bên trái của Măng là bên trái màn hình.",
+  "mission": "Măng nhìn xuống. Đoán xem Măng đi đâu!",
+  "goalSprite": "exit",
+  "toolbox": [],
+  "config": {
+    "map": ["#######", "###S###", "###.###", "#G...##", "###.###", "#######"],
+    "startDir": "S"
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "rep1",
+              "fields": {
+                "TIMES": 5
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "cq_if",
+                    "id": "if1",
+                    "inputs": {
+                      "COND": {
+                        "block": {
+                          "type": "maze_is_path",
+                          "id": "ask1",
+                          "fields": {
+                            "DIR": "LEFT"
+                          }
+                        }
+                      },
+                      "DO": {
+                        "block": {
+                          "type": "maze_turn_left",
+                          "id": "left1"
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "maze_forward",
+                        "id": "fwd1"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "predict": {
+    "options": [
+      {
+        "key": "crash:HIT_WALL@3,4",
+        "label": "Ngõ cụt bên phải"
+      },
+      {
+        "key": "win",
+        "label": "Ra cửa bên trái"
+      },
+      {
+        "key": "crash:HIT_WALL@4,3",
+        "label": "Đi thẳng xuống"
+      },
+      {
+        "key": "stop@3,3",
+        "label": "Đứng ở ngã tư"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "turn-yourself",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Con quay người như Măng: nhìn xuống. Tay trái ở đâu?",
+      "point": "stage"
+    }
+  ],
+  "thinkingHint": "Măng nhìn xuống thì bên trái của Măng là phía nào màn hình?"
+}

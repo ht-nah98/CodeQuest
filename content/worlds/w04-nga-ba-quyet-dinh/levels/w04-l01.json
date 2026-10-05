@@ -1,0 +1,180 @@
+{
+  "id": "w04-l01",
+  "worldId": "w04-nga-ba-quyet-dinh",
+  "stage": "guided",
+  "kind": "runner",
+  "mode": "parsons",
+  "title": "Hỏi trước khi nhảy",
+  "objective": "Xếp khối: có hố thì nhảy, rồi đi!",
+  "learningGoal": "Khối nếu và câu hỏi \"phía trước có hố\": khối nhảy nằm trong nếu, nên Măng chỉ nhảy khi phía trước có hố. Khối đi nằm ngoài nếu, chạy mọi vòng.",
+  "misconception": "Khối trong nếu luôn chạy, như khối ở ngoài.",
+  "mission": "Theo dấu chân Bông qua đường có hố.",
+  "goalSprite": "footprints",
+  "toolbox": [],
+  "maxInstances": {
+    "cq_repeat": 1
+  },
+  "maxLoopDepth": 1,
+  "par": 5,
+  "config": {
+    "cells": ["ground", "hole", "ground", "ground", "ground", "hole", "ground", "ground", "flag"],
+    "start": 0
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false
+        },
+        {
+          "type": "runner_jump",
+          "id": "jump1",
+          "x": 300,
+          "y": 40
+        },
+        {
+          "type": "cq_repeat",
+          "id": "rep1",
+          "fields": {
+            "TIMES": 6
+          },
+          "x": 440,
+          "y": 104
+        },
+        {
+          "type": "runner_walk",
+          "id": "walk1",
+          "x": 300,
+          "y": 168
+        },
+        {
+          "type": "cq_if",
+          "id": "if1",
+          "x": 440,
+          "y": 232
+        },
+        {
+          "type": "runner_is_ahead",
+          "id": "ask1",
+          "fields": {
+            "KIND": "HOLE"
+          },
+          "x": 300,
+          "y": 296
+        }
+      ]
+    }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "rep1",
+              "fields": {
+                "TIMES": 6
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "cq_if",
+                    "id": "if1",
+                    "inputs": {
+                      "COND": {
+                        "block": {
+                          "type": "runner_is_ahead",
+                          "id": "ask1",
+                          "fields": {
+                            "KIND": "HOLE"
+                          }
+                        }
+                      },
+                      "DO": {
+                        "block": {
+                          "type": "runner_jump",
+                          "id": "jump1"
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "runner_walk",
+                        "id": "walk1"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "new-if",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Khối mới nếu: ✔ thì làm các khối bên trong, ✘ thì bỏ qua.",
+      "point": "block:cq_if"
+    },
+    {
+      "id": "new-ask",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Phía trước có: ✔ khi ô ngay trước Măng là thứ con chọn.",
+      "point": "block:runner_is_ahead"
+    },
+    {
+      "id": "ask",
+      "when": {
+        "trigger": "idle"
+      },
+      "say": "Cắm câu hỏi \"phía trước có hố\" vào ô của nếu.",
+      "point": "block:runner_is_ahead"
+    },
+    {
+      "id": "jump-out",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "FELL_IN_HOLE"
+      },
+      "say": "Khối nào chỉ nên chạy khi có hố?",
+      "point": "block:cq_if"
+    },
+    {
+      "id": "stuck",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "NOT_AT_GOAL"
+      },
+      "say": "Không có hố, Măng bỏ qua khối nhảy. Rồi làm gì?",
+      "point": "stage"
+    },
+    {
+      "id": "loose",
+      "when": {
+        "trigger": "run-end",
+        "orphans": true
+      },
+      "say": "Còn khối rời. Nối hết vào khi bắt đầu nhé!"
+    }
+  ],
+  "thinkingHint": "Khi phía trước là đất, Măng nên làm gì?"
+}

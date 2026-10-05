@@ -1,0 +1,157 @@
+{
+  "id": "w04-l02",
+  "worldId": "w04-nga-ba-quyet-dinh",
+  "stage": "guided",
+  "kind": "runner",
+  "mode": "build",
+  "title": "Gió đổi đường",
+  "objective": "Một chương trình cho 2 con đường. Không quá 5 khối!",
+  "learningGoal": "Khối nếu … nếu không: ✔ chạy nhánh trên (nhảy), ✘ chạy nhánh dưới (đi). Một chương trình đúng trên cả 2 bản đồ.",
+  "misconception": "Mỗi vòng chạy cả hai nhánh.",
+  "mission": "Gió đổi đường rồi! Tìm dấu Bông tiếp.",
+  "goalSprite": "footprints",
+  "toolbox": [
+    "runner_walk",
+    "runner_jump",
+    {
+      "type": "cq_repeat",
+      "fields": {
+        "TIMES": 10
+      }
+    },
+    "cq_if",
+    "cq_if_else",
+    "runner_is_ahead"
+  ],
+  "maxBlocks": 5,
+  "maxInstances": {
+    "cq_repeat": 1
+  },
+  "maxLoopDepth": 1,
+  "par": 5,
+  "config": {
+    "cells": [
+      "ground",
+      "ground",
+      "hole",
+      "ground",
+      "hole",
+      "ground",
+      "ground",
+      "ground",
+      "hole",
+      "ground",
+      "flag"
+    ],
+    "start": 0
+  },
+  "variants": [
+    {
+      "cells": [
+        "ground",
+        "hole",
+        "ground",
+        "ground",
+        "ground",
+        "hole",
+        "ground",
+        "hole",
+        "ground",
+        "ground",
+        "flag"
+      ],
+      "start": 0
+    }
+  ],
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "rep1",
+              "fields": {
+                "TIMES": 10
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "cq_if_else",
+                    "id": "ifelse1",
+                    "inputs": {
+                      "COND": {
+                        "block": {
+                          "type": "runner_is_ahead",
+                          "id": "ask1",
+                          "fields": {
+                            "KIND": "HOLE"
+                          }
+                        }
+                      },
+                      "DO": {
+                        "block": {
+                          "type": "runner_jump",
+                          "id": "jump1"
+                        }
+                      },
+                      "ELSE": {
+                        "block": {
+                          "type": "runner_walk",
+                          "id": "walk1"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "new-ifelse",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Khối mới nếu … nếu không: ✔ làm nhánh trên, ✘ làm nhánh dưới.",
+      "point": "toolbox:cq_if_else"
+    },
+    {
+      "id": "maps",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Có 2 bản đồ. Chương trình phải đúng cả hai!",
+      "point": "stage"
+    },
+    {
+      "id": "hole",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "FELL_IN_HOLE"
+      },
+      "say": "Mỗi vòng hỏi lại. Có hố thì sao, không có thì sao?",
+      "point": "toolbox:cq_if_else"
+    },
+    {
+      "id": "cap",
+      "when": {
+        "capacityFull": true,
+        "missing": "cq_if_else"
+      },
+      "say": "Hết chỗ rồi! Thử khối nếu … nếu không xem.",
+      "point": "toolbox:cq_if_else"
+    }
+  ],
+  "thinkingHint": "Phía trước có hố thì sao? Không có hố thì sao?"
+}

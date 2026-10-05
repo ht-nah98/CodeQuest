@@ -1,0 +1,200 @@
+{
+  "id": "w04-l14",
+  "worldId": "w04-nga-ba-quyet-dinh",
+  "stage": "practice",
+  "kind": "maze",
+  "mode": "parsons",
+  "title": "Bản đồ của bác Cú",
+  "objective": "Xếp chương trình 2 câu hỏi cho đúng nhé!",
+  "learningGoal": "Chương trình hai câu hỏi: có đường bên trái thì rẽ trái; rồi có đường phía trước thì tiến, nếu không thì rẽ phải.",
+  "misconception": "Một câu hỏi là đủ cho mọi khúc rẽ.",
+  "mission": "Lắp lại bản đồ dò đường của bác Cú.",
+  "goalSprite": "exit",
+  "toolbox": [],
+  "maxInstances": {
+    "cq_repeat": 1
+  },
+  "maxLoopDepth": 1,
+  "par": 8,
+  "config": {
+    "map": ["#######", "#S.####", "##...##", "####.##", "##G..##", "#######"],
+    "startDir": "E"
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false
+        },
+        {
+          "type": "maze_is_path",
+          "id": "ask2",
+          "fields": {
+            "DIR": "AHEAD"
+          },
+          "x": 300,
+          "y": 40
+        },
+        {
+          "type": "maze_turn_left",
+          "id": "left1",
+          "x": 440,
+          "y": 104
+        },
+        {
+          "type": "cq_repeat",
+          "id": "rep1",
+          "fields": {
+            "TIMES": 20
+          },
+          "x": 300,
+          "y": 168
+        },
+        {
+          "type": "maze_turn_right",
+          "id": "right1",
+          "x": 440,
+          "y": 232
+        },
+        {
+          "type": "maze_is_path",
+          "id": "ask1",
+          "fields": {
+            "DIR": "LEFT"
+          },
+          "x": 300,
+          "y": 296
+        },
+        {
+          "type": "cq_if_else",
+          "id": "ifelse1",
+          "x": 440,
+          "y": 360
+        },
+        {
+          "type": "maze_forward",
+          "id": "fwd1",
+          "x": 300,
+          "y": 424
+        },
+        {
+          "type": "cq_if",
+          "id": "if1",
+          "x": 440,
+          "y": 488
+        }
+      ]
+    }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "rep1",
+              "fields": {
+                "TIMES": 20
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "cq_if",
+                    "id": "if1",
+                    "inputs": {
+                      "COND": {
+                        "block": {
+                          "type": "maze_is_path",
+                          "id": "ask1",
+                          "fields": {
+                            "DIR": "LEFT"
+                          }
+                        }
+                      },
+                      "DO": {
+                        "block": {
+                          "type": "maze_turn_left",
+                          "id": "left1"
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "cq_if_else",
+                        "id": "ifelse1",
+                        "inputs": {
+                          "COND": {
+                            "block": {
+                              "type": "maze_is_path",
+                              "id": "ask2",
+                              "fields": {
+                                "DIR": "AHEAD"
+                              }
+                            }
+                          },
+                          "DO": {
+                            "block": {
+                              "type": "maze_forward",
+                              "id": "fwd1"
+                            }
+                          },
+                          "ELSE": {
+                            "block": {
+                              "type": "maze_turn_right",
+                              "id": "right1"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "two",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Có 2 câu hỏi. Măng cần hỏi bên nào trước?",
+      "point": "block:cq_if"
+    },
+    {
+      "id": "wall",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "HIT_WALL",
+        "orphans": false
+      },
+      "say": "Không có đường phía trước thì Măng nên rẽ.",
+      "point": "block:cq_if_else"
+    },
+    {
+      "id": "loose",
+      "when": {
+        "trigger": "run-end",
+        "orphans": true
+      },
+      "say": "Còn khối rời. Nối hết vào khi bắt đầu nhé!"
+    }
+  ],
+  "thinkingHint": "Khi nào Măng rẽ trái? Khi nào Măng rẽ phải?"
+}

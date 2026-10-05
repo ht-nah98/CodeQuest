@@ -155,6 +155,16 @@ export function runLevel<C, S, E extends GameEvent>(input: RunLevelInput<C, S, E
       maps.every((run) => run.outcome.goals?.[index] === true),
     );
   }
+  // Parsons (coach question G22): every given block must be joined under "khi bắt đầu"; a
+  // program that wins while blocks are still loose does not count.
+  if (
+    level.mode === 'parsons' &&
+    outcome.result === 'success' &&
+    analysis.orphanBlockIds.length > 0
+  ) {
+    outcome.result = 'incomplete';
+    outcome.reasonCode = 'LOOSE_BLOCKS';
+  }
   if (mapOutcome.result === 'error') {
     // An engine error on a variant says which map it came from, as an invalid config does.
     if (deciding > 0 && mapOutcome.debug !== undefined) {

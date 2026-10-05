@@ -43,6 +43,7 @@ Quy tắc:
 - Định nghĩa hàm ở gốc (`procedures_defnoreturn`, `procedures_defreturn`) thuộc chương trình: các khối của nó được tính vào `blocksUsed`, có trong `programBlockIds` (sau các khối dưới `cq_start`), **không** nằm trong `orphanBlockIds`, và được biên dịch cùng chương trình.
 - Chương trình rỗng (không có khối nào nối dưới `cq_start`, kể cả khi có định nghĩa hàm) → trả ngay `{ result: 'error', reasonCode: 'EMPTY_PROGRAM' }`, không chạy. Workspace không có `cq_start` cũng tính là rỗng. Nếu có hơn một `cq_start`, khối đầu tiên là chương trình, các khối còn lại tính là khối rời.
 - `DISCONNECTED_BLOCKS` **không** phải kết quả chạy. Nó là mã cho gợi ý (hint engine dùng `analysis.orphanBlockIds`).
+- **Mode `parsons`** (câu G22, 05/10/2026): lượt chạy thắng mà còn khối rời (`analysis.orphanBlockIds` không rỗng) **không** tính là thắng: trả `{ result: 'incomplete', reasonCode: 'LOOSE_BLOCKS' }` ("Còn khối chưa ghép. Ghép hết vào nhé!"). Bé phải ghép **mọi** khối được cho. Chương trình vẫn chạy và phát lại như thường; lượt thua giữ lý do thật (vd `FELL_IN_HOLE`). Mode khác bỏ qua khối rời như trước. `content:check` luật 13 đã bảo đảm lời giải ghép parsons dùng đúng mọi khối được cho.
 - `blocksUsed > level.maxBlocks` → không chạy, trả `{ result: 'error', reasonCode: 'TOO_MANY_BLOCKS' }`. Bình thường UI đã chặn việc này bằng tùy chọn `maxBlocks` của Blockly; đây là lớp bảo vệ thứ hai.
 - Một khối `cq_if` / `cq_if_else` / `cq_repeat_until` **trong chương trình** có ô điều kiện (`COND`) trống → không chạy, trả `{ result: 'error', reasonCode: 'EMPTY_CONDITION' }` (P2-11, ADR-0018). Blockly đọc ô trống là `false`, nên `lặp đến khi ◇` trống thành "lặp mãi" và thắng nhờ luật "chạm đích là thắng"; engine không đoán thay bé. Khối rời có ô trống không sao (không chạy).
 - `maxLoopDepth` và `maxInstances` **không** được `runLevel` kiểm (Blockly chặn khi thả khối; `content:check` luật 20 kiểm lời giải). Hàm thuần `loopDepth(workspaceJson)` (số tầng vòng lặp lồng nhau, tính cả khối rời) và `blockTypeCounts(workspaceJson)` export từ engine cho validator, vét cạn và bộ chặn thả khối của web.
@@ -136,12 +137,12 @@ type MapOutcome<E> = Pick<RunOutcome<E>, 'result' | 'reasonCode' | 'events' | 's
 | result | Khi nào | Ví dụ reasonCode |
 |---|---|---|
 | `success` | `evaluate` trả thành công, hoặc `ctx.stop('success')` | — |
-| `incomplete` | Chương trình chạy hết nhưng `evaluate` báo chưa đạt, hoặc mô phỏng gọi `ctx.stop('incomplete', …)` (vd tới cờ khi còn măng) | `NOT_AT_GOAL`, `MISSED_ITEMS`, `NEED_KEY`, `NEED_FRIEND` (P2-11c) |
+| `incomplete` | Chương trình chạy hết nhưng `evaluate` báo chưa đạt, hoặc mô phỏng gọi `ctx.stop('incomplete', …)` (vd tới cờ khi còn măng) | `NOT_AT_GOAL`, `MISSED_ITEMS`, `NEED_KEY`, `NEED_FRIEND` (P2-11c), `LOOSE_BLOCKS` (engine, mode `parsons`, §2) |
 | `crash` | Mô phỏng dừng vì va chạm | `HIT_WALL`, `FELL_IN_HOLE`, `HIT_BRANCH`, `HIT_CRATE` |
 | `timeout` | Vượt `maxSteps` / `maxActions` | `TIMEOUT` |
 | `error` | Chương trình rỗng, quá số khối, ô điều kiện trống, lỗi nội bộ | `EMPTY_PROGRAM`, `TOO_MANY_BLOCKS`, `EMPTY_CONDITION`, `INTERNAL_ERROR` |
 
-`ReasonCode` là `string` (khai báo trong `@codequest/content-schema/runtime`), không phải union đóng, vì engine không biết trước các kiểu game. Mã chung của engine là hằng số `ENGINE_REASONS = ['EMPTY_PROGRAM', 'TOO_MANY_BLOCKS', 'EMPTY_CONDITION', 'TIMEOUT', 'INTERNAL_ERROR']`; mã của kiểu game nằm trong `GameKindDefinition.reasonCodes`. **Nguồn duy nhất** của câu tiếng Việt là `content/shared/feedback.json`; `content:check` (luật 17) đảm bảo mọi mã đều có câu.
+`ReasonCode` là `string` (khai báo trong `@codequest/content-schema/runtime`), không phải union đóng, vì engine không biết trước các kiểu game. Mã chung của engine là hằng số `ENGINE_REASONS = ['EMPTY_PROGRAM', 'TOO_MANY_BLOCKS', 'EMPTY_CONDITION', 'LOOSE_BLOCKS', 'TIMEOUT', 'INTERNAL_ERROR']`; mã của kiểu game nằm trong `GameKindDefinition.reasonCodes`. **Nguồn duy nhất** của câu tiếng Việt là `content/shared/feedback.json`; `content:check` (luật 17) đảm bảo mọi mã đều có câu.
 
 ### 7.1 Màn nhiều bản đồ (`variants`, P2-12, ADR-0016)
 - Bản đồ theo thứ tự: `config` (bản đồ 1), rồi từng phần tử của `level.variants`. Config nào không hợp `configSchema` thì cả lượt chạy là `error` / `INTERNAL_ERROR` (`debug`: `variants[i]: …`), không chạy gì.

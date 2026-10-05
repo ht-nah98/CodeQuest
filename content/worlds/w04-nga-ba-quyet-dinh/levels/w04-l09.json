@@ -1,0 +1,213 @@
+{
+  "id": "w04-l09",
+  "worldId": "w04-nga-ba-quyet-dinh",
+  "stage": "practice",
+  "kind": "runner",
+  "mode": "parsons",
+  "title": "Thùng và hố",
+  "objective": "Xếp 2 câu hỏi cho đúng thứ tự nhé!",
+  "learningGoal": "Hai khối nếu nối tiếp trong vòng lặp: hỏi thùng trước (đá), rồi mới hỏi hố (nhảy hay đi). Đổi thứ tự thì Măng đi vào thùng.",
+  "misconception": "Hai câu hỏi đặt thứ tự nào cũng như nhau.",
+  "mission": "Thùng và hố chắn đường tới chỗ Bông.",
+  "goalSprite": "footprints",
+  "toolbox": [],
+  "maxInstances": {
+    "cq_repeat": 1
+  },
+  "maxLoopDepth": 1,
+  "par": 8,
+  "config": {
+    "cells": [
+      "ground",
+      "crate",
+      "ground",
+      "ground",
+      "hole",
+      "ground",
+      "hole",
+      "ground",
+      "crate",
+      "ground",
+      "ground",
+      "flag"
+    ],
+    "start": 0
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false
+        },
+        {
+          "type": "cq_if_else",
+          "id": "ifelse1",
+          "x": 300,
+          "y": 40
+        },
+        {
+          "type": "runner_walk",
+          "id": "walk1",
+          "x": 440,
+          "y": 104
+        },
+        {
+          "type": "runner_is_ahead",
+          "id": "ask1",
+          "fields": {
+            "KIND": "CRATE"
+          },
+          "x": 300,
+          "y": 168
+        },
+        {
+          "type": "cq_repeat",
+          "id": "rep1",
+          "fields": {
+            "TIMES": 12
+          },
+          "x": 440,
+          "y": 232
+        },
+        {
+          "type": "runner_jump",
+          "id": "jump1",
+          "x": 300,
+          "y": 296
+        },
+        {
+          "type": "cq_if",
+          "id": "if1",
+          "x": 440,
+          "y": 360
+        },
+        {
+          "type": "runner_is_ahead",
+          "id": "ask2",
+          "fields": {
+            "KIND": "HOLE"
+          },
+          "x": 300,
+          "y": 424
+        },
+        {
+          "type": "runner_kick",
+          "id": "kick1",
+          "x": 440,
+          "y": 488
+        }
+      ]
+    }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "rep1",
+              "fields": {
+                "TIMES": 12
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "cq_if",
+                    "id": "if1",
+                    "inputs": {
+                      "COND": {
+                        "block": {
+                          "type": "runner_is_ahead",
+                          "id": "ask1",
+                          "fields": {
+                            "KIND": "CRATE"
+                          }
+                        }
+                      },
+                      "DO": {
+                        "block": {
+                          "type": "runner_kick",
+                          "id": "kick1"
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "cq_if_else",
+                        "id": "ifelse1",
+                        "inputs": {
+                          "COND": {
+                            "block": {
+                              "type": "runner_is_ahead",
+                              "id": "ask2",
+                              "fields": {
+                                "KIND": "HOLE"
+                              }
+                            }
+                          },
+                          "DO": {
+                            "block": {
+                              "type": "runner_jump",
+                              "id": "jump1"
+                            }
+                          },
+                          "ELSE": {
+                            "block": {
+                              "type": "runner_walk",
+                              "id": "walk1"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "order",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Có 2 câu hỏi. Câu nào hỏi trước?",
+      "point": "stage"
+    },
+    {
+      "id": "crate",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "HIT_CRATE",
+        "orphans": false
+      },
+      "say": "Măng đi vào thùng. Lúc đó câu hỏi nào được hỏi?",
+      "point": "block:cq_if"
+    },
+    {
+      "id": "loose",
+      "when": {
+        "trigger": "run-end",
+        "orphans": true
+      },
+      "say": "Còn khối rời. Nối hết vào khi bắt đầu nhé!"
+    }
+  ],
+  "thinkingHint": "Đá xong thùng, phía trước Măng là gì?"
+}

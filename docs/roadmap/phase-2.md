@@ -21,7 +21,7 @@
 | P2-10 | Chi tiết hóa chương trình học Thế giới 3–5 | — | AI soạn · HLV duyệt | ✅ HLV + phụ huynh duyệt 03/10 |
 | P2-11 | Khối điều kiện, lặp đến khi, cảm biến sáng khi kiểm | P2-10 (bản nháp) | AI | ⬜ |
 | P2-12 | Màn nhiều bản đồ (một chương trình, 2–3 bản đồ) | P2-10 (bản nháp) | AI | ✅ |
-| P2-13 | Nội dung Thế giới 4 · Ngã Ba Quyết Định (20 màn + bài giảng) | P2-08, P2-11, P2-12 | AI soạn nháp · HLV duyệt | ⬜ |
+| P2-13 | Nội dung Thế giới 4 · Ngã Ba Quyết Định (20 màn + bài giảng) | P2-08, P2-11, P2-12 | AI soạn nháp · HLV duyệt | 🟨 chờ HLV chơi thử (cần web P2-11a, P2-11c) |
 | P2-14 | Nội dung Thế giới 5 · Sông Chờ Đợi (20 màn + bài giảng) | P2-13 | AI soạn nháp · HLV duyệt | ⬜ |
 | P2-15 | Package `@codequest/validator` + công cụ vét cạn `par` | — | AI | ✅ |
 | P2-16 | Nối Supabase thật: chạy migration, test SQL, deploy function, e2e có server | P2-01…P2-06, P2-17, P2-20 | AI · HLV cấp khóa | ⛔ |
@@ -256,6 +256,7 @@ Theo bảng ở `curriculum.md` (mục Thế giới 3 do P2-10 viết). `world.j
 ### P2-13 · Nội dung Thế giới 4 · Ngã Ba Quyết Định
 Theo bảng ở `curriculum.md` (mục Thế giới 4). `world.json`, `w04-lesson` (có thẻ `demo` dùng `nếu` trên 2 bản đồ khác nhau), 20 màn + `w04-creative`, unplugged. Boss: một chương trình thắng 3 bản đồ (P2-12).
 **Nghiệm thu:** như P2-08 (thay `w03` bằng `w04`), thêm: mọi màn có `variants` qua `content:check` trên mọi bản đồ; khối `nếu`, cảm biến xuất hiện lần đầu ở màn guided có gợi ý chỉ vào khối (luật 7). **HLV chơi thử từng màn.**
+**Trạng thái (05/10/2026):** 🟨 đã soạn nháp `world.json` (unplugged "Lật thẻ trước mỗi bước"), `w04-lesson` + 4 bài "Khối mới" (`w04-lesson-neu`, `w04-lesson-neu-khong`, `w04-lesson-co-duong`, `w04-lesson-chia-khoa`), 20 màn + `w04-creative`; `content:check` xanh không cảnh báo; `npm run par -- --world w04` ✔ mọi màn build/bughunt, `par`/`parEdits` đúng bảng, không phải sửa bản đồ (`curriculum.md` §5.2 "Ghi chú khi soạn (P2-13)"); test `tools/content-check/src/w04.test.ts` (demo, ghép sai, từng bước sửa, R1 "không hỏi thì không thắng", đánh đổi sao `l16` 8 / 5). Review sư phạm độc lập (05/10) đã xử lý: bản đồ `l05`, `l09`, `w04-creative`; gợi ý dạng câu hỏi; bài `w04-lesson-neu-khong`; màn ghép hình phải ghép hết khối (`LOOSE_BLOCKS`, câu G22). **Chặn merge:** `w04-l17`, `w04-boss` và bài `w04-lesson-chia-khoa` dùng `config.goal.items`, chờ phần web của P2-11c. Còn: phần web của P2-11a (khối `nếu`, khối hỏi trong Blockly của màn chơi) để chơi được, e2e smoke `w04-l01`, **HLV chơi thử**.
 
 ### P2-14 · Nội dung Thế giới 5 · Sông Chờ Đợi
 Theo bảng ở `curriculum.md` (mục Thế giới 5). `world.json`, `w05-lesson` (thẻ `demo` có một vòng lặp vô hạn để bé thấy "vòng lặp không tự dừng"), 20 màn + `w05-creative`, unplugged. Boss: qua sông không biết trước độ dài (nhiều bản đồ khác độ dài).

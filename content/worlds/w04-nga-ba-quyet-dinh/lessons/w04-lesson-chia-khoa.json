@@ -1,0 +1,112 @@
+{
+  "id": "w04-lesson-chia-khoa",
+  "worldId": "w04-nga-ba-quyet-dinh",
+  "title": "Chìa khóa của Bông",
+  "beforeLevel": "w04-l17",
+  "cards": [
+    {
+      "type": "say",
+      "pose": "point",
+      "text": "Chìa khóa! Măng đứng ở ô chìa khóa mới nhặt được."
+    },
+    {
+      "type": "demo",
+      "text": "Măng đi tới ô chìa khóa: nhặt được!",
+      "kind": "runner",
+      "config": {
+        "cells": ["ground", "ground", "ground", "flag"],
+        "start": 0,
+        "goal": {
+          "items": [
+            {
+              "kind": "key",
+              "at": 2
+            }
+          ]
+        }
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "runner_walk",
+                  "id": "walk1",
+                  "next": {
+                    "block": {
+                      "type": "runner_walk",
+                      "id": "walk2",
+                      "next": {
+                        "block": {
+                          "type": "runner_walk",
+                          "id": "walk3"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "demo",
+      "text": "Nhảy qua chìa khóa thì không nhặt được.",
+      "kind": "runner",
+      "config": {
+        "cells": ["ground", "ground", "ground", "flag"],
+        "start": 0,
+        "goal": {
+          "items": [
+            {
+              "kind": "key",
+              "at": 2
+            }
+          ]
+        }
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "runner_walk",
+                  "id": "walk1",
+                  "next": {
+                    "block": {
+                      "type": "runner_jump",
+                      "id": "jump1"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "quiz",
+      "text": "Măng nhảy qua ô chìa khóa. Nhặt được không?",
+      "options": ["Được", "Không"],
+      "correct": 1,
+      "explain": "Phải đứng ở ô chìa khóa mới nhặt được."
+    }
+  ]
+}

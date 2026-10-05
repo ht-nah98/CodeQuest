@@ -1,0 +1,124 @@
+{
+  "id": "w04-lesson-neu-khong",
+  "worldId": "w04-nga-ba-quyet-dinh",
+  "title": "Khối nếu … nếu không",
+  "beforeLevel": "w04-l02",
+  "cards": [
+    {
+      "type": "say",
+      "pose": "point",
+      "text": "Khối mới: nếu … nếu không! Mỗi lần chỉ chạy 1 nhánh."
+    },
+    {
+      "type": "demo",
+      "text": "Phía trước có hố: ✔. Nhánh trên chạy, Măng nhảy.",
+      "kind": "runner",
+      "config": {
+        "cells": ["ground", "hole", "ground", "ground", "flag"],
+        "start": 0
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "cq_if_else",
+                  "id": "ifelse1",
+                  "inputs": {
+                    "COND": {
+                      "block": {
+                        "type": "runner_is_ahead",
+                        "id": "ask1",
+                        "fields": {
+                          "KIND": "HOLE"
+                        }
+                      }
+                    },
+                    "DO": {
+                      "block": {
+                        "type": "runner_jump",
+                        "id": "jump1"
+                      }
+                    },
+                    "ELSE": {
+                      "block": {
+                        "type": "runner_walk",
+                        "id": "walk1"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "demo",
+      "text": "Phía trước là đất: ✘. Nhánh dưới chạy, Măng đi.",
+      "kind": "runner",
+      "config": {
+        "cells": ["ground", "ground", "ground", "flag"],
+        "start": 0
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "cq_if_else",
+                  "id": "ifelse1",
+                  "inputs": {
+                    "COND": {
+                      "block": {
+                        "type": "runner_is_ahead",
+                        "id": "ask1",
+                        "fields": {
+                          "KIND": "HOLE"
+                        }
+                      }
+                    },
+                    "DO": {
+                      "block": {
+                        "type": "runner_jump",
+                        "id": "jump1"
+                      }
+                    },
+                    "ELSE": {
+                      "block": {
+                        "type": "runner_walk",
+                        "id": "walk1"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "quiz",
+      "text": "Phía trước là đất. Nhánh nào chạy?",
+      "options": ["Nhánh trên: nhảy", "Nhánh dưới: đi"],
+      "correct": 1,
+      "explain": "Câu hỏi trả lời ✘, nên nhánh dưới chạy."
+    }
+  ]
+}

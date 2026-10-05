@@ -2,6 +2,7 @@
   "EMPTY_PROGRAM": "Con chưa ghép khối nào. Kéo khối vào đây nhé!",
   "TOO_MANY_BLOCKS": "Nhiều khối quá. Thử dùng khối lặp xem?",
   "EMPTY_CONDITION": "Ô câu hỏi còn trống. Cắm một khối hỏi vào nhé!",
+  "LOOSE_BLOCKS": "Còn khối chưa ghép. Ghép hết vào nhé!",
   "TIMEOUT": "Măng chóng mặt rồi, vòng lặp không dừng!",
   "INTERNAL_ERROR": "Ối, game bị vấp. Con bấm Làm lại nhé!",
   "FELL_IN_HOLE": "Ối, hố! Nhảy ngay trước hố nhé.",

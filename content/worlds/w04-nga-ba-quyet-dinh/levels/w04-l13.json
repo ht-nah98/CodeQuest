@@ -1,0 +1,126 @@
+{
+  "id": "w04-l13",
+  "worldId": "w04-nga-ba-quyet-dinh",
+  "stage": "practice",
+  "kind": "maze",
+  "mode": "predict",
+  "title": "Ngã ba",
+  "objective": "Hỏi bên trái trước. Đoán xem Măng rẽ đâu!",
+  "learningGoal": "Chương trình hỏi \"có đường bên trái\" trước, nên ở ngã ba Măng rẽ trái, dù Bông chờ ở bên phải.",
+  "misconception": "Măng tự biết đường tới chỗ Bông.",
+  "mission": "Ngã ba! Đoán xem Măng rẽ về phía nào.",
+  "goalSprite": "footprints",
+  "toolbox": [],
+  "config": {
+    "map": ["#######", "#....G#", "###.###", "###.###", "###S###", "#######"],
+    "startDir": "N"
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "rep1",
+              "fields": {
+                "TIMES": 5
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "cq_if",
+                    "id": "if1",
+                    "inputs": {
+                      "COND": {
+                        "block": {
+                          "type": "maze_is_path",
+                          "id": "ask1",
+                          "fields": {
+                            "DIR": "LEFT"
+                          }
+                        }
+                      },
+                      "DO": {
+                        "block": {
+                          "type": "maze_turn_left",
+                          "id": "left1"
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "cq_if_else",
+                        "id": "ifelse1",
+                        "inputs": {
+                          "COND": {
+                            "block": {
+                              "type": "maze_is_path",
+                              "id": "ask2",
+                              "fields": {
+                                "DIR": "AHEAD"
+                              }
+                            }
+                          },
+                          "DO": {
+                            "block": {
+                              "type": "maze_forward",
+                              "id": "fwd1"
+                            }
+                          },
+                          "ELSE": {
+                            "block": {
+                              "type": "maze_turn_right",
+                              "id": "right1"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "predict": {
+    "options": [
+      {
+        "key": "stop@1,1",
+        "label": "Cuối đường bên trái"
+      },
+      {
+        "key": "win",
+        "label": "Tới dấu chân Bông"
+      },
+      {
+        "key": "stop@1,3",
+        "label": "Đứng ở ngã ba"
+      },
+      {
+        "key": "stop@2,3",
+        "label": "Giữa đường lên"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "first",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Ở ngã ba, câu hỏi nào được hỏi trước?",
+      "point": "stage"
+    }
+  ],
+  "thinkingHint": "Tới ngã ba, bên trái của Măng có đường không?"
+}

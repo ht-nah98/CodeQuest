@@ -1,0 +1,114 @@
+{
+  "id": "w04-l10",
+  "worldId": "w04-nga-ba-quyet-dinh",
+  "stage": "practice",
+  "kind": "runner",
+  "mode": "predict",
+  "title": "Đếm vòng",
+  "objective": "Lặp 4 lần. Đoán xem Măng dừng ở đâu!",
+  "learningGoal": "Mỗi vòng chỉ chạy một nhánh: nhảy (2 ô) hoặc đi (1 ô). Đếm vòng chứ không đếm ô.",
+  "misconception": "Lặp 4 lần thì Măng đi 4 ô.",
+  "mission": "Đoán chỗ Măng dừng trên đường tìm Bông.",
+  "goalSprite": "footprints",
+  "toolbox": [],
+  "config": {
+    "cells": [
+      "ground",
+      "hole",
+      "ground",
+      "hole",
+      "ground",
+      "ground",
+      "hole",
+      "ground",
+      "ground",
+      "flag"
+    ],
+    "start": 0
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "rep1",
+              "fields": {
+                "TIMES": 4
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "cq_if_else",
+                    "id": "ifelse1",
+                    "inputs": {
+                      "COND": {
+                        "block": {
+                          "type": "runner_is_ahead",
+                          "id": "ask1",
+                          "fields": {
+                            "KIND": "HOLE"
+                          }
+                        }
+                      },
+                      "DO": {
+                        "block": {
+                          "type": "runner_jump",
+                          "id": "jump1"
+                        }
+                      },
+                      "ELSE": {
+                        "block": {
+                          "type": "runner_walk",
+                          "id": "walk1"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "predict": {
+    "options": [
+      {
+        "key": "stop@7",
+        "label": "Sau hố thứ ba"
+      },
+      {
+        "key": "stop@4",
+        "label": "Sau hố thứ hai"
+      },
+      {
+        "key": "stop@5",
+        "label": "Trước hố thứ ba"
+      },
+      {
+        "key": "win",
+        "label": "Tới nơi"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "rounds",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Chỉ tay theo từng vòng. Vòng này Măng nhảy hay đi?",
+      "point": "block:cq_if_else"
+    }
+  ],
+  "thinkingHint": "Mỗi vòng Măng nhảy hay đi? Nhảy thì xa mấy ô?"
+}

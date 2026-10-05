@@ -1,0 +1,154 @@
+{
+  "id": "w04-l16",
+  "worldId": "w04-nga-ba-quyet-dinh",
+  "stage": "practice",
+  "kind": "maze",
+  "mode": "build",
+  "title": "2 mê cung",
+  "objective": "Một chương trình cho 2 mê cung. Không quá 9 khối!",
+  "learningGoal": "Tự ghép chương trình hai câu hỏi cho 2 mê cung. Mục tiêu ⭐: hỏi bên trái trước thì Măng vào ngõ cụt nhặt măng (bản đồ 1).",
+  "misconception": "Tới được cửa ra là đủ, cách nào cũng như nhau.",
+  "mission": "2 mê cung, một chương trình. Tìm lối ra!",
+  "goalSprite": "exit",
+  "toolbox": [
+    "maze_forward",
+    "maze_turn_left",
+    "maze_turn_right",
+    {
+      "type": "cq_repeat",
+      "fields": {
+        "TIMES": 3
+      }
+    },
+    "cq_if",
+    "cq_if_else",
+    "maze_is_path"
+  ],
+  "maxBlocks": 9,
+  "maxInstances": {
+    "cq_repeat": 1
+  },
+  "maxLoopDepth": 1,
+  "par": 8,
+  "config": {
+    "map": ["#########", "#S....###", "#####.b##", "#####.###", "##G...###", "#########"],
+    "startDir": "E"
+  },
+  "variants": [
+    {
+      "map": ["#######", "#....G#", "#.#####", "#.#####", "#S#####", "#######"],
+      "startDir": "N"
+    }
+  ],
+  "starGoals": [
+    {
+      "kind": "collectAll"
+    }
+  ],
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "rep1",
+              "fields": {
+                "TIMES": 20
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "cq_if",
+                    "id": "if1",
+                    "inputs": {
+                      "COND": {
+                        "block": {
+                          "type": "maze_is_path",
+                          "id": "ask1",
+                          "fields": {
+                            "DIR": "LEFT"
+                          }
+                        }
+                      },
+                      "DO": {
+                        "block": {
+                          "type": "maze_turn_left",
+                          "id": "left1"
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "cq_if_else",
+                        "id": "ifelse1",
+                        "inputs": {
+                          "COND": {
+                            "block": {
+                              "type": "maze_is_path",
+                              "id": "ask2",
+                              "fields": {
+                                "DIR": "AHEAD"
+                              }
+                            }
+                          },
+                          "DO": {
+                            "block": {
+                              "type": "maze_forward",
+                              "id": "fwd1"
+                            }
+                          },
+                          "ELSE": {
+                            "block": {
+                              "type": "maze_turn_right",
+                              "id": "right1"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "goal",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Có măng trong ngõ cụt. Con nhặt được không?",
+      "point": "stage"
+    },
+    {
+      "id": "wall",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "HIT_WALL"
+      },
+      "say": "Hỏi trước khi tiến: phía trước có đường không?",
+      "point": "toolbox:maze_is_path"
+    },
+    {
+      "id": "more",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "NOT_AT_GOAL"
+      },
+      "say": "Chưa ra tới cửa. Lặp thêm vòng nhé!",
+      "point": "block:cq_repeat"
+    }
+  ],
+  "thinkingHint": "Câu hỏi nào đứng đầu: bên trái hay phía trước?"
+}
