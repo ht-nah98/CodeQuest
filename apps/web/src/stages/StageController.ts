@@ -1,5 +1,5 @@
 import type { Application } from 'pixi.js';
-import type { GameKindId, GoalSprite } from '@codequest/content-schema';
+import type { GameKindId, GoalSprite, SceneTheme } from '@codequest/content-schema';
 import type { GameEvent, RunOutcome } from '@codequest/engine';
 import { createStageApp, destroyStageApp } from './createStageApp';
 import { getStageKind, type StageFactory } from './registry';
@@ -17,6 +17,10 @@ export interface StageControllerOptions {
   config: unknown;
   /** `level.goalSprite` (P2-11c): drawn on the goal cell instead of the flag, on every map. */
   goalSprite?: GoalSprite;
+  /** The world's scenery (P2-23, `world.theme.scene`): every map of the level; absent = Làng Tre. */
+  theme?: SceneTheme;
+  /** `level.stage === 'boss'`: the theme may add a set piece (the river's bridge). */
+  boss?: boolean;
   /** Lights up the block that runs now; `null` clears it (Blockly `highlightBlock`). */
   onHighlight: (blockId: string | null) => void;
   /** A question block was asked: show its ✔/✘ (P2-11); `null` clears the mark. */
@@ -76,7 +80,7 @@ export class StageController {
     const app = await createStageApp(container, signal, {
       width: Math.max(1, Math.floor(container.clientWidth)),
       height: Math.max(1, Math.floor(container.clientHeight)),
-      background: kind.background,
+      background: kind.background(options.theme),
     });
     if (!app) return null;
     try {

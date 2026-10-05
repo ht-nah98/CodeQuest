@@ -1,6 +1,7 @@
 // @vitest-environment node
 import { type Application, Container, Texture, Ticker } from 'pixi.js';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { SCENE_THEMES, type SceneTheme } from '@codequest/content-schema';
 import type { RunnerConfig, RunnerEvent } from '@codequest/games';
 import { type PandaTextures, TILE_NAMES, type TileTextures } from '../assets';
 import { PANDA_ANIMATIONS } from '../panda';
@@ -64,6 +65,7 @@ function createStage(
   onAnimation?: (name: string) => void,
   config: RunnerConfig = CONFIG,
   goalSprite?: 'cage',
+  scene: { theme?: SceneTheme; boss?: boolean } = {},
 ): RunnerStage {
   canvas = { dataset: {} };
   const app = {
@@ -79,6 +81,7 @@ function createStage(
     pandaTextures(),
     onAnimation,
     goalSprite,
+    scene,
   );
 }
 
@@ -286,4 +289,26 @@ describe('RunnerStage', () => {
     expect(canvas.dataset.dizzy).toBe('false');
     expectAtStart();
   });
+});
+
+describe('RunnerStage scene themes (P2-23)', () => {
+  it('defaults to Làng Tre', () => {
+    expect(canvas.dataset.theme).toBe('lang-tre');
+  });
+
+  it.each(SCENE_THEMES.flatMap((theme) => [[theme, false] as const, [theme, true] as const]))(
+    '%s (boss %s) builds, animates, resizes and plays',
+    async (theme, boss) => {
+      stage.destroy();
+      stage = createStage(undefined, CONFIG, undefined, { theme, boss });
+      expect(canvas.dataset.theme).toBe(theme);
+      await advance(200);
+      stage.resize(1100, 420);
+      await advance(100);
+      await playThrough(walkToOne);
+      expect(scene().pose.cell).toBe(1);
+      stage.reset();
+      expectAtStart();
+    },
+  );
 });

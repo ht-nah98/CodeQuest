@@ -11,12 +11,13 @@ import {
   useState,
   useSyncExternalStore,
 } from 'react';
-import type { GoalSprite } from '@codequest/content-schema';
+import type { GoalSprite, SceneTheme } from '@codequest/content-schema';
 import type { MazeConfig, RunnerConfig } from '@codequest/games';
 import { uiVoiceId } from '../../audio';
 import { vi } from '../../i18n/vi';
 import type { MazePlanState } from '../../stages/maze/mazeFeed';
 import type { PlanSource } from '../../stages/planSource';
+import { sceneArt } from '../../stages/sceneThemes';
 import {
   cellAt,
   clampPan,
@@ -107,6 +108,7 @@ function runnerPicture(
   { cells, bamboo, items, itemTotal, at }: TrackStripState,
   marks: readonly string[],
   goalSprite: GoalSprite | undefined,
+  theme: SceneTheme | undefined,
 ): Picture {
   const C = TRACK_CELL;
   const height = TRACK_SKY + TRACK_GRASS;
@@ -131,8 +133,9 @@ function runnerPicture(
         aria-hidden="true"
         style={{ imageRendering: 'pixelated' }}
       >
-        <rect x={0} y={0} width={width} height={height} fill={UI_COLORS.sky} />
+        <rect x={0} y={0} width={width} height={height} fill={sceneArt(theme).svgSky} />
         <TrackCells
+          theme={theme}
           cells={cells}
           bamboo={bamboo}
           items={items}
@@ -166,6 +169,7 @@ function mazePicture(
   { at, dir, bamboo, items, itemTotal }: MazePlanState,
   marks: readonly string[],
   goalSprite: GoalSprite | undefined,
+  theme: SceneTheme | undefined,
 ): Picture {
   const M = MAZE_CELL;
   const rows = config.map.length;
@@ -191,6 +195,7 @@ function mazePicture(
         style={{ imageRendering: 'pixelated' }}
       >
         <MazeBoard
+          theme={theme}
           config={config}
           bamboo={bamboo}
           items={items}
@@ -384,8 +389,20 @@ export function PlanView({
   const picture = useMemo(
     () =>
       source.kind === 'runner'
-        ? runnerPicture(source.config, snapshot as TrackStripState, marks, source.goalSprite)
-        : mazePicture(source.config, snapshot as MazePlanState, marks, source.goalSprite),
+        ? runnerPicture(
+            source.config,
+            snapshot as TrackStripState,
+            marks,
+            source.goalSprite,
+            source.theme,
+          )
+        : mazePicture(
+            source.config,
+            snapshot as MazePlanState,
+            marks,
+            source.goalSprite,
+            source.theme,
+          ),
     [source, snapshot, marks],
   );
 
@@ -530,6 +547,7 @@ export function PlanView({
         aria-labelledby={titleId}
         data-testid="plan-view"
         data-kind={source.kind}
+        data-theme={sceneArt(source.theme).id}
         className={`flex max-h-full animate-pop flex-col gap-2 p-4 ${narrow ? 'w-fit max-w-full' : 'w-[min(1200px,100%)]'}`}
       >
         <header className="flex flex-wrap items-center gap-3">

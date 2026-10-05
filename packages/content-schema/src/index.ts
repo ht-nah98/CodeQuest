@@ -30,8 +30,14 @@ export type { GoalSprite, Level, LevelStage, StarGoal, StarGoalKind, ToolboxEntr
 export { LessonCardSchema, LessonSchema, MASCOT_POSES, MascotPoseSchema } from './lesson';
 export type { Lesson, LessonCard, MascotPose } from './lesson';
 
-export { WorldSchema } from './world';
-export type { World } from './world';
+export {
+  DEFAULT_SCENE_THEME,
+  SCENE_THEMES,
+  SceneThemeSchema,
+  sceneThemeOf,
+  WorldSchema,
+} from './world';
+export type { SceneTheme, World } from './world';
 
 export { SHOP_ITEM_KINDS, ShopFileSchema, ShopItemSchema } from './shop';
 export type { ShopItem, ShopItemKind } from './shop';

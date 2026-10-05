@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import type { GameKindId, GoalSprite } from '@codequest/content-schema';
+import type { GameKindId, GoalSprite, SceneTheme } from '@codequest/content-schema';
 import {
   mazeConfigSchema,
   type MazeConfig,
@@ -14,6 +14,7 @@ import {
   runnerCell,
 } from '../features/play/answerKey';
 import { UI_COLORS } from '../ui/tokens';
+import { sceneArt } from './sceneThemes';
 import {
   MAZE_CELL,
   MazeBoard,
@@ -104,10 +105,12 @@ function RunnerAnswer({
   config,
   answer,
   goalSprite,
+  theme,
 }: {
   config: RunnerConfig;
   answer: ParsedAnswer;
   goalSprite: GoalSprite | undefined;
+  theme: SceneTheme | undefined;
 }) {
   const { cells } = config;
   const flagCell = cells.indexOf('flag');
@@ -152,13 +155,14 @@ function RunnerAnswer({
       aria-hidden="true"
       style={{ imageRendering: 'pixelated' }}
     >
-      <rect x={0} y={0} width={width} height={SKY + GRASS} fill={UI_COLORS.sky} />
+      <rect x={0} y={0} width={width} height={SKY + GRASS} fill={sceneArt(theme).svgSky} />
       {lit !== null && <Spot x={lit * C + 1} y={1} w={C - 2} h={SKY + GRASS - 2} />}
       <TrackCells
         cells={cells}
         bamboo={config.bamboo ?? []}
         items={config.goal?.items}
         goalSprite={goalSprite}
+        theme={theme}
       />
       {mark}
     </svg>
@@ -223,10 +227,12 @@ function MazeAnswer({
   config,
   answer,
   goalSprite,
+  theme,
 }: {
   config: MazeConfig;
   answer: ParsedAnswer;
   goalSprite: GoalSprite | undefined;
+  theme: SceneTheme | undefined;
 }) {
   const { map } = config;
   const rows = map.length;
@@ -258,7 +264,7 @@ function MazeAnswer({
       aria-hidden="true"
       style={{ imageRendering: 'pixelated' }}
     >
-      <MazeBoard config={config} goalSprite={goalSprite} />
+      <MazeBoard config={config} goalSprite={goalSprite} theme={theme} />
       {cell && (
         <g data-answer-cell={`${String(cell[0])},${String(cell[1])}`}>
           <Spot x={cell[1] * M + 0.6} y={cell[0] * M + 0.6} w={M - 1.2} h={M - 1.2} />
@@ -296,25 +302,28 @@ export function AnswerPicture({
   config,
   answerKey,
   goalSprite,
+  theme,
 }: {
   kind: GameKindId;
   config: unknown;
   answerKey: string;
   /** `level.goalSprite` (P2-11c): the goal cell's picture instead of the flag. */
   goalSprite?: GoalSprite | undefined;
+  /** The world's scenery (P2-23): sky, ground and maze tiles; absent = Làng Tre. */
+  theme?: SceneTheme | undefined;
 }) {
   const answer = parseAnswerKey(answerKey);
   if (answer === null) return null;
   if (kind === 'runner') {
     const parsed = runnerConfigSchema.safeParse(config);
     return parsed.success ? (
-      <RunnerAnswer config={parsed.data} answer={answer} goalSprite={goalSprite} />
+      <RunnerAnswer config={parsed.data} answer={answer} goalSprite={goalSprite} theme={theme} />
     ) : null;
   }
   if (kind === 'maze') {
     const parsed = mazeConfigSchema.safeParse(config);
     return parsed.success ? (
-      <MazeAnswer config={parsed.data} answer={answer} goalSprite={goalSprite} />
+      <MazeAnswer config={parsed.data} answer={answer} goalSprite={goalSprite} theme={theme} />
     ) : null;
   }
   return null;

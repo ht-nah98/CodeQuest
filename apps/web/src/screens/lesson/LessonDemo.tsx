@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { WorkspaceSvg } from 'blockly';
-import type { Level, LessonCard } from '@codequest/content-schema';
+import type { Level, LessonCard, SceneTheme } from '@codequest/content-schema';
 import { getGameKind } from '@codequest/games';
 import { BlocklyWorkspace } from '../../blockly/BlocklyWorkspace';
 import { markSense } from '../../blockly/senseMark';
@@ -18,7 +18,18 @@ type DemoCard = Extract<LessonCard, { type: 'demo' }>;
  * A lesson's runnable example (screens-and-flows.md "Bài giảng"): the program in a read-only
  * workspace next to a small stage. Kinds without a stage renderer show the program alone.
  */
-export function LessonDemo({ card, id, worldId }: { card: DemoCard; id: string; worldId: string }) {
+export function LessonDemo({
+  card,
+  id,
+  worldId,
+  theme,
+}: {
+  card: DemoCard;
+  id: string;
+  worldId: string;
+  /** The world's scenery (P2-23). */
+  theme?: SceneTheme;
+}) {
   const stageBoxRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<StageController | null>(null);
   const workspaceRef = useRef<WorkspaceSvg | null>(null);
@@ -98,6 +109,7 @@ export function LessonDemo({ card, id, worldId }: { card: DemoCard; id: string; 
     StageController.mount(container, controller.signal, {
       kind: card.kind,
       config: card.config,
+      ...(theme !== undefined && { theme }),
       onHighlight: highlight,
       onSense: sense,
       onAnimation: (animation) => {
@@ -121,7 +133,7 @@ export function LessonDemo({ card, id, worldId }: { card: DemoCard; id: string; 
       stageRef.current = null;
       setReady(false);
     };
-  }, [playable, card.kind, card.config, card.autoplay, highlight, sense, run]);
+  }, [playable, card.kind, card.config, card.autoplay, theme, highlight, sense, run]);
 
   return (
     <div

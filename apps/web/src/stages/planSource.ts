@@ -1,4 +1,4 @@
-import type { GameKindId, GoalSprite } from '@codequest/content-schema';
+import type { GameKindId, GoalSprite, SceneTheme } from '@codequest/content-schema';
 import {
   type MazeConfig,
   mazeConfigSchema,
@@ -18,6 +18,8 @@ export type PlanSource = (
 ) & {
   /** `level.goalSprite` (P2-11c): the picture on the goal cell (the flag when absent). */
   goalSprite?: GoalSprite;
+  /** The world's scenery (P2-23): ground, walls and sky of the pictures (Làng Tre when absent). */
+  theme?: SceneTheme;
 };
 
 /** The source of one map, or `null` for a kind without a static picture. */
@@ -25,8 +27,12 @@ export function planSourceFor(
   kind: GameKindId,
   config: unknown,
   goalSprite?: GoalSprite,
+  theme?: SceneTheme,
 ): PlanSource | null {
-  const sprite = goalSprite === undefined ? {} : { goalSprite };
+  const sprite = {
+    ...(goalSprite !== undefined && { goalSprite }),
+    ...(theme !== undefined && { theme }),
+  };
   if (kind === 'runner') {
     const parsed = runnerConfigSchema.safeParse(config);
     return parsed.success

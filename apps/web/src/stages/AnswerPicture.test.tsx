@@ -122,3 +122,17 @@ describe('AnswerPicture goal sprite (P2-11c)', () => {
     expect(draw('maze', maze, 'win').querySelector('image[data-mark="goal"]')).not.toBeNull();
   });
 });
+
+describe('AnswerPicture themes (P2-23)', () => {
+  it('a maze in a theme draws its wall and floor tiles; Làng Tre keeps the bamboo rects', () => {
+    const plain = draw('maze', maze, 'win');
+    expect(plain.querySelectorAll('image[href^="data:image/svg+xml"]')).toHaveLength(0);
+    cleanup();
+    const river = render(
+      <AnswerPicture kind="maze" config={maze} answerKey="win" theme="song" />,
+    ).container;
+    const tiles = river.querySelectorAll('image[href^="data:image/svg+xml"]');
+    expect(tiles).toHaveLength(maze.map.join('').length);
+    expect(river.querySelector('[data-answer-cell] [data-panda]')).not.toBeNull();
+  });
+});

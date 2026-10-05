@@ -6,9 +6,15 @@ import {
   useRef,
   useState,
 } from 'react';
-import { useNavigate, useParams } from 'react-router';
+import { useNavigate, useParams, useSearchParams } from 'react-router';
 import * as Blockly from 'blockly';
-import type { FeedbackFile, Level, LevelMode, ReasonCode } from '@codequest/content-schema';
+import {
+  type FeedbackFile,
+  type Level,
+  type LevelMode,
+  type ReasonCode,
+  sceneThemeOf,
+} from '@codequest/content-schema';
 import {
   COND_INPUT,
   CONDITION_BLOCK_TYPES,
@@ -53,6 +59,7 @@ import { useSignedInProfile } from '../../features/profiles';
 import { vi } from '../../i18n/vi';
 import type { PandaAnimation } from '../../stages/panda';
 import { planSourceFor } from '../../stages/planSource';
+import { parseSceneTheme } from '../../stages/sceneThemes';
 import {
   type PlayResult,
   type SenseMark,
@@ -268,6 +275,11 @@ function PlaySession({
 }) {
   const { level, world, levelNumber, feedback } = content;
   const { mode } = level;
+  // The world's scenery (P2-23). Dev builds: `?theme=` previews another theme on any level
+  // (internal review of a theme whose world has no content yet, e.g. song).
+  const [search] = useSearchParams();
+  const theme =
+    (import.meta.env.DEV ? parseSceneTheme(search.get('theme')) : null) ?? sceneThemeOf(world);
   const predict = mode === 'predict' ? level.predict : undefined;
   const readyLine = useMemo(
     () =>
@@ -290,8 +302,8 @@ function PlaySession({
   // Runner / maze: the full-track strip under the stage and the "Xem cả đường" view follow the
   // replay through one feed per map (stage-rendering.md §2, §4).
   const planSources = useMemo(
-    () => maps.map((config) => planSourceFor(level.kind, config, level.goalSprite)),
-    [level.kind, level.goalSprite, maps],
+    () => maps.map((config) => planSourceFor(level.kind, config, level.goalSprite, theme)),
+    [level.kind, level.goalSprite, maps, theme],
   );
   const planSource = planSources[mapIndex] ?? null;
   const trackFeed = planSource?.kind === 'runner' ? planSource.feed : null;
@@ -458,6 +470,8 @@ function PlaySession({
       kind: level.kind,
       config: maps[mapIndexRef.current],
       ...(level.goalSprite !== undefined && { goalSprite: level.goalSprite }),
+      theme,
+      boss: level.stage === 'boss',
       onHighlight: highlight,
       onSense: sense,
       onAnimation: (animation: PandaAnimation) => {
@@ -512,7 +526,7 @@ function PlaySession({
       stageRef.current = null;
       setStageReady(false);
     };
-  }, [level, maps, planSources, highlight, sense, readyLine, say]);
+  }, [level, maps, planSources, theme, highlight, sense, readyLine, say]);
 
   /** Puts map `map` on the stage (a fresh scene at its start) and selects its tab. */
   const showMap = useCallback(
@@ -1002,6 +1016,7 @@ function PlaySession({
               data-paused={paused}
               data-map={mapIndex + 1}
               data-goal-sprite={level.goalSprite ?? 'flag'}
+              data-theme={theme}
               data-hint-anchor="stage"
               className="absolute inset-0 outline-none focus-visible:outline-3 focus-visible:-outline-offset-4 focus-visible:outline-brand-deep"
             />
@@ -1022,6 +1037,7 @@ function PlaySession({
             <TrackStrip
               feed={trackFeed}
               {...(level.goalSprite !== undefined && { goalSprite: level.goalSprite })}
+              theme={theme}
               action={planButton}
               onShownChange={setStripShown}
               {...(stageReady && !running && { onPeek: peekStage })}
@@ -1197,6 +1213,7 @@ function PlaySession({
                 kind={level.kind}
                 config={level.config}
                 {...(level.goalSprite !== undefined && { goalSprite: level.goalSprite })}
+                theme={theme}
                 options={predict.options}
                 marks={allMarks}
                 disabled={

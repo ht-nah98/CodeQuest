@@ -6,7 +6,7 @@ import {
   Sprite,
   type Ticker,
 } from 'pixi.js';
-import type { GoalSprite } from '@codequest/content-schema';
+import { DEFAULT_SCENE_THEME, type GoalSprite, type SceneTheme } from '@codequest/content-schema';
 import type { GoalItemKind, RunnerCell, RunnerConfig, RunnerEvent } from '@codequest/games';
 import { UI_COLORS } from '../../ui/tokens';
 import type { PandaTextures, TileTextures } from '../assets';
@@ -14,7 +14,14 @@ import { shade } from '../colors';
 import type { PandaAnimation } from '../panda';
 import { createPanda, type Panda } from '../pandaSprite';
 import { goalArtFor, goalScale, ITEM_ART } from '../goalArt';
-import { createFlag, goalTexture, tileSprite } from '../tiles';
+import {
+  createFlag,
+  type GroundTextures,
+  goalTexture,
+  groundTextures,
+  textureSprite,
+  tileSprite,
+} from '../tiles';
 import { reducedMotion } from '../motion';
 import { isAborted, type PandaAnimationListener, type StageRenderer, tween } from '../types';
 import {
@@ -25,7 +32,8 @@ import {
   peekCameraX,
   type RunnerLayout,
 } from './layout';
-import { drawClouds, drawFarBamboo, drawHills, drawSky, PARALLAX } from './scenery';
+import { createDecor, type SceneDecor } from './decor';
+import { drawClouds, drawFar, drawNear, drawSky, PARALLAX } from './scenery';
 
 /** Durations at speed 1, in ms. */
 const MS = {
@@ -128,8 +136,9 @@ const restingPose = (cell: number): PandaPose => ({
 });
 
 /**
- * Runner stage (game-kind-sdk.md §1.1): a parallax bamboo valley, a ground strip with holes,
- * low branches, crates, bamboo shoots and the flag, and Măng acting out every runner event.
+ * Runner stage (game-kind-sdk.md §1.1): the world's parallax scenery (stage-rendering.md §7), a
+ * ground strip with holes, low branches, crates, bamboo shoots and the flag, and Măng acting out
+ * every runner event.
  * Positions are kept in cells and turned into pixels every frame, so a resize in the middle of
  * a move stays correct. Every motion is a `tween` on the stage clock, so it stops on abort.
  */
@@ -206,6 +215,14 @@ export class RunnerStage implements StageRenderer<RunnerEvent> {
   private readonly cells: readonly RunnerCell[];
   /** `goalSprite` (P2-11c): drawn on the flag cell instead of the flag; absent = the flag. */
   private readonly goalSprite: GoalSprite | undefined;
+  /** The world's scenery (P2-23): backdrop, ground tiles and decoration; boss adds a set piece. */
+  private readonly theme: SceneTheme;
+  private readonly boss: boolean;
+  private readonly ground: GroundTextures;
+  /** Fireflies / river glints of the theme (null when it has none), rebuilt with the layout. */
+  private decor: SceneDecor | null = null;
+  /** Stage clock in ms for the decoration (scaled by speed, still while paused). */
+  private sceneClock = 0;
 
   constructor(
     private readonly app: Application,
@@ -214,8 +231,13 @@ export class RunnerStage implements StageRenderer<RunnerEvent> {
     pandaTextures: PandaTextures,
     private readonly onAnimation?: PandaAnimationListener,
     goalSprite?: GoalSprite,
+    scene: { theme?: SceneTheme; boss?: boolean } = {},
   ) {
     this.goalSprite = goalSprite;
+    this.theme = scene.theme ?? DEFAULT_SCENE_THEME;
+    this.boss = scene.boss ?? false;
+    this.ground = groundTextures(this.theme, tiles);
+    app.canvas.dataset.theme = this.theme;
     this.cells = config.cells;
     const items = config.goal?.items ?? [];
     this.items = new Map(items.map((item) => [item.at, item.kind]));
@@ -680,6 +702,10 @@ export class RunnerStage implements StageRenderer<RunnerEvent> {
     this.clouds.position.set(-Math.round(camera * PARALLAX.clouds), 0);
     this.far.position.set(-Math.round(camera * PARALLAX.far), 0);
     this.hills.position.set(-Math.round(camera * PARALLAX.hills), 0);
+    if (this.decor) {
+      this.sceneClock += ticker.deltaMS;
+      this.decor.update(this.sceneClock, this.calm);
+    }
   };
 
   /** The friend walks a little behind Măng, hopping while she moves (escort levels). */
@@ -992,7 +1018,7 @@ export class RunnerStage implements StageRenderer<RunnerEvent> {
 
   /** (Re)draws scenery, terrain and the props on the track for the current layout. */
   private build(): void {
-    const { layout, tiles, cells } = this;
+    const { layout, tiles, cells, ground } = this;
     const { tilePx, tileScale, cellPx, originX, groundTop, height } = layout;
     for (const layer of [
       this.sky,
@@ -1016,10 +1042,16 @@ export class RunnerStage implements StageRenderer<RunnerEvent> {
     this.goalPicture = null;
     this.panda.sprite.scale.set(layout.pandaScale);
 
-    this.sky.addChild(drawSky(layout));
-    this.clouds.addChild(drawClouds(layout));
-    this.far.addChild(drawFarBamboo(layout));
-    this.hills.addChild(drawHills(layout));
+    const { theme } = this;
+    this.sky.addChild(drawSky(layout, theme));
+    this.clouds.addChild(drawClouds(layout, theme));
+    this.far.addChild(drawFar(layout, theme));
+    this.hills.addChild(drawNear(layout, theme, this.boss));
+    this.decor = createDecor(layout, theme);
+    if (this.decor) {
+      (this.decor.layer === 'far' ? this.far : this.hills).addChild(this.decor.view);
+      this.decor.update(this.sceneClock, this.calm);
+    }
 
     // Tile columns: margin before cell 0, the cells, and the cliff after the flag. The margin is
     // plain, darker dirt (no grass), so only real track cells look like something to count.
@@ -1036,7 +1068,7 @@ export class RunnerStage implements StageRenderer<RunnerEvent> {
       const x = originX + col * tilePx;
       if (col < 0) {
         for (let row = 0; row < rows; row++) {
-          const tile = tileSprite(tiles, 'dirt', tileScale, x, groundTop + row * tilePx);
+          const tile = textureSprite(ground.dirt, tileScale, x, groundTop + row * tilePx);
           tile.tint = MARGIN_TINT;
           this.terrain.addChild(tile);
         }
@@ -1054,11 +1086,11 @@ export class RunnerStage implements StageRenderer<RunnerEvent> {
       const edge = left ? '_left' : right ? '_right' : '';
       // Every other cell is a shade darker: a soft checkerboard that makes cells easy to count.
       const tint = Math.floor(col / CELL_TILES) % 2 === 1 ? ODD_CELL_TINT : NO_TINT;
-      const ground = tileSprite(tiles, `ground${edge}`, tileScale, x, groundTop);
-      ground.tint = tint;
-      this.terrain.addChild(ground);
+      const top = textureSprite(ground[`ground${edge}`], tileScale, x, groundTop);
+      top.tint = tint;
+      this.terrain.addChild(top);
       for (let row = 1; row < rows; row++) {
-        const dirt = tileSprite(tiles, `dirt${edge}`, tileScale, x, groundTop + row * tilePx);
+        const dirt = textureSprite(ground[`dirt${edge}`], tileScale, x, groundTop + row * tilePx);
         dirt.tint = tint;
         this.terrain.addChild(dirt);
       }

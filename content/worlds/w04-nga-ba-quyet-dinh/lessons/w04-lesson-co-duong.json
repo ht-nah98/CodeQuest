@@ -11,7 +11,7 @@
     },
     {
       "type": "demo",
-      "text": "Phía trước có đường: ✔. Măng tiến 1 ô.",
+      "text": "Có đường không? Có. Măng tiến 1 ô.",
       "kind": "maze",
       "config": {
         "map": ["#####", "#S.G#", "#####"],
@@ -110,9 +110,9 @@
     {
       "type": "quiz",
       "text": "Phía trước Măng là tường. Có đường phía trước không?",
-      "options": ["✔ Có", "✘ Không"],
+      "options": ["Có", "Không"],
       "correct": 1,
-      "explain": "Tường thì không có đường, câu hỏi trả lời ✘."
+      "explain": "Tường thì không có đường, câu hỏi trả lời Không."
     }
   ]
 }

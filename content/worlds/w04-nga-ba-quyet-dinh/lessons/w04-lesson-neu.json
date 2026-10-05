@@ -7,11 +7,16 @@
     {
       "type": "say",
       "pose": "point",
-      "text": "Khối mới: nếu! Măng hỏi trước, ✔ thì mới làm."
+      "text": "Khối mới: nếu! Măng hỏi trước, trả lời Có thì mới làm."
+    },
+    {
+      "type": "say",
+      "pose": "point",
+      "text": "Dấu tích xanh là Có. Dấu chéo đỏ là Không."
     },
     {
       "type": "demo",
-      "text": "Phía trước có hố: ✔. Măng nhảy qua hố.",
+      "text": "Có hố không? Có. Măng nhảy qua hố.",
       "kind": "runner",
       "config": {
         "cells": ["ground", "hole", "ground", "ground", "flag"],
@@ -57,7 +62,7 @@
     },
     {
       "type": "demo",
-      "text": "Phía trước là đất: ✘. Măng bỏ qua khối nhảy, đứng yên.",
+      "text": "Có hố không? Không, là đất. Măng bỏ qua khối nhảy.",
       "kind": "runner",
       "config": {
         "cells": ["ground", "ground", "ground", "flag"],
@@ -106,7 +111,7 @@
       "text": "Phía trước là đất. Khối nhảy trong nếu có chạy không?",
       "options": ["Có", "Không"],
       "correct": 1,
-      "explain": "Câu hỏi trả lời ✘, nên Măng bỏ qua khối nhảy."
+      "explain": "Câu hỏi trả lời Không, nên Măng bỏ qua khối nhảy."
     }
   ]
 }

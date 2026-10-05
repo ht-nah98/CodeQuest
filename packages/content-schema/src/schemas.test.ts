@@ -3,6 +3,9 @@ import type { z } from 'zod';
 import {
   BadgeSchema,
   ContentWorkspaceJsonSchema,
+  DEFAULT_SCENE_THEME,
+  SCENE_THEMES,
+  sceneThemeOf,
   BadgesFileSchema,
   FeedbackFileSchema,
   HintRuleSchema,
@@ -355,10 +358,21 @@ describe('WorldSchema', () => {
   it('accepts a world', () => {
     expectValid(WorldSchema, world);
   });
+  it.each(SCENE_THEMES)('accepts scene theme %s', (scene) => {
+    expectValid(WorldSchema, { ...world, theme: { ...world.theme, scene } });
+  });
+  it('resolves the scene theme, Làng Tre by default (P2-23)', () => {
+    const parsed = WorldSchema.parse(world);
+    expect(sceneThemeOf(parsed)).toBe(DEFAULT_SCENE_THEME);
+    expect(DEFAULT_SCENE_THEME).toBe('lang-tre');
+    expect(sceneThemeOf(undefined)).toBe('lang-tre');
+    expect(sceneThemeOf({ theme: { ...parsed.theme, scene: 'nga-ba' } })).toBe('nga-ba');
+  });
   it.each([
     ['order 11', { ...world, order: 11 }],
     ['ratio above 1', { ...world, unlock: { minStarRatio: 1.5 } }],
     ['unknown palette', { ...world, theme: { tileset: 'x', palette: 'noon' } }],
+    ['unknown scene theme', { ...world, theme: { tileset: 'x', scene: 'moon' } }],
     ['no levels', { ...world, levelIds: [] }],
   ])('rejects %s', (_name, value) => {
     expectInvalid(WorldSchema, value);

@@ -11,7 +11,7 @@
     },
     {
       "type": "demo",
-      "text": "Phía trước có hố: ✔. Nhánh trên chạy, Măng nhảy.",
+      "text": "Có hố không? Có. Nhánh trên chạy, Măng nhảy.",
       "kind": "runner",
       "config": {
         "cells": ["ground", "hole", "ground", "ground", "flag"],
@@ -63,7 +63,7 @@
     },
     {
       "type": "demo",
-      "text": "Phía trước là đất: ✘. Nhánh dưới chạy, Măng đi.",
+      "text": "Có hố không? Không, là đất. Nhánh dưới chạy, Măng đi.",
       "kind": "runner",
       "config": {
         "cells": ["ground", "ground", "ground", "flag"],
@@ -118,7 +118,7 @@
       "text": "Phía trước là đất. Nhánh nào chạy?",
       "options": ["Nhánh trên: nhảy", "Nhánh dưới: đi"],
       "correct": 1,
-      "explain": "Câu hỏi trả lời ✘, nên nhánh dưới chạy."
+      "explain": "Câu hỏi trả lời Không, nên nhánh dưới chạy."
     }
   ]
 }

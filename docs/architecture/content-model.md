@@ -58,7 +58,8 @@ interface World {
   emoji: string;                            // "🎋"
   concept: string;                          // "Tuần tự"
   story: string;                            // 1–2 câu
-  theme: { tileset: string; music?: string; palette?: 'day' | 'dusk' | 'night' };
+  theme: { tileset: string; music?: string; palette?: 'day' | 'dusk' | 'night'; scene?: SceneTheme };
+                                            // scene: cảnh vẽ sân chơi (P2-23): 'lang-tre' | 'rung-lap-lai' | 'xuong' | 'nga-ba' | 'song'; không ghi = 'lang-tre'
   lessonIds: string[];
   levelIds: string[];                       // đúng thứ tự hiển thị
   unlock: { minStarRatio: number };         // bắt buộc ghi rõ; giá trị chuẩn 0.6 (rewards-economy.md §3)

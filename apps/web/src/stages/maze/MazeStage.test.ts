@@ -1,6 +1,7 @@
 // @vitest-environment node
 import { type Application, Container, Texture, Ticker } from 'pixi.js';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { SCENE_THEMES } from '@codequest/content-schema';
 import type { RunOutcome } from '@codequest/engine';
 import type { MazeConfig, MazeEvent } from '@codequest/games';
 import type { PandaTextures } from '../assets';
@@ -197,5 +198,43 @@ describe('MazeStage', () => {
     expect(canvas.dataset).toMatchObject({ dizzy: 'true', mazeStunned: 'true' });
     stage.reset();
     expect(canvas.dataset).toMatchObject({ dizzy: 'false', mazeStunned: 'false' });
+  });
+});
+
+describe('MazeStage scene themes (P2-23)', () => {
+  it('defaults to Làng Tre and builds every theme from cached textures', () => {
+    expect(canvas.dataset.theme).toBe('lang-tre');
+    for (const theme of SCENE_THEMES) {
+      const own = { dataset: {} as DOMStringMap };
+      const app = {
+        ticker,
+        screen: { width: 516, height: 360 },
+        stage: new Container(),
+        canvas: own,
+      };
+      const first = new MazeStage(
+        app as unknown as Application,
+        CONFIG,
+        pandaTextures(),
+        undefined,
+        undefined,
+        theme,
+      );
+      expect(own.dataset.theme).toBe(theme);
+      const textures = (first as unknown as { textures: unknown }).textures;
+      first.resize(800, 500);
+      first.destroy();
+      // A second stage of the same theme reuses the textures (made once per theme, never destroyed).
+      const second = new MazeStage(
+        app as unknown as Application,
+        CONFIG,
+        pandaTextures(),
+        undefined,
+        undefined,
+        theme,
+      );
+      expect((second as unknown as { textures: unknown }).textures).toBe(textures);
+      second.destroy();
+    }
   });
 });

@@ -7,7 +7,8 @@
   "story": "Rừng tre có những con đường lặp đi lặp lại. Phù thủy gió chỉ cho Măng mang theo rất ít khối.",
   "theme": {
     "tileset": "/tiles/ground.png",
-    "palette": "day"
+    "palette": "day",
+    "scene": "rung-lap-lai"
   },
   "lessonIds": ["w02-lesson"],
   "levelIds": [

@@ -12,6 +12,7 @@ Làm vào cuối mỗi giai đoạn, và mỗi khi có thế giới mới.
 - **Không giải thích giao diện.** Chỉ quan sát. Bé hỏi thì hỏi lại: "Con nghĩ nút đó làm gì?"
 - Bé bí quá 2 phút thì mới gợi ý bằng lời, và ghi lại chỗ đó.
 - Ghi lại: chỗ bé chần chừ > 10 giây, chỗ bé bấm nhầm, câu bé đọc to hoặc không hiểu, lúc bé cười / thở dài, lúc bé muốn dừng.
+- Cảnh nền (P2-23, `architecture/stage-rendering.md` §7): bé có tưởng đồ trang trí là thứ nhặt được hay vật cản không (đèn lồng, bánh răng, lò xo, đom đóm, hũ trên kệ, thuyền, biển chỉ đường)? Bé có nhìn sót hố, cành, thùng, măng, chìa khóa vì lẫn vào nền không? Ghi màn và thế giới.
 
 ## 3. Sau buổi
 - Hỏi 3 câu: "Màn nào vui nhất?", "Màn nào khó nhất?", "Con có muốn chơi tiếp không?"

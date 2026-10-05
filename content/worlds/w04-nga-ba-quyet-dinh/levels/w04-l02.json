@@ -6,7 +6,7 @@
   "mode": "build",
   "title": "Gió đổi đường",
   "objective": "Một chương trình cho 2 con đường. Không quá 5 khối!",
-  "learningGoal": "Khối nếu … nếu không: ✔ chạy nhánh trên (nhảy), ✘ chạy nhánh dưới (đi). Một chương trình đúng trên cả 2 bản đồ.",
+  "learningGoal": "Khối nếu … nếu không: câu hỏi đúng (Có) chạy nhánh trên (nhảy), sai (Không) chạy nhánh dưới (đi). Một chương trình đúng trên cả 2 bản đồ.",
   "misconception": "Mỗi vòng chạy cả hai nhánh.",
   "mission": "Gió đổi đường rồi! Tìm dấu Bông tiếp.",
   "goalSprite": "footprints",

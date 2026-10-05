@@ -1,6 +1,7 @@
-import type { GameKindId, GoalSprite } from '@codequest/content-schema';
+import type { GameKindId, GoalSprite, SceneTheme } from '@codequest/content-schema';
 import { vi } from '../../i18n/vi';
 import { AnswerPicture } from '../../stages/AnswerPicture';
+import { sceneArt } from '../../stages/sceneThemes';
 import { FOCUS_RING } from '../../ui/focusRing';
 
 const t = vi.play.predict;
@@ -12,6 +13,8 @@ export interface PredictCardsProps {
   config: unknown;
   /** `level.goalSprite` (P2-11c): the goal picture on the cards. */
   goalSprite?: GoalSprite;
+  /** The world's scenery (P2-23): the cards show the world's ground and sky. */
+  theme?: SceneTheme;
   options: ReadonlyArray<{ key: string; label: string }>;
   /** Cards already picked in this session, and how they turned out. */
   marks: Readonly<Record<string, PickMark>>;
@@ -35,6 +38,7 @@ export function PredictCards({
   kind,
   config,
   goalSprite,
+  theme,
   options,
   marks,
   disabled,
@@ -48,6 +52,7 @@ export function PredictCards({
       role="group"
       aria-label={t.cardsLabel}
       data-testid="predict-cards"
+      data-theme={sceneArt(theme).id}
       className={`grid ${columns} gap-2 px-3 py-2.5`}
     >
       {options.map((option) => {
@@ -69,12 +74,16 @@ export function PredictCards({
             }}
             className={`relative grid min-h-11 grid-rows-[minmax(0,1fr)_auto] gap-1 overflow-hidden rounded-key border-3 p-1.5 text-left shadow-key transition-transform duration-150 ${locked ? 'cursor-default' : 'cursor-pointer hover:-translate-y-px'} ${MARK_CLASS[mark ?? 'none']} ${disabled && mark === undefined ? 'opacity-70' : ''} ${FOCUS_RING}`}
           >
-            <span className="block h-[88px] overflow-hidden [@media(max-height:660px)]:h-[60px] rounded-[6px] border-2 border-ink/60 bg-sky">
+            <span
+              className="block h-[88px] overflow-hidden [@media(max-height:660px)]:h-[60px] rounded-[6px] border-2 border-ink/60"
+              style={{ backgroundColor: sceneArt(theme).svgSky }}
+            >
               <AnswerPicture
                 kind={kind}
                 config={config}
                 answerKey={option.key}
                 goalSprite={goalSprite}
+                theme={theme}
               />
             </span>
             <span className="block text-center font-display text-body leading-tight font-extrabold">
