@@ -37,5 +37,10 @@ export default defineConfig({
     port: 5173,
     strictPort: true,
     fs: { allow: [repoRoot] },
+    // The e2e servers (playwright.config.ts sets CQ_E2E) must not watch files: any save in the repo
+    // (another editor, an agent, `git checkout`) makes Vite push a full "page reload" to every open
+    // test page, which destroys the page context mid-test ("Execution context was destroyed",
+    // stage never ready, AudioContext errors). A run tests the code as it was when the server started.
+    ...(process.env['CQ_E2E'] === '1' && { hmr: false, watch: null }),
   },
 });

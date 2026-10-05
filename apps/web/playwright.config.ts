@@ -24,7 +24,7 @@ export default defineConfig({
     baseURL: BASE_URL,
     // WSL2 / CI have no audio device: without this Chromium may log "The AudioContext encountered
     // an error from the audio device" (a console error the specs rightly treat as failure).
-    launchOptions: { args: ['--mute-audio'] },
+    launchOptions: { args: ['--mute-audio', '--disable-audio-output'] },
     locale: 'vi-VN',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
@@ -44,13 +44,13 @@ export default defineConfig({
   webServer: [
     {
       command: `npm run dev -- --port ${PORT} --strictPort`,
-      env: { VITE_COACH_PIN: '' },
+      env: { VITE_COACH_PIN: '', CQ_E2E: '1' },
       url: BASE_URL,
       reuseExistingServer: !process.env.CI,
     },
     {
       command: `npm run dev -- --port ${COACH_PORT} --strictPort`,
-      env: { VITE_COACH_PIN: COACH_PIN },
+      env: { VITE_COACH_PIN: COACH_PIN, CQ_E2E: '1' },
       url: `http://localhost:${COACH_PORT}`,
       reuseExistingServer: !process.env.CI,
     },
