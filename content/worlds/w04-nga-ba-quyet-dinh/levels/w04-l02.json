@@ -123,7 +123,7 @@
       "when": {
         "trigger": "enter"
       },
-      "say": "Khối mới nếu … nếu không: ✔ làm nhánh trên, ✘ làm nhánh dưới.",
+      "say": "Nếu … nếu không: đúng làm nhánh trên, sai làm nhánh dưới.",
       "point": "toolbox:cq_if_else"
     },
     {

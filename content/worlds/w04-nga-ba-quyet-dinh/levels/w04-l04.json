@@ -93,7 +93,7 @@
       "when": {
         "trigger": "enter"
       },
-      "say": "Khối mới có đường: ✔ khi phía đó của Măng có đường.",
+      "say": "Khối mới có đường: đúng khi phía đó của Măng có đường.",
       "point": "toolbox:maze_is_path"
     },
     {
@@ -101,7 +101,7 @@
       "when": {
         "trigger": "enter"
       },
-      "say": "Gặp tường thì câu hỏi trả lời ✘. Nhánh nào chạy?",
+      "say": "Gặp tường thì câu hỏi trả lời sai. Nhánh nào chạy?",
       "point": "toolbox:cq_if_else"
     },
     {

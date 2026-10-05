@@ -2,7 +2,16 @@
 import { Ticker } from 'pixi.js';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import type { GameEvent, RunOutcome } from '@codequest/engine';
-import { HIGHLIGHT_MS, LOSE_TEMPO, Replay, TIMEOUT_REPLAY_EVENTS, WIN_TEMPO } from './replay';
+import {
+  HIGHLIGHT_MS,
+  LOSE_TEMPO,
+  Replay,
+  SENSE_MS,
+  type SenseMark,
+  TIMEOUT_REPLAY_MS,
+  timeoutReplayEvents,
+  WIN_TEMPO,
+} from './replay';
 import { type StageRenderer, tween } from './types';
 
 /** Node's setImmediate (these tests run on Node; the web tsconfig has no Node types). */
@@ -62,6 +71,7 @@ class FakeRenderer implements StageRenderer<GameEvent> {
     this.calls.push('finish');
   }
   resize(): void {}
+  dizzy?: (signal: AbortSignal) => Promise<void>;
   destroy(): void {}
 }
 
@@ -280,16 +290,133 @@ describe('Replay', () => {
     expect(ticker.count).toBe(0);
   });
 
-  it('a timed-out run replays only its first TIMEOUT_REPLAY_EVENTS events, then finishes once', async () => {
-    const long = outcome('timeout', 30); // 60 events
-    expect(long.events.length).toBeGreaterThan(TIMEOUT_REPLAY_EVENTS);
+  it('a timed-out run replays about TIMEOUT_REPLAY_MS of its start, then finishes once', async () => {
+    const long = outcome('timeout', 30); // 60 events, far more than 3 s
+    const kept = timeoutReplayEvents(long.events, () => ACTION_MS);
+    // highlight + walk = 320 ms per block: 10 blocks reach 3 200 ms ≥ 3 000 ms.
+    expect(kept).toHaveLength(20);
     const done = replay.play(long);
     await advance(30 * (HIGHLIGHT_MS + ACTION_MS) * 2);
     await expect(done).resolves.toBe('finished');
-    const lit = highlights.filter((id) => id !== null);
-    expect(renderer.played.length + lit.length).toBe(TIMEOUT_REPLAY_EVENTS);
-    expect(renderer.played).toHaveLength(TIMEOUT_REPLAY_EVENTS / 2);
+    expect(renderer.played).toHaveLength(10);
     expect(renderer.calls.filter((call) => call === 'finish')).toHaveLength(1);
+    // Without a dizzy cue the renderer just rests.
+    expect(renderer.calls.slice(-2)).toEqual(['rest', 'finish']);
+  });
+
+  it('timeoutReplayEvents keeps at least one event and counts senses as SENSE_MS', () => {
+    expect(timeoutReplayEvents([{ type: 'walk', blockId: null }], () => 99_999)).toHaveLength(1);
+    const asks = Array.from({ length: 40 }, (_, i) => ({
+      type: 'sense',
+      blockId: `s${String(i)}`,
+      value: false,
+    }));
+    expect(timeoutReplayEvents(asks, () => 0)).toHaveLength(Math.ceil(TIMEOUT_REPLAY_MS / SENSE_MS));
+  });
+
+  it('a timed-out run ends with the dizzy cue instead of rest, then finish', async () => {
+    const order: string[] = [];
+    renderer.dizzy = async (signal) => {
+      order.push('dizzy');
+      await tween(ticker, 500, signal);
+    };
+    const done = replay.play(outcome('timeout', 2));
+    await advance(2 * (HIGHLIGHT_MS + ACTION_MS) * 2 + 600);
+    await expect(done).resolves.toBe('finished');
+    expect(order).toEqual(['dizzy']);
+    expect(renderer.calls).not.toContain('rest');
+    expect(renderer.calls.at(-1)).toBe('finish');
+  });
+
+  it('sense events light the question block for SENSE_MS, never reach the renderer', async () => {
+    const marks: Array<SenseMark | null> = [];
+    replay = new Replay(ticker, renderer, {
+      onHighlight: (id) => highlights.push(id),
+      onSense: (mark) => marks.push(mark),
+    });
+    const run: RunOutcome = {
+      result: 'success',
+      reasonCode: null,
+      events: [
+        { type: 'highlight', blockId: 'if1' },
+        { type: 'sense', blockId: 'ask1', value: true },
+        { type: 'highlight', blockId: 'b1' },
+        { type: 'walk', blockId: 'b1' },
+        { type: 'highlight', blockId: 'if1' },
+        { type: 'sense', blockId: 'ask1', value: false },
+      ],
+      stats: { steps: 2, actions: 3, blocksUsed: 3 },
+    };
+    const done = replay.play(run);
+    await advance((HIGHLIGHT_MS + SENSE_MS / 2) / WIN_TEMPO);
+    expect(marks).toEqual([{ blockId: 'ask1', value: true }]);
+    await advance(3000);
+    await expect(done).resolves.toBe('finished');
+    expect(renderer.played).toEqual(['walk']);
+    // Shown, cleared by the walk, shown again, cleared at the end.
+    expect(marks).toEqual([
+      { blockId: 'ask1', value: true },
+      null,
+      { blockId: 'ask1', value: false },
+      null,
+    ]);
+  });
+
+  it('step mode waits before every question, also a loop asking again', async () => {
+    const marks: Array<SenseMark | null> = [];
+    replay = new Replay(ticker, renderer, {
+      onHighlight: (id) => highlights.push(id),
+      onSense: (mark) => marks.push(mark),
+    });
+    const ask = (value: boolean) =>
+      ({ type: 'sense', blockId: 'ask', value }) as RunOutcome['events'][number];
+    const run: RunOutcome = {
+      result: 'success',
+      reasonCode: null,
+      events: [
+        { type: 'highlight', blockId: 'until' },
+        ask(false),
+        { type: 'highlight', blockId: 'w' },
+        { type: 'walk', blockId: 'w' },
+        ask(true),
+      ],
+      stats: { steps: 2, actions: 3, blocksUsed: 3 },
+    };
+    const done = replay.play(run, { step: true });
+    await advance(HIGHLIGHT_MS + 50);
+    expect(replay.waitingForStep).toBe(true);
+    expect(marks).toEqual([]);
+    replay.step();
+    await advance(SENSE_MS + HIGHLIGHT_MS + 50);
+    expect(marks).toEqual([{ blockId: 'ask', value: false }]);
+    // Waiting before the walk with the answer still shown.
+    expect(replay.waitingForStep).toBe(true);
+    replay.step();
+    await advance(ACTION_MS + 50);
+    expect(replay.waitingForStep).toBe(true);
+    expect(marks.at(-1)).toBeNull();
+    replay.step();
+    await advance(SENSE_MS + 50);
+    await expect(done).resolves.toBe('finished');
+    expect(marks.at(-2)).toEqual({ blockId: 'ask', value: true });
+  });
+
+  it('reset clears a shown answer', async () => {
+    const marks: Array<SenseMark | null> = [];
+    replay = new Replay(ticker, renderer, {
+      onHighlight: () => undefined,
+      onSense: (mark) => marks.push(mark),
+    });
+    const done = replay.play({
+      result: 'success',
+      reasonCode: null,
+      events: [{ type: 'sense', blockId: 'a', value: true }],
+      stats: { steps: 1, actions: 1, blocksUsed: 1 },
+    });
+    await advance(SENSE_MS / 2);
+    replay.reset();
+    await expect(done).resolves.toBe('aborted');
+    expect(marks).toEqual([{ blockId: 'a', value: true }, null]);
   });
 
   it('S pressed twice before the step wait is kept once: it does not skip two waits', async () => {

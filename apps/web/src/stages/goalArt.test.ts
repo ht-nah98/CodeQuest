@@ -1,8 +1,26 @@
 import { describe, expect, it } from 'vitest';
 import { GOAL_SPRITES } from '@codequest/content-schema';
-import { GOAL_ART, type GoalArtName, goalArt, goalPixels, goalRuns, goalScale } from './goalArt';
+import {
+  CAGE_OPEN_ART,
+  GOAL_ART,
+  type GoalArt,
+  type GoalArtName,
+  goalArt,
+  goalArtFor,
+  goalPixels,
+  goalRuns,
+  goalScale,
+  ITEM_ART,
+} from './goalArt';
 
 const NAMES = Object.keys(GOAL_ART) as GoalArtName[];
+/** Every picture: goals, the open cage and the mission items. */
+const ALL: ReadonlyArray<readonly [string, GoalArt]> = [
+  ...NAMES.map((name) => [name, GOAL_ART[name]] as const),
+  ['cage (open)', CAGE_OPEN_ART],
+  ['key', ITEM_ART.key],
+  ['friend item', ITEM_ART.friend],
+];
 
 describe('goal art (P2-11c)', () => {
   it('has a picture for every goal sprite but the flag', () => {
@@ -12,8 +30,7 @@ describe('goal art (P2-11c)', () => {
     expect(goalArt('machine')).toBe(GOAL_ART.machine);
   });
 
-  it.each(NAMES)('%s is square and every colour is a token hex', (name) => {
-    const art = GOAL_ART[name];
+  it.each(ALL)('%s is square and every colour is a token hex', (name, art) => {
     const size = art.rows.length;
     expect([12, 16]).toContain(size);
     for (const row of art.rows) {
@@ -30,8 +47,7 @@ describe('goal art (P2-11c)', () => {
   });
 
   it('runs cover exactly the opaque texels', () => {
-    for (const name of NAMES) {
-      const art = GOAL_ART[name];
+    for (const [name, art] of ALL) {
       const covered = goalRuns(art).reduce((sum, run) => sum + run.w, 0);
       const opaque = art.rows.join('').replace(/\./g, '').length;
       expect(covered, name).toBe(opaque);
@@ -41,6 +57,18 @@ describe('goal art (P2-11c)', () => {
   it('friend is the bunny avatar', () => {
     expect(GOAL_ART.friend.rows).toHaveLength(16);
     expect(goalRuns(GOAL_ART.friend).some((run) => run.color === '#f9a5a7')).toBe(true);
+  });
+
+  it('a cage opens once unlocked; other goals keep their picture (P2-11c)', () => {
+    expect(goalArtFor('cage', false)).toBe(GOAL_ART.cage);
+    expect(goalArtFor('cage', true)).toBe(CAGE_OPEN_ART);
+    expect(goalArtFor('home', true)).toBe(GOAL_ART.home);
+    expect(goalArtFor(undefined, true)).toBeNull();
+  });
+
+  it('the friend item is the chick avatar (Gà con), not the bunny goal', () => {
+    expect(ITEM_ART.friend.rows).toHaveLength(16);
+    expect(ITEM_ART.friend.rows).not.toEqual(GOAL_ART.friend.rows);
   });
 
   it('goalScale: whole-number zoom that fits the cell, at least 1', () => {

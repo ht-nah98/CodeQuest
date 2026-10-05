@@ -53,6 +53,13 @@ export const vi = {
     running: 'Xem Măng làm theo từng khối nhé!',
     stepping: 'Bấm Từng bước để Măng làm tiếp.',
     paused: 'Măng đứng chờ. Bấm Tiếp tục nhé!',
+    // A drop the level's block limits refuse (P2-11, blockly/blockLimits.ts). Not "lồng" (cage).
+    blockLimit: {
+      loopDepth: 'Màn này đừng đặt khối lặp trong khối lặp nhé!',
+      loopDepthMax: (depth: number) =>
+        `Màn này chỉ cho ${String(depth)} khối lặp chồng vào nhau nhé!`,
+      instances: 'Khối này đủ rồi. Dùng lại khối đã có nhé!',
+    },
     winPar: (blocks: number) => `Chỉ ${String(blocks)} khối, đúng bằng số chuẩn!`,
     winUnderPar: (blocks: number) => `Chỉ ${String(blocks)} khối, ít hơn cả số chuẩn!`,
     win: 'Qua màn rồi! Thử ít khối hơn nhé?',
@@ -528,8 +535,12 @@ export const vi = {
       starGoals: 'Mục tiêu sao (⭐⭐)',
       par: 'par (số khối chuẩn)',
       maxBlocks: 'maxBlocks (tối đa)',
+      maxLoopDepth: 'maxLoopDepth (lặp trong lặp)',
       parEdits: 'parEdits (số lần sửa chuẩn)',
     },
+    // `maxInstances` (P2-11): how many of one block the child may use; empty = no limit.
+    maxInstances: 'tối đa',
+    maxInstancesLabel: (type: string) => `maxInstances của ${type}`,
     words: (n: number, max: number) => `${String(n)}/${String(max)} chữ`,
     // `goalSprite` (P2-11c): the picture on the goal cell; `flag` is the kind's own flag.
     goalSprites: {
@@ -570,17 +581,34 @@ export const vi = {
 
     map: 'Bản đồ',
     runnerLength: 'Số ô (cờ luôn ở cuối)',
-    runnerTools: { cell: 'Đổi ô', bamboo: 'Đặt măng', start: 'Chỗ xuất phát' },
+    // Mission items (P2-11c, `config.goal.items`): the key, the friend (Gà con) to pick up.
+    runnerTools: {
+      cell: 'Đổi ô',
+      bamboo: 'Đặt măng',
+      start: 'Chỗ xuất phát',
+      key: 'Đặt chìa khóa',
+      friend: 'Đặt bạn',
+    },
     runnerToolsLabel: 'Bấm vào ô để',
     runnerCells: { ground: 'đất', hole: 'hố', branch: 'cành', crate: 'thùng', flag: 'cờ' },
     runnerCellLabel: (index: number, cell: string, extra: string) =>
       `Ô ${String(index)}: ${cell}${extra}`,
     startMark: ', Măng đứng',
     bambooMark: ', có măng',
+    itemMarks: { key: ', có chìa khóa', friend: ', có bạn' },
+    itemShort: { key: 'khóa', friend: 'bạn' },
     mazeRows: 'Số hàng',
     mazeCols: 'Số cột',
     mazeBrushLabel: 'Cọ',
-    mazeBrushes: { '#': 'Tường', '.': 'Đường', b: 'Măng', S: 'Xuất phát', G: 'Đích' },
+    mazeBrushes: {
+      '#': 'Tường',
+      '.': 'Đường',
+      b: 'Măng',
+      S: 'Xuất phát',
+      G: 'Đích',
+      key: 'Chìa khóa',
+      friend: 'Bạn',
+    },
     mazeCellLabel: (row: number, col: number, tile: string) =>
       `Hàng ${String(row)}, cột ${String(col)}: ${tile}`,
     startDir: 'Hướng xuất phát',
@@ -765,7 +793,8 @@ export const vi = {
       move: 'DI CHUYỂN',
       loop: 'LẶP',
       logic: 'ĐIỀU KIỆN',
-      sensor: 'CẢM BIẾN',
+      // Children call sensor blocks "câu hỏi", never "cảm biến" (glossary.md "Điều kiện").
+      sensor: 'CÂU HỎI',
       robot: 'ROBOT',
       variable: 'BIẾN & SỐ',
       function: 'HÀM',

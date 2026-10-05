@@ -119,6 +119,12 @@ describe('content:check fixtures', () => {
     ]);
   });
 
+  it('extra-07-cage-without-key reports rule 1: a cage needs a key item (P2-11c)', () => {
+    const report = check('extra-07-cage-without-key');
+    expect(report.issues.map((issue) => issue.rule)).toEqual([1]);
+    expect(report.issues[0]?.message).toContain('"cage" needs a "key" item');
+  });
+
   it('extra-06-ambiguous-pointer reports rule 16: block:<type> must name one block', () => {
     const report = check('extra-06-ambiguous-pointer');
     expect(report.warnings).toEqual([]);

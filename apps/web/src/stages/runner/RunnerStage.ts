@@ -7,13 +7,13 @@ import {
   type Ticker,
 } from 'pixi.js';
 import type { GoalSprite } from '@codequest/content-schema';
-import type { RunnerCell, RunnerConfig, RunnerEvent } from '@codequest/games';
+import type { GoalItemKind, RunnerCell, RunnerConfig, RunnerEvent } from '@codequest/games';
 import { UI_COLORS } from '../../ui/tokens';
 import type { PandaTextures, TileTextures } from '../assets';
 import { shade } from '../colors';
 import type { PandaAnimation } from '../panda';
 import { createPanda, type Panda } from '../pandaSprite';
-import { type GoalArt, goalArt, goalScale } from '../goalArt';
+import { goalArtFor, goalScale, ITEM_ART } from '../goalArt';
 import { createFlag, goalTexture, tileSprite } from '../tiles';
 import { reducedMotion } from '../motion';
 import { isAborted, type PandaAnimationListener, type StageRenderer, tween } from '../types';
@@ -47,6 +47,7 @@ const MS = {
   stun: 520,
   missedPan: 420,
   missedBlink: 1300,
+  dizzy: 1500,
 } as const;
 
 /** Margin ground outside the track: darker, desaturated dirt (the lavender-grey ground token). */
@@ -56,6 +57,13 @@ const ODD_CELL_TINT = shade(UI_COLORS.white, 0.86);
 /** Măng's flash when she bumps into something: the `oops` token, lightened to a pink. */
 const BUMP_TINT = shade(UI_COLORS.oops, 1.3);
 const NO_TINT = UI_COLORS.white;
+
+/** A locked goal (mission items left, P2-11c) is tinted towards the brand lavender, like the maze. */
+const LOCKED_TINT = UI_COLORS.brand;
+/** How far behind Măng the friend walks once picked up, in cells. */
+const FOLLOW_GAP = 0.62;
+/** HUD of the mission items (top-left, fixed on screen): margin, padding, gap, icon size in px. */
+const HUD = { margin: 10, pad: 6, gap: 6, icon: 30 } as const;
 
 /** Jump arc height and cheer hop height, in cells. */
 const JUMP_HEIGHT = 0.85;
@@ -90,6 +98,8 @@ interface PandaPose {
   squash: number;
   /** 0…1: how red Măng flashes after a bump. */
   flash: number;
+  /** Horizontal turn while spinning dizzy (radians; 0 = facing right). */
+  spin: number;
 }
 
 /** A short-lived pixel particle (sparkle, confetti, dust), in world px. */
@@ -108,7 +118,14 @@ interface Particle {
 /** Top of a bamboo shoot standing on its cell. */
 const layoutShootY = (layout: RunnerLayout): number => layout.feetY - layout.tilePx;
 
-const restingPose = (cell: number): PandaPose => ({ cell, lift: 0, sink: 0, squash: 1, flash: 0 });
+const restingPose = (cell: number): PandaPose => ({
+  cell,
+  lift: 0,
+  sink: 0,
+  squash: 1,
+  flash: 0,
+  spin: 0,
+});
 
 /**
  * Runner stage (game-kind-sdk.md §1.1): a parallax bamboo valley, a ground strip with holes,
@@ -128,13 +145,33 @@ export class RunnerStage implements StageRenderer<RunnerEvent> {
   /** Pits are drawn behind Măng; while she falls she moves behind the ground tiles too. */
   private readonly pits = new Graphics();
   private readonly behindGround = new Container();
-  private readonly items = new Container();
+  private readonly props = new Container();
   private readonly inFront = new Container();
   /** Branch leaves hang in front of Măng, so ducking under them reads at a glance. */
   private readonly front = new Container();
   private readonly fx = new Container();
+  /** Mission items picked up (P2-11c): key / friend icons, fixed on screen. */
+  private readonly hud = new Container();
   private readonly panda: Panda;
   private flag: AnimatedSprite | null = null;
+  /** The goal as drawn (picture, or flag and pole), greyed out while mission items are left. */
+  private goalViews: Container[] = [];
+  /** The goal picture sprite, swapped to the open cage once unlocked. */
+  private goalPicture: Sprite | null = null;
+  /** Mission items by cell (config order kept in `itemOrder`). */
+  private readonly items: ReadonlyMap<number, GoalItemKind>;
+  private readonly itemOrder: readonly number[];
+  private itemSprites = new Map<number, Sprite>();
+  /** Item cells picked up; their sprites rise and fade like a shoot (`itemRise`). */
+  private readonly taken = new Set<number>();
+  private readonly itemRise = new Map<number, number>();
+  /** The friend walking behind Măng once picked up (escort levels). */
+  private readonly follower: Sprite;
+  private following = false;
+  /** NEED_KEY / NEED_FRIEND: the locked goal pulses while the missing items blink. */
+  private goalPulse = 0;
+  /** Stage clock in ms (scaled by the ticker speed), for the friend's walking hops. */
+  private clock = 0;
   private layout: RunnerLayout;
   private pose: PandaPose;
   /** World shake left (1 → 0) after a fall or bump. */
@@ -167,8 +204,8 @@ export class RunnerStage implements StageRenderer<RunnerEvent> {
   /** Set by destroy(): a replay still awaiting a tween must not touch the scene afterwards. */
   private destroyed = false;
   private readonly cells: readonly RunnerCell[];
-  /** `goalSprite` (P2-11c): drawn on the flag cell instead of the flag; `null` = the flag. */
-  private readonly goalArt: GoalArt | null;
+  /** `goalSprite` (P2-11c): drawn on the flag cell instead of the flag; absent = the flag. */
+  private readonly goalSprite: GoalSprite | undefined;
 
   constructor(
     private readonly app: Application,
@@ -178,26 +215,34 @@ export class RunnerStage implements StageRenderer<RunnerEvent> {
     private readonly onAnimation?: PandaAnimationListener,
     goalSprite?: GoalSprite,
   ) {
-    this.goalArt = goalArt(goalSprite);
+    this.goalSprite = goalSprite;
     this.cells = config.cells;
+    const items = config.goal?.items ?? [];
+    this.items = new Map(items.map((item) => [item.at, item.kind]));
+    this.itemOrder = items.map((item) => item.at);
     this.layout = computeRunnerLayout(config.cells.length, app.screen.width, app.screen.height);
     this.pose = restingPose(config.start);
     this.panda = createPanda(pandaTextures);
-    this.inFront.addChild(this.panda.sprite);
+    this.follower = new Sprite(goalTexture(ITEM_ART.friend));
+    this.follower.anchor.set(0.5, 1);
+    this.follower.visible = false;
+    this.inFront.addChild(this.follower, this.panda.sprite);
     this.world.addChild(
       this.stalks,
       this.pits,
       this.behindGround,
       this.terrain,
-      this.items,
+      this.props,
       this.inFront,
       this.front,
       this.fx,
       this.stars,
     );
-    app.stage.addChild(this.sky, this.clouds, this.far, this.hills, this.world);
+    app.stage.addChild(this.sky, this.clouds, this.far, this.hills, this.world, this.hud);
     this.build();
     this.setAnimation('idle');
+    app.canvas.dataset.dizzy = 'false';
+    this.syncState();
     app.ticker.add(this.onTick);
   }
 
@@ -211,12 +256,18 @@ export class RunnerStage implements StageRenderer<RunnerEvent> {
     this.rise.clear();
     this.wobble = null;
     this.missed.clear();
+    this.taken.clear();
+    this.itemRise.clear();
+    this.following = false;
+    this.goalPulse = 0;
     this.clearParticles();
-    this.inFront.addChild(this.panda.sprite);
+    this.inFront.addChild(this.follower, this.panda.sprite);
     this.panda.sprite.visible = true;
     this.panda.sprite.tint = NO_TINT;
     this.build();
     this.setAnimation('idle');
+    this.app.canvas.dataset.dizzy = 'false';
+    this.syncState();
   }
 
   rest(): void {
@@ -251,6 +302,28 @@ export class RunnerStage implements StageRenderer<RunnerEvent> {
       case 'missed':
         return MS.missedPan + MS.missedBlink;
     }
+  }
+
+  /**
+   * TIMEOUT (P2-11 T8): the loop never stops, so Măng spins on the spot twice with stars over
+   * her head, then stays dazed (stars keep circling) until reset. Reduced motion: no spin.
+   */
+  async dizzy(signal: AbortSignal): Promise<void> {
+    if (this.destroyed) return;
+    this.app.canvas.dataset.dizzy = 'true';
+    this.stunned = 1;
+    this.setAnimation('jump'); // arms up: everything turns
+    const spins = this.calm ? 0 : 2;
+    await tween(this.app.ticker, MS.dizzy, signal, (t) => {
+      const ease = 1 - (1 - t) * (1 - t);
+      this.pose.spin = ease * spins * 2 * Math.PI;
+      this.pose.lift = this.calm ? 0 : 0.08 * Math.abs(Math.sin(t * Math.PI * 4));
+    });
+    if (this.stopped(signal)) return;
+    this.pose.spin = 0;
+    this.pose.lift = 0;
+    this.setAnimation('crouch');
+    this.pose.squash = 1;
   }
 
   hold(): void {
@@ -312,7 +385,7 @@ export class RunnerStage implements StageRenderer<RunnerEvent> {
         await this.kick(event.at, event.hit, signal);
         return;
       case 'collect':
-        await this.collect(event.at, signal);
+        await this.collect(event.at, signal, event.item);
         return;
       case 'fall': {
         this.pose.cell = event.at;
@@ -357,6 +430,7 @@ export class RunnerStage implements StageRenderer<RunnerEvent> {
         return;
       }
       case 'missed':
+        if (event.item !== undefined) this.goalPulse = 1;
         await this.missedShoots(event.at, event.left, signal);
         return;
     }
@@ -371,6 +445,34 @@ export class RunnerStage implements StageRenderer<RunnerEvent> {
   destroy(): void {
     this.destroyed = true;
     this.app.ticker.remove(this.onTick);
+  }
+
+  /** A cage opens only with its key: the level has mission items and every one is taken. */
+  private itemsAllTaken(): boolean {
+    return this.itemOrder.length > 0 && !this.goalLocked();
+  }
+
+  /** Whether mission items are still on the track (the goal does not count yet). */
+  private goalLocked(): boolean {
+    return this.itemOrder.some((cell) => !this.taken.has(cell));
+  }
+
+  /**
+   * Mirrors what the stage shows as data attributes on the canvas, for e2e tests: mission items
+   * picked up / total, the goal lock, the friend following and the dizzy cue.
+   */
+  private syncState(): void {
+    const data = this.app.canvas.dataset;
+    if (this.itemOrder.length === 0) {
+      // Another map of the level may have set them on the shared canvas.
+      delete data.runnerItems;
+      delete data.runnerGoal;
+      delete data.runnerFollower;
+      return;
+    }
+    data.runnerItems = `${String(this.taken.size)}/${String(this.itemOrder.length)}`;
+    data.runnerGoal = this.goalLocked() ? 'locked' : 'open';
+    data.runnerFollower = String(this.following);
   }
 
   /** Whether a replay step must stop touching the scene: aborted, or the stage destroyed. */
@@ -418,13 +520,24 @@ export class RunnerStage implements StageRenderer<RunnerEvent> {
     });
   }
 
-  private async collect(at: number, signal: AbortSignal): Promise<void> {
+  /** A shoot, or a mission item (P2-11c): the key goes to the HUD, the friend then follows. */
+  private async collect(at: number, signal: AbortSignal, item?: GoalItemKind): Promise<void> {
     this.setAnimation('happy');
     this.sparkles(at);
-    this.rise.set(at, 0);
+    const rise = item === undefined ? this.rise : this.itemRise;
+    rise.set(at, 0);
+    if (item !== undefined) {
+      this.taken.add(at);
+      this.drawHud();
+      this.updateGoalLock();
+      this.syncState();
+    }
     await tween(this.app.ticker, MS.collect, signal, (t) => {
-      this.rise.set(at, t);
+      rise.set(at, t);
     });
+    if (this.stopped(signal) || item !== 'friend') return;
+    this.following = true;
+    this.syncState();
   }
 
   private async bump(
@@ -506,7 +619,7 @@ export class RunnerStage implements StageRenderer<RunnerEvent> {
     await tween(ticker, MS.missedBlink, signal, (t) => {
       const on = this.calm || Math.floor(t * 8) % 2 === 0;
       for (const cell of left) {
-        const shoot = this.bamboo.get(cell);
+        const shoot = this.bamboo.get(cell) ?? this.itemSprites.get(cell);
         if (shoot) shoot.alpha = on ? 1 : 0.3;
         const ring = this.rings.get(cell);
         if (ring) ring.alpha = on ? 1 : 0.5;
@@ -514,7 +627,7 @@ export class RunnerStage implements StageRenderer<RunnerEvent> {
     });
     if (this.stopped(signal)) return;
     for (const cell of left) {
-      const shoot = this.bamboo.get(cell);
+      const shoot = this.bamboo.get(cell) ?? this.itemSprites.get(cell);
       if (shoot) shoot.alpha = 1;
     }
   }
@@ -544,8 +657,15 @@ export class RunnerStage implements StageRenderer<RunnerEvent> {
     const x = cellCenterX(layout, pose.cell);
     const sprite = this.panda.sprite;
     sprite.position.set(x, layout.feetY - (pose.lift - pose.sink) * layout.cellPx);
-    sprite.scale.set(layout.pandaScale, layout.pandaScale * pose.squash);
+    // Spinning (dizzy): the side view narrows through zero width and flips, like turning round.
+    const turn = Math.cos(pose.spin);
+    sprite.scale.set(
+      layout.pandaScale * (Math.abs(turn) < 0.08 ? Math.sign(turn || 1) * 0.08 : turn),
+      layout.pandaScale * pose.squash,
+    );
     sprite.tint = pose.flash > 0.05 ? BUMP_TINT : NO_TINT;
+    this.placeFollower(ticker);
+    this.pulseGoal(ticker);
 
     this.applyProps();
     if (this.stunned > 0) this.drawStars(x, sprite.y - this.standingHeight() * pose.squash, ticker);
@@ -561,6 +681,81 @@ export class RunnerStage implements StageRenderer<RunnerEvent> {
     this.far.position.set(-Math.round(camera * PARALLAX.far), 0);
     this.hills.position.set(-Math.round(camera * PARALLAX.hills), 0);
   };
+
+  /** The friend walks a little behind Măng, hopping while she moves (escort levels). */
+  private placeFollower(ticker: Ticker): void {
+    const friend = this.follower;
+    friend.visible = this.following && this.panda.sprite.visible;
+    if (!friend.visible) return;
+    const { layout } = this;
+    const art = ITEM_ART.friend;
+    const scale = Math.max(1, Math.floor(layout.tilePx / art.rows.length));
+    friend.scale.set(scale);
+    const cell = this.pose.cell - FOLLOW_GAP;
+    const moving = this.panda.animation === 'walk' || this.panda.animation === 'crouch';
+    this.clock += ticker.deltaMS;
+    const hop = moving && !this.calm ? Math.abs(Math.sin(this.clock / 90)) : 0;
+    friend.position.set(
+      Math.round(cellCenterX(layout, cell)),
+      Math.round(layout.feetY - (this.pose.lift * 0.5 + hop * 0.08) * layout.cellPx),
+    );
+  }
+
+  /** NEED_KEY / NEED_FRIEND: the locked goal blinks a few times (steady with reduced motion). */
+  private pulseGoal(ticker: Ticker): void {
+    if (this.goalPulse <= 0) return;
+    this.goalPulse = Math.max(0, this.goalPulse - ticker.deltaMS / 2400);
+    const on = this.calm || this.goalPulse === 0 || Math.floor(this.goalPulse * 12) % 2 === 0;
+    for (const view of this.goalViews) view.alpha = on ? 0.6 : 0.25;
+  }
+
+  /** With mission items left, the goal is greyed out; a cage shows open once unlocked. */
+  private updateGoalLock(): void {
+    if (this.itemOrder.length === 0) return;
+    const locked = this.goalLocked();
+    for (const view of this.goalViews) {
+      view.tint = locked ? LOCKED_TINT : NO_TINT;
+      view.alpha = locked ? 0.6 : 1;
+    }
+    if (this.flag) {
+      if (locked) this.flag.gotoAndStop(0);
+      else if (!this.flag.playing) this.flag.play();
+    }
+    const art = goalArtFor(this.goalSprite, this.itemsAllTaken());
+    if (this.goalPicture && art) this.goalPicture.texture = goalTexture(art);
+  }
+
+  /** Mission items HUD: one icon per item in config order, dim until picked up. */
+  private drawHud(): void {
+    for (const child of this.hud.removeChildren()) child.destroy();
+    const count = this.itemOrder.length;
+    if (count === 0) return;
+    const step = HUD.icon + HUD.gap;
+    const width = count * step - HUD.gap + 2 * HUD.pad;
+    const height = HUD.icon + 2 * HUD.pad;
+    const panel = new Graphics()
+      .roundRect(HUD.margin + 3, HUD.margin + 3, width, height, 10)
+      .fill({ color: UI_COLORS.ink })
+      .roundRect(HUD.margin, HUD.margin, width, height, 10)
+      .fill({ color: UI_COLORS.paper })
+      .stroke({ color: UI_COLORS.ink, width: 3 });
+    this.hud.addChild(panel);
+    this.itemOrder.forEach((cell, i) => {
+      const art = ITEM_ART[this.items.get(cell) ?? 'key'];
+      const icon = new Sprite(goalTexture(art));
+      const scale = Math.max(1, Math.floor(HUD.icon / art.rows.length));
+      const size = art.rows.length * scale;
+      icon.scale.set(scale);
+      icon.position.set(
+        HUD.margin + HUD.pad + i * step + (HUD.icon - size) / 2,
+        HUD.margin + HUD.pad + (HUD.icon - size) / 2,
+      );
+      const got = this.taken.has(cell);
+      icon.alpha = got ? 1 : 0.3;
+      icon.tint = got ? NO_TINT : UI_COLORS.inkSoft;
+      this.hud.addChild(icon);
+    });
+  }
 
   /** Puts the prop sprites of the current layout in their animated state. */
   private applyProps(): void {
@@ -580,6 +775,12 @@ export class RunnerStage implements StageRenderer<RunnerEvent> {
       shoot.y = layoutShootY(this.layout) - cellPx * 0.9 * (1 - (1 - t) * (1 - t));
       if (this.rise.has(cell)) shoot.alpha = t < 0.6 ? 1 : 1 - (t - 0.6) / 0.4;
       shoot.visible = t < 1;
+    }
+    for (const [cell, item] of this.itemSprites) {
+      const t = this.itemRise.get(cell) ?? 0;
+      item.y = this.layout.feetY - item.height - cellPx * 0.9 * (1 - (1 - t) * (1 - t));
+      if (this.itemRise.has(cell)) item.alpha = t < 0.6 ? 1 : 1 - (t - 0.6) / 0.4;
+      item.visible = t < 1;
     }
     for (const [cell, view] of [...this.crates, ...this.branches]) {
       const shaking = this.wobble?.cell === cell && !this.calm;
@@ -784,7 +985,7 @@ export class RunnerStage implements StageRenderer<RunnerEvent> {
         .rect(x - u, top, 2 * u, 4 * u)
         .rect(x - u, top + 7 * u, 2 * u, 2 * u)
         .fill(UI_COLORS.coin);
-      this.items.addChildAt(ring, 0);
+      this.props.addChildAt(ring, 0);
       this.rings.set(cell, ring);
     }
   }
@@ -800,7 +1001,7 @@ export class RunnerStage implements StageRenderer<RunnerEvent> {
       this.hills,
       this.stalks,
       this.terrain,
-      this.items,
+      this.props,
       this.front,
     ]) {
       for (const child of layer.removeChildren()) child.destroy({ children: true });
@@ -809,7 +1010,10 @@ export class RunnerStage implements StageRenderer<RunnerEvent> {
     this.bamboo = new Map();
     this.branches = new Map();
     this.rings = new Map();
+    this.itemSprites = new Map();
     this.flag = null;
+    this.goalViews = [];
+    this.goalPicture = null;
     this.panda.sprite.scale.set(layout.pandaScale);
 
     this.sky.addChild(drawSky(layout));
@@ -875,24 +1079,28 @@ export class RunnerStage implements StageRenderer<RunnerEvent> {
     this.terrain.addChild(seams);
 
     const flagCell = cells.indexOf('flag');
-    if (this.goalArt) {
+    const art = goalArtFor(this.goalSprite, this.itemsAllTaken());
+    if (art) {
       // The goal picture stands on the grass of the flag cell, a little right of its centre (as
       // the flag pole), so Măng arriving on the cell does not hide it all.
-      const scale = goalScale(this.goalArt, cellPx);
-      const size = this.goalArt.rows.length * scale;
-      const goal = new Sprite(goalTexture(this.goalArt));
+      const scale = goalScale(art, cellPx);
+      const size = art.rows.length * scale;
+      const goal = new Sprite(goalTexture(art));
       goal.scale.set(scale);
       goal.position.set(
         Math.round(cellCenterX(layout, flagCell) + cellPx * 0.18 - size / 2),
         groundTop + 2 * tileScale - size,
       );
       this.terrain.addChild(goal);
+      this.goalViews = [goal];
+      this.goalPicture = goal;
     } else {
       const flagScale = tileScale + 1;
       const poleX = cellCenterX(layout, flagCell) + cellPx * 0.18;
       const { pole, flag } = createFlag(tiles, flagScale, Math.round(poleX), groundTop);
       this.terrain.addChild(pole, flag);
       this.flag = flag;
+      this.goalViews = [pole, flag];
     }
 
     for (const [cell, kind] of cells.entries()) {
@@ -900,7 +1108,23 @@ export class RunnerStage implements StageRenderer<RunnerEvent> {
       if (kind === 'branch') this.buildBranch(cell);
     }
     for (const cell of this.config.bamboo ?? []) this.buildShoot(cell);
+    for (const [cell, kind] of this.items) this.buildItem(cell, kind);
     this.drawRings();
+    this.updateGoalLock();
+    this.drawHud();
+  }
+
+  /** A mission item standing on its cell (P2-11c): the key, or the friend waiting. */
+  private buildItem(cell: number, kind: GoalItemKind): void {
+    const { layout } = this;
+    const art = ITEM_ART[kind];
+    const scale = Math.max(1, Math.floor((layout.tilePx * 1.15) / art.rows.length));
+    const size = art.rows.length * scale;
+    const item = new Sprite(goalTexture(art));
+    item.scale.set(scale);
+    item.position.set(Math.round(cellCenterX(layout, cell) - size / 2), layout.feetY - size);
+    this.props.addChild(item);
+    this.itemSprites.set(cell, item);
   }
 
   /** Two crates stacked as tall as Măng's chest: too high to jump over, so she must kick. */
@@ -915,7 +1139,7 @@ export class RunnerStage implements StageRenderer<RunnerEvent> {
       tileSprite(tiles, 'crate', tileScale, left, -2 * tilePx),
     );
     stack.position.set(Math.round(cellCenterX(layout, cell) + tilePx / 2), this.crateY());
-    this.items.addChild(stack);
+    this.props.addChild(stack);
     this.crates.set(cell, stack);
   }
 
@@ -955,7 +1179,7 @@ export class RunnerStage implements StageRenderer<RunnerEvent> {
     const { tileScale, tilePx } = layout;
     const x = Math.round(cellCenterX(layout, cell) - tilePx / 2);
     const shoot = tileSprite(tiles, 'bamboo', tileScale, x, layoutShootY(layout));
-    this.items.addChild(shoot);
+    this.props.addChild(shoot);
     this.bamboo.set(cell, shoot);
   }
 }

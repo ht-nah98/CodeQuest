@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { RunnerConfig } from '@codequest/games';
+import type { RunnerConfig, RunnerEvent } from '@codequest/games';
 import { cameraX, cellCenterX, computeRunnerLayout, peekCameraX } from './layout';
 import { createTrackFeed, initialStrip, stripLook, stripStep, stripView } from './trackStrip';
 
@@ -139,5 +139,24 @@ describe('stripLook', () => {
 
   it('is 0 when the track fits (no camera)', () => {
     expect(stripLook(5, 1200, 3)).toBe(0);
+  });
+
+  it('a mission item leaves the items, never the bamboo; peek keeps them (P2-11c)', () => {
+    const config = {
+      cells: ['ground', 'ground', 'ground', 'flag'] as const,
+      start: 0,
+      bamboo: [1],
+      goal: { items: [{ kind: 'key' as const, at: 2 }] },
+    };
+    const feed = createTrackFeed({ ...config, cells: [...config.cells] });
+    const pickKey: RunnerEvent = { type: 'collect', blockId: 'k', at: 2, item: 'key' };
+    feed.event(pickKey);
+    expect(feed.getSnapshot().items).toEqual([]);
+    expect(feed.getSnapshot().bamboo).toEqual([1]);
+    feed.peek(1);
+    feed.peek(null);
+    expect(feed.getSnapshot().items).toEqual([]);
+    feed.reset();
+    expect(feed.getSnapshot().items).toEqual([{ kind: 'key', at: 2 }]);
   });
 });

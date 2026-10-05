@@ -104,7 +104,7 @@ function MarkRect({ x, y, w, h, id }: { x: number; y: number; w: number; h: numb
 
 function runnerPicture(
   config: RunnerConfig,
-  { cells, bamboo, at }: TrackStripState,
+  { cells, bamboo, items, itemTotal, at }: TrackStripState,
   marks: readonly string[],
   goalSprite: GoalSprite | undefined,
 ): Picture {
@@ -132,7 +132,13 @@ function runnerPicture(
         style={{ imageRendering: 'pixelated' }}
       >
         <rect x={0} y={0} width={width} height={height} fill={UI_COLORS.sky} />
-        <TrackCells cells={cells} bamboo={bamboo} goalSprite={goalSprite} />
+        <TrackCells
+          cells={cells}
+          bamboo={bamboo}
+          items={items}
+          goalSprite={goalSprite}
+          goalOpen={itemTotal > 0 && items.length === 0}
+        />
         {marks.map((key) => (
           <MarkRect key={key} id={key} x={Number(key) * C + 1} y={1} w={C - 2} h={height - 2} />
         ))}
@@ -157,7 +163,7 @@ function runnerPicture(
 
 function mazePicture(
   config: MazeConfig,
-  { at, dir, bamboo }: MazePlanState,
+  { at, dir, bamboo, items, itemTotal }: MazePlanState,
   marks: readonly string[],
   goalSprite: GoalSprite | undefined,
 ): Picture {
@@ -184,7 +190,13 @@ function mazePicture(
         aria-hidden="true"
         style={{ imageRendering: 'pixelated' }}
       >
-        <MazeBoard config={config} bamboo={bamboo} goalSprite={goalSprite} />
+        <MazeBoard
+          config={config}
+          bamboo={bamboo}
+          items={items}
+          goalSprite={goalSprite}
+          goalOpen={itemTotal > 0 && items.length === 0}
+        />
         {marks.map((key) => {
           const [mr = 0, mc = 0] = key.split(',').map(Number);
           return (

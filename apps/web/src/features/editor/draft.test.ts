@@ -15,6 +15,9 @@ import {
   resizeMaze,
   resizeRunner,
   scatterProgram,
+  setCollectAll,
+  setMaxInstances,
+  toggleMazeItem,
   toggleToolbox,
   unknownLevelKeys,
   blockLabel,
@@ -103,6 +106,68 @@ describe('runner track tools', () => {
   });
 });
 
+describe('mission items and block limits (P2-11, P2-11c)', () => {
+  it('runner: key / friend tools place, swap and remove an item; one thing per cell', () => {
+    let config = runner(['ground', 'ground', 'ground', 'ground', 'flag'], { bamboo: [2] });
+    config = applyRunnerTool(config, 2, 'key');
+    expect(config.goal?.items).toEqual([{ kind: 'key', at: 2 }]);
+    expect(config.bamboo).toBeUndefined();
+    config = applyRunnerTool(config, 1, 'friend');
+    expect(config.goal?.items).toEqual([
+      { kind: 'friend', at: 1 },
+      { kind: 'key', at: 2 },
+    ]);
+    config = applyRunnerTool(config, 1, 'key');
+    expect(config.goal?.items?.[0]).toEqual({ kind: 'key', at: 1 });
+    config = applyRunnerTool(config, 1, 'bamboo');
+    expect(config.goal?.items).toEqual([{ kind: 'key', at: 2 }]);
+    config = applyRunnerTool(config, 2, 'cell'); // ground → hole: no key in a hole
+    expect(config.goal).toBeUndefined();
+  });
+
+  it('runner: a shorter track drops items past the new end', () => {
+    const config = runner(['ground', 'ground', 'ground', 'ground', 'flag'], {
+      goal: { items: [{ kind: 'key', at: 3 }] },
+    });
+    expect(resizeRunner(config, 3).goal).toBeUndefined();
+  });
+
+  it('maze: items only on path cells; painting over one removes it', () => {
+    const maze: MazeConfig = { map: ['S..', '#.#', '..G'], startDir: 'E' };
+    expect(toggleMazeItem(maze, 1, 0, 'key')).toBe(maze); // a wall
+    let config = toggleMazeItem(maze, 0, 1, 'key');
+    expect(config.goal?.items).toEqual([{ kind: 'key', at: [0, 1] }]);
+    expect(toggleMazeItem(config, 0, 1, 'key').goal).toBeUndefined();
+    config = paintMaze(config, 0, 1, '#');
+    expect(config.goal).toBeUndefined();
+    config = toggleMazeItem({ ...maze, map: ['S..', '#.#', '...', '..G'] }, 3, 0, 'friend');
+    expect(config.goal?.items).toHaveLength(1);
+    expect(resizeMaze(config, 3, 3).goal).toBeUndefined();
+  });
+
+  it('collectAll keeps the mission items', () => {
+    const config = { cells: ['ground', 'flag'], goal: { items: [{ kind: 'key', at: 0 }] } };
+    const on = setCollectAll(config, true);
+    expect(on['goal']).toEqual({ items: [{ kind: 'key', at: 0 }], collectAll: true });
+    expect(setCollectAll(on, false)['goal']).toEqual({ items: [{ kind: 'key', at: 0 }] });
+    expect(setCollectAll({ cells: [] }, false)).toEqual({ cells: [] });
+  });
+
+  it('maxInstances per block type; unticking a block drops its limit', () => {
+    let level: Level = { ...newDraft('runner'), toolbox: ['runner_walk', 'cq_repeat'] };
+    level = setMaxInstances(level, 'cq_repeat', 1);
+    expect(level.maxInstances).toEqual({ cq_repeat: 1 });
+    expect(setMaxInstances(level, 'cq_repeat', undefined).maxInstances).toBeUndefined();
+    expect(toggleToolbox(level, 'cq_repeat', false).maxInstances).toBeUndefined();
+  });
+
+  it('maxLoopDepth survives open → export', () => {
+    const level: Level = { ...newDraft('runner'), maxLoopDepth: 1 };
+    expect(levelJson(level)['maxLoopDepth']).toBe(1);
+    expect(unknownLevelKeys({ maxLoopDepth: 1 })).toEqual([]);
+  });
+});
+
 describe('maze grid tools', () => {
   const maze: MazeConfig = { map: ['#####', '#S..#', '###G#'], startDir: 'E' };
 
@@ -158,6 +223,9 @@ describe('modes, toolbox and export', () => {
       'runner_is_ahead',
       'runner_at_goal',
       'cq_repeat',
+      'cq_repeat_until',
+      'cq_if',
+      'cq_if_else',
     ]);
     let level: Level = {
       ...newDraft('runner'),
@@ -267,6 +335,9 @@ describe('validation next to the fields', () => {
     expect(blockLabel('cq_repeat', 'runner')).toBe('lặp … lần …');
     expect(blockLabel('runner_is_ahead', 'runner')).toBe('phía trước có …');
     expect(blockLabel('maze_turn_left', 'maze')).toBe('rẽ trái');
+    expect(blockLabel('cq_if', 'maze')).toBe('nếu … thì …');
+    expect(blockLabel('cq_if_else', 'maze')).toBe('nếu … thì … nếu không thì …');
+    expect(blockLabel('cq_repeat_until', 'runner')).toBe('lặp đến khi …');
     expect(blockLabel('unknown_block', 'maze')).toBe('unknown_block');
   });
 });

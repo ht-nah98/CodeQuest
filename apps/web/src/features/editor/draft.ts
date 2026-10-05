@@ -4,13 +4,21 @@ import {
   MAX_VARIANTS,
   type WorkspaceJson,
 } from '@codequest/content-schema';
-import { COMMON_BLOCKS, CQ_REPEAT, CQ_START } from '@codequest/engine';
+import {
+  COMMON_BLOCKS,
+  CQ_IF,
+  CQ_IF_ELSE,
+  CQ_REPEAT,
+  CQ_REPEAT_UNTIL,
+  CQ_START,
+} from '@codequest/engine';
 import {
   getGameKind,
   MAZE_MAX_SIZE,
   MAZE_MIN_SIZE,
   RUNNER_MAX_CELLS,
   RUNNER_MIN_CELLS,
+  type GoalItemKind,
   type MazeConfig,
   type MazeTile,
   type RunnerCell,
@@ -160,6 +168,7 @@ const KEY_ORDER: ReadonlyArray<keyof Level> = [
   'par',
   'maxBlocks',
   'maxInstances',
+  'maxLoopDepth',
   'parEdits',
   'config',
   'variants',
@@ -262,8 +271,67 @@ export function removeMap(level: Level, index: number): Level {
 
 // ---- Runner track -------------------------------------------------------------------------
 
-/** What a click on a runner cell does (phase-2.md P2-07). */
-export type RunnerTool = 'cell' | 'bamboo' | 'start';
+/** What a click on a runner cell does (phase-2.md P2-07); `key` / `friend` place mission items. */
+export type RunnerTool = 'cell' | 'bamboo' | 'start' | GoalItemKind;
+
+type RunnerGoal = NonNullable<RunnerConfig['goal']>;
+type MazeGoal = NonNullable<MazeConfig['goal']>;
+
+/** The runner config with mission `items` (none: no field); an empty goal is dropped. */
+function runnerItems(config: RunnerConfig, items: NonNullable<RunnerGoal['items']>): RunnerConfig {
+  const { goal, ...rest } = config;
+  const next: RunnerGoal = { ...goal };
+  if (items.length > 0) next.items = items;
+  else delete next.items;
+  return Object.keys(next).length > 0 ? { ...rest, goal: next } : rest;
+}
+
+/** The maze config with mission `items` (none: no field); an empty goal is dropped. */
+function mazeItems(config: MazeConfig, items: NonNullable<MazeGoal['items']>): MazeConfig {
+  const { goal, ...rest } = config;
+  const next: MazeGoal = { ...goal };
+  if (items.length > 0) next.items = items;
+  else delete next.items;
+  return Object.keys(next).length > 0 ? { ...rest, goal: next } : rest;
+}
+
+/**
+ * Turns "Phải nhặt hết măng mới thắng" (`goal.collectAll`) on or off on a map config of either
+ * kind, keeping the mission items; an empty goal is dropped.
+ */
+export function setCollectAll(
+  config: Record<string, unknown>,
+  on: boolean,
+): Record<string, unknown> {
+  const { goal, ...rest } = config;
+  const next: Record<string, unknown> =
+    typeof goal === 'object' && goal !== null ? { ...(goal as Record<string, unknown>) } : {};
+  if (on) next['collectAll'] = true;
+  else delete next['collectAll'];
+  return Object.keys(next).length > 0 ? { ...rest, goal: next } : rest;
+}
+
+/**
+ * Places a mission item (P2-11c) of `kind` on runner cell `index`, or removes it when that
+ * cell already holds one of this kind; another kind there is replaced. A bamboo shoot on the
+ * cell goes (one thing per cell). `content:check` rule 1 still checks the cell itself.
+ */
+function toggleRunnerItem(config: RunnerConfig, index: number, kind: GoalItemKind): RunnerConfig {
+  const items = config.goal?.items ?? [];
+  const here = items.find((item) => item.at === index);
+  const others = items.filter((item) => item.at !== index);
+  const next =
+    here?.kind === kind
+      ? others
+      : [...others, { kind, at: index }].sort((a, b) => a.at - b.at);
+  return runnerItems(
+    withBamboo(
+      config,
+      (config.bamboo ?? []).filter((at) => at !== index),
+    ),
+    next,
+  );
+}
 
 const CELL_CYCLE: readonly RunnerCell[] = ['ground', 'hole', 'branch', 'crate'];
 
@@ -280,20 +348,26 @@ export function applyRunnerTool(
   const last = config.cells.length - 1;
   if (index < 0 || index >= last) return config;
   if (tool === 'start') return { ...config, start: index };
+  if (tool === 'key' || tool === 'friend') return toggleRunnerItem(config, index, tool);
   if (tool === 'bamboo') {
     const bamboo = config.bamboo ?? [];
     const next = bamboo.includes(index)
       ? bamboo.filter((at) => at !== index)
       : [...bamboo, index].sort((a, b) => a - b);
-    return withBamboo(config, next);
+    // One thing per cell: a shoot replaces a mission item.
+    const items = (config.goal?.items ?? []).filter((item) => item.at !== index);
+    return runnerItems(withBamboo(config, next), items);
   }
   const current = config.cells[index] ?? 'ground';
   const cell = CELL_CYCLE[(CELL_CYCLE.indexOf(current) + 1) % CELL_CYCLE.length] ?? 'ground';
   const cells = config.cells.map((old, at) => (at === index ? cell : old));
   const keepsBamboo = cell === 'ground' || cell === 'branch';
-  return withBamboo(
-    { ...config, cells },
-    (config.bamboo ?? []).filter((at) => at !== index || keepsBamboo),
+  return runnerItems(
+    withBamboo(
+      { ...config, cells },
+      (config.bamboo ?? []).filter((at) => at !== index || keepsBamboo),
+    ),
+    (config.goal?.items ?? []).filter((item) => item.at !== index || keepsBamboo),
   );
 }
 
@@ -311,9 +385,33 @@ export function resizeRunner(config: RunnerConfig, length: number): RunnerConfig
   while (body.length < size - 1) body.push('ground');
   const cells: RunnerCell[] = [...body, 'flag'];
   const start = Math.min(config.start, size - 2);
-  return withBamboo(
-    { ...config, cells, start },
-    (config.bamboo ?? []).filter((at) => at < size - 1),
+  return runnerItems(
+    withBamboo(
+      { ...config, cells, start },
+      (config.bamboo ?? []).filter((at) => at < size - 1),
+    ),
+    (config.goal?.items ?? []).filter((item) => item.at < size - 1),
+  );
+}
+
+/**
+ * Places a mission item (P2-11c) of `kind` on maze cell [row, col], or removes it when the cell
+ * already holds one of this kind; another kind there is replaced. Only on path cells (`.`).
+ */
+export function toggleMazeItem(
+  config: MazeConfig,
+  row: number,
+  col: number,
+  kind: GoalItemKind,
+): MazeConfig {
+  if (config.map[row]?.[col] !== '.') return config;
+  const items = config.goal?.items ?? [];
+  const at = (item: { at: readonly [number, number] }) => item.at[0] === row && item.at[1] === col;
+  const here = items.find(at);
+  const others = items.filter((item) => !at(item));
+  return mazeItems(
+    config,
+    here?.kind === kind ? others : [...others, { kind, at: [row, col] }],
   );
 }
 
@@ -339,7 +437,11 @@ export function paintMaze(
       })
       .join(''),
   );
-  return { ...config, map };
+  // A mission item only lies on a path cell: painting anything else there removes it.
+  const items = (config.goal?.items ?? []).filter(
+    ({ at: [r, c] }) => tile === '.' || r !== row || c !== col,
+  );
+  return mazeItems({ ...config, map }, items);
 }
 
 /** Grid size clamped to 3–12 each way; kept cells stay, new cells are walls. */
@@ -350,7 +452,23 @@ export function resizeMaze(config: MazeConfig, rows: number, cols: number): Maze
     const line = config.map[r] ?? '';
     return line.slice(0, width).padEnd(width, '#');
   });
-  return { ...config, map };
+  const items = (config.goal?.items ?? []).filter(({ at: [r, c] }) => r < height && c < width);
+  return mazeItems({ ...config, map }, items);
+}
+
+/**
+ * Sets `maxInstances` of one block type (P2-11): `undefined` removes that type's limit, and the
+ * field goes when no limit is left.
+ */
+export function setMaxInstances(level: Level, type: string, max: number | undefined): Level {
+  const limits = Object.fromEntries(
+    Object.entries(level.maxInstances ?? {}).filter(([key]) => key !== type),
+  );
+  if (max !== undefined) limits[type] = max;
+  const next = { ...level };
+  if (Object.keys(limits).length > 0) next.maxInstances = limits;
+  else delete next.maxInstances;
+  return next;
 }
 
 function clamp(value: number, min: number, max: number): number {
@@ -360,10 +478,19 @@ function clamp(value: number, min: number, max: number): number {
 
 // ---- Programs and toolbox -------------------------------------------------------------------
 
-/** Blocks the toolbox can offer for a kind: its own blocks, then the common loop. */
+/**
+ * Blocks the toolbox can offer for a kind: its own blocks (moves, then questions), then the
+ * common loops and the "nếu" blocks (P2-11).
+ */
 export function toolboxChoices(kind: string): string[] {
   const definition = isEditorKind(kind) ? getGameKind(kind) : undefined;
-  return [...(definition?.blocks.map((spec) => spec.type) ?? []), CQ_REPEAT];
+  return [
+    ...(definition?.blocks.map((spec) => spec.type) ?? []),
+    CQ_REPEAT,
+    CQ_REPEAT_UNTIL,
+    CQ_IF,
+    CQ_IF_ELSE,
+  ];
 }
 
 /**
@@ -375,9 +502,13 @@ export function blockLabel(type: string, kind: string): string {
     ...COMMON_BLOCKS,
     ...((isEditorKind(kind) ? getGameKind(kind)?.blocks : undefined) ?? []),
   ];
-  const message = specs.find((spec) => spec.type === type)?.json.message0;
-  if (message === undefined) return type;
-  return message
+  const json = specs.find((spec) => spec.type === type)?.json;
+  if (json?.message0 === undefined) return type;
+  // Every line of the block, so "nếu … thì" and "nếu … thì … nếu không thì …" differ.
+  const lines = [json.message0, json.message1, json.message2, json.message3];
+  return lines
+    .filter((line): line is string => typeof line === 'string')
+    .join(' ')
     .replace(/%\d+/g, '…')
     .replace(/…(?:\s*…)+/g, '…')
     .replace(/\s+/g, ' ')
@@ -397,12 +528,17 @@ export function toggleToolbox(level: Level, type: string, on: boolean): Level {
   const has = toolboxTypes(level).includes(type);
   if (on === has) return level;
   if (!on) {
-    return {
-      ...level,
-      toolbox: level.toolbox.filter(
-        (entry) => (typeof entry === 'string' ? entry : entry.type) !== type,
-      ),
-    };
+    // A block the child cannot take needs no limit.
+    return setMaxInstances(
+      {
+        ...level,
+        toolbox: level.toolbox.filter(
+          (entry) => (typeof entry === 'string' ? entry : entry.type) !== type,
+        ),
+      },
+      type,
+      undefined,
+    );
   }
   const order = toolboxChoices(level.kind);
   const toolbox = [...level.toolbox, type].sort((a, b) => {
@@ -465,6 +601,8 @@ export type EditorField =
   | 'toolbox'
   | 'par'
   | 'maxBlocks'
+  | 'maxInstances'
+  | 'maxLoopDepth'
   | 'parEdits'
   | 'config'
   | 'solution'
@@ -489,6 +627,8 @@ const SCHEMA_FIELDS = new Set<string>([
   'toolbox',
   'par',
   'maxBlocks',
+  'maxInstances',
+  'maxLoopDepth',
   'parEdits',
   'config',
   'solution',
@@ -543,6 +683,8 @@ export function issueField(issue: RuleIssue): EditorField {
       return 'hints';
     case 19:
       return 'starGoals';
+    case 20:
+      return message.startsWith('initialWorkspace') ? 'initialWorkspace' : 'solution';
     default:
       return 'other';
   }

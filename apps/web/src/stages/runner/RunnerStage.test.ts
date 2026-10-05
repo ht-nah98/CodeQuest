@@ -18,7 +18,7 @@ const CONFIG: RunnerConfig = {
 
 /** What the scene shows of Măng and the props, read from the stage's private state. */
 interface SceneState {
-  pose: { cell: number; lift: number; sink: number; squash: number; flash: number };
+  pose: { cell: number; lift: number; sink: number; squash: number; flash: number; spin: number };
   shake: number;
   stunned: number;
   focus: unknown;
@@ -58,14 +58,27 @@ function tileTextures(): TileTextures {
   return textures;
 }
 
-function createStage(onAnimation?: (name: string) => void): RunnerStage {
-  const app = { ticker, screen: { width: 516, height: 360 }, stage: new Container() };
+let canvas: { dataset: DOMStringMap };
+
+function createStage(
+  onAnimation?: (name: string) => void,
+  config: RunnerConfig = CONFIG,
+  goalSprite?: 'cage',
+): RunnerStage {
+  canvas = { dataset: {} };
+  const app = {
+    ticker,
+    screen: { width: 516, height: 360 },
+    stage: new Container(),
+    canvas,
+  };
   return new RunnerStage(
     app as unknown as Application,
-    CONFIG,
+    config,
     tileTextures(),
     pandaTextures(),
     onAnimation,
+    goalSprite,
   );
 }
 
@@ -78,7 +91,14 @@ async function playThrough(event: RunnerEvent): Promise<void> {
 
 function expectAtStart(): void {
   const state = scene();
-  expect(state.pose).toEqual({ cell: CONFIG.start, lift: 0, sink: 0, squash: 1, flash: 0 });
+  expect(state.pose).toEqual({
+    cell: CONFIG.start,
+    lift: 0,
+    sink: 0,
+    squash: 1,
+    flash: 0,
+    spin: 0,
+  });
   expect(state.shake).toBe(0);
   expect(state.stunned).toBe(0);
   expect(state.focus).toBeNull();
@@ -214,5 +234,56 @@ describe('RunnerStage', () => {
     own.rest();
     expect(animations).toEqual(['idle', 'idle']);
     own.destroy();
+  });
+
+  it('mission items (P2-11c): a key goes to the HUD and unlocks the goal; never a shoot', async () => {
+    stage.destroy();
+    const config: RunnerConfig = {
+      cells: ['ground', 'ground', 'ground', 'ground', 'flag'],
+      start: 0,
+      bamboo: [1],
+      goal: { items: [{ kind: 'key', at: 2 }] },
+    };
+    stage = createStage(undefined, config, 'cage');
+    expect(canvas.dataset).toMatchObject({ runnerItems: '0/1', runnerGoal: 'locked' });
+    await playThrough({ type: 'collect', blockId: 'k', at: 2, item: 'key' });
+    expect(canvas.dataset).toMatchObject({ runnerItems: '1/1', runnerGoal: 'open' });
+    // The shoot on cell 1 is untouched.
+    expect(scene().rise.size).toBe(0);
+    stage.reset();
+    expect(canvas.dataset).toMatchObject({ runnerItems: '0/1', runnerGoal: 'locked' });
+  });
+
+  it('a picked-up friend follows Măng until reset', async () => {
+    stage.destroy();
+    stage = createStage(undefined, {
+      cells: ['ground', 'ground', 'ground', 'flag'],
+      start: 0,
+      goal: { items: [{ kind: 'friend', at: 1 }] },
+    });
+    expect(canvas.dataset.runnerFollower).toBe('false');
+    await playThrough({ type: 'collect', blockId: 'f', at: 1, item: 'friend' });
+    expect(canvas.dataset.runnerFollower).toBe('true');
+    stage.reset();
+    expect(canvas.dataset.runnerFollower).toBe('false');
+  });
+
+  it('a level without items sets no item attributes', () => {
+    expect(canvas.dataset.runnerItems).toBeUndefined();
+    expect(canvas.dataset.dizzy).toBe('false');
+  });
+
+  it('dizzy (TIMEOUT): spins, then stays dazed with stars until reset', async () => {
+    const done = stage.dizzy(new AbortController().signal);
+    await advance(300);
+    expect(canvas.dataset.dizzy).toBe('true');
+    expect(scene().pose.spin).toBeGreaterThan(0);
+    await advance(2000);
+    await done;
+    expect(scene().pose.spin).toBe(0);
+    expect(scene().stunned).toBeGreaterThan(0);
+    stage.reset();
+    expect(canvas.dataset.dizzy).toBe('false');
+    expectAtStart();
   });
 });

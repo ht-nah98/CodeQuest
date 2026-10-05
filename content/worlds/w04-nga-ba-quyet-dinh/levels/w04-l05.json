@@ -167,7 +167,7 @@
       "when": {
         "trigger": "idle"
       },
-      "say": "Đọc câu hỏi: ✔ thì Măng làm khối nào?",
+      "say": "Đọc câu hỏi: đúng thì Măng làm khối nào?",
       "point": "block:runner_is_ahead"
     },
     {

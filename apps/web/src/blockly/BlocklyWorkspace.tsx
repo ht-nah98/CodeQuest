@@ -19,6 +19,7 @@ import { audio, blocklySfx } from '../audio';
 import { vi } from '../i18n/vi';
 import { UI_COLORS } from '../ui/tokens';
 import './blockly.css';
+import { type BlockLimitBreach, guardBlockLimits } from './blockLimits';
 import { loadBlocklyFonts, setupBlockly } from './setup';
 import { codequestTheme } from './theme';
 import { buildToolbox, knownBlockSpecs } from './toolbox';
@@ -26,7 +27,7 @@ import { buildToolbox, knownBlockSpecs } from './toolbox';
 /** The parts of a level the workspace needs. */
 export type BlocklyLevel = Pick<
   Level,
-  'id' | 'mode' | 'toolbox' | 'maxBlocks' | 'maxInstances' | 'initialWorkspace'
+  'id' | 'mode' | 'toolbox' | 'maxBlocks' | 'maxInstances' | 'maxLoopDepth' | 'initialWorkspace'
 >;
 
 /** A snapshot of the workspace: reported after every change (debounced) or read on demand. */
@@ -67,6 +68,11 @@ export interface BlocklyWorkspaceProps {
   onDispose?: () => void;
   /** A mouse drag of a block ended; the app returns focus to the stage so `Space` runs (§13). */
   onMouseDragEnd?: () => void;
+  /**
+   * A drop or new block broke `maxLoopDepth` / `maxInstances` and was undone (§5,
+   * `blockLimits.ts`); the app says why in Măng's bubble.
+   */
+  onBlockLimit?: (breach: BlockLimitBreach) => void;
   className?: string;
 }
 
@@ -95,6 +101,34 @@ export function loadInitialWorkspace(workspace: WorkspaceSvg, level: BlocklyLeve
   workspace.clearUndo();
 }
 
+/** Smallest zoom `fitProgramWidth` goes down to (the workspace's own `minScale`). */
+const FIT_MIN_SCALE = 0.7;
+/** Room kept left and right of the program when it is fitted, in px. */
+const FIT_PAD_PX = 12;
+
+/**
+ * Keeps the whole width of the program in view (W4 programs with "nếu … nếu không" inside a loop
+ * are wider than the 1280×720 workspace at the start zoom): when the blocks are wider than the
+ * view, zoom out just enough (not below FIT_MIN_SCALE) and scroll them into view. Never zooms in
+ * and does nothing while the program fits, so the child's own scrolling and zoom stay put.
+ */
+export function fitProgramWidth(workspace: WorkspaceSvg): void {
+  if (workspace.getAllBlocks(false).length === 0) return;
+  const box = workspace.getBlocksBoundingBox();
+  const view = workspace.getMetricsManager().getViewMetrics();
+  const width = box.right - box.left;
+  if (width <= 0 || view.width <= 0) return;
+  const needed = (view.width - 2 * FIT_PAD_PX) / width;
+  if (needed >= workspace.scale) {
+    // Fits at this zoom: only bring a program pushed out of view back (load, Làm lại).
+    const viewWs = workspace.getMetricsManager().getViewMetrics(true);
+    if (box.left >= viewWs.left && box.right <= viewWs.left + viewWs.width) return;
+  } else {
+    workspace.setScale(Math.max(FIT_MIN_SCALE, needed));
+  }
+  workspace.scrollBoundsIntoView(box, FIT_PAD_PX);
+}
+
 /** CSS class of a loose block (and the stack under it) in a parsons workspace (blockly.css). */
 export const LOOSE_BLOCK_CLASS = 'cq-loose';
 
@@ -117,6 +151,7 @@ interface Callbacks {
   onReady?: ((workspace: WorkspaceSvg, handle: WorkspaceHandle) => void) | undefined;
   onDispose?: (() => void) | undefined;
   onMouseDragEnd?: (() => void) | undefined;
+  onBlockLimit?: ((breach: BlockLimitBreach) => void) | undefined;
 }
 
 /** The fields of a Blockly event that `blocklySfx` reads. */
@@ -175,6 +210,8 @@ function mountWorkspace(
   let timer: ReturnType<typeof setTimeout> | undefined;
   const report = () => {
     timer = undefined;
+    // After the child's edit: a program grown wider than the view is zoomed to fit.
+    if (level.mode !== 'predict' && !workspace.isDragging()) fitProgramWidth(workspace);
     callbacks.current.onChange?.(getState());
   };
   const flush = () => {
@@ -206,6 +243,13 @@ function mountWorkspace(
   });
 
   loadInitialWorkspace(workspace, level);
+  // Limits Blockly cannot hold by itself (§5); only where the child adds or moves blocks.
+  const unguard =
+    level.mode === 'predict'
+      ? () => undefined
+      : guardBlockLimits(workspace, level, (breach) => {
+          callbacks.current.onBlockLimit?.(breach);
+        });
   // Predict: the program must be read whole, never scrolled to. Fit it into the space the
   // answer cards leave (short laptops), but never larger than the start scale.
   if (level.mode === 'predict') {
@@ -215,6 +259,7 @@ function mountWorkspace(
     workspace.scrollCenter();
   }
   if (parsons) markLooseBlocks(workspace);
+  if (level.mode !== 'predict') fitProgramWidth(workspace);
   schedule();
   callbacks.current.onReady?.(workspace, { getState, flush });
 
@@ -225,6 +270,7 @@ function mountWorkspace(
 
   return () => {
     resizeObserver.disconnect();
+    unguard();
     // A keyboard move left open would keep its dragger and shortcuts on a dead workspace.
     if (KeyboardMover.mover.isMoving()) KeyboardMover.mover.abortMove();
     flush();
@@ -244,15 +290,22 @@ export function BlocklyWorkspace({
   onReady,
   onDispose,
   onMouseDragEnd,
+  onBlockLimit,
   className = '',
 }: BlocklyWorkspaceProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   // Options such as maxBlocks and readOnly can only be set at inject time, so the level and
   // specs are fixed for the life of this component (blockly-integration.md §2).
   const [initial] = useState(() => ({ level, specs: blockSpecs ?? knownBlockSpecs() }));
-  const callbacks = useRef<Callbacks>({ onChange, onReady, onDispose, onMouseDragEnd });
+  const callbacks = useRef<Callbacks>({
+    onChange,
+    onReady,
+    onDispose,
+    onMouseDragEnd,
+    onBlockLimit,
+  });
   useEffect(() => {
-    callbacks.current = { onChange, onReady, onDispose, onMouseDragEnd };
+    callbacks.current = { onChange, onReady, onDispose, onMouseDragEnd, onBlockLimit };
   });
 
   useEffect(() => {

@@ -1,10 +1,10 @@
 import type { ReactNode } from 'react';
 import type { GoalSprite } from '@codequest/content-schema';
-import type { MazeCell, MazeConfig, RunnerCell } from '@codequest/games';
+import type { GoalItemKind, MazeCell, MazeConfig, RunnerCell } from '@codequest/games';
 import sheetJson from 'virtual:panda-sheet';
 import { BLOCK_COLORS, UI_COLORS } from '../ui/tokens';
 import { shade } from './colors';
-import { type GoalArt, goalArt, goalRuns } from './goalArt';
+import { type GoalArt, goalArt, goalArtFor, goalRuns, ITEM_ART } from './goalArt';
 
 // SVG pieces shared by the static pictures of a level (stage-rendering.md §4): the predict
 // answer cards (AnswerPicture), the runner's full-track strip (TrackStrip) and the big
@@ -78,6 +78,45 @@ function goalRects(art: GoalArt): ReactNode[] {
   return rects;
 }
 
+/** A mission item still on the map (P2-11c): runner `at` is a cell, maze `at` is `[row, col]`. */
+export interface ItemMark<At> {
+  kind: GoalItemKind;
+  at: At;
+}
+
+/** A mission item picture (key, friend) in a `size` square at (x, y), as on the PixiJS stage. */
+export function ItemSvg({
+  kind,
+  x,
+  y,
+  size,
+  at,
+}: {
+  kind: GoalItemKind;
+  x: number;
+  y: number;
+  size: number;
+  /** The item's cell, for e2e (`data-item-at`). */
+  at: string;
+}) {
+  const art = ITEM_ART[kind];
+  const n = art.rows.length;
+  return (
+    <svg
+      x={x}
+      y={y}
+      width={size}
+      height={size}
+      viewBox={`0 0 ${String(n)} ${String(n)}`}
+      shapeRendering="crispEdges"
+      data-item={kind}
+      data-item-at={at}
+    >
+      {goalRects(art)}
+    </svg>
+  );
+}
+
 /**
  * The goal picture of `goalSprite` (P2-11c, stages/goalArt.ts) in a `size` square at (x, y):
  * the same pixel art as the PixiJS stage. `null` for the default flag (callers draw their own).
@@ -87,13 +126,16 @@ export function GoalSvg({
   x,
   y,
   size,
+  open = false,
 }: {
   sprite: GoalSprite | undefined;
   x: number;
   y: number;
   size: number;
+  /** Every mission item is picked up: a cage shows open (`goalArtFor`). */
+  open?: boolean;
 }) {
-  const art = goalArt(sprite);
+  const art = goalArtFor(sprite, open);
   if (art === null) return null;
   const n = art.rows.length;
   return (
@@ -106,6 +148,7 @@ export function GoalSvg({
       shapeRendering="crispEdges"
       data-mark="goal"
       data-goal-sprite={sprite}
+      data-goal-open={open}
     >
       {goalRects(art)}
     </svg>
@@ -128,11 +171,17 @@ export const TRACK_GRASS = 0.55 * TRACK_CELL;
 export function TrackCells({
   cells,
   bamboo,
+  items = [],
   seam = 1.5,
   goalSprite,
+  goalOpen = false,
 }: {
+  /** Every mission item is picked up (the cage shows open). */
+  goalOpen?: boolean;
   cells: readonly RunnerCell[];
   bamboo: readonly number[];
+  /** Mission items still on the track (P2-11c). */
+  items?: ReadonlyArray<ItemMark<number>> | undefined;
   /** Width of the line between two ground cells (thicker where cells are drawn small). */
   seam?: number;
   /** `level.goalSprite` (P2-11c): drawn on the flag cell instead of the flag. */
@@ -141,12 +190,12 @@ export function TrackCells({
   const C = TRACK_CELL;
   const SKY = TRACK_SKY;
   const GRASS = TRACK_GRASS;
-  const items: ReactNode[] = [];
+  const parts: ReactNode[] = [];
   cells.forEach((kind, i) => {
     const x = i * C;
     const key = String(i);
     if (kind === 'hole') {
-      items.push(
+      parts.push(
         <rect
           key={`c${key}`}
           x={x}
@@ -159,7 +208,7 @@ export function TrackCells({
         />,
       );
     } else {
-      items.push(
+      parts.push(
         <image
           key={`c${key}`}
           href={tile('ground')}
@@ -172,7 +221,7 @@ export function TrackCells({
         />,
       );
       if (i > 0 && cells[i - 1] !== 'hole') {
-        items.push(
+        parts.push(
           <rect
             key={`s${key}`}
             x={x - seam / 2}
@@ -186,7 +235,7 @@ export function TrackCells({
       }
     }
     if (kind === 'crate') {
-      items.push(
+      parts.push(
         <image
           key={`k${key}`}
           href={tile('crate')}
@@ -198,7 +247,7 @@ export function TrackCells({
       );
     }
     if (kind === 'branch') {
-      items.push(
+      parts.push(
         <rect key={`t${key}`} x={x + C - 4} y={0} width={3} height={SKY} fill={UI_COLORS.goDeep} />,
         <image
           key={`bl${key}`}
@@ -220,11 +269,18 @@ export function TrackCells({
     }
     if (kind === 'flag' && goalArt(goalSprite) !== null) {
       // On the grass, a little right of the cell's centre like the stage (Măng stands in front).
-      items.push(
-        <GoalSvg key="goal" sprite={goalSprite} x={x + C * 0.18} y={SKY + 1 - C} size={C} />,
+      parts.push(
+        <GoalSvg
+          key="goal"
+          sprite={goalSprite}
+          x={x + C * 0.18}
+          y={SKY + 1 - C}
+          size={C}
+          open={goalOpen}
+        />,
       );
     } else if (kind === 'flag') {
-      items.push(
+      parts.push(
         <image
           key="pole"
           href={tile('flag_pole')}
@@ -245,7 +301,7 @@ export function TrackCells({
     }
   });
   for (const at of bamboo) {
-    items.push(
+    parts.push(
       <image
         key={`b${String(at)}`}
         href={tile('bamboo')}
@@ -257,7 +313,19 @@ export function TrackCells({
       />,
     );
   }
-  return <>{items}</>;
+  for (const item of items) {
+    parts.push(
+      <ItemSvg
+        key={`i${String(item.at)}`}
+        kind={item.kind}
+        x={item.at * C + C * 0.17}
+        y={SKY - C * 0.66}
+        size={C * 0.66}
+        at={String(item.at)}
+      />,
+    );
+  }
+  return <>{parts}</>;
 }
 
 // ---- Maze: the whole grid from above ------------------------------------------------------------
@@ -317,10 +385,16 @@ export function MazeArrow({
 export function MazeBoard({
   config,
   bamboo,
+  items = config.goal?.items ?? [],
   goalSprite,
+  goalOpen = false,
 }: {
+  /** Every mission item is picked up (the cage shows open). */
+  goalOpen?: boolean;
   config: MazeConfig;
   bamboo?: readonly MazeCell[];
+  /** Mission items still on the map (P2-11c); default every item of the config. */
+  items?: ReadonlyArray<ItemMark<MazeCell>>;
   /** `level.goalSprite` (P2-11c): drawn on the goal cell instead of the flag. */
   goalSprite?: GoalSprite | undefined;
 }) {
@@ -370,12 +444,31 @@ export function MazeBoard({
       }
     });
   });
+  for (const item of items) {
+    const [r, c] = item.at;
+    cells.push(
+      <ItemSvg
+        key={`i${String(r)},${String(c)}`}
+        kind={item.kind}
+        x={c * M + 1.5}
+        y={r * M + 1.5}
+        size={M - 3}
+        at={`${String(r)},${String(c)}`}
+      />,
+    );
+  }
   const { start, goal } = mazeLandmarks(map);
   return (
     <>
       {cells}
       {goal && goalArt(goalSprite) !== null && (
-        <GoalSvg sprite={goalSprite} x={goal[1] * M + 0.5} y={goal[0] * M + 0.5} size={M - 1} />
+        <GoalSvg
+          sprite={goalSprite}
+          x={goal[1] * M + 0.5}
+          y={goal[0] * M + 0.5}
+          size={M - 1}
+          open={goalOpen}
+        />
       )}
       {goal && goalArt(goalSprite) === null && (
         <image

@@ -29,6 +29,24 @@ describe('TrackStripView', () => {
     expect(container.querySelector('svg')?.getAttribute('aria-hidden')).toBe('true');
   });
 
+  it('a cage shows closed with its key on the track, open once the key is picked up', () => {
+    const keyed: RunnerConfig = { ...long, goal: { items: [{ kind: 'key', at: 4 }] } };
+    const before = render(
+      <TrackStripView state={initialStrip(keyed)} stageWidth={500} goalSprite="cage" />,
+    );
+    expect(before.container.querySelectorAll('[data-item="key"]')).toHaveLength(1);
+    expect(before.container.querySelector('[data-goal-open]')?.getAttribute('data-goal-open')).toBe(
+      'false',
+    );
+    cleanup();
+    const after = stripStep(initialStrip(keyed), ev({ type: 'collect', at: 4, item: 'key' }));
+    const { container } = render(
+      <TrackStripView state={after} stageWidth={500} goalSprite="cage" />,
+    );
+    expect(container.querySelector('[data-item]')).toBeNull();
+    expect(container.querySelector('[data-goal-open]')?.getAttribute('data-goal-open')).toBe('true');
+  });
+
   it('follows the run: the marker moves and a picked shoot is gone', () => {
     let state = stripStep(initialStrip(long), ev({ type: 'walk', from: 2, to: 3 }));
     state = stripStep(state, ev({ type: 'collect', at: 3 }));

@@ -1,5 +1,5 @@
 import type { Ticker } from 'pixi.js';
-import type { GameEvent, RunOutcome } from '@codequest/engine';
+import type { GameEvent, RunOutcome, SenseEvent } from '@codequest/engine';
 import { isAborted, type StageRenderer, tween } from './types';
 
 /** Playback speed chosen by the child (Chậm / Vừa / Nhanh). */
@@ -10,14 +10,54 @@ export const HIGHLIGHT_MS = 120;
 /** A won run plays a little faster, a lost one slower and never above 1× (overview.md §4). */
 export const WIN_TEMPO = 1.25;
 export const LOSE_TEMPO = 0.85;
-/** A timed-out run can hold thousands of events; replay only its start. */
-export const TIMEOUT_REPLAY_EVENTS = 24;
+/**
+ * How long a question block shows its answer (✔/✘) after it is asked, at speed 1 (P2-11,
+ * curriculum.md §5.4 T7). The mark stays until the next action starts, so a step waits under it.
+ */
+export const SENSE_MS = 380;
+/**
+ * A timed-out run can hold thousands of events: replay only about its first 3 s of stage clock
+ * at speed 1 (coach question G13, "tạm dùng 3 giây"), then Măng gets dizzy (T8).
+ */
+export const TIMEOUT_REPLAY_MS = 3000;
+
+/** A question block was asked (`sense` event): the block and its answer. */
+export interface SenseMark {
+  blockId: string;
+  value: boolean;
+}
+
+/**
+ * The start of a timed-out run's events that fits TIMEOUT_REPLAY_MS at speed 1, by the renderer's
+ * own estimates. Cuts only before a highlight or a question, so a block is never left half done;
+ * keeps at least one event. Pure, so the cap is the same on every replay.
+ */
+export function timeoutReplayEvents(
+  events: readonly GameEvent[],
+  estimate: (event: GameEvent) => number,
+): GameEvent[] {
+  const kept: GameEvent[] = [];
+  let ms = 0;
+  for (const event of events) {
+    const boundary = event.type === 'highlight' || event.type === 'sense';
+    if (kept.length > 0 && boundary && ms >= TIMEOUT_REPLAY_MS) break;
+    kept.push(event);
+    ms +=
+      event.type === 'highlight' ? HIGHLIGHT_MS : event.type === 'sense' ? SENSE_MS : estimate(event);
+  }
+  return kept;
+}
 
 export type PlayResult = 'finished' | 'aborted';
 
 export interface ReplayHooks {
   /** Lights up the block that runs now; `null` clears it (Blockly `highlightBlock`). */
   onHighlight: (blockId: string | null) => void;
+  /**
+   * A question block was asked (`sense` event, P2-11): show its ✔/✘ on that block; `null` clears
+   * the mark (the next action starts, the replay ends or the stage is reset).
+   */
+  onSense?: (mark: SenseMark | null) => void;
   /** Step mode: true while the replay waits for `step()` (e2e reads it as data-waiting-step). */
   onWaitingStep?: (waiting: boolean) => void;
   /** The clock's speed after every change (tempo, speed, pause); e2e reads it as data-stage-speed. */
@@ -46,6 +86,8 @@ export class Replay {
   private releaseStep: (() => void) | null = null;
   /** A step pressed while no step was awaited (e.g. during a highlight) is kept for the next one. */
   private stepQueued = false;
+  /** A question block shows its answer (cleared by the next action, the end or a reset). */
+  private senseShown = false;
 
   constructor(
     private readonly ticker: Ticker,
@@ -64,8 +106,10 @@ export class Replay {
   }
 
   /**
-   * Replays a run from the start: highlight events light up their block for HIGHLIGHT_MS,
-   * action events go to the renderer. Resolves 'aborted' if reset / destroyed / replayed meanwhile.
+   * Replays a run from the start: highlight events light up their block for HIGHLIGHT_MS, sense
+   * events show the question's answer for SENSE_MS, action events go to the renderer. A timed-out
+   * run plays only its start, then Măng gets dizzy. Resolves 'aborted' if reset / destroyed /
+   * replayed meanwhile.
    */
   async play(outcome: RunOutcome, options: { step?: boolean } = {}): Promise<PlayResult> {
     this.reset();
@@ -76,12 +120,13 @@ export class Replay {
     this.tempo = outcome.result === 'success' ? WIN_TEMPO : LOSE_TEMPO;
     this.applySpeed();
 
-    const events =
-      outcome.result === 'timeout'
-        ? outcome.events.slice(0, TIMEOUT_REPLAY_EVENTS)
-        : outcome.events;
-    // In step mode the replay waits once per block: before the first action after a highlight.
-    // Follow-up events of the same block (fall, win) play on without another step.
+    const timedOut = outcome.result === 'timeout';
+    const events = timedOut
+      ? timeoutReplayEvents(outcome.events, (event) => this.renderer.estimate(event))
+      : outcome.events;
+    // In step mode the replay waits once per block, before the first action after a highlight,
+    // and before every question (a loop asks again without a new highlight). Follow-up events of
+    // the same block (fall, win) play on without another step.
     let blockStarted = false;
     try {
       for (const [index, event] of events.entries()) {
@@ -96,18 +141,41 @@ export class Replay {
         }
         const firstOfBlock = blockStarted;
         blockStarted = false;
-        if (this.stepping && firstOfBlock) {
+        const isSense = event.type === 'sense';
+        if (this.stepping && (firstOfBlock || isSense)) {
           this.renderer.rest();
           await this.waitForStep(signal);
           if (isAborted(signal)) return 'aborted';
         }
+        if (isSense) {
+          const { value } = event as SenseEvent;
+          if (event.blockId !== null) {
+            this.senseShown = true;
+            this.hooks.onSense?.({ blockId: event.blockId, value });
+          }
+          this.renderer.hold();
+          await tween(this.ticker, SENSE_MS, signal);
+          continue;
+        }
+        this.clearSense();
         const next = events[index + 1];
         this.hooks.onEvent?.(event);
-        await this.renderer.play(event, signal, next?.type === 'highlight' ? undefined : next);
+        await this.renderer.play(
+          event,
+          signal,
+          next?.type === 'highlight' || next?.type === 'sense' ? undefined : next,
+        );
       }
       if (isAborted(signal)) return 'aborted';
+      this.clearSense();
       this.hooks.onHighlight(null);
-      if (outcome.result !== 'success' && outcome.result !== 'crash') this.renderer.rest();
+      if (timedOut && this.renderer.dizzy) {
+        // The loop never stops: Măng spins and sees stars, then stays dizzy (T8, T18).
+        await this.renderer.dizzy(signal);
+        if (isAborted(signal)) return 'aborted';
+      } else if (outcome.result !== 'success' && outcome.result !== 'crash') {
+        this.renderer.rest();
+      }
       this.renderer.finish?.(outcome);
       return 'finished';
     } finally {
@@ -181,6 +249,7 @@ export class Replay {
     this.hooks.onWaitingStep?.(false);
     this.renderer.reset();
     this.hooks.onReset?.();
+    this.clearSense();
     this.hooks.onHighlight(null);
   }
 
@@ -188,6 +257,12 @@ export class Replay {
   stop(): void {
     this.playback?.abort();
     this.playback = null;
+  }
+
+  private clearSense(): void {
+    if (!this.senseShown) return;
+    this.senseShown = false;
+    this.hooks.onSense?.(null);
   }
 
   private applySpeed(): void {

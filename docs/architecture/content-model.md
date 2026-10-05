@@ -213,6 +213,7 @@ Cách hiểu chi tiết (cài đặt ở P1-11):
 - **Luật 17:** có màn mà thiếu `shared/feedback.json` cũng là lỗi luật 17.
 - **Luật 19:** lỗi ghi `rule 19: solution wins but misses star goal "collectAll"` (màn nhiều bản đồ thêm `on map 2`, đếm từ 1), `star goal "collectAll" already holds before Măng moves on every map`, `star goal "collectAll" adds nothing: config.goal.collectAll already requires every shoot to win`, hoặc `game kind "x" has no star goals`. Lời giải thua thì chỉ luật 9 báo. Dòng ✔ ghi thêm `goals N`. Fixture: `rule-19-star-goal-missed/`, `extra-04-star-goal-redundant/`.
 - **Luật 20:** lỗi ghi `rule 20: solution nests loops 2 deep > maxLoopDepth 1` hoặc `rule 20: initialWorkspace has 2 "cq_repeat" > maxInstances 1`. Không cần cấu hình hợp lệ (chỉ đọc JSON). `maxInstances` chỉ có `toolbox` kéo được mới cần; luật kiểm mọi type ghi trong nó. Fixture: `rule-20-block-limits/`.
+- **Luật 1, hình đích lồng (P2-11c):** màn có `goalSprite: "cage"` phải có vật phẩm `key` trong `config.goal.items` ở **mọi** bản đồ (lồng chỉ mở bằng chìa khóa; sân chơi vẽ lồng mở khi đã nhặt đủ). Lỗi ghi `rule 1: goalSprite: "cage" needs a "key" item in config.goal.items on map N`. Fixture: `extra-07-cage-without-key/`.
 - **Luật 18:** đường dẫn phải bắt đầu bằng `/` (tính từ `apps/web/public/`) và không thoát ra ngoài thư mục đó. Kiểm `world.theme.tileset`, `world.theme.music`, `image` của thẻ bài giảng, `asset` của vật phẩm cửa hàng.
 
 ## 6. Phiên bản luật chơi

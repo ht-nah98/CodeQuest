@@ -1,0 +1,72 @@
+{
+  "id": "runner-until",
+  "worldId": "_sandbox",
+  "stage": "practice",
+  "kind": "runner",
+  "mode": "build",
+  "title": "Hỏi rồi mới đi",
+  "objective": "Hỏi trước mỗi bước để tới cờ nhé!",
+  "learningGoal": "Mẫu cho e2e P2-11: lặp đến khi, nếu … nếu không, câu hỏi sáng ✔/✘, vòng lặp không dừng, ô câu hỏi trống, không đặt lặp trong lặp.",
+  "toolbox": [
+    "runner_walk",
+    "runner_jump",
+    { "type": "cq_repeat", "fields": { "TIMES": 3 } },
+    "cq_repeat_until",
+    "cq_if",
+    "cq_if_else",
+    "runner_is_ahead",
+    "runner_at_goal"
+  ],
+  "par": 6,
+  "maxBlocks": 8,
+  "maxLoopDepth": 1,
+  "config": {
+    "cells": ["ground", "ground", "hole", "ground", "ground", "hole", "ground", "flag"],
+    "start": 0
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat_until",
+              "id": "until1",
+              "inputs": {
+                "COND": { "block": { "type": "runner_at_goal", "id": "goal1" } },
+                "DO": {
+                  "block": {
+                    "type": "cq_if_else",
+                    "id": "ifelse1",
+                    "inputs": {
+                      "COND": {
+                        "block": { "type": "runner_is_ahead", "id": "ask1", "fields": { "KIND": "HOLE" } }
+                      },
+                      "DO": { "block": { "type": "runner_jump", "id": "jump1" } },
+                      "ELSE": { "block": { "type": "runner_walk", "id": "walk1" } }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "step",
+      "when": { "trigger": "enter" },
+      "say": "Bấm Từng bước, xem câu hỏi sáng xanh hay đỏ.",
+      "point": "step"
+    }
+  ],
+  "thinkingHint": "Măng cần hỏi gì trước mỗi bước?"
+}

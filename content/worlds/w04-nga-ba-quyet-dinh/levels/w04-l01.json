@@ -130,7 +130,7 @@
       "when": {
         "trigger": "enter"
       },
-      "say": "Khối mới nếu: ✔ thì làm các khối bên trong, ✘ thì bỏ qua.",
+      "say": "Khối nếu: đúng thì làm khối bên trong, sai thì bỏ qua.",
       "point": "block:cq_if"
     },
     {
@@ -138,7 +138,7 @@
       "when": {
         "trigger": "enter"
       },
-      "say": "Phía trước có: ✔ khi ô ngay trước Măng là thứ con chọn.",
+      "say": "Phía trước có: đúng khi ô trước Măng là thứ con chọn.",
       "point": "block:runner_is_ahead"
     },
     {

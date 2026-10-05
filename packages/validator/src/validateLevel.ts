@@ -16,6 +16,7 @@ import { getGameKind } from '@codequest/games';
 import { describeError, formatSchemaIssues, type GameKindLookup, type RuleIssue } from './issue';
 import {
   hintIssues,
+  goalSpriteIssues,
   limitIssues,
   modeIssues,
   pedagogyIssues,
@@ -152,7 +153,11 @@ function checkParsedLevel(
   getKind: GameKindLookup,
 ): { issues: RuleIssue[]; solutionBlocks: number | null } {
   const kind = getKind(level.kind);
-  const issues = [...(isDraft ? [] : pedagogyIssues(level)), ...shadowIssues(level)];
+  const issues = [
+    ...(isDraft ? [] : pedagogyIssues(level)),
+    ...shadowIssues(level),
+    ...goalSpriteIssues(level),
+  ];
   const configIssues = levelConfigIssues(level, kind);
   issues.push(...configIssues);
   let solutionBlocks: number | null = null;

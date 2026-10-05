@@ -45,7 +45,7 @@ export function TrackStripView({
    */
   onDragCell?: (cell: number) => void;
 }) {
-  const { cells, bamboo, at, look } = state;
+  const { cells, bamboo, items, itemTotal, at, look } = state;
   const pressRef = useRef<{ x: number; y: number; moved: boolean } | null>(null);
   const view = stripView(cells.length, stageWidth, at, look);
   if (view === null) return null;
@@ -100,7 +100,14 @@ export function TrackStripView({
         })}
       >
         <rect x={0} y={0} width={width} height={HEIGHT} fill={UI_COLORS.sky} />
-        <TrackCells cells={cells} bamboo={bamboo} seam={3} goalSprite={goalSprite} />
+        <TrackCells
+          cells={cells}
+          bamboo={bamboo}
+          items={items}
+          seam={3}
+          goalSprite={goalSprite}
+          goalOpen={itemTotal > 0 && items.length === 0}
+        />
         {/* What the big stage shows now: the rest of the strip is dimmed, the part framed. */}
         <g className={glide} style={{ transform: `translateX(${String(viewX)}px)` }}>
           <rect

@@ -3,10 +3,11 @@ import type { WorkspaceSvg } from 'blockly';
 import type { Level, LessonCard } from '@codequest/content-schema';
 import { getGameKind } from '@codequest/games';
 import { BlocklyWorkspace } from '../../blockly/BlocklyWorkspace';
+import { markSense } from '../../blockly/senseMark';
 import { runProgram } from '../../features/play/run';
 import { vi } from '../../i18n/vi';
 import { getStageKind } from '../../stages/registry';
-import { StageController } from '../../stages/StageController';
+import { type SenseMark, StageController } from '../../stages/StageController';
 import { Button, PixelIcon } from '../../ui';
 
 const t = vi.lesson;
@@ -23,6 +24,8 @@ export function LessonDemo({ card, id, worldId }: { card: DemoCard; id: string; 
   const workspaceRef = useRef<WorkspaceSvg | null>(null);
   const [ready, setReady] = useState(false);
   const [phase, setPhase] = useState<'idle' | 'running' | 'done'>('idle');
+  /** The result of the last run (e2e reads it as data-result, e.g. a TIMEOUT demo). */
+  const [lastResult, setLastResult] = useState<string | null>(null);
 
   // A demo is a tiny level built from the card, so the engine and stage run it unchanged.
   const level = useMemo<Level>(
@@ -58,6 +61,15 @@ export function LessonDemo({ card, id, worldId }: { card: DemoCard; id: string; 
     workspace.highlightBlock(blockId);
   }, []);
 
+  /** The ✔/✘ a question block shows while the demo asks it (P2-11). */
+  const senseRef = useRef<(() => void) | null>(null);
+  const sense = useCallback((mark: SenseMark | null) => {
+    senseRef.current?.();
+    senseRef.current = null;
+    const workspace = workspaceRef.current;
+    if (mark && workspace) senseRef.current = markSense(workspace, mark.blockId, mark.value);
+  }, []);
+
   const run = useCallback(() => {
     const stage = stageRef.current;
     if (!stage) return;
@@ -68,6 +80,7 @@ export function LessonDemo({ card, id, worldId }: { card: DemoCard; id: string; 
       return;
     }
     setPhase('running');
+    setLastResult(outcome.result);
     stage.play(outcome).then(
       (result) => {
         if (result === 'finished') setPhase('done');
@@ -86,6 +99,10 @@ export function LessonDemo({ card, id, worldId }: { card: DemoCard; id: string; 
       kind: card.kind,
       config: card.config,
       onHighlight: highlight,
+      onSense: sense,
+      onAnimation: (animation) => {
+        container.dataset.panda = animation;
+      },
     }).then(
       (stage) => {
         if (controller.signal.aborted || !stage) {
@@ -104,7 +121,7 @@ export function LessonDemo({ card, id, worldId }: { card: DemoCard; id: string; 
       stageRef.current = null;
       setReady(false);
     };
-  }, [playable, card.kind, card.config, card.autoplay, highlight, run]);
+  }, [playable, card.kind, card.config, card.autoplay, highlight, sense, run]);
 
   return (
     <div
@@ -132,6 +149,7 @@ export function LessonDemo({ card, id, worldId }: { card: DemoCard; id: string; 
             aria-label={t.demoStage}
             data-ready={ready}
             data-phase={phase}
+            data-result={lastResult ?? undefined}
             className="relative h-[196px] overflow-hidden rounded-chip border-3 border-ink bg-sky"
           />
           <Button
