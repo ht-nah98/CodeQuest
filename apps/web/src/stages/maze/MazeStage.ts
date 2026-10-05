@@ -10,13 +10,13 @@ import {
 } from 'pixi.js';
 import type { RunOutcome } from '@codequest/engine';
 import type { GoalSprite } from '@codequest/content-schema';
-import type { MazeCell, MazeConfig, MazeDir, MazeEvent } from '@codequest/games';
+import type { GoalItemKind, MazeCell, MazeConfig, MazeDir, MazeEvent } from '@codequest/games';
 import { UI_COLORS } from '../../ui/tokens';
 import type { PandaTextures } from '../assets';
 import { shade } from '../colors';
 import { reducedMotion } from '../motion';
 import type { PandaAnimation } from '../panda';
-import { type GoalArt, goalArt, goalScale } from '../goalArt';
+import { goalArtFor, goalScale, ITEM_ART } from '../goalArt';
 import { createPanda, type Panda } from '../pandaSprite';
 import { goalTexture } from '../tiles';
 import { isAborted, type PandaAnimationListener, type StageRenderer, tween } from '../types';
@@ -49,6 +49,7 @@ const MS = {
   daze: 720,
   collect: 480,
   cheer: 1100,
+  dizzy: 1500,
 } as const;
 
 /** How far Măng leans into a wall before bouncing off, in cells. */
@@ -64,6 +65,10 @@ const NO_TINT = UI_COLORS.white;
 /** Flag waving speed (frames per 60 fps tick): calm, and fast while Măng cheers. */
 const FLAG_SPEED = 3 / 60;
 const FLAG_SPEED_WIN = 8 / 60;
+/** Run-end reasons that mean "a mission item is still on the map" (P2-11c, ADR-0019). */
+const NEED_REASONS: ReadonlySet<string> = new Set(['NEED_KEY', 'NEED_FRIEND']);
+/** How far behind Măng the friend walks once picked up, in cells. */
+const FOLLOW_GAP = 0.5;
 /** Hard drop shadow under the board, in px (art-direction.md §4: hard shadows, no blur). */
 const BOARD_SHADOW = 6;
 
@@ -106,6 +111,11 @@ function createTextures(): MazeTextures {
   return textures;
 }
 
+/** Whole zoom of an item picture inside a cell: a little smaller than the cell. */
+function itemScale(texels: number, cellPx: number): number {
+  return Math.max(1, Math.floor((cellPx * 0.8) / texels));
+}
+
 /**
  * Maze stage (game-kind-sdk.md §1.2): a top-down grid of path and bamboo walls inside a wall ring,
  * bamboo shoots, the goal flag, and Măng replaying move / turn / bump / collect / win events.
@@ -127,9 +137,20 @@ export class MazeStage implements StageRenderer<MazeEvent> {
   private readonly hud = new Container();
   /** The goal: the waving flag, or the level's goal picture (`goalSprite`) as one frame. */
   private readonly flag: AnimatedSprite;
-  private readonly goalArt: GoalArt | null;
+  private readonly goalSprite: GoalSprite | undefined;
   private readonly goalPad: Sprite;
   private readonly bamboo = new Map<string, Sprite>();
+  /** Mission items (P2-11c) by cell key, in config order; picked-up ones are in `takenItems`. */
+  private readonly itemSprites = new Map<string, Sprite>();
+  private readonly itemKinds: ReadonlyMap<string, GoalItemKind>;
+  private takenItems = new Set<string>();
+  /** The friend walking behind Măng once picked up (escort levels). */
+  private readonly follower: Sprite;
+  private following = false;
+  /** NEED_KEY / NEED_FRIEND at the end of a run: the missing items and the locked goal pulse. */
+  private needPulse = false;
+  /** Spin while dizzy (radians), on top of Măng's facing side. */
+  private spin = 0;
   private readonly dizzyStars: Sprite[] = [];
   private particles: Particle[] = [];
   private readonly start: MazeCell;
@@ -162,7 +183,10 @@ export class MazeStage implements StageRenderer<MazeEvent> {
     private readonly onAnimation?: PandaAnimationListener,
     goalSprite?: GoalSprite,
   ) {
-    this.goalArt = goalArt(goalSprite);
+    this.goalSprite = goalSprite;
+    this.itemKinds = new Map(
+      (config.goal?.items ?? []).map((item) => [cellKey(item.at), item.kind] as const),
+    );
     this.start = cellsOf(config.map, 'S')[0] ?? [0, 0];
     this.goal = cellsOf(config.map, 'G')[0] ?? [0, 0];
     this.bambooCells = cellsOf(config.map, 'b');
@@ -171,10 +195,9 @@ export class MazeStage implements StageRenderer<MazeEvent> {
     this.layout = this.computeLayout(app.screen.width, app.screen.height);
 
     this.goalPad = new Sprite(this.textures.goalPad);
+    const art = goalArtFor(goalSprite, false);
     this.flag = new AnimatedSprite({
-      textures: this.goalArt
-        ? [goalTexture(this.goalArt)]
-        : [this.textures.flag1, this.textures.flag2],
+      textures: art ? [goalTexture(art)] : [this.textures.flag1, this.textures.flag2],
       animationSpeed: 3 / 60,
       autoUpdate: false,
     });
@@ -186,6 +209,15 @@ export class MazeStage implements StageRenderer<MazeEvent> {
       this.bamboo.set(cellKey(cell), sprite);
       this.items.addChild(sprite);
     }
+    for (const [key, kind] of this.itemKinds) {
+      const sprite = new Sprite(goalTexture(ITEM_ART[kind]));
+      sprite.anchor.set(0.5);
+      this.itemSprites.set(key, sprite);
+      this.items.addChild(sprite);
+    }
+    this.follower = new Sprite(goalTexture(ITEM_ART.friend));
+    this.follower.anchor.set(0.5, 1);
+    this.follower.visible = false;
     for (let i = 0; i < 3; i++) {
       const star = new Sprite(this.textures.sparkle);
       star.anchor.set(0.5);
@@ -203,6 +235,7 @@ export class MazeStage implements StageRenderer<MazeEvent> {
       this.marks,
       this.items,
       this.shadow,
+      this.follower,
       this.panda.sprite,
       this.fx,
     );
@@ -216,17 +249,22 @@ export class MazeStage implements StageRenderer<MazeEvent> {
     this.pose = this.startPose();
     this.dir = this.config.startDir;
     this.collected = new Set();
+    this.takenItems = new Set();
+    this.following = false;
+    this.needPulse = false;
+    this.spin = 0;
     this.moving = false;
     this.stunned = false;
     this.cheering = false;
     this.missedPulse = false;
+    this.app.canvas.dataset.dizzy = 'false';
     this.flashAt = null;
     this.flashAlpha = 0;
     this.shake = 0;
     this.flagSpeed = FLAG_SPEED;
     for (const particle of this.particles) particle.sprite.destroy();
     this.particles = [];
-    for (const sprite of this.bamboo.values()) {
+    for (const sprite of [...this.bamboo.values(), ...this.itemSprites.values()]) {
       sprite.visible = true;
       sprite.alpha = 1;
     }
@@ -242,11 +280,38 @@ export class MazeStage implements StageRenderer<MazeEvent> {
     if (this.panda.animation !== 'idle' || !this.panda.sprite.playing) this.setAnimation('idle');
   }
 
-  /** End of a run: MISSED_ITEMS marks the bamboo left on the field (Măng waits on the goal). */
+  /**
+   * End of a run: MISSED_ITEMS marks the bamboo left on the field, NEED_KEY / NEED_FRIEND the
+   * mission items left and the locked goal (Măng waits on the goal).
+   */
   finish(outcome: RunOutcome<MazeEvent>): void {
     if (this.destroyed) return;
     this.missedPulse = outcome.reasonCode === 'MISSED_ITEMS';
+    this.needPulse = NEED_REASONS.has(outcome.reasonCode ?? '');
     this.syncState();
+  }
+
+  /**
+   * TIMEOUT (P2-11 T8): the loop never stops, so Măng spins round twice with stars over her
+   * head, then stays dazed until reset. Reduced motion: no spin, the stars stand still.
+   */
+  async dizzy(signal: AbortSignal): Promise<void> {
+    if (this.destroyed) return;
+    this.app.canvas.dataset.dizzy = 'true';
+    this.stunned = true;
+    this.moving = false;
+    this.setAnimation('jump');
+    this.syncState();
+    const spins = reducedMotion() ? 0 : 2;
+    await tween(this.app.ticker, MS.dizzy, signal, (t) => {
+      const ease = 1 - (1 - t) * (1 - t);
+      this.spin = ease * spins * 2 * Math.PI;
+      this.pose.lift = spins === 0 ? 0 : 0.08 * Math.abs(Math.sin(t * Math.PI * 4));
+    });
+    if (this.stopped(signal)) return;
+    this.spin = 0;
+    this.pose.lift = 0;
+    this.setAnimation('crouch');
   }
 
   hold(): void {
@@ -272,6 +337,7 @@ export class MazeStage implements StageRenderer<MazeEvent> {
     if (this.destroyed) return;
     const ticker = this.app.ticker;
     this.missedPulse = false;
+    this.needPulse = false;
     switch (event.type) {
       case 'move': {
         const [r0, c0] = event.from;
@@ -348,8 +414,11 @@ export class MazeStage implements StageRenderer<MazeEvent> {
       }
       case 'collect': {
         const key = cellKey(event.at);
-        const sprite = this.bamboo.get(key);
-        this.collected.add(key);
+        const isItem = event.item !== undefined;
+        const sprite = isItem ? this.itemSprites.get(key) : this.bamboo.get(key);
+        // Mission items have their own set: they never count as bamboo (ADR-0019).
+        if (isItem) this.takenItems.add(key);
+        else this.collected.add(key);
         this.setAnimation('happy');
         this.burst(event.at[0] - 0.3, event.at[1], 5, 0.0022, 520);
         this.updateHud();
@@ -366,6 +435,7 @@ export class MazeStage implements StageRenderer<MazeEvent> {
           if (this.stopped(signal)) return;
           sprite.visible = false;
         }
+        if (event.item === 'friend') this.following = true;
         this.updateGoalLock(true);
         this.syncState();
         return;
@@ -411,7 +481,12 @@ export class MazeStage implements StageRenderer<MazeEvent> {
 
   private computeLayout(width: number, height: number): MazeLayout {
     const { map } = this.config;
-    const band = hudLayout(this.bambooCells.length, width).band;
+    // Mission items alone (1–2 icons) sit over the margin left of the centred board: reserving a
+    // band for them would cost a whole tile scale on short stages (multi-map tabs + mission line).
+    const band =
+      this.bambooCells.length === 0
+        ? 0
+        : hudLayout(this.bambooCells.length + this.itemKinds.size, width).band;
     return computeMazeLayout(map.length, map[0]?.length ?? 0, width, height, band);
   }
 
@@ -428,9 +503,26 @@ export class MazeStage implements StageRenderer<MazeEvent> {
     data.mazeGoal = this.goalLocked() ? 'locked' : 'open';
     data.mazeMissed = String(this.missedPulse);
     data.mazeStunned = String(this.stunned);
+    if (this.itemKinds.size > 0) {
+      data.mazeItems = `${String(this.takenItems.size)}/${String(this.itemKinds.size)}`;
+      data.mazeNeed = String(this.needPulse);
+      data.mazeFollower = String(this.following);
+    } else {
+      // Another map of the level may have set them on the shared canvas.
+      delete data.mazeItems;
+      delete data.mazeNeed;
+      delete data.mazeFollower;
+    }
   }
 
+  /** A cage opens only with its key: the level has mission items and every one is taken. */
+  private itemsAllTaken(): boolean {
+    return this.itemKinds.size > 0 && this.takenItems.size === this.itemKinds.size;
+  }
+
+  /** Whether the goal does not count yet: bamboo left (collectAll) or mission items left. */
   private goalLocked(): boolean {
+    if (this.takenItems.size < this.itemKinds.size) return true;
     return (
       this.config.goal?.collectAll === true &&
       remainingBamboo(this.config.map, this.collected).length > 0
@@ -499,7 +591,27 @@ export class MazeStage implements StageRenderer<MazeEvent> {
     const feetY = centre.y + layout.feetOffset;
     const sprite = this.panda.sprite;
     sprite.position.set(centre.x, feetY - pose.lift * cellPx);
-    sprite.scale.set(layout.pandaScale * pose.facing, layout.pandaScale);
+    // Spinning (dizzy): the side view narrows through zero width and flips, like turning round.
+    const turn = Math.cos(this.spin);
+    const spinX = Math.abs(turn) < 0.08 ? Math.sign(turn || 1) * 0.08 : turn;
+    sprite.scale.set(layout.pandaScale * pose.facing * spinX, layout.pandaScale);
+
+    // The friend walks behind Măng, on the side away from her facing arrow.
+    this.follower.visible = this.following;
+    if (this.following) {
+      const art = ITEM_ART.friend;
+      const behind = cellCenter(
+        layout,
+        pose.row - Math.sin(pose.arrowAngle) * FOLLOW_GAP,
+        pose.col - Math.cos(pose.arrowAngle) * FOLLOW_GAP,
+      );
+      const hop = this.moving && !reducedMotion() ? Math.abs(Math.sin(this.clock / 90)) : 0;
+      this.follower.scale.set(Math.max(1, Math.floor((cellPx * 0.75) / art.rows.length)));
+      this.follower.position.set(
+        Math.round(behind.x),
+        Math.round(behind.y + layout.feetOffset - hop * cellPx * 0.08),
+      );
+    }
 
     const shadowScale = 1 - pose.lift * 0.8;
     this.shadow
@@ -554,6 +666,28 @@ export class MazeStage implements StageRenderer<MazeEvent> {
           .rect(at.x - cellPx / 2, at.y - cellPx / 2, cellPx, cellPx)
           .stroke({ color: UI_COLORS.ink, width: tileScale, alignment: 1 });
       }
+    }
+
+    // NEED_KEY / NEED_FRIEND: the items left hop with a pink frame, like missed bamboo.
+    for (const [key, item] of this.itemSprites) {
+      if (!item.visible || this.takenItems.has(key)) continue;
+      const [r, c] = key.split(',').map(Number) as [number, number];
+      const at = cellCenter(layout, r, c);
+      const pulse = this.needPulse && !still ? Math.abs(Math.sin(this.clock / 160)) : 0;
+      item.position.set(at.x, at.y - pulse * cellPx * 0.22);
+      const art = ITEM_ART[this.itemKinds.get(key) ?? 'key'];
+      item.scale.set(itemScale(art.rows.length, cellPx) * (1 + 0.25 * pulse));
+      if (this.needPulse) {
+        this.marks
+          .rect(at.x - cellPx / 2 + tileScale, at.y - cellPx / 2 + tileScale, cellPx - 2 * tileScale, cellPx - 2 * tileScale)
+          .stroke({ color: UI_COLORS.hint, width: 2 * tileScale, alignment: 1 })
+          .rect(at.x - cellPx / 2, at.y - cellPx / 2, cellPx, cellPx)
+          .stroke({ color: UI_COLORS.ink, width: tileScale, alignment: 1 });
+      }
+    }
+    if (this.needPulse) {
+      const blink = still || Math.floor(this.clock / 300) % 2 === 0;
+      this.flag.alpha = blink ? 0.6 : 0.25;
     }
 
     for (const particle of this.particles) {
@@ -631,10 +765,11 @@ export class MazeStage implements StageRenderer<MazeEvent> {
     const [gr, gc] = this.goal;
     this.goalPad.scale.set(tileScale);
     this.goalPad.position.set(layout.originX + gc * cellPx, layout.originY + gr * cellPx);
-    if (this.goalArt) {
+    const art = goalArtFor(this.goalSprite, this.itemsAllTaken());
+    if (art) {
       // A goal picture fills the cell (12 texels) or sits centred in it (the 16-texel friend).
-      const scale = goalScale(this.goalArt, cellPx);
-      const inset = (cellPx - this.goalArt.rows.length * scale) / 2;
+      const scale = goalScale(art, cellPx);
+      const inset = (cellPx - art.rows.length * scale) / 2;
       this.flag.scale.set(scale);
       this.flag.position.set(
         Math.round(layout.originX + gc * cellPx + inset),
@@ -656,13 +791,25 @@ export class MazeStage implements StageRenderer<MazeEvent> {
       sprite.position.set(at.x, at.y);
       sprite.scale.set(tileScale);
     }
+    for (const [key, sprite] of this.itemSprites) {
+      const [r, c] = key.split(',').map(Number) as [number, number];
+      const at = cellCenter(layout, r, c);
+      sprite.position.set(at.x, at.y);
+      const art = ITEM_ART[this.itemKinds.get(key) ?? 'key'];
+      sprite.scale.set(itemScale(art.rows.length, cellPx));
+    }
     this.updateGoalLock(false);
   }
 
-  /** With `collectAll`, the goal is greyed out until every bamboo shoot is picked up. */
+  /**
+   * With `collectAll` or mission items, the goal is greyed out until everything is picked up;
+   * a cage shows open once its key is taken (P2-11c).
+   */
   private updateGoalLock(celebrate: boolean): void {
     const locked = this.goalLocked();
     const wasLocked = this.flag.alpha < 1;
+    const art = goalArtFor(this.goalSprite, this.itemsAllTaken());
+    if (art && this.goalSprite === 'cage') this.flag.textures = [goalTexture(art)];
     this.flag.tint = locked ? LOCKED_TINT : NO_TINT;
     this.goalPad.tint = locked ? LOCKED_TINT : NO_TINT;
     this.flag.alpha = locked ? 0.6 : 1;
@@ -672,10 +819,15 @@ export class MazeStage implements StageRenderer<MazeEvent> {
       this.burst(this.goal[0] - 0.2, this.goal[1], 6, 0.003, 600);
   }
 
-  /** Bamboo counter (top-left, in its own band): one shoot per `b` on the map, lit once collected. */
+  /**
+   * Counter (top-left, in its own band): one shoot per `b` on the map, lit once collected, then
+   * one icon per mission item (key, friend), lit once picked up.
+   */
   private updateHud(): void {
     for (const child of this.hud.removeChildren()) child.destroy();
-    const total = this.bambooCells.length;
+    const shoots = this.bambooCells.length;
+    const itemKeys = [...this.itemKinds.keys()];
+    const total = shoots + itemKeys.length;
     const hud = hudLayout(total, this.layout.width);
     if (hud.scale === 0) return;
     const panel = new Graphics()
@@ -687,12 +839,19 @@ export class MazeStage implements StageRenderer<MazeEvent> {
     this.hud.addChild(panel);
     const step = hud.iconPx + HUD_GAP;
     for (let i = 0; i < total; i++) {
-      const sprite = new Sprite(this.textures.bamboo);
-      const got = i < this.collected.size;
-      sprite.scale.set(hud.scale);
+      const itemKey = i < shoots ? undefined : itemKeys[i - shoots];
+      const kind = itemKey === undefined ? undefined : this.itemKinds.get(itemKey);
+      const art = kind === undefined ? null : ITEM_ART[kind];
+      const sprite = new Sprite(art ? goalTexture(art) : this.textures.bamboo);
+      const got =
+        itemKey === undefined ? i < this.collected.size : this.takenItems.has(itemKey);
+      // The 16-texel friend fits the 12-texel icon box at a smaller whole zoom.
+      const scale = art ? Math.max(1, Math.floor(hud.iconPx / art.rows.length)) : hud.scale;
+      const inset = art ? (hud.iconPx - art.rows.length * scale) / 2 : 0;
+      sprite.scale.set(scale);
       sprite.position.set(
-        HUD_MARGIN + HUD_PAD + (i % hud.perRow) * step,
-        HUD_MARGIN + HUD_PAD + Math.floor(i / hud.perRow) * step,
+        HUD_MARGIN + HUD_PAD + (i % hud.perRow) * step + inset,
+        HUD_MARGIN + HUD_PAD + Math.floor(i / hud.perRow) * step + inset,
       );
       sprite.alpha = got ? 1 : 0.3;
       sprite.tint = got ? NO_TINT : UI_COLORS.inkSoft;

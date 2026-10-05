@@ -1,0 +1,184 @@
+{
+  "id": "w04-l05",
+  "worldId": "w04-nga-ba-quyet-dinh",
+  "stage": "practice",
+  "kind": "runner",
+  "mode": "bughunt",
+  "title": "2 nhánh ngược",
+  "objective": "Chương trình bị ngược. Sửa 1 chỗ thôi nhé!",
+  "learningGoal": "Đọc khối nếu … nếu không: ✔ chạy nhánh trên, ✘ chạy nhánh dưới. Đổi câu hỏi \"hố\" thành \"ô trống\" là sửa xong.",
+  "misconception": "Nhánh nào nằm trên thì luôn chạy trước.",
+  "mission": "Chương trình tìm Bông bị ngược. Sửa nhé!",
+  "goalSprite": "footprints",
+  "toolbox": [
+    "runner_walk",
+    "runner_jump",
+    {
+      "type": "cq_repeat",
+      "fields": {
+        "TIMES": 8
+      }
+    },
+    "cq_if_else",
+    "runner_is_ahead"
+  ],
+  "maxInstances": {
+    "cq_repeat": 1
+  },
+  "maxLoopDepth": 1,
+  "par": 5,
+  "parEdits": 1,
+  "config": {
+    "cells": [
+      "ground",
+      "ground",
+      "hole",
+      "ground",
+      "ground",
+      "ground",
+      "hole",
+      "ground",
+      "ground",
+      "hole",
+      "ground",
+      "flag"
+    ],
+    "start": 0
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "rep1",
+              "fields": {
+                "TIMES": 8
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "cq_if_else",
+                    "id": "ifelse1",
+                    "inputs": {
+                      "COND": {
+                        "block": {
+                          "type": "runner_is_ahead",
+                          "id": "ask1",
+                          "fields": {
+                            "KIND": "HOLE"
+                          }
+                        }
+                      },
+                      "DO": {
+                        "block": {
+                          "type": "runner_walk",
+                          "id": "walk1"
+                        }
+                      },
+                      "ELSE": {
+                        "block": {
+                          "type": "runner_jump",
+                          "id": "jump1"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "rep1",
+              "fields": {
+                "TIMES": 8
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "cq_if_else",
+                    "id": "ifelse1",
+                    "inputs": {
+                      "COND": {
+                        "block": {
+                          "type": "runner_is_ahead",
+                          "id": "ask1",
+                          "fields": {
+                            "KIND": "CLEAR"
+                          }
+                        }
+                      },
+                      "DO": {
+                        "block": {
+                          "type": "runner_walk",
+                          "id": "walk1"
+                        }
+                      },
+                      "ELSE": {
+                        "block": {
+                          "type": "runner_jump",
+                          "id": "jump1"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "dropdown",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Bấm vào câu hỏi: có cả hố, ô trống…",
+      "point": "block:runner_is_ahead"
+    },
+    {
+      "id": "read",
+      "when": {
+        "trigger": "idle"
+      },
+      "say": "Đọc câu hỏi: đúng thì Măng làm khối nào?",
+      "point": "block:runner_is_ahead"
+    },
+    {
+      "id": "swapped",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "FELL_IN_HOLE"
+      },
+      "say": "Phía trước có hố mà Măng lại đi. Vì sao?",
+      "point": "block:runner_is_ahead"
+    }
+  ],
+  "thinkingHint": "Phía trước là ô trống thì Măng nên làm gì?"
+}

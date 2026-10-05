@@ -1,0 +1,127 @@
+{
+  "id": "w04-l04",
+  "worldId": "w04-nga-ba-quyet-dinh",
+  "stage": "guided",
+  "kind": "maze",
+  "mode": "build",
+  "title": "Mê cung lá",
+  "objective": "Đi thẳng, hết đường thì rẽ trái. Không quá 5 khối!",
+  "learningGoal": "Khối \"có đường phía trước\" hỏi theo hướng Măng nhìn: còn đường thì tiến, hết đường (tường) thì rẽ trái.",
+  "misconception": "Phải đếm trước mỗi đoạn dài mấy ô.",
+  "mission": "Tìm lối ra khỏi mê cung lá.",
+  "goalSprite": "exit",
+  "toolbox": [
+    "maze_forward",
+    "maze_turn_left",
+    "maze_turn_right",
+    {
+      "type": "cq_repeat",
+      "fields": {
+        "TIMES": 12
+      }
+    },
+    "cq_if_else",
+    "maze_is_path"
+  ],
+  "maxBlocks": 5,
+  "maxInstances": {
+    "cq_repeat": 1
+  },
+  "maxLoopDepth": 1,
+  "par": 5,
+  "config": {
+    "map": ["#######", "##G...#", "#####.#", "#S....#", "#######"],
+    "startDir": "E"
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "rep1",
+              "fields": {
+                "TIMES": 12
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "cq_if_else",
+                    "id": "ifelse1",
+                    "inputs": {
+                      "COND": {
+                        "block": {
+                          "type": "maze_is_path",
+                          "id": "ask1",
+                          "fields": {
+                            "DIR": "AHEAD"
+                          }
+                        }
+                      },
+                      "DO": {
+                        "block": {
+                          "type": "maze_forward",
+                          "id": "fwd1"
+                        }
+                      },
+                      "ELSE": {
+                        "block": {
+                          "type": "maze_turn_left",
+                          "id": "left1"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "new-path",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Khối mới có đường: đúng khi phía đó của Măng có đường.",
+      "point": "toolbox:maze_is_path"
+    },
+    {
+      "id": "plan",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Gặp tường thì câu hỏi trả lời sai. Nhánh nào chạy?",
+      "point": "toolbox:cq_if_else"
+    },
+    {
+      "id": "wall",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "HIT_WALL"
+      },
+      "say": "Trước khi tiến, hỏi xem phía trước có đường không.",
+      "point": "toolbox:maze_is_path"
+    },
+    {
+      "id": "cap",
+      "when": {
+        "capacityFull": true,
+        "missing": "maze_is_path"
+      },
+      "say": "Hết chỗ rồi! Thử hỏi \"có đường\" xem.",
+      "point": "toolbox:maze_is_path"
+    }
+  ],
+  "thinkingHint": "Gặp tường thì Măng quay về phía nào?"
+}

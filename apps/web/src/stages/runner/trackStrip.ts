@@ -2,7 +2,12 @@
 // Pixi- and React-free so it is unit tested. The strip follows the replay through the controller's
 // own hooks (onEvent / onReset): no second clock.
 import type { GameEvent } from '@codequest/engine';
-import { type RunnerCell, type RunnerConfig, type RunnerEvent } from '@codequest/games';
+import {
+  type GoalItemKind,
+  type RunnerCell,
+  type RunnerConfig,
+  type RunnerEvent,
+} from '@codequest/games';
 import { createEventFeed, type EventFeed } from '../feed';
 import { cameraX, cellCenterX, computeRunnerLayout, peekCameraX } from './layout';
 
@@ -15,6 +20,10 @@ export interface TrackStripState {
   cells: readonly RunnerCell[];
   /** Shoots not picked up yet. */
   bamboo: readonly number[];
+  /** Mission items not picked up yet (P2-11c), in config order. */
+  items: ReadonlyArray<{ kind: GoalItemKind; at: number }>;
+  /** How many mission items the map has (a cage shows open once `items` is empty). */
+  itemTotal: number;
   /** Măng's cell (a hole she fell into, the flag she reached). */
   at: number;
   /**
@@ -25,7 +34,13 @@ export interface TrackStripState {
 }
 
 export function initialStrip(config: RunnerConfig): TrackStripState {
-  return { cells: config.cells, bamboo: config.bamboo ?? [], at: config.start };
+  return {
+    cells: config.cells,
+    bamboo: config.bamboo ?? [],
+    items: config.goal?.items ?? [],
+    itemTotal: config.goal?.items?.length ?? 0,
+    at: config.start,
+  };
 }
 
 /**
@@ -51,7 +66,9 @@ export function stripStep(state: TrackStripState, gameEvent: GameEvent): TrackSt
         ? { ...state, cells: state.cells.map((cell, i) => (i === event.at ? 'ground' : cell)) }
         : state;
     case 'collect':
-      return { ...state, bamboo: state.bamboo.filter((at) => at !== event.at) };
+      return event.item === undefined
+        ? { ...state, bamboo: state.bamboo.filter((at) => at !== event.at) }
+        : { ...state, items: state.items.filter((item) => item.at !== event.at) };
     default:
       // offTrack: Măng leaves from her cell; the marker stays there.
       return state;
@@ -110,7 +127,8 @@ export function createTrackFeed(config: RunnerConfig): TrackFeed {
       const state = feed.getSnapshot();
       if (look === null) {
         if (state.look === undefined) return;
-        feed.set({ cells: state.cells, bamboo: state.bamboo, at: state.at });
+        const { cells, bamboo, items, itemTotal, at } = state;
+        feed.set({ cells, bamboo, items, itemTotal, at });
       } else if (state.look !== look) {
         feed.set({ ...state, look });
       }

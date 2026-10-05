@@ -1,0 +1,201 @@
+{
+  "id": "w04-l17",
+  "worldId": "w04-nga-ba-quyet-dinh",
+  "stage": "challenge",
+  "kind": "runner",
+  "mode": "build",
+  "title": "Chìa khóa rơi",
+  "objective": "3 con đường. Nhặt hết chìa khóa. Không quá 5 khối!",
+  "learningGoal": "Một chương trình hỏi hố đúng trên cả 3 bản đồ và nhặt hết chìa khóa: nhảy cóc bay qua chìa khóa nên thua.",
+  "mission": "Gió thổi chìa khóa rơi khắp đường. Nhặt hết nhé!",
+  "goalSprite": "footprints",
+  "toolbox": [
+    "runner_walk",
+    "runner_jump",
+    {
+      "type": "cq_repeat",
+      "fields": {
+        "TIMES": 3
+      }
+    },
+    "cq_if",
+    "cq_if_else",
+    "runner_is_ahead"
+  ],
+  "maxBlocks": 5,
+  "maxInstances": {
+    "cq_repeat": 1
+  },
+  "maxLoopDepth": 1,
+  "par": 5,
+  "config": {
+    "cells": [
+      "ground",
+      "hole",
+      "ground",
+      "ground",
+      "hole",
+      "ground",
+      "hole",
+      "ground",
+      "ground",
+      "ground",
+      "hole",
+      "ground",
+      "hole",
+      "ground",
+      "flag"
+    ],
+    "start": 0,
+    "goal": {
+      "items": [
+        {
+          "kind": "key",
+          "at": 3
+        },
+        {
+          "kind": "key",
+          "at": 8
+        }
+      ]
+    }
+  },
+  "variants": [
+    {
+      "cells": [
+        "ground",
+        "hole",
+        "ground",
+        "hole",
+        "ground",
+        "ground",
+        "hole",
+        "ground",
+        "ground",
+        "ground",
+        "hole",
+        "ground",
+        "flag"
+      ],
+      "start": 0,
+      "goal": {
+        "items": [
+          {
+            "kind": "key",
+            "at": 4
+          },
+          {
+            "kind": "key",
+            "at": 7
+          }
+        ]
+      }
+    },
+    {
+      "cells": [
+        "ground",
+        "ground",
+        "ground",
+        "hole",
+        "ground",
+        "hole",
+        "ground",
+        "hole",
+        "ground",
+        "flag"
+      ],
+      "start": 0,
+      "goal": {
+        "items": [
+          {
+            "kind": "key",
+            "at": 1
+          }
+        ]
+      }
+    }
+  ],
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "rep1",
+              "fields": {
+                "TIMES": 12
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "cq_if_else",
+                    "id": "ifelse1",
+                    "inputs": {
+                      "COND": {
+                        "block": {
+                          "type": "runner_is_ahead",
+                          "id": "ask1",
+                          "fields": {
+                            "KIND": "HOLE"
+                          }
+                        }
+                      },
+                      "DO": {
+                        "block": {
+                          "type": "runner_jump",
+                          "id": "jump1"
+                        }
+                      },
+                      "ELSE": {
+                        "block": {
+                          "type": "runner_walk",
+                          "id": "walk1"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "stand",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Đứng ở ô chìa khóa mới nhặt được.",
+      "point": "stage"
+    },
+    {
+      "id": "key",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "NEED_KEY"
+      },
+      "say": "Nhảy qua chìa khóa thì không nhặt được.",
+      "point": "stage"
+    },
+    {
+      "id": "more",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "NOT_AT_GOAL"
+      },
+      "say": "Chưa tới nơi. Lặp thêm vòng nhé!",
+      "point": "block:cq_repeat"
+    }
+  ],
+  "thinkingHint": "Khi nào Măng mới cần nhảy?"
+}

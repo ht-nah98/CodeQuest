@@ -1,0 +1,120 @@
+{
+  "id": "w04-l08",
+  "worldId": "w04-nga-ba-quyet-dinh",
+  "stage": "practice",
+  "kind": "maze",
+  "mode": "build",
+  "title": "Hang tối",
+  "objective": "Thấy lối bên phải thì rẽ. Không quá 5 khối!",
+  "learningGoal": "Khối nếu một nhánh trong mê cung: mỗi vòng hỏi \"có đường bên phải\", ✔ thì rẽ phải; rồi tiến.",
+  "misconception": "Rẽ ở đâu thì phải ghép riêng cho chỗ đó.",
+  "mission": "Ra khỏi hang tối bên bờ suối.",
+  "goalSprite": "exit",
+  "toolbox": [
+    "maze_forward",
+    "maze_turn_left",
+    "maze_turn_right",
+    {
+      "type": "cq_repeat",
+      "fields": {
+        "TIMES": 3
+      }
+    },
+    "cq_if",
+    "cq_if_else",
+    "maze_is_path"
+  ],
+  "maxBlocks": 5,
+  "maxInstances": {
+    "cq_repeat": 1
+  },
+  "maxLoopDepth": 1,
+  "par": 5,
+  "config": {
+    "map": ["#######", "#S....#", "#####.#", "##G...#", "#######"],
+    "startDir": "E"
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "rep1",
+              "fields": {
+                "TIMES": 12
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "cq_if",
+                    "id": "if1",
+                    "inputs": {
+                      "COND": {
+                        "block": {
+                          "type": "maze_is_path",
+                          "id": "ask1",
+                          "fields": {
+                            "DIR": "RIGHT"
+                          }
+                        }
+                      },
+                      "DO": {
+                        "block": {
+                          "type": "maze_turn_right",
+                          "id": "right1"
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "maze_forward",
+                        "id": "fwd1"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "right",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Mỗi bước, Măng hỏi được 1 câu. Hỏi gì nhỉ?",
+      "point": "toolbox:maze_is_path"
+    },
+    {
+      "id": "wall",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "HIT_WALL"
+      },
+      "say": "Ở góc, lối mở bên nào của Măng?",
+      "point": "toolbox:cq_if"
+    },
+    {
+      "id": "more",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "NOT_AT_GOAL"
+      },
+      "say": "Chưa ra tới cửa. Lặp thêm vòng nhé!",
+      "point": "block:cq_repeat"
+    }
+  ],
+  "thinkingHint": "Ở góc hang, lối đi mở về phía nào của Măng?"
+}

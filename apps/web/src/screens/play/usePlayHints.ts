@@ -44,7 +44,7 @@ export interface PlayHintsOptions {
   recordHintBought: (tier: HintTier, entry?: LedgerEntry | null) => void;
   workspaceRef: RefObject<WorkspaceSvg | null>;
   handleRef: RefObject<WorkspaceHandle | null>;
-  /** The play screen; run button, capacity bar and stage carry `data-hint-anchor`. */
+  /** The play screen; run and step buttons, capacity bar and stage carry `data-hint-anchor`. */
   rootRef: RefObject<HTMLElement | null>;
   isFirstOfModeInWorld: boolean;
   seenModes: ReadonlySet<LevelMode>;
@@ -155,7 +155,7 @@ export function usePlayHints(options: PlayHintsOptions): PlayHints {
       const workspace = workspaceRef.current;
       const target = selection.target;
       const anchor =
-        target === 'run' || target === 'capacity' || target === 'stage'
+        target === 'run' || target === 'step' || target === 'capacity' || target === 'stage'
           ? rootRef.current?.querySelector<HTMLElement>(`[data-hint-anchor="${target}"]`)
           : null;
       if (anchor) tipCleanup.current.push(pointAtElement(anchor));

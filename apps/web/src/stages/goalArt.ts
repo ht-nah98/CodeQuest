@@ -5,6 +5,7 @@
 // no entry here. Placeholders drawn in token colours until the artist's sprites arrive
 // (docs/playbooks/add-asset.md, "Hình đích"); `friend` reuses the bunny avatar (Thỏ Bông).
 import type { GoalSprite } from '@codequest/content-schema';
+import type { GoalItemKind } from '@codequest/games';
 import { avatarArt } from '../ui/Avatar';
 import { BLOCK_COLORS, UI_COLORS } from '../ui/tokens';
 import { shade } from './colors';
@@ -108,6 +109,38 @@ const CAGE = [
   '.kkkkkkkkkk.',
 ];
 
+/** The cage once Bông's key opened it: no padlock, the door swung out on the right. */
+const CAGE_OPEN = [
+  '.....kk.....',
+  '....k..k....',
+  '.kkkkkkkkkk.',
+  '.kBBBBBBBBk.',
+  '.kkkkkkkkkk.',
+  '.kn......knk',
+  '.kn......knk',
+  '.kn......knk',
+  '.kn......knk',
+  '.kn......kk.',
+  '.kBBBBBBBBk.',
+  '.kkkkkkkkkk.',
+];
+
+/** A golden key (mission item `key`, P2-11c T17c): round bow, shaft, two teeth. */
+const KEY = [
+  '............',
+  '..kkkk......',
+  '.kyssyk.....',
+  'kyykkyyk....',
+  'kyk..kyk....',
+  'kyk..kykkkkk',
+  'kyykkyyyyyyk',
+  '.kyyyykkyYyk',
+  '..kkkk.kYkYk',
+  '........k.k.',
+  '............',
+  '............',
+];
+
 /** A wooden landing stage over the river. */
 const DOCK = [
   '.kkk....kkk.',
@@ -135,9 +168,9 @@ function fillHex(fill: string): string {
   return UI_COLORS[camel as keyof typeof UI_COLORS];
 }
 
-/** Thỏ Bông: the bunny avatar (16×16), so the friend looks like her profile picture. */
-function friendArt(): GoalArt {
-  const { map, fills } = avatarArt('bunny');
+/** An avatar face (16×16) as goal art, so a character looks like its profile picture. */
+function faceArt(id: 'bunny' | 'chick'): GoalArt {
+  const { map, fills } = avatarArt(id);
   return {
     rows: map,
     palette: Object.fromEntries(Object.entries(fills).map(([ch, fill]) => [ch, fillHex(fill)])),
@@ -149,7 +182,7 @@ export const GOAL_ART: Readonly<Record<GoalArtName, GoalArt>> = {
   exit: { rows: EXIT, palette: GOAL_PALETTE },
   home: { rows: HOME, palette: GOAL_PALETTE },
   footprints: { rows: FOOTPRINTS, palette: GOAL_PALETTE },
-  friend: friendArt(),
+  friend: faceArt('bunny'),
   cage: { rows: CAGE, palette: GOAL_PALETTE },
   dock: { rows: DOCK, palette: GOAL_PALETTE },
 };
@@ -158,6 +191,26 @@ export const GOAL_ART: Readonly<Record<GoalArtName, GoalArt>> = {
 export function goalArt(sprite: GoalSprite | undefined): GoalArt | null {
   return sprite === undefined || sprite === 'flag' ? null : GOAL_ART[sprite];
 }
+
+/** The open cage, drawn once a rescue level's key is picked up (the closed one before). */
+export const CAGE_OPEN_ART: GoalArt = { rows: CAGE_OPEN, palette: GOAL_PALETTE };
+
+/**
+ * The goal picture for the lock state (P2-11c): a `cage` shows the open cage once every mission
+ * item is picked up; every other picture stays the same (the stages grey it out while locked).
+ */
+export function goalArtFor(sprite: GoalSprite | undefined, unlocked: boolean): GoalArt | null {
+  return sprite === 'cage' && unlocked ? CAGE_OPEN_ART : goalArt(sprite);
+}
+
+/**
+ * Mission items on the map (`config.goal.items`, P2-11c, ADR-0019): the key, and the friend Măng
+ * picks up (Gà con, the chick avatar: the escort level of Thế giới 5), who then follows her.
+ */
+export const ITEM_ART: Readonly<Record<GoalItemKind, GoalArt>> = {
+  key: { rows: KEY, palette: GOAL_PALETTE },
+  friend: faceArt('chick'),
+};
 
 /** RGBA texels of a goal picture (a PIXI texture source). */
 export function goalPixels(art: GoalArt): PixelImage {

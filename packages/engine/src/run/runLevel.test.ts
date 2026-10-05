@@ -57,6 +57,46 @@ describe('runLevel', () => {
     ]);
   });
 
+  describe('parsons: every given block must be joined (coach question G22)', () => {
+    const winning = [step('a'), step('b'), step('c')];
+
+    it('a win with a loose block left over is incomplete LOOSE_BLOCKS', () => {
+      const outcome = runLevel({
+        kind: lineKind,
+        level: lineLevel({ mode: 'parsons' }),
+        workspace: program(winning, [{ ...step('loose'), x: 200, y: 40 }]),
+      });
+      expect(outcome).toMatchObject({ result: 'incomplete', reasonCode: 'LOOSE_BLOCKS' });
+    });
+
+    it('wins once every block is joined, and other modes ignore loose blocks', () => {
+      expect(
+        runLevel({
+          kind: lineKind,
+          level: lineLevel({ mode: 'parsons' }),
+          workspace: program(winning),
+        }).result,
+      ).toBe('success');
+      expect(
+        runLevel({
+          kind: lineKind,
+          level: lineLevel(),
+          workspace: program(winning, [{ ...step('loose'), x: 200, y: 40 }]),
+        }).result,
+      ).toBe('success');
+    });
+
+    it('keeps the real reason when the joined program loses', () => {
+      const outcome = runLevel({
+        kind: lineKind,
+        level: lineLevel({ mode: 'parsons' }),
+        workspace: program([step('a')], [{ ...step('loose'), x: 200, y: 40 }]),
+      });
+      expect(outcome.result).toBe('incomplete');
+      expect(outcome.reasonCode).not.toBe('LOOSE_BLOCKS');
+    });
+  });
+
   it('returns incomplete with the reason from evaluate when the program ends early', () => {
     const outcome = runLevel({
       kind: lineKind,

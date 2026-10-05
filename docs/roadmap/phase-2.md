@@ -19,9 +19,9 @@
 | P2-08 | Nội dung Thế giới 3 · Xưởng Sửa Lỗi (15 màn + bài giảng) | P2-10, P2-11 (phần W3) | AI soạn nháp · HLV duyệt | 🟨 chờ HLV chơi thử |
 | P2-09 | PWA offline (chưa deploy) | — | AI | ⬜ |
 | P2-10 | Chi tiết hóa chương trình học Thế giới 3–5 | — | AI soạn · HLV duyệt | ✅ HLV + phụ huynh duyệt 03/10 |
-| P2-11 | Khối điều kiện, lặp đến khi, cảm biến sáng khi kiểm | P2-10 (bản nháp) | AI | ⬜ |
+| P2-11 | Khối điều kiện, lặp đến khi, cảm biến sáng khi kiểm | P2-10 (bản nháp) | AI | 🟨 headless + web xong, chờ HLV chơi thử W4 |
 | P2-12 | Màn nhiều bản đồ (một chương trình, 2–3 bản đồ) | P2-10 (bản nháp) | AI | ✅ |
-| P2-13 | Nội dung Thế giới 4 · Ngã Ba Quyết Định (20 màn + bài giảng) | P2-08, P2-11, P2-12 | AI soạn nháp · HLV duyệt | ⬜ |
+| P2-13 | Nội dung Thế giới 4 · Ngã Ba Quyết Định (20 màn + bài giảng) | P2-08, P2-11, P2-12 | AI soạn nháp · HLV duyệt | 🟨 chờ HLV chơi thử |
 | P2-14 | Nội dung Thế giới 5 · Sông Chờ Đợi (20 màn + bài giảng) | P2-13 | AI soạn nháp · HLV duyệt | ⬜ |
 | P2-15 | Package `@codequest/validator` + công cụ vét cạn `par` | — | AI | ✅ |
 | P2-16 | Nối Supabase thật: chạy migration, test SQL, deploy function, e2e có server | P2-01…P2-06, P2-17, P2-20 | AI · HLV cấp khóa | ⛔ |
@@ -185,7 +185,7 @@ H2 không bắt buộc nếu có H1 + H3: test SQL và function có thể chạy
 Theo bảng ở `curriculum.md` (mục Thế giới 3 do P2-10 viết). `world.json`, `w03-lesson`, 15 màn + `w03-creative`, hoạt động unplugged. Chỉ dùng khối đã có (tuần tự + lặp), nặng về `bughunt`, `predict` và chạy từng bước.
 **Quy trình** (như W1–W2): AI soạn nháp → vét cạn `par` cho mọi màn build/bughunt (P2-15) → review sư phạm bằng agent riêng (critic) theo `content-authoring.md` → sửa → HLV chơi thử.
 **Nghiệm thu:** `content:check` xanh, không cảnh báo luật 4/7/8; `npm run par -- --world w03` không tìm thấy lời giải ít khối hơn `par`; mỗi mode `build`, `parsons`, `predict`, `bughunt` xuất hiện ≥ 1 lần; review sư phạm đã xử lý hết (ghi trong PR); `w03-xuong-sua-loi` không nằm trong `PROVISIONAL_WORLDS`; e2e smoke mở được `w03-l01`; khi đã có giọng đọc (P1-14): `npm run voice -- check --worlds w03` sạch. **HLV chơi thử từng màn** trước khi merge.
-**Trạng thái (04/10/2026):** 🟨 đã soạn nháp `world.json`, `w03-lesson`, 15 màn + `w03-creative`; `content:check` xanh không cảnh báo; `npm run par -- --world w03` ✔ mọi màn trừ ⚠ `w03-boss` (vét cạn sửa 3 thao tác dừng ở trần bộ nhớ/ngân sách; vét cạn riêng ≤ 3 thao tác không có cách thắng, `curriculum.md` §5.1 "Ghi chú khi soạn"); test `tools/content-check/src/w03.test.ts` (mỗi lần sửa lộ lỗi tiếp theo). Review sư phạm độc lập đã xử lý (04/10): sửa câu chữ, điểm chỉ gợi ý, bài giảng thẻ 3–4; thêm luật `content:check` (6: màn guided ≥ 2 gợi ý tầng 0; 16: `block:<type>` chỉ đúng một khối ở predict/bughunt) và trần bộ nhớ cho vét cạn sửa lỗi. Còn: e2e smoke `w03-l01`, điểm chỉ `step` và `maxLoopDepth` (P2-11a/b), **HLV chơi thử**.
+**Trạng thái (04/10/2026):** 🟨 đã soạn nháp `world.json`, `w03-lesson`, 15 màn + `w03-creative`; `content:check` xanh không cảnh báo; `npm run par -- --world w03` ✔ mọi màn trừ ⚠ `w03-boss` (vét cạn sửa 3 thao tác dừng ở trần bộ nhớ/ngân sách; vét cạn riêng ≤ 3 thao tác không có cách thắng, `curriculum.md` §5.1 "Ghi chú khi soạn"); test `tools/content-check/src/w03.test.ts` (mỗi lần sửa lộ lỗi tiếp theo). Review sư phạm độc lập đã xử lý (04/10): sửa câu chữ, điểm chỉ gợi ý, bài giảng thẻ 3–4; thêm luật `content:check` (6: màn guided ≥ 2 gợi ý tầng 0; 16: `block:<type>` chỉ đúng một khối ở predict/bughunt) và trần bộ nhớ cho vét cạn sửa lỗi. Điểm chỉ `step` xong (05/10, `w03-l02`). Còn: e2e smoke `w03-l01`, **HLV chơi thử**.
 
 ### P2-09 · PWA offline
 **Mục tiêu:** bé mở app và chơi được khi mất mạng, kể cả tải lại trang.
@@ -216,7 +216,7 @@ Theo bảng ở `curriculum.md` (mục Thế giới 3 do P2-10 viết). `world.j
 - `TIMEOUT` (lặp vô hạn): phát lại tối đa vài giây rồi dừng với hoạt ảnh "chóng mặt"; gợi ý tầng 0 riêng cho lặp vô hạn.
 - `analyzeWorkspace`, `editDistance`, hint `matches` và vét cạn `par` (P2-15) đúng với khối lồng trong nhánh `DO`/`ELSE`.
 - Nếu P2-10 cần: điểm chỉ gợi ý `ui:step` (chỉ vào nút Từng bước) cho W3.
-  - **TODO khi làm (P2-08 đã soạn, 04/10/2026):** gợi ý `step` của `w03-l02` ("Bấm Từng bước, xem khối nào sáng.") đang tạm `point: "run"`; đổi sang điểm chỉ mới và ghi lại ở `curriculum.md` §5.1 "Ghi chú khi soạn".
+  - ~~TODO: gợi ý `step` của `w03-l02` đang tạm `point: "run"`~~ xong 05/10/2026: `point: "step"`, ghi ở `curriculum.md` §5.1 "Ghi chú khi soạn".
 
 **Nghiệm thu:** unit test: mỗi khối mới có generator test + `runLevel` thắng/thua; vòng `lặp đến khi` không bao giờ đúng → `TIMEOUT`, **tất định** (2 lần chạy cùng event log); `editDistance` trên ví dụ có nhánh nếu–không; validator bắt shadow trong khối điều kiện ở màn có `maxBlocks` (luật 12). E2E: kéo `nếu` + cảm biến vào màn mẫu ở `_sandbox`, chạy thấy khối cảm biến sáng ✔/✘ đúng số lần; màn lặp vô hạn hiện câu `TIMEOUT` và không treo trình duyệt. Coverage `engine` ≥ 90%, `games` ≥ 85% giữ nguyên.
 **Tiến độ 04/10/2026 — phần headless P2-11a + P2-11b xong** (ADR-0018), chưa commit:
@@ -224,7 +224,7 @@ Theo bảng ở `curriculum.md` (mục Thế giới 3 do P2-10 viết). `world.j
 - Event `sense{blockId, value}` qua `ctx.sense`, **tính vào `maxActions`**: vòng lặp chỉ hỏi dừng `TIMEOUT` tất định sau 1 000 câu hỏi; khóa đoán `timeout` (T9) đã có sẵn.
 - Schema: `maxLoopDepth`, điểm gợi ý `step`. Luật 20 (`maxLoopDepth`, `maxInstances` trên `solution`/`initialWorkspace`) + fixture `rule-20-block-limits/`. Engine export `loopDepth`, `blockTypeCounts`.
 - Vét cạn hiểu khối điều kiện, `maxInstances`, `maxLoopDepth`, cả tìm cách sửa; tái lập số §5.5 (W4 `l02` 28 cách, `l16` 75 / 8, W5 `l09` đúng 1, `l14`, `l17`, boss) trong `packages/validator/src/search/conditions.test.ts`. `npm run par -- --world w01|w02|w03` giống từng ký tự trước thay đổi.
-- **Còn (web, task sau):** thanh khối/Blockly của màn chơi và editor (`toolboxChoices` chưa có `cq_if`…), `Replay` xử lý `sense` (khối sáng ✔/✘), phát lại `TIMEOUT` + hoạt ảnh chóng mặt (cả thẻ `demo`), mũi tên `step` (rồi mới đổi `w03-l02` sang `point: "step"`, TODO ở trên), chặn thả khối theo `maxLoopDepth`, khóa cache vét cạn của editor tính `maxInstances`/`maxLoopDepth`, e2e. W4 `l17` / boss đã tái lập ở đợt P2-11c dưới đây.
+- ~~**Còn (web, task sau):**~~ (xong 05/10, xem "Tiến độ phần web" bên dưới) thanh khối/Blockly của màn chơi và editor (`toolboxChoices` chưa có `cq_if`…), `Replay` xử lý `sense` (khối sáng ✔/✘), phát lại `TIMEOUT` + hoạt ảnh chóng mặt (cả thẻ `demo`), mũi tên `step` (rồi mới đổi `w03-l02` sang `point: "step"`, TODO ở trên), chặn thả khối theo `maxLoopDepth`, khóa cache vét cạn của editor tính `maxInstances`/`maxLoopDepth`, e2e. W4 `l17` / boss đã tái lập ở đợt P2-11c dưới đây.
 
 **Tiến độ 05/10/2026 — phần headless của P2-11c `rescue` / `escort` xong** (ADR-0019), chưa commit:
 - `config.goal.items: { kind: 'key' | 'friend', at }[]` cho runner (`at` số ô) và maze (`at` `[r, c]`), khai báo theo từng bản đồ. Luật đúng `curriculum.md` T17b: phải **đứng ở** ô vật phẩm (nhảy qua không tính), thứ tự tùy ý. Runner tới cờ mà thiếu → `missed{at, left, item}` + `incomplete` / `NEED_KEY` hoặc `NEED_FRIEND`; maze đi xuyên `G` như `collectAll`, hết chương trình ở `G` mà thiếu → `NEED_*`, ở chỗ khác → `NOT_AT_GOAL`. Vật phẩm xét trước măng. Khóa đoán `missed@<ô>`.
@@ -232,8 +232,18 @@ Theo bảng ở `curriculum.md` (mục Thế giới 3 do P2-10 viết). `world.j
 - Câu cho bé trong `feedback.json` (và mọi fixture trừ fixture luật 17): `NEED_KEY` "Cần chìa khóa trước!", `NEED_FRIEND` "Chưa đón bạn kìa!".
 - Luật 1 (configSchema) kiểm chỗ đặt: runner ô `ground`/`branch` sau `start`, không trùng nhau / trùng măng; maze ô `.`, không trùng nhau. Test ở `games` và `validateLevel.test.ts` (luật 1, 9).
 - Vét cạn không đổi code: vật phẩm còn lại nằm trong trạng thái nên gộp trạng thái vẫn đúng. Tái lập (`conditions.test.ts`): W4 `l17` nhỏ nhất 5 (24 cách, đều hỏi), W4 boss không có ≤ 7, nhỏ nhất 8 (68 cách; bỏ chìa khóa 429 cách, "hỏi bên phải trước" thắng), W5 boss với Gà con 6 (6 cách). `npm run par -- --world w01 --world w02 --world w03` giống từng ký tự trước thay đổi.
-- **Chặn merge nội dung:** chưa soạn / merge màn nào dùng `goal.items` (W4 `l17`, W4 boss, W5 boss) trước khi phần web dưới đây xong, ít nhất: HUD mê cung bỏ qua `collect` có `item` (không đếm vào măng), và đích hiện "khóa" (tô màu / hình lồng đóng) khi lượt chạy kết thúc với lý do thuộc `MISSED_REASONS`.
-- **Còn (web):** sprite chìa khóa, lồng đóng/mở, bạn đi theo Măng (T17c); `RunnerStage`/`MazeStage` phân biệt `collect.item` và `missed.item` (đang diễn như măng); HUD mê cung không đếm vật phẩm vào măng; gợi ý tầng 0 `lastReason: NEED_KEY / NEED_FRIEND`; giọng đọc `feedback.NEED_KEY`, `feedback.NEED_FRIEND`; e2e.
+- ~~Chặn merge nội dung~~ **gỡ 05/10/2026**: web đã vẽ vật phẩm đúng (HUD mê cung không đếm vật phẩm vào măng, đích khóa / lồng đóng tới khi đủ, `NEED_*` nhấp nháy); xem "Tiến độ phần web" bên dưới.
+- ~~**Còn (web):**~~ (xong 05/10) sprite chìa khóa, lồng đóng/mở, bạn đi theo Măng (T17c); `RunnerStage`/`MazeStage` phân biệt `collect.item` và `missed.item` (đang diễn như măng); HUD mê cung không đếm vật phẩm vào măng; gợi ý tầng 0 `lastReason: NEED_KEY / NEED_FRIEND`; giọng đọc `feedback.NEED_KEY`, `feedback.NEED_FRIEND`; e2e.
+
+**Tiến độ phần web P2-11a + P2-11c (05/10/2026)**, chưa commit:
+- Blockly: `cq_if`, `cq_if_else`, `cq_repeat_until`, `runner_at_goal` trong thanh khối màn chơi (nhóm "ĐIỀU KIỆN", "LẶP", "CÂU HỎI"); ô câu hỏi trống nền sáng viền nét đứt; bộ chặn thả khối `maxLoopDepth` / `maxInstances` (`blockly/blockLimits.ts`: hoàn tác cả thao tác + câu của Măng); `EMPTY_CONDITION` rung khối có ô trống (`blockly-integration.md` §5–§7).
+- Phát lại: `sense` → khối hỏi sáng ✔/✘ (`blockly/senseMark.ts`), theo tốc độ, từng bước dừng trước mỗi câu hỏi; `TIMEOUT` phát ~3 s (G13) rồi Măng chóng mặt (`dizzy`), cả trong thẻ `demo` (`stage-rendering.md` §1).
+- Mũi tên gợi ý `step` (nút Từng bước); `w03-l02` đổi sang `point: "step"`.
+- Vật phẩm: chìa khóa, bạn (Gà con), lồng đóng/mở, đích khóa, bảng vật phẩm, bạn đi theo, `NEED_*` nhấp nháy trên runner, maze, dải cả đường, "Xem cả đường", thẻ đáp án (`stage-rendering.md` §4 "Vật phẩm nhiệm vụ").
+- Level editor: thanh khối có `cq_repeat_until`, `cq_if`, `cq_if_else`; ô `maxLoopDepth`, ô "tối đa" (`maxInstances`) cạnh mỗi khối được tick; công cụ "Đặt chìa khóa / Đặt bạn" (runner) và cọ "Chìa khóa / Bạn" (maze); bật/tắt "nhặt hết măng" giữ vật phẩm; `maxLoopDepth` không còn bị coi là khóa lạ khi mở file; khóa cache vét cạn tính `maxInstances`/`maxLoopDepth`, worker dùng `WORKER_MAX_CATALOG_ENTRIES`.
+- Màn mẫu `_sandbox/runner-until` (lặp đến khi, `maxLoopDepth: 1`, gợi ý `step`); e2e `apps/web/e2e/play-conditions.spec.ts` (ghép `w04-l02` bằng chuột + câu hỏi sáng, từng bước, `TIMEOUT`, `EMPTY_CONDITION`, chặn lặp trong lặp, chìa khóa `w04-l17`, `w04-boss` thiếu chìa khóa rồi mở lồng, các bài "Khối mới" W4).
+- Phát hiện cho HLV: ở `w04-l17` (tối đa 5 khối) không tìm được chương trình nào tới cờ mà bỏ sót chìa khóa (thử mọi dạng `lặp n { nếu … }` / `lặp n { nếu … nếu không … }` cỡ ≤ 5), nên gợi ý `lastReason: NEED_KEY` của màn này gần như không bao giờ hiện; bài `w04-lesson-chia-khoa` (thẻ 2) và `w04-boss` thì có `NEED_KEY`.
+- Còn: giọng đọc `feedback.NEED_KEY` / `NEED_FRIEND` (chưa có file giọng), **HLV chơi thử W4**.
 
 ### P2-12 · Màn nhiều bản đồ
 **Mục tiêu:** ép bé viết chương trình **tổng quát** (dùng cảm biến) thay vì ghép thuộc lòng một đường cố định.
@@ -256,6 +266,7 @@ Theo bảng ở `curriculum.md` (mục Thế giới 3 do P2-10 viết). `world.j
 ### P2-13 · Nội dung Thế giới 4 · Ngã Ba Quyết Định
 Theo bảng ở `curriculum.md` (mục Thế giới 4). `world.json`, `w04-lesson` (có thẻ `demo` dùng `nếu` trên 2 bản đồ khác nhau), 20 màn + `w04-creative`, unplugged. Boss: một chương trình thắng 3 bản đồ (P2-12).
 **Nghiệm thu:** như P2-08 (thay `w03` bằng `w04`), thêm: mọi màn có `variants` qua `content:check` trên mọi bản đồ; khối `nếu`, cảm biến xuất hiện lần đầu ở màn guided có gợi ý chỉ vào khối (luật 7). **HLV chơi thử từng màn.**
+**Trạng thái (05/10/2026):** 🟨 đã soạn nháp `world.json` (unplugged "Lật thẻ trước mỗi bước"), `w04-lesson` + 4 bài "Khối mới" (`w04-lesson-neu`, `w04-lesson-neu-khong`, `w04-lesson-co-duong`, `w04-lesson-chia-khoa`), 20 màn + `w04-creative`; `content:check` xanh không cảnh báo; `npm run par -- --world w04` ✔ mọi màn build/bughunt, `par`/`parEdits` đúng bảng, không phải sửa bản đồ (`curriculum.md` §5.2 "Ghi chú khi soạn (P2-13)"); test `tools/content-check/src/w04.test.ts` (demo, ghép sai, từng bước sửa, R1 "không hỏi thì không thắng", đánh đổi sao `l16` 8 / 5). Review sư phạm độc lập (05/10) đã xử lý: bản đồ `l05`, `l09`, `w04-creative`; gợi ý dạng câu hỏi; bài `w04-lesson-neu-khong`; màn ghép hình phải ghép hết khối (`LOOSE_BLOCKS`, câu G22). Phần web P2-11a / P2-11c xong 05/10 (gỡ chặn merge `w04-l17`, `w04-boss`, `w04-lesson-chia-khoa`; e2e `play-conditions.spec.ts`). Còn: e2e smoke `w04-l01`, **HLV chơi thử**.
 
 ### P2-14 · Nội dung Thế giới 5 · Sông Chờ Đợi
 Theo bảng ở `curriculum.md` (mục Thế giới 5). `world.json`, `w05-lesson` (thẻ `demo` có một vòng lặp vô hạn để bé thấy "vòng lặp không tự dừng"), 20 màn + `w05-creative`, unplugged. Boss: qua sông không biết trước độ dài (nhiều bản đồ khác độ dài).

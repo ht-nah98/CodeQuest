@@ -1,0 +1,155 @@
+{
+  "id": "w04-lesson",
+  "worldId": "w04-nga-ba-quyet-dinh",
+  "title": "Nhìn rồi quyết định",
+  "cards": [
+    {
+      "type": "say",
+      "pose": "oops",
+      "text": "Thỏ Bông vào Ngã Ba chưa về! Gió đổi đường mỗi lần."
+    },
+    {
+      "type": "say",
+      "pose": "think",
+      "text": "Đừng thuộc lòng. Măng nhìn ô phía trước, trả lời ✔ hoặc ✘."
+    },
+    {
+      "type": "demo",
+      "text": "Có hố thì nhảy, không có thì đi.",
+      "kind": "runner",
+      "config": {
+        "cells": ["ground", "ground", "hole", "ground", "hole", "ground", "ground", "flag"],
+        "start": 0
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "cq_repeat",
+                  "id": "rep1",
+                  "fields": {
+                    "TIMES": 10
+                  },
+                  "inputs": {
+                    "DO": {
+                      "block": {
+                        "type": "cq_if_else",
+                        "id": "ifelse1",
+                        "inputs": {
+                          "COND": {
+                            "block": {
+                              "type": "runner_is_ahead",
+                              "id": "ask1",
+                              "fields": {
+                                "KIND": "HOLE"
+                              }
+                            }
+                          },
+                          "DO": {
+                            "block": {
+                              "type": "runner_jump",
+                              "id": "jump1"
+                            }
+                          },
+                          "ELSE": {
+                            "block": {
+                              "type": "runner_walk",
+                              "id": "walk1"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "demo",
+      "text": "Đường khác, chương trình vẫn đúng!",
+      "kind": "runner",
+      "config": {
+        "cells": ["ground", "hole", "ground", "ground", "ground", "hole", "ground", "flag"],
+        "start": 0
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "cq_repeat",
+                  "id": "rep1",
+                  "fields": {
+                    "TIMES": 10
+                  },
+                  "inputs": {
+                    "DO": {
+                      "block": {
+                        "type": "cq_if_else",
+                        "id": "ifelse1",
+                        "inputs": {
+                          "COND": {
+                            "block": {
+                              "type": "runner_is_ahead",
+                              "id": "ask1",
+                              "fields": {
+                                "KIND": "HOLE"
+                              }
+                            }
+                          },
+                          "DO": {
+                            "block": {
+                              "type": "runner_jump",
+                              "id": "jump1"
+                            }
+                          },
+                          "ELSE": {
+                            "block": {
+                              "type": "runner_walk",
+                              "id": "walk1"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "say",
+      "pose": "point",
+      "text": "Mỗi vòng, khối nếu hỏi lại. ✔ chạy nhánh trên, ✘ chạy nhánh dưới."
+    },
+    {
+      "type": "quiz",
+      "text": "Phía trước là đất. Măng làm khối nào?",
+      "options": ["nhảy", "đi"],
+      "correct": 1,
+      "explain": "Không có hố thì đi."
+    }
+  ]
+}

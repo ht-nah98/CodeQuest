@@ -1,0 +1,48 @@
+{
+  "id": "w04-creative",
+  "worldId": "w04-nga-ba-quyet-dinh",
+  "stage": "creative",
+  "kind": "maze",
+  "mode": "creative",
+  "title": "Chương trình biết nhìn",
+  "objective": "Tự ghép chương trình biết nhìn, thử trên mê cung lớn!",
+  "learningGoal": "Tự ghép một chương trình có câu hỏi (nếu, nếu … nếu không, có đường) và xem nó đi trong một mê cung lớn có nhiều ngã rẽ.",
+  "mission": "Thử chương trình biết nhìn của con nhé!",
+  "goalSprite": "exit",
+  "toolbox": [
+    "maze_forward",
+    "maze_turn_left",
+    "maze_turn_right",
+    {
+      "type": "cq_repeat",
+      "fields": {
+        "TIMES": 3
+      }
+    },
+    "cq_if",
+    "cq_if_else",
+    "maze_is_path"
+  ],
+  "config": {
+    "map": [
+      "##########",
+      "#S...#...#",
+      "#.#.##.#.#",
+      "#.#....#.#",
+      "#.####.#G#",
+      "#......###",
+      "##########"
+    ],
+    "startDir": "E"
+  },
+  "hints": [
+    {
+      "id": "free",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Ghép chương trình biết nhìn, rồi bấm Chạy xem!",
+      "point": "stage"
+    }
+  ]
+}

@@ -52,3 +52,42 @@
 .cq-blockly[data-mode='parsons'] .cq-loose {
   opacity: 0.88;
 }
+
+/* A question block while the replay asks it (P2-11, T7; senseMark.ts): green outline and ✔
+   badge for yes, red and ✘ for no. Only the block's own outline (not nested blocks). */
+.cq-blockly .cq-sense-yes > .blocklyPath {
+  stroke: var(--color-go);
+  stroke-width: 5px;
+  filter: drop-shadow(0 0 6px var(--color-go));
+}
+.cq-blockly .cq-sense-no > .blocklyPath {
+  stroke: var(--color-oops);
+  stroke-width: 5px;
+  filter: drop-shadow(0 0 6px var(--color-oops));
+}
+.cq-blockly .cq-sense-badge circle {
+  stroke: var(--color-ink);
+  stroke-width: 2px;
+}
+.cq-blockly .cq-sense-badge.cq-sense-yes circle {
+  fill: var(--color-go);
+}
+.cq-blockly .cq-sense-badge.cq-sense-no circle {
+  fill: var(--color-oops);
+}
+.cq-blockly .cq-sense-badge path {
+  fill: none;
+  stroke: var(--color-white);
+  stroke-width: 3px;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* An empty question socket (nếu ◇ / lặp đến khi ◇) reads as a hole to plug a question into:
+   light paper with a dashed ink edge (zelos draws it as the input's outline path). */
+.cq-blockly .blocklyOutlinePath {
+  fill: var(--color-paper);
+  stroke: var(--color-ink);
+  stroke-width: 2px;
+  stroke-dasharray: 4 3;
+}

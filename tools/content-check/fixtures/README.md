@@ -23,3 +23,6 @@ reports any other rule. Assets (rule 18) are looked up in the real `apps/web/pub
 
 The trees are test data, not curriculum: Vietnamese copy here is never shown to children.
 When you add a rule or change the baseline, keep each fixture a one-change copy of `baseline/`.
+
+`extra-07-cage-without-key/` (a level drawn with `goalSprite: "cage"` but no `key` item in
+`config.goal.items`, P2-11c) is a second case of rule 1.

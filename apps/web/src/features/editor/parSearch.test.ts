@@ -172,6 +172,9 @@ describe('par search of the level editor', () => {
     const base = level({ par: 3 });
     expect(searchKey({ ...base, title: 'Khác', par: 5, hints: [] })).toBe(searchKey(base));
     expect(searchKey({ ...base, toolbox: ['runner_walk'] })).not.toBe(searchKey(base));
+    // Block limits change what the search may build (ADR-0018).
+    expect(searchKey({ ...base, maxLoopDepth: 1 })).not.toBe(searchKey(base));
+    expect(searchKey({ ...base, maxInstances: { cq_repeat: 1 } })).not.toBe(searchKey(base));
     expect(
       searchKey({ ...base, config: { cells: ['ground', 'ground', 'flag'], start: 0 } }),
     ).not.toBe(searchKey(base));

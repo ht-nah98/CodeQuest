@@ -1,0 +1,148 @@
+{
+  "id": "w04-l06",
+  "worldId": "w04-nga-ba-quyet-dinh",
+  "stage": "practice",
+  "kind": "runner",
+  "mode": "build",
+  "title": "Lặp đủ nhiều",
+  "objective": "Đường dài. Chọn số lần lặp đủ để tới nơi!",
+  "learningGoal": "Chọn số lần lặp đủ lớn: mỗi vòng Măng đi 1 ô hoặc nhảy 2 ô, và tới nơi là thắng ngay, nên lặp thừa không sao.",
+  "misconception": "Lặp bao nhiêu lần thì Măng đi bấy nhiêu ô.",
+  "mission": "Đường dài quá! Lặp đủ để tới nơi.",
+  "goalSprite": "footprints",
+  "toolbox": [
+    "runner_walk",
+    "runner_jump",
+    {
+      "type": "cq_repeat",
+      "fields": {
+        "TIMES": 3
+      }
+    },
+    "cq_if",
+    "cq_if_else",
+    "runner_is_ahead"
+  ],
+  "maxBlocks": 6,
+  "maxInstances": {
+    "cq_repeat": 1
+  },
+  "maxLoopDepth": 1,
+  "par": 5,
+  "config": {
+    "cells": [
+      "ground",
+      "ground",
+      "hole",
+      "ground",
+      "hole",
+      "ground",
+      "ground",
+      "ground",
+      "hole",
+      "ground",
+      "hole",
+      "ground",
+      "ground",
+      "flag"
+    ],
+    "start": 0
+  },
+  "variants": [
+    {
+      "cells": [
+        "ground",
+        "hole",
+        "ground",
+        "ground",
+        "ground",
+        "hole",
+        "ground",
+        "ground",
+        "hole",
+        "ground",
+        "hole",
+        "ground",
+        "ground",
+        "ground",
+        "flag"
+      ],
+      "start": 0
+    }
+  ],
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "rep1",
+              "fields": {
+                "TIMES": 12
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "cq_if_else",
+                    "id": "ifelse1",
+                    "inputs": {
+                      "COND": {
+                        "block": {
+                          "type": "runner_is_ahead",
+                          "id": "ask1",
+                          "fields": {
+                            "KIND": "HOLE"
+                          }
+                        }
+                      },
+                      "DO": {
+                        "block": {
+                          "type": "runner_jump",
+                          "id": "jump1"
+                        }
+                      },
+                      "ELSE": {
+                        "block": {
+                          "type": "runner_walk",
+                          "id": "walk1"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "more",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "NOT_AT_GOAL"
+      },
+      "say": "Chưa tới nơi. Lặp thêm vòng nhé!",
+      "point": "block:cq_repeat"
+    },
+    {
+      "id": "hole",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "FELL_IN_HOLE"
+      },
+      "say": "Mỗi vòng hỏi lại. Có hố thì sao, không có thì sao?",
+      "point": "toolbox:cq_if_else"
+    }
+  ],
+  "thinkingHint": "Tới nơi là thắng ngay. Lặp thừa vài vòng có sao không?"
+}

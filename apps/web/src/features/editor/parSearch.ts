@@ -5,6 +5,7 @@ import {
   type FixResult,
   type ShortestResult,
   UnsearchableLevel,
+  WORKER_MAX_CATALOG_ENTRIES,
   WORKER_MAX_WORK,
 } from '@codequest/validator';
 
@@ -60,11 +61,13 @@ export function canSearchPar(level: Pick<Level, 'mode'>): boolean {
 }
 
 /**
- * What the search result depends on: the map, toolbox, start program and search limits. Texts,
- * hints and a `par` / `parEdits` within the limits (set from the result) do not make it stale.
+ * What the search result depends on: the map, toolbox, block limits (`maxInstances`,
+ * `maxLoopDepth`: ADR-0018), start program and search limits. Texts, hints and a `par` /
+ * `parEdits` within the limits (set from the result) do not make it stale.
  */
 export function searchKey(level: Level): string {
   const { kind, mode, toolbox, config, variants, starGoals, initialWorkspace } = level;
+  const { maxInstances, maxLoopDepth } = level;
   return JSON.stringify({
     kind,
     mode,
@@ -72,6 +75,8 @@ export function searchKey(level: Level): string {
     config,
     variants,
     starGoals,
+    maxInstances,
+    maxLoopDepth,
     initialWorkspace,
     ...searchLimits(level),
   });
@@ -82,13 +87,15 @@ export function searchPar(level: Level, shouldStop?: () => boolean): ParSearchRe
   const options = { maxWork: WORKER_MAX_WORK, ...(shouldStop && { shouldStop }) };
   try {
     const { maxSize, maxEdits } = searchLimits(level);
-    const shortest = findShortestPrograms(level, { ...options, maxSize });
+    // The worker's memory cap on the conditional search (ADR-0018), below `npm run par`'s.
+    const shortOptions = { ...options, maxSize, maxCatalogEntries: WORKER_MAX_CATALOG_ENTRIES };
+    const shortest = findShortestPrograms(level, shortOptions);
     const fixes = level.mode === 'bughunt' ? findFixes(level, { ...options, maxEdits }) : null;
     // As `npm run par`: the plain win shows the trade-off the child sees (ADR-0017).
     const plain =
       level.starGoals === undefined
         ? null
-        : findShortestPrograms(level, { ...options, maxSize, ignoreStarGoals: true });
+        : findShortestPrograms(level, { ...shortOptions, ignoreStarGoals: true });
     return { ok: true, shortest, fixes, plain };
   } catch (error) {
     return {

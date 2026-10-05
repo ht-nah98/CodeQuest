@@ -1,0 +1,56 @@
+{
+  "id": "w04-nga-ba-quyet-dinh",
+  "order": 4,
+  "title": "Ngã Ba Quyết Định",
+  "emoji": "🔀",
+  "concept": "Điều kiện: nhìn rồi quyết định",
+  "story": "Măng lần theo dấu chân Thỏ Bông vào vùng ngã ba. Gió đổi đường mỗi lần, Măng phải nhìn rồi quyết định.",
+  "theme": {
+    "tileset": "/tiles/ground.png",
+    "palette": "dusk"
+  },
+  "lessonIds": [
+    "w04-lesson",
+    "w04-lesson-neu",
+    "w04-lesson-neu-khong",
+    "w04-lesson-co-duong",
+    "w04-lesson-chia-khoa"
+  ],
+  "levelIds": [
+    "w04-l01",
+    "w04-l02",
+    "w04-l03",
+    "w04-l04",
+    "w04-l05",
+    "w04-l06",
+    "w04-l07",
+    "w04-l08",
+    "w04-l09",
+    "w04-l10",
+    "w04-l11",
+    "w04-l12",
+    "w04-l13",
+    "w04-l14",
+    "w04-l15",
+    "w04-l16",
+    "w04-l17",
+    "w04-l18",
+    "w04-l19",
+    "w04-boss",
+    "w04-creative"
+  ],
+  "unlock": {
+    "minStarRatio": 0.6
+  },
+  "unplugged": {
+    "title": "Lật thẻ trước mỗi bước",
+    "steps": [
+      "Huấn luyện viên cầm một xấp thẻ úp: thẻ hố và thẻ đất.",
+      "Một bé làm Măng, cầm tờ \"Nếu thẻ là hố thì nhảy, nếu không thì bước\".",
+      "Mỗi bước, huấn luyện viên lật một thẻ mới. Bé phải hỏi lại mỗi lần rồi mới đi.",
+      "Vòng 2: bé chỉ hỏi một lần ở đầu rồi đi tiếp. Cả nhóm xem bé \"rơi hố\" ở đâu.",
+      "Vòng 3: bé bịt mắt, có bạn đi kèm. Bạn đứng sau nói \"bên trái của bạn có đường\" hoặc \"bên phải của bạn có đường\".",
+      "Hỏi cả nhóm: vì sao phải hỏi lại trước mỗi bước?"
+    ]
+  }
+}

@@ -146,7 +146,7 @@
         "lastReason": "HIT_BRANCH"
       },
       "say": "Bấm Từng bước, xem khối nào sáng.",
-      "point": "run"
+      "point": "step"
     }
   ],
   "thinkingHint": "Tới cành tre, Măng phải làm gì?"

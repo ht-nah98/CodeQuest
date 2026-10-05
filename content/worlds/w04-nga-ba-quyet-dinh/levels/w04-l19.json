@@ -1,0 +1,180 @@
+{
+  "id": "w04-l19",
+  "worldId": "w04-nga-ba-quyet-dinh",
+  "stage": "challenge",
+  "kind": "runner",
+  "mode": "bughunt",
+  "title": "2 chỗ sai",
+  "objective": "Có 2 chỗ sai. Sửa từng chỗ, chạy lại nhé!",
+  "learningGoal": "Hai lỗi: câu hỏi ngược (hố thì đi) và lặp ít quá. Sửa một lỗi, chạy lại, thấy lỗi còn lại.",
+  "mission": "Chương trình tìm Bông sai 2 chỗ.",
+  "goalSprite": "footprints",
+  "toolbox": [
+    "runner_walk",
+    "runner_jump",
+    {
+      "type": "cq_repeat",
+      "fields": {
+        "TIMES": 5
+      }
+    },
+    "cq_if_else",
+    "runner_is_ahead"
+  ],
+  "maxInstances": {
+    "cq_repeat": 1
+  },
+  "maxLoopDepth": 1,
+  "par": 5,
+  "parEdits": 2,
+  "config": {
+    "cells": ["ground", "ground", "hole", "ground", "hole", "ground", "ground", "flag"],
+    "start": 0
+  },
+  "variants": [
+    {
+      "cells": [
+        "ground",
+        "hole",
+        "ground",
+        "ground",
+        "ground",
+        "hole",
+        "ground",
+        "hole",
+        "ground",
+        "flag"
+      ],
+      "start": 0
+    }
+  ],
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "rep1",
+              "fields": {
+                "TIMES": 5
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "cq_if_else",
+                    "id": "ifelse1",
+                    "inputs": {
+                      "COND": {
+                        "block": {
+                          "type": "runner_is_ahead",
+                          "id": "ask1",
+                          "fields": {
+                            "KIND": "HOLE"
+                          }
+                        }
+                      },
+                      "DO": {
+                        "block": {
+                          "type": "runner_walk",
+                          "id": "walk1"
+                        }
+                      },
+                      "ELSE": {
+                        "block": {
+                          "type": "runner_jump",
+                          "id": "jump1"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "rep1",
+              "fields": {
+                "TIMES": 12
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "cq_if_else",
+                    "id": "ifelse1",
+                    "inputs": {
+                      "COND": {
+                        "block": {
+                          "type": "runner_is_ahead",
+                          "id": "ask1",
+                          "fields": {
+                            "KIND": "CLEAR"
+                          }
+                        }
+                      },
+                      "DO": {
+                        "block": {
+                          "type": "runner_walk",
+                          "id": "walk1"
+                        }
+                      },
+                      "ELSE": {
+                        "block": {
+                          "type": "runner_jump",
+                          "id": "jump1"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "hole",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "FELL_IN_HOLE"
+      },
+      "say": "Có hố mà Măng lại đi. Câu hỏi đúng chưa?",
+      "point": "block:runner_is_ahead"
+    },
+    {
+      "id": "more",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "NOT_AT_GOAL"
+      },
+      "say": "Lỗi mới! Măng đi được mấy vòng rồi?",
+      "point": "block:cq_repeat"
+    }
+  ],
+  "thinkingHint": "Sửa xong 1 chỗ, Măng đi xa hơn chưa?"
+}

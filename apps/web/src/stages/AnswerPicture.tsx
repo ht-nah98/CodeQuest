@@ -154,7 +154,12 @@ function RunnerAnswer({
     >
       <rect x={0} y={0} width={width} height={SKY + GRASS} fill={UI_COLORS.sky} />
       {lit !== null && <Spot x={lit * C + 1} y={1} w={C - 2} h={SKY + GRASS - 2} />}
-      <TrackCells cells={cells} bamboo={config.bamboo ?? []} goalSprite={goalSprite} />
+      <TrackCells
+        cells={cells}
+        bamboo={config.bamboo ?? []}
+        items={config.goal?.items}
+        goalSprite={goalSprite}
+      />
       {mark}
     </svg>
   );

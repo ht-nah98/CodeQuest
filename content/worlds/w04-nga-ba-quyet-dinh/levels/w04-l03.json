@@ -1,0 +1,108 @@
+{
+  "id": "w04-l03",
+  "worldId": "w04-nga-ba-quyet-dinh",
+  "stage": "guided",
+  "kind": "runner",
+  "mode": "predict",
+  "title": "Hỏi một lần",
+  "objective": "Đọc chương trình, chọn điều xảy ra với Măng.",
+  "learningGoal": "Khối nếu không nằm trong vòng lặp chỉ hỏi một lần, lúc chạy tới nó. Các khối sau đó không hỏi lại.",
+  "misconception": "Khối nếu là kiểm tra một lần cho cả chương trình.",
+  "mission": "Măng có qua được hố không? Đoán xem!",
+  "goalSprite": "flag",
+  "toolbox": [],
+  "config": {
+    "cells": ["ground", "ground", "hole", "ground", "flag"],
+    "start": 0
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_if",
+              "id": "if1",
+              "inputs": {
+                "COND": {
+                  "block": {
+                    "type": "runner_is_ahead",
+                    "id": "ask1",
+                    "fields": {
+                      "KIND": "HOLE"
+                    }
+                  }
+                },
+                "DO": {
+                  "block": {
+                    "type": "runner_jump",
+                    "id": "jump1"
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "type": "runner_walk",
+                  "id": "walk1",
+                  "next": {
+                    "block": {
+                      "type": "runner_walk",
+                      "id": "walk2",
+                      "next": {
+                        "block": {
+                          "type": "runner_walk",
+                          "id": "walk3"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "predict": {
+    "options": [
+      {
+        "key": "crash:FELL_IN_HOLE@2",
+        "label": "Rơi xuống hố"
+      },
+      {
+        "key": "win",
+        "label": "Tới lá cờ"
+      },
+      {
+        "key": "stop@1",
+        "label": "Đứng sát mép hố"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "once",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Khối nếu hỏi lúc Măng còn ở chỗ xuất phát.",
+      "point": "block:cq_if"
+    },
+    {
+      "id": "ahead",
+      "when": {
+        "trigger": "idle"
+      },
+      "say": "Lúc đó phía trước Măng là gì: hố hay đất?",
+      "point": "stage"
+    }
+  ],
+  "thinkingHint": "Sau khối nếu, ai hỏi lại \"có hố không\"?"
+}

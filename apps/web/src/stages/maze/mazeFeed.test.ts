@@ -17,7 +17,18 @@ describe('mazePlanStep', () => {
         [1, 3],
         [3, 1],
       ],
+      items: [],
+      itemTotal: 0,
     });
+  });
+
+  it('a mission item leaves the items, never the bamboo (P2-11c)', () => {
+    const keyed: MazeConfig = { ...config, goal: { items: [{ kind: 'key', at: [2, 3] }] } };
+    let state = initialMazePlan(keyed);
+    expect(state.items).toEqual([{ kind: 'key', at: [2, 3] }]);
+    state = mazePlanStep(state, ev({ type: 'collect', at: [2, 3], item: 'key' }));
+    expect(state.items).toEqual([]);
+    expect(state.bamboo).toHaveLength(2);
   });
 
   it('follows moves and turns, picks shoots, stays put on a bump or a win', () => {

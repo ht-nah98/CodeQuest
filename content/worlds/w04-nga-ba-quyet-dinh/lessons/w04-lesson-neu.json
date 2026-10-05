@@ -1,0 +1,112 @@
+{
+  "id": "w04-lesson-neu",
+  "worldId": "w04-nga-ba-quyet-dinh",
+  "title": "Khối nếu",
+  "beforeLevel": "w04-l01",
+  "cards": [
+    {
+      "type": "say",
+      "pose": "point",
+      "text": "Khối mới: nếu! Măng hỏi trước, ✔ thì mới làm."
+    },
+    {
+      "type": "demo",
+      "text": "Phía trước có hố: ✔. Măng nhảy qua hố.",
+      "kind": "runner",
+      "config": {
+        "cells": ["ground", "hole", "ground", "ground", "flag"],
+        "start": 0
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "cq_if",
+                  "id": "if1",
+                  "inputs": {
+                    "COND": {
+                      "block": {
+                        "type": "runner_is_ahead",
+                        "id": "ask1",
+                        "fields": {
+                          "KIND": "HOLE"
+                        }
+                      }
+                    },
+                    "DO": {
+                      "block": {
+                        "type": "runner_jump",
+                        "id": "jump1"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "demo",
+      "text": "Phía trước là đất: ✘. Măng bỏ qua khối nhảy, đứng yên.",
+      "kind": "runner",
+      "config": {
+        "cells": ["ground", "ground", "ground", "flag"],
+        "start": 0
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "cq_if",
+                  "id": "if1",
+                  "inputs": {
+                    "COND": {
+                      "block": {
+                        "type": "runner_is_ahead",
+                        "id": "ask1",
+                        "fields": {
+                          "KIND": "HOLE"
+                        }
+                      }
+                    },
+                    "DO": {
+                      "block": {
+                        "type": "runner_jump",
+                        "id": "jump1"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "quiz",
+      "text": "Phía trước là đất. Khối nhảy trong nếu có chạy không?",
+      "options": ["Có", "Không"],
+      "correct": 1,
+      "explain": "Câu hỏi trả lời ✘, nên Măng bỏ qua khối nhảy."
+    }
+  ]
+}

@@ -37,7 +37,7 @@ Dùng **đúng** các từ này. Cột "Trong code" là tên dùng cho type, bi�
 | Điều kiện | input `COND` (`COND_INPUT`); trong vét cạn `Condition` | Ô hình lục giác của "nếu" / "lặp đến khi", nơi cắm một khối hỏi (cảm biến). Với bé gọi là "câu hỏi", không nói "cảm biến". Ô để trống thì không chạy (`EMPTY_CONDITION`) |
 | Lặp đến khi | `cq_repeat_until` (P2-11) | Khối "lặp đến khi ◇": **trước mỗi vòng** hỏi điều kiện; ✔ thì dừng và chạy khối nằm dưới, ✘ thì chạy thêm một vòng. Có thể chạy 0 vòng. Tooltip: "Hỏi trước mỗi vòng: ✘ thì làm thêm một vòng, ✔ thì dừng và chạy khối bên dưới". Thế giới 5 |
 | Vòng lặp không dừng | `TIMEOUT` (khóa đoán `timeout`) | Vòng lặp mà điều kiện không bao giờ đúng; Măng "chóng mặt". Không gọi là "lặp vô hạn" với bé |
-| Từng bước | nút `step` (`vi.play.step`, đã có); điểm gợi ý `point: "step"` (`HintTargetSchema`, P2-11; màn chơi chưa vẽ mũi tên) | Nút chạy từng khối một, dùng để tìm khối gây lỗi (Thế giới 3) |
+| Từng bước | nút `step` (`vi.play.step`, đã có); điểm gợi ý `point: "step"` (`HintTargetSchema`, P2-11; nút nhấp nháy như nút Chạy) | Nút chạy từng khối một, dùng để tìm khối gây lỗi (Thế giới 3) |
 | Lỗi (đề xuất) | `bug` | Khối làm chương trình chạy khác ý. "Sửa lỗi", "Săn lỗi" (mode `bughunt`) |
 | Bản đồ 1 · 2 · 3 | `level.variants` (P2-12) | Màn nhiều bản đồ: một chương trình phải thắng mọi bản đồ |
 | Nhiệm vụ | `level.mission` (P2-11c) | Câu ≤ 12 chữ nói Măng đang làm gì cho ai (vd "Lấy chìa khóa, mở lồng cứu Bông!"). Chỉ để tạo động lực, không đổi luật. Từ Thế giới 3. `content:check` luật 5 đếm chữ |

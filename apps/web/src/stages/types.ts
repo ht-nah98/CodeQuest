@@ -28,6 +28,12 @@ export interface StageRenderer<E extends GameEvent> {
    */
   finish?(outcome: RunOutcome<E>): void;
   /**
+   * Optional end of a timed-out run (TIMEOUT, P2-11 T8): Măng spins and sees stars ("chóng mặt"),
+   * then stays dizzy until reset. Called instead of `rest()`, before `finish`; resolves when the
+   * spin is over or as soon as `signal` aborts. Sets `data-dizzy="true"` on the canvas (e2e).
+   */
+  dizzy?(signal: AbortSignal): Promise<void>;
+  /**
    * Optional camera peek while no replay runs (P2-22): the child drags the full-track strip and
    * the view starts at cell `leftCell` instead of following Măng; `null` (and `reset()`) gives
    * the camera back to Măng. Kinds whose stage always shows the whole board leave it out.

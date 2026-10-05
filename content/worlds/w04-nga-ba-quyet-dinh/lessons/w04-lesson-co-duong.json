@@ -1,0 +1,118 @@
+{
+  "id": "w04-lesson-co-duong",
+  "worldId": "w04-nga-ba-quyet-dinh",
+  "title": "Khối có đường",
+  "beforeLevel": "w04-l04",
+  "cards": [
+    {
+      "type": "say",
+      "pose": "point",
+      "text": "Khối mới: có đường! Măng hỏi theo hướng Măng nhìn."
+    },
+    {
+      "type": "demo",
+      "text": "Phía trước có đường: ✔. Măng tiến 1 ô.",
+      "kind": "maze",
+      "config": {
+        "map": ["#####", "#S.G#", "#####"],
+        "startDir": "E"
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "cq_if",
+                  "id": "if1",
+                  "inputs": {
+                    "COND": {
+                      "block": {
+                        "type": "maze_is_path",
+                        "id": "ask1",
+                        "fields": {
+                          "DIR": "AHEAD"
+                        }
+                      }
+                    },
+                    "DO": {
+                      "block": {
+                        "type": "maze_forward",
+                        "id": "fwd1"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "demo",
+      "text": "Măng nhìn xuống. Bên trái của Măng là phía phải màn hình.",
+      "kind": "maze",
+      "config": {
+        "map": ["#####", "#S..#", "#.#G#", "#####"],
+        "startDir": "S"
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "cq_if",
+                  "id": "if1",
+                  "inputs": {
+                    "COND": {
+                      "block": {
+                        "type": "maze_is_path",
+                        "id": "ask1",
+                        "fields": {
+                          "DIR": "LEFT"
+                        }
+                      }
+                    },
+                    "DO": {
+                      "block": {
+                        "type": "maze_turn_left",
+                        "id": "left1"
+                      }
+                    }
+                  },
+                  "next": {
+                    "block": {
+                      "type": "maze_forward",
+                      "id": "fwd1"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "quiz",
+      "text": "Phía trước Măng là tường. Có đường phía trước không?",
+      "options": ["✔ Có", "✘ Không"],
+      "correct": 1,
+      "explain": "Tường thì không có đường, câu hỏi trả lời ✘."
+    }
+  ]
+}

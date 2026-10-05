@@ -9,7 +9,13 @@ import {
 import { useNavigate, useParams } from 'react-router';
 import * as Blockly from 'blockly';
 import type { FeedbackFile, Level, LevelMode, ReasonCode } from '@codequest/content-schema';
-import { editDistance, type RunOutcome } from '@codequest/engine';
+import {
+  COND_INPUT,
+  CONDITION_BLOCK_TYPES,
+  CQ_START,
+  editDistance,
+  type RunOutcome,
+} from '@codequest/engine';
 import { DEFAULT_PAR_EDITS } from '@codequest/rewards';
 import {
   audio,
@@ -25,6 +31,7 @@ import {
   type WorkspaceHandle,
   type WorkspaceState,
 } from '../../blockly/BlocklyWorkspace';
+import { markSense } from '../../blockly/senseMark';
 import { shouldHandleAppShortcut } from '../../blockly/shortcuts';
 import {
   feedbackLine,
@@ -46,7 +53,12 @@ import { useSignedInProfile } from '../../features/profiles';
 import { vi } from '../../i18n/vi';
 import type { PandaAnimation } from '../../stages/panda';
 import { planSourceFor } from '../../stages/planSource';
-import { type PlayResult, type Speed, StageController } from '../../stages/StageController';
+import {
+  type PlayResult,
+  type SenseMark,
+  type Speed,
+  StageController,
+} from '../../stages/StageController';
 import { TrackStrip } from '../../stages/TrackStrip';
 import { Bubble, Button, CapacityBricks, Panel, PixelIcon, SpeakButton } from '../../ui';
 import { canOpenLevel } from '../../features/content/catalog';
@@ -73,6 +85,8 @@ declare global {
       Blockly: typeof Blockly;
       workspace: Blockly.WorkspaceSvg;
       highlights: string[];
+      /** Answers shown by question blocks during replays, as `<blockId>:yes|no` (P2-11). */
+      senses: string[];
       /** Mode predict: the engine's answer for the level's program. */
       answerKey?: string | undefined;
     };
@@ -213,6 +227,20 @@ const SPEEDS: ReadonlyArray<{ speed: Speed; label: string }> = [
   { speed: 1, label: t.speeds.normal },
   { speed: 2, label: t.speeds.fast },
 ];
+
+/**
+ * The first block of the program (under "khi bắt đầu") whose question slot is empty: what an
+ * EMPTY_CONDITION run shakes, as the engine stops before any event (P2-11).
+ */
+function emptyConditionBlockId(workspace: Blockly.WorkspaceSvg): string | null {
+  for (const start of workspace.getBlocksByType(CQ_START, true)) {
+    for (const block of start.getDescendants(true)) {
+      if (!CONDITION_BLOCK_TYPES.includes(block.type)) continue;
+      if (block.getInputTargetBlock(COND_INPUT) === null) return block.id;
+    }
+  }
+  return null;
+}
 
 /** Program JSON without block positions: moving or bumping a block is not an edit. */
 function programKey(json: unknown): string {
@@ -392,6 +420,17 @@ function PlaySession({
     if (blockId !== null) window.__cqPlay?.highlights.push(blockId);
   }, []);
 
+  /** Cleanup of the ✔/✘ a question block shows while the replay asks it (P2-11). */
+  const senseRef = useRef<(() => void) | null>(null);
+  const sense = useCallback((mark: SenseMark | null) => {
+    senseRef.current?.();
+    senseRef.current = null;
+    const workspace = workspaceRef.current;
+    if (!mark || !workspace) return;
+    senseRef.current = markSense(workspace, mark.blockId, mark.value);
+    window.__cqPlay?.senses.push(`${mark.blockId}:${mark.value ? 'yes' : 'no'}`);
+  }, []);
+
   const clearShake = useCallback(() => {
     shakenRef.current?.classList.remove('cq-shake');
     shakenRef.current = null;
@@ -420,6 +459,7 @@ function PlaySession({
       config: maps[mapIndexRef.current],
       ...(level.goalSprite !== undefined && { goalSprite: level.goalSprite }),
       onHighlight: highlight,
+      onSense: sense,
       onAnimation: (animation: PandaAnimation) => {
         container.dataset.panda = animation;
       },
@@ -465,11 +505,14 @@ function PlaySession({
     );
     return () => {
       controller.abort();
+      // A mark or highlight left by the replay belongs to this stage's run.
+      sense(null);
+      highlight(null);
       stageRef.current?.destroy();
       stageRef.current = null;
       setStageReady(false);
     };
-  }, [level, maps, planSources, highlight, readyLine, say]);
+  }, [level, maps, planSources, highlight, sense, readyLine, say]);
 
   /** Puts map `map` on the stage (a fresh scene at its start) and selects its tab. */
   const showMap = useCallback(
@@ -516,7 +559,12 @@ function PlaySession({
         setPhase('success');
       } else {
         setPhase('fail');
-        shake(offendingBlockId(outcome));
+        const workspace = workspaceRef.current;
+        shake(
+          outcome.reasonCode === 'EMPTY_CONDITION' && workspace
+            ? emptyConditionBlockId(workspace)
+            : offendingBlockId(outcome),
+        );
         playFailSfx();
         hintRunEnded();
       }
@@ -798,7 +846,7 @@ function PlaySession({
         if (level.mode === 'predict' && level.initialWorkspace !== undefined) {
           answerKey = runProgram(level, level.initialWorkspace).answerKey;
         }
-        window.__cqPlay = { Blockly, workspace, highlights: [], answerKey };
+        window.__cqPlay = { Blockly, workspace, highlights: [], senses: [], answerKey };
       }
     },
     [setWorkspaceFlush, level],
@@ -1056,6 +1104,8 @@ function PlaySession({
                 shortcut="S"
                 disabled={!stageReady}
                 aria-pressed={stepping}
+                data-testid="play-step"
+                data-hint-anchor="step"
                 onClick={() => {
                   run(true);
                   focusStage();
@@ -1125,6 +1175,16 @@ function PlaySession({
               onDispose={onDispose}
               onMouseDragEnd={() => {
                 stageBoxRef.current?.focus();
+              }}
+              onBlockLimit={(breach) => {
+                const depth = level.maxLoopDepth ?? 1;
+                say(
+                  breach === 'instances'
+                    ? uiLine('play.blockLimit.instances', t.blockLimit.instances)
+                    : depth <= 1
+                      ? uiLine('play.blockLimit.loopDepth', t.blockLimit.loopDepth)
+                      : { text: t.blockLimit.loopDepthMax(depth) },
+                );
               }}
               className="min-h-0 rounded-t-[15px]"
             />

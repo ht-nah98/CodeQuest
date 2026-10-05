@@ -364,3 +364,31 @@ export function limitIssues(level: Level): RuleIssue[] {
   }
   return issues;
 }
+
+/**
+ * Rule 1 (level fields that fit together, P2-11c): a `cage` goal is opened by a key, so every
+ * map of a level drawn with `goalSprite: "cage"` needs a `key` mission item
+ * (`config.goal.items`); otherwise the stage would show a cage nothing can open.
+ */
+export function goalSpriteIssues(level: Level): RuleIssue[] {
+  if (level.goalSprite !== 'cage') return [];
+  const issues: RuleIssue[] = [];
+  const maps: unknown[] = [level.config, ...(level.variants ?? [])];
+  maps.forEach((config, index) => {
+    const goal = isRecord(config) ? config['goal'] : undefined;
+    const items = isRecord(goal) ? goal['items'] : undefined;
+    const hasKey =
+      Array.isArray(items) && items.some((item) => isRecord(item) && item['kind'] === 'key');
+    if (!hasKey) {
+      issues.push({
+        rule: 1,
+        message: `goalSprite: "cage" needs a "key" item in config.goal.items on map ${String(index + 1)}`,
+      });
+    }
+  });
+  return issues;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}

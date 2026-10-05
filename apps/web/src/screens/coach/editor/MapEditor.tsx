@@ -4,6 +4,7 @@ import {
   MAZE_DIRS,
   MAZE_MAX_SIZE,
   MAZE_MIN_SIZE,
+  type GoalItemKind,
   RUNNER_MAX_CELLS,
   RUNNER_MIN_CELLS,
   type MazeConfig,
@@ -23,6 +24,8 @@ import {
   resizeMaze,
   resizeRunner,
   type RunnerTool,
+  setCollectAll,
+  toggleMazeItem,
   updateMap,
 } from '../../../features/editor/draft';
 import { vi } from '../../../i18n/vi';
@@ -161,13 +164,8 @@ export function MapEditor({
             checked={collectAll}
             onChange={(event) => {
               const checked = event.target.checked;
-              onConfig((latest) => {
-                if (!isRecord(latest)) return latest;
-                const next = { ...latest };
-                if (checked) next['goal'] = { collectAll: true };
-                else delete next['goal'];
-                return next;
-              });
+              // Mission items stay (P2-11c): only `collectAll` is toggled.
+              onConfig((latest) => (isRecord(latest) ? setCollectAll(latest, checked) : latest));
             }}
             className="size-5 accent-brand-deep"
           />
@@ -187,7 +185,7 @@ const CELL_CLASS: Record<RunnerCell, string> = {
   flag: 'bg-brand-soft',
 };
 
-const RUNNER_TOOLS: readonly RunnerTool[] = ['cell', 'bamboo', 'start'];
+const RUNNER_TOOLS: readonly RunnerTool[] = ['cell', 'bamboo', 'start', 'key', 'friend'];
 
 function RunnerTrack({
   config,
@@ -198,6 +196,7 @@ function RunnerTrack({
 }) {
   const [tool, setTool] = useState<RunnerTool>('cell');
   const bamboo = new Set(config.bamboo ?? []);
+  const items = new Map((config.goal?.items ?? []).map((item) => [item.at, item.kind]));
   return (
     <div className="grid gap-3">
       <div className="flex flex-wrap items-end gap-4">
@@ -238,13 +237,17 @@ function RunnerTrack({
         {config.cells.map((cell, index) => {
           const isStart = index === config.start;
           const hasBamboo = bamboo.has(index);
-          const extra = `${isStart ? t.startMark : ''}${hasBamboo ? t.bambooMark : ''}`;
+          const item = items.get(index);
+          const extra = `${isStart ? t.startMark : ''}${hasBamboo ? t.bambooMark : ''}${
+            item ? t.itemMarks[item] : ''
+          }`;
           return (
             <li key={index}>
               <button
                 type="button"
                 data-testid={`runner-cell-${String(index)}`}
                 data-cell={cell}
+                data-item={item}
                 aria-label={t.runnerCellLabel(index, t.runnerCells[cell], extra)}
                 disabled={cell === 'flag'}
                 onClick={() => {
@@ -254,7 +257,13 @@ function RunnerTrack({
               >
                 <span>{t.runnerCells[cell]}</span>
                 <span aria-hidden className="leading-none">
-                  {isStart ? 'MĂNG' : hasBamboo ? 'măng' : String(index)}
+                  {isStart
+                    ? 'MĂNG'
+                    : item
+                      ? t.itemShort[item]
+                      : hasBamboo
+                        ? 'măng'
+                        : String(index)}
                 </span>
               </button>
             </li>
@@ -273,6 +282,9 @@ const TILE_CLASS: Record<MazeTile, string> = {
   G: 'bg-coin',
 };
 const BRUSHES: readonly MazeTile[] = ['#', '.', 'b', 'S', 'G'];
+/** A maze brush paints a tile, or places / removes a mission item (P2-11c) on a path cell. */
+type MazeBrush = MazeTile | GoalItemKind;
+const ITEM_BRUSHES: readonly GoalItemKind[] = ['key', 'friend'];
 
 function MazeGrid({
   config,
@@ -281,10 +293,18 @@ function MazeGrid({
   config: MazeConfig;
   onUpdate: (update: (config: MazeConfig) => MazeConfig) => void;
 }) {
-  const [brush, setBrush] = useState<MazeTile>('#');
+  const [brush, setBrush] = useState<MazeBrush>('#');
   const rows = config.map.length;
   const cols = config.map[0]?.length ?? 0;
-  const paint = (row: number, col: number) => {
+  const items = new Map(
+    (config.goal?.items ?? []).map((item) => [`${String(item.at[0])},${String(item.at[1])}`, item.kind]),
+  );
+  const paint = (row: number, col: number, drag = false) => {
+    if (brush === 'key' || brush === 'friend') {
+      // An item toggles on a click only: dragging would flip it on every cell passed.
+      if (!drag) onUpdate((latest) => toggleMazeItem(latest, row, col, brush));
+      return;
+    }
     onUpdate((latest) =>
       latest.map[row]?.[col] === brush ? latest : paintMaze(latest, row, col, brush),
     );
@@ -334,7 +354,7 @@ function MazeGrid({
       </div>
       <div role="group" aria-label={t.mazeBrushLabel} className="flex flex-wrap items-center gap-2">
         <span className="font-display font-bold">{t.mazeBrushLabel}</span>
-        {BRUSHES.map((tile) => (
+        {[...BRUSHES, ...ITEM_BRUSHES].map((tile) => (
           <Button
             key={tile}
             size="sm"
@@ -358,19 +378,25 @@ function MazeGrid({
         {config.map.flatMap((line, row) =>
           Array.from(line).map((char, col) => {
             const tile = (BRUSHES as readonly string[]).includes(char) ? (char as MazeTile) : '.';
+            const item = items.get(`${String(row)},${String(col)}`);
             return (
               <button
                 key={`${String(row)}-${String(col)}`}
                 type="button"
                 data-testid={`maze-cell-${String(row)}-${String(col)}`}
                 data-tile={char}
-                aria-label={t.mazeCellLabel(row, col, t.mazeBrushes[tile])}
+                data-item={item}
+                aria-label={t.mazeCellLabel(
+                  row,
+                  col,
+                  `${t.mazeBrushes[tile]}${item ? t.itemMarks[item] : ''}`,
+                )}
                 onPointerDown={() => {
                   paint(row, col);
                 }}
                 onPointerEnter={(event) => {
                   // Drag to paint a line of walls or path.
-                  if (event.buttons === 1) paint(row, col);
+                  if (event.buttons === 1) paint(row, col, true);
                 }}
                 onKeyDown={(event) => {
                   if (event.key === 'Enter' || event.key === ' ') {
@@ -378,9 +404,15 @@ function MazeGrid({
                     paint(row, col);
                   }
                 }}
-                className={`grid size-9 cursor-pointer place-items-center rounded-[4px] border-2 border-ink font-pixel text-pixel ${TILE_CLASS[tile]} ${FOCUS_RING}`}
+                className={`grid size-9 cursor-pointer place-items-center rounded-[4px] border-2 border-ink font-pixel ${item ? 'bg-coin-shine text-pixel-sm' : `text-pixel ${TILE_CLASS[tile]}`} ${FOCUS_RING}`}
               >
-                {char === 'S' || char === 'G' ? char : char === 'b' ? 'm' : ''}
+                {item
+                  ? t.itemShort[item]
+                  : char === 'S' || char === 'G'
+                    ? char
+                    : char === 'b'
+                      ? 'm'
+                      : ''}
               </button>
             );
           }),

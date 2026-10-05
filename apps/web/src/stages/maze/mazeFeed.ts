@@ -1,7 +1,13 @@
 // Where Măng is in a maze replay, for the "Xem cả đường" view (P2-22), Pixi- and React-free so it
 // is unit tested. Fed by the stage controller's hooks like the runner's strip (feed.ts).
 import type { GameEvent } from '@codequest/engine';
-import { type MazeCell, type MazeConfig, type MazeDir, type MazeEvent } from '@codequest/games';
+import {
+  type GoalItemKind,
+  type MazeCell,
+  type MazeConfig,
+  type MazeDir,
+  type MazeEvent,
+} from '@codequest/games';
 import { createEventFeed, type EventFeed } from '../feed';
 
 export interface MazePlanState {
@@ -10,6 +16,10 @@ export interface MazePlanState {
   dir: MazeDir;
   /** Shoots not picked up yet. */
   bamboo: readonly MazeCell[];
+  /** Mission items not picked up yet (P2-11c), in config order. */
+  items: ReadonlyArray<{ kind: GoalItemKind; at: MazeCell }>;
+  /** How many mission items the map has (a cage shows open once `items` is empty). */
+  itemTotal: number;
 }
 
 export function initialMazePlan(config: MazeConfig): MazePlanState {
@@ -21,7 +31,8 @@ export function initialMazePlan(config: MazeConfig): MazePlanState {
       if (tile === 'b') bamboo.push([r, c]);
     });
   });
-  return { at, dir: config.startDir, bamboo };
+  const items = config.goal?.items ?? [];
+  return { at, dir: config.startDir, bamboo, items, itemTotal: items.length };
 }
 
 /** The state after one action event; a move counts at its start, like the runner's strip. */
@@ -33,11 +44,12 @@ export function mazePlanStep(state: MazePlanState, gameEvent: GameEvent): MazePl
       return { ...state, at: event.to, dir: event.dir };
     case 'turn':
       return { ...state, dir: event.to };
-    case 'collect':
-      return {
-        ...state,
-        bamboo: state.bamboo.filter(([r, c]) => r !== event.at[0] || c !== event.at[1]),
-      };
+    case 'collect': {
+      const [row, col] = event.at;
+      return event.item === undefined
+        ? { ...state, bamboo: state.bamboo.filter(([r, c]) => r !== row || c !== col) }
+        : { ...state, items: state.items.filter(({ at: [r, c] }) => r !== row || c !== col) };
+    }
     default:
       // bump bounces back to the cell it started from; win stands on the cell already reached.
       return state;

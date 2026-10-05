@@ -152,4 +152,50 @@ describe('MazeStage', () => {
     stage.reset();
     expect(canvas.dataset.mazeStunned).toBe('false');
   });
+
+  it('mission items (P2-11c): HUD and lock count them apart from bamboo; NEED_KEY pulses', async () => {
+    const app = { ticker, screen: { width: 516, height: 360 }, stage: new Container(), canvas };
+    stage = new MazeStage(
+      app as unknown as Application,
+      { map: ['S.b', '#.#', '..G'], startDir: 'E', goal: { items: [{ kind: 'key', at: [2, 0] }] } },
+      pandaTextures(),
+      undefined,
+      'cage',
+    );
+    expect(canvas.dataset).toMatchObject({
+      mazeCollected: '0/1',
+      mazeItems: '0/1',
+      mazeGoal: 'locked',
+      mazeNeed: 'false',
+    });
+    stage.finish({
+      result: 'incomplete',
+      reasonCode: 'NEED_KEY',
+      events: [],
+      stats: { steps: 0, actions: 0, blocksUsed: 0 },
+    });
+    expect(canvas.dataset.mazeNeed).toBe('true');
+    const done = stage.play(
+      { type: 'collect', blockId: 'k', at: [2, 0], item: 'key' },
+      new AbortController().signal,
+    );
+    await advance(600);
+    await done;
+    // The key is not a shoot: bamboo still 0/1, the goal opens.
+    expect(canvas.dataset).toMatchObject({
+      mazeCollected: '0/1',
+      mazeItems: '1/1',
+      mazeGoal: 'open',
+      mazeNeed: 'false',
+    });
+  });
+
+  it('dizzy (TIMEOUT) dazes Măng until reset', async () => {
+    const done = stage.dizzy(new AbortController().signal);
+    await advance(1600);
+    await done;
+    expect(canvas.dataset).toMatchObject({ dizzy: 'true', mazeStunned: 'true' });
+    stage.reset();
+    expect(canvas.dataset).toMatchObject({ dizzy: 'false', mazeStunned: 'false' });
+  });
 });

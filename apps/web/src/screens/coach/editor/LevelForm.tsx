@@ -17,6 +17,7 @@ import {
   blockLabel,
   type EditorField,
   modeUses,
+  setMaxInstances,
   toggleToolbox,
   toolboxChoices,
   toolboxTypes,
@@ -225,6 +226,20 @@ export function LevelForm(props: LevelFormProps) {
               }}
             />
           </Field>
+          <Field
+            label={t.fields.maxLoopDepth}
+            issues={issues.get('maxLoopDepth')}
+            testId="issues-maxLoopDepth"
+          >
+            <NumberInput
+              name="maxLoopDepth"
+              value={level.maxLoopDepth}
+              invalid={issues.has('maxLoopDepth')}
+              onChange={(value) => {
+                set('maxLoopDepth', value);
+              }}
+            />
+          </Field>
           {modeUses(level.mode, 'parEdits') && (
             <Field label={t.fields.parEdits} issues={issues.get('parEdits')}>
               <NumberInput
@@ -270,7 +285,11 @@ export function LevelForm(props: LevelFormProps) {
       </Section>
 
       {props.children}
-      <ToolboxPicker level={level} issues={issues.get('toolbox')} onChange={onChange} />
+      <ToolboxPicker
+        level={level}
+        issues={[...(issues.get('toolbox') ?? []), ...(issues.get('maxInstances') ?? [])]}
+        onChange={onChange}
+      />
       {level.mode === 'predict' && (
         <PredictCards
           level={level}
@@ -326,22 +345,40 @@ function ToolboxPicker({
       <p className="m-0 text-small text-ink-soft">{t.toolboxHelp}</p>
       <div className="flex flex-wrap gap-x-5 gap-y-2" data-testid="editor-toolbox">
         {toolboxChoices(level.kind).map((type) => (
-          <label key={type} className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              name={`toolbox-${type}`}
-              checked={ticked.has(type)}
-              onChange={(event) => {
-                onChange(toggleToolbox(level, type, event.target.checked));
-              }}
-              className="size-5 accent-brand-deep"
-            />
-            <span className="font-display font-bold">{blockLabel(type, level.kind)}</span>
-            <span className="font-mono text-small text-ink-soft">{type}</span>
-            {fixed.has(type) && (
-              <span className="text-ink-soft">({t.fixedFields(fixed.get(type) ?? '')})</span>
+          <div key={type} className="flex items-center gap-2">
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                name={`toolbox-${type}`}
+                checked={ticked.has(type)}
+                onChange={(event) => {
+                  onChange(toggleToolbox(level, type, event.target.checked));
+                }}
+                className="size-5 accent-brand-deep"
+              />
+              <span className="font-display font-bold">{blockLabel(type, level.kind)}</span>
+              <span className="font-mono text-small text-ink-soft">{type}</span>
+              {fixed.has(type) && (
+                <span className="text-ink-soft">({t.fixedFields(fixed.get(type) ?? '')})</span>
+              )}
+            </label>
+            {/* maxInstances (P2-11): how many of this block the child may use; empty = any. */}
+            {ticked.has(type) && (
+              <label className="flex items-center gap-1 text-small text-ink-soft">
+                {t.maxInstances}
+                <span className="sr-only">{t.maxInstancesLabel(type)}</span>
+                <span className="w-16">
+                  <NumberInput
+                    name={`maxInstances-${type}`}
+                    value={level.maxInstances?.[type]}
+                    onChange={(value) => {
+                      onChange(setMaxInstances(level, type, value));
+                    }}
+                  />
+                </span>
+              </label>
             )}
-          </label>
+          </div>
         ))}
       </div>
       <FieldIssues issues={issues} testId="issues-toolbox" />

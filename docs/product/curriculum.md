@@ -206,7 +206,7 @@ Ghi chú khi soạn (P2-08, 04/10/2026; đã qua review sư phạm độc lập,
   - `npm run par` chứng minh không có cách sửa ≤ 2 thao tác; tìm 3 thao tác dừng ở trần (ngân sách 20 triệu, trần 2 triệu chương trình giữ lại, khoảng 850 MB) nên báo ⚠ "fix search stopped". Không cần `NODE_OPTIONS` nữa; muốn heap lớn hơn thì `NODE_OPTIONS=--max-old-space-size=3500` và không chạy việc nặng khác.
   - Vét cạn riêng của review (04/10/2026, bộ mô phỏng Node độc lập, số lần lặp 1–20, lồng 2 tầng): mọi chương trình cách ban đầu ≤ 3 thao tác (41 triệu lần chạy; thao tác thứ 3 chỉ xét thêm khối đá / cúi khi còn thiếu, vì thắng cần cả hai), **không có cách nào thắng**.
   - Đường sửa khác: nếu lỗi đầu tiên bé sửa `đi → nhảy` (khối đi thứ hai sau vòng lặp, để nhảy qua hố ô 8) thay vì đổi số lần lặp, thì cả bài cần 5 thao tác (chỉ ⭐⭐). HLV để ý khi chơi thử.
-- Điểm chỉ `step` (T10, P2-11a) chưa có trong schema: gợi ý "Bấm Từng bước, xem khối nào sáng." của `l02` tạm chỉ vào nút `run` (nút Từng bước nằm cạnh). Đổi sang `step` khi P2-11a xong (đã ghi ở P2-11a, `roadmap/phase-2.md`).
+- Điểm chỉ `step` (T10): gợi ý "Bấm Từng bước, xem khối nào sáng." của `l02` lúc đầu tạm chỉ vào nút `run`; từ 05/10/2026 (phần web P2-11a) chỉ vào nút Từng bước (`point: "step"`).
 - `maxLoopDepth` (T16b) chưa có: `l11` chặn lặp lồng bằng bản đồ (dòng 11), thêm trường khi P2-11b xong.
 - Gợi ý `point: "block:<type>"` chỉ dùng khi chương trình cho sẵn có **đúng một** khối loại đó (màn chơi chỉ vào khối đầu tiên), còn lại chỉ `stage`. `content:check` luật 16 kiểm điều này ở `predict`/`bughunt`.
 - Bài giảng: thẻ 3 chạy **chương trình đã sửa** của `l01` trên bản đồ `l01` (thắng; câu "Bấm Chạy thử", vì thẻ demo không có nút Từng bước, nút này giới thiệu ở `l02`), để không lộ đáp án màn đoán `l01`. Thẻ 4 (thiếu một khối đi) dùng bản đồ nhỏ `...O.F` với `đi, nhảy, đi` (Măng nhảy sớm, rơi hố).
@@ -271,11 +271,11 @@ Chi tiết từng màn:
 2. `l02` bản đồ 1 `..O.O...O.F`, bản đồ 2 `.O...O.O..F`. Lời giải `lặp 10 {nếu phía trước có hố {nhảy} nếu không {đi}}` (thắng cả hai). Cách của màn 1 (`nếu {nhảy}, đi`) rơi hố ở ô 4 bản đồ 1. **VC ≤ 5:** nhỏ nhất 5 khối, cả 28 lời giải đều có khối hỏi; "nhảy cóc" bị bản đồ 2 chặn.
 3. `l03` `..O.F`, chương trình `nếu phía trước có hố {nhảy}, đi, đi, đi` → `crash:FELL_IN_HOLE@2`. Thẻ: **Rơi xuống hố** ✔ · Tới lá cờ (`win`) · Đứng sát mép hố (`stop@1`). Sân chơi hiện ✘ đúng **1 lần**.
 4. `l04` `#######/##G...#/#####.#/#S....#/#######`, nhìn `E`. Lời giải `lặp 12 {nếu có đường phía trước {tiến} nếu không {rẽ trái}}` (thắng). **VC ≤ 5:** nhỏ nhất 5, mọi lời giải đều có khối hỏi (vd `lặp 9 {tiến, nếu có đường bên trái {rẽ trái}}` nếu thanh khối có `nếu`). Bản đồ cũ (đoạn 4/3/2 ô) bị lặp lồng 4 khối.
-5. `l05` `..O..O.F`. Ban đầu `lặp 8 {nếu phía trước có hố {đi} nếu không {nhảy}}` → `FELL_IN_HOLE@2`. Sửa 1 thao tác: đổi câu hỏi "hố" → "ô trống" (thắng); đổi chỗ hai khối cũng thắng nhưng tốn 2 thao tác.
+5. `l05` `..O...O..O.F` (sửa khi soạn P2-13, ghi chú dưới). Ban đầu `lặp 8 {nếu phía trước có hố {đi} nếu không {nhảy}}` → `FELL_IN_HOLE@2`. Sửa 1 thao tác: đổi câu hỏi "hố" → "ô trống" (thắng); đổi chỗ hai khối cũng thắng nhưng tốn 2 thao tác.
 6. `l06` bản đồ 1 `..O.O...O.O..F`, bản đồ 2 `.O...O..O.O...F`. Thanh khối để sẵn `lặp 3 lần` → `stop@5` ở bản đồ 1. Lời giải `lặp 12 {nếu phía trước có hố {nhảy} nếu không {đi}}` (thắng cả hai). **VC ≤ 5:** nhỏ nhất 5, mọi lời giải đều có khối hỏi.
 7. `l07` `#######/###S###/###.###/#G...##/###.###/#######`, nhìn `S`. Chương trình `lặp 5 {nếu có đường bên trái {rẽ trái}, tiến}` → `crash:HIT_WALL@3,4`. Thẻ: **Ngõ cụt bên phải** ✔ · Ra cửa bên trái (`win`) · Đi thẳng xuống (`crash:HIT_WALL@4,3`) · Đứng ở ngã tư (`stop@3,3`).
 8. `l08` `#######/#S....#/#####.#/##G...#/#######`, nhìn `E`. Lời giải `lặp 12 {nếu có đường bên phải {rẽ phải}, tiến}` (thắng). **VC ≤ 5:** nhỏ nhất 5, mọi lời giải đều có khối hỏi.
-9. `l09` `.C..O.C.O..F`, lời giải `lặp 12 {nếu phía trước có thùng {đá}, nếu phía trước có hố {nhảy} nếu không {đi}}` (thắng). Đổi thứ tự hai câu `nếu` → `HIT_CRATE@1`. Màn ghép hình nên lối tắt "luôn đá" (A4) không ảnh hưởng.
+9. `l09` `.C..O.O.C..F` (sửa khi soạn P2-13), lời giải `lặp 12 {nếu phía trước có thùng {đá}, nếu phía trước có hố {nhảy} nếu không {đi}}` (thắng). Đổi thứ tự hai câu `nếu` → `HIT_CRATE@1`. Màn ghép hình nên lối tắt "luôn đá" (A4) không ảnh hưởng.
 10. `l10` `.O.O..O..F`, chương trình `lặp 4 {nếu phía trước có hố {nhảy} nếu không {đi}}` → `stop@7`. Thẻ: **Sau hố thứ ba** ✔ · Sau hố thứ hai (`stop@4`, ngộ nhận "4 vòng = 4 ô") · Trước hố thứ ba (`stop@5`) · Tới nơi (`win`).
 11. `l11` `#######/#S...##/####.##/##G..##/#######`, nhìn `E`. Ban đầu `lặp 12 {nếu có đường bên trái {rẽ phải}, tiến}` → `HIT_WALL@1,4`. Sửa "bên trái" → "bên phải" (thắng).
 12. `l12` bản đồ 1 `.O.O..O.F`, bản đồ 2 `...O.O...F`. Lời giải `lặp 12 {nếu phía trước có ô trống {đi} nếu không {nhảy}}` (thắng). **VC ≤ 5:** nhỏ nhất 5, mọi lời giải đều có khối hỏi (có cả `lặp {nhảy, nếu phía trước có ô trống {đi}}`).
@@ -295,6 +295,28 @@ Chi tiết từng màn:
 
     Lời giải `lặp 20 {nếu có đường bên trái {rẽ trái}, nếu có đường phía trước {tiến} nếu không {rẽ phải}}` thắng cả 3, cần ít nhất 16 vòng (≤ 20). Bản "hỏi bên phải trước" thắng bản đồ 2–3 nhưng không lấy được chìa khóa ở bản đồ 1. Chìa khóa làm ý của `l13` (hỏi bên nào trước) có ý nghĩa, không thêm ý mới. `maxInstances: { cq_repeat: 1 }`. VC: xem §5.5 R3.
 
+Ghi chú khi soạn (P2-13, 05/10/2026; chờ review sư phạm độc lập và HLV chơi thử):
+- Mọi màn qua `content:check` (không cảnh báo). Mọi bản đồ và chương trình ở trên chạy đúng như ghi trên engine thật, **không phải sửa bản đồ nào**. `npm run par -- --world w04` ✔ cả 15 màn build/bughunt, `par`/`parEdits` đúng bảng:
+  - build: `l02` 5 (28 cách), `l04` 5 (58), `l06` 5 (22), `l08` 5 (82), `l12` 5 (79), `l16` theo mục tiêu 8 (74) · thắng thường 5 (75), `l17` 5 (24), boss 8 (68);
+  - bughunt (`par` = số khối của lời giải, ⭐⭐⭐ dựa vào `parEdits`): `l05` sửa 1 (đúng 1 cách: đổi câu hỏi sang "ô trống"; nhỏ nhất 5, 90 cách, đều có khối hỏi), `l11` 1 (1), `l15` 1 (1), `l18` 1 (3), `l19` 2 (19 cách; không có cách sửa 1 thao tác).
+  - R1: test `tools/content-check/src/w04.test.ts` bỏ khối hỏi khỏi thanh khối của `l02`, `l04`, `l06`, `l08`, `l12`, `l17`, boss: không chương trình nào ≤ `maxBlocks` thắng.
+- **Review sư phạm độc lập (05/10/2026), đã sửa:**
+  - `l05`: bản đồ nháp `..O..O.F` để `lặp 3 {đi, nhảy}` (3 khối, không hỏi) thắng và có 3 cách sửa 1 thao tác. Bản đồ mới `..O...O..O.F`: mọi chương trình 5 khối thắng đều hỏi, đúng 1 cách sửa 1 thao tác (đổi "hố" → "ô trống"). Gợi ý `enter` chỉ ô chọn của câu hỏi ("Bấm vào câu hỏi: có cả hố, ô trống…"). Vì "ô trống" đã gặp ở `l05`, `l12` thành màn **ôn lại** cách hỏi này trên 2 bản đồ.
+  - `l09`: bản đồ nháp `.C..O.C.O..F` đổi thành `.C..O.O.C..F` (hai hố liền nhau trước thùng thứ hai); tên "Thùng và hố"; gợi ý `enter` là câu hỏi ("Có 2 câu hỏi. Câu nào hỏi trước?").
+  - **Màn ghép hình phải ghép hết khối** (quyết định của điều phối, mặc định câu G22): mode `parsons` chỉ thắng khi mọi khối được cho đã nối dưới "khi bắt đầu", còn khối rời → `LOOSE_BLOCKS` "Còn khối chưa ghép. Ghép hết vào nhé!" (`runtime-engine.md` §2). Mọi màn ghép hình W1–W4 vẫn xanh (không màn nào có khối gây nhiễu).
+  - Gợi ý tầng 0 là câu hỏi / cách làm, không nói đáp án (`l01`, `l02`, `l06`, `l08`, `l09`, `l11`, `l12`, `l14`, `l15`, `l19`); câu `enter` "Khối mới" dùng lại chữ của chú thích khối (`l01` cả `nếu` lẫn `phía trước có`, `l02`, `l04`). Số viết bằng chữ số trong chữ cho bé ("2 câu hỏi", "3 con đường", "2 mê cung"…), giữ "ngã ba", "thứ ba", "một chương trình". Dòng nhiệm vụ và mục tiêu không trùng nhau (`l03`, `l07`). `l17` nhiệm vụ "Gió thổi chìa khóa rơi khắp đường. Nhặt hết nhé!", thêm gợi ý `enter` "Đứng ở ô chìa khóa mới nhặt được.".
+  - Thêm bài "Khối mới" `w04-lesson-neu-khong` trước `l02` (không lặp: có hố → nhánh trên, nhảy, `stop@2`; đất → nhánh dưới, đi, `stop@1`).
+  - `w04-creative`: cửa ra dời lên 1 ô để chương trình hai câu hỏi (hỏi trái trước hay phải trước) đều ra tới cửa trong 20 vòng.
+- `l18` có lời giải **ít khối hơn** lời giải đã sửa (không ảnh hưởng sao, vì sao của bughunt tính theo số thao tác sửa): 3 chương trình "lắc" 7 khối, vd `tiến, lặp 20 {nếu có đường bên phải {rẽ phải, tiến} nếu không {rẽ trái}}`. Bé xóa hết rồi ghép lại chỉ được ⭐. Ngoài cách sửa chính (rẽ trái → rẽ phải ở nhánh "nếu không"), `l18` còn 2 cách sửa 1 thao tác khác: thêm rẽ phải sau tiến ở nhánh trên, hoặc thêm một rẽ trái nữa ở nhánh "nếu không" (quay đầu rồi rẽ). **HLV để ý khi chơi thử** xem bé có sửa theo kiểu đó không.
+- `l18` ban đầu: Măng **đi tới đi lui** giữa hai ô đầu (rẽ trái hai lần thành quay đầu), không xoay tại chỗ; vẫn hết vòng ở `stop@1,1` trên cả hai bản đồ. Gợi ý `enter` chỉ nút Từng bước (`point: "step"`).
+- **Thanh khối:** `lặp` để sẵn số đủ dùng ở các màn trước `l06` (`l02` 10, `l04` 12) để màn chỉ có một ý mới; từ `l06` để sẵn `lặp 3 lần`, bé tự chọn số (bughunt giữ số của chương trình ban đầu). Màn ghép hình đưa **khối hỏi rời** (bé tự cắm vào ô của `nếu`).
+- **Bài giảng mở đầu** (6 thẻ, mỗi thẻ ≤ 12 chữ; thẻ 5 "Mỗi vòng, khối nếu hỏi lại. ✔ chạy nhánh trên, ✘ chạy nhánh dưới."): câu kết W3 của bác Cú gộp vào thẻ 1 ("Thỏ Bông vào Ngã Ba chưa về! Gió đổi đường mỗi lần."); thẻ 2 "Đừng thuộc lòng. Măng nhìn ô phía trước, trả lời ✔ hoặc ✘." Hai thẻ `demo` chạy cùng chương trình `lặp 10 {nếu phía trước có hố {nhảy} nếu không {đi}}` trên hai đường nhỏ khác bản đồ `l02` (`..O.O..F`, `.O...O.F`).
+- **Bài "Khối mới"** (`content-authoring.md` §5.1): `w04-lesson-neu` trước `l01` (nếu: ✔ nhảy qua hố, ✘ bỏ qua khối nhảy, đứng yên), `w04-lesson-neu-khong` trước `l02`, `w04-lesson-co-duong` trước `l04` (có đường phía trước; Măng nhìn xuống thì bên trái của Măng là phía phải màn hình), `w04-lesson-chia-khoa` trước `l17` (đứng ở ô chìa khóa mới nhặt được, nhảy qua thì không; T20). Test `w04.test.ts` chạy từng demo và kiểm ô Măng dừng.
+- `l15`: gợi ý không chỉ `block:runner_jump` vì chương trình có 2 khối nhảy (luật 16); gợi ý "Bấm Từng bước ở bản đồ 2. Khối nào không hỏi?" chỉ nút Từng bước.
+- `w04-creative`: màn sáng tạo không có `variants` (schema), nên là **một** mê cung lớn nhiều ngã rẽ; dòng nhiệm vụ đổi thành "Thử chương trình biết nhìn của con nhé!".
+- **Mạch truyện sang W5:** W4 kết ở boss (mở lồng cứu Bông). Thẻ 1 của `w05-lesson` (P2-14) phải nhắc Bông đã được cứu (ghi ở §5.3).
+- **Chờ P2-11c web** (`roadmap/phase-2.md`, chặn merge): `w04-l17`, `w04-boss` (`config.goal.items`) và bài `w04-lesson-chia-khoa` (demo có chìa khóa). Cả thế giới cũng cần phần web của P2-11a (khối `nếu`, khối hỏi trong thanh khối và Blockly của màn chơi) mới chơi được.
+
 ### 5.3 Thế giới 5 — 🌊 Sông Chờ Đợi (chi tiết)
 
 **Câu chuyện:** Măng và Bông về làng, nhưng gió cuốn mất cầu. Không ai biết bờ sông dài bao nhiêu, bến đò ở đâu, có mấy hòn đá nổi. Chú Ếch dạy Măng **chờ**: "Cứ đi, **đến khi** thấy nước thì nhảy." Boss: Gà con lạc bên kia sông; Măng qua sông đón em rồi đưa em về nhà.
@@ -309,6 +331,8 @@ Chi tiết từng màn:
 **Ngộ nhận nhắm tới:** "Vòng lặp tự dừng"; "Điều kiện được hỏi ở cuối vòng" (hoặc "luôn chạy ít nhất 1 vòng"); "Vòng lặp dừng ngay khi điều kiện đúng, kể cả giữa vòng"; "Lặp 20 lần là đủ cho mọi đường".
 **Unplugged — "Đi đến khi chạm tường":** một bé bịt mắt (có bạn đi kèm) làm theo thẻ "lặp đến khi tay chạm tường: bước 1 bước". Đổi chỗ đứng xa/gần: cùng một thẻ dùng được mọi khoảng cách. Thẻ bẫy 1: "lặp đến khi chạm tường: vỗ tay" → bé vỗ mãi, cả nhóm hô "Vòng lặp không dừng!". Thẻ bẫy 2: "lặp đến khi chạm tường: bước 2 bước" khi chỉ còn 1 bước.
 **Bài giảng `w05-lesson` (6 thẻ):**
+> Ghi chú P2-13 (05/10/2026): thẻ 1 phải nối truyện W4, nhắc **Bông đã được cứu** (boss W4 mở lồng) rồi mới tới chuyện cầu bị cuốn, vd "Cứu được Bông rồi! Nhưng cầu về làng bị cuốn mất." Sửa khi soạn P2-14.
+
 1. "Cầu bị cuốn mất. Sông dài bao nhiêu? Không ai biết!"
 2. "Lặp đến khi: trước mỗi vòng Măng hỏi. ✔ thì dừng."
 3. `demo` runner `lặp đến khi phía trước có hố {đi}, nhảy, đi` trên `.....O.F`: "Bờ dài, Măng đi nhiều bước rồi nhảy."
