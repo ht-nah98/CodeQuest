@@ -24,6 +24,7 @@ Trạng thái: **Đề xuất** → **Chấp nhận** → (**Đã bị thay th�
 | [0016](0016-multi-map-levels.md) | Màn nhiều bản đồ (`variants`): một chương trình thắng mọi bản đồ | Chấp nhận |
 | [0017](0017-star-goals.md) | Mục tiêu sao (`starGoals`): chấm trên trạng thái cuối, đạt trên mọi bản đồ | Chấp nhận |
 | [0018](0018-conditional-search.md) | Khối điều kiện riêng, event `sense`, vét cạn `par` có điều kiện | Chấp nhận |
+| [0019](0019-mission-items.md) | Vật phẩm nhiệm vụ (`goal.items`: chìa khóa, đón bạn) là điều kiện thắng trong config | Chấp nhận |
 
 ## Mẫu
 ```markdown

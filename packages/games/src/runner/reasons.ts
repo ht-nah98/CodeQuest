@@ -6,5 +6,7 @@ export const RUNNER_REASONS = [
   'OFF_TRACK',
   'NOT_AT_GOAL',
   'MISSED_ITEMS',
+  'NEED_KEY',
+  'NEED_FRIEND',
 ] as const;
 export type RunnerReason = (typeof RUNNER_REASONS)[number];

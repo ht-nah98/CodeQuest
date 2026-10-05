@@ -242,6 +242,37 @@ describe('validateLevel', () => {
     ]);
   });
 
+  describe('mission items (P2-11c): rules 1 and 9', () => {
+    const cells = ['ground', 'ground', 'hole', 'ground', 'flag'];
+    const withKey = (at: number) => ({ cells, start: 0, goal: { items: [{ kind: 'key', at }] } });
+
+    it('passes when the solution stands on every item', () => {
+      expect(messages(level({ config: withKey(1) }))).toEqual([]);
+      expect(messages(level({ config: withKey(3) }))).toEqual([]);
+    });
+
+    it('rule 1: an item on a hole, the flag or the start cell; also in a variant', () => {
+      expect(messages(level({ config: withKey(2) }))[0]).toMatch(/^1 config\.goal\.items\.0\.at: /);
+      expect(messages(level({ config: withKey(4) }))[0]).toMatch(/^1 config\.goal\.items\.0\.at: /);
+      expect(messages(level({ config: withKey(0) }))[0]).toMatch(/^1 config\.goal\.items\.0\.at: /);
+      const variant = level({ variants: [withKey(2)] });
+      expect(messages(variant)[0]).toMatch(/^1 variants\.0\.goal\.items\.0\.at: /);
+    });
+
+    it('rule 9: a solution that flies over the key ends NEED_KEY on the flag', () => {
+      const hop = level({
+        config: {
+          cells: ['ground', 'ground', 'ground', 'ground', 'flag'],
+          start: 0,
+          goal: { items: [{ kind: 'key', at: 1 }] },
+        },
+        solution: programToWorkspace([jump, jump]),
+        par: 2,
+      });
+      expect(messages(hop)).toEqual([expect.stringMatching(/^9 .*NEED_KEY/)]);
+    });
+  });
+
   describe('rule 19: star goals', () => {
     const flat = ['ground', 'ground', 'ground', 'ground', 'flag'];
     const goals = [{ kind: 'collectAll' }];

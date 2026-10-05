@@ -1,14 +1,18 @@
 import type { ReasonCode, RunResult, StarGoal, StarGoalKind } from '@codequest/content-schema';
+import { MISSED_REASONS, needReason } from '../goalItems';
 import { cellKey, tileAt, type MazeState } from './state';
 
 /**
  * Called when the program ends without a stop. Reaching G with the goal met stops the run at
- * once, so here Măng is either elsewhere (NOT_AT_GOAL) or on G with bamboo left (MISSED_ITEMS).
+ * once, so here Măng is either elsewhere (NOT_AT_GOAL, checked first) or on G with a mission
+ * item left (NEED_KEY / NEED_FRIEND) or bamboo left (MISSED_ITEMS).
  */
 export function evaluateMaze(
   state: MazeState,
 ): { success: true } | { success: false; reasonCode: ReasonCode } {
   if (tileAt(state.map, state.pos) !== 'G') return { success: false, reasonCode: 'NOT_AT_GOAL' };
+  const need = needReason(state.items);
+  if (need !== null) return { success: false, reasonCode: need };
   if (state.collectAll && state.collected.size < state.bambooTotal) {
     return { success: false, reasonCode: 'MISSED_ITEMS' };
   }
@@ -28,7 +32,7 @@ export function mazePredictAnswer(
     case 'success':
       return 'win';
     case 'incomplete':
-      return `${outcome.reasonCode === 'MISSED_ITEMS' ? 'missed' : 'stop'}@${cellKey(state.pos)}`;
+      return `${MISSED_REASONS.has(outcome.reasonCode ?? '') ? 'missed' : 'stop'}@${cellKey(state.pos)}`;
     case 'crash':
       return `crash:${outcome.reasonCode ?? 'UNKNOWN'}@${cellKey(state.crashAt ?? state.pos)}`;
     default:

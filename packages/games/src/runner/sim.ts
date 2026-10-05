@@ -1,4 +1,5 @@
 import type { GameKindApi, SimContext } from '@codequest/engine';
+import { NEED_REASONS } from '../goalItems';
 import { RUNNER_AHEAD_KINDS, type RunnerAheadKind, type RunnerCell } from './config';
 import type { RunnerEvent, RunnerMove } from './events';
 import type { RunnerState } from './state';
@@ -39,8 +40,9 @@ function crashIfBlocked(ctx: RunnerContext, at: number, move: RunnerMove, blockI
 }
 
 /**
- * Măng has just arrived on `to`: a hole ends the run with FELL_IN_HOLE, a bamboo shoot is picked
- * up, and the flag ends the run (success, or MISSED_ITEMS while `collectAll` shoots remain).
+ * Măng has just arrived on `to`: a hole ends the run with FELL_IN_HOLE, a bamboo shoot or a
+ * mission item is picked up, and the flag ends the run: NEED_KEY / NEED_FRIEND while a mission
+ * item remains, else MISSED_ITEMS while `collectAll` shoots remain, else success.
  */
 function arrive(ctx: RunnerContext, to: number, blockId: string): void {
   const state = ctx.state;
@@ -56,7 +58,19 @@ function arrive(ctx: RunnerContext, to: number, blockId: string): void {
     state.bamboo.splice(shoot, 1);
     ctx.emit({ type: 'collect', at: to }, blockId);
   }
+  const item = state.items.findIndex((candidate) => candidate.at === to);
+  if (item !== -1) {
+    const [picked] = state.items.splice(item, 1);
+    if (picked !== undefined) ctx.emit({ type: 'collect', at: to, item: picked.kind }, blockId);
+  }
   if (cell === 'flag') {
+    const first = state.items[0];
+    if (first !== undefined) {
+      // Ascending like `bamboo`; `item` stays the first missing kind in config order.
+      const left = state.items.map((rest) => rest.at).sort((a, b) => a - b);
+      ctx.emit({ type: 'missed', at: to, left, item: first.kind }, blockId);
+      ctx.stop('incomplete', NEED_REASONS[first.kind]);
+    }
     if (state.collectAll && state.bamboo.length > 0) {
       ctx.emit({ type: 'missed', at: to, left: [...state.bamboo] }, blockId);
       ctx.stop('incomplete', 'MISSED_ITEMS');

@@ -1,3 +1,4 @@
+import type { GoalItemKind } from '../goalItems';
 import type { MazeDir } from './config';
 import type { MazeCell } from './state';
 
@@ -13,8 +14,11 @@ export type MazeEvent =
   | { type: 'turn'; blockId: string | null; from: MazeDir; to: MazeDir }
   /** Măng, standing on `at` and facing `dir`, walks into a wall or the map edge: crash HIT_WALL. */
   | { type: 'bump'; blockId: string | null; at: MazeCell; dir: MazeDir }
-  /** Măng picks up the bamboo shoot on `at`. Right after the `move` onto `at`. */
-  | { type: 'collect'; blockId: string | null; at: MazeCell }
+  /**
+   * Măng picks up what lies on `at`, right after the `move` onto it: a bamboo shoot, or with
+   * `item` a mission item (P2-11c: the key, or the friend who then follows her).
+   */
+  | { type: 'collect'; blockId: string | null; at: MazeCell; item?: GoalItemKind }
   /** Măng stands on the goal `at` with the goal met; the run ends with success. */
   | { type: 'win'; blockId: string | null; at: MazeCell };
 

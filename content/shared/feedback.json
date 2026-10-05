@@ -9,6 +9,8 @@
   "NOT_AT_GOAL": "Hết khối rồi mà Măng chưa tới nơi.",
   "HIT_WALL": "Ối, tường! Măng rẽ đúng chỗ, đúng phía chưa?",
   "MISSED_ITEMS": "Còn măng chưa nhặt kìa!",
+  "NEED_KEY": "Cần chìa khóa trước!",
+  "NEED_FRIEND": "Chưa đón bạn kìa!",
   "HIT_BRANCH": "Cộc! Cành thấp quá, Măng phải cúi.",
   "HIT_CRATE": "Thùng chắn đường. Đá nó đi!",
   "WRONG_ANSWER": "Chưa đúng. Cùng chạy thử để xem nhé!"

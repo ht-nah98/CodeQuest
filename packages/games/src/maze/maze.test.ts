@@ -427,6 +427,109 @@ describe('maze bamboo and collectAll', () => {
   });
 });
 
+describe('maze goal.items (P2-11c rescue / escort)', () => {
+  /** Key behind G, like BEHIND_GOAL: Măng passes over G, takes the key, comes back. */
+  const KEY_BEHIND: MazeConfig = {
+    map: ['#####', '#SG.#', '#####'],
+    startDir: 'E',
+    goal: { items: [{ kind: 'key', at: [1, 3] }] },
+  };
+  const back = [forward('f1'), forward('f2'), left('l1'), left('l2'), forward('f3')];
+
+  it('walks through G without the key, picks it up (collect with item), then wins on G', () => {
+    const outcome = run(KEY_BEHIND, back);
+    expect(outcome.result).toBe('success');
+    expect(actions(outcome)).toEqual([
+      { type: 'move', from: [1, 1], to: [1, 2], dir: 'E', blockId: 'f1' },
+      { type: 'move', from: [1, 2], to: [1, 3], dir: 'E', blockId: 'f2' },
+      { type: 'collect', at: [1, 3], item: 'key', blockId: 'f2' },
+      { type: 'turn', from: 'E', to: 'N', blockId: 'l1' },
+      { type: 'turn', from: 'N', to: 'W', blockId: 'l2' },
+      { type: 'move', from: [1, 3], to: [1, 2], dir: 'W', blockId: 'f3' },
+      { type: 'win', at: [1, 2], blockId: 'f3' },
+    ]);
+  });
+
+  it('ends NEED_KEY / NEED_FRIEND only when the program stops on G without the item', () => {
+    expect(run(KEY_BEHIND, [forward('f1')])).toMatchObject({
+      result: 'incomplete',
+      reasonCode: 'NEED_KEY',
+    });
+    const escort: MazeConfig = {
+      ...KEY_BEHIND,
+      goal: { items: [{ kind: 'friend', at: [1, 3] }] },
+    };
+    expect(run(escort, [forward('f1')]).reasonCode).toBe('NEED_FRIEND');
+  });
+
+  it('ends NOT_AT_GOAL off G, even with an item still missing', () => {
+    const map = ['######', '#SG..#', '######'];
+    const outcome = run({ map, startDir: 'E', goal: { items: [{ kind: 'key', at: [1, 4] }] } }, [
+      forward('f1'),
+      forward('f2'),
+    ]);
+    expect(outcome).toMatchObject({ result: 'incomplete', reasonCode: 'NOT_AT_GOAL' });
+  });
+
+  it('checks items before collectAll bamboo, and answers missed@ in predict', () => {
+    const config: MazeConfig = {
+      map: ['######', '#SGb.#', '######'],
+      startDir: 'E',
+      goal: { collectAll: true, items: [{ kind: 'key', at: [1, 4] }] },
+    };
+    const outcome = runLevel({
+      kind: maze,
+      level: level(config, {
+        mode: 'predict',
+        initialWorkspace: program([forward('f1')]),
+        predict: {
+          options: [
+            { key: 'win', label: 'Tới đích' },
+            { key: 'missed@1,2', label: 'Thiếu' },
+            { key: 'stop@1,1', label: 'Dừng' },
+          ],
+        },
+      }),
+      workspace: program([]),
+    });
+    expect(outcome).toMatchObject({ reasonCode: 'NEED_KEY', answerKey: 'missed@1,2' });
+  });
+
+  it.each<[string, unknown]>([
+    ['a wall', [0, 0]],
+    ['S', [1, 1]],
+    ['G', [1, 2]],
+    ['a bamboo cell', [1, 3]],
+    ['outside the map', [5, 5]],
+  ])('rejects an item on %s', (_, at) => {
+    const config = {
+      map: ['######', '#SGb.#', '######'],
+      startDir: 'E',
+      goal: { items: [{ kind: 'key', at }] },
+    };
+    expect(mazeConfigSchema.safeParse(config).success).toBe(false);
+  });
+
+  it('rejects two items on one cell and accepts distinct path cells', () => {
+    const map = ['######', '#SG..#', '######'];
+    const key = { kind: 'key', at: [1, 3] };
+    expect(
+      mazeConfigSchema.safeParse({
+        map,
+        startDir: 'E',
+        goal: { items: [key, { kind: 'friend', at: [1, 3] }] },
+      }).success,
+    ).toBe(false);
+    expect(
+      mazeConfigSchema.safeParse({
+        map,
+        startDir: 'E',
+        goal: { items: [key, { kind: 'friend', at: [1, 4] }] },
+      }).success,
+    ).toBe(true);
+  });
+});
+
 describe('maze sensors', () => {
   it('follows the corridor with "until at goal: if path ahead forward, else turn"', () => {
     const outcome = run({ map: L_MAP, startDir: 'E' }, [
@@ -592,7 +695,13 @@ describe('maze evaluate', () => {
 describe('maze definition', () => {
   it('is registered under its id', () => {
     expect(getGameKind('maze')).toBe(maze);
-    expect(maze.reasonCodes).toEqual(['HIT_WALL', 'NOT_AT_GOAL', 'MISSED_ITEMS']);
+    expect(maze.reasonCodes).toEqual([
+      'HIT_WALL',
+      'NOT_AT_GOAL',
+      'MISSED_ITEMS',
+      'NEED_KEY',
+      'NEED_FRIEND',
+    ]);
     expect(maze.blocks.map((spec) => spec.type)).toEqual([
       'maze_forward',
       'maze_turn_left',

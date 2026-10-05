@@ -1,7 +1,14 @@
+import type { GoalItemKind } from '../goalItems';
 import type { MazeConfig, MazeDir, MazeTile } from './config';
 
 /** A cell as `[row, column]`, row 0 at the top. Plain JSON, so events can carry it. */
 export type MazeCell = readonly [number, number];
+
+/** A mission item still on the map (P2-11c). */
+export interface MazeItem {
+  readonly kind: GoalItemKind;
+  readonly at: MazeCell;
+}
 
 /** Mutable state of one maze run. */
 export interface MazeState {
@@ -13,6 +20,8 @@ export interface MazeState {
   readonly collected: Set<string>;
   readonly bambooTotal: number;
   readonly collectAll: boolean;
+  /** `config.goal.items` not picked up yet, in config order: `G` only wins once empty. */
+  items: MazeItem[];
   /** Cell where Măng bumped into a wall, for `predictAnswer`; null while nothing crashed. */
   crashAt: MazeCell | null;
 }
@@ -40,6 +49,7 @@ export function createMazeState(config: MazeConfig): MazeState {
     collected: new Set(),
     bambooTotal,
     collectAll: config.goal?.collectAll === true,
+    items: (config.goal?.items ?? []).map(({ kind, at }) => ({ kind, at: [at[0], at[1]] })),
     crashAt: null,
   };
 }

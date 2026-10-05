@@ -36,6 +36,8 @@ Mỗi `reasonCode` có câu mặc định. **Nguồn duy nhất** là `content/s
 | `HIT_BRANCH` | Cộc! Cành thấp quá, Măng phải cúi. |
 | `HIT_CRATE` | Thùng chắn đường. Đá nó đi! |
 | `MISSED_ITEMS` | Còn măng chưa nhặt kìa! |
+| `NEED_KEY` | Cần chìa khóa trước! |
+| `NEED_FRIEND` | Chưa đón bạn kìa! |
 | `TIMEOUT` | Măng chóng mặt rồi, vòng lặp không dừng! |
 | `TOO_MANY_BLOCKS` | Nhiều khối quá. Thử dùng khối lặp xem? |
 | `WRONG_ANSWER` (predict) | Chưa đúng. Cùng chạy thử để xem nhé! |

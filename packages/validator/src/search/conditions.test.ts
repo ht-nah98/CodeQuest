@@ -7,7 +7,7 @@ import { describe, expect, it } from 'vitest';
 import { findFixes } from './fixes';
 import { formatProgram, programToWorkspace, type Condition, type Program } from './program';
 import { findShortestPrograms } from './shortest';
-import { FastSim, LOSS } from './sim';
+import { FastSim, LOSS, WIN } from './sim';
 
 type Cell = 'ground' | 'hole' | 'branch' | 'crate' | 'flag';
 
@@ -357,6 +357,115 @@ describe('findShortestPrograms with conditions (W4–W5)', SLOW, () => {
     const limited = findShortestPrograms({ ...jumps, maxInstances: { runner_jump: 1 } });
     expect(limited).toMatchObject({ minBlocks: 3, count: 1, mismatches: [] });
     expect(limited.examples.map(formatProgram)).toEqual(['repeat 2 [jump], walk']);
+  });
+});
+
+/** Mission items (P2-11c, ADR-0019): `config.goal.items` on one map. */
+const items = (...list: Array<{ kind: 'key' | 'friend'; at: number | [number, number] }>) => ({
+  goal: { items: list },
+});
+const key = (at: number | [number, number]) => ({ kind: 'key' as const, at });
+
+describe('findShortestPrograms with mission items (P2-11c, curriculum.md §5.2–§5.3)', SLOW, () => {
+  it('W4 l17 (rescue, 3 maps): min 5 (24 ways), every smallest program asks', () => {
+    const maps = [
+      track('.O..O.O...O.O.F', items(key(3), key(8))),
+      track('.O.O..O...O.F', items(key(4), key(7))),
+      track('...O.O.O.F', items(key(1))),
+    ];
+    const l17 = level('runner', maps, { toolbox: RUNNER_IF, maxBlocks: 5, par: 5, ...W4_LIMITS });
+    const result = findShortestPrograms(l17, { maxExamples: 100 });
+    expect(result).toMatchObject({ minBlocks: 5, count: 24, complete: true, mismatches: [] });
+    expect(result.examples.every(asks)).toBe(true);
+    expect(result.examples.map(formatProgram)).toContain(
+      'repeat 12 [if is_ahead(KIND=HOLE) [jump] else [walk]]',
+    );
+    // "Nhảy cóc" flies over the key on map 3 (and off the track's end): it loses.
+    const runner = getGameKind('runner');
+    if (runner === undefined) throw new Error('runner missing');
+    const sim = new FastSim(runner, l17);
+    const hop = sim.compile([{ repeat: 12, body: [{ block: 'runner_jump' }] }]);
+    expect(sim.run(sim.initial, hop ?? [])).toBe(LOSS);
+  });
+
+  it('W4 boss (rescue, 3 mazes): nothing ≤ 7 wins with the key; par 8; right-first loses', () => {
+    const mazes: Array<[string, [number, number]]> = [
+      ['#########/#S..#####/###.#####/###...###/###.#####/#G..#####/#########', [3, 5]],
+      ['########/#....G##/#.######/#.######/#...####/###.####/#S..####/########', [4, 2]],
+      ['#########/#S.######/##.....##/######.##/##G....##/#########', [2, 4]],
+    ];
+    const limits = { toolbox: MAZE_IF, maxBlocks: 9, par: 8, ...W4_LIMITS };
+    const boss = level(
+      'maze',
+      mazes.map(([rows, at]) => mazeMap(rows, 'E', items(key(at)))),
+      limits,
+    );
+    const result = findShortestPrograms(boss, { maxExamples: 100 });
+    expect(result).toMatchObject({ minBlocks: 8, count: 68, complete: true, mismatches: [] });
+    expect(result.examples.every(asks)).toBe(true);
+    expect(result.examples.map(formatProgram)).toContain(
+      'repeat 20 [if is_path(DIR=LEFT) [turn_left], if is_path(DIR=AHEAD) [forward] else [turn_right]]',
+    );
+    // Without the key the same maps have 429 eight-block wins, e.g. asking right first.
+    const keyless = level(
+      'maze',
+      mazes.map(([rows]) => mazeMap(rows)),
+      limits,
+    );
+    expect(findShortestPrograms(keyless)).toMatchObject({ minBlocks: 8, count: 429 });
+    const maze = getGameKind('maze');
+    if (maze === undefined) throw new Error('maze missing');
+    const path = (dir: string): Condition => ({ block: 'maze_is_path', fields: { DIR: dir } });
+    const rightFirst: Program = [
+      {
+        repeat: 20,
+        body: [
+          { if: path('RIGHT'), then: [{ block: 'maze_turn_right' }] },
+          {
+            if: path('AHEAD'),
+            then: [{ block: 'maze_forward' }],
+            else: [{ block: 'maze_turn_left' }],
+          },
+        ],
+      },
+    ];
+    const withKey = new FastSim(maze, boss);
+    expect(withKey.run(withKey.initial, withKey.compile(rightFirst) ?? [])).not.toBe(WIN);
+    const noKey = new FastSim(maze, keyless);
+    expect(noKey.run(noKey.initial, noKey.compile(rightFirst) ?? [])).toBe(WIN);
+  });
+
+  it('W5 boss (escort, 3 river maps): Gà con on the path changes nothing, 6 programs of 6', () => {
+    const friend = (at: number) => items({ kind: 'friend', at });
+    const result = findShortestPrograms(
+      level(
+        'runner',
+        [
+          track('...O..O.O...F', friend(4)),
+          track('..O.O.O.O.O..O.F', friend(7)),
+          track('....O...O.O.O.....O..O.O.O...O...O.O..F', friend(22)),
+        ],
+        {
+          toolbox: [
+            'runner_walk',
+            'runner_jump',
+            'cq_repeat_until',
+            'cq_if_else',
+            'runner_is_ahead',
+            'runner_at_goal',
+          ],
+          maxBlocks: 6,
+          par: 6,
+          maxInstances: { cq_repeat_until: 1 },
+          maxLoopDepth: 1,
+        },
+      ),
+      { maxExamples: 10 },
+    );
+    expect(result).toMatchObject({ minBlocks: 6, count: 6, complete: true, mismatches: [] });
+    expect(result.examples.map(formatProgram)).toContain(
+      'until at_goal [if is_ahead(KIND=HOLE) [jump] else [walk]]',
+    );
   });
 });
 

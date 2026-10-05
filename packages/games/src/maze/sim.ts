@@ -25,6 +25,7 @@ function isOpen(state: MazeState, cell: MazeCell): boolean {
 }
 
 function goalMet(state: MazeState): boolean {
+  if (state.items.length > 0) return false;
   return !state.collectAll || state.collected.size === state.bambooTotal;
 }
 
@@ -56,7 +57,13 @@ export function createMazeApi(ctx: MazeContext): GameKindApi {
         state.collected.add(cellKey(to));
         ctx.emit({ type: 'collect', at: to }, id);
       }
-      // Win at once, mid-program (like Blockly Games); with bamboo left, G is an ordinary cell.
+      const item = state.items.findIndex(({ at }) => at[0] === to[0] && at[1] === to[1]);
+      if (item !== -1) {
+        const [picked] = state.items.splice(item, 1);
+        if (picked !== undefined) ctx.emit({ type: 'collect', at: to, item: picked.kind }, id);
+      }
+      // Win at once, mid-program (like Blockly Games); with bamboo or a mission item left, G is
+      // an ordinary cell that Măng walks through (curriculum.md T17b).
       if (tile === 'G' && goalMet(state)) {
         ctx.emit({ type: 'win', at: to }, id);
         ctx.stop('success');

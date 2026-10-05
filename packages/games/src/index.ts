@@ -1,5 +1,8 @@
 export { getGameKind, gameKinds } from './registry';
 export { registerAllBlocks } from './registerAllBlocks';
+// Mission items (P2-11c): `config.goal.items` of runner and maze levels.
+export { GOAL_ITEM_KINDS, NEED_REASONS } from './goalItems';
+export type { GoalItemKind } from './goalItems';
 // Runner types and constants for the web stage; the definition itself is reached via the registry.
 export {
   RUNNER_AHEAD_KINDS,

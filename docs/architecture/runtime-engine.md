@@ -136,7 +136,7 @@ type MapOutcome<E> = Pick<RunOutcome<E>, 'result' | 'reasonCode' | 'events' | 's
 | result | Khi nào | Ví dụ reasonCode |
 |---|---|---|
 | `success` | `evaluate` trả thành công, hoặc `ctx.stop('success')` | — |
-| `incomplete` | Chương trình chạy hết nhưng `evaluate` báo chưa đạt, hoặc mô phỏng gọi `ctx.stop('incomplete', …)` (vd tới cờ khi còn măng) | `NOT_AT_GOAL`, `MISSED_ITEMS` |
+| `incomplete` | Chương trình chạy hết nhưng `evaluate` báo chưa đạt, hoặc mô phỏng gọi `ctx.stop('incomplete', …)` (vd tới cờ khi còn măng) | `NOT_AT_GOAL`, `MISSED_ITEMS`, `NEED_KEY`, `NEED_FRIEND` (P2-11c) |
 | `crash` | Mô phỏng dừng vì va chạm | `HIT_WALL`, `FELL_IN_HOLE`, `HIT_BRANCH`, `HIT_CRATE` |
 | `timeout` | Vượt `maxSteps` / `maxActions` | `TIMEOUT` |
 | `error` | Chương trình rỗng, quá số khối, ô điều kiện trống, lỗi nội bộ | `EMPTY_PROGRAM`, `TOO_MANY_BLOCKS`, `EMPTY_CONDITION`, `INTERNAL_ERROR` |

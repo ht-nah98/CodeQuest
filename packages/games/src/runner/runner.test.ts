@@ -304,6 +304,8 @@ describe('runner definition', () => {
       'OFF_TRACK',
       'NOT_AT_GOAL',
       'MISSED_ITEMS',
+      'NEED_KEY',
+      'NEED_FRIEND',
     ]);
     expect(runner.blocks.map((spec) => spec.type)).toEqual([
       'runner_walk',
@@ -363,7 +365,7 @@ interface TrackConfig {
   cells: RunnerCell[];
   start?: number;
   bamboo?: number[];
-  goal?: { collectAll?: boolean };
+  goal?: { collectAll?: boolean; items?: Array<{ kind: 'key' | 'friend'; at: number }> };
 }
 
 function runTrack(track: TrackConfig, chain: object[], mode: Level['mode'] = 'build') {
@@ -624,6 +626,129 @@ describe('runner rules: bamboo and goal.collectAll', () => {
   });
 });
 
+describe('runner rules: goal.items (P2-11c rescue / escort)', () => {
+  const cells: RunnerCell[] = ['ground', 'ground', 'branch', 'ground', 'ground', 'flag'];
+  const key = (at: number) => ({ kind: 'key' as const, at });
+  const friend = (at: number) => ({ kind: 'friend' as const, at });
+  const all = [walk('w1'), crouch('c1'), walk('w2'), walk('w3'), walk('w4')];
+
+  it('picks up items where Măng stops (collect with item) and wins once all are carried', () => {
+    const outcome = runTrack({ cells, goal: { items: [key(3), key(1)] } }, all);
+    expect(outcome.result).toBe('success');
+    expect(actions(outcome).filter((event) => event.type === 'collect')).toEqual([
+      { type: 'collect', at: 1, item: 'key', blockId: 'w1' },
+      { type: 'collect', at: 3, item: 'key', blockId: 'w2' },
+    ]);
+  });
+
+  it('ends NEED_KEY on the flag when a key was jumped over (missed with item and left)', () => {
+    const outcome = runTrack({ cells, goal: { items: [key(3), key(1)] } }, [
+      walk('w1'),
+      crouch('c1'),
+      jump('j1'),
+      walk('w2'),
+    ]);
+    expect(outcome).toMatchObject({ result: 'incomplete', reasonCode: 'NEED_KEY' });
+    expect(actions(outcome).at(-1)).toEqual({
+      type: 'missed',
+      at: 5,
+      left: [3],
+      item: 'key',
+      blockId: 'w2',
+    });
+  });
+
+  it('ends NEED_FRIEND for a friend left behind; the first missing item names the reason', () => {
+    const skip = [walk('w1'), crouch('c1'), jump('j1'), walk('w2')];
+    expect(runTrack({ cells, goal: { items: [friend(3)] } }, skip).reasonCode).toBe('NEED_FRIEND');
+    const both = runTrack(
+      {
+        cells: ['ground', 'ground', 'ground', 'ground', 'flag'],
+        goal: { items: [friend(1), key(3)] },
+      },
+      [jump('j1'), jump('j2')],
+    );
+    expect(both).toMatchObject({ result: 'incomplete', reasonCode: 'NEED_FRIEND' });
+    expect(actions(both).at(-1)).toMatchObject({ type: 'missed', left: [1, 3], item: 'friend' });
+    // `left` ascending like bamboo; `item` is still the first missing one in config order.
+    const reversed = runTrack(
+      {
+        cells: ['ground', 'ground', 'ground', 'ground', 'flag'],
+        goal: { items: [key(3), friend(1)] },
+      },
+      [jump('j1'), jump('j2')],
+    );
+    expect(reversed.reasonCode).toBe('NEED_KEY');
+    expect(actions(reversed).at(-1)).toMatchObject({ type: 'missed', left: [1, 3], item: 'key' });
+  });
+
+  it('checks items before collectAll bamboo on the flag', () => {
+    const outcome = runTrack({ cells, bamboo: [4], goal: { collectAll: true, items: [key(3)] } }, [
+      walk('w1'),
+      crouch('c1'),
+      jump('j1'),
+      walk('w2'),
+    ]);
+    expect(outcome.reasonCode).toBe('NEED_KEY');
+  });
+
+  it('ends NOT_AT_GOAL (not NEED_KEY) when the program stops before the flag', () => {
+    const outcome = runTrack({ cells, goal: { items: [key(3)] } }, [walk('w1')]);
+    expect(outcome).toMatchObject({ result: 'incomplete', reasonCode: 'NOT_AT_GOAL' });
+  });
+
+  it('answers missed@<flag> for NEED_KEY in mode predict', () => {
+    const outcome = runTrack(
+      { cells, goal: { items: [key(3)] } },
+      [walk('w1'), crouch('c1'), jump('j1'), walk('w2')],
+      'predict',
+    );
+    expect(outcome.answerKey).toBe('missed@5');
+  });
+
+  it('evaluates a flag state with an item left as NEED_KEY / NEED_FRIEND', () => {
+    for (const [kind, reason] of [
+      ['key', 'NEED_KEY'],
+      ['friend', 'NEED_FRIEND'],
+    ] as const) {
+      const config = runnerConfigSchema.parse({
+        cells: ['ground', 'ground', 'flag'],
+        start: 0,
+        goal: { items: [{ kind, at: 1 }] },
+      });
+      const state = createRunnerState(config);
+      state.pos = 2;
+      expect(runner.evaluate(state, config)).toEqual({ success: false, reasonCode: reason });
+      state.items = [];
+      expect(runner.evaluate(state, config)).toEqual({ success: true });
+    }
+  });
+
+  it.each<[string, object]>([
+    ['a hole', { items: [key(2)] }],
+    ['the flag', { items: [key(4)] }],
+    ['the start', { items: [key(0)] }],
+    ['off the track', { items: [key(9)] }],
+    ['a bamboo cell', { items: [key(1)] }],
+    ['another item', { items: [key(3), friend(3)] }],
+    ['an empty list', { items: [] }],
+    ['an unknown kind', { items: [{ kind: 'gem', at: 3 }] }],
+  ])('rejects an item on %s', (_, goal) => {
+    const config = {
+      cells: ['ground', 'ground', 'hole', 'ground', 'flag'],
+      start: 0,
+      bamboo: [1],
+      goal,
+    };
+    expect(runnerConfigSchema.safeParse(config).success).toBe(false);
+  });
+
+  it('accepts items on ground and branch cells ahead of start', () => {
+    const config = { cells, start: 0, goal: { items: [key(2), friend(4)] } };
+    expect(runnerConfigSchema.safeParse(config).success).toBe(true);
+  });
+});
+
 describe('runner sensor isAhead', () => {
   const kinds = ['HOLE', 'BRANCH', 'CRATE', 'CLEAR'] as const;
   const truth: Record<RunnerCell, (typeof kinds)[number] | null> = {
@@ -641,6 +766,7 @@ describe('runner sensor isAhead', () => {
       pos,
       bamboo: [],
       collectAll: false,
+      items: [],
       crashAt: null,
     };
     const api = runner.createApi({

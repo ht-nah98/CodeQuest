@@ -1,10 +1,11 @@
 import { z } from 'zod';
+import { GoalItemKindSchema } from '../goalItems';
 
 /** Cells of the track (product/game-kinds.md §3.1). */
 export const RUNNER_CELLS = ['ground', 'hole', 'branch', 'crate', 'flag'] as const;
 export type RunnerCell = (typeof RUNNER_CELLS)[number];
 
-/** Cells a bamboo shoot may sit on: the ones Măng can stop on besides the flag. */
+/** Cells a bamboo shoot or a mission item may sit on: the ones Măng can stop on besides the flag. */
 const BAMBOO_CELLS: ReadonlySet<RunnerCell> = new Set(['ground', 'branch']);
 
 /** Values of the `runner_is_ahead` dropdown (product/game-kinds.md §3.1). */
@@ -27,6 +28,15 @@ export const runnerConfigSchema = z
       .strictObject({
         /** Reaching the flag only wins once every bamboo shoot is picked up. Default false. */
         collectAll: z.boolean().optional(),
+        /**
+         * Mission items (P2-11c, ADR-0019): each must be picked up (Măng stops on `at`; jumping
+         * over does not count) before the flag wins. Reaching the flag without one ends the run
+         * with incomplete NEED_KEY / NEED_FRIEND.
+         */
+        items: z
+          .array(z.strictObject({ kind: GoalItemKindSchema, at: z.number().int().nonnegative() }))
+          .min(1)
+          .optional(),
       })
       .optional(),
   })
@@ -68,6 +78,22 @@ export const runnerConfigSchema = z
       seen.add(at);
       if (problem !== undefined)
         ctx.addIssue({ code: 'custom', path: ['bamboo', index], message: problem });
+    }
+    const taken = new Set<number>();
+    for (const [index, item] of (config.goal?.items ?? []).entries()) {
+      const cell = config.cells[item.at];
+      let problem: string | undefined;
+      if (cell === undefined || !BAMBOO_CELLS.has(cell)) {
+        problem = 'item must be on a "ground" or "branch" cell';
+      } else if (item.at <= config.start) {
+        problem = 'item must be ahead of start';
+      } else if (taken.has(item.at) || seen.has(item.at)) {
+        problem = 'item must not share its cell with another item or a bamboo shoot';
+      }
+      taken.add(item.at);
+      if (problem !== undefined) {
+        ctx.addIssue({ code: 'custom', path: ['goal', 'items', index, 'at'], message: problem });
+      }
     }
   });
 export type RunnerConfig = z.infer<typeof runnerConfigSchema>;

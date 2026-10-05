@@ -42,6 +42,7 @@ Dùng **đúng** các từ này. Cột "Trong code" là tên dùng cho type, bi�
 | Bản đồ 1 · 2 · 3 | `level.variants` (P2-12) | Màn nhiều bản đồ: một chương trình phải thắng mọi bản đồ |
 | Nhiệm vụ | `level.mission` (P2-11c) | Câu ≤ 12 chữ nói Măng đang làm gì cho ai (vd "Lấy chìa khóa, mở lồng cứu Bông!"). Chỉ để tạo động lực, không đổi luật. Từ Thế giới 3. `content:check` luật 5 đếm chữ |
 | Hình đích | `level.goalSprite` (P2-11c): `flag` cờ · `machine` máy · `exit` cửa ra · `home` nhà · `footprints` dấu chân · `friend` bạn · `cage` lồng · `dock` bến đò | Hình vẽ ở ô đích, chỉ runner và maze. Chỉ để trang trí |
+| Chìa khóa · Đón bạn (vật phẩm nhiệm vụ) | `config.goal.items` (P2-11c, ADR-0019): `{ kind: 'key' \| 'friend', at }`; màn `rescue` (chìa khóa → lồng), `escort` (đón bạn → về nhà); lý do `NEED_KEY` "Cần chìa khóa trước!", `NEED_FRIEND` "Chưa đón bạn kìa!" | Măng phải **đứng ở** ô vật phẩm (nhảy qua không tính) trước khi tới đích. Khác mục tiêu ⭐: thiếu vật phẩm là **chưa thắng**. Chỉ runner và maze |
 | Mục tiêu ⭐ (mục tiêu sao) | `level.starGoals` (P2-21), loại `collectAll` "nhặt đủ măng" | Mục tiêu thêm của màn build/bughunt, hiện ở thẻ "Mục tiêu ⭐": **không** quyết định thắng, chỉ quyết định ⭐⭐/⭐⭐⭐. Màn nhiều bản đồ: phải đạt trên mọi bản đồ. Luật: `product/rewards-economy.md` §1 |
 | Sự kiện | `GameEvent` | Một hành động mô phỏng ghi vào log (vd `{type:'walk', blockId, from, to}`) |
 | Nhật ký chạy | `eventLog` | Danh sách sự kiện của một lượt chạy |

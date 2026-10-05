@@ -64,7 +64,10 @@ interface RunnerConfig {
   cells: RunnerCell[];          // 3–40 ô; đúng 1 'flag' và nó phải là ô CUỐI
   start: number;                // chỉ số ô 'ground'
   bamboo?: number[];            // vị trí măng: ô 'ground' hoặc 'branch', nằm SAU start, không trùng; nhặt tự động khi Măng dừng ở ô đó
-  goal?: { collectAll?: boolean };   // mặc định false; collectAll: true thì bamboo phải có ≥ 1 măng
+  goal?: {
+    collectAll?: boolean;       // mặc định false; collectAll: true thì bamboo phải có ≥ 1 măng
+    items?: { kind: 'key' | 'friend'; at: number }[];  // vật phẩm nhiệm vụ (P2-11c, ADR-0019): ô 'ground'/'branch' SAU start, không trùng nhau, không trùng măng
+  };
 }
 ```
 - `hole` = hố; `branch` = cành tre thấp (ô đi qua được nếu **cúi**); `crate` = thùng gỗ (phải **đá** đổ trước); `flag` = cờ đích.
@@ -91,15 +94,16 @@ interface RunnerConfig {
 
 - **Nhặt măng:** mỗi khi Măng dừng ở một ô có măng chưa nhặt → emit `collect`. Bay qua (nhảy qua) ô có măng thì **không** nhặt.
 - **Va chạm** (`HIT_BRANCH`/`HIT_CRATE`): Măng bật lại, **vẫn đứng ở ô p**; không emit `walk`/`crouch`/`jump` trước `bump`. Khi nhảy, xét ô bay qua trước rồi mới tới ô tiếp đất.
-- **Tới cờ:** ngay khi Măng dừng ở ô `flag`, lượt chạy **kết thúc**: nếu `goal.collectAll` và còn măng chưa nhặt → emit `missed` (thay cho `win`), `incomplete` / `MISSED_ITEMS`; ngược lại → emit `win`, `success`. Vì cờ luôn là ô cuối, Măng không bao giờ đi quá đường.
+- **Vật phẩm nhiệm vụ** (`goal.items`, P2-11c; `rescue` = chìa khóa `key` rồi tới lồng, `escort` = đón bạn `friend` rồi về nhà; curriculum.md §5.0, T17): nhặt như măng, khi Măng **dừng** ở ô đó (emit `collect{at, item}`); nhảy qua thì không. Thứ tự nhặt tùy ý, nhưng phải đủ **trước** khi tới cờ.
+- **Tới cờ:** ngay khi Măng dừng ở ô `flag`, lượt chạy **kết thúc**: nếu còn vật phẩm nhiệm vụ → emit `missed{at, left, item}` (thay cho `win`), `incomplete` / `NEED_KEY` hoặc `NEED_FRIEND` (theo vật phẩm còn thiếu đầu tiên trong config); nếu `goal.collectAll` và còn măng chưa nhặt → emit `missed` (thay cho `win`), `incomplete` / `MISSED_ITEMS`; ngược lại → emit `win`, `success`. Vì cờ luôn là ô cuối, Măng không bao giờ đi quá đường.
 - **Hết chương trình** mà chưa tới cờ → `incomplete` / `NOT_AT_GOAL`.
 - **Cảm biến** `isAhead(kind)` nhìn ô p+1: `HOLE`/`BRANCH`/`CRATE` đúng khi ô đó đúng loại; `CLEAR` đúng khi ô đó là `ground` hoặc `flag`. Ô p+1 nằm ngoài đường → mọi giá trị đều `false`. `atGoal` đúng khi ô p là cờ (không bao giờ trong lúc chạy). Mỗi lần cảm biến được hỏi, engine ghi event `sense{blockId, value}` (§2.1).
 
-**Event** (`events.ts`, mọi event có `blockId`): `walk{from,to}` · `crouch{from,to}` · `jump{from,to}` · `kick{at,hit}` · `collect{at}` · `fall{at}` · `bump{from,at,obstacle:'branch'|'crate',move:'walk'|'crouch'|'jump'}` · `offTrack{from}` · `win{at}` · `missed{at,left:number[]}` (`left` = các ô còn măng). Thứ tự, ý nghĩa từng trường: `architecture/game-kind-sdk.md` §1.1.
+**Event** (`events.ts`, mọi event có `blockId`): `walk{from,to}` · `crouch{from,to}` · `jump{from,to}` · `kick{at,hit}` · `collect{at, item?}` (`item` = vật phẩm nhiệm vụ) · `fall{at}` · `bump{from,at,obstacle:'branch'|'crate',move:'walk'|'crouch'|'jump'}` · `offTrack{from}` · `win{at}` · `missed{at,left:number[], item?}` (`left` = các ô còn măng, hoặc còn vật phẩm khi có `item`; luôn tăng dần). Thứ tự, ý nghĩa từng trường: `architecture/game-kind-sdk.md` §1.1.
 
-**reasonCodes:** `FELL_IN_HOLE`, `HIT_BRANCH`, `HIT_CRATE`, `OFF_TRACK`, `NOT_AT_GOAL`, `MISSED_ITEMS`.
+**reasonCodes:** `FELL_IN_HOLE`, `HIT_BRANCH`, `HIT_CRATE`, `OFF_TRACK`, `NOT_AT_GOAL`, `MISSED_ITEMS`, `NEED_KEY`, `NEED_FRIEND`.
 
-**`predictAnswer`:** `win` · `stop@<ô>` (hết chương trình ở ô đó) · `missed@<ô cờ>` · `crash:<REASON>@<ô>` (ô nơi xảy ra va chạm) · `timeout` (vòng lặp không dừng, T9). Ví dụ `crash:FELL_IN_HOLE@3`.
+**`predictAnswer`:** `win` · `stop@<ô>` (hết chương trình ở ô đó) · `missed@<ô cờ>` (thiếu măng hoặc vật phẩm) · `crash:<REASON>@<ô>` (ô nơi xảy ra va chạm) · `timeout` (vòng lặp không dừng, T9). Ví dụ `crash:FELL_IN_HOLE@3`.
 
 **Sprite:** đã đủ (đi, nhảy, cúi, đá, ăn mừng).
 
@@ -114,7 +118,10 @@ interface MazeConfig {
                                  // '#' tường · '.' đường · 'S' xuất phát · 'G' đích · 'b' đường có măng
                                  // đúng 1 'S', đúng 1 'G'
   startDir: 'N' | 'E' | 'S' | 'W';
-  goal?: { collectAll?: boolean };
+  goal?: {
+    collectAll?: boolean;
+    items?: { kind: 'key' | 'friend'; at: [number, number] }[];  // vật phẩm nhiệm vụ (P2-11c): trên ô '.', không trùng nhau
+  };
 }
 ```
 Tọa độ ô viết `r,c` (hàng, cột, từ 0, hàng 0 ở trên cùng).
@@ -130,14 +137,15 @@ Tọa độ ô viết `r,c` (hàng, cột, từ 0, hàng 0 ở trên cùng).
 **Luật**
 | Hành động | Kết quả |
 |---|---|
-| tiến vào `.`, `S`, `b`, `G` | Sang ô đó (dừng ở ô có măng → `collect`) |
+| tiến vào `.`, `S`, `b`, `G` | Sang ô đó (dừng ở ô có măng → `collect`; ô có vật phẩm nhiệm vụ → `collect{item}`) |
 | tiến vào `#` hoặc ra ngoài bản đồ | emit `bump` → crash `HIT_WALL` |
 | rẽ | đổi hướng, emit `turn` |
-| **Tới `G` giữa chương trình** | Nếu đã đủ điều kiện (không `collectAll`, hoặc đã nhặt hết) → `success` **ngay lập tức** (giống Blockly Games). Nếu chưa nhặt hết → đi tiếp như ô thường |
-| Hết chương trình | Đứng ở `G` nhưng còn măng → `incomplete` / `MISSED_ITEMS`; không ở `G` → `incomplete` / `NOT_AT_GOAL` |
+| **Tới `G` giữa chương trình** | Nếu đã đủ điều kiện (đã nhặt mọi vật phẩm `goal.items`; không `collectAll`, hoặc đã nhặt hết măng) → `success` **ngay lập tức** (giống Blockly Games). Nếu chưa đủ → đi tiếp như ô thường |
+| Hết chương trình | Không ở `G` → `incomplete` / `NOT_AT_GOAL` (xét trước). Đứng ở `G` mà còn vật phẩm → `NEED_KEY` / `NEED_FRIEND`; còn măng → `MISSED_ITEMS` |
 
-**Event:** `move{from:[r,c],to:[r,c],dir}` · `turn{from,to}` · `bump{at:[r,c],dir}` · `collect{at}` · `win{at}`.
-**reasonCodes:** `HIT_WALL`, `NOT_AT_GOAL`, `MISSED_ITEMS`.
+**Event:** `move{from:[r,c],to:[r,c],dir}` · `turn{from,to}` · `bump{at:[r,c],dir}` · `collect{at, item?}` · `win{at}`.
+**reasonCodes:** `HIT_WALL`, `NOT_AT_GOAL`, `MISSED_ITEMS`, `NEED_KEY`, `NEED_FRIEND`.
+**Vật phẩm nhiệm vụ và "lặp đến khi đã tới đích":** Măng đi xuyên `G` khi còn thiếu vật phẩm, mà `đã tới đích?` đúng khi đứng ở `G` bất kể vật phẩm; nên không soạn màn mê cung có `goal.items` (hoặc `goal.collectAll`) cùng `lặp đến khi đã tới đích` (curriculum.md §5.5 D9).
 **`predictAnswer`:** `win` · `stop@r,c` · `missed@r,c` · `crash:HIT_WALL@r,c` (ô Măng đang đứng khi đâm) · `timeout` (vòng lặp không dừng, T9). Cảm biến ghi `sense` như runner (§2.1).
 
 **Thiết kế màn:** đường đi kéo dài quá điểm xuất phát và đích (bài học từ Blockly Games: mục tiêu là tới đích, không phải đi hết mọi ô).

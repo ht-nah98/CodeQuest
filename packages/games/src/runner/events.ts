@@ -1,3 +1,5 @@
+import type { GoalItemKind } from '../goalItems';
+
 /** Obstacles Măng can bump into. */
 export type RunnerObstacle = 'branch' | 'crate';
 
@@ -18,8 +20,11 @@ export type RunnerEvent =
   | { type: 'jump'; blockId: string | null; from: number; to: number }
   /** Măng kicks cell `at` (= her cell + 1) without moving; `hit`: a crate fell and `at` is ground now. */
   | { type: 'kick'; blockId: string | null; at: number; hit: boolean }
-  /** Măng picks up the bamboo shoot on `at`, the cell she just stopped on. */
-  | { type: 'collect'; blockId: string | null; at: number }
+  /**
+   * Măng picks up what lies on `at`, the cell she just stopped on: a bamboo shoot, or with
+   * `item` a mission item (P2-11c: the key, or the friend who then follows her).
+   */
+  | { type: 'collect'; blockId: string | null; at: number; item?: GoalItemKind }
   /** Măng drops into the hole at `at`; the run ends with crash FELL_IN_HOLE. */
   | { type: 'fall'; blockId: string | null; at: number }
   /**
@@ -39,9 +44,11 @@ export type RunnerEvent =
   /** Măng stands on the flag at `at`; the run ends with success. */
   | { type: 'win'; blockId: string | null; at: number }
   /**
-   * Măng stands on the flag at `at` but `goal.collectAll` and the shoots on `left` remain;
-   * the run ends with incomplete MISSED_ITEMS.
+   * Măng stands on the flag at `at` but something is missing; the run ends incomplete. Without
+   * `item`: `goal.collectAll` and the shoots on `left` remain (MISSED_ITEMS). With `item`
+   * (P2-11c): mission items remain on `left` (all kinds, config order) and `item` is the kind of
+   * the first one, which names the reason (NEED_KEY / NEED_FRIEND).
    */
-  | { type: 'missed'; blockId: string | null; at: number; left: number[] };
+  | { type: 'missed'; blockId: string | null; at: number; left: number[]; item?: GoalItemKind };
 
 export type RunnerEventType = RunnerEvent['type'];
