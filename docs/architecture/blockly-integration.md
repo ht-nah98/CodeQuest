@@ -90,6 +90,8 @@ Vì vậy:
 - Mode `parsons` (P1-06): **không** gắn `Events.disableOrphans` (lúc đầu gần như mọi khối đều rời, sọc xám làm cả bài khó đọc). Thay vào đó khối đứng đầu một chồng rời có class `cq-loose` (viền nét đứt màu mực, `opacity: 0.88`, `blockly.css`), cập nhật sau mỗi event không phải UI. Engine vẫn bỏ qua khối rời khi sinh code. Mọi khối `setDeletable(false)` khi nạp (Blockly chỉ copy/nhân bản khối xóa được), không có thùng rác.
 - Mode `predict`: không có thùng rác (workspace chỉ đọc, §2).
 - Nhóm `sensor` có nhãn "CÂU HỎI" (với bé gọi khối hỏi là câu hỏi, không nói cảm biến: `glossary.md` "Điều kiện"); `logic` là "ĐIỀU KIỆN" (`cq_if`, `cq_if_else`), `cq_repeat_until` ở nhóm "LẶP".
+- Cỡ khối trong flyout cố định `FLYOUT_SCALE = 0.8` (`BlocklyWorkspace.tsx`, ghi đè `flyout.getFlyoutScale()`; mặc định Blockly bám zoom của workspace 1.1). Toolbox Thế giới 4 (di chuyển + lặp + nếu + câu hỏi) nhờ đó vừa cột ở cửa sổ ~1920×950 và chỉ cuộn ngắn ở 1280×720; nút zoom chương trình không làm flyout đổi cỡ.
+- Cuộn flyout: bánh xe trên khối/nền, kéo nền, kéo thanh trượt. Bánh xe đặt trên **thanh trượt** (hoặc thanh trượt rỗng của flyout thùng rác nằm ở mép trái) bị SVG thanh trượt nuốt mất; `forwardScrollbarWheel` chuyển nó sang flyout. Test: `e2e/flyout-scroll.spec.ts`.
 - Nhãn nhóm là `{ kind: 'label', 'web-class': 'cq-flyout-label' }`, kiểu chữ VT323 22px trong `blockly.css`. Blockly đo nhãn bằng style đã tính, nên phải chờ font (§2).
 
 ## 7. Highlight khi phát lại

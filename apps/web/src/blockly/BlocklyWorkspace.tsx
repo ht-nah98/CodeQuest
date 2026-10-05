@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import {
+  browserEvents,
   Events,
+  Flyout,
   inject,
   KeyboardMover,
   keyboardNavigationController,
@@ -101,6 +103,38 @@ export function loadInitialWorkspace(workspace: WorkspaceSvg, level: BlocklyLeve
   workspace.clearUndo();
 }
 
+/**
+ * Scale of the flyout's blocks. Blockly ties it to the workspace zoom (start 1.1), which made the
+ * World 4 toolbox (move, loop, if + question groups) ~900 px tall; a fixed 0.8 fits it on a
+ * 1920x950 window and shortens the scroll on laptops, still readable for a child. Not tied to
+ * the zoom buttons either, so zooming the program never reflows the toolbox.
+ */
+export const FLYOUT_SCALE = 0.8;
+
+/**
+ * Wheel turns over a flyout scrollbar (its thumb, track, or the zero-height trashcan-flyout
+ * scrollbar Blockly leaves on the flyout's left edge) are swallowed by the scrollbar's own SVG:
+ * only the flyout's blocks and background handle the wheel. Forward them to the flyout.
+ * Returns the cleanup.
+ */
+function forwardScrollbarWheel(workspace: WorkspaceSvg): () => void {
+  const target = workspace.getInjectionDiv();
+  const onWheel = (event: WheelEvent) => {
+    if (!(event.target instanceof Element) || !event.target.closest('.blocklyFlyoutScrollbar')) {
+      return;
+    }
+    const flyoutWorkspace = workspace.getFlyout()?.getWorkspace();
+    if (!flyoutWorkspace || event.ctrlKey) return;
+    event.preventDefault();
+    const delta = browserEvents.getScrollDeltaPixels(event);
+    flyoutWorkspace.scroll(flyoutWorkspace.scrollX - delta.x, flyoutWorkspace.scrollY - delta.y);
+  };
+  target.addEventListener('wheel', onWheel, { passive: false });
+  return () => {
+    target.removeEventListener('wheel', onWheel);
+  };
+}
+
 /** Smallest zoom `fitProgramWidth` goes down to (the workspace's own `minScale`). */
 const FIT_MIN_SCALE = 0.7;
 /** Room kept left and right of the program when it is fitted, in px. */
@@ -198,6 +232,13 @@ function mountWorkspace(
     readOnly: level.mode === 'predict',
   });
 
+  const flyout = workspace.getFlyout();
+  if (flyout instanceof Flyout) {
+    flyout.getFlyoutScale = () => FLYOUT_SCALE;
+    flyout.reflow();
+  }
+  const unforwardWheel = forwardScrollbarWheel(workspace);
+
   const getState = (): WorkspaceState => {
     const json = serialization.workspaces.save(workspace) as WorkspaceJson;
     return {
@@ -270,6 +311,7 @@ function mountWorkspace(
 
   return () => {
     resizeObserver.disconnect();
+    unforwardWheel();
     unguard();
     // A keyboard move left open would keep its dragger and shortcuts on a dead workspace.
     if (KeyboardMover.mover.isMoving()) KeyboardMover.mover.abortMove();
