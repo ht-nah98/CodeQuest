@@ -7,7 +7,8 @@
   "story": "Phù thủy gió làm lệch khối trong máy của cả làng. Măng giúp bác Cú sửa từng máy.",
   "theme": {
     "tileset": "/tiles/ground.png",
-    "palette": "day"
+    "palette": "day",
+    "scene": "xuong"
   },
   "lessonIds": ["w03-lesson"],
   "levelIds": [

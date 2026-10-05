@@ -1,10 +1,11 @@
 import type { ReactNode } from 'react';
-import type { GoalSprite } from '@codequest/content-schema';
+import type { GoalSprite, SceneTheme } from '@codequest/content-schema';
 import type { GoalItemKind, MazeCell, MazeConfig, RunnerCell } from '@codequest/games';
 import sheetJson from 'virtual:panda-sheet';
 import { BLOCK_COLORS, UI_COLORS } from '../ui/tokens';
 import { shade } from './colors';
 import { type GoalArt, goalArt, goalArtFor, goalRuns, ITEM_ART } from './goalArt';
+import { groundTileUrl, mazeTileUrl } from './sceneSvg';
 
 // SVG pieces shared by the static pictures of a level (stage-rendering.md §4): the predict
 // answer cards (AnswerPicture), the runner's full-track strip (TrackStrip) and the big
@@ -175,9 +176,12 @@ export function TrackCells({
   seam = 1.5,
   goalSprite,
   goalOpen = false,
+  theme,
 }: {
   /** Every mission item is picked up (the cage shows open). */
   goalOpen?: boolean;
+  /** The world's scenery (P2-23): its ground tile; absent = Làng Tre's Kenney grass. */
+  theme?: SceneTheme | undefined;
   cells: readonly RunnerCell[];
   bamboo: readonly number[];
   /** Mission items still on the track (P2-11c). */
@@ -190,6 +194,7 @@ export function TrackCells({
   const C = TRACK_CELL;
   const SKY = TRACK_SKY;
   const GRASS = TRACK_GRASS;
+  const groundHref = groundTileUrl(theme) ?? tile('ground');
   const parts: ReactNode[] = [];
   cells.forEach((kind, i) => {
     const x = i * C;
@@ -211,7 +216,7 @@ export function TrackCells({
       parts.push(
         <image
           key={`c${key}`}
-          href={tile('ground')}
+          href={groundHref}
           x={x}
           y={SKY}
           width={C}
@@ -388,9 +393,12 @@ export function MazeBoard({
   items = config.goal?.items ?? [],
   goalSprite,
   goalOpen = false,
+  theme,
 }: {
   /** Every mission item is picked up (the cage shows open). */
   goalOpen?: boolean;
+  /** The world's scenery (P2-23): its wall and floor tiles; absent = Làng Tre's bamboo. */
+  theme?: SceneTheme | undefined;
   config: MazeConfig;
   bamboo?: readonly MazeCell[];
   /** Mission items still on the map (P2-11c); default every item of the config. */
@@ -401,12 +409,18 @@ export function MazeBoard({
   const M = MAZE_CELL;
   const { map } = config;
   const shoots = bamboo?.map(([r, c]) => `${String(r)},${String(c)}`);
+  const wallHref = mazeTileUrl(theme, 'wall');
+  const floorHref = mazeTileUrl(theme, 'floor');
   const cells: ReactNode[] = [];
   map.forEach((row, r) => {
     Array.from(row).forEach((ch, c) => {
       const x = c * M;
       const y = r * M;
       const key = `${String(r)},${String(c)}`;
+      if (ch === '#' && wallHref !== null) {
+        cells.push(<image key={key} href={wallHref} x={x} y={y} width={M} height={M} />);
+        return;
+      }
       if (ch === '#') {
         cells.push(
           <g key={key}>
@@ -418,16 +432,20 @@ export function MazeBoard({
         return;
       }
       cells.push(
-        <rect
-          key={key}
-          x={x}
-          y={y}
-          width={M}
-          height={M}
-          fill={UI_COLORS.paper2}
-          stroke={shade(UI_COLORS.paper2, 0.85)}
-          strokeWidth={0.5}
-        />,
+        floorHref !== null ? (
+          <image key={key} href={floorHref} x={x} y={y} width={M} height={M} />
+        ) : (
+          <rect
+            key={key}
+            x={x}
+            y={y}
+            width={M}
+            height={M}
+            fill={UI_COLORS.paper2}
+            stroke={shade(UI_COLORS.paper2, 0.85)}
+            strokeWidth={0.5}
+          />
+        ),
       );
       if (shoots ? shoots.includes(key) : ch === 'b') {
         cells.push(

@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import * as Blockly from 'blockly';
-import type { FeedbackFile, Level } from '@codequest/content-schema';
+import { type FeedbackFile, type Level, sceneThemeOf } from '@codequest/content-schema';
 import type { RunOutcome } from '@codequest/engine';
 import {
   BlocklyWorkspace,
   loadInitialWorkspace,
   type WorkspaceHandle,
 } from '../../../blockly/BlocklyWorkspace';
+import { useCatalog } from '../../../features/content/catalog';
 import { loadFeedback } from '../../../features/content/files';
 import { mapReplays, mapsOf, resultLine, runProgram } from '../../../features/play/run';
 import { vi } from '../../../i18n/vi';
@@ -72,6 +73,14 @@ export function PreviewPlay({ level }: { level: Level }) {
 
   // The stage only depends on the kind, the maps and the goal picture: other edits do not reload it.
   const { kind, goalSprite } = level;
+  // The world's scenery (P2-23): the stage mounts once the catalog is read (or failed to load:
+  // then Làng Tre), so it is never rebuilt just because the theme arrived.
+  const catalog = useCatalog();
+  const catalogLoading = catalog.status === 'loading';
+  const theme = sceneThemeOf(
+    catalog.status === 'ready' ? catalog.catalog.worldById.get(level.worldId) : undefined,
+  );
+  const boss = level.stage === 'boss';
   const mapsKey = JSON.stringify(mapsOf(level));
   const maps = useMemo(() => JSON.parse(mapsKey) as unknown[], [mapsKey]);
   // Multi-map levels (P2-12): the map on the stage, as on the play screen.
@@ -84,7 +93,7 @@ export function PreviewPlay({ level }: { level: Level }) {
   // The stage is an imperative island (coding-standards.md §4), as on the play screen.
   useEffect(() => {
     const container = stageBoxRef.current;
-    if (!container) return;
+    if (!container || catalogLoading) return;
     const controller = new AbortController();
     // A new stage: no result or marks of the old one.
     setStatus('loading');
@@ -98,6 +107,8 @@ export function PreviewPlay({ level }: { level: Level }) {
       kind,
       config: maps[map],
       ...(goalSprite !== undefined && { goalSprite }),
+      theme,
+      boss,
       onHighlight: highlight,
       onAnimation: (animation) => {
         container.dataset.panda = animation;
@@ -121,7 +132,7 @@ export function PreviewPlay({ level }: { level: Level }) {
       stageRef.current?.destroy();
       stageRef.current = null;
     };
-  }, [kind, maps, goalSprite, highlight]);
+  }, [kind, maps, goalSprite, theme, boss, catalogLoading, highlight]);
 
   const showMap = (map: number) => {
     if (map === mapIndexRef.current) return;

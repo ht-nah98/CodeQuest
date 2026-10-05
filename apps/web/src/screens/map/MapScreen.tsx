@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef } from 'react';
 import { Link } from 'react-router';
+import { sceneThemeOf } from '@codequest/content-schema';
 import { useMusic } from '../../audio/useAudio';
 import { useUnlockOverrides } from '../../features/author/authorMode';
 import {
@@ -211,7 +212,7 @@ function WorldIsland({
             <Bubble text={greeting} tail="left" className="mb-14 whitespace-nowrap text-body" />
           </span>
         )}
-        <Island look={look} />
+        <Island look={look} theme={sceneThemeOf(world)} />
         {status === 'locked' && (
           <span className="absolute top-1 left-1/2 -translate-x-1/2">
             <PixelIcon name="lock" scale={3} />
@@ -252,6 +253,7 @@ function WorldIsland({
         aria-label={label}
         data-current={current}
         data-world={world.id}
+        data-theme={sceneThemeOf(world)}
         className="grid justify-items-center gap-1"
       >
         {body}
@@ -264,6 +266,7 @@ function WorldIsland({
       aria-label={label}
       data-current={current}
       data-world={world.id}
+      data-theme={sceneThemeOf(world)}
       className={`group grid justify-items-center gap-1 rounded-panel p-1 transition-transform duration-150 ease-bounce hover:-translate-y-1.5 ${FOCUS_RING}`}
     >
       {body}

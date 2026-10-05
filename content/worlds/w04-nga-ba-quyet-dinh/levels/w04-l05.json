@@ -6,7 +6,7 @@
   "mode": "bughunt",
   "title": "2 nhánh ngược",
   "objective": "Chương trình bị ngược. Sửa 1 chỗ thôi nhé!",
-  "learningGoal": "Đọc khối nếu … nếu không: ✔ chạy nhánh trên, ✘ chạy nhánh dưới. Đổi câu hỏi \"hố\" thành \"ô trống\" là sửa xong.",
+  "learningGoal": "Đọc khối nếu … nếu không: đúng (Có) chạy nhánh trên, sai (Không) chạy nhánh dưới. Đổi câu hỏi \"hố\" thành \"ô trống\" là sửa xong.",
   "misconception": "Nhánh nào nằm trên thì luôn chạy trước.",
   "mission": "Chương trình tìm Bông bị ngược. Sửa nhé!",
   "goalSprite": "footprints",

@@ -1,4 +1,4 @@
-import { Events, serialization, type Workspace, WorkspaceSvg } from 'blockly';
+import { Events, serialization, type Workspace } from 'blockly';
 import type { Level, WorkspaceJson } from '@codequest/content-schema';
 import { blockTypeCounts, loopDepth } from '@codequest/engine';
 
@@ -27,18 +27,22 @@ export function blockLimitBreach(
   return null;
 }
 
-/** Re-check delay while a drag is still in progress (ms). */
-const DRAG_RECHECK_MS = 50;
-
 /**
  * Drop-time guard for the limits Blockly lacks (blockly-integration.md §5): `maxLoopDepth` has
  * no Blockly option, and `maxInstances` only greys out the flyout (a duplicate or paste can
  * still go over). After a child's move or new block (never a program load), once the event
- * group has fired and no drag is in progress, a change that makes the workspace break a limit
+ * batch has fired and no drag is in progress, a change that makes the workspace break a limit
  * is undone as a whole (Blockly's own undo of that group: a block dragged from the toolbox goes
  * back to it, a moved block goes back where it was, a duplicate disappears) and its redo entry
  * is dropped, so "Làm tiếp" cannot bring it back. A workspace that already broke a limit before
  * the change (an old draft) is never undone: `onBlocked` only says why. Returns the removal.
+ *
+ * No polling while a drag runs: a drag from the toolbox records its BlockCreate when it starts,
+ * and the drop's BlockMove events of the same group reach the undo stack only later (Blockly
+ * fires its queue after a frame). Undoing in between would undo the creation alone and delete
+ * the new block together with the block it displaced. So a check during a drag just returns;
+ * the drop's own recorded BlockMove schedules the next check, after its whole batch has fired.
+ * And the guard only undoes when the last undo entry belongs to the group it last saw.
  */
 export function guardBlockLimits(
   workspace: Workspace,
@@ -50,17 +54,18 @@ export function guardBlockLimits(
     blockLimitBreach(serialization.workspaces.save(workspace) as WorkspaceJson, limits);
   let wasBreaching = breachNow() !== null;
   let pending: ReturnType<typeof setTimeout> | undefined;
-  // Checked once the whole event group has fired: a drop into an occupied slot also moves the
-  // block that was there (a later event of the same group), and undoing half a group would
-  // lose that block.
+  /** Event group of the last recorded move / create the guard saw. */
+  let lastGroup: string | null = null;
+  // `isDragging` exists on rendered workspaces only (headless tests may stub it).
+  const dragging = () =>
+    (workspace as Workspace & { isDragging?: () => boolean }).isDragging?.() === true;
   const check = () => {
     pending = undefined;
-    if (workspace instanceof WorkspaceSvg && workspace.isDragging()) {
-      pending = setTimeout(check, DRAG_RECHECK_MS);
-      return;
-    }
+    if (dragging()) return;
     const breach = breachNow();
     if (breach !== null && !wasBreaching) {
+      // Undo only a change we saw end: the last undo entry must be of the group we last saw.
+      if (workspace.getUndoStack().at(-1)?.group !== lastGroup) return;
       workspace.undo(false);
       // The refused change must not come back with "Làm tiếp".
       const redo = workspace.getRedoStack();
@@ -75,6 +80,7 @@ export function guardBlockLimits(
   const listener = (event: Events.Abstract) => {
     if (event.isUiEvent || !event.recordUndo) return;
     if (!(event instanceof Events.BlockMove) && !(event instanceof Events.BlockCreate)) return;
+    lastGroup = event.group;
     if (pending === undefined) pending = setTimeout(check, 0);
   };
   workspace.addChangeListener(listener);

@@ -7,7 +7,8 @@
   "story": "Măng lần theo dấu chân Thỏ Bông vào vùng ngã ba. Gió đổi đường mỗi lần, Măng phải nhìn rồi quyết định.",
   "theme": {
     "tileset": "/tiles/ground.png",
-    "palette": "dusk"
+    "palette": "dusk",
+    "scene": "nga-ba"
   },
   "lessonIds": [
     "w04-lesson",

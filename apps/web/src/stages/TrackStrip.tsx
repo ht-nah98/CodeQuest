@@ -7,9 +7,10 @@ import {
   useState,
   useSyncExternalStore,
 } from 'react';
-import type { GoalSprite } from '@codequest/content-schema';
+import type { GoalSprite, SceneTheme } from '@codequest/content-schema';
 import { vi } from '../i18n/vi';
 import { UI_COLORS } from '../ui/tokens';
+import { sceneArt } from './sceneThemes';
 import {
   STRIP_MAX_CELL_PX,
   stripLook,
@@ -34,9 +35,12 @@ export function TrackStripView({
   stageWidth,
   onDragCell,
   goalSprite,
+  theme,
 }: {
   state: TrackStripState;
   stageWidth: number;
+  /** The world's scenery (P2-23): sky and ground of the strip; absent = Làng Tre. */
+  theme?: SceneTheme | undefined;
   /** `level.goalSprite` (P2-11c): drawn on the flag cell instead of the flag. */
   goalSprite?: GoalSprite | undefined;
   /**
@@ -74,6 +78,7 @@ export function TrackStripView({
       data-at={at}
       data-view={`${view.from.toFixed(2)}-${view.to.toFixed(2)}`}
       data-peek={look !== undefined}
+      data-theme={sceneArt(theme).id}
       className="min-w-0 flex-1 px-2 py-1"
     >
       <svg
@@ -99,8 +104,9 @@ export function TrackStripView({
           },
         })}
       >
-        <rect x={0} y={0} width={width} height={HEIGHT} fill={UI_COLORS.sky} />
+        <rect x={0} y={0} width={width} height={HEIGHT} fill={sceneArt(theme).svgSky} />
         <TrackCells
+          theme={theme}
           cells={cells}
           bamboo={bamboo}
           items={items}
@@ -175,9 +181,12 @@ export function TrackStrip({
   onShownChange,
   onPeek,
   goalSprite,
+  theme,
 }: {
   feed: TrackFeed;
   goalSprite?: GoalSprite;
+  /** The world's scenery (P2-23). */
+  theme?: SceneTheme;
   action?: ReactNode;
   onShownChange?: (shown: boolean) => void;
   onPeek?: (look: number) => void;
@@ -213,6 +222,7 @@ export function TrackStrip({
         state={state}
         stageWidth={width}
         goalSprite={goalSprite}
+        theme={theme}
         {...(onPeek && {
           onDragCell: (cell: number) => {
             onPeek(stripLook(cellCount, width, cell));

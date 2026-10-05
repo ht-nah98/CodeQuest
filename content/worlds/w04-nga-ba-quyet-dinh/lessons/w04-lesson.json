@@ -11,7 +11,7 @@
     {
       "type": "say",
       "pose": "think",
-      "text": "Đừng thuộc lòng. Măng nhìn ô phía trước, trả lời ✔ hoặc ✘."
+      "text": "Đừng thuộc lòng. Nhìn ô phía trước, trả lời Có hoặc Không."
     },
     {
       "type": "demo",
@@ -142,7 +142,7 @@
     {
       "type": "say",
       "pose": "point",
-      "text": "Mỗi vòng, khối nếu hỏi lại. ✔ chạy nhánh trên, ✘ chạy nhánh dưới."
+      "text": "Mỗi vòng, khối nếu hỏi lại. Có: nhánh trên. Không: nhánh dưới."
     },
     {
       "type": "quiz",

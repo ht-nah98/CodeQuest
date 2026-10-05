@@ -75,8 +75,7 @@ describe('guardBlockLimits (headless Blockly)', () => {
     return block.id;
   }
 
-  const outer = (inner?: Block): WorkspaceJson =>
-    program({ ...loop(inner ?? walk), id: 'outer' });
+  const outer = (inner?: Block): WorkspaceJson => program({ ...loop(inner ?? walk), id: 'outer' });
 
   it('undoes a drop that puts a loop in a loop, and "Làm tiếp" cannot redo it', async () => {
     const workspace = workspaceWith(outer());
@@ -92,6 +91,35 @@ describe('guardBlockLimits (headless Blockly)', () => {
     await settle();
     expect(loopDepthOf(workspace)).toBe(1);
     expect(workspace.getBlocksByType('runner_walk', false)).toHaveLength(1);
+    stop();
+    workspace.dispose();
+  });
+
+  it('a drag from the toolbox into an occupied slot: no undo mid-drag, the displaced block survives', async () => {
+    const workspace = workspaceWith(outer());
+    let dragging = false;
+    Object.assign(workspace, { isDragging: () => dragging });
+    const blocked: string[] = [];
+    const stop = guardBlockLimits(workspace, { maxLoopDepth: 1 }, (breach) => blocked.push(breach));
+    // Drag start: the new loop is created (recorded) and its events fire while still dragging.
+    Events.setGroup('drag-1');
+    dragging = true;
+    const block = workspace.newBlock('cq_repeat');
+    await settle();
+    expect(workspace.getBlockById(block.id)).not.toBeNull();
+    expect(blocked).toEqual([]);
+    // Drop, same group: into the DO slot that holds the walk block.
+    const slot = workspace.getBlockById('outer')?.getInput('DO')?.connection;
+    if (!slot || !block.previousConnection) throw new Error('no connection');
+    slot.connect(block.previousConnection);
+    dragging = false;
+    Events.setGroup(false);
+    await settle();
+    expect(blocked).toEqual(['loopDepth']);
+    expect(workspace.getBlockById(block.id)).toBeNull();
+    expect(workspace.getBlocksByType('runner_walk', false)).toHaveLength(1);
+    expect(workspace.getBlockById('outer')?.getInputTargetBlock('DO')?.type).toBe('runner_walk');
+    expect(loopDepthOf(workspace)).toBe(1);
     stop();
     workspace.dispose();
   });

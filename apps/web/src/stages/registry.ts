@@ -1,11 +1,11 @@
 import type { Application } from 'pixi.js';
-import type { GameKindId, GoalSprite } from '@codequest/content-schema';
+import type { GameKindId, GoalSprite, SceneTheme } from '@codequest/content-schema';
 import type { GameEvent } from '@codequest/engine';
 import { runnerConfigSchema } from '@codequest/games';
-import { UI_COLORS } from '../ui/tokens';
 import { loadPandaSheet, loadTiles } from './assets';
 import { mazeStage } from './maze';
 import { RunnerStage } from './runner/RunnerStage';
+import { sceneArt } from './sceneThemes';
 import type { PandaAnimationListener, StageRenderer } from './types';
 
 /** Callbacks a renderer may report through (e2e / debug). */
@@ -13,6 +13,10 @@ export interface StageHooks {
   onAnimation?: PandaAnimationListener;
   /** `level.goalSprite` (P2-11c): the picture on the goal cell instead of the flag. */
   goalSprite?: GoalSprite;
+  /** The world's scenery (P2-23, `world.theme.scene`); absent = Làng Tre. */
+  theme?: SceneTheme;
+  /** A boss level: the theme may add a set piece (the river's bridge). */
+  boss?: boolean;
 }
 
 /**
@@ -33,8 +37,8 @@ export type StageFactory = (
 
 /** The drawing half of a game kind, as the StageController sees it (game-kind-sdk.md §2). */
 export interface StageKind {
-  /** Canvas clear colour behind the scene (CSS hex, from `ui/tokens.ts`). */
-  background: string;
+  /** Canvas clear colour behind the scene of a theme (CSS hex, from `ui/tokens.ts`). */
+  background(theme: SceneTheme | undefined): string;
   /**
    * Loads the kind's textures (PIXI.Assets caches them for the session) and resolves the factory.
    * Runs before the PIXI application exists, so no texture work may need a renderer.
@@ -43,7 +47,7 @@ export interface StageKind {
 }
 
 const runnerStage: StageKind = {
-  background: UI_COLORS.sky,
+  background: (theme) => sceneArt(theme).sky.mid,
   async prepare() {
     const [panda, tiles] = await Promise.all([loadPandaSheet(), loadTiles()]);
     return (app, config, hooks) =>
@@ -54,6 +58,10 @@ const runnerStage: StageKind = {
         panda,
         hooks.onAnimation,
         hooks.goalSprite,
+        {
+          ...(hooks.theme !== undefined && { theme: hooks.theme }),
+          ...(hooks.boss !== undefined && { boss: hooks.boss }),
+        },
       );
   },
 };

@@ -1,15 +1,14 @@
 import {
   AnimatedSprite,
   type Application,
-  BufferImageSource,
   Container,
   Graphics,
   Sprite,
-  Texture,
+  type Texture,
   type Ticker,
 } from 'pixi.js';
 import type { RunOutcome } from '@codequest/engine';
-import type { GoalSprite } from '@codequest/content-schema';
+import { DEFAULT_SCENE_THEME, type GoalSprite, type SceneTheme } from '@codequest/content-schema';
 import type { GoalItemKind, MazeCell, MazeConfig, MazeDir, MazeEvent } from '@codequest/games';
 import { UI_COLORS } from '../../ui/tokens';
 import type { PandaTextures } from '../assets';
@@ -18,7 +17,8 @@ import { reducedMotion } from '../motion';
 import type { PandaAnimation } from '../panda';
 import { goalArtFor, goalScale, ITEM_ART } from '../goalArt';
 import { createPanda, type Panda } from '../pandaSprite';
-import { goalTexture } from '../tiles';
+import { sceneArt } from '../sceneThemes';
+import { goalTexture, pixelTexture } from '../tiles';
 import { isAborted, type PandaAnimationListener, type StageRenderer, tween } from '../types';
 import {
   arrowDistance,
@@ -101,13 +101,25 @@ interface Particle {
 
 type MazeTextures = Record<PatternName, Texture>;
 
-function createTextures(): MazeTextures {
+/** Maze textures of each theme, made once per theme and kept for the session (like goal art). */
+const textureCache = new Map<SceneTheme, MazeTextures>();
+
+/**
+ * The maze tiles of `theme` (stage-rendering.md §7): its own floor and wall (sceneTiles.ts) and
+ * the shared pieces (shoot, goal pad, flag, arrow, sparkle) that look the same in every theme.
+ */
+function mazeTextures(theme: SceneTheme): MazeTextures {
+  const cached = textureCache.get(theme);
+  if (cached) return cached;
+  const art = sceneArt(theme).maze;
   const textures = {} as MazeTextures;
   for (const name of Object.keys(PATTERNS) as PatternName[]) {
-    const { width, height, data } = patternPixels(PATTERNS[name]);
-    const source = new BufferImageSource({ resource: data, width, height, scaleMode: 'nearest' });
-    textures[name] = new Texture({ source });
+    const own = name === 'floor' || name === 'wall' ? art.patterns?.[name] : undefined;
+    textures[name] = pixelTexture(
+      own ? patternPixels(own, art.palette) : patternPixels(PATTERNS[name]),
+    );
   }
+  textureCache.set(theme, textures);
   return textures;
 }
 
@@ -123,7 +135,9 @@ function itemScale(texels: number, cellPx: number): number {
  * and a big blue arrow on the floor always shows where she faces.
  */
 export class MazeStage implements StageRenderer<MazeEvent> {
-  private readonly textures = createTextures();
+  private readonly textures: MazeTextures;
+  /** The world's scenery (P2-23): floor, wall and the canvas around the board. */
+  private readonly theme: SceneTheme;
   private readonly world = new Container();
   private readonly board = new Container();
   private readonly items = new Container();
@@ -182,8 +196,12 @@ export class MazeStage implements StageRenderer<MazeEvent> {
     pandaTextures: PandaTextures,
     private readonly onAnimation?: PandaAnimationListener,
     goalSprite?: GoalSprite,
+    theme?: SceneTheme,
   ) {
     this.goalSprite = goalSprite;
+    this.theme = theme ?? DEFAULT_SCENE_THEME;
+    this.textures = mazeTextures(this.theme);
+    app.canvas.dataset.theme = this.theme;
     this.itemKinds = new Map(
       (config.goal?.items ?? []).map((item) => [cellKey(item.at), item.kind] as const),
     );
@@ -471,7 +489,6 @@ export class MazeStage implements StageRenderer<MazeEvent> {
   destroy(): void {
     this.destroyed = true;
     this.app.ticker.remove(this.onTick);
-    for (const texture of Object.values(this.textures)) texture.destroy(true);
   }
 
   /** Whether a replay step must stop touching the scene: aborted, or the stage destroyed. */
@@ -679,7 +696,12 @@ export class MazeStage implements StageRenderer<MazeEvent> {
       item.scale.set(itemScale(art.rows.length, cellPx) * (1 + 0.25 * pulse));
       if (this.needPulse) {
         this.marks
-          .rect(at.x - cellPx / 2 + tileScale, at.y - cellPx / 2 + tileScale, cellPx - 2 * tileScale, cellPx - 2 * tileScale)
+          .rect(
+            at.x - cellPx / 2 + tileScale,
+            at.y - cellPx / 2 + tileScale,
+            cellPx - 2 * tileScale,
+            cellPx - 2 * tileScale,
+          )
           .stroke({ color: UI_COLORS.hint, width: 2 * tileScale, alignment: 1 })
           .rect(at.x - cellPx / 2, at.y - cellPx / 2, cellPx, cellPx)
           .stroke({ color: UI_COLORS.ink, width: tileScale, alignment: 1 });
@@ -732,7 +754,7 @@ export class MazeStage implements StageRenderer<MazeEvent> {
 
     const background = new Graphics()
       .rect(0, 0, layout.width, layout.height)
-      .fill({ color: UI_COLORS.ground });
+      .fill({ color: sceneArt(this.theme).maze.background });
     const left = layout.originX - BORDER_CELLS * cellPx;
     const top = layout.originY - BORDER_CELLS * cellPx;
     const gridW = (cols + 2 * BORDER_CELLS) * cellPx;
@@ -843,8 +865,7 @@ export class MazeStage implements StageRenderer<MazeEvent> {
       const kind = itemKey === undefined ? undefined : this.itemKinds.get(itemKey);
       const art = kind === undefined ? null : ITEM_ART[kind];
       const sprite = new Sprite(art ? goalTexture(art) : this.textures.bamboo);
-      const got =
-        itemKey === undefined ? i < this.collected.size : this.takenItems.has(itemKey);
+      const got = itemKey === undefined ? i < this.collected.size : this.takenItems.has(itemKey);
       // The 16-texel friend fits the 12-texel icon box at a smaller whole zoom.
       const scale = art ? Math.max(1, Math.floor(hud.iconPx / art.rows.length)) : hud.scale;
       const inset = art ? (hud.iconPx - art.rows.length * scale) / 2 : 0;

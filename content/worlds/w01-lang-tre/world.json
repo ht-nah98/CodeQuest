@@ -7,7 +7,8 @@
   "story": "Gió to thổi bay hết măng của làng. Măng phải đi khắp làng nhặt lại.",
   "theme": {
     "tileset": "/tiles/ground.png",
-    "palette": "day"
+    "palette": "day",
+    "scene": "lang-tre"
   },
   "lessonIds": [
     "w01-lesson",

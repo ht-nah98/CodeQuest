@@ -1,6 +1,11 @@
 import { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
-import type { LessonCard, MascotPose } from '@codequest/content-schema';
+import {
+  DEFAULT_SCENE_THEME,
+  type LessonCard,
+  type MascotPose,
+  type SceneTheme,
+} from '@codequest/content-schema';
 import { computeLessonRewards } from '@codequest/rewards';
 import { useAudio, useMusic } from '../../audio/useAudio';
 import { lessonCardVoiceId, uiVoiceId } from '../../audio/voiceIds';
@@ -57,6 +62,8 @@ export default function LessonScreen() {
 
   const lesson = catalog?.lessons.get(lessonId);
   const world = catalog?.worldById.get(worldId);
+  // The world's scenery for the demo stages (P2-23): a plain read, before any memoised callback.
+  const theme = world?.theme.scene ?? DEFAULT_SCENE_THEME;
   const cards: readonly LessonCard[] = lesson?.cards ?? [];
   const card = cards[index];
   const last = index === cards.length - 1;
@@ -208,6 +215,7 @@ export default function LessonScreen() {
                 index={index}
                 lessonId={lesson.id}
                 worldId={worldId}
+                theme={theme}
                 answer={answers[index]}
                 onAnswer={(option) => {
                   setAnswers((a) => (a[index] === undefined ? { ...a, [index]: option } : a));
@@ -292,6 +300,7 @@ function CardBody({
   index,
   lessonId,
   worldId,
+  theme,
   answer,
   onAnswer,
 }: {
@@ -299,6 +308,8 @@ function CardBody({
   index: number;
   lessonId: string;
   worldId: string;
+  /** The world's scenery (P2-23) for the demo stage. */
+  theme: SceneTheme;
   answer: number | undefined;
   onAnswer: (option: number) => void;
 }) {
@@ -323,7 +334,12 @@ function CardBody({
           <Bubble text={card.text} tail="left" voiceId={lessonCardVoiceId(lessonId, index)} />
         </div>
         <Suspense fallback={<div className="h-[260px]" />}>
-          <LessonDemo card={card} id={`${lessonId}-demo-${String(index)}`} worldId={worldId} />
+          <LessonDemo
+            card={card}
+            id={`${lessonId}-demo-${String(index)}`}
+            worldId={worldId}
+            theme={theme}
+          />
         </Suspense>
       </>
     );

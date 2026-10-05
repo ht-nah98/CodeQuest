@@ -6,7 +6,7 @@
   "mode": "build",
   "title": "Hang tối",
   "objective": "Thấy lối bên phải thì rẽ. Không quá 5 khối!",
-  "learningGoal": "Khối nếu một nhánh trong mê cung: mỗi vòng hỏi \"có đường bên phải\", ✔ thì rẽ phải; rồi tiến.",
+  "learningGoal": "Khối nếu một nhánh trong mê cung: mỗi vòng hỏi \"có đường bên phải\", đúng (Có) thì rẽ phải; rồi tiến.",
   "misconception": "Rẽ ở đâu thì phải ghép riêng cho chỗ đó.",
   "mission": "Ra khỏi hang tối bên bờ suối.",
   "goalSprite": "exit",

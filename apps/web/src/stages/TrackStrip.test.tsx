@@ -44,7 +44,9 @@ describe('TrackStripView', () => {
       <TrackStripView state={after} stageWidth={500} goalSprite="cage" />,
     );
     expect(container.querySelector('[data-item]')).toBeNull();
-    expect(container.querySelector('[data-goal-open]')?.getAttribute('data-goal-open')).toBe('true');
+    expect(container.querySelector('[data-goal-open]')?.getAttribute('data-goal-open')).toBe(
+      'true',
+    );
   });
 
   it('follows the run: the marker moves and a picked shoot is gone', () => {
@@ -62,5 +64,22 @@ describe('TrackStripView', () => {
     const short: RunnerConfig = { cells: ['ground', 'ground', 'flag'], start: 0 };
     const { container } = render(<TrackStripView state={initialStrip(short)} stageWidth={500} />);
     expect(container.innerHTML).toBe('');
+  });
+
+  it('draws the world theme: its sky and its own ground tile (P2-23)', () => {
+    const plain = render(<TrackStripView state={initialStrip(long)} stageWidth={500} />);
+    expect(plain.getByRole('img').getAttribute('data-theme')).toBe('lang-tre');
+    expect(plain.container.querySelector('image[data-cell="ground"]')?.getAttribute('href')).toBe(
+      '/tiles/ground.png',
+    );
+    cleanup();
+    const { container, getByRole } = render(
+      <TrackStripView state={initialStrip(long)} stageWidth={500} theme="xuong" />,
+    );
+    expect(getByRole('img').getAttribute('data-theme')).toBe('xuong');
+    const href = container.querySelector('image[data-cell="ground"]')?.getAttribute('href') ?? '';
+    expect(href.startsWith('data:image/svg+xml,')).toBe(true);
+    // Hazards keep their own pictures whatever the theme.
+    expect(container.querySelector('image[href="/tiles/bamboo.png"]')).not.toBeNull();
   });
 });
