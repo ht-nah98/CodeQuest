@@ -1,0 +1,120 @@
+{
+  "id": "w05-lesson-don-ban",
+  "worldId": "w05-song-cho-doi",
+  "title": "Đón Gà con",
+  "beforeLevel": "w05-boss",
+  "cards": [
+    {
+      "type": "say",
+      "pose": "point",
+      "text": "Gà con lạc bên kia sông! Đứng ở ô em để đón."
+    },
+    {
+      "type": "demo",
+      "text": "Măng đi tới ô Gà con: đón được em!",
+      "kind": "runner",
+      "config": {
+        "cells": ["ground", "ground", "ground", "ground", "flag"],
+        "start": 0,
+        "goal": {
+          "items": [
+            {
+              "kind": "friend",
+              "at": 2
+            }
+          ]
+        }
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "cq_repeat_until",
+                  "id": "until1",
+                  "inputs": {
+                    "COND": {
+                      "block": {
+                        "type": "runner_at_goal",
+                        "id": "ask1"
+                      }
+                    },
+                    "DO": {
+                      "block": {
+                        "type": "runner_walk",
+                        "id": "walk1"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "demo",
+      "text": "Nhảy qua Gà con thì không đón được em.",
+      "kind": "runner",
+      "config": {
+        "cells": ["ground", "ground", "ground", "ground", "flag"],
+        "start": 0,
+        "goal": {
+          "items": [
+            {
+              "kind": "friend",
+              "at": 1
+            }
+          ]
+        }
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "runner_jump",
+                  "id": "jump1",
+                  "next": {
+                    "block": {
+                      "type": "runner_walk",
+                      "id": "walk1",
+                      "next": {
+                        "block": {
+                          "type": "runner_walk",
+                          "id": "walk2"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "quiz",
+      "text": "Măng nhảy qua ô Gà con. Đón được em không?",
+      "options": ["Đón được", "Chưa đón được"],
+      "correct": 1,
+      "explain": "Phải đứng ở ô của em mới đón được."
+    }
+  ]
+}

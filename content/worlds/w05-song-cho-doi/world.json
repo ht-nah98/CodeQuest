@@ -1,0 +1,57 @@
+{
+  "id": "w05-song-cho-doi",
+  "order": 5,
+  "title": "Sông Chờ Đợi",
+  "emoji": "🌊",
+  "concept": "Lặp đến khi: chờ tới lúc đúng",
+  "story": "Cầu về làng bị gió cuốn mất. Chú Ếch dạy Măng chờ: cứ đi, đến khi thấy nước thì nhảy.",
+  "theme": {
+    "tileset": "/tiles/ground.png",
+    "palette": "day",
+    "scene": "song"
+  },
+  "lessonIds": [
+    "w05-lesson",
+    "w05-lesson-lap-den-khi",
+    "w05-lesson-toi-dich",
+    "w05-lesson-toi-noi",
+    "w05-lesson-don-ban"
+  ],
+  "levelIds": [
+    "w05-l01",
+    "w05-l02",
+    "w05-l03",
+    "w05-l04",
+    "w05-l05",
+    "w05-l06",
+    "w05-l07",
+    "w05-l08",
+    "w05-l09",
+    "w05-l10",
+    "w05-l11",
+    "w05-l12",
+    "w05-l13",
+    "w05-l14",
+    "w05-l15",
+    "w05-l16",
+    "w05-l17",
+    "w05-l18",
+    "w05-l19",
+    "w05-boss",
+    "w05-creative"
+  ],
+  "unlock": {
+    "minStarRatio": 0.6
+  },
+  "unplugged": {
+    "title": "Đi đến khi chạm tường",
+    "steps": [
+      "Một bé bịt mắt làm Măng, có bạn đi kèm cho an toàn.",
+      "Bé cầm thẻ \"Lặp đến khi tay chạm tường: bước 1 bước\" và làm theo.",
+      "Đổi chỗ đứng xa, gần tường. Cùng một thẻ vẫn đúng với mọi khoảng cách.",
+      "Thẻ bẫy 1: \"Lặp đến khi chạm tường: vỗ tay\". Bé vỗ mãi, cả nhóm hô \"Vòng lặp không dừng!\".",
+      "Thẻ bẫy 2: \"Lặp đến khi chạm tường: bước 2 bước\" khi chỉ còn 1 bước tới tường.",
+      "Hỏi cả nhóm: vì sao phải hỏi trước mỗi vòng? Mỗi vòng có làm gì đổi không?"
+    ]
+  }
+}

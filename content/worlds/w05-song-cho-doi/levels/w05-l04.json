@@ -1,0 +1,104 @@
+{
+  "id": "w05-l04",
+  "worldId": "w05-song-cho-doi",
+  "stage": "guided",
+  "kind": "maze",
+  "mode": "build",
+  "title": "Tới bến đò",
+  "objective": "Một chương trình cho 2 bờ. Không quá 3 khối!",
+  "learningGoal": "Khối đã tới đích? trong lặp đến khi: tiến đến khi tới đích, không cần đếm ô. Tới đích là thắng ngay.",
+  "misconception": "Phải đếm đúng số ô mới tới được đích.",
+  "mission": "Đi dọc bờ tới bến đò của chú Ếch.",
+  "goalSprite": "dock",
+  "toolbox": [
+    "maze_forward",
+    "maze_turn_left",
+    "maze_turn_right",
+    "cq_repeat_until",
+    "maze_at_goal"
+  ],
+  "maxBlocks": 3,
+  "maxLoopDepth": 1,
+  "par": 3,
+  "config": {
+    "map": ["########", "#S....G#", "########"],
+    "startDir": "E"
+  },
+  "variants": [
+    {
+      "map": ["########", "#S..G..#", "########"],
+      "startDir": "E"
+    }
+  ],
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat_until",
+              "id": "until1",
+              "inputs": {
+                "COND": {
+                  "block": {
+                    "type": "maze_at_goal",
+                    "id": "ask1"
+                  }
+                },
+                "DO": {
+                  "block": {
+                    "type": "maze_forward",
+                    "id": "fwd1"
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "new-goal",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Khối mới «đã tới đích?» đúng khi Măng đứng ở đích.",
+      "point": "toolbox:maze_at_goal"
+    },
+    {
+      "id": "maps",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Bến đò ở 2 chỗ khác nhau. Đúng cả hai nhé!",
+      "point": "stage"
+    },
+    {
+      "id": "more",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "NOT_AT_GOAL"
+      },
+      "say": "Chưa tới bến đò. Lặp đến khi nào thì dừng?",
+      "point": "toolbox:cq_repeat_until"
+    },
+    {
+      "id": "cap",
+      "when": {
+        "capacityFull": true,
+        "missing": "cq_repeat_until"
+      },
+      "say": "Hết chỗ rồi! Thử khối lặp đến khi xem.",
+      "point": "toolbox:cq_repeat_until"
+    }
+  ],
+  "thinkingHint": "Măng tiến tới khi nào thì thôi?"
+}

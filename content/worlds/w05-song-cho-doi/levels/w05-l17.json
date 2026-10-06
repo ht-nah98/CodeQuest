@@ -1,0 +1,155 @@
+{
+  "id": "w05-l17",
+  "worldId": "w05-song-cho-doi",
+  "stage": "challenge",
+  "kind": "maze",
+  "mode": "build",
+  "title": "Bãi lau rộng",
+  "objective": "2 mê cung dài. Tìm cách gọn hơn, không quá 9 khối!",
+  "learningGoal": "Mê cung dài, rẽ cả trái lẫn phải, hơn 20 vòng. Cách hai câu hỏi (9 khối) thắng; cách gọn nhất 7 khối: phía trước có đường thì tiến rồi rẽ trái, không thì rẽ phải.",
+  "misconception": "Chương trình đã thắng thì không gọn hơn được nữa.",
+  "mission": "Bãi lau rộng, đường rất dài. Tìm lối ra!",
+  "goalSprite": "exit",
+  "toolbox": [
+    "maze_forward",
+    "maze_turn_left",
+    "maze_turn_right",
+    {
+      "type": "cq_repeat",
+      "fields": {
+        "TIMES": 3
+      }
+    },
+    "cq_repeat_until",
+    "cq_if",
+    "cq_if_else",
+    "maze_is_path",
+    "maze_at_goal"
+  ],
+  "maxBlocks": 9,
+  "maxInstances": {
+    "cq_repeat": 1,
+    "cq_repeat_until": 1
+  },
+  "maxLoopDepth": 1,
+  "par": 7,
+  "config": {
+    "map": [
+      "##########",
+      "#S..#....#",
+      "###.#.##.#",
+      "#...#.#..#",
+      "#.###.#.##",
+      "#.....#.G#",
+      "##########"
+    ],
+    "startDir": "E"
+  },
+  "variants": [
+    {
+      "map": [
+        "##########",
+        "#S.......#",
+        "#######.##",
+        "#G..#...##",
+        "###.#.####",
+        "###...####",
+        "##########"
+      ],
+      "startDir": "E"
+    }
+  ],
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat_until",
+              "id": "until1",
+              "inputs": {
+                "COND": {
+                  "block": {
+                    "type": "maze_at_goal",
+                    "id": "ask1"
+                  }
+                },
+                "DO": {
+                  "block": {
+                    "type": "cq_if_else",
+                    "id": "ifelse1",
+                    "inputs": {
+                      "COND": {
+                        "block": {
+                          "type": "maze_is_path",
+                          "id": "ask2",
+                          "fields": {
+                            "DIR": "AHEAD"
+                          }
+                        }
+                      },
+                      "DO": {
+                        "block": {
+                          "type": "maze_forward",
+                          "id": "fwd1",
+                          "next": {
+                            "block": {
+                              "type": "maze_turn_left",
+                              "id": "left1"
+                            }
+                          }
+                        }
+                      },
+                      "ELSE": {
+                        "block": {
+                          "type": "maze_turn_right",
+                          "id": "right1"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "more",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "NOT_AT_GOAL"
+      },
+      "say": "Đường dài hơn 20 vòng. Lặp đến khi nào?",
+      "point": "toolbox:cq_repeat_until"
+    },
+    {
+      "id": "wall",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "HIT_WALL"
+      },
+      "say": "Hỏi trước khi tiến: phía trước có đường không?",
+      "point": "toolbox:maze_is_path"
+    },
+    {
+      "id": "dizzy",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "TIMEOUT"
+      },
+      "say": "Chỉ rẽ một phía, Măng đi vòng mãi. Còn lối nào?",
+      "point": "stage"
+    }
+  ],
+  "thinkingHint": "Có cách nào ít câu hỏi hơn mà vẫn tới cửa ra?"
+}

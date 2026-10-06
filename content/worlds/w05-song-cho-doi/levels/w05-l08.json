@@ -1,0 +1,145 @@
+{
+  "id": "w05-l08",
+  "worldId": "w05-song-cho-doi",
+  "stage": "practice",
+  "kind": "runner",
+  "mode": "bughunt",
+  "title": "Chờ nhầm thứ",
+  "objective": "Măng chờ nhầm thứ. Sửa 1 chỗ thôi nhé!",
+  "learningGoal": "Điều kiện phải hỏi đúng thứ có trên đường: chờ cành mà đường không có cành thì Măng đi mãi, rơi xuống nước. Đổi \"cành\" thành \"hố\" là sửa xong.",
+  "misconception": "Câu hỏi nào cũng được, miễn có vòng lặp.",
+  "mission": "Măng chờ nhầm thứ nên rơi xuống nước. Sửa nhé!",
+  "goalSprite": "flag",
+  "toolbox": ["runner_walk", "runner_jump", "cq_repeat_until", "runner_is_ahead"],
+  "maxLoopDepth": 1,
+  "par": 5,
+  "parEdits": 1,
+  "config": {
+    "cells": ["ground", "ground", "ground", "hole", "ground", "flag"],
+    "start": 0
+  },
+  "variants": [
+    {
+      "cells": ["ground", "ground", "ground", "ground", "ground", "hole", "ground", "flag"],
+      "start": 0
+    }
+  ],
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat_until",
+              "id": "until1",
+              "inputs": {
+                "COND": {
+                  "block": {
+                    "type": "runner_is_ahead",
+                    "id": "ask1",
+                    "fields": {
+                      "KIND": "BRANCH"
+                    }
+                  }
+                },
+                "DO": {
+                  "block": {
+                    "type": "runner_walk",
+                    "id": "walk1"
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "type": "runner_jump",
+                  "id": "jump1",
+                  "next": {
+                    "block": {
+                      "type": "runner_walk",
+                      "id": "walk2"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat_until",
+              "id": "until1",
+              "inputs": {
+                "COND": {
+                  "block": {
+                    "type": "runner_is_ahead",
+                    "id": "ask1",
+                    "fields": {
+                      "KIND": "HOLE"
+                    }
+                  }
+                },
+                "DO": {
+                  "block": {
+                    "type": "runner_walk",
+                    "id": "walk1"
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "type": "runner_jump",
+                  "id": "jump1",
+                  "next": {
+                    "block": {
+                      "type": "runner_walk",
+                      "id": "walk2"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "read",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Đọc câu hỏi. Trên đường có thứ đó không?",
+      "point": "block:runner_is_ahead"
+    },
+    {
+      "id": "fell",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "FELL_IN_HOLE"
+      },
+      "say": "Măng chờ thấy gì? Lúc rơi, trước mặt Măng là gì?",
+      "point": "block:runner_is_ahead"
+    }
+  ],
+  "thinkingHint": "Bờ sông này có cành không? Có gì?"
+}

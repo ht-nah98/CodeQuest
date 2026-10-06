@@ -1,0 +1,112 @@
+{
+  "id": "w05-l06",
+  "worldId": "w05-song-cho-doi",
+  "stage": "practice",
+  "kind": "runner",
+  "mode": "build",
+  "title": "Đá nổi",
+  "objective": "Một chương trình cho 2 dòng sông. Không quá 5 khối!",
+  "learningGoal": "Chờ bằng câu hỏi ô trống: nhảy qua dãy đá nổi đến khi phía trước là đất, rồi đi. Đúng cho 2 dãy đá dài ngắn khác nhau.",
+  "misconception": "Chỉ chờ được hố; muốn dừng phải biết trước số lần nhảy.",
+  "mission": "Nhảy qua dãy đá nổi sang bờ bên kia.",
+  "goalSprite": "flag",
+  "toolbox": ["runner_walk", "runner_jump", "cq_repeat_until", "runner_is_ahead"],
+  "maxBlocks": 5,
+  "maxLoopDepth": 1,
+  "par": 4,
+  "config": {
+    "cells": ["ground", "hole", "ground", "hole", "ground", "hole", "ground", "flag"],
+    "start": 0
+  },
+  "variants": [
+    {
+      "cells": [
+        "ground",
+        "hole",
+        "ground",
+        "hole",
+        "ground",
+        "hole",
+        "ground",
+        "hole",
+        "ground",
+        "hole",
+        "ground",
+        "flag"
+      ],
+      "start": 0
+    }
+  ],
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat_until",
+              "id": "until1",
+              "inputs": {
+                "COND": {
+                  "block": {
+                    "type": "runner_is_ahead",
+                    "id": "ask1",
+                    "fields": {
+                      "KIND": "CLEAR"
+                    }
+                  }
+                },
+                "DO": {
+                  "block": {
+                    "type": "runner_jump",
+                    "id": "jump1"
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "type": "runner_walk",
+                  "id": "walk1"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "ask",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Câu hỏi hỏi được: hố, cành, thùng, ô trống.",
+      "point": "toolbox:runner_is_ahead"
+    },
+    {
+      "id": "off",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "OFF_TRACK"
+      },
+      "say": "Măng nhảy quá bờ rồi! Lúc nào thôi nhảy?",
+      "point": "toolbox:runner_is_ahead"
+    },
+    {
+      "id": "fell",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "FELL_IN_HOLE"
+      },
+      "say": "Phía trước có nước thì Măng làm gì?",
+      "point": "stage"
+    }
+  ],
+  "thinkingHint": "Hết dãy đá nổi, phía trước Măng là gì?"
+}

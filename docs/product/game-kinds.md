@@ -25,7 +25,7 @@ Nhờ tách hai chiều, mỗi kiểu game mới tự động có 5 cách chơi;
 | Mode | Tên hiển thị | Bé làm gì | Chấm bài | Workspace ban đầu |
 |---|---|---|---|---|
 | `build` | Tự ghép | Ghép chương trình từ thanh khối | `evaluate()` của kiểu game | Chỉ có "khi bắt đầu" |
-| `parsons` | Ghép hình | Các khối đã có sẵn nhưng xáo trộn, bé sắp xếp lại | `evaluate()`, và **mọi khối được cho phải nối dưới "khi bắt đầu"**: thắng mà còn khối rời → `incomplete` / `LOOSE_BLOCKS` (câu G22) | Khối lời giải xáo trộn; thanh khối trống |
+| `parsons` | Ghép hình | Các khối đã có sẵn nhưng xáo trộn, bé sắp xếp lại | `evaluate()`, và **mọi khối được cho phải nối dưới "khi bắt đầu"**: thắng mà còn khối rời → `incomplete` / `LOOSE_BLOCKS`; thắng mà có khối chưa chạy lần nào hoặc thân lặp / nhánh trống → `incomplete` / `UNUSED_BLOCKS` (câu G22) | Khối lời giải xáo trộn; thanh khối trống |
 | `predict` | Đoán kết quả | Đọc chương trình **chỉ xem**, chọn 1 trong 3–4 đáp án bằng hình | So đáp án đã chọn với kết quả mô phỏng thật | Chương trình chỉ đọc |
 | `bughunt` | Săn lỗi | Chương trình có sẵn bị sai, sửa với ít thao tác nhất | `evaluate()` + đếm số khối thay đổi so với ban đầu | Chương trình có lỗi |
 | `creative` | Sáng tạo | Tự do, không có đúng/sai | Không chấm. Lưu được và khoe với nhóm | Chỉ có "khi bắt đầu" |

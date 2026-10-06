@@ -9,6 +9,7 @@ export const ENGINE_REASONS = [
   'TOO_MANY_BLOCKS',
   'EMPTY_CONDITION',
   'LOOSE_BLOCKS',
+  'UNUSED_BLOCKS',
   'TIMEOUT',
   'INTERNAL_ERROR',
 ] as const;

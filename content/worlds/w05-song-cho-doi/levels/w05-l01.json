@@ -1,0 +1,117 @@
+{
+  "id": "w05-l01",
+  "worldId": "w05-song-cho-doi",
+  "stage": "guided",
+  "kind": "runner",
+  "mode": "build",
+  "title": "Đi đến khi thấy hố",
+  "objective": "Một chương trình cho 2 bờ sông. Không quá 4 khối!",
+  "learningGoal": "Dùng lặp đến khi khi không biết trước số bước: đi đến khi phía trước có hố, rồi nhảy. Một chương trình đúng cho 2 bờ dài ngắn khác nhau.",
+  "misconception": "Phải biết trước bờ dài bao nhiêu mới viết được chương trình.",
+  "mission": "Bờ sông dài bao nhiêu? Đi tới chỗ nhảy qua!",
+  "goalSprite": "flag",
+  "toolbox": ["runner_walk", "runner_jump", "cq_repeat_until", "runner_is_ahead"],
+  "maxBlocks": 4,
+  "maxLoopDepth": 1,
+  "par": 4,
+  "config": {
+    "cells": ["ground", "ground", "hole", "flag"],
+    "start": 0
+  },
+  "variants": [
+    {
+      "cells": [
+        "ground",
+        "ground",
+        "ground",
+        "ground",
+        "ground",
+        "ground",
+        "ground",
+        "hole",
+        "flag"
+      ],
+      "start": 0
+    }
+  ],
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat_until",
+              "id": "until1",
+              "inputs": {
+                "COND": {
+                  "block": {
+                    "type": "runner_is_ahead",
+                    "id": "ask1",
+                    "fields": {
+                      "KIND": "HOLE"
+                    }
+                  }
+                },
+                "DO": {
+                  "block": {
+                    "type": "runner_walk",
+                    "id": "walk1"
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "type": "runner_jump",
+                  "id": "jump1"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "new-until",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Lặp đến khi: hỏi trước mỗi vòng, đúng thì dừng.",
+      "point": "toolbox:cq_repeat_until"
+    },
+    {
+      "id": "maps",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "2 bờ sông dài ngắn khác nhau. Đúng cả hai nhé!",
+      "point": "stage"
+    },
+    {
+      "id": "hole",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "FELL_IN_HOLE"
+      },
+      "say": "Măng đi tới đâu thì phải thôi đi?",
+      "point": "toolbox:runner_is_ahead"
+    },
+    {
+      "id": "cap",
+      "when": {
+        "capacityFull": true,
+        "missing": "cq_repeat_until"
+      },
+      "say": "Hết chỗ rồi! Thử khối lặp đến khi xem.",
+      "point": "toolbox:cq_repeat_until"
+    }
+  ],
+  "thinkingHint": "Khi nào thì Măng thôi bước tới?"
+}

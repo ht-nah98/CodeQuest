@@ -1,0 +1,170 @@
+{
+  "id": "w05-l10",
+  "worldId": "w05-song-cho-doi",
+  "stage": "practice",
+  "kind": "runner",
+  "mode": "parsons",
+  "title": "Đưa Bông qua sông",
+  "objective": "Xếp khối cho Măng tới bờ bên kia nhé!",
+  "learningGoal": "Khối đã tới nơi? trong lặp đến khi; khối nếu … nếu không nằm bên trong vòng lặp nên được hỏi lại mỗi vòng.",
+  "misconception": "Khối nếu chỉ dùng được trong lặp n lần.",
+  "mission": "Lắp lại chương trình đưa Bông sang bờ bên kia.",
+  "goalSprite": "flag",
+  "toolbox": [],
+  "maxLoopDepth": 1,
+  "par": 6,
+  "config": {
+    "cells": [
+      "ground",
+      "ground",
+      "hole",
+      "ground",
+      "hole",
+      "ground",
+      "ground",
+      "hole",
+      "ground",
+      "flag"
+    ],
+    "start": 0
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false
+        },
+        {
+          "type": "cq_repeat_until",
+          "id": "until1",
+          "x": 300,
+          "y": 40
+        },
+        {
+          "type": "runner_jump",
+          "id": "jump1",
+          "x": 440,
+          "y": 104
+        },
+        {
+          "type": "runner_walk",
+          "id": "walk1",
+          "x": 300,
+          "y": 168
+        },
+        {
+          "type": "cq_if_else",
+          "id": "ifelse1",
+          "x": 440,
+          "y": 232
+        },
+        {
+          "type": "runner_at_goal",
+          "id": "ask1",
+          "x": 300,
+          "y": 296
+        },
+        {
+          "type": "runner_is_ahead",
+          "id": "ask2",
+          "fields": {
+            "KIND": "HOLE"
+          },
+          "x": 440,
+          "y": 360
+        }
+      ]
+    }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat_until",
+              "id": "until1",
+              "inputs": {
+                "COND": {
+                  "block": {
+                    "type": "runner_at_goal",
+                    "id": "ask1"
+                  }
+                },
+                "DO": {
+                  "block": {
+                    "type": "cq_if_else",
+                    "id": "ifelse1",
+                    "inputs": {
+                      "COND": {
+                        "block": {
+                          "type": "runner_is_ahead",
+                          "id": "ask2",
+                          "fields": {
+                            "KIND": "HOLE"
+                          }
+                        }
+                      },
+                      "DO": {
+                        "block": {
+                          "type": "runner_jump",
+                          "id": "jump1"
+                        }
+                      },
+                      "ELSE": {
+                        "block": {
+                          "type": "runner_walk",
+                          "id": "walk1"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "new-goal",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Khối mới «đã tới nơi?» đúng khi Măng đứng ở cờ.",
+      "point": "block:runner_at_goal"
+    },
+    {
+      "id": "inside",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "FELL_IN_HOLE",
+        "orphans": false
+      },
+      "say": "Mỗi vòng, Măng có hỏi phía trước có hố không?",
+      "point": "block:cq_if_else"
+    },
+    {
+      "id": "loose",
+      "when": {
+        "trigger": "run-end",
+        "orphans": true
+      },
+      "say": "Còn khối rời. Nối hết vào khi bắt đầu nhé!"
+    }
+  ],
+  "thinkingHint": "Câu hỏi nào để dừng? Câu hỏi nào để chọn nhảy hay đi?"
+}

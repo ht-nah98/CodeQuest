@@ -1,0 +1,112 @@
+{
+  "id": "w05-lesson-lap-den-khi",
+  "worldId": "w05-song-cho-doi",
+  "title": "Khối lặp đến khi",
+  "beforeLevel": "w05-l01",
+  "cards": [
+    {
+      "type": "say",
+      "pose": "point",
+      "text": "Khối mới: lặp đến khi! Trước mỗi vòng, Măng hỏi."
+    },
+    {
+      "type": "demo",
+      "text": "Chưa thấy hố thì đi thêm. Thấy hố thì dừng.",
+      "kind": "runner",
+      "config": {
+        "cells": ["ground", "ground", "ground", "hole", "ground", "flag"],
+        "start": 0
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "cq_repeat_until",
+                  "id": "until1",
+                  "inputs": {
+                    "COND": {
+                      "block": {
+                        "type": "runner_is_ahead",
+                        "id": "ask1",
+                        "fields": {
+                          "KIND": "HOLE"
+                        }
+                      }
+                    },
+                    "DO": {
+                      "block": {
+                        "type": "runner_walk",
+                        "id": "walk1"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "demo",
+      "text": "Hố ngay trước mặt: dừng luôn, không đi bước nào.",
+      "kind": "runner",
+      "config": {
+        "cells": ["ground", "hole", "ground", "flag"],
+        "start": 0
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "cq_repeat_until",
+                  "id": "until1",
+                  "inputs": {
+                    "COND": {
+                      "block": {
+                        "type": "runner_is_ahead",
+                        "id": "ask1",
+                        "fields": {
+                          "KIND": "HOLE"
+                        }
+                      }
+                    },
+                    "DO": {
+                      "block": {
+                        "type": "runner_walk",
+                        "id": "walk1"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "quiz",
+      "text": "Vòng lặp dừng. Măng đứng ở đâu?",
+      "options": ["Sát mép hố", "Trong hố"],
+      "correct": 0,
+      "explain": "Thấy hố là dừng, Măng đứng sát mép hố."
+    }
+  ]
+}

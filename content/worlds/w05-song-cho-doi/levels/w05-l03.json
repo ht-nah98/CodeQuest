@@ -1,0 +1,112 @@
+{
+  "id": "w05-l03",
+  "worldId": "w05-song-cho-doi",
+  "stage": "guided",
+  "kind": "runner",
+  "mode": "predict",
+  "title": "Nước trước mặt",
+  "objective": "Đọc chương trình, chọn điều xảy ra với Măng.",
+  "learningGoal": "Lặp đến khi hỏi điều kiện trước vòng đầu tiên. Hố ở ngay trước mặt thì vòng lặp chạy 0 vòng, Măng nhảy luôn rồi đi tới cờ.",
+  "misconception": "Vòng lặp luôn chạy ít nhất 1 vòng: đi trước rồi mới hỏi.",
+  "mission": "Nước ngay trước mặt. Đoán xem Măng làm gì!",
+  "goalSprite": "flag",
+  "toolbox": [],
+  "config": {
+    "cells": ["ground", "hole", "ground", "ground", "flag"],
+    "start": 0
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat_until",
+              "id": "until1",
+              "inputs": {
+                "COND": {
+                  "block": {
+                    "type": "runner_is_ahead",
+                    "id": "ask1",
+                    "fields": {
+                      "KIND": "HOLE"
+                    }
+                  }
+                },
+                "DO": {
+                  "block": {
+                    "type": "runner_walk",
+                    "id": "walk1"
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "type": "runner_jump",
+                  "id": "jump1",
+                  "next": {
+                    "block": {
+                      "type": "runner_walk",
+                      "id": "walk2",
+                      "next": {
+                        "block": {
+                          "type": "runner_walk",
+                          "id": "walk3"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "predict": {
+    "options": [
+      {
+        "key": "win",
+        "label": "Tới lá cờ"
+      },
+      {
+        "key": "crash:FELL_IN_HOLE@1",
+        "label": "Rơi xuống hố"
+      },
+      {
+        "key": "stop@3",
+        "label": "Đứng trước cờ"
+      },
+      {
+        "key": "stop@0",
+        "label": "Đứng yên chỗ cũ"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "before",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Chỉ tay theo từng khối. Măng làm gì đầu tiên?",
+      "point": "block:cq_repeat_until"
+    },
+    {
+      "id": "look",
+      "when": {
+        "trigger": "idle"
+      },
+      "say": "Lúc bắt đầu, phía trước Măng là gì?",
+      "point": "stage"
+    }
+  ],
+  "thinkingHint": "Vòng lặp hỏi trước hay đi trước?"
+}
