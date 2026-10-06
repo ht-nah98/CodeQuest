@@ -55,8 +55,14 @@ describe('blockLimitBreach (P2-11, T16b)', () => {
 describe('guardBlockLimits (headless Blockly)', () => {
   registerAllBlocks();
 
-  /** Lets Blockly fire its queued events and the guard's deferred check run. */
-  const settle = () => new Promise((resolve) => setTimeout(resolve, 30));
+  /**
+   * Lets Blockly fire its queued events and the guard's deferred check run. Both are chained
+   * `setTimeout(0)` calls, which run in the order they were queued, so a fixed number of turns
+   * of the event loop drains them whatever the machine load (no wall-clock wait).
+   */
+  const settle = async () => {
+    for (let turn = 0; turn < 20; turn++) await new Promise((resolve) => setTimeout(resolve, 0));
+  };
 
   function workspaceWith(json: WorkspaceJson): Workspace {
     const workspace = new Workspace(new Options({}));
