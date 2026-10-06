@@ -1,0 +1,165 @@
+{
+  "id": "w05-l15",
+  "worldId": "w05-song-cho-doi",
+  "stage": "practice",
+  "kind": "runner",
+  "mode": "bughunt",
+  "title": "Đi quá mép",
+  "objective": "Đúng ở bản đồ 1, sai ở bản đồ 2. Sửa nhé!",
+  "learningGoal": "Trong vòng lặp có 2 khối đi: Măng chỉ hỏi sau mỗi 2 bước, nên ở bản đồ 2 Măng đi quá mép hố. Bỏ 1 khối đi trong vòng lặp là sửa xong.",
+  "misconception": "Đúng ở một bản đồ là đúng ở mọi bản đồ; vòng lặp dừng ngay khi thấy hố.",
+  "mission": "Đúng ở suối này, rơi ở suối kia. Sửa nhé!",
+  "goalSprite": "flag",
+  "toolbox": ["runner_walk", "runner_jump", "cq_repeat_until", "runner_is_ahead"],
+  "maxLoopDepth": 1,
+  "par": 5,
+  "parEdits": 1,
+  "config": {
+    "cells": ["ground", "ground", "ground", "hole", "ground", "flag"],
+    "start": 0
+  },
+  "variants": [
+    {
+      "cells": [
+        "ground",
+        "ground",
+        "ground",
+        "ground",
+        "ground",
+        "ground",
+        "ground",
+        "ground",
+        "ground",
+        "ground",
+        "hole",
+        "ground",
+        "flag"
+      ],
+      "start": 0
+    }
+  ],
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat_until",
+              "id": "until1",
+              "inputs": {
+                "COND": {
+                  "block": {
+                    "type": "runner_is_ahead",
+                    "id": "ask1",
+                    "fields": {
+                      "KIND": "HOLE"
+                    }
+                  }
+                },
+                "DO": {
+                  "block": {
+                    "type": "runner_walk",
+                    "id": "walk1",
+                    "next": {
+                      "block": {
+                        "type": "runner_walk",
+                        "id": "walk2"
+                      }
+                    }
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "type": "runner_jump",
+                  "id": "jump1",
+                  "next": {
+                    "block": {
+                      "type": "runner_walk",
+                      "id": "walk3"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat_until",
+              "id": "until1",
+              "inputs": {
+                "COND": {
+                  "block": {
+                    "type": "runner_is_ahead",
+                    "id": "ask1",
+                    "fields": {
+                      "KIND": "HOLE"
+                    }
+                  }
+                },
+                "DO": {
+                  "block": {
+                    "type": "runner_walk",
+                    "id": "walk1"
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "type": "runner_jump",
+                  "id": "jump1",
+                  "next": {
+                    "block": {
+                      "type": "runner_walk",
+                      "id": "walk2"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "maps",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Chạy thử cả 2 bản đồ. Bản đồ nào sai?",
+      "point": "run"
+    },
+    {
+      "id": "fell",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "FELL_IN_HOLE"
+      },
+      "say": "Bấm Từng bước ở bản đồ 2. Măng hỏi lúc nào?",
+      "point": "step"
+    }
+  ],
+  "thinkingHint": "Mỗi vòng Măng đi mấy bước rồi mới hỏi lại?"
+}

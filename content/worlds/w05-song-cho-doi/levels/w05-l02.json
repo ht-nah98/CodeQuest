@@ -1,0 +1,157 @@
+{
+  "id": "w05-l02",
+  "worldId": "w05-song-cho-doi",
+  "stage": "guided",
+  "kind": "runner",
+  "mode": "parsons",
+  "title": "Qua suối",
+  "objective": "Xếp khối cho Măng qua suối nhé!",
+  "learningGoal": "Khối nằm dưới lặp đến khi chạy sau khi vòng lặp dừng, mỗi khối một lần: đi tới mép nước, nhảy, rồi đi tiếp tới cờ.",
+  "misconception": "Mọi khối đều phải nằm trong vòng lặp.",
+  "mission": "Lắp lại chương trình qua suối của chú Ếch.",
+  "goalSprite": "flag",
+  "toolbox": [],
+  "maxLoopDepth": 1,
+  "par": 6,
+  "config": {
+    "cells": ["ground", "ground", "ground", "ground", "ground", "hole", "ground", "ground", "flag"],
+    "start": 0
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false
+        },
+        {
+          "type": "cq_repeat_until",
+          "id": "until1",
+          "x": 300,
+          "y": 40
+        },
+        {
+          "type": "runner_walk",
+          "id": "walk2",
+          "x": 440,
+          "y": 104
+        },
+        {
+          "type": "runner_walk",
+          "id": "walk3",
+          "x": 300,
+          "y": 168
+        },
+        {
+          "type": "runner_walk",
+          "id": "walk1",
+          "x": 440,
+          "y": 232
+        },
+        {
+          "type": "runner_is_ahead",
+          "id": "ask1",
+          "fields": {
+            "KIND": "HOLE"
+          },
+          "x": 300,
+          "y": 296
+        },
+        {
+          "type": "runner_jump",
+          "id": "jump1",
+          "x": 440,
+          "y": 360
+        }
+      ]
+    }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat_until",
+              "id": "until1",
+              "inputs": {
+                "COND": {
+                  "block": {
+                    "type": "runner_is_ahead",
+                    "id": "ask1",
+                    "fields": {
+                      "KIND": "HOLE"
+                    }
+                  }
+                },
+                "DO": {
+                  "block": {
+                    "type": "runner_walk",
+                    "id": "walk1"
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "type": "runner_jump",
+                  "id": "jump1",
+                  "next": {
+                    "block": {
+                      "type": "runner_walk",
+                      "id": "walk2",
+                      "next": {
+                        "block": {
+                          "type": "runner_walk",
+                          "id": "walk3"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "after",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Vòng lặp dừng rồi, Măng chạy khối nằm dưới nó.",
+      "point": "block:cq_repeat_until"
+    },
+    {
+      "id": "inside",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "FELL_IN_HOLE",
+        "orphans": false
+      },
+      "say": "Mỗi vòng Măng đi mấy bước? Đi rồi mới hỏi lại.",
+      "point": "block:cq_repeat_until"
+    },
+    {
+      "id": "loose",
+      "when": {
+        "trigger": "run-end",
+        "orphans": true
+      },
+      "say": "Còn khối rời. Nối hết vào khi bắt đầu nhé!"
+    }
+  ],
+  "thinkingHint": "Vòng lặp dừng rồi, Măng làm gì tiếp?"
+}

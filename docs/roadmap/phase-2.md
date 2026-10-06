@@ -22,7 +22,7 @@
 | P2-11 | Khối điều kiện, lặp đến khi, cảm biến sáng khi kiểm | P2-10 (bản nháp) | AI | 🟨 headless + web xong, chờ HLV chơi thử W4 |
 | P2-12 | Màn nhiều bản đồ (một chương trình, 2–3 bản đồ) | P2-10 (bản nháp) | AI | ✅ |
 | P2-13 | Nội dung Thế giới 4 · Ngã Ba Quyết Định (20 màn + bài giảng) | P2-08, P2-11, P2-12 | AI soạn nháp · HLV duyệt | 🟨 chờ HLV chơi thử |
-| P2-14 | Nội dung Thế giới 5 · Sông Chờ Đợi (20 màn + bài giảng) | P2-13 | AI soạn nháp · HLV duyệt | ⬜ |
+| P2-14 | Nội dung Thế giới 5 · Sông Chờ Đợi (20 màn + bài giảng) | P2-13 | AI soạn nháp · HLV duyệt | 🟨 chờ HLV chơi thử |
 | P2-15 | Package `@codequest/validator` + công cụ vét cạn `par` | — | AI | ✅ |
 | P2-16 | Nối Supabase thật: chạy migration, test SQL, deploy function, e2e có server | P2-01…P2-06, P2-17, P2-20 | AI · HLV cấp khóa | ⛔ |
 | P2-17 | Hạ tầng của HLV: Supabase, Docker, GitHub, Vercel (AI viết hướng dẫn trước) | — | AI viết hướng dẫn · HLV làm | ⬜ |
@@ -31,7 +31,7 @@
 | P2-20 | Màn Ghép máy của bé + giao diện tài khoản trong Góc HLV (với client giả) | P2-03, P2-05 | AI | ⬜ |
 | P2-21 | Sao theo mục tiêu màn: nhiều đường giải, đường tối ưu được nhiều sao nhất (góp ý HLV 03/10) | P2-10, P2-15 | AI (luật HLV đã duyệt 03/10) | 🟨 chờ HLV xem |
 | P2-22 | Xem cả đường: phóng to bản đồ nhỏ, kéo trái/phải, vạch đếm ô (góp ý HLV 03/10) | — | AI | 🟨 chờ HLV xem |
-| P2-23 | Cảnh riêng cho từng thế giới: nền, nền đất, ô tường, đồ trang trí (góp ý HLV 04/10) | P2-21 (UI) | AI (HLV duyệt chủ đề 04/10, không cần duyệt ảnh) | ⬜ |
+| P2-23 | Cảnh riêng cho từng thế giới: nền, nền đất, ô tường, đồ trang trí (góp ý HLV 04/10) | P2-21 (UI) | AI (HLV duyệt chủ đề 04/10, không cần duyệt ảnh) | 🟨 |
 
 Thay đổi so với khung ở `later-phases.md`: P2-08 khung (nội dung Thế giới 3–5) tách thành **P2-08** (W3), **P2-13** (W4), **P2-14** (W5). Phần "sorter tối thiểu nếu Thế giới 4 cần" **hủy**: Thế giới 4 dùng `runner` và `maze` (`curriculum.md` §2), sorter để GĐ 4. P2-09 khung tách thành **P2-09** (PWA, AI làm ngay) và **P2-18** (deploy, cần Vercel). Thêm P2-10…P2-20. "Thợ săn lỗi" trong `master-plan.md` §9 là mode `bughunt`, đã có từ P1-06.
 
@@ -271,6 +271,7 @@ Theo bảng ở `curriculum.md` (mục Thế giới 4). `world.json`, `w04-lesso
 ### P2-14 · Nội dung Thế giới 5 · Sông Chờ Đợi
 Theo bảng ở `curriculum.md` (mục Thế giới 5). `world.json`, `w05-lesson` (thẻ `demo` có một vòng lặp vô hạn để bé thấy "vòng lặp không tự dừng"), 20 màn + `w05-creative`, unplugged. Boss: qua sông không biết trước độ dài (nhiều bản đồ khác độ dài).
 **Nghiệm thu:** như P2-13 (thay `w04` bằng `w05`), thêm: ít nhất 1 màn `bughunt` có lỗi lặp vô hạn và 1 màn `predict` hỏi "vòng lặp có dừng không?". **HLV chơi thử từng màn.**
+**Trạng thái (05/10/2026):** 🟨 đã soạn nháp `world.json` (cảnh `song`, unplugged "Đi đến khi chạm tường"), `w05-lesson` (thẻ 1 nối truyện W4, thẻ 5 vòng lặp không dừng) + 4 bài "Khối mới" (`w05-lesson-lap-den-khi`, `w05-lesson-toi-dich`, `w05-lesson-toi-noi`, `w05-lesson-don-ban`), 20 màn + `w05-creative`; `content:check` xanh không cảnh báo; `npm run par -- --world w05` ✔ mọi màn build/bughunt (bản đồ `l12`, `l15`, `l18` sửa khi soạn), ghép hình `l02`, `l10` đúng 1 cách, `l16` ⚠ 4 cách tương đương (`curriculum.md` §5.3 "Ghi chú khi soạn (P2-14)"); test `tools/content-check/src/w05.test.ts`. Bughunt lặp không dừng: `l05`, `l12`; predict "vòng lặp có dừng không?": `l07`, `l19`. Review sư phạm độc lập (05/10) đã xử lý, kèm luật engine mới cho ghép hình: mọi khối phải chạy (`UNUSED_BLOCKS`, G22) và `npm run par` kiểm mọi cách ghép (W4 `l14` đổi bản đồ). Còn: e2e smoke, **HLV chơi thử** (cả W4 `l14`).
 
 ### P2-15 · Package `@codequest/validator` + công cụ vét cạn `par`
 **Mục tiêu:** luật kiểm chứng chạy được **cả trên Node và trong trình duyệt** (editor), và việc kiểm `par` bằng vét cạn (đã làm tay ở W2) thành công cụ dùng lại.
@@ -360,3 +361,4 @@ Buổi học nhóm theo `playbooks/playtest.md`: 6 bé chơi W3 trên máy riên
 **Làm:** trường `theme` trong `world.json` (mặc định `lang-tre`); sân chơi runner/mê cung, dải bản đồ, khung "Xem cả đường", hình thẻ đoán và đảo trên bản đồ phiêu lưu đều vẽ theo theme. Cảnh vẽ bằng code pixel-art như hiện nay (`scenery.ts`, `pixelArt.ts`), giữ phong cách "Pixel ấm áp" và độ tương phản của ô nguy hiểm (hố, cành, thùng luôn dễ nhận ra).
 - W1 `lang-tre` (giữ), W2 `rung-lap-lai` (rừng sâu, tre đậm, đom đóm), W3 `xuong` (xưởng gỗ: bánh răng, đèn lồng, sàn ván, dây cót), W4 `nga-ba` (đường núi, biển chỉ đường, đá), W5 `song` (bờ sông, nước, bến đò, cầu tre ở boss).
 **Nghiệm thu:** ảnh chụp mỗi theme ở 1280/1366, e2e mở một màn mỗi thế giới; ô nguy hiểm vẫn phân biệt rõ (kiểm tương phản); review nội bộ (HLV đã duyệt chủ đề 04/10, không cần gửi ảnh).
+**Trạng thái (05/10/2026):** 🟨 AI làm xong, chờ review nội bộ (chưa commit). Trường là `world.theme.scene` (vì `theme` đã là object `{ tileset, palette }`), schema `SCENE_THEMES` + `sceneThemeOf` ở content-schema, W1–W4 đã ghi cảnh; W5 chưa có nội dung nên `song` chỉ xem được qua `?theme=song` (bản dev). Cảnh vẽ bằng mã (`stages/sceneThemes.ts`, `sceneTiles.ts`, `runner/scenery.ts`, `runner/decor.ts`), áp cho runner (trời, 3 lớp parallax, đất), maze (tường, đường, nền), dải cả đường, "Xem cả đường", thẻ đáp án, bài giảng demo, "Thử chơi" của editor và đảo trên bản đồ. Vật cản, vật nhặt, đích giữ nguyên; unit test tương phản (WCAG 3:1, `sceneThemes.test.ts`); đom đóm và ánh nước đứng yên khi giảm chuyển động; texture cache theo cảnh. Cầu tre ở màn boss của `song`. Thêm: thay ✔/✘ trong bài giảng, câu đố và `learningGoal` của W4 bằng chữ (Có/Không, đúng/sai) vì font Baloo 2 không có hai ký tự đó. e2e `scene-themes.spec.ts` ở 1280 và 1366. Chi tiết: `architecture/stage-rendering.md` §7.

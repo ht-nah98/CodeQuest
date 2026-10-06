@@ -12,6 +12,10 @@ export { toolboxTypes } from './levelRules';
 export { blockTypesOf } from './workspace';
 export { countWords } from './words';
 
+// Parsons uniqueness: every winning arrangement of the given blocks (npm run par).
+export { DEFAULT_MAX_PARSONS_RUNS, findParsonsArrangements } from './parsons';
+export type { ParsonsOptions, ParsonsResult } from './parsons';
+
 // Exhaustive searches (npm run par, level editor).
 export {
   findShortestPrograms,

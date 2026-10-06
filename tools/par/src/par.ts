@@ -2,6 +2,7 @@ import { basename, join, resolve } from 'node:path';
 import type { Level } from '@codequest/content-schema';
 import {
   findFixes,
+  findParsonsArrangements,
   findShortestPrograms,
   formatProgram,
   type Program,
@@ -113,6 +114,7 @@ export function judgeLevel(level: Level, options: ShortestOptions): Verdict {
   // A multi-map level (P2-12): the search only counts programs that win every map.
   const maps = level.variants === undefined ? '' : `  maps ${String(level.variants.length + 1)}`;
   const name = `${level.id} ${level.kind}/${level.mode}${maps}`;
+  if (level.mode === 'parsons') return judgeParsons(level, name, options);
   if (level.mode !== 'build' && level.mode !== 'bughunt') {
     return { mark: '–', head: `${name}  skipped (blocks are given)`, lines: [] };
   }
@@ -186,5 +188,31 @@ export function judgeLevel(level: Level, options: ShortestOptions): Verdict {
   } catch (error) {
     const mark = error instanceof UnsearchableLevel ? '⚠' : '✖';
     return { mark, head: `${name}  ${describeError(error)}`, lines: [] };
+  }
+}
+
+/**
+ * Parsons (G22): runs every arrangement of the given blocks. ✔ exactly one wins (the
+ * solution); ⚠ more than one wins (the child can win without the idea), or the run budget /
+ * --timeout stopped it; ✖ none wins (the solution itself loses: content:check rule 9 says why).
+ */
+export function judgeParsons(level: Level, name: string, options: ShortestOptions): Verdict {
+  try {
+    const found = findParsonsArrangements(level, {
+      ...(options.shouldStop !== undefined && { shouldStop: options.shouldStop }),
+      ...(options.getKind !== undefined && { getKind: options.getKind }),
+    });
+    const runs = `${found.complete ? '' : '≥'}${String(found.runs)}`;
+    const head = `${name}  arrangements ${runs}  wins ${String(found.wins)}`;
+    const lines = found.examples.map((text) => `win: ${text}`);
+    if (!found.complete) lines.push('arrangement search stopped (budget or --timeout)');
+    if (found.wins === 0) return { mark: found.complete ? '✖' : '⚠', head, lines };
+    if (found.wins > 1) {
+      lines.push(`${String(found.wins)} arrangements win: the child can skip the idea`);
+      return { mark: '⚠', head, lines };
+    }
+    return { mark: found.complete ? '✔' : '⚠', head, lines };
+  } catch (error) {
+    return { mark: '✖', head: `${name}  ${describeError(error)}`, lines: [] };
   }
 }

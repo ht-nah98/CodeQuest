@@ -1,0 +1,73 @@
+{
+  "id": "w05-creative",
+  "worldId": "w05-song-cho-doi",
+  "stage": "creative",
+  "kind": "runner",
+  "mode": "creative",
+  "title": "Máy qua sông",
+  "objective": "Tự làm máy qua sông, thử trên con đường dài!",
+  "learningGoal": "Tự ghép chương trình có lặp đến khi và câu hỏi, thử trên một con đường dài có hố, cành, thùng.",
+  "mission": "Làm máy qua sông cho cả làng!",
+  "goalSprite": "flag",
+  "toolbox": [
+    "runner_walk",
+    "runner_jump",
+    "runner_crouch",
+    "runner_kick",
+    {
+      "type": "cq_repeat",
+      "fields": {
+        "TIMES": 3
+      }
+    },
+    "cq_repeat_until",
+    "cq_if",
+    "cq_if_else",
+    "runner_is_ahead",
+    "runner_at_goal"
+  ],
+  "config": {
+    "cells": [
+      "ground",
+      "ground",
+      "hole",
+      "ground",
+      "ground",
+      "branch",
+      "ground",
+      "ground",
+      "crate",
+      "ground",
+      "ground",
+      "ground",
+      "hole",
+      "ground",
+      "hole",
+      "ground",
+      "ground",
+      "branch",
+      "ground",
+      "ground",
+      "ground",
+      "crate",
+      "ground",
+      "ground",
+      "hole",
+      "ground",
+      "ground",
+      "ground",
+      "flag"
+    ],
+    "start": 0
+  },
+  "hints": [
+    {
+      "id": "free",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Ghép máy qua sông, rồi bấm Chạy xem!",
+      "point": "stage"
+    }
+  ]
+}

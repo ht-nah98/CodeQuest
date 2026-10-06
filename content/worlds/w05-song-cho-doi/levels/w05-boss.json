@@ -1,0 +1,221 @@
+{
+  "id": "w05-boss",
+  "worldId": "w05-song-cho-doi",
+  "stage": "boss",
+  "kind": "runner",
+  "mode": "build",
+  "title": "Đón Gà con",
+  "objective": "Một chương trình cho 3 bờ sông. Không quá 6 khối!",
+  "learningGoal": "Qua sông không biết trước độ dài: lặp đến khi đã tới nơi, bên trong nếu có hố thì nhảy, nếu không thì đi. Măng đứng ở ô Gà con để đón em rồi mới về nhà.",
+  "mission": "Qua sông đón Gà con rồi đưa em về nhà!",
+  "goalSprite": "home",
+  "toolbox": [
+    "runner_walk",
+    "runner_jump",
+    "cq_repeat_until",
+    "cq_if_else",
+    "runner_is_ahead",
+    "runner_at_goal"
+  ],
+  "maxBlocks": 6,
+  "maxInstances": {
+    "cq_repeat_until": 1
+  },
+  "maxLoopDepth": 1,
+  "par": 6,
+  "config": {
+    "cells": [
+      "ground",
+      "ground",
+      "ground",
+      "hole",
+      "ground",
+      "ground",
+      "hole",
+      "ground",
+      "hole",
+      "ground",
+      "ground",
+      "ground",
+      "flag"
+    ],
+    "start": 0,
+    "goal": {
+      "items": [
+        {
+          "kind": "friend",
+          "at": 4
+        }
+      ]
+    }
+  },
+  "variants": [
+    {
+      "cells": [
+        "ground",
+        "ground",
+        "hole",
+        "ground",
+        "hole",
+        "ground",
+        "hole",
+        "ground",
+        "hole",
+        "ground",
+        "hole",
+        "ground",
+        "ground",
+        "hole",
+        "ground",
+        "flag"
+      ],
+      "start": 0,
+      "goal": {
+        "items": [
+          {
+            "kind": "friend",
+            "at": 7
+          }
+        ]
+      }
+    },
+    {
+      "cells": [
+        "ground",
+        "ground",
+        "ground",
+        "ground",
+        "hole",
+        "ground",
+        "ground",
+        "ground",
+        "hole",
+        "ground",
+        "hole",
+        "ground",
+        "hole",
+        "ground",
+        "ground",
+        "ground",
+        "ground",
+        "ground",
+        "hole",
+        "ground",
+        "ground",
+        "hole",
+        "ground",
+        "hole",
+        "ground",
+        "hole",
+        "ground",
+        "ground",
+        "ground",
+        "hole",
+        "ground",
+        "ground",
+        "ground",
+        "hole",
+        "ground",
+        "hole",
+        "ground",
+        "ground",
+        "flag"
+      ],
+      "start": 0,
+      "goal": {
+        "items": [
+          {
+            "kind": "friend",
+            "at": 22
+          }
+        ]
+      }
+    }
+  ],
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat_until",
+              "id": "until1",
+              "inputs": {
+                "COND": {
+                  "block": {
+                    "type": "runner_at_goal",
+                    "id": "ask1"
+                  }
+                },
+                "DO": {
+                  "block": {
+                    "type": "cq_if_else",
+                    "id": "ifelse1",
+                    "inputs": {
+                      "COND": {
+                        "block": {
+                          "type": "runner_is_ahead",
+                          "id": "ask2",
+                          "fields": {
+                            "KIND": "HOLE"
+                          }
+                        }
+                      },
+                      "DO": {
+                        "block": {
+                          "type": "runner_jump",
+                          "id": "jump1"
+                        }
+                      },
+                      "ELSE": {
+                        "block": {
+                          "type": "runner_walk",
+                          "id": "walk1"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "friend",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Gà con chờ trên đường. Đứng ở ô em là đón được!",
+      "point": "stage"
+    },
+    {
+      "id": "hole",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "FELL_IN_HOLE"
+      },
+      "say": "Mỗi vòng hỏi lại. Có hố thì sao, không có thì sao?",
+      "point": "toolbox:cq_if_else"
+    },
+    {
+      "id": "more",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "NOT_AT_GOAL"
+      },
+      "say": "Chưa về tới nhà. Lặp đến khi nào?",
+      "point": "toolbox:cq_repeat_until"
+    }
+  ],
+  "thinkingHint": "Bờ dài nhất cần mấy vòng? Con có cần biết không?"
+}

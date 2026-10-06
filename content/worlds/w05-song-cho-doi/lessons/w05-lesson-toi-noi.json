@@ -1,0 +1,116 @@
+{
+  "id": "w05-lesson-toi-noi",
+  "worldId": "w05-song-cho-doi",
+  "title": "Khối đã tới nơi?",
+  "beforeLevel": "w05-l10",
+  "cards": [
+    {
+      "type": "say",
+      "pose": "point",
+      "text": "Khối mới: đã tới nơi? Măng đứng ở cờ thì đúng."
+    },
+    {
+      "type": "demo",
+      "text": "Chưa tới nơi thì đi thêm. Tới cờ là thắng ngay!",
+      "kind": "runner",
+      "config": {
+        "cells": ["ground", "ground", "ground", "flag"],
+        "start": 0
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "cq_repeat_until",
+                  "id": "until1",
+                  "inputs": {
+                    "COND": {
+                      "block": {
+                        "type": "runner_at_goal",
+                        "id": "ask1"
+                      }
+                    },
+                    "DO": {
+                      "block": {
+                        "type": "runner_walk",
+                        "id": "walk1"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "demo",
+      "text": "Đường dài hơn, chương trình vẫn đúng!",
+      "kind": "runner",
+      "config": {
+        "cells": [
+          "ground",
+          "ground",
+          "ground",
+          "ground",
+          "ground",
+          "ground",
+          "ground",
+          "ground",
+          "flag"
+        ],
+        "start": 0
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "cq_repeat_until",
+                  "id": "until1",
+                  "inputs": {
+                    "COND": {
+                      "block": {
+                        "type": "runner_at_goal",
+                        "id": "ask1"
+                      }
+                    },
+                    "DO": {
+                      "block": {
+                        "type": "runner_walk",
+                        "id": "walk1"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "quiz",
+      "text": "Đường dài gấp đôi. Chương trình còn đúng không?",
+      "options": ["Vẫn đúng", "Phải sửa"],
+      "correct": 0,
+      "explain": "Lặp đến khi tới nơi, đường dài mấy cũng được."
+    }
+  ]
+}

@@ -1,3 +1,4 @@
+import { ConnectionType } from 'blockly';
 import Interpreter from 'js-interpreter';
 import type { Level, ReasonCode, RunResult, WorkspaceJson } from '@codequest/content-schema';
 import { COND_INPUT, CONDITION_BLOCK_TYPES } from '../blocks/common';
@@ -30,6 +31,8 @@ class ActionLimitSignal extends Error {}
 
 interface Compiled {
   analysis: WorkspaceAnalysis;
+  /** A program block has an empty statement input (a loop body or an if branch). */
+  emptyStatementInput: boolean;
   code: string | { kind: 'empty' } | { kind: 'too-many' } | { kind: 'empty-condition' };
 }
 
@@ -84,10 +87,18 @@ export function runLevel<C, S, E extends GameEvent>(input: RunLevelInput<C, S, E
       const analysis = analyzeLoaded(ws);
       const start = analysis.startBlockId === null ? null : ws.getBlockById(analysis.startBlockId);
       // Empty = nothing under cq_start, even if function definitions exist.
+      // Parsons (G22): a loop body or an if branch left empty means a block is not where it goes.
+      const emptyStatementInput = analysis.programBlockIds.some((id) =>
+        (ws.getBlockById(id)?.inputList ?? []).some(
+          (input) =>
+            input.connection?.type === ConnectionType.NEXT_STATEMENT &&
+            input.connection.targetBlock() === null,
+        ),
+      );
       if (start === null || start.getNextBlock() === null)
-        return { analysis, code: { kind: 'empty' } };
+        return { analysis, emptyStatementInput, code: { kind: 'empty' } };
       if (level.maxBlocks !== undefined && analysis.blocksUsed > level.maxBlocks) {
-        return { analysis, code: { kind: 'too-many' } };
+        return { analysis, emptyStatementInput, code: { kind: 'too-many' } };
       }
       // A question slot left empty (P2-11): refuse to guess (Blockly would read it as false).
       const emptyCondition = analysis.programBlockIds.some((id) => {
@@ -98,14 +109,15 @@ export function runLevel<C, S, E extends GameEvent>(input: RunLevelInput<C, S, E
           block.getInputTargetBlock(COND_INPUT) === null
         );
       });
-      if (emptyCondition) return { analysis, code: { kind: 'empty-condition' } };
-      return { analysis, code: compileLoaded(ws, start.id) };
+      if (emptyCondition)
+        return { analysis, emptyStatementInput, code: { kind: 'empty-condition' } };
+      return { analysis, emptyStatementInput, code: compileLoaded(ws, start.id) };
     });
   } catch (error) {
     return errorOutcome('INTERNAL_ERROR', 0, `workspace: ${describe(error)}`);
   }
 
-  const { analysis, code } = compiled;
+  const { analysis, emptyStatementInput, code } = compiled;
   if (typeof code !== 'string') {
     const reasons = {
       empty: 'EMPTY_PROGRAM',
@@ -157,13 +169,16 @@ export function runLevel<C, S, E extends GameEvent>(input: RunLevelInput<C, S, E
   }
   // Parsons (coach question G22): every given block must be joined under "khi bắt đầu"; a
   // program that wins while blocks are still loose does not count.
-  if (
-    level.mode === 'parsons' &&
-    outcome.result === 'success' &&
-    analysis.orphanBlockIds.length > 0
-  ) {
-    outcome.result = 'incomplete';
-    outcome.reasonCode = 'LOOSE_BLOCKS';
+  if (level.mode === 'parsons' && outcome.result === 'success') {
+    if (analysis.orphanBlockIds.length > 0) {
+      outcome.result = 'incomplete';
+      outcome.reasonCode = 'LOOSE_BLOCKS';
+    } else if (emptyStatementInput || !everyBlockRan(analysis, maps)) {
+      // Joined but not where it goes: a block that never ran (asked or executed) on any map,
+      // or an empty loop body / if branch, means another arrangement is meant.
+      outcome.result = 'incomplete';
+      outcome.reasonCode = 'UNUSED_BLOCKS';
+    }
   }
   if (mapOutcome.result === 'error') {
     // An engine error on a variant says which map it came from, as an invalid config does.
@@ -192,6 +207,22 @@ export function runLevel<C, S, E extends GameEvent>(input: RunLevelInput<C, S, E
     };
   }
   return outcome;
+}
+
+/** Every program block was highlighted (statements) or asked (sensors) on at least one map. */
+function everyBlockRan<S, E extends GameEvent>(
+  analysis: WorkspaceAnalysis,
+  maps: ReadonlyArray<MapRun<S, E>>,
+): boolean {
+  const ran = new Set<string>();
+  for (const run of maps) {
+    for (const event of run.outcome.events) {
+      if ((event.type === 'highlight' || event.type === 'sense') && event.blockId !== null) {
+        ran.add(event.blockId);
+      }
+    }
+  }
+  return analysis.programBlockIds.every((id) => id === analysis.startBlockId || ran.has(id));
 }
 
 /** One map's run and the final state (for `predictAnswer`). */

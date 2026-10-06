@@ -1,0 +1,234 @@
+{
+  "id": "w05-l13",
+  "worldId": "w05-song-cho-doi",
+  "stage": "practice",
+  "kind": "runner",
+  "mode": "bughunt",
+  "title": "Lặp 20 lần chưa đủ",
+  "objective": "Bờ sông dài quá. Đổi khối lặp cho Măng tới bờ!",
+  "learningGoal": "Lặp 20 lần không đủ cho đường dài: đổi khối lặp thành lặp đến khi rồi cắm câu hỏi đã tới nơi? (2 thao tác). Lặp đến khi chạy bao nhiêu vòng cũng được.",
+  "misconception": "Lặp 20 lần là đủ cho mọi con đường.",
+  "mission": "Lặp 20 lần chưa sang tới bờ. Sửa nhé!",
+  "goalSprite": "flag",
+  "toolbox": [
+    "runner_walk",
+    "runner_jump",
+    {
+      "type": "cq_repeat",
+      "fields": {
+        "TIMES": 20
+      }
+    },
+    "cq_repeat_until",
+    "cq_if_else",
+    "runner_is_ahead",
+    "runner_at_goal"
+  ],
+  "maxLoopDepth": 1,
+  "par": 6,
+  "parEdits": 2,
+  "config": {
+    "cells": [
+      "ground",
+      "ground",
+      "hole",
+      "ground",
+      "ground",
+      "ground",
+      "hole",
+      "ground",
+      "hole",
+      "ground",
+      "ground",
+      "ground",
+      "ground",
+      "hole",
+      "ground",
+      "ground",
+      "hole",
+      "ground",
+      "hole",
+      "ground",
+      "ground",
+      "ground",
+      "hole",
+      "ground",
+      "ground",
+      "ground",
+      "ground",
+      "hole",
+      "ground",
+      "hole",
+      "ground",
+      "ground",
+      "hole",
+      "ground",
+      "ground",
+      "ground",
+      "ground",
+      "ground",
+      "ground",
+      "flag"
+    ],
+    "start": 0
+  },
+  "variants": [
+    {
+      "cells": [
+        "ground",
+        "ground",
+        "ground",
+        "hole",
+        "ground",
+        "hole",
+        "ground",
+        "ground",
+        "ground",
+        "ground",
+        "ground",
+        "hole",
+        "ground",
+        "ground",
+        "hole",
+        "ground",
+        "hole",
+        "ground",
+        "ground",
+        "ground",
+        "flag"
+      ],
+      "start": 0
+    }
+  ],
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "rep1",
+              "fields": {
+                "TIMES": 20
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "cq_if_else",
+                    "id": "ifelse1",
+                    "inputs": {
+                      "COND": {
+                        "block": {
+                          "type": "runner_is_ahead",
+                          "id": "ask1",
+                          "fields": {
+                            "KIND": "HOLE"
+                          }
+                        }
+                      },
+                      "DO": {
+                        "block": {
+                          "type": "runner_jump",
+                          "id": "jump1"
+                        }
+                      },
+                      "ELSE": {
+                        "block": {
+                          "type": "runner_walk",
+                          "id": "walk1"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat_until",
+              "id": "until1",
+              "inputs": {
+                "COND": {
+                  "block": {
+                    "type": "runner_at_goal",
+                    "id": "ask1"
+                  }
+                },
+                "DO": {
+                  "block": {
+                    "type": "cq_if_else",
+                    "id": "ifelse1",
+                    "inputs": {
+                      "COND": {
+                        "block": {
+                          "type": "runner_is_ahead",
+                          "id": "ask2",
+                          "fields": {
+                            "KIND": "HOLE"
+                          }
+                        }
+                      },
+                      "DO": {
+                        "block": {
+                          "type": "runner_jump",
+                          "id": "jump1"
+                        }
+                      },
+                      "ELSE": {
+                        "block": {
+                          "type": "runner_walk",
+                          "id": "walk1"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "maps",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Chạy thử cả 2 bản đồ. Bản đồ nào chưa tới?",
+      "point": "run"
+    },
+    {
+      "id": "more",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "NOT_AT_GOAL"
+      },
+      "say": "Lặp 20 lần vẫn chưa tới. Lặp đến khi nào?",
+      "point": "block:cq_repeat"
+    }
+  ],
+  "thinkingHint": "Con có biết trước bờ sông dài bao nhiêu không?"
+}

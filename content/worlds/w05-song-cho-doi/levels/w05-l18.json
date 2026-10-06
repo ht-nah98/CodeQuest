@@ -1,0 +1,157 @@
+{
+  "id": "w05-l18",
+  "worldId": "w05-song-cho-doi",
+  "stage": "challenge",
+  "kind": "runner",
+  "mode": "bughunt",
+  "title": "2 chỗ sai",
+  "objective": "Có 2 chỗ sai. Sửa từng chỗ, chạy lại nhé!",
+  "learningGoal": "2 lỗi: câu hỏi chờ cành (đường không có cành) và trong vòng lặp thừa 1 khối đi. Sửa cả hai mới thắng cả 2 bản đồ; sửa một chỗ vẫn rơi xuống nước.",
+  "misconception": "Sửa xong 1 chỗ mà vẫn sai thì sửa nhầm chỗ.",
+  "mission": "Bông chờ bên kia sông. Sửa 2 chỗ sai nhé!",
+  "goalSprite": "flag",
+  "toolbox": ["runner_walk", "runner_jump", "cq_repeat_until", "runner_is_ahead"],
+  "maxLoopDepth": 1,
+  "par": 5,
+  "parEdits": 2,
+  "config": {
+    "cells": ["ground", "ground", "ground", "hole", "ground", "flag"],
+    "start": 0
+  },
+  "variants": [
+    {
+      "cells": [
+        "ground",
+        "ground",
+        "ground",
+        "ground",
+        "ground",
+        "ground",
+        "ground",
+        "ground",
+        "ground",
+        "ground",
+        "hole",
+        "ground",
+        "flag"
+      ],
+      "start": 0
+    }
+  ],
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat_until",
+              "id": "until1",
+              "inputs": {
+                "COND": {
+                  "block": {
+                    "type": "runner_is_ahead",
+                    "id": "ask1",
+                    "fields": {
+                      "KIND": "BRANCH"
+                    }
+                  }
+                },
+                "DO": {
+                  "block": {
+                    "type": "runner_walk",
+                    "id": "walk1",
+                    "next": {
+                      "block": {
+                        "type": "runner_walk",
+                        "id": "walk2"
+                      }
+                    }
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "type": "runner_jump",
+                  "id": "jump1",
+                  "next": {
+                    "block": {
+                      "type": "runner_walk",
+                      "id": "walk3"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat_until",
+              "id": "until1",
+              "inputs": {
+                "COND": {
+                  "block": {
+                    "type": "runner_is_ahead",
+                    "id": "ask1",
+                    "fields": {
+                      "KIND": "HOLE"
+                    }
+                  }
+                },
+                "DO": {
+                  "block": {
+                    "type": "runner_walk",
+                    "id": "walk1"
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "type": "runner_jump",
+                  "id": "jump1",
+                  "next": {
+                    "block": {
+                      "type": "runner_walk",
+                      "id": "walk2"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "fell",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "FELL_IN_HOLE"
+      },
+      "say": "Măng chờ thấy gì? Mỗi vòng đi mấy bước?",
+      "point": "block:runner_is_ahead"
+    }
+  ],
+  "thinkingHint": "Sửa một chỗ vẫn rơi? Có khi còn chỗ sai nữa."
+}

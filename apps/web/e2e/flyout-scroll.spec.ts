@@ -30,6 +30,10 @@ async function open(page: Page, levelId: string): Promise<void> {
     () => (window as unknown as Partial<HookWindow>).__cqPlay !== undefined,
   );
   await expect(page.locator(FLYOUT)).toBeVisible();
+  // A level with star goals opens its card first; it covers the flyout until the child starts.
+  const go = page.getByTestId('star-goals-go');
+  if (await go.isVisible()) await go.click();
+  await expect(page.getByTestId('star-goals-card')).toHaveCount(0);
 }
 
 /** The flyout's scroll position, its range, and how far block `type` sits outside the view. */
@@ -165,10 +169,11 @@ for (const level of LEVELS) {
       await page.mouse.wheel(0, 100);
       await expect.poll(async () => (await flyoutState(page)).top).toBeGreaterThan(0);
       // …and over the zero-height trashcan scrollbar on the flyout's left edge.
-      const before = (await flyoutState(page)).top;
+      await page.mouse.wheel(0, -5000);
+      await expect.poll(async () => (await flyoutState(page)).top).toBe(0);
       await page.mouse.move(start.left + 4, start.areaTop + 40);
-      await page.mouse.wheel(0, 40);
-      await expect.poll(async () => (await flyoutState(page)).top).toBeGreaterThan(before);
+      await page.mouse.wheel(0, 10);
+      await expect.poll(async () => (await flyoutState(page)).top).toBeGreaterThan(0);
 
       // Back to the top, then drag the thumb to the bottom of its track.
       await page.mouse.wheel(0, -5000);
@@ -191,3 +196,48 @@ for (const level of LEVELS) {
     });
   });
 }
+
+// Real window sizes (browser chrome and Windows scaling take part of the screen): the flyout must
+// either fit the whole toolbox or scroll to its last block, never hide it (the coach's 1913×875).
+const WINDOWS = [
+  [1913, 875],
+  [1913, 860],
+  [1913, 900],
+  [1536, 730],
+  [1440, 800],
+] as const;
+const W4_LEVELS = ['w04-l02', 'w04-l04', 'w04-l08', 'w04-l16', 'w04-boss'] as const;
+
+test.describe('toolbox of Thế giới 4 on real window sizes', () => {
+  for (const [width, height] of WINDOWS) {
+    test(`${String(width)}×${String(height)}: every toolbox shows its last block`, async ({
+      page,
+    }) => {
+      test.setTimeout(120_000);
+      await page.setViewportSize({ width, height });
+      for (const id of W4_LEVELS) {
+        await open(page, id);
+        const state = await flyoutState(page);
+        // Tall windows need no scrolling at all.
+        if (width === 1913) expect(state.fits, `${id} fits`).toBe(true);
+        // Wheel over a block, then over the background, reaches the last block.
+        await wheelTo(page).catch((e: unknown) => {
+          throw new Error(`${id}: ${String(e)} ${JSON.stringify(state)}`);
+        });
+        expect((await flyoutState(page)).below, `${id} last block`).toBeLessThanOrEqual(0);
+        await page.mouse.wheel(0, -5000);
+        await expect.poll(async () => (await flyoutState(page)).top).toBe(0);
+      }
+    });
+  }
+
+  test('resizing the window refits the flyout', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 720 });
+    await open(page, 'w04-l08');
+    await page.setViewportSize({ width: 1913, height: 875 });
+    await expect.poll(async () => (await flyoutState(page)).fits).toBe(true);
+    await page.setViewportSize({ width: 1280, height: 720 });
+    await wheelTo(page);
+    expect((await flyoutState(page)).below).toBeLessThanOrEqual(0);
+  });
+});

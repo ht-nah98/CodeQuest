@@ -1,0 +1,91 @@
+{
+  "id": "w05-l19",
+  "worldId": "w05-song-cho-doi",
+  "stage": "challenge",
+  "kind": "runner",
+  "mode": "predict",
+  "title": "Đá mãi",
+  "objective": "Đọc chương trình, chọn điều xảy ra với Măng.",
+  "learningGoal": "Đá đổ thùng xong, phía trước là đất, không bao giờ là hố, nên vòng lặp không dừng: Măng đá mãi. Đọc xem mỗi vòng có làm câu hỏi đổi không.",
+  "mission": "Măng đá thùng. Vòng lặp có dừng không?",
+  "goalSprite": "flag",
+  "toolbox": [],
+  "config": {
+    "cells": ["ground", "crate", "ground", "ground", "hole", "ground", "flag"],
+    "start": 0
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat_until",
+              "id": "until1",
+              "inputs": {
+                "COND": {
+                  "block": {
+                    "type": "runner_is_ahead",
+                    "id": "ask1",
+                    "fields": {
+                      "KIND": "HOLE"
+                    }
+                  }
+                },
+                "DO": {
+                  "block": {
+                    "type": "runner_kick",
+                    "id": "kick1"
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "type": "runner_jump",
+                  "id": "jump1"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "predict": {
+    "options": [
+      {
+        "key": "timeout",
+        "label": "Đá mãi không dừng"
+      },
+      {
+        "key": "win",
+        "label": "Tới lá cờ"
+      },
+      {
+        "key": "crash:HIT_CRATE@1",
+        "label": "Đụng thùng"
+      },
+      {
+        "key": "crash:FELL_IN_HOLE@4",
+        "label": "Rơi xuống hố"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "kick",
+      "when": {
+        "trigger": "idle"
+      },
+      "say": "Đá xong, Măng đứng yên hay đi? Phía trước là gì?",
+      "point": "block:runner_kick"
+    }
+  ],
+  "thinkingHint": "Mỗi vòng Măng đá. Câu hỏi có bao giờ đúng không?"
+}

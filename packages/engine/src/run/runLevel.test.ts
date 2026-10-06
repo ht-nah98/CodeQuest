@@ -86,6 +86,33 @@ describe('runLevel', () => {
       ).toBe('success');
     });
 
+    it('a win where a joined block never ran is incomplete UNUSED_BLOCKS', () => {
+      const workspace = program([step('a'), { type: 'line_win', id: 'w' }, step('never')]);
+      expect(
+        runLevel({ kind: lineKind, level: lineLevel({ mode: 'parsons' }), workspace }),
+      ).toMatchObject({ result: 'incomplete', reasonCode: 'UNUSED_BLOCKS' });
+      // Other modes do not care which blocks ran.
+      expect(runLevel({ kind: lineKind, level: lineLevel(), workspace }).result).toBe('success');
+    });
+
+    it('a win with an empty loop body is incomplete UNUSED_BLOCKS', () => {
+      const workspace = program([
+        { type: 'cq_repeat', id: 'empty', fields: { TIMES: 2 } },
+        ...winning,
+      ]);
+      expect(
+        runLevel({ kind: lineKind, level: lineLevel({ mode: 'parsons' }), workspace }),
+      ).toMatchObject({ result: 'incomplete', reasonCode: 'UNUSED_BLOCKS' });
+      expect(runLevel({ kind: lineKind, level: lineLevel(), workspace }).result).toBe('success');
+    });
+
+    it('a loop whose blocks all ran wins', () => {
+      const workspace = program([repeat('r', 3, step('x'))]);
+      expect(
+        runLevel({ kind: lineKind, level: lineLevel({ mode: 'parsons' }), workspace }).result,
+      ).toBe('success');
+    });
+
     it('keeps the real reason when the joined program loses', () => {
       const outcome = runLevel({
         kind: lineKind,

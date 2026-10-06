@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import {
   browserEvents,
   Events,
-  Flyout,
+  type Flyout,
   inject,
   KeyboardMover,
   keyboardNavigationController,
@@ -103,13 +103,37 @@ export function loadInitialWorkspace(workspace: WorkspaceSvg, level: BlocklyLeve
   workspace.clearUndo();
 }
 
+/** Largest scale of the flyout's blocks (Blockly's own default follows the zoom, 1.1). */
+export const FLYOUT_SCALE_MAX = 0.8;
+/** Smallest scale the flyout shrinks to, so blocks stay readable for a child. */
+export const FLYOUT_SCALE_MIN = 0.62;
+
 /**
- * Scale of the flyout's blocks. Blockly ties it to the workspace zoom (start 1.1), which made the
- * World 4 toolbox (move, loop, if + question groups) ~900 px tall; a fixed 0.8 fits it on a
- * 1920x950 window and shortens the scroll on laptops, still readable for a child. Not tied to
- * the zoom buttons either, so zooming the program never reflows the toolbox.
+ * Sizes the flyout's blocks so the whole toolbox fits its height without scrolling, between
+ * FLYOUT_SCALE_MIN and FLYOUT_SCALE_MAX (Blockly ties it to the program's zoom by default, which
+ * made the World 4 toolbox ~900 px tall: the last "question" block hid below the fold on
+ * ~1900x875 windows). On a window too short even at the minimum the flyout scrolls as usual.
+ * Call after the flyout got its size; safe to call again on every resize.
  */
-export const FLYOUT_SCALE = 0.8;
+export function fitFlyoutScale(workspace: WorkspaceSvg): void {
+  // IFlyout does not declare `getFlyoutScale` / `reflow`; the toolbox flyout is a Flyout subclass.
+  const flyout = workspace.getFlyout() as (Flyout & { cqScale?: number }) | null;
+  if (!flyout || typeof flyout.reflow !== 'function') return;
+  const inner = flyout.getWorkspace();
+  const state = flyout;
+  state.getFlyoutScale = () => state.cqScale ?? FLYOUT_SCALE_MAX;
+  for (let pass = 0; pass < 3; pass++) {
+    const metrics = inner.getMetricsManager().getMetrics();
+    const current = state.cqScale ?? FLYOUT_SCALE_MAX;
+    if (metrics.viewHeight <= 0 || metrics.contentHeight <= 0) return;
+    // Content height is close to proportional to the scale; keep a little room at the bottom.
+    const wanted = (current * (metrics.viewHeight - 16)) / metrics.contentHeight;
+    const next = Math.min(FLYOUT_SCALE_MAX, Math.max(FLYOUT_SCALE_MIN, wanted));
+    if (Math.abs(next - current) < 0.01 && state.cqScale !== undefined) return;
+    state.cqScale = next;
+    flyout.reflow();
+  }
+}
 
 /**
  * Wheel turns over a flyout scrollbar (its thumb, track, or the zero-height trashcan-flyout
@@ -232,11 +256,7 @@ function mountWorkspace(
     readOnly: level.mode === 'predict',
   });
 
-  const flyout = workspace.getFlyout();
-  if (flyout instanceof Flyout) {
-    flyout.getFlyoutScale = () => FLYOUT_SCALE;
-    flyout.reflow();
-  }
+  fitFlyoutScale(workspace);
   const unforwardWheel = forwardScrollbarWheel(workspace);
 
   const getState = (): WorkspaceState => {
@@ -306,6 +326,7 @@ function mountWorkspace(
 
   const resizeObserver = new ResizeObserver(() => {
     svgResize(workspace);
+    fitFlyoutScale(workspace);
   });
   resizeObserver.observe(container);
 
