@@ -34,6 +34,7 @@ describe('database schema', () => {
       'outbox',
       'profiles',
       'progress',
+      'unlockOverrides',
     ]);
     expect(await db.meta.get('schemaVersion')).toEqual({ key: 'schemaVersion', value: LATEST });
     db.close();

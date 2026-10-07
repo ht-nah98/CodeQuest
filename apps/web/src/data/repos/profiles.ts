@@ -199,6 +199,7 @@ export async function deleteProfile(profileId: string): Promise<void> {
     db.inventory,
     db.badges,
     db.creations,
+    db.unlockOverrides,
   ];
   await db.transaction('rw', [db.profiles, db.outbox, ...owned], async () => {
     for (const table of owned) await table.where('profileId').equals(profileId).delete();

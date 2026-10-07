@@ -50,4 +50,13 @@ describe('unlockOverrideIds', () => {
   it('opens nothing in production builds, even for the coach', () => {
     expect(unlockOverrideIds(catalog, { dev: false, unlockAll: true, coach: true }).size).toBe(0);
   });
+
+  it('adds what the coach opened for the child, in every build', () => {
+    expect(unlockOverrideIds(catalog, { ...base, manual: ['w02'] })).toEqual(
+      new Set(['_sandbox', 'w02']),
+    );
+    expect(unlockOverrideIds(catalog, { ...base, dev: false, manual: ['w02-l09'] })).toEqual(
+      new Set(['w02-l09']),
+    );
+  });
 });

@@ -5,7 +5,7 @@ import { useLessonsDone, useProgressMap } from '../../features/progress';
 
 /**
  * The catalog plus what one child has done, for unlock decisions on any screen. `child` is null
- * while either is loading; dev unlock overrides (sandbox, `?unlock=all`) are included.
+ * while any of them is loading; dev unlock overrides (sandbox, `?unlock=all`) are included.
  */
 export function useChild(profileId: string): {
   catalog: Catalog | null;
@@ -18,7 +18,7 @@ export function useChild(profileId: string): {
   const lessonsDone = useLessonsDone(profileId);
   const overrides = useUnlockOverrides(catalog);
   const child = useMemo(
-    () => (progress && lessonsDone ? { progress, lessonsDone, overrides } : null),
+    () => (progress && lessonsDone && overrides ? { progress, lessonsDone, overrides } : null),
     [progress, lessonsDone, overrides],
   );
   return { catalog, child: catalog ? child : null, failed: state.status === 'error' };

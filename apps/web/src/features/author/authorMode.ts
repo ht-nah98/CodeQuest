@@ -1,5 +1,7 @@
+import { useLiveQuery } from 'dexie-react-hooks';
 import { useMemo } from 'react';
 import { useLocation } from 'react-router';
+import { listUnlockOverrides } from '../../data/repos/unlockOverrides';
 import { useCurrentProfile } from '../profiles';
 import { allIds, type Catalog } from '../content/catalog';
 import { SANDBOX_WORLD_ID } from '../content/sandbox';
@@ -51,23 +53,52 @@ export function useAuthorFlags(): AuthorFlags {
 /** Ids opened by hand, see useUnlockOverrides. Pure, so it is unit-tested without React. */
 export function unlockOverrideIds(
   catalog: Catalog | null,
-  options: { dev: boolean; unlockAll: boolean; coach: boolean },
+  options: {
+    dev: boolean;
+    unlockAll: boolean;
+    coach: boolean;
+    /** Opened for this child in the coach corner (any build). */
+    manual?: readonly string[];
+  },
 ): Set<string> {
-  if (!options.dev || catalog === null) return new Set<string>();
-  return new Set(options.unlockAll || options.coach ? allIds(catalog) : [SANDBOX_WORLD_ID]);
+  if (catalog === null) return new Set<string>();
+  const manual = options.manual ?? [];
+  if (!options.dev) return new Set(manual);
+  const dev = options.unlockAll || options.coach ? allIds(catalog) : [SANDBOX_WORLD_ID];
+  return new Set([...dev, ...manual]);
 }
 
+const NONE: readonly string[] = [];
+
 /**
- * Ids opened by hand (isUnlocked `overrides`): in dev builds the sandbox world, and with
+ * Ids opened by hand (isUnlocked `overrides`): what the coach opened for this child in the
+ * coach corner (P2-05, `unlockOverrides` table), plus in dev builds the sandbox world, and with
  * `?unlock=all` or the signed-in coach profile (role 'coach') every world and level. Reads the
- * role from the current profile, so it must run under <CurrentProfileProvider> (every screen
- * after sign-in does).
+ * current profile, so it must run under <CurrentProfileProvider> (every screen after sign-in does).
+ * `null` while the coach's unlocks are still loading, so no screen shows a false "locked".
  */
-export function useUnlockOverrides(catalog: Catalog | null): Set<string> {
+export function useUnlockOverrides(catalog: Catalog | null): Set<string> | null {
   const { unlockAll } = useAuthorFlags();
-  const coach = useCurrentProfile().profile?.role === 'coach';
+  const profile = useCurrentProfile().profile;
+  const coach = profile?.role === 'coach';
+  const profileId = profile?.id;
+  const manual = useLiveQuery(
+    async () =>
+      profileId === undefined
+        ? NONE
+        : (await listUnlockOverrides(profileId)).map((row) => row.targetId),
+    [profileId],
+  );
   return useMemo(
-    () => unlockOverrideIds(catalog, { dev: import.meta.env.DEV, unlockAll, coach }),
-    [catalog, unlockAll, coach],
+    () =>
+      manual === undefined
+        ? null
+        : unlockOverrideIds(catalog, {
+            dev: import.meta.env.DEV,
+            unlockAll,
+            coach,
+            manual,
+          }),
+    [catalog, unlockAll, coach, manual],
   );
 }

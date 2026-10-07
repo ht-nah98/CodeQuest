@@ -77,6 +77,19 @@ export interface LevelDraftRow {
   updatedAt: string;
 }
 
+/**
+ * A world or level the coach opened by hand for one child (phase-2.md P2-05). Local only for
+ * now: not in the outbox nor in backups; from P2-04 the server's `unlock_overrides` are pulled
+ * into this table (children only read them).
+ */
+export interface UnlockOverrideRow {
+  profileId: string;
+  /** World or level id (isUnlocked `overrides`). */
+  targetId: string;
+  /** ISO */
+  at: string;
+}
+
 export interface AttemptRow {
   /** uuid */
   id: string;
@@ -157,6 +170,7 @@ export type CodeQuestDb = Dexie & {
   outbox: Table<OutboxRow, number>;
   meta: Table<MetaRow, string>;
   levelDrafts: Table<LevelDraftRow, string>;
+  unlockOverrides: Table<UnlockOverrideRow, [string, string]>;
 };
 
 export interface SchemaVersion {
@@ -193,6 +207,8 @@ export const SCHEMA_VERSIONS: readonly SchemaVersion[] = [
   },
   // P2-07: level editor drafts (local only).
   { version: 2, stores: { levelDrafts: 'key, updatedAt' } },
+  // P2-05: coach unlock overrides (local only).
+  { version: 3, stores: { unlockOverrides: '[profileId+targetId], profileId' } },
 ];
 
 /** Builds a Dexie instance; it opens lazily on first use. Tests pass their own versions. */

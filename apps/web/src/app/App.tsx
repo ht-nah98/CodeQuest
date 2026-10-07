@@ -7,7 +7,7 @@ import { BreakReminder } from './BreakReminder';
 import { ErrorBoundary } from './ErrorBoundary';
 import { SmallScreenGate } from './SmallScreenGate';
 
-// Routes: docs/design/screens-and-flows.md §2 (phase 1: no shop, badges, group or coach corner; phase 2 adds the level editor).
+// Routes: docs/design/screens-and-flows.md §2 (phase 1: no shop, badges, group or coach corner; phase 2 adds the coach corner and the level editor).
 const ProfilePickScreen = lazy(() => import('../screens/profile/ProfilePickScreen'));
 const NewProfileScreen = lazy(() => import('../screens/profile/NewProfileScreen'));
 const RestoreScreen = lazy(() => import('../screens/settings/RestoreScreen'));
@@ -22,6 +22,9 @@ const SettingsScreen = lazy(() => import('../screens/settings/SettingsScreen'));
 const EditorScreen = import.meta.env.DEV
   ? lazy(() => import('../screens/coach/EditorScreen'))
   : null;
+// Coach corner (P2-05): same rule as the editor until P2-16 (it can unlock worlds, and the
+// multiplication lock alone is solvable by the children).
+const CoachScreen = import.meta.env.DEV ? lazy(() => import('../screens/coach/CoachScreen')) : null;
 
 // Dev-only showcase pages. The DEV ternary lets Rollup drop the chunks from production builds.
 const DevUiScreen = import.meta.env.DEV ? lazy(() => import('../screens/dev/DevUiScreen')) : null;
@@ -51,6 +54,7 @@ export function App() {
                   <Route path="/w/:worldId/lesson/:lessonId" element={signedIn(<LessonScreen />)} />
                   <Route path="/play/:levelId" element={signedIn(<PlayScreen />)} />
                   <Route path="/settings" element={signedIn(<SettingsScreen />)} />
+                  {CoachScreen && <Route path="/coach" element={<CoachScreen />} />}
                   {EditorScreen && <Route path="/coach/editor" element={<EditorScreen />} />}
                   {DevUiScreen && <Route path="/dev/ui" element={<DevUiScreen />} />}
                   {DevBlocklyScreen && <Route path="/dev/blockly" element={<DevBlocklyScreen />} />}

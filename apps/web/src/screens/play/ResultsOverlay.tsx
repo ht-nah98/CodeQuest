@@ -117,7 +117,7 @@ export function ResultsOverlay({
   // What the win opened, judged on progress with this win in (and, for "new world", without):
   // the live query may not have caught up with the write yet.
   const opened = useMemo(() => {
-    if (!catalog || !progress || !lessonsDone) return null;
+    if (!catalog || !progress || !lessonsDone || !overrides) return null;
     const after = {
       progress: withLevel(progress, level.id, reward.progressAfter),
       lessonsDone,
