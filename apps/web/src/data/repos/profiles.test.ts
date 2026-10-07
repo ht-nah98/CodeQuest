@@ -159,6 +159,7 @@ describe('profiles repository', () => {
     await db.inventory.add({ profileId: pid, itemId: 'skin-red', equipped: true, at });
     await db.badges.add({ profileId: pid, badgeId: 'first-run', at });
     await db.creations.add({ profileId: pid, levelId: 'free-1', workspace, title: 'Nhà' });
+    await db.unlockOverrides.add({ profileId: pid, targetId: 'w02', at });
 
     await deleteProfile(pid);
 
@@ -171,6 +172,7 @@ describe('profiles repository', () => {
       db.inventory,
       db.badges,
       db.creations,
+      db.unlockOverrides,
     ]) {
       expect(await table.count(), table.name).toBe(0);
     }

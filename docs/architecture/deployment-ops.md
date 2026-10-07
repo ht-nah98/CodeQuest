@@ -45,7 +45,7 @@ Chạy trên mỗi push và pull request:
 
 Mọi bước phải xanh mới được merge vào `main`.
 
-Ghi chú về e2e (`apps/web/playwright.config.ts`): `npm run e2e` tự bật **hai** dev server riêng, không bao giờ dùng cổng 5173 của HLV: cổng `PW_PORT` (mặc định 5199) cho các spec của bé (không có PIN) và cổng `PW_PORT + 1` với PIN giả `E2E_COACH_PIN` (mặc định 2468) chỉ cho `coach-profile.spec.ts`. Chạy 4 worker (8 worker làm sân chơi quá tải trên máy 8 GB). Chromium chạy với `--mute-audio` vì WSL2/CI không có thiết bị âm thanh.
+Ghi chú về e2e (`apps/web/playwright.config.ts`): `npm run e2e` tự bật **hai** dev server riêng, không bao giờ dùng cổng 5173 của HLV: cổng `PW_PORT` (mặc định 5199) cho các spec của bé (không có PIN) và cổng `PW_PORT + 1` với PIN giả `E2E_COACH_PIN` (mặc định 2468) chỉ cho `coach-profile.spec.ts`. Thêm một server thứ ba cho PWA: `vite build --outDir dist-e2e` rồi `vite preview` thư mục đó ở cổng `PW_PREVIEW_PORT` (mặc định **4180**; không đụng `dist/` của `npm run build`), chỉ `pwa-offline.spec.ts` dùng (xem mục "PWA"). Chạy 4 worker (8 worker làm sân chơi quá tải trên máy 8 GB). Chromium chạy với `--mute-audio` vì WSL2/CI không có thiết bị âm thanh.
 
 ## Deploy
 | Môi trường | Nơi | Khi nào |
@@ -54,7 +54,19 @@ Ghi chú về e2e (`apps/web/playwright.config.ts`): `npm run e2e` tự bật **
 | Production | Vercel (Hobby; dự án cá nhân, phi thương mại) | Merge vào `main` |
 | Backend | 1 Supabase project `codequest` (gói Free) | Migration chạy tay: `npx supabase db push` |
 
-Cấu hình Vercel nằm trong `vercel.json` **ở gốc repo** (Root Directory để trống = gốc): framework *Vite*, install `npm ci`, build `npm run build` (typecheck rồi `vite build` của `apps/web`), output `apps/web/dist`, rewrite mọi route về `index.html` (SPA). Node 22.x lấy từ `engines` trong `package.json`. Chi tiết: mục H4 bên dưới.
+Cấu hình Vercel nằm trong `vercel.json` **ở gốc repo** (Root Directory để trống = gốc): framework *Vite*, install `npm ci`, build `npm run build` (typecheck rồi `vite build` của `apps/web`), output `apps/web/dist`, rewrite mọi route (trừ `/assets/`, `/audio/`, xem mục "PWA") về `index.html` (SPA). Node 22.x lấy từ `engines` trong `package.json`. Chi tiết: mục H4 bên dưới.
+
+## PWA (chơi offline, P2-09, ADR-0020)
+- `vite-plugin-pwa` (Workbox `generateSW`) trong `apps/web/vite.config.ts`. `npm run build` sinh `dist/sw.js`, `dist/workbox-<hash>.js`, `dist/manifest.webmanifest`. **Không có service worker ở `npm run dev`.**
+- **Precache** (tải ngầm ở lần mở đầu tiên có mạng): app shell, mọi chunk JS (gồm nội dung bài học), CSS, font, sprite, tile, media Blockly, nhạc nền, hiệu ứng. **Giọng đọc** (`audio/voice/`) chỉ cache khi phát lần đầu (`cq-voice`, `StaleWhileRevalidate`). Icon cài đặt không precache.
+- **Ngân sách precache: ≤ 5 MiB** (giới hạn mỗi file 3 MiB). Đo 06/10/2026: **220 file, 3 643 KiB** (≈ 1,8 MB truyền qua mạng khi nén gzip); trong đó JS 2 591 KiB (`StageController` 1,3 MB: Pixi + Blockly), sprite 660 KiB (`panda.png`), âm thanh 231 KiB, font 118 KiB. Con số in ra ở cuối `npm run build` (`precache N entries (… KiB)`): vượt ngân sách thì tìm file lớn mới thêm trước khi nới.
+- **Cập nhật hỏi trước:** bản deploy mới cài ngầm rồi chờ. Bấm "Tải lại" mà 3 giây không thấy service worker mới nhận trang thì vẫn tải lại. Bản đồ và Cài đặt hiện "Có bản mới! · Tải lại"; màn chơi và bài giảng không bao giờ bị tải lại. Bé đang chơi thì chơi xong rồi về bản đồ bấm. Đóng hết tab rồi mở lại cũng nhận bản mới. Tab đang mở tự kiểm bản mới mỗi giờ. Deploy sửa lỗi gấp: nhắc bé bấm "Tải lại" ở bản đồ.
+- **Header** (`vercel.json`): `sw.js` và `manifest.webmanifest` là `no-cache` (bản mới được phát hiện ngay), `assets/*` có hash là `immutable`. CSP thêm ở P2-18.
+- **Rewrite SPA bỏ qua `/assets/` và `/audio/`** (`"source": "/((?!assets/|audio/).*)"`): chunk hay file âm thanh không còn (tab bản cũ sau deploy, giọng đọc chưa có) phải trả **404**, không phải `index.html`. Nếu trả HTML, chunk lỗi bị coi là JS hợp lệ, và với header `immutable` trình duyệt giữ bản HTML đó cả năm; `vite:preloadError` (tự tải lại lên bản mới) cũng chỉ chạy khi có 404.
+- **Icon:** gấu Măng pixel trong `apps/web/public/icons/` (192, 512, maskable 512, apple-touch 180, favicon 32), sinh bằng `python3 tools/pwa/make_icons.py` từ khung `happy` của `public/sprites/panda.png` (cần Pillow). Đổi sprite thì chạy lại.
+- **Kiểm tay:** `npm run build && npm -w apps/web run preview -- --port 4180` → mở `http://localhost:4180`, DevTools → Application → Service workers / Manifest; tick **Offline** rồi F5.
+- **E2E** `apps/web/e2e/pwa-offline.spec.ts` (server preview 4180, header CSP production): manifest + icon; mở → tắt mạng → tải lại → tạo hồ sơ, bài giảng, thắng màn 1 → tải lại vẫn còn tiến độ; có bản mới khi đang ở màn thì không bị tải lại, bản đồ hiện lời mời, bấm thì lên bản mới, tiến độ còn nguyên; đỏ khi có vi phạm CSP. Giả lập "deploy mới" bằng cookie `cq-e2e-build` (chỉ khi `CQ_E2E=1`, `vite.config.ts` thêm một dòng chú thích vào `sw.js` cho context đó).
+- **Sự cố "bé kẹt ở bản cũ"**: Cài đặt → bấm "Tải lại" nếu có; không có thì đóng hết tab CodeQuest rồi mở lại. Cuối cùng: DevTools → Application → Service workers → *Unregister* (không mất tiến độ: tiến độ ở IndexedDB, không phải Cache Storage). **Không** bấm *Clear site data* (xóa cả IndexedDB).
 
 ## Vận hành
 - **Supabase gói Free tạm dừng project sau ~1 tuần không có hoạt động.** App vẫn chạy local khi project bị dừng, nhưng không đồng bộ được. Kỳ nghỉ dài: vào dashboard bấm Restore. Nếu thấy phiền thì nâng gói hoặc đặt một GitHub Action ping hằng ngày.
@@ -245,11 +257,11 @@ Cần H3 xong (Vercel đọc code từ GitHub).
    
    `VITE_APP_ENV` thành **hai hàng**: bỏ tick Preview ở hàng `production`, bỏ tick Production ở hàng `preview`. **Không** thêm khóa Secret/`service_role` hay pepper vào Vercel (biến `VITE_*` bị nhúng vào JavaScript công khai).
 5. Bấm **Deploy**. Build đỏ: gửi log cho AI (xem "Khi bị kẹt"), đừng sửa lung tung.
-6. **Rewrite SPA (đường dẫn con):** nằm trong `vercel.json` ở gốc repo (`"rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]`); P2-18 sẽ thêm header CSP vào cùng file. Kiểm tra: mở `<link>/map`, bấm **F5** (tải lại) vẫn hiện app, không 404.
+6. **Rewrite SPA (đường dẫn con):** nằm trong `vercel.json` ở gốc repo (`"rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]`); cùng file có header `Cache-Control` cho `sw.js`/`manifest.webmanifest` (P2-09); P2-18 sẽ thêm header CSP. Kiểm tra: mở `<link>/map`, bấm **F5** (tải lại) vẫn hiện app, không 404.
 7. **Bản preview:** mở một PR từ nhánh `feat/...` vào `main`; bot Vercel bình luận link preview trong PR.
 8. **Ai xem được:** theo tài liệu hiện tại (https://vercel.com/docs/deployment-protection), mặc định *Standard Protection* bảo vệ mọi URL **trừ domain production**. Vậy ở gói Hobby, URL production `*.vercel.app` là **công khai** (ai có link đều mở được; app không chứa dữ liệu cá nhân của bé nằm sẵn trong bản build), còn **link preview cần đăng nhập Vercel**: gửi link preview cho người khác sẽ bị chặn. Kiểm ở **Settings → Deployment Protection**.
 
-**Kiểm tra:** URL production mở được và chơi được một màn; `<link>/map` + F5 không 404; PR có link preview; **Settings → Environment Variables** có đủ 4 hàng như bảng trên.
+**Kiểm tra:** URL production mở được và chơi được một màn; mở lần hai, tắt wifi, F5 vẫn chơi được (PWA); `<link>/map` + F5 không 404; PR có link preview; **Settings → Environment Variables** có đủ 4 hàng như bảng trên.
 
 **Lỗi hay gặp:**
 | Lỗi | Cách xử lý |

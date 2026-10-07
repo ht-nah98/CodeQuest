@@ -39,7 +39,7 @@ content/
 | Block type | `<kind>_<verb>` hoặc `cq_<tên>` cho khối chung | `runner_jump`, `cq_repeat`, `cq_start` |
 | Badge | kebab-case | `loop-master` |
 | Shop item | `<loại>-<slug>` | `skin-astro-panda`, `fx-confetti` |
-| Câu thoại có giọng đọc | `<id>.<khóa>` (chỉ chữ, số, `.` `_` `-`; là tên file) | `w01-l03.objective` · `w03-l11.mission` · `w01-l03.thinking` · `w01-l03.hint.<hintId>` · `w01-l03.feedback.<REASON>` (câu feedback riêng của màn) · `w01-lesson.c<n>` (thẻ thứ n, **đếm từ 1**) · `w01-lesson.c<n>.explain` (giải thích của thẻ quiz) · `feedback.FELL_IN_HOLE` · `ui.<khóa trong vi.ts>`. Danh sách đầy đủ: `npm run voice -- lines` (`docs/architecture/audio.md` §5) |
+| Câu thoại có giọng đọc | `<id>.<khóa>` (chỉ chữ, số, `.` `_` `-`; là tên file) | `w01-l03.objective` · `w03-l11.mission` · `w01-l03.thinking` · `w01-l03.hint.<hintId>` · `w01-l03.feedback.<REASON>` (câu feedback riêng của màn) · `w01-lesson.c<n>` (thẻ thứ n, **đếm từ 1**) · `w01-lesson.c<n>.explain` (giải thích của thẻ quiz) · `w01-lang-tre.story.gio-to.<n>` (dòng thứ n của chương truyện, **đếm từ 1**, P2-24) · `feedback.FELL_IN_HOLE` · `ui.<khóa trong vi.ts>`. Danh sách đầy đủ: `npm run voice -- lines` (`docs/architecture/audio.md` §5) |
 
 ID **không bao giờ đổi** sau khi đã có bé chơi, vì tiến độ gắn với ID. Muốn bỏ màn: đặt `"retired": true`.
 
@@ -57,7 +57,8 @@ interface World {
   title: string;                            // "Làng Tre"
   emoji: string;                            // "🎋"
   concept: string;                          // "Tuần tự"
-  story: string;                            // 1–2 câu
+  story: string;                            // 1–2 câu (tóm tắt; không có giọng đọc)
+  chapters?: StoryChapter[];                // truyện chia chương trên trang thế giới (P2-24), thường 4–5 chương
   theme: { tileset: string; music?: string; palette?: 'day' | 'dusk' | 'night'; scene?: SceneTheme };
                                             // scene: cảnh vẽ sân chơi (P2-23): 'lang-tre' | 'rung-lap-lai' | 'xuong' | 'nga-ba' | 'song'; không ghi = 'lang-tre'
   lessonIds: string[];
@@ -65,6 +66,16 @@ interface World {
   unlock: { minStarRatio: number };         // bắt buộc ghi rõ; giá trị chuẩn 0.6 (rewards-economy.md §3)
   unplugged?: { title: string; steps: string[] };   // hoạt động ngoài màn hình cho huấn luyện viên
 }
+
+interface StoryChapter {                    // P2-24, luật 21
+  id: string;                               // kebab-case, không trùng trong thế giới; nằm trong ID giọng đọc nên không đổi
+  title: string;                            // ≤ 5 chữ
+  lines: string[];                          // 2–4 dòng, mỗi dòng ≤ 12 chữ, giọng Măng / người kể; có giọng đọc
+  unlockAfter?: string;                     // màn của chính thế giới mở chương này; chương 1 không có (mở sẵn)
+  art: { cast?: StoryCast[]; prop: StoryProp };   // hình nhỏ: Măng + tối đa 2 nhân vật + 1 cảnh
+}
+// StoryCast: hình đại diện trừ gấu trúc (Măng luôn có): 'bunny' | 'owl' | 'frog' | 'chick' | 'pig' | 'cat' | 'fox' | 'bear' | 'tiger' | 'penguin' | 'koala'
+// StoryProp: 'wind' | 'shoots' | 'bamboo' | 'river' | 'machine' | 'exit' | 'home' | 'footprints' | 'cage' | 'cage-open' | 'dock' | 'key'
 
 interface Level {
   id: string; worldId: string;
@@ -161,7 +172,7 @@ Kiểm tay: ô 0 → đi 1 → nhảy 3 → đi 4 → nhảy 6 → đi 7 → nh�
 ## 5. Luật của `content:check` (`tools/content-check`)
 Chạy `npm run content:check`. Báo lỗi (exit 1) nếu vi phạm bất kỳ luật nào:
 
-> Luật **cấp màn** (1, 2 mẫu ID, 5–6, 9–16, 19–20) cài trong `@codequest/validator` (`validateLevel`), dùng chung với level editor trong trình duyệt. `tools/content-check` đọc file, kiểm luật liên file (2 tên file/trùng ID, 3–4, 7–8, 17–18) và in bảng (ADR-0015).
+> Luật **cấp màn** (1, 2 mẫu ID, 5–6, 9–16, 19–20) cài trong `@codequest/validator` (`validateLevel`), dùng chung với level editor trong trình duyệt. `tools/content-check` đọc file, kiểm luật liên file (2 tên file/trùng ID, 3–4, 7–8, 17–18, 21) và in bảng (ADR-0015).
 
 **Cấu trúc**
 1. Mọi file đúng schema zod. `level.config` đúng `configSchema` của `kind`.
@@ -191,6 +202,9 @@ Chạy `npm run content:check`. Báo lỗi (exit 1) nếu vi phạm bất kỳ l
 
 **Giới hạn khối** (P2-11)
 20. `solution` và `initialWorkspace` không vượt `maxLoopDepth` (số tầng vòng lặp `cq_repeat` / `cq_repeat_until` lồng nhau, hàm `loopDepth` của engine) và `maxInstances` (số khối mỗi type, tính cả khối rời, như Blockly đếm). Nếu vượt, bé không ghép lại được lời giải, hoặc nhận một chương trình mà vùng ghép không cho tạo.
+
+**Truyện** (P2-24)
+21. `world.chapters` (nếu có): `id` không trùng; `title` ≤ 5 chữ, mỗi dòng ≤ 12 chữ, không dùng ✔/✘ (font không có); chương 1 **không** có `unlockAfter`, mọi chương sau **phải** có; `unlockAfter` là màn trong `levelIds` của chính thế giới, đang dùng (không `retired`), chặng `guided`/`practice`/`boss` (bé nào cũng đi qua; `challenge`, `creative`, `bonus` là tùy chọn), và đứng **sau** màn mở chương trước (đúng thứ tự truyện). Số dòng 2–4 và `art` do schema (luật 1) kiểm. Lỗi ghi vd `rule 21: chapter "ket" unlockAfter "w01-l01" must come after the previous chapter's level`. Cài ở `tools/content-check/src/story.ts`; fixture `rule-21-story-chapters/`.
 
 **Tài sản**
 18. Asset được tham chiếu (`theme.tileset`, `image`, `shop.asset`) tồn tại trong `apps/web/public/`.
@@ -231,6 +245,7 @@ Cách hiểu chi tiết (cài đặt ở P1-11):
 - **P2-11c (vật phẩm nhiệm vụ):** `config.goal.items` của runner, maze; mã `NEED_KEY`, `NEED_FRIEND` (luật 17: `feedback.json` của nội dung và mọi fixture, trừ fixture luật 17, có câu cho cả hai). Output các màn hiện có không đổi.
 - **P2-13 (05/10/2026):** mã engine `LOOSE_BLOCKS` (mode `parsons`, câu G22; luật 17: `feedback.json` của nội dung và mọi fixture có câu). Mọi màn ghép hình W1–W4 vẫn xanh.
 - **P2-14 review (05/10/2026):** mã engine `UNUSED_BLOCKS` (mode `parsons`: có khối chưa chạy, hoặc thân lặp / nhánh trống; câu G22; luật 17: `feedback.json` của nội dung và mọi fixture có câu). `npm run par` kiểm cả màn ghép hình (§8).
+- **P2-24 (06/10/2026):** trường `world.chapters` (truyện chia chương), **luật 21**, fixture `rule-21-story-chapters/`. Dòng tổng kết in `rules 1–21`; output của mọi màn không đổi.
 - **P2-15:** luật cấp màn chuyển sang package headless `@codequest/validator` (`validateLevel`); `content:check` cho output y hệt trước khi tách (đã so trên `content/` và cả 19 fixture). Thêm `npm run par` (§8).
 
 ## 8. Vét cạn `par` (`npm run par`)

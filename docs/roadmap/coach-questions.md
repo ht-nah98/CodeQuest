@@ -37,6 +37,7 @@ Gom từ các task P1-01 → P1-15. Mỗi câu ghi lựa chọn AI đang dùng t
 7. Mê cung: Măng nhỏ hơn ở runner (tối thiểu 64 px), mũi tên xanh chỉ hướng. Đủ rõ chưa?
 8. PIN 4 số, không khóa khi nhập sai, hỏi PIN một lần mỗi tab. Đổi người chơi chỉ cần PIN. Được không?
 9. File sao lưu chứa **mọi hồ sơ** trên máy; khôi phục giữ PIN cũ; trùng biệt danh thì bỏ qua và báo. Đúng ý?
+10. **Truyện chia chương (P2-24):** mở một chương mới **không** thưởng xu (`rewards-economy.md` chưa có nguồn này; xu đã đến từ chính màn mở chương). Có muốn +5 xu mỗi chương mới không? *Tạm dùng:* không thưởng. Lời truyện W1–W5 nằm trong `world.json` (`chapters`); anh đọc duyệt câu chữ, nhất là các chi tiết thêm: W3 Thỏ Bông ghé xưởng rồi đi về phía Ngã Ba, W4 chiếc khăn của Bông bên suối, W5 Gà con lạc trong bãi lau và kết "Làng ở ngay sau ngọn đồi" để mở W6.
 
 ## E. Âm thanh
 1. Phong cách: chiptune nhẹ, "boing" thay còi báo lỗi. 2 bản nhạc nền là bản tạm do máy tạo. Giữ hay thay?

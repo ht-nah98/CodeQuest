@@ -59,3 +59,16 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+/*
+ * Vietnamese stacked marks ("ỗ", "ẫ", "ữ") rise well above Baloo 2's ascender. A one-line box
+ * that clips its text (`truncate`, used by the top-bar titles) cut them off at h1's tight 1.1
+ * line height ("Xưởng Sửa Lỗi", P2-24). Unlayered, so it wins over `leading-*` utilities.
+ * e2e/world-story.spec.ts measures the ink of every title against its clipping box. Only
+ * headings: other truncated text (nickname chips) keeps its own line height. A top-bar title
+ * at 28px is then 45px tall, inside the bar's 64px (the play bar's 44px buttons set its height).
+ */
+:is(h1, h2, h3).truncate,
+:is(h1, h2, h3) .truncate {
+  line-height: 1.6;
+}

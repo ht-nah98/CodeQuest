@@ -6,6 +6,7 @@ assets/
 .omc/
 node_modules/
 dist/
+dist-e2e/
 coverage/
 .tsbuild/
 playwright-report/

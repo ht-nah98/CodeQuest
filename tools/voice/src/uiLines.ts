@@ -56,6 +56,7 @@ export const VOICED_UI_KEYS: readonly string[] = [
   'world.lessonFirst',
   'world.newBlockFirst',
   'world.allDone',
+  'world.story.newChapterSay',
   'world.lockedWorld',
   'lesson.quizRight',
   'lesson.quizWrong',

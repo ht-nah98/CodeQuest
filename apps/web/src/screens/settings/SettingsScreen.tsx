@@ -8,6 +8,7 @@ import {
   useSignedInProfile,
   verifyPin,
 } from '../../features/profiles';
+import { UpdateBanner } from '../../features/pwa';
 import { vi } from '../../i18n/vi';
 import { Avatar, AVATAR_IDS, Button, Dialog, Panel, PixelIcon } from '../../ui';
 import { FOCUS_RING } from '../../ui/focusRing';
@@ -44,6 +45,7 @@ export default function SettingsScreen() {
     <main className="grid min-h-screen grid-rows-[auto_minmax(0,1fr)] gap-3 bg-ground p-3">
       <TopBar back={{ label: vi.world.backToMap, to: '/map' }}>
         <h1 className="m-0 font-display text-[28px] text-paper">{t.title}</h1>
+        <UpdateBanner />
       </TopBar>
 
       <div className="grid min-h-0 grid-cols-2 items-start gap-3">

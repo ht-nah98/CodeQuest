@@ -26,11 +26,12 @@ Database `codequest`, version 2 (version 2 thêm `levelDrafts`, P2-07):
 | `outbox` | `++seq` | table, payload, createdAt, tries |
 | `meta` | `key` | pairing, lastSyncAt, schemaVersion |
 | `levelDrafts` | `key` (chỉ mục `updatedAt`) | levelId, level (bản nháp của level editor), updatedAt |
+| `unlockOverrides` | `[profileId+targetId]` | at — thế giới / màn HLV mở khóa tay cho bé (P2-05, Dexie version 3) |
 
 Truy cập **chỉ qua repository** (`apps/web/src/data/repos/*.ts`), không gọi Dexie trực tiếp từ component. Mỗi hàm ghi của repository vào **bảng có đồng bộ** tự đẩy một dòng vào `outbox` trong **cùng transaction**.
 
 Quyết định khi làm P1-09:
-- **Bảng có đồng bộ** (ghi kèm `outbox`): `lessons`, `progress`, `attempts`, `ledger`, `inventory`, `badges`, `creations` — đúng các bảng có ở Supabase (§3). `profiles`, `drafts`, `meta`, `levelDrafts` **chỉ ở máy**, không vào outbox: `pinHash` không bao giờ rời máy (§5), hồ sơ phía server do huấn luyện viên tạo, bản nháp không có bảng server. `levelDrafts` (màn đang soạn ở `/coach/editor`) cũng không vào file sao lưu: thứ đưa vào `content/` là file JSON xuất ra.
+- **Bảng có đồng bộ** (ghi kèm `outbox`): `lessons`, `progress`, `attempts`, `ledger`, `inventory`, `badges`, `creations` — đúng các bảng có ở Supabase (§3). `profiles`, `drafts`, `meta`, `levelDrafts`, `unlockOverrides` **chỉ ở máy**, không vào outbox: `pinHash` không bao giờ rời máy (§5), hồ sơ phía server do huấn luyện viên tạo, bản nháp không có bảng server. `levelDrafts` (màn đang soạn ở `/coach/editor`) cũng không vào file sao lưu: thứ đưa vào `content/` là file JSON xuất ra. `unlockOverrides` (P2-05) cũng không vào outbox hay file sao lưu: HLV mở khóa ngay trên máy bé trong buổi học; từ P2-04 máy bé **kéo** `unlock_overrides` của server về bảng này (bé chỉ đọc). `useUnlockOverrides` cộng các id này vào `overrides` của `isUnlocked` ở mọi bản build; xóa hồ sơ thì xóa luôn các dòng của hồ sơ đó.
 - Mỗi bảng có thêm chỉ mục `profileId` (và `attempts` có `[profileId+levelId]`) để đọc theo hồ sơ. `meta.schemaVersion` được ghi khi tạo DB và sau mỗi lần nâng version.
 - Đổi schema: **thêm** một mục mới vào `SCHEMA_VERSIONS` trong `db.ts` (không sửa mục cũ), kèm hàm `upgrade` nếu cần viết lại dòng. Test mẫu ở `data/db.test.ts`.
 - Ghi tiến độ đi qua `mergeProgress` (chỉ tăng); không có gì tốt hơn thì không ghi và không thêm dòng outbox. Sổ xu bỏ qua dòng trùng khóa `[profileId+id]`.
@@ -38,6 +39,7 @@ Quyết định khi làm P1-09:
 - **`attempts` ghi một lần** (server chỉ insert): chỉ ghi khi bé **rời màn** (`saveAttempt`, `endedAt` bắt buộc), không ghi phiên đang mở; ghi lại cùng `id` thì bỏ qua, không thêm dòng outbox. Phiên đang chơi nằm trong store của màn chơi.
 - `balance`, `localDay`, `mergeProgress`, `starterEntry` lấy từ `@codequest/rewards` (cùng luật với server).
 - Kết nối DB tự đóng khi tab khác mở version mới (`versionchange`) rồi tải lại trang. Hàm `upgrade` chỉ được `await` promise của Dexie.
+- Bản app mới (PWA, ADR-0020) chỉ chạy sau khi có người bấm "Tải lại" ở bản đồ/Cài đặt, nên schema chỉ nâng lúc đó. Service worker không đụng IndexedDB. Vì máy có thể mở bản cũ rồi bản mới, version Dexie **chỉ được thêm**, không xóa bảng hay đổi khóa mà không có `upgrade`. Khi tạo hồ sơ và khi vào bản đồ, app gọi `navigator.storage.persist()` (nếu chưa được) để trình duyệt không tự xóa DB.
 - **PIN:** PBKDF2-SHA256 (WebCrypto), salt ngẫu nhiên 16 byte cho mỗi hồ sơ, 100 000 vòng, lưu dạng `pbkdf2-sha256$<vòng>$<salt>$<hash>`; chỉ chấp nhận chuỗi đúng mẫu với 1 000–1 000 000 vòng (cả khi đọc file sao lưu). Component chỉ nhận `ProfileSummary` (không có `pinHash`). PIN 4 số chỉ có 10 000 giá trị nên hash không giữ bí mật được trước người có DB; mục tiêu là PIN không nằm dạng chữ thường trong IndexedDB hay file sao lưu.
 - **File sao lưu** (`data/backup.ts`): JSON `{ format: 'codequest-backup', version: 1, exportedAt, profiles: [{ profile, lessons, progress, drafts, attempts, ledger, inventory, badges, creations }] }`, kiểm bằng zod khi đọc (mọi dòng phải thuộc đúng hồ sơ; biệt danh NFC, đã cắt khoảng trắng, ≤ 12 chữ, không trùng trong file; `pinHash` đúng mẫu). File lớn hơn `MAX_BACKUP_BYTES` (5 MB) bị từ chối; màn hình nên kiểm `File.size` trước khi đọc. Có `pinHash`, không có PIN, `outbox` hay `meta`. **Khôi phục là phép gộp**, không ghi đè: hồ sơ và các bảng chỉ-thêm lấy hợp (trùng khóa thì giữ bản trên máy), tiến độ qua `mergeProgress`, bản nháp mới hơn thắng; dòng đồng bộ mới được đẩy vào outbox; dòng lặp trong file bị bỏ qua. Khôi phục 2 lần không cộng xu 2 lần. **Trùng biệt danh** với một hồ sơ khác trên máy (khác `id`): mặc định **bỏ qua** cả hồ sơ đó và trả về trong `conflicts` (`restoreBackup` → `{ restored, conflicts }`); màn Khôi phục (P1-10) báo cho huấn luyện viên quyết định.
 - Chưa giới hạn `delta` theo `reason` khi đọc file: §3 chỉ nêu ví dụ mức trần của `ledger_guard`, chưa có bảng đầy đủ.
@@ -66,7 +68,7 @@ Quyết định khi làm P1-09:
 ### Mức tin cậy (chấp nhận có ghi nhận)
 Client tự tính xu và sao. Một bé rành máy tính có thể tự chèn dòng sổ xu. Với nhóm 6 bé do một huấn luyện viên quản lý, rủi ro này được **chấp nhận**, kèm hai lớp giảm thiểu:
 1. Trigger `ledger_guard` từ chối dòng có `delta` vượt mức của `reason` (vd `level-clear` ≤ 10, `daily` ≤ 10, `streak-7` ≤ 50, `replay` ≤ 1; `coach-adjust` chỉ huấn luyện viên được ghi), và từ chối `id` không đúng mẫu ở `rewards-engine.md` §4.
-2. View `v_ledger_anomalies` trong Góc huấn luyện viên liệt kê bé có số dư bất thường.
+2. Góc huấn luyện viên liệt kê bé có xu bất thường bằng hàm thuần TS `coinIssues` (`apps/web/src/features/coach/metrics.ts`, P2-05; thay view `v_ledger_anomalies`): số dư âm, số dư > 400, dòng vượt mức của `reason` (cùng mức với `ledger_guard`) hoặc dòng tiêu mà cộng xu, quá 5 xu `replay` một ngày. Cùng hàm chạy trên dữ liệu máy này, file sao lưu và (từ P2-16) dữ liệu Supabase.
 Nếu sau này mở cho nhiều người hơn, chuyển việc tính thưởng lên Edge Function (viết ADR mới).
 
 ### Row Level Security

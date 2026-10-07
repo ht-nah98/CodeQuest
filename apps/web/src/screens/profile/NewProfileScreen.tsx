@@ -8,6 +8,7 @@ import {
   useCurrentProfile,
   useProfiles,
 } from '../../features/profiles';
+import { persistLocalData } from '../../features/pwa';
 import { uiVoiceId } from '../../audio/voiceIds';
 import { vi } from '../../i18n/vi';
 import { Avatar, AVATAR_IDS, type AvatarId, Bubble, Button, Panel } from '../../ui';
@@ -80,6 +81,7 @@ export default function NewProfileScreen() {
     }
     try {
       const profile = await createProfile({ nickname, avatarId, pin });
+      persistLocalData();
       select(profile.id);
       void navigate('/map');
       return true;

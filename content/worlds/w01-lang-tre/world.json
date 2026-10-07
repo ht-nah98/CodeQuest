@@ -5,6 +5,76 @@
   "emoji": "🎋",
   "concept": "Tuần tự",
   "story": "Gió to thổi bay hết măng của làng. Măng phải đi khắp làng nhặt lại.",
+  "chapters": [
+    {
+      "id": "gio-to",
+      "title": "Gió to thổi qua làng",
+      "lines": [
+        "Đêm qua, gió to thổi qua Làng Tre.",
+        "Gió cuốn bay hết măng của cả làng!",
+        "Măng xắn tay áo: mình đi nhặt lại thôi!"
+      ],
+      "art": {
+        "cast": ["pig"],
+        "prop": "wind"
+      }
+    },
+    {
+      "id": "buoc-dau-tien",
+      "title": "Những bước đầu tiên",
+      "lines": [
+        "Măng đi từng bước, nhảy qua cả hố to.",
+        "Mỗi khối là 1 việc, làm đúng thứ tự.",
+        "Xa xa, cây măng đầu tiên đang chờ!"
+      ],
+      "unlockAfter": "w01-l03",
+      "art": {
+        "prop": "shoots"
+      }
+    },
+    {
+      "id": "canh-tre-thap",
+      "title": "Cành tre thấp",
+      "lines": [
+        "Gió quật cành tre xuống sát mặt đường.",
+        "Măng cúi người, chui qua thật khéo.",
+        "Bác Heo vẫy tay: cố lên Măng ơi!"
+      ],
+      "unlockAfter": "w01-l07",
+      "art": {
+        "cast": ["pig"],
+        "prop": "bamboo"
+      }
+    },
+    {
+      "id": "thung-go-chan-duong",
+      "title": "Thùng gỗ chắn đường",
+      "lines": [
+        "Thùng gỗ lăn ra chắn ngõ. Măng đá văng!",
+        "Cuối làng, đường rẽ trái, rẽ phải như mê cung.",
+        "Còn 3 cây măng nữa thôi. Cố lên!"
+      ],
+      "unlockAfter": "w01-l12",
+      "art": {
+        "cast": ["cat"],
+        "prop": "shoots"
+      }
+    },
+    {
+      "id": "mang-ve-lang",
+      "title": "Măng về làng",
+      "lines": [
+        "Măng mang đủ măng về. Cả làng reo vui!",
+        "Nhưng gió vẫn thổi vù vù vào rừng tre.",
+        "Gió đi đâu thế nhỉ? Vào rừng xem nào!"
+      ],
+      "unlockAfter": "w01-boss",
+      "art": {
+        "cast": ["pig", "cat"],
+        "prop": "home"
+      }
+    }
+  ],
   "theme": {
     "tileset": "/tiles/ground.png",
     "palette": "day",

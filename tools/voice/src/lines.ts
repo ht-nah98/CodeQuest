@@ -4,6 +4,7 @@ import { z } from 'zod';
 // Which lines get a pre-generated voice (ui-copy-guide.md §5) and their ids (content-model.md §2):
 //   <levelId>.objective · <levelId>.mission · <levelId>.thinking · <levelId>.hint.<hintId> · <levelId>.feedback.<REASON>
 //   <lessonId>.c<n> (1-based card) · <lessonId>.c<n>.explain (quiz) · feedback.<REASON> · ui.<vi.ts key>
+//   <worldId>.story.<chapterId>.<n> (1-based line of a story chapter, P2-24)
 // Only fixed text is voiced; lines with changing numbers are functions in vi.ts and never reach here.
 
 export interface VoiceLine {
@@ -40,12 +41,19 @@ const LessonText = z.object({
   cards: z.array(z.object({ text: z.string().min(1), explain: z.string().min(1).optional() })),
 });
 const FeedbackText = z.record(z.string(), z.string().min(1));
+const WorldText = z.object({
+  id: z.string().min(1),
+  chapters: z
+    .array(z.object({ id: z.string().min(1), lines: z.array(z.string().min(1)) }))
+    .optional(),
+});
 
 /** Voice ids become file names: letters, digits, '.', '_' and '-' only. */
 export const VOICE_ID = /^[A-Za-z0-9._-]+$/;
 
 const LEVEL_PATH = /^worlds\/(w\d{2})-[^/]+\/levels\/[^/]+\.json$/;
 const LESSON_PATH = /^worlds\/(w\d{2})-[^/]+\/lessons\/[^/]+\.json$/;
+const WORLD_PATH = /^worlds\/(w\d{2})-[^/]+\/world\.json$/;
 const FEEDBACK_PATH = 'shared/feedback.json';
 
 /** Stable short hash of a line's text: a changed text means the voice file is stale. */
@@ -59,7 +67,7 @@ export interface ExtractOptions {
 }
 
 /**
- * Voiced lines of the content tree: levels, lessons and shared/feedback.json. Sandbox worlds
+ * Voiced lines of the content tree: levels, lessons, story chapters and shared/feedback.json. Sandbox worlds
  * (`worlds/_*`) and retired levels are skipped. Sorted by id.
  */
 export function extractContentLines(
@@ -86,6 +94,7 @@ export function extractContentLines(
 
     const level = LEVEL_PATH.exec(file.path);
     const lesson = LESSON_PATH.exec(file.path);
+    const world = WORLD_PATH.exec(file.path);
     if (level && wanted(level[1])) {
       const parsed = LevelText.safeParse(json);
       if (!parsed.success) {
@@ -112,6 +121,17 @@ export function extractContentLines(
         add(id, card.text);
         if (card.explain !== undefined) add(`${id}.explain`, card.explain);
       });
+    } else if (world && wanted(world[1])) {
+      const parsed = WorldText.safeParse(json);
+      if (!parsed.success) {
+        issues.push({ path: file.path, message: 'world is missing id or has malformed chapters' });
+        continue;
+      }
+      for (const chapter of parsed.data.chapters ?? []) {
+        chapter.lines.forEach((line, i) => {
+          add(`${parsed.data.id}.story.${chapter.id}.${String(i + 1)}`, line);
+        });
+      }
     } else if (file.path === FEEDBACK_PATH) {
       const parsed = FeedbackText.safeParse(json);
       if (!parsed.success) {

@@ -5,6 +5,70 @@
   "emoji": "🌳",
   "concept": "Lặp n lần",
   "story": "Rừng tre có những con đường lặp đi lặp lại. Phù thủy gió chỉ cho Măng mang theo rất ít khối.",
+  "chapters": [
+    {
+      "id": "rung-bi-an",
+      "title": "Khu rừng bí ẩn",
+      "lines": [
+        "Măng theo gió vào Rừng Lặp Lại.",
+        "Ở đây, đường nào cũng lặp đi lặp lại.",
+        "Phù thủy gió cười: chỉ được mang ít khối thôi!"
+      ],
+      "art": {
+        "prop": "wind"
+      }
+    },
+    {
+      "id": "khoi-lap",
+      "title": "Phép lặp lại",
+      "lines": ["Măng có khối lặp: 1 khối làm nhiều lần.", "Túi nhẹ tênh mà vẫn đi thật xa!"],
+      "unlockAfter": "w02-l03",
+      "art": {
+        "prop": "bamboo"
+      }
+    },
+    {
+      "id": "len-doi",
+      "title": "Bậc thang lên đồi",
+      "lines": [
+        "Măng leo bậc thang lên đồi cao.",
+        "Trên đồi, Măng thấy một khóm tre lớn.",
+        "Gió trốn sau khóm tre, thổi vù vù."
+      ],
+      "unlockAfter": "w02-l09",
+      "art": {
+        "cast": ["koala"],
+        "prop": "bamboo"
+      }
+    },
+    {
+      "id": "hai-vong-lap",
+      "title": "Đường dài hơn nữa",
+      "lines": [
+        "Phù thủy gió bày ra đường dài hơn nữa.",
+        "Măng nối 2 khối lặp, vẫn vượt qua!",
+        "Lối ra khỏi rừng ở ngay phía trước."
+      ],
+      "unlockAfter": "w02-l15",
+      "art": {
+        "prop": "wind"
+      }
+    },
+    {
+      "id": "ra-khoi-rung",
+      "title": "Ra khỏi rừng",
+      "lines": [
+        "Măng vượt rừng tre. Phù thủy gió bực lắm!",
+        "Gió bay về làng, thổi lệch máy của làng.",
+        "Bác Cú gọi: Măng ơi, về xưởng giúp bác!"
+      ],
+      "unlockAfter": "w02-boss",
+      "art": {
+        "cast": ["owl"],
+        "prop": "machine"
+      }
+    }
+  ],
   "theme": {
     "tileset": "/tiles/ground.png",
     "palette": "day",

@@ -5,6 +5,76 @@
   "emoji": "🌊",
   "concept": "Lặp đến khi: chờ tới lúc đúng",
   "story": "Cầu về làng bị gió cuốn mất. Chú Ếch dạy Măng chờ: cứ đi, đến khi thấy nước thì nhảy.",
+  "chapters": [
+    {
+      "id": "cau-bi-cuon",
+      "title": "Cầu bị cuốn mất",
+      "lines": [
+        "Cầu về làng bị gió cuốn mất rồi!",
+        "Chú Ếch chèo đò tới chào Măng.",
+        "Chú dạy: cứ đi, đến khi thấy nước thì nhảy."
+      ],
+      "art": {
+        "cast": ["frog", "bunny"],
+        "prop": "river"
+      }
+    },
+    {
+      "id": "ben-do",
+      "title": "Bến đò của chú Ếch",
+      "lines": [
+        "Măng đi dọc bờ tới bến đò của chú Ếch.",
+        "Chú Ếch khen: biết chờ đúng lúc là giỏi!"
+      ],
+      "unlockAfter": "w05-l04",
+      "art": {
+        "cast": ["frog"],
+        "prop": "dock"
+      }
+    },
+    {
+      "id": "qua-song",
+      "title": "Đưa Bông qua sông",
+      "lines": [
+        "Bông nhảy theo Măng qua dãy đá nổi.",
+        "Măng và Bông đã sang tới bờ bên kia!",
+        "Từ bãi lau xa xa, có tiếng khóc nho nhỏ."
+      ],
+      "unlockAfter": "w05-l10",
+      "art": {
+        "cast": ["bunny"],
+        "prop": "river"
+      }
+    },
+    {
+      "id": "ga-con-bi-lac",
+      "title": "Gà con bị lạc",
+      "lines": [
+        "Gà con lạc trong bãi lau bên sông.",
+        "Gà con mếu: em sợ, không dám đi một mình.",
+        "Măng hứa: mình sẽ đưa em về nhà!"
+      ],
+      "unlockAfter": "w05-l16",
+      "art": {
+        "cast": ["chick"],
+        "prop": "bamboo"
+      }
+    },
+    {
+      "id": "ga-con-ve-nha",
+      "title": "Gà con về nhà",
+      "lines": [
+        "Măng đón Gà con, đưa em về tận nhà.",
+        "Cả nhà Gà con cảm ơn Măng và Bông.",
+        "Làng ở ngay sau ngọn đồi. Đi tiếp thôi!"
+      ],
+      "unlockAfter": "w05-boss",
+      "art": {
+        "cast": ["chick", "bunny"],
+        "prop": "home"
+      }
+    }
+  ],
   "theme": {
     "tileset": "/tiles/ground.png",
     "palette": "day",

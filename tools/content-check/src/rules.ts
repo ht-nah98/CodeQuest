@@ -1,9 +1,9 @@
 /**
- * content:check, all 20 rules of docs/architecture/content-model.md §5 (phases: §7).
+ * content:check, all 21 rules of docs/architecture/content-model.md §5 (phases: §7).
  * The per-level rules (1–2, 5–6, 9–16, 19) live in `@codequest/validator`, so the level editor
  * runs the same code in the browser. This file reads every file, checks rules 1–2 for worlds,
  * lessons and shared files, ID file names and uniqueness, 17 (feedback coverage) and 18
- * (assets), and wires in curriculum.ts (3–4, 7–8). Draft folders `worlds/_*` skip rules 3–8.
+ * (assets), and wires in curriculum.ts (3–4, 7–8, 21). Draft folders `worlds/_*` skip rules 3–8.
  */
 import { statSync } from 'node:fs';
 import { isAbsolute, relative, resolve, sep } from 'node:path';
@@ -211,7 +211,7 @@ function readString(value: unknown, key: string): string | null {
   return typeof field === 'string' ? field : null;
 }
 
-/** Runs all 20 rules over every JSON file under `content/` (paths relative to it). */
+/** Runs all 21 rules over every JSON file under `content/` (paths relative to it). */
 export function checkContent(
   files: readonly ContentFile[],
   getKind: GameKindLookup = getGameKind,
@@ -334,7 +334,7 @@ export function checkContent(
     claimFileId(location, id, file.path);
   }
 
-  // Rules 3–4, 7–8 across worlds.
+  // Rules 3–4, 7–8, 21 across worlds.
   const { errors, warnings } = checkCurriculum(curriculum);
   issues.push(...errors);
 

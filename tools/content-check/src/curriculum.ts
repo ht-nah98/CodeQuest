@@ -1,5 +1,5 @@
 /**
- * Cross-file rules 3, 4, 7 and 8 of content-model.md §5: how worlds, lessons and levels fit
+ * Cross-file rules 3, 4, 7, 8 and 21 (story chapters, story.ts) of content-model.md §5: how worlds, lessons and levels fit
  * together into one curriculum. Draft folders `worlds/_*` are outside the curriculum and
  * skipped (content-model.md §1).
  */
@@ -8,6 +8,7 @@ import type { Level, LevelMode, World } from '@codequest/content-schema';
 import { gameKinds } from '@codequest/games';
 import { blockTypesOf, toolboxTypes } from '@codequest/validator';
 import type { Issue } from './rules';
+import { checkStory } from './story';
 
 /**
  * Worlds whose world.json is still a temporary stub (content-model.md §7), with the roadmap
@@ -233,6 +234,11 @@ export function checkCurriculum(input: CurriculumInput): CurriculumReport {
         }
       }
     }
+  }
+
+  // Rule 21: story chapters open in order, each after a level on the world's path.
+  for (const { path, world } of input.worlds) {
+    errors.push(...checkStory(path, world, (id) => levelById.get(id)?.level ?? undefined));
   }
 
   // Rule 8 (warning only): every mode once per world, at most 3 build levels in a row.

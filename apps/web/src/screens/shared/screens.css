@@ -86,3 +86,22 @@
     display: none;
   }
 }
+
+/* World page story book (P2-24): a newly opened chapter glows gold a few times. */
+@keyframes cq-chapter-new {
+  0%,
+  100% {
+    box-shadow:
+      0 6px 0 var(--color-ink),
+      0 0 0 0 var(--color-coin);
+  }
+  50% {
+    box-shadow:
+      0 6px 0 var(--color-ink),
+      0 0 0 6px var(--color-coin);
+  }
+}
+
+.cq-chapter-new {
+  animation: cq-chapter-new 1.2s ease-in-out 3;
+}

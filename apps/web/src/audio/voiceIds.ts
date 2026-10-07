@@ -12,6 +12,10 @@ export const hintVoiceId = (levelId: string, hintId: string): string => `${level
 export const lessonCardVoiceId = (lessonId: string, cardIndex: number, explain = false): string =>
   `${lessonId}.c${String(cardIndex + 1)}${explain ? '.explain' : ''}`;
 
+/** `<worldId>.story.<chapterId>.<n>`: line n (counted from 1) of a story chapter (P2-24). */
+export const storyLineVoiceId = (worldId: string, chapterId: string, lineIndex: number): string =>
+  `${worldId}.story.${chapterId}.${String(lineIndex + 1)}`;
+
 /**
  * A failed run's feedback line: `<levelId>.feedback.<REASON>` when the level overrides the
  * text, else the shared `feedback.<REASON>` of feedback.json.

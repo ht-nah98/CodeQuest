@@ -5,6 +5,77 @@
   "emoji": "🔧",
   "concept": "Gỡ lỗi: đọc, tìm, sửa",
   "story": "Phù thủy gió làm lệch khối trong máy của cả làng. Măng giúp bác Cú sửa từng máy.",
+  "chapters": [
+    {
+      "id": "xuong-bac-cu",
+      "title": "Xưởng của bác Cú",
+      "lines": [
+        "Xưởng bác Cú giữ máy của cả làng.",
+        "Phù thủy gió thổi lệch khối trong máy.",
+        "Măng làm thợ sửa: chạy thử, tìm, rồi sửa!"
+      ],
+      "art": {
+        "cast": ["owl"],
+        "prop": "machine"
+      }
+    },
+    {
+      "id": "may-xay",
+      "title": "Máy xay chạy lại",
+      "lines": [
+        "Máy xay của bác Heo chạy êm rồi.",
+        "Xe đẩy của Mèo cũng hết kẹt.",
+        "Bác Cú gật gù: thợ nhỏ giỏi lắm!"
+      ],
+      "unlockAfter": "w03-l03",
+      "art": {
+        "cast": ["pig", "cat"],
+        "prop": "machine"
+      }
+    },
+    {
+      "id": "lac-trong-kho",
+      "title": "Lạc trong kho",
+      "lines": [
+        "Gió thổi tung khối khắp kho của bác Cú.",
+        "Măng tìm được lối ra, lắp lại máy đá thùng.",
+        "Thỏ Bông ghé xưởng chào rồi đi về phía Ngã Ba."
+      ],
+      "unlockAfter": "w03-l07",
+      "art": {
+        "cast": ["bunny"],
+        "prop": "exit"
+      }
+    },
+    {
+      "id": "may-nhat-mang",
+      "title": "Máy nhặt măng lớn",
+      "lines": [
+        "Máy của Gấu nâu, Hổ, Chim cánh cụt chạy rồi.",
+        "Chỉ còn máy nhặt măng lớn của cả làng.",
+        "Máy này có tới 4 lỗi đó!"
+      ],
+      "unlockAfter": "w03-l12",
+      "art": {
+        "cast": ["bear", "tiger"],
+        "prop": "machine"
+      }
+    },
+    {
+      "id": "bong-chua-ve",
+      "title": "Bông chưa về",
+      "lines": [
+        "Máy nhặt măng chạy ro ro. Cả làng reo vang!",
+        "Bác Cú lo lắng: Thỏ Bông vào Ngã Ba chưa về.",
+        "Măng xách đèn lên đường tìm bạn."
+      ],
+      "unlockAfter": "w03-boss",
+      "art": {
+        "cast": ["owl"],
+        "prop": "footprints"
+      }
+    }
+  ],
   "theme": {
     "tileset": "/tiles/ground.png",
     "palette": "day",

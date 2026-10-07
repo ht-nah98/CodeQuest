@@ -4,6 +4,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>CodeQuest</title>
+    <meta name="theme-color" content="#4b4673" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+    <!-- Before the bundle: no eval probe under the CSP (public/boot/zod-jitless.js). -->
+    <script src="/boot/zod-jitless.js"></script>
     <!-- Every screen has Vietnamese text in body + display fonts; fetch those faces before CSS asks. -->
     <link
       rel="preload"

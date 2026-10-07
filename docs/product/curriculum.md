@@ -131,6 +131,7 @@ Từ Thế giới 3, Măng đã lớn: mỗi thế giới là **một câu chuy�
 
   Cả hai là `collectAll` với vật phẩm có tên và hình riêng, kèm câu phản hồi riêng ("Cần chìa khóa trước!", "Chưa đón bạn kìa!"). Dùng ở W4 `l17`, W4 boss, W5 boss. "Các điểm phải đi qua theo thứ tự" để sau (chưa màn nào cần).
 - Mạch truyện: **W3** Măng giúp bác Cú sửa máy cho dân làng. Cuối boss, bác Cú báo Thỏ Bông vào vùng Ngã Ba chưa về. **W4** Măng lần theo dấu Bông qua những con đường gió đổi mỗi lần; boss: lấy chìa khóa, mở lồng cứu Bông. **W5** cầu về làng bị gió cuốn; chú Ếch chỉ đá nổi qua sông; boss: qua sông đón Gà con rồi đưa em về nhà.
+- **Truyện chia chương** (P2-24, góp ý HLV 06/10/2026): mạch truyện trên được kể ở cột trái trang thế giới thành 5 chương mỗi thế giới (mở đầu · sau vài màn đầu · giữa thế giới · trước boss · sau boss, mở sang thế giới sau). Lời truyện nằm trong `world.json` (`chapters`, `architecture/content-model.md` §3, luật 21); cách hiện: `design/screens-and-flows.md` §6. Chương mở theo màn bé thắng; chi tiết thêm (khăn của Bông, Gà con lạc trong bãi lau) chỉ để kể, không đổi màn nào.
 - Nối tiếp về sau: `roadmap/later-phases.md` có ý tưởng **Hành trình phiêu lưu** (ra khơi, đảo hoang, vòng quanh thế giới) sau Thế giới 10. Giữ nhân vật và giọng kể ở đây để dùng lại được.
 
 ### 5.1 Thế giới 3 — 🔧 Xưởng Sửa Lỗi (chi tiết)

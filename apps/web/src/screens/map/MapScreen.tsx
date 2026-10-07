@@ -11,6 +11,7 @@ import {
 } from '../../features/content/catalog';
 import { SANDBOX_WORLD_ID } from '../../features/content/sandbox';
 import { useSignedInProfile } from '../../features/profiles';
+import { persistLocalData, UpdateBanner } from '../../features/pwa';
 import { useLessonsDone, useProgressMap } from '../../features/progress';
 import { vi } from '../../i18n/vi';
 import { Bubble, PixelIcon } from '../../ui';
@@ -48,7 +49,7 @@ export default function MapScreen() {
 
   const views = useMemo(
     () =>
-      catalog && progress && lessonsDone
+      catalog && progress && lessonsDone && overrides
         ? worldViews(catalog, { progress, lessonsDone, overrides })
         : null,
     [catalog, progress, lessonsDone, overrides],
@@ -69,6 +70,11 @@ export default function MapScreen() {
     return sandbox ? [...ordered, { kind: 'world', view: sandbox }] : ordered;
   }, [views]);
 
+  // Profiles made before P2-09 never asked: the map is where every signed-in child lands.
+  useEffect(() => {
+    persistLocalData();
+  }, []);
+
   // Bring the island Măng stands on into view.
   useEffect(() => {
     const strip = stripRef.current;
@@ -85,6 +91,7 @@ export default function MapScreen() {
     <main className="grid h-dvh min-h-[500px] grid-rows-[auto_minmax(0,1fr)] gap-3 bg-ground p-3">
       <TopBar fullHud>
         <h1 className="m-0 truncate font-display text-[28px] text-paper">{t.title}</h1>
+        <UpdateBanner />
       </TopBar>
 
       <section

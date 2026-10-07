@@ -11,6 +11,10 @@ const COACH_PORT = process.env['PW_COACH_PORT'] ?? String(Number(PORT) + 1);
 const COACH_PIN = process.env['E2E_COACH_PIN'] ?? '2468';
 process.env['E2E_COACH_PIN'] = COACH_PIN;
 process.env['E2E_COACH_URL'] = `http://localhost:${COACH_PORT}`;
+// Production build + `vite preview` for the PWA spec (service worker, offline, CSP): dev servers
+// have no service worker. Its own port, not 5173/5199/5200.
+const PREVIEW_PORT = process.env['PW_PREVIEW_PORT'] ?? '4180';
+process.env['E2E_PREVIEW_URL'] = `http://localhost:${PREVIEW_PORT}`;
 
 export default defineConfig({
   testDir: './e2e',
@@ -53,6 +57,15 @@ export default defineConfig({
       env: { VITE_COACH_PIN: COACH_PIN, CQ_E2E: '1' },
       url: `http://localhost:${COACH_PORT}`,
       reuseExistingServer: !process.env.CI,
+    },
+    {
+      // Builds its own outDir first (vite only, no typecheck, ~10 s): never touches dist/ of a
+      // `npm run build` running at the same time.
+      command: `npx vite build --outDir dist-e2e --emptyOutDir && npx vite preview --outDir dist-e2e --port ${PREVIEW_PORT} --strictPort`,
+      env: { VITE_COACH_PIN: '', CQ_E2E: '1' },
+      url: `http://localhost:${PREVIEW_PORT}`,
+      reuseExistingServer: !process.env.CI,
+      timeout: 180_000,
     },
   ],
 });
