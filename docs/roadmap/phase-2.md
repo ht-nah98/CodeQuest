@@ -17,7 +17,7 @@
 | P2-06 | Góc nhóm: mục tiêu chung, tường tác phẩm | P2-04, P2-05 | AI | ⬜ |
 | P2-07 | Level editor v0 (`/coach/editor`) | P2-15 | AI | 🟨 |
 | P2-08 | Nội dung Thế giới 3 · Xưởng Sửa Lỗi (15 màn + bài giảng) | P2-10, P2-11 (phần W3) | AI soạn nháp · HLV duyệt | 🟨 chờ HLV chơi thử |
-| P2-09 | PWA offline (chưa deploy) | — | AI | 🟨 xong phần AI (ADR-0020), chờ review + commit |
+| P2-09 | PWA offline (chưa deploy) | — | AI | ✅ xong phần AI (ADR-0020); bật thật khi deploy (P2-18) |
 | P2-10 | Chi tiết hóa chương trình học Thế giới 3–5 | — | AI soạn · HLV duyệt | ✅ HLV + phụ huynh duyệt 03/10 |
 | P2-11 | Khối điều kiện, lặp đến khi, cảm biến sáng khi kiểm | P2-10 (bản nháp) | AI | 🟨 headless + web xong, chờ HLV chơi thử W4 |
 | P2-12 | Màn nhiều bản đồ (một chương trình, 2–3 bản đồ) | P2-10 (bản nháp) | AI | ✅ |
