@@ -36,7 +36,8 @@ Trước khi tạo tài khoản cho 5 bạn, huấn luyện viên gửi phụ hu
   connect-src 'self' https://<project>.supabase.co wss://<project>.supabase.co;
   frame-ancestors 'none'; base-uri 'self'; object-src 'none'
   ```
-  `style-src 'unsafe-inline'` là bắt buộc: Blockly tự chèn thẻ `<style>` lúc inject. PixiJS phải import `pixi.js/unsafe-eval` để **không** cần `'unsafe-eval'` trong `script-src`. Kiểm CSP ở bản preview trước khi lên production (task P2-09).
+  `style-src 'unsafe-inline'` là bắt buộc: Blockly tự chèn thẻ `<style>` lúc inject. PixiJS phải import `pixi.js/unsafe-eval` để **không** cần `'unsafe-eval'` trong `script-src`. Zod 4 chạy `jitless` (`apps/web/public/boot/zod-jitless.js`, script thường nạp trước bundle) vì phép thử `new Function` của nó, dù bị bắt lỗi, vẫn bị báo là vi phạm CSP. `worker-src 'self'` cho service worker (P2-09) và Web Worker; `manifest.webmanifest` thuộc `default-src 'self'`.
+  Kiểm tự động: `vite preview` gửi đúng chính sách này (bỏ phần Supabase, xem `PREVIEW_CSP` trong `apps/web/vite.config.ts`), e2e `pwa-offline.spec.ts` **đỏ** khi có sự kiện `securitypolicyviolation`. Header CSP thật vào `vercel.json` ở task P2-18 (cần URL project Supabase cho `connect-src`); khi đó giữ `PREVIEW_CSP` khớp với nó.
 - Không có chat, không có nội dung do người lạ tạo.
 
 ## 4. Xóa dữ liệu

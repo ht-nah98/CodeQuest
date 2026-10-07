@@ -27,7 +27,7 @@ Quy tắc:
 | `zod` | 4.6.5 | content-schema, engine, games, web | Schema nội dung; web dùng để kiểm file sao lưu khi khôi phục | |
 | `@supabase/supabase-js` | 2.117.2 | web | Backend | Từ GĐ 2 |
 | `tailwindcss` + `@tailwindcss/vite` | 4.3.3 | web | CSS utility, đọc token từ CSS variable | Token ở `apps/web/src/ui/tokens.css` (`@theme static`); bảng màu chép sang `ui/tokens.ts` cho Blockly/Pixi, có test chống lệch |
-| `vite-plugin-pwa` | 1.3.0 | web | Chơi offline | Từ GĐ 2 |
+| `vite-plugin-pwa` | 1.3.0 | web (dev) | Chơi offline: service worker Workbox `generateSW`, manifest | Cài ở P2-09 (ADR-0020). Kéo theo `workbox-build`/`workbox-window` 7.4 (`workbox-window` vào bundle, ~6 KB, tải lười). **Chưa lên 2.0.0** (ra 03/10/2026) |
 
 ## Công cụ dev
 | Thư viện | Phiên bản | Ghi chú |
