@@ -31,6 +31,8 @@ export {
   starterEntry,
 } from './computeRewards';
 export type { LevelRewards, RunState } from './computeRewards';
+export { chapterStates, freshChapterIds, openingChapterIndex } from './chapters';
+export type { ChapterContext, ChapterState } from './chapters';
 export { computeStars, meetsStarGoals } from './computeStars';
 export { buyHint, hintEntryId, hintPrice, isHintOwned } from './hints';
 export type { BuyHintResult } from './hints';

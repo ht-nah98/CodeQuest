@@ -1,7 +1,7 @@
-import { type ReactNode, useEffect, useMemo, useRef } from 'react';
+import { type ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router';
 import type { Lesson } from '@codequest/content-schema';
-import { isUnlocked } from '@codequest/rewards';
+import { chapterStates, isUnlocked, openingChapterIndex } from '@codequest/rewards';
 import { useMusic } from '../../audio/useAudio';
 import { levelVoiceId, uiVoiceId } from '../../audio/voiceIds';
 import { useUnlockOverrides } from '../../features/author/authorMode';
@@ -16,6 +16,7 @@ import {
 import { levelNumberOf } from '../../features/content/files';
 import { SANDBOX_WORLD_ID } from '../../features/content/sandbox';
 import { useSignedInProfile } from '../../features/profiles';
+import { useFreshChapters } from '../../features/story';
 import { useLessonsDone, useProgressMap } from '../../features/progress';
 import { vi } from '../../i18n/vi';
 import { Bubble, Button, Panel, PixelIcon, Stars } from '../../ui';
@@ -23,6 +24,7 @@ import { FOCUS_RING } from '../../ui/focusRing';
 import { MangPortrait } from '../play/MangPortrait';
 import { ScreenMessage } from '../shared/ScreenMessage';
 import { TopBar } from '../shared/TopBar';
+import { StoryBook } from './StoryBook';
 
 const t = vi.world;
 
@@ -54,13 +56,24 @@ export default function WorldScreen() {
 
   const world = catalog?.worldById.get(worldId);
   const child = useMemo(
-    () => (progress && lessonsDone ? { progress, lessonsDone, overrides } : null),
+    () => (progress && lessonsDone && overrides ? { progress, lessonsDone, overrides } : null),
     [progress, lessonsDone, overrides],
   );
   const views = useMemo(
     () => (catalog && world && child ? levelViews(catalog, world, child) : null),
     [catalog, world, child],
   );
+  const chapters = useMemo(
+    () =>
+      catalog && world && progress
+        ? chapterStates(world, { levels: catalog.levels, progress })
+        : null,
+    [catalog, world, progress],
+  );
+  const fresh = useFreshChapters(profile.id, worldId, chapters);
+  // Turning a page (or reading aloud) ends Măng's "new chapter" nudge.
+  // Keyed by world: the screen stays mounted when the route goes to another world.
+  const [storyTouched, setStoryTouched] = useState<string | null>(null);
 
   useMusic('village');
 
@@ -92,18 +105,24 @@ export default function WorldScreen() {
   const blockFirst =
     nextUp &&
     lessonsBefore(catalog, world, nextUp.level.id).find((l) => !child.lessonsDone.has(l.id));
+  // A lesson to watch first is more urgent than the story; the new chapter beats the objective.
+  const newChapter = fresh !== null && fresh.length > 0 && storyTouched !== world.id;
   const mangLine = needsLesson
     ? t.lessonFirst
     : blockFirst
       ? t.newBlockFirst
-      : (nextUp?.level.objective ?? t.allDone);
+      : newChapter
+        ? t.story.newChapterSay
+        : (nextUp?.level.objective ?? t.allDone);
   const mangVoice = needsLesson
     ? uiVoiceId('world.lessonFirst')
     : blockFirst
       ? uiVoiceId('world.newBlockFirst')
-      : nextUp
-        ? levelVoiceId(nextUp.level.id, 'objective')
-        : uiVoiceId('world.allDone');
+      : newChapter
+        ? uiVoiceId('world.story.newChapterSay')
+        : nextUp
+          ? levelVoiceId(nextUp.level.id, 'objective')
+          : uiVoiceId('world.allDone');
   const lessonStone = (lesson: Lesson): PathStone => {
     const done = child.lessonsDone.has(lesson.id);
     return {
@@ -161,18 +180,38 @@ export default function WorldScreen() {
       <div className="grid min-h-0 grid-cols-[minmax(300px,32fr)_minmax(0,68fr)] gap-3">
         <Panel
           as="section"
-          aria-labelledby="world-story"
-          className="cq-sky flex flex-col gap-4 overflow-hidden p-6"
+          aria-label={t.story.label}
+          data-testid="world-story-panel"
+          className="cq-sky flex min-h-0 flex-col gap-2.5 overflow-hidden p-4"
         >
-          <span className="w-fit rounded-chip border-3 border-ink bg-coin px-3 pt-1 font-pixel text-pixel uppercase">
+          {/* Hidden on a short page (1280×600): the story lines need the room. */}
+          <span className="w-fit shrink-0 rounded-chip [@media(max-height:660px)]:hidden border-3 border-ink bg-coin px-3 pt-1 font-pixel text-pixel uppercase">
             {world.concept}
           </span>
-          <h2 id="world-story" className="m-0 text-display">
-            {world.title}
-          </h2>
-          <p className="m-0 text-body">{world.story}</p>
-          <div className="mt-auto flex items-end gap-3 pb-14">
-            <MangPortrait pose={needsLesson ? 'talk' : 'idle_1'} height={104} />
+          {chapters && chapters.length > 0 ? (
+            fresh !== null && (
+              <StoryBook
+                key={world.id}
+                world={world}
+                states={chapters}
+                levels={catalog.levels}
+                fresh={fresh}
+                initialPage={openingChapterIndex(chapters, fresh)}
+                onInteract={() => {
+                  setStoryTouched(world.id);
+                }}
+              />
+            )
+          ) : (
+            <>
+              <h2 id="world-story" className="m-0 text-display">
+                {world.title}
+              </h2>
+              <p className="m-0 text-body">{world.story}</p>
+            </>
+          )}
+          <div className="mt-auto flex shrink-0 items-end gap-3 pb-10 [@media(max-height:660px)]:pb-8">
+            <MangPortrait pose={needsLesson || newChapter ? 'talk' : 'idle_1'} height={72} />
             <Bubble text={mangLine} tail="left" voiceId={mangVoice} />
           </div>
         </Panel>

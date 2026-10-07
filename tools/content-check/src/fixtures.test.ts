@@ -37,9 +37,9 @@ function cli(name: string): { status: number; output: string } {
 }
 
 describe('content:check fixtures', () => {
-  it('has exactly one fixture for each of the 20 rules', () => {
+  it('has exactly one fixture for each of the 21 rules', () => {
     expect(ruleFixtures.map((fixture) => fixture.rule)).toEqual(
-      Array.from({ length: 20 }, (_, index) => index + 1),
+      Array.from({ length: 21 }, (_, index) => index + 1),
     );
   });
 

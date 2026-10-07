@@ -6,6 +6,7 @@ import {
   DEFAULT_SCENE_THEME,
   SCENE_THEMES,
   sceneThemeOf,
+  StoryChapterSchema,
   BadgesFileSchema,
   FeedbackFileSchema,
   HintRuleSchema,
@@ -374,8 +375,37 @@ describe('WorldSchema', () => {
     ['unknown palette', { ...world, theme: { tileset: 'x', palette: 'noon' } }],
     ['unknown scene theme', { ...world, theme: { tileset: 'x', scene: 'moon' } }],
     ['no levels', { ...world, levelIds: [] }],
+    ['an empty chapter list', { ...world, chapters: [] }],
   ])('rejects %s', (_name, value) => {
     expectInvalid(WorldSchema, value);
+  });
+
+  // P2-24: the world's tale in chapters.
+  const chapter = {
+    id: 'gio-to',
+    title: 'Gió to thổi qua làng',
+    lines: ['Gió cuốn bay hết măng của làng!', 'Măng đi nhặt lại thôi!'],
+    art: { cast: ['pig'], prop: 'wind' },
+  };
+  it('accepts story chapters', () => {
+    expectValid(WorldSchema, {
+      ...world,
+      chapters: [chapter, { ...chapter, id: 've-lang', unlockAfter: 'w01-boss' }],
+    });
+    expectValid(StoryChapterSchema, { ...chapter, art: { prop: 'home' } });
+  });
+  it.each([
+    ['an id that is not kebab-case', { ...chapter, id: 'Gió To' }],
+    ['a single line', { ...chapter, lines: ['Một dòng.'] }],
+    ['5 lines', { ...chapter, lines: ['a', 'b', 'c', 'd', 'e'] }],
+    ['an empty line', { ...chapter, lines: ['a', ''] }],
+    ['an unknown prop', { ...chapter, art: { prop: 'castle' } }],
+    ['Măng in the cast', { ...chapter, art: { cast: ['panda'], prop: 'wind' } }],
+    ['3 characters', { ...chapter, art: { cast: ['pig', 'cat', 'fox'], prop: 'wind' } }],
+    ['the same character twice', { ...chapter, art: { cast: ['owl', 'owl'], prop: 'wind' } }],
+    ['an unknown field', { ...chapter, reward: 5 }],
+  ])('rejects a chapter with %s', (_name, value) => {
+    expectInvalid(StoryChapterSchema, value);
   });
 });
 

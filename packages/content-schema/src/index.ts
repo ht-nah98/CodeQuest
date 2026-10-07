@@ -35,9 +35,15 @@ export {
   SCENE_THEMES,
   SceneThemeSchema,
   sceneThemeOf,
+  STORY_CAST,
+  STORY_CHAPTER_ID,
+  STORY_PROPS,
+  StoryCastSchema,
+  StoryChapterSchema,
+  StoryPropSchema,
   WorldSchema,
 } from './world';
-export type { SceneTheme, World } from './world';
+export type { SceneTheme, StoryCast, StoryChapter, StoryProp, World } from './world';
 
 export { SHOP_ITEM_KINDS, ShopFileSchema, ShopItemSchema } from './shop';
 export type { ShopItem, ShopItemKind } from './shop';

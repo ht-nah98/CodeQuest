@@ -5,6 +5,74 @@
   "emoji": "🔀",
   "concept": "Điều kiện: nhìn rồi quyết định",
   "story": "Măng lần theo dấu chân Thỏ Bông vào vùng ngã ba. Gió đổi đường mỗi lần, Măng phải nhìn rồi quyết định.",
+  "chapters": [
+    {
+      "id": "dau-chan",
+      "title": "Dấu chân ở ngã ba",
+      "lines": [
+        "Măng thấy dấu chân Thỏ Bông ở ngã ba.",
+        "Gió đổi đường mỗi lần Măng đi.",
+        "Phải nhìn trước, rồi mới quyết định!"
+      ],
+      "art": {
+        "prop": "footprints"
+      }
+    },
+    {
+      "id": "me-cung-la",
+      "title": "Mê cung lá",
+      "lines": [
+        "Có hố thì nhảy, không có thì đi.",
+        "Măng ra khỏi mê cung lá.",
+        "Dấu chân Bông dẫn vào một hang tối."
+      ],
+      "unlockAfter": "w04-l04",
+      "art": {
+        "prop": "exit"
+      }
+    },
+    {
+      "id": "khan-cua-bong",
+      "title": "Chiếc khăn của Bông",
+      "lines": [
+        "Măng ra khỏi hang tối bên bờ suối.",
+        "Trên cỏ có chiếc khăn của Bông!",
+        "Bông ở gần đây thôi. Đi tiếp nào!"
+      ],
+      "unlockAfter": "w04-l09",
+      "art": {
+        "prop": "footprints"
+      }
+    },
+    {
+      "id": "tieng-keu-cuu",
+      "title": "Tiếng kêu cứu",
+      "lines": [
+        "Nhờ bản đồ bác Cú, Măng qua 2 mê cung.",
+        "Bỗng có tiếng kêu: Măng ơi, cứu mình!",
+        "Gió nhốt Bông vào lồng, giấu chìa khóa đi."
+      ],
+      "unlockAfter": "w04-l16",
+      "art": {
+        "cast": ["bunny"],
+        "prop": "cage"
+      }
+    },
+    {
+      "id": "cuu-duoc-bong",
+      "title": "Cứu được Bông",
+      "lines": [
+        "Cạch! Lồng mở. Bông ôm chầm lấy Măng.",
+        "Măng và Bông cùng tìm đường về làng.",
+        "Nhưng phía trước là một dòng sông lớn."
+      ],
+      "unlockAfter": "w04-boss",
+      "art": {
+        "cast": ["bunny"],
+        "prop": "cage-open"
+      }
+    }
+  ],
   "theme": {
     "tileset": "/tiles/ground.png",
     "palette": "dusk",

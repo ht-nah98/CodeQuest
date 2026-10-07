@@ -13,11 +13,11 @@
 | P2-02 | Migration Supabase: bảng, RLS, RPC, trigger, test SQL offline | — | AI | ⬜ |
 | P2-03 | Edge Function `create-student`, `pairing-code`, `pair-device`, `delete-student` (logic + test offline) | P2-02 | AI | ⬜ |
 | P2-04 | Bộ đồng bộ outbox + pull + merge, lỗi vĩnh viễn, mốc `streak-7` (với server giả) | P2-02 | AI | ⬜ |
-| P2-05 | Góc huấn luyện viên trên dữ liệu local + file sao lưu | — | AI | ⬜ |
+| P2-05 | Góc huấn luyện viên trên dữ liệu local + file sao lưu | — | AI | 🟨 xong phần local + file (bản dev); phần Supabase ở P2-16 |
 | P2-06 | Góc nhóm: mục tiêu chung, tường tác phẩm | P2-04, P2-05 | AI | ⬜ |
 | P2-07 | Level editor v0 (`/coach/editor`) | P2-15 | AI | 🟨 |
 | P2-08 | Nội dung Thế giới 3 · Xưởng Sửa Lỗi (15 màn + bài giảng) | P2-10, P2-11 (phần W3) | AI soạn nháp · HLV duyệt | 🟨 chờ HLV chơi thử |
-| P2-09 | PWA offline (chưa deploy) | — | AI | ⬜ |
+| P2-09 | PWA offline (chưa deploy) | — | AI | 🟨 xong phần AI (ADR-0020), chờ review + commit |
 | P2-10 | Chi tiết hóa chương trình học Thế giới 3–5 | — | AI soạn · HLV duyệt | ✅ HLV + phụ huynh duyệt 03/10 |
 | P2-11 | Khối điều kiện, lặp đến khi, cảm biến sáng khi kiểm | P2-10 (bản nháp) | AI | 🟨 headless + web xong, chờ HLV chơi thử W4 |
 | P2-12 | Màn nhiều bản đồ (một chương trình, 2–3 bản đồ) | P2-10 (bản nháp) | AI | ✅ |
@@ -32,6 +32,7 @@
 | P2-21 | Sao theo mục tiêu màn: nhiều đường giải, đường tối ưu được nhiều sao nhất (góp ý HLV 03/10) | P2-10, P2-15 | AI (luật HLV đã duyệt 03/10) | 🟨 chờ HLV xem |
 | P2-22 | Xem cả đường: phóng to bản đồ nhỏ, kéo trái/phải, vạch đếm ô (góp ý HLV 03/10) | — | AI | 🟨 chờ HLV xem |
 | P2-23 | Cảnh riêng cho từng thế giới: nền, nền đất, ô tường, đồ trang trí (góp ý HLV 04/10) | P2-21 (UI) | AI (HLV duyệt chủ đề 04/10, không cần duyệt ảnh) | 🟨 |
+| P2-24 | Truyện của Măng chia chương trên trang thế giới, mở dần theo màn (góp ý HLV 06/10) + sửa chữ tiêu đề mất dấu | P2-08, P2-13, P2-14 (nội dung W3–W5) | AI soạn · HLV duyệt lời truyện | 🟨 chờ HLV đọc duyệt |
 
 Thay đổi so với khung ở `later-phases.md`: P2-08 khung (nội dung Thế giới 3–5) tách thành **P2-08** (W3), **P2-13** (W4), **P2-14** (W5). Phần "sorter tối thiểu nếu Thế giới 4 cần" **hủy**: Thế giới 4 dùng `runner` và `maze` (`curriculum.md` §2), sorter để GĐ 4. P2-09 khung tách thành **P2-09** (PWA, AI làm ngay) và **P2-18** (deploy, cần Vercel). Thêm P2-10…P2-20. "Thợ săn lỗi" trong `master-plan.md` §9 là mode `bughunt`, đã có từ P1-06.
 
@@ -150,6 +151,8 @@ H2 không bắt buộc nếu có H1 + H3: test SQL và function có thể chạy
 - Giao diện tài khoản (tạo học sinh, Ghép máy, xóa học sinh, đăng nhập HLV) làm ở P2-20 với client giả; nối thật ở P2-16.
 
 **Nghiệm thu:** unit test cho mọi hàm trong `metrics.ts` với dữ liệu mẫu có đáp số tính tay; e2e: mở `/coach` qua khóa người lớn → mở 2 file sao lưu mẫu → bảng hiện đúng 2 bé, đúng số sao; mở khóa thủ công một thế giới cho một hồ sơ → hồ sơ đó vào được thế giới; bé không vào được `/coach` khi chưa qua khóa. Ảnh chụp màn hình trong PR.
+
+**Trạng thái (06/10/2026):** phần local + file sao lưu xong. `features/coach/metrics.ts` (bảng bé × thế giới, chi tiết màn, khái niệm yếu, màn hay kẹt theo §6, phút theo tuần, bé lâu không học, `coinIssues` thay `v_ledger_anomalies`, `mergeChildren`, `summaryCsv`) + `metrics.test.ts` đáp số tính tay; `features/coach/sources.ts` (`CoachDataSource`: `localSource`, file sao lưu đọc trong bộ nhớ); bảng `unlockOverrides` (Dexie v3, chỉ ở máy) + `useUnlockOverrides` cộng vào `isUnlocked` (`isUnlocked` đã nhận `overrides` từ GĐ 1, không cần đổi). Quyết định: `/coach` **chỉ bản dev** sau khóa phép nhân, như `/coach/editor` (góc này mở khóa được thế giới), tới P2-16 (`screens-and-flows.md` §2). Thời gian học: mỗi lượt tối đa 30 phút (tab bỏ quên). Không có "đặt lại màn" (spec không có). e2e `e2e/coach-corner.spec.ts`. Còn lại ở P2-16: nguồn Supabase, đăng nhập HLV, trạng thái đồng bộ.
 
 ### P2-06 · Góc nhóm
 **Mục tiêu:** hợp tác hơn cạnh tranh (`vision.md` nguyên tắc 6): mục tiêu chung của nhóm và tường tác phẩm, **không** có bảng xếp hạng.
@@ -362,3 +365,15 @@ Buổi học nhóm theo `playbooks/playtest.md`: 6 bé chơi W3 trên máy riên
 - W1 `lang-tre` (giữ), W2 `rung-lap-lai` (rừng sâu, tre đậm, đom đóm), W3 `xuong` (xưởng gỗ: bánh răng, đèn lồng, sàn ván, dây cót), W4 `nga-ba` (đường núi, biển chỉ đường, đá), W5 `song` (bờ sông, nước, bến đò, cầu tre ở boss).
 **Nghiệm thu:** ảnh chụp mỗi theme ở 1280/1366, e2e mở một màn mỗi thế giới; ô nguy hiểm vẫn phân biệt rõ (kiểm tương phản); review nội bộ (HLV đã duyệt chủ đề 04/10, không cần gửi ảnh).
 **Trạng thái (05/10/2026):** 🟨 AI làm xong, chờ review nội bộ (chưa commit). Trường là `world.theme.scene` (vì `theme` đã là object `{ tileset, palette }`), schema `SCENE_THEMES` + `sceneThemeOf` ở content-schema, W1–W4 đã ghi cảnh; W5 chưa có nội dung nên `song` chỉ xem được qua `?theme=song` (bản dev). Cảnh vẽ bằng mã (`stages/sceneThemes.ts`, `sceneTiles.ts`, `runner/scenery.ts`, `runner/decor.ts`), áp cho runner (trời, 3 lớp parallax, đất), maze (tường, đường, nền), dải cả đường, "Xem cả đường", thẻ đáp án, bài giảng demo, "Thử chơi" của editor và đảo trên bản đồ. Vật cản, vật nhặt, đích giữ nguyên; unit test tương phản (WCAG 3:1, `sceneThemes.test.ts`); đom đóm và ánh nước đứng yên khi giảm chuyển động; texture cache theo cảnh. Cầu tre ở màn boss của `song`. Thêm: thay ✔/✘ trong bài giảng, câu đố và `learningGoal` của W4 bằng chữ (Có/Không, đúng/sai) vì font Baloo 2 không có hai ký tự đó. e2e `scene-themes.spec.ts` ở 1280 và 1366. Chi tiết: `architecture/stage-rendering.md` §7.
+
+### P2-24 · Truyện của Măng chia chương (góp ý HLV 06/10/2026)
+**Vấn đề:** cột trái trang thế giới chỉ có nhãn, tên, 2 dòng truyện và bong bóng Măng: gần như trống. HLV muốn kể chuyện của Măng ở từng thế giới thành **truyện nhiều chương**, "cứ đến 1 chương lại được khám phá thêm". Ảnh chụp của HLV còn cho thấy "Xưởng Sửa Lỗi" trên thanh trên bị mất dấu ngã ("Lôi").
+**Làm:**
+- Dữ liệu: `world.chapters[]` `{ id, title ≤ 5 chữ, lines 2–4 dòng ≤ 12 chữ, unlockAfter?, art: { cast?, prop } }` (schema `StoryChapterSchema`, `content-model.md` §3) + **luật 21** của `content:check` (id không trùng, độ dài chữ, chương 1 mở sẵn, `unlockAfter` là màn guided/practice/boss của chính thế giới, đúng thứ tự). `story` giữ làm câu tóm tắt (thế giới không có chương, vd Sân thử của bản dev, vẫn hiện câu này; mọi chỗ đang dùng `story: string` không phải sửa), nên chương là trường riêng `chapters` chứ không đổi `story` thành object.
+- Lời truyện W1–W5, mỗi thế giới 5 chương: mở đầu · sau vài màn đầu · giữa thế giới · trước boss · sau boss (dẫn sang thế giới sau; W5 kết "Làng ở ngay sau ngọn đồi" để W6 mở bằng "Về tới làng rồi!"). Giữ mạch `curriculum.md` §3, §4, §5.0 và câu của bài giảng / nhiệm vụ.
+- Giao diện: cuốn truyện ở cột trái (`screens-and-flows.md` §6 "Truyện của Măng"): hình pixel (Măng + nhân vật từ bộ hình đại diện + cảnh), tên chương, các dòng, 🔊 đọc lần lượt, ◀ ▶ và chấm trang; chương chưa mở là trang "?" ghi tên màn mở nó; chương mới có nhãn "Chương mới!", khung sáng vàng, Măng nhắc đọc (tôn trọng giảm chuyển động). Đường các màn bên phải giữ nguyên. Không thưởng xu (câu hỏi D10).
+- Hàm thuần `chapterStates` / `freshChapterIds` / `openingChapterIndex` (`@codequest/rewards`, có test); "đã thấy" lưu `localStorage` theo bé.
+- Giọng đọc: `npm run voice -- lines` có thêm `<worldId>.story.<chapterId>.<n>`.
+- Chữ mất dấu: `.truncate` (tiêu đề một dòng bị cắt) có `line-height: 1.6`; e2e đo mực chữ so với khung cắt.
+**Nghiệm thu:** lint, typecheck, test, content:check xanh; e2e `world-story.spec.ts` ở 1280 và 1366 (bé mới chỉ thấy chương 1; có tiến độ qua màn mở chương thì chương mới hiện với nhãn; lật trang; vừa khung; tiêu đề không mất dấu), ảnh chụp; HLV đọc duyệt lời truyện.
+**Trạng thái (06/10/2026):** 🟨 AI làm xong (chưa commit), chờ HLV đọc duyệt lời truyện; chưa sinh file giọng cho các dòng truyện (nút 🔊 của sách hiện khi có).

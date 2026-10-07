@@ -48,6 +48,27 @@ describe('extractContentLines', () => {
     expect(lines[0]?.source).toBe('shared/feedback.json');
   });
 
+  it('voices story chapters as <worldId>.story.<chapterId>.<n> (P2-24)', () => {
+    const { lines, issues } = extractContentLines([
+      file('worlds/w01-lang-tre/world.json', {
+        id: 'w01-lang-tre',
+        story: 'not voiced',
+        chapters: [
+          { id: 'gio-to', title: 'not voiced', lines: ['Gió to quá!', 'Măng đi nhặt măng.'] },
+          { id: 've-lang', title: 'not voiced', lines: ['Về làng rồi!', 'Cả làng vui.'] },
+        ],
+      }),
+    ]);
+    expect(issues).toEqual([]);
+    expect(lines.map((line) => [line.id, line.text])).toEqual([
+      ['w01-lang-tre.story.gio-to.1', 'Gió to quá!'],
+      ['w01-lang-tre.story.gio-to.2', 'Măng đi nhặt măng.'],
+      ['w01-lang-tre.story.ve-lang.1', 'Về làng rồi!'],
+      ['w01-lang-tre.story.ve-lang.2', 'Cả làng vui.'],
+    ]);
+    expect(lines[0]?.source).toBe('worlds/w01-lang-tre/world.json');
+  });
+
   it('voices the mission line as <id>.mission (P2-11c)', () => {
     const { lines } = extractContentLines([
       file('worlds/w03-xuong/levels/w03-l11.json', {
@@ -118,6 +139,7 @@ describe('extractContentLines', () => {
     expect(duplicateIds(lines)).toEqual([]);
     expect(lines.some((line) => line.id === 'feedback.FELL_IN_HOLE')).toBe(true);
     expect(lines.some((line) => line.id === 'w01-l01.objective')).toBe(true);
+    expect(lines.some((line) => line.id === 'w01-lang-tre.story.gio-to.1')).toBe(true);
     for (const line of lines) expect(line.id).toMatch(/^[a-z0-9-]+(\.[A-Za-z0-9_-]+)+$/);
   });
 });

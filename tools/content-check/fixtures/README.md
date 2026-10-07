@@ -26,3 +26,6 @@ When you add a rule or change the baseline, keep each fixture a one-change copy 
 
 `extra-07-cage-without-key/` (a level drawn with `goalSprite: "cage"` but no `key` item in
 `config.goal.items`, P2-11c) is a second case of rule 1.
+
+`rule-21-story-chapters/` (P2-24) gives the world three chapters whose last one opens after an
+earlier level than the chapter before it.

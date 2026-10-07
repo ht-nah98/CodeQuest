@@ -5,6 +5,7 @@ import {
   hintVoiceId,
   lessonCardVoiceId,
   levelVoiceId,
+  storyLineVoiceId,
   uiVoiceId,
 } from './voiceIds';
 
@@ -48,5 +49,6 @@ describe('voice ids (content-model.md §2 examples)', () => {
     expect(feedbackVoiceId('FELL_IN_HOLE')).toBe('feedback.FELL_IN_HOLE');
     expect(feedbackVoiceId('FELL_IN_HOLE', 'w01-l03')).toBe('w01-l03.feedback.FELL_IN_HOLE');
     expect(uiVoiceId('results.stars3')).toBe('ui.results.stars3');
+    expect(storyLineVoiceId('w01-lang-tre', 'gio-to', 0)).toBe('w01-lang-tre.story.gio-to.1');
   });
 });

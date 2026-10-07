@@ -1,0 +1,19 @@
+{
+  "EMPTY_PROGRAM": "Con chưa ghép khối nào. Kéo khối vào đây nhé!",
+  "TOO_MANY_BLOCKS": "Nhiều khối quá. Thử dùng khối lặp xem?",
+  "EMPTY_CONDITION": "Ô câu hỏi còn trống. Cắm một khối hỏi vào nhé!",
+  "LOOSE_BLOCKS": "Còn khối chưa ghép. Ghép hết vào nhé!",
+  "UNUSED_BLOCKS": "Còn chỗ trống, hoặc khối chưa chạy. Ghép lại nhé!",
+  "TIMEOUT": "Măng chóng mặt rồi, vòng lặp không dừng!",
+  "INTERNAL_ERROR": "Ối, game bị vấp. Con bấm Làm lại nhé!",
+  "FELL_IN_HOLE": "Ối, hố! Thử khối nhảy nhé.",
+  "OFF_TRACK": "Ối, Măng nhảy ra khỏi đường rồi!",
+  "NOT_AT_GOAL": "Gần lắm rồi! Măng chưa tới đích.",
+  "HIT_WALL": "Ối, tường! Măng cần rẽ trước đó.",
+  "MISSED_ITEMS": "Còn măng chưa nhặt kìa!",
+  "NEED_KEY": "Cần chìa khóa trước!",
+  "NEED_FRIEND": "Chưa đón bạn kìa!",
+  "HIT_BRANCH": "Cộc! Cành thấp quá, Măng phải cúi.",
+  "HIT_CRATE": "Thùng chắn đường. Đá nó đi!",
+  "WRONG_ANSWER": "Chưa đúng. Cùng chạy thử để xem nhé!"
+}
