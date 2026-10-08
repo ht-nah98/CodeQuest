@@ -1,0 +1,125 @@
+{
+  "id": "w06-l09",
+  "worldId": "w06-thanh-pho-robot",
+  "stage": "practice",
+  "kind": "robotlab",
+  "mode": "build",
+  "title": "Trung hòa",
+  "objective": "Chở khối đỏ tới trạm đỏ, rồi về phòng.",
+  "learningGoal": "Khối trung hòa phải vào trạm cùng màu. Bíp đi ngang trạm trống được; trạm vàng cũng ở ngay cạnh khối nhưng sai màu.",
+  "misconception": "Thả khối trung hòa ở trạm nào cũng được.",
+  "mission": "Chở khối trung hòa đỏ tới trạm đỏ.",
+  "toolbox": [
+    "robot_forward",
+    "robot_turn_left",
+    "robot_turn_right",
+    "robot_grab",
+    "robot_release"
+  ],
+  "maxBlocks": 9,
+  "par": 7,
+  "config": {
+    "map": ["#####", "L.r.y", "#####"],
+    "startDir": "E",
+    "blocks": [
+      {
+        "kind": "neutralizer",
+        "color": "RED",
+        "at": [1, 3]
+      }
+    ],
+    "goal": {
+      "type": "missions",
+      "mustReturn": true
+    }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "robot_forward",
+              "id": "b1",
+              "fields": {
+                "N": 3
+              },
+              "next": {
+                "block": {
+                  "type": "robot_grab",
+                  "id": "b2",
+                  "next": {
+                    "block": {
+                      "type": "robot_turn_right",
+                      "id": "b3",
+                      "next": {
+                        "block": {
+                          "type": "robot_turn_right",
+                          "id": "b4",
+                          "next": {
+                            "block": {
+                              "type": "robot_forward",
+                              "id": "b5",
+                              "fields": {
+                                "N": 1
+                              },
+                              "next": {
+                                "block": {
+                                  "type": "robot_release",
+                                  "id": "b6",
+                                  "next": {
+                                    "block": {
+                                      "type": "robot_forward",
+                                      "id": "b7",
+                                      "fields": {
+                                        "N": 2
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "color",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Trạm nào cùng màu với khối?",
+      "point": "stage"
+    },
+    {
+      "id": "wrong",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "WRONG_COLOR"
+      },
+      "say": "Khối đỏ vào trạm đỏ. Trạm đỏ ở đâu?",
+      "point": "stage"
+    }
+  ],
+  "thinkingHint": "Khối màu gì? Trạm cùng màu nằm ở đâu?",
+  "feedback": {
+    "EMPTY_PROGRAM": "Con chưa ghép lệnh nào. Kéo lệnh vào đây nhé!",
+    "TOO_MANY_BLOCKS": "Nhiều lệnh quá. Thử dùng lệnh lặp xem?"
+  }
+}

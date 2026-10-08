@@ -1,0 +1,101 @@
+{
+  "id": "w06-l03",
+  "worldId": "w06-thanh-pho-robot",
+  "stage": "guided",
+  "kind": "robotlab",
+  "mode": "build",
+  "title": "Khúc rẽ",
+  "objective": "Đưa Bíp về phòng. Đường có một khúc rẽ.",
+  "learningGoal": "Rẽ trái, rẽ phải chỉ quay Bíp tại chỗ, chưa đi. Quay xong mới tiến tiếp.",
+  "misconception": "Rẽ là vừa quay vừa đi một ô.",
+  "mission": "Đường về có khúc rẽ. Đưa Bíp về!",
+  "toolbox": ["robot_forward", "robot_turn_left", "robot_turn_right"],
+  "par": 3,
+  "config": {
+    "map": ["#L##", "#.##", "#..."],
+    "startDir": "W",
+    "start": [2, 3],
+    "goal": {
+      "type": "missions",
+      "mustReturn": true
+    }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "robot_forward",
+              "id": "b1",
+              "fields": {
+                "N": 2
+              },
+              "next": {
+                "block": {
+                  "type": "robot_turn_right",
+                  "id": "b2",
+                  "next": {
+                    "block": {
+                      "type": "robot_forward",
+                      "id": "b3",
+                      "fields": {
+                        "N": 2
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "new-left",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Lệnh mới! Rẽ trái: quay sang trái tại chỗ, chưa đi.",
+      "point": "toolbox:robot_turn_left"
+    },
+    {
+      "id": "new-right",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Lệnh mới! Rẽ phải: quay sang phải tại chỗ, chưa đi.",
+      "point": "toolbox:robot_turn_right"
+    },
+    {
+      "id": "side",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "OFF_LINE"
+      },
+      "say": "Bíp đang nhìn hướng nào? Rẽ đúng phía chưa?",
+      "point": "stage"
+    },
+    {
+      "id": "after-turn",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "NOT_HOME"
+      },
+      "say": "Rẽ xong Bíp chưa đi. Sau khi rẽ, tiến mấy ô?",
+      "point": "stage"
+    }
+  ],
+  "thinkingHint": "Tới khúc rẽ, Bíp phải quay về phía nào?",
+  "feedback": {
+    "EMPTY_PROGRAM": "Con chưa ghép lệnh nào. Kéo lệnh vào đây nhé!"
+  }
+}

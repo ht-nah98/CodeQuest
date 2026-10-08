@@ -1,0 +1,118 @@
+{
+  "id": "w06-l07",
+  "worldId": "w06-thanh-pho-robot",
+  "stage": "practice",
+  "kind": "robotlab",
+  "mode": "build",
+  "title": "Khoanh vùng",
+  "objective": "Đặt rào lên vùng ô nhiễm. Không quá 8 lệnh!",
+  "learningGoal": "Khoanh vùng là đứng trên ô vùng ô nhiễm rồi thả rào. Thả cạnh vùng thì chưa khoanh được.",
+  "misconception": "Thả rào cạnh vùng ô nhiễm là đủ.",
+  "mission": "Đặt rào khoanh vùng ô nhiễm.",
+  "toolbox": [
+    "robot_forward",
+    "robot_turn_left",
+    "robot_turn_right",
+    "robot_grab",
+    "robot_release"
+  ],
+  "maxBlocks": 8,
+  "par": 6,
+  "config": {
+    "map": ["###Z#", "L....", "#####"],
+    "startDir": "E",
+    "blocks": [
+      {
+        "kind": "fence",
+        "at": [1, 2]
+      }
+    ],
+    "goal": {
+      "type": "missions"
+    }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "robot_forward",
+              "id": "b1",
+              "fields": {
+                "N": 2
+              },
+              "next": {
+                "block": {
+                  "type": "robot_grab",
+                  "id": "b2",
+                  "next": {
+                    "block": {
+                      "type": "robot_forward",
+                      "id": "b3",
+                      "fields": {
+                        "N": 1
+                      },
+                      "next": {
+                        "block": {
+                          "type": "robot_turn_left",
+                          "id": "b4",
+                          "next": {
+                            "block": {
+                              "type": "robot_forward",
+                              "id": "b5",
+                              "fields": {
+                                "N": 1
+                              },
+                              "next": {
+                                "block": {
+                                  "type": "robot_release",
+                                  "id": "b6"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "zone",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "MISSIONS_LEFT"
+      },
+      "say": "Vùng có viền đỏ có rào chưa? Đứng lên vùng rồi thả.",
+      "point": "stage"
+    },
+    {
+      "id": "block",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "HIT_BLOCK"
+      },
+      "say": "Bíp không đi xuyên qua khối. Dừng đúng ô, hoặc đi vòng.",
+      "point": "stage"
+    }
+  ],
+  "thinkingHint": "Rào phải nằm ở đâu thì vùng mới được khoanh?",
+  "feedback": {
+    "EMPTY_PROGRAM": "Con chưa ghép lệnh nào. Kéo lệnh vào đây nhé!",
+    "TOO_MANY_BLOCKS": "Nhiều lệnh quá. Thử dùng lệnh lặp xem?"
+  }
+}

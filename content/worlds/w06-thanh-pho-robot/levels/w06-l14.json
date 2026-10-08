@@ -1,0 +1,118 @@
+{
+  "id": "w06-l14",
+  "worldId": "w06-thanh-pho-robot",
+  "stage": "practice",
+  "kind": "robotlab",
+  "mode": "build",
+  "title": "Về phòng nào",
+  "objective": "Một chương trình cho 2 bản đồ. Không quá 4 lệnh!",
+  "learningGoal": "Bíp không tự dừng khi về tới phòng. Hỏi \"đã về phòng thí nghiệm?\" trước mỗi bước: một chương trình đúng cho đường dài và đường ngắn.",
+  "misconception": "Bíp tự dừng khi về tới phòng.",
+  "mission": "Đường về dài ngắn khác nhau. Về phòng nào!",
+  "toolbox": ["robot_forward", "cq_repeat", "cq_repeat_until", "robot_at_lab"],
+  "maxBlocks": 4,
+  "maxInstances": {
+    "cq_repeat": 1
+  },
+  "maxLoopDepth": 1,
+  "par": 3,
+  "config": {
+    "map": ["#######", "L......", "#######"],
+    "startDir": "W",
+    "start": [1, 6],
+    "goal": {
+      "type": "missions",
+      "mustReturn": true
+    }
+  },
+  "variants": [
+    {
+      "map": ["####", "L...", "####"],
+      "startDir": "W",
+      "start": [1, 3],
+      "goal": {
+        "type": "missions",
+        "mustReturn": true
+      }
+    }
+  ],
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat_until",
+              "id": "b1",
+              "inputs": {
+                "COND": {
+                  "block": {
+                    "type": "robot_at_lab",
+                    "id": "b1c"
+                  }
+                },
+                "DO": {
+                  "block": {
+                    "type": "robot_forward",
+                    "id": "b2",
+                    "fields": {
+                      "N": 1
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "new-lab",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Câu hỏi mới: đã về phòng thí nghiệm?",
+      "point": "toolbox:robot_at_lab"
+    },
+    {
+      "id": "maps",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "2 bản đồ, đường dài ngắn khác nhau. Đúng cả hai!",
+      "point": "stage"
+    },
+    {
+      "id": "over",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "OFF_LINE"
+      },
+      "say": "Bíp đi quá phòng. Hỏi đã về chưa, trước mỗi bước.",
+      "point": "toolbox:robot_at_lab"
+    },
+    {
+      "id": "loop-time",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "OUT_OF_TIME"
+      },
+      "say": "Hết giờ khi đang lặp. Vòng lặp có dừng không?"
+    }
+  ],
+  "thinkingHint": "Đường dài ngắn khác nhau. Khi nào Bíp thôi tiến?",
+  "feedback": {
+    "EMPTY_CONDITION": "Ô câu hỏi còn trống. Cắm một câu hỏi vào nhé!",
+    "EMPTY_PROGRAM": "Con chưa ghép lệnh nào. Kéo lệnh vào đây nhé!",
+    "TIMEOUT": "Bíp hỏi mãi mà không làm gì. Vòng lặp không dừng!",
+    "TOO_MANY_BLOCKS": "Nhiều lệnh quá. Thử dùng lệnh lặp xem?"
+  }
+}

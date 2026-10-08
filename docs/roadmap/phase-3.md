@@ -13,7 +13,7 @@
 | P3-01b | `robotlab` quanh lõi: vét cạn (đo kích thước), luật `content:check` (19, 7 + `ACTION_LABELS`), `feedback.json`, ADR, tài liệu, 3 màn mẫu | P3-01a | AI | ⬜ |
 | P3-02 | Sprite robot Bíp + bộ hình sa bàn (bản đẹp) | P3-03 (bản tạm) | AI viết prompt · HLV tạo ảnh (tùy chọn) | ⬜ |
 | P3-03 | `RobotLabStage`: sa bàn PixiJS từ trên xuống, Bíp, đồng hồ, bảng điểm, hình đáp án | P3-01a | AI | ⬜ |
-| P3-04 | Nội dung Thế giới 6 (11 bài, 20 màn + sáng tạo, truyện 5 chương) | P3-01a (soạn, `content:check`, test nội dung); P3-01b (`npm run par`); P3-03 **chỉ cho e2e** | AI soạn nháp · HLV duyệt | ⬜ |
+| P3-04 | Nội dung Thế giới 6 (11 bài, 20 màn + sáng tạo, truyện 5 chương) | P3-01a (soạn, `content:check`, test nội dung); P3-01b (`npm run par`); P3-03 **chỉ cho e2e** | AI soạn nháp · HLV duyệt | 🟨 nháp, chờ HLV chơi thử |
 | P3-05 | Level editor: soạn màn `robotlab` | P3-01b, P3-03 | AI | ⬜ (sau 18/10) |
 | P3-06 | HLV mở khóa W6 bằng tay, chơi thử, sửa theo góp ý, cho các bé chơi | P3-04, P3-03 | HLV (AI sửa) | ⬜ |
 | P3-07 | HLV gửi luật AIROC thật + ảnh khối Blockly Leanbot và sa bàn → cập nhật dữ liệu | HLV có luật / ảnh (H2, H17) | HLV gửi · AI sửa | ⬜ |

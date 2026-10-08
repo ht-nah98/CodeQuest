@@ -1,5 +1,5 @@
 // Landmarks of the story chapters' pictures (P2-24, `chapter.art.prop`): the goal pictures of
-// the stages (stages/goalArt.ts) plus four scenery props drawn here in the same 12×12 pixel
+// the stages (stages/goalArt.ts) plus six scenery props drawn here in the same 12×12 pixel
 // style and token colours. Placeholders until the artist's vignettes arrive, like goalArt.
 import type { StoryProp } from '@codequest/content-schema';
 import { CAGE_OPEN_ART, GOAL_ART, ITEM_ART, type GoalArt } from '../../stages/goalArt';
@@ -69,6 +69,38 @@ const RIVER = [
   'mmmmmmmmmmmm',
 ];
 
+/** Robot Bíp (Thế giới 6): round blue body, light eyes, two grippers, two wheels. */
+const ROBOT = [
+  '.....kk.....',
+  '.....yy.....',
+  '..mmmmmmmm..',
+  '.mmwwmmwwmm.',
+  '.mmwkmmwkmm.',
+  '.mmmmmmmmmm.',
+  '.mmmnnnnmmm.',
+  'k.mmmmmmmm.k',
+  'kkmmmmmmmmkk',
+  'k.mmmmmmmm.k',
+  '..kkk..kkk..',
+  '..kkk..kkk..',
+];
+
+/** Bác Cú's lab (Thế giới 6): a paper building with blue windows and a green flask sign. */
+const LAB = [
+  '.....gg.....',
+  '....kggk....',
+  '...kppppk...',
+  '..kppppppk..',
+  '.kkkkkkkkkk.',
+  '.kqqqqqqqqk.',
+  '.kqmmqqmmqk.',
+  '.kqmmqqmmqk.',
+  '.kqqqqqqqqk.',
+  '.kqqkkkkqqk.',
+  '.kqqknnkqqk.',
+  'kkkkkkkkkkkk',
+];
+
 const scenery = (rows: readonly string[]): GoalArt => ({ rows, palette: PALETTE });
 
 export const STORY_PROP_ART: Readonly<Record<StoryProp, GoalArt>> = {
@@ -84,4 +116,6 @@ export const STORY_PROP_ART: Readonly<Record<StoryProp, GoalArt>> = {
   'cage-open': CAGE_OPEN_ART,
   dock: GOAL_ART.dock,
   key: ITEM_ART.key,
+  robot: scenery(ROBOT),
+  lab: scenery(LAB),
 };

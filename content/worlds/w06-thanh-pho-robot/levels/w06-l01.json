@@ -1,0 +1,78 @@
+{
+  "id": "w06-l01",
+  "worldId": "w06-thanh-pho-robot",
+  "stage": "guided",
+  "kind": "robotlab",
+  "mode": "build",
+  "title": "Tiến về phòng",
+  "objective": "Đưa Bíp về phòng thí nghiệm bằng một lệnh.",
+  "learningGoal": "Một lệnh tiến 4 ô đi qua 4 ngã tư, dừng ở ngã tư thứ 4. Ngã tư Bíp đang đứng không tính.",
+  "misconception": "Tiến 3 ô là tính cả ngã tư đang đứng.",
+  "mission": "Đưa Bíp về phòng thí nghiệm.",
+  "toolbox": ["robot_forward"],
+  "par": 1,
+  "config": {
+    "map": ["#####", "L....", "#####"],
+    "startDir": "W",
+    "start": [1, 4],
+    "goal": {
+      "type": "missions",
+      "mustReturn": true
+    }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "robot_forward",
+              "id": "b1",
+              "fields": {
+                "N": 4
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "new-forward",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Lệnh mới! Tiến 3 ô: dừng ở ngã tư thứ 3.",
+      "point": "toolbox:robot_forward"
+    },
+    {
+      "id": "count",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "NOT_HOME"
+      },
+      "say": "Đếm lại ngã tư. Chỗ đang đứng không tính.",
+      "point": "stage"
+    },
+    {
+      "id": "over",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "OFF_LINE"
+      },
+      "say": "Bíp đi quá phòng rồi. Bớt 1 ô nhé!",
+      "point": "stage"
+    }
+  ],
+  "thinkingHint": "Từ chỗ Bíp tới phòng có mấy ngã tư?",
+  "feedback": {
+    "EMPTY_PROGRAM": "Con chưa ghép lệnh nào. Kéo lệnh vào đây nhé!"
+  }
+}

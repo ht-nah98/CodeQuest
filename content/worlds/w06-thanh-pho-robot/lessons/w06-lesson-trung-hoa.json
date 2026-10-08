@@ -1,0 +1,122 @@
+{
+  "id": "w06-lesson-trung-hoa",
+  "worldId": "w06-thanh-pho-robot",
+  "title": "Trung hòa",
+  "beforeLevel": "w06-l09",
+  "cards": [
+    {
+      "type": "say",
+      "pose": "point",
+      "text": "Khối trung hòa phải vào trạm cùng màu."
+    },
+    {
+      "type": "demo",
+      "text": "Khối đỏ vào trạm đỏ: trung hòa xong!",
+      "kind": "robotlab",
+      "config": {
+        "map": ["#####", "y.L.r", "#####"],
+        "startDir": "E",
+        "startHolding": {
+          "kind": "neutralizer",
+          "color": "RED"
+        },
+        "goal": {
+          "type": "missions"
+        }
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "robot_forward",
+                  "id": "b1",
+                  "fields": {
+                    "N": 2
+                  },
+                  "next": {
+                    "block": {
+                      "type": "robot_release",
+                      "id": "b2"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "demo",
+      "text": "Khối đỏ vào trạm vàng: sai màu rồi!",
+      "kind": "robotlab",
+      "config": {
+        "map": ["#####", "y.L.r", "#####"],
+        "startDir": "E",
+        "startHolding": {
+          "kind": "neutralizer",
+          "color": "RED"
+        },
+        "goal": {
+          "type": "missions"
+        }
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "robot_turn_right",
+                  "id": "b1",
+                  "next": {
+                    "block": {
+                      "type": "robot_turn_right",
+                      "id": "b2",
+                      "next": {
+                        "block": {
+                          "type": "robot_forward",
+                          "id": "b3",
+                          "fields": {
+                            "N": 2
+                          },
+                          "next": {
+                            "block": {
+                              "type": "robot_release",
+                              "id": "b4"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "quiz",
+      "text": "Khối trung hòa vàng vào trạm nào?",
+      "options": ["Trạm vàng", "Trạm gần nhất"],
+      "correct": 0,
+      "explain": "Trạm phải cùng màu với khối."
+    }
+  ]
+}

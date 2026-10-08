@@ -1,0 +1,80 @@
+{
+  "id": "w06-l02",
+  "worldId": "w06-thanh-pho-robot",
+  "stage": "guided",
+  "kind": "robotlab",
+  "mode": "predict",
+  "title": "Dừng ở đâu?",
+  "objective": "Đọc chương trình, chọn chỗ Bíp dừng.",
+  "learningGoal": "Tiến 4 ô từ ngã tư cuối đường: Bíp đi qua 4 ngã tư và dừng ngay trước phòng thí nghiệm, vì ngã tư đang đứng không tính.",
+  "misconception": "Ngã tư đang đứng là ngã tư thứ 1.",
+  "mission": "Bíp dừng ở ngã tư nào? Đoán xem!",
+  "toolbox": [],
+  "config": {
+    "map": ["######", "L.....", "######"],
+    "startDir": "W",
+    "start": [1, 5],
+    "goal": {
+      "type": "missions",
+      "mustReturn": true
+    }
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "robot_forward",
+              "id": "b1",
+              "fields": {
+                "N": 4
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "predict": {
+    "options": [
+      {
+        "key": "stop@1,1",
+        "label": "Ngay trước phòng thí nghiệm"
+      },
+      {
+        "key": "win",
+        "label": "Trong phòng thí nghiệm"
+      },
+      {
+        "key": "stop@1,2",
+        "label": "Cách phòng 2 ngã tư"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "look",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Lệnh tiến mấy ô? Đếm từng ngã tư nhé.",
+      "point": "stage"
+    },
+    {
+      "id": "count",
+      "when": {
+        "trigger": "idle"
+      },
+      "say": "Chỉ tay theo từng ngã tư, đếm từ ngã tư kế bên.",
+      "point": "stage"
+    }
+  ],
+  "thinkingHint": "Ngã tư Bíp đang đứng có được đếm không?"
+}

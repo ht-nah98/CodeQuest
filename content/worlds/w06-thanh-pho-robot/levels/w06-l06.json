@@ -1,0 +1,125 @@
+{
+  "id": "w06-l06",
+  "worldId": "w06-thanh-pho-robot",
+  "stage": "practice",
+  "kind": "robotlab",
+  "mode": "build",
+  "title": "Thu hồi",
+  "objective": "Mang khối ô nhiễm vào phòng. Không quá 8 lệnh!",
+  "learningGoal": "Thả trong phòng thí nghiệm là thu hồi: gắp khối ô nhiễm, mang về, đứng trong phòng rồi mới thả.",
+  "misconception": "Gắp được khối là xong việc, không cần thả.",
+  "mission": "Mang khối ô nhiễm vào phòng thí nghiệm.",
+  "toolbox": [
+    "robot_forward",
+    "robot_turn_left",
+    "robot_turn_right",
+    "robot_grab",
+    "robot_release",
+    "cq_repeat"
+  ],
+  "maxBlocks": 8,
+  "maxLoopDepth": 1,
+  "par": 6,
+  "config": {
+    "map": ["#####", "L....", "#####"],
+    "startDir": "E",
+    "blocks": [
+      {
+        "kind": "pollution",
+        "color": "RED",
+        "at": [1, 3]
+      }
+    ],
+    "goal": {
+      "type": "missions"
+    }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "robot_forward",
+              "id": "b1",
+              "fields": {
+                "N": 3
+              },
+              "next": {
+                "block": {
+                  "type": "robot_grab",
+                  "id": "b2",
+                  "next": {
+                    "block": {
+                      "type": "robot_turn_right",
+                      "id": "b3",
+                      "next": {
+                        "block": {
+                          "type": "robot_turn_right",
+                          "id": "b4",
+                          "next": {
+                            "block": {
+                              "type": "robot_forward",
+                              "id": "b5",
+                              "fields": {
+                                "N": 3
+                              },
+                              "next": {
+                                "block": {
+                                  "type": "robot_release",
+                                  "id": "b6"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "new-release",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Lệnh mới! Thả khối xuống chỗ Bíp đứng.",
+      "point": "toolbox:robot_release"
+    },
+    {
+      "id": "left",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "MISSIONS_LEFT"
+      },
+      "say": "Khối ô nhiễm đã vào phòng chưa? Đứng trong phòng rồi thả.",
+      "point": "stage"
+    },
+    {
+      "id": "loop-time",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "OUT_OF_TIME"
+      },
+      "say": "Hết giờ khi đang lặp. Vòng lặp có dừng không?"
+    }
+  ],
+  "thinkingHint": "Thu hồi là thả khối ở đâu?",
+  "feedback": {
+    "EMPTY_PROGRAM": "Con chưa ghép lệnh nào. Kéo lệnh vào đây nhé!",
+    "TOO_MANY_BLOCKS": "Nhiều lệnh quá. Thử dùng lệnh lặp xem?"
+  }
+}

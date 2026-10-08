@@ -1,0 +1,112 @@
+{
+  "id": "w06-lesson-tien",
+  "worldId": "w06-thanh-pho-robot",
+  "title": "Lệnh tiến",
+  "beforeLevel": "w06-l01",
+  "cards": [
+    {
+      "type": "say",
+      "pose": "point",
+      "text": "Lệnh mới! Tiến 3 ô: dừng ở ngã tư thứ 3."
+    },
+    {
+      "type": "demo",
+      "text": "Tiến 3 ô: Bíp đi qua 3 ngã tư rồi dừng.",
+      "kind": "robotlab",
+      "config": {
+        "map": ["######", "L.....", "######"],
+        "startDir": "W",
+        "start": [1, 5],
+        "goal": {
+          "type": "missions",
+          "mustReturn": true
+        }
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "robot_forward",
+                  "id": "b1",
+                  "fields": {
+                    "N": 3
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "demo",
+      "text": "Ba lệnh tiến 1 ô bằng một lệnh tiến 3 ô.",
+      "kind": "robotlab",
+      "config": {
+        "map": ["######", "L.....", "######"],
+        "startDir": "W",
+        "start": [1, 5],
+        "goal": {
+          "type": "missions",
+          "mustReturn": true
+        }
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "robot_forward",
+                  "id": "b1",
+                  "fields": {
+                    "N": 1
+                  },
+                  "next": {
+                    "block": {
+                      "type": "robot_forward",
+                      "id": "b2",
+                      "fields": {
+                        "N": 1
+                      },
+                      "next": {
+                        "block": {
+                          "type": "robot_forward",
+                          "id": "b3",
+                          "fields": {
+                            "N": 1
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "quiz",
+      "text": "Tiến 2 ô: Bíp dừng ở đâu?",
+      "options": ["Ngã tư thứ 2", "Ngã tư thứ 3"],
+      "correct": 0,
+      "explain": "Đếm từ ngã tư kế bên: một, hai, dừng."
+    }
+  ]
+}

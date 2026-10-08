@@ -1,0 +1,125 @@
+{
+  "id": "w06-lesson-khoanh-vung",
+  "worldId": "w06-thanh-pho-robot",
+  "title": "Khoanh vùng",
+  "beforeLevel": "w06-l07",
+  "cards": [
+    {
+      "type": "say",
+      "pose": "point",
+      "text": "Vùng ô nhiễm có viền đỏ. Đứng lên vùng rồi thả rào."
+    },
+    {
+      "type": "demo",
+      "text": "Đứng trên vùng rồi thả: khoanh vùng xong!",
+      "kind": "robotlab",
+      "config": {
+        "map": ["##Z#", "L...", "####"],
+        "startDir": "W",
+        "start": [1, 3],
+        "startHolding": {
+          "kind": "fence"
+        },
+        "goal": {
+          "type": "missions"
+        }
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "robot_forward",
+                  "id": "b1",
+                  "fields": {
+                    "N": 1
+                  },
+                  "next": {
+                    "block": {
+                      "type": "robot_turn_right",
+                      "id": "b2",
+                      "next": {
+                        "block": {
+                          "type": "robot_forward",
+                          "id": "b3",
+                          "fields": {
+                            "N": 1
+                          },
+                          "next": {
+                            "block": {
+                              "type": "robot_release",
+                              "id": "b4"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "demo",
+      "text": "Thả cạnh vùng thì vùng chưa được khoanh.",
+      "kind": "robotlab",
+      "config": {
+        "map": ["##Z#", "L...", "####"],
+        "startDir": "W",
+        "start": [1, 3],
+        "startHolding": {
+          "kind": "fence"
+        },
+        "goal": {
+          "type": "missions"
+        }
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "robot_forward",
+                  "id": "b1",
+                  "fields": {
+                    "N": 1
+                  },
+                  "next": {
+                    "block": {
+                      "type": "robot_release",
+                      "id": "b2"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "quiz",
+      "text": "Rào khoanh vùng phải thả ở đâu?",
+      "options": ["Trên ô vùng ô nhiễm", "Cạnh ô vùng ô nhiễm"],
+      "correct": 0,
+      "explain": "Bíp đứng trên vùng rồi mới thả rào."
+    }
+  ]
+}
