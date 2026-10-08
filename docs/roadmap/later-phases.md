@@ -5,14 +5,11 @@ Chi tiết hóa thành task có nghiệm thu khi giai đoạn trước sắp xon
 ## GĐ 2 · Nhóm 6 bé (30/10–19/11)
 Đã chi tiết hóa: xem [`phase-2.md`](phase-2.md) (P2-01…P2-19).
 
-## GĐ 3 · Thành Phố Robot (20/11–10/12)
-- Kiểu game `robotlab` (headless): sa bàn, robot có hướng, tay gắp, cảm biến line/vật cản/màu, chấm điểm AIROC 45/160/100/40, đồng hồ ảo 120/180 s, đề ngẫu nhiên có seed.
-- `RobotLabStage`: sa bàn pixel kiểu Synapse City, sprite robot đồng hành.
-- Nội dung Thế giới 6 (20 màn theo `curriculum.md` §2 và `master-plan.md` §1.2).
-- Nút "Đề mới" sinh cấu hình ngẫu nhiên; chế độ thi thử 2 lượt.
+## GĐ 3 · Thành Phố Robot (07/10/2026 → sau chung kết AIROC)
+Đã chi tiết hóa và làm sớm hơn vì cuộc thi (chung kết miền Bắc 17–18/10/2026): xem [`phase-3.md`](phase-3.md) (P3-01a…P3-13: `robotlab`, Thế giới 6, biến trong engine, Thế giới 7). Khung cũ (20/11–10/12, đồng hồ 120/180 s, cảm biến vật cản) được thay bằng file đó.
 
 ## GĐ 4 · Mở rộng (4 tuần)
-- Kiểu game `turtle`, `farm`, `sorter` (đầy đủ), `music`.
+- Kiểu game `turtle`, `farm`, `sorter` (đầy đủ), `music`. (Thế giới 7 dời sang GĐ 3, dạy biến trên `maze` + `robotlab`; `farm` để sau, `curriculum.md` §6.2.)
 - **Capacity guard** cho khối có shadow (`blockly-integration.md` §5) trước khi dùng phép toán/biến trong màn có giới hạn.
 - Thế giới 7–9; cửa hàng & tủ đồ; huy hiệu; màn bonus; giọng đọc đầy đủ. (Chuỗi ngày và thưởng ngày đã có từ GĐ 1.)
 

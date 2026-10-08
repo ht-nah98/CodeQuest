@@ -100,11 +100,33 @@ Dùng **đúng** các từ này. Cột "Trong code" là tên dùng cho type, bi�
 | Góc huấn luyện viên | `coach dashboard` | Màn hình theo dõi tiến độ cả nhóm |
 | Măng | `mascot` | Gấu trúc dẫn chuyện |
 
-## AIROC (Thế giới 6)
+## AIROC và robot (Thế giới 6, `robotlab`)
+Luật đầy đủ: `product/game-kinds.md` §3.3. Trong lời nói cho bé ở W6, **"khối"** chỉ là khối thi đấu; khối Blockly gọi là **"lệnh"**, cả chương trình là **"chương trình"**.
+
 | Tiếng Việt | Trong code | Nghĩa |
 |---|---|---|
-| Sa bàn | `board` | Bản đồ thi đấu kiểu Synapse City |
-| CRL | `crl` | Ô xuất phát/đích (Crisis Response Lab) |
-| Khoanh vùng | `containment` | Đưa khối ô nhiễm vào vùng khoanh |
-| Trung hòa | `neutralization` | Ghép khối trung hòa đúng màu |
-| Phân tích | `analysis` | Đưa khối đỏ/vàng về CRL |
+| Robot Bíp | (nhân vật, kiểu game `robotlab`) | Robot giống Leanbot mà bé lập trình ở W6. Măng dẫn chuyện |
+| Sa bàn | `board` / `config.map` | Bản đồ thi đấu kiểu Synapse City: lưới ngã tư của đường line đen |
+| Ngã tư | ô `.` (và mọi ô không phải `#`) | Một ô của sa bàn robot. "Tiến 3 ô" = đếm 3 ngã tư, chỗ đang đứng không tính. Ở trò chơi là cách làm đơn giản; sa bàn thật có thể có đoạn line không có ngã tư (`airoc-2026.md` §4) |
+| Line | `robot_line_ahead` | Đường kẻ đen Bíp chạy theo. Câu hỏi "phía trước có line?" |
+| Nhà | ô `#` | Ô không có line; tiến vào là `OFF_LINE` |
+| Phòng thí nghiệm | ô `L` (`atLab`, `robot_at_lab`) | Chỗ xuất phát và chỗ phải về cuối lượt (+40 điểm). Thay cho tên cũ **CRL** (Crisis Response Lab) trong ghi chú cũ; không dùng "CRL" với bé |
+| Tiến … ô | `robot_forward` / `forward(n)` | Đi theo line đúng số ngã tư rồi dừng. Câu cho bé: "Tiến 3 ô: dừng ở ngã tư thứ 3". Không đi xuyên qua khối |
+| Rẽ trái / rẽ phải (robot) | `robot_turn_left` / `robot_turn_right` | Như mê cung: quay 90° tại chỗ, chưa đi |
+| Tay gắp | `held` (trạng thái), gripper | Giữ **một** khối |
+| Gắp | `robot_grab` / `grab` | Gắp khối ở chỗ Bíp đứng. Muốn gắp thì dừng đúng ô có khối |
+| Thả | `robot_release` / `release` | Thả khối xuống chỗ Bíp đứng |
+| Khối rào | `fence` | Khối thi đấu màu xám, không có màu để hỏi; thả trên ô vùng là khoanh vùng |
+| Khối trung hòa | `neutralizer` | Khối có màu; thả trên trạm cùng màu là trung hòa |
+| Khối ô nhiễm | `pollution` | Khối có màu; thả trong phòng thí nghiệm là thu hồi |
+| Ô vùng ô nhiễm | ô `Z` | Ô có viền đỏ cần đặt rào |
+| Trạm xử lý | ô `r` / `y` / `g` | Trạm đỏ / vàng / xanh lá nhận khối trung hòa cùng màu |
+| Khoanh vùng | `contain` (điểm `points.contain`, 45) | Thả khối rào trên ô vùng ô nhiễm. Tên Anh cũ `containment` |
+| Trung hòa | `neutralize` (`points.neutralize`, 160) | Thả khối trung hòa trên trạm cùng màu. Tên Anh cũ `neutralization` |
+| Thu hồi | `retrieve` (`points.retrieve`, 100) | Đứng trong phòng thí nghiệm, thả khối ô nhiễm. Thay tên cũ "Phân tích" / `analysis` |
+| Về phòng | `mustReturn`, `points.return` (40) | Kết thúc lượt ở phòng thí nghiệm. Bíp chạy hết lệnh rồi mới chấm (không thắng giữa chừng) |
+| Đồng hồ (ảo) | `elapsed`, `rules.timeLimit`, `rules.costs` | Mỗi việc tốn vài giây; hết giờ (`OUT_OF_TIME`) thì Bíp dừng |
+| Điểm | `goal.type: 'score'`, `target` | Tổng điểm các việc đã xong; màn "chọn việc" và boss cần đủ điểm |
+| Khối ở chỗ Bíp màu …? | `robot_block_color` | Câu hỏi: khối Bíp đang gắp (hoặc khối dưới chỗ Bíp đứng) có màu con chọn |
+| Đã về phòng thí nghiệm? | `robot_at_lab` | Câu hỏi: Bíp đang đứng ở phòng thí nghiệm |
+| Đang gắp khối? | `robot_holding` | Câu hỏi: tay gắp đang giữ khối (giới thiệu ở W7) |

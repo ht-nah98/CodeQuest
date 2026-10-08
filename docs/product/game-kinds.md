@@ -152,18 +152,159 @@ Tọa độ ô viết `r,c` (hàng, cột, từ 0, hàng 0 ở trên cùng).
 **Sprite:** cần thêm đi lên / đi xuống (task P0-08). Trước khi có, tạm lật sprite ngang + mũi tên chỉ hướng.
 
 ### 3.3 `robotlab` — Phòng thí nghiệm Robot · **GĐ 3** (Thế giới 6)
-- **Góc nhìn:** từ trên xuống, sa bàn kiểu Synapse City (lưới khu vực A–H + CRL).
-- **Robot:** có hướng, tay gắp (đang cầm 0/1 khối), cảm biến line, cảm biến vật cản, cảm biến màu.
-- **Khối:** `robot_forward(n)`, `robot_turn(left|right)`, `robot_follow_line_to_junction`, `robot_grab`, `robot_release`, `robot_color_is(color)`, `robot_obstacle_ahead`, `robot_at(zone)`.
-- **Nhiệm vụ:** `containment` (đưa khối xanh lá/xanh dương/tím vào vùng khoanh của khu vực) · `neutralization` (ghép khối trung hòa đúng màu) · `analysis` (đưa khối đỏ/vàng về CRL) · `return` (kết thúc trong CRL).
-- **Chấm:** bảng điểm theo luật AIROC (45/160/100/40), có đồng hồ ảo 120 s hoặc 180 s tính theo số hành động × thời gian mỗi hành động.
-- **Đề ngẫu nhiên:** cấu hình sinh bằng `rng` có seed, để lặp lại được khi chấm và khi xem lại.
+
+> Đặc tả v1 (P3-01a/b), viết 07/10/2026, sửa cùng ngày theo review độc lập và quyết định của điều phối (gắp / thả **tại ô Bíp đứng**, khối rẽ tên "rẽ trái / rẽ phải", không thắng giữa chương trình). Mọi con số (điểm, giây, sa bàn) là **gần đúng** (`product/airoc-2026.md` §4): nằm trong dữ liệu, sửa khi HLV gửi luật thật (P3-07), không sửa code. Thói quen AIROC cần dạy: đếm ngã tư trên lưới line, quay tại chỗ rồi mới đi, tay gắp giữ **một** khối, lập thứ tự nhiệm vụ, kết thúc ở phòng thí nghiệm, ngân sách thời gian.
+
+**Góc nhìn:** từ trên xuống, sa bàn là **lưới ngã tư của đường line đen**. Mỗi ô của bản đồ là **một ngã tư**; hai ô kề nhau (không phải `#`) nối với nhau bằng một đoạn line. Nhân vật được lập trình là **robot Bíp** (giống Leanbot), không phải Măng; Măng đứng cạnh sa bàn dẫn chuyện. Trong lời nói cho bé ở W6, **"khối"** chỉ là khối thi đấu (rào, trung hòa, ô nhiễm); khối Blockly gọi là **"lệnh"** / **"chương trình"** (`glossary.md`).
+
+**Khác `maze` ở ba điểm (bài mở đầu W6 dạy):**
+1. **Không thắng giữa chương trình** (khác luật A1 của runner/maze; ADR ở P3-01b). Bíp làm **hết mọi lệnh** rồi mới chấm, như robot thật. Về tới phòng giữa chừng rồi đi tiếp thì không còn "ở nhà". Vì vậy `lặp 20 lần` không thay được `lặp đến khi`.
+2. **Tiến N ô** là một lệnh (số chọn trên khối), Bíp **dừng ở từng ngã tư** nó đếm (event `move` cho từng ô).
+3. **Đồng hồ ảo**: mỗi hành động tốn vài giây; hết giờ thì Bíp dừng.
+
+Lệnh rẽ giữ **đúng tên và nghĩa của mê cung**: "rẽ trái / rẽ phải" = quay 90° tại chỗ, chưa đi. Bé đã biết từ W1, nên W6 không có bài riêng cho rẽ.
+
+**Config** (zod ở `packages/games/src/robotlab/config.ts`):
+```ts
+const ROBOT_TILES = ['#', '.', 'L', 'Z', 'r', 'y', 'g'] as const;
+// '#' nhà (không có line, không vào được) · '.' ngã tư · 'L' phòng thí nghiệm (đúng 1)
+// 'Z' ô vùng ô nhiễm (cần khoanh) · 'r' 'y' 'g' trạm xử lý màu đỏ / vàng / xanh lá
+const ROBOT_COLORS = ['RED', 'YELLOW', 'GREEN'] as const;            // nhãn: đỏ · vàng · xanh lá
+const ROBOT_BLOCK_KINDS = ['fence', 'neutralizer', 'pollution'] as const;
+// fence = khối rào (màu trung tính, không có `color`) · neutralizer = khối trung hòa · pollution = khối ô nhiễm
+
+type Cell = [number, number];                                        // [hàng, cột], hàng 0 ở trên
+type RobotBlock =
+  | { kind: 'fence' }
+  | { kind: 'neutralizer' | 'pollution'; color: RobotColor };
+
+/** level.config như trong file nội dung (luật chung chưa gộp). */
+interface RobotLabLevelConfig {
+  map: string[];               // 3–9 hàng × 3–9 cột, các hàng dài bằng nhau
+  startDir: 'N' | 'E' | 'S' | 'W';
+  start?: Cell;                // ngã tư xuất phát (không phải '#', không có khối); mặc định: ô 'L'
+  startHolding?: RobotBlock;   // Bíp cầm sẵn một khối lúc xuất phát (W6 `l16`, `l17`: đề đổi màu)
+  blocks?: (RobotBlock & { at: Cell })[];          // ≤ 8 khối trên sa bàn
+  goal:
+    | { type: 'missions'; mustReturn?: boolean }   // màn thường: xong mọi việc (+ về phòng nếu mustReturn)
+    | { type: 'score'; target: number };           // màn chọn việc / boss: đủ điểm trong thời gian
+  rules?: {                    // ghi đè luật chung (chỉ khi màn cần)
+    timeLimit?: number;        // giây, 1–600
+    costs?: Partial<{ forward: number; turn: number; grab: number; release: number }>;
+    points?: Partial<{ contain: number; neutralize: number; retrieve: number; return: number }>;
+  };
+}
+/** Config chạy được: `rules` đã gộp đủ mọi trường. */
+type RobotLabConfig = Omit<RobotLabLevelConfig, 'rules'> & { rules: Required<…> /* đủ timeLimit, costs, points */ };
+```
+**Luật chung là dữ liệu** (`content/shared/robotlab.json`, schema export từ `robotlab/config.ts`):
+```json
+{ "timeLimit": 120,
+  "costs":  { "forward": 2, "turn": 1, "grab": 2, "release": 2 },
+  "points": { "contain": 45, "neutralize": 160, "retrieve": 100, "return": 40 } }
+```
+- **Một hàm gộp duy nhất** `resolveRobotlabRules(levelConfig, shared): RobotLabConfig` (thuần, export từ `@codequest/games`). `configSchema` của kiểu game (luật 1 của `content:check`, editor) kiểm `RobotLabLevelConfig`; `createState` chỉ nhận config **đã gộp** và parse bằng `robotlabResolvedSchema` (mọi trường `rules` bắt buộc), nên quên gộp là lỗi to (`INTERNAL_ERROR: robotlab config not resolved`), không bao giờ âm thầm chạy luật sai. Nơi gọi (P3-01a liệt kê và test từng chỗ): bộ nạp nội dung của web (màn, **thẻ `demo` bài giảng**), `runLevel` của màn `predict` (khóa đáp án), `AnswerPicture`, factory của `RobotLabStage`, `tools/content-check`, `tools/par`, level editor **và worker vét cạn của editor**, helper test (`resolvedFixture`).
+- `forward` tính **mỗi ngã tư** đi được. Câu hỏi (cảm biến) **không tốn giờ** ở v1 (không có `costs.sense`: cảm biến không được đổi state, `game-kind-sdk.md` §1 luật 6).
+- Điểm tính **mỗi việc**: mỗi ô `Z` có rào 45, mỗi khối trung hòa nằm trên trạm cùng màu 160, mỗi khối ô nhiễm đã vào phòng 100, kết thúc ở `L` 40.
+
+Schema kiểm (`superRefine`): kích thước 3–9, chỉ có ký tự của `ROBOT_TILES`, đúng 1 `L`; `start` không phải `#`; mỗi khối nằm trên ô `.`, không trùng nhau, không trùng `start`; `fence` **không** có `color`, `neutralizer`/`pollution` **bắt buộc** `color`; số `fence` ≥ số ô `Z`; **mỗi màu: số trạm ≥ số khối trung hòa màu đó** (kể cả `startHolding`); `missions` cần ít nhất một việc (`Z`, `neutralizer`, `pollution`) hoặc `mustReturn: true`; `score.target` ≥ 1. Trạm thừa (nhiều trạm hơn khối) được phép: dùng làm trạm "nhử".
+
+**Trạng thái** (dữ liệu thuần): `pos`, `dir`, `elapsed` (giây đã dùng), `crashAt`, và `blocks`: mảng **giữ nguyên chỉ số theo config** (`startHolding` là phần tử 0 nếu có, rồi tới `blocks`), mỗi phần tử `{ kind, color?, where }` với `where` là `{ at: Cell }` (nằm trên sa bàn) · `'held'` (trong tay gắp, nhiều nhất một) · `'done'` (đã vào phòng thí nghiệm). Việc đã xong **tính từ `where`** (không lưu cờ riêng).
+
+**Lệnh** (câu ở cột cuối là tooltip **đúng từng chữ**; gợi ý `enter` của màn đầu tiên dùng lệnh là "Lệnh mới! " + đúng câu này; bài "Khối mới" và `glossary.md` dùng lại câu này, `conventions/content-authoring.md` §5.1; không dùng chữ N trong câu cho bé):
+
+| Khối | Nhãn | API | Bíp có đi? | Tooltip |
+|---|---|---|---|---|
+| `robot_forward` | tiến [3] ô (ô **số** `field_number` 1–9, mặc định 1; không phải ô cắm, nên không cần capacity guard) | `forward(n, id)` | đi đúng số ngã tư, dừng ở từng ngã tư đếm được | Tiến 3 ô: dừng ở ngã tư thứ 3 |
+| `robot_turn_left` / `robot_turn_right` | rẽ trái / rẽ phải | `turn('LEFT' \| 'RIGHT', id)` | **không đi**, quay 90° | Quay sang trái (phải) tại chỗ, chưa đi (giống hệt mê cung) |
+| `robot_grab` | gắp | `grab(id)` | **đứng yên** | Gắp khối ở chỗ Bíp đứng |
+| `robot_release` | thả | `release(id)` | **đứng yên** | Thả khối xuống chỗ Bíp đứng |
+| `robot_line_ahead` | phía trước có line? | `lineAhead(id)` → boolean | câu hỏi | ✔ khi phía trước Bíp có line, ✘ khi không |
+| `robot_block_color` | khối ở chỗ Bíp màu [đỏ ▾ / vàng ▾ / xanh lá ▾]? | `blockColor(color, id)` → boolean | câu hỏi | ✔ khi khối ở chỗ Bíp có màu con chọn, ✘ khi không |
+| `robot_at_lab` | đã về phòng thí nghiệm? | `atLab(id)` → boolean | câu hỏi | ✔ khi Bíp đứng ở phòng thí nghiệm, ✘ khi chưa |
+| `robot_holding` | đang gắp khối? | `holding(id)` → boolean | câu hỏi | ✔ khi tay gắp đang giữ khối, ✘ khi tay trống |
+
+- **Luật cho bé về khối trên đường** (bài `w06-lesson-gap`, gợi ý `HIT_BLOCK`): "Bíp không đi xuyên qua khối. Muốn gắp thì dừng đúng ô có khối."
+- "khối ở chỗ Bíp" = khối Bíp **đang gắp**, hoặc (tay trống) khối **nằm ở ngã tư Bíp đứng**. Khối rào không có màu nên mọi lựa chọn đều ✘.
+- `đang gắp khối?` có trong bộ lệnh nhưng **không nằm trong thanh khối màn nào của W6** (luật 7: chưa được giới thiệu); W7 giới thiệu khi cần.
+- Luật 7 coi `robot_turn_*` là loại khối mới (khác `maze_turn_*`): màn đầu tiên dùng (`l03`) có gợi ý `enter` nhắc đúng nhãn và tooltip mê cung ("Rẽ phải: quay sang phải tại chỗ, chưa đi.").
+- Nhãn `tiến %1 ô` có ô số ở giữa: bộ so nhãn `ACTION_LABELS` của luật 7 (`tools/content-check`) phải **gộp khoảng trắng** khi bỏ ô số ("tiến  ô" → "tiến ô"), sửa ở P3-01b; gợi ý viết đúng nhãn bé thấy ("tiến 3 ô").
+- Khối điều khiển dùng lại của engine (§2.1): `cq_repeat`, `cq_if`, `cq_if_else`, `cq_repeat_until`. Generator: lệnh gọi đúng **một** API lệnh; câu hỏi gọi đúng một API câu hỏi, block id là tham số cuối (`game-kind-sdk.md` §1 luật 6, §4).
+
+**Thứ tự cố định của mọi hành động** (một chỗ duy nhất trong `sim.ts`, có unit test riêng):
+1. **Kiểm ô** theo bảng dưới. Không hợp lệ → emit event thất bại, `stop('crash', REASON)`; Bíp đứng yên, **không** trừ giờ.
+2. **Kiểm giờ**: `elapsed + cost > timeLimit` → emit `timeUp{at, t: elapsed}` rồi dừng (`missions` → `incomplete` / `OUT_OF_TIME`; `score` → chấm điểm ngay: đủ `target` → `success`, thiếu → `incomplete` / `LOW_SCORE`). Hành động **không** được làm.
+3. **Làm**: cộng `cost` vào `elapsed` **đúng một lần**, đổi state, emit event (mang `t` = `elapsed` mới).
+
+`tiến N` là N lần liên tiếp bước 1–3, mỗi lần một ngã tư (`cost` = `costs.forward`): hỏng ở ngã tư thứ k thì k−1 `move` đã diễn. Câu hỏi không qua bước 2–3 (không tốn giờ).
+
+**Bảng kiểm ô** (`p` = ngã tư Bíp đứng, `t` = ngã tư kế theo `dir`):
+
+| Hành động | Hợp lệ khi | Không hợp lệ |
+|---|---|---|
+| **tiến**, mỗi ngã tư | `t` trong sa bàn, không phải `#`, và: `t` **không có khối**; **hoặc** `t` có khối, đây là ngã tư **cuối** của lệnh **và** tay trống (Bíp dừng **trên** ô có khối) | `t` là `#` / ngoài sa bàn → `OFF_LINE` (`bump{into:'offLine'}`) · `t` có khối mà còn ngã tư phải đi, hoặc tay đang giữ khối → `HIT_BLOCK` (`bump{into:'block'}`) |
+| **rẽ** | luôn | — |
+| **gắp** | tay trống **và** ô `p` có khối | tay đang giữ → `HANDS_FULL` · ô `p` không có khối → `NOTHING_TO_GRAB` (`gripFail`) |
+| **thả** | tay giữ khối, ô `p` không có khối, và theo bảng "Thả ở đâu" | tay trống → `HANDS_EMPTY` · ô `p` đã có khối → `CELL_TAKEN` (chỉ xảy ra khi màn cho Bíp vừa cầm sẵn vừa đứng trên khối; schema chặn `start` trùng khối nên thực tế không gặp) · sai chỗ → bảng dưới |
+
+**Thả ở đâu** (ô `p` = chỗ Bíp đứng):
+| Ô `p` \ khối đang giữ | `fence` | `neutralizer` màu c | `pollution` |
+|---|---|---|---|
+| `.` | nằm ở `p` | nằm ở `p` | nằm ở `p` |
+| `L` | → `WRONG_PLACE` | → `WRONG_PLACE` | **thu hồi**: `where = 'done'` (khối biến vào phòng) |
+| `Z` | nằm ở `p`: **khoanh vùng** xong 1 ô | → `WRONG_PLACE` | → `WRONG_PLACE` |
+| trạm màu c | → `WRONG_PLACE` | nằm ở `p`: **trung hòa** xong 1 khối | → `WRONG_PLACE` |
+| trạm màu khác c | → `WRONG_PLACE` | → `WRONG_COLOR` | → `WRONG_PLACE` |
+
+- Khối đã đặt (rào trên `Z`, trung hòa trên trạm, khối để trên `.`) là vật cản như mọi khối: Bíp đứng trên nó được (vừa thả xong, hoặc dừng ở ô đó tay trống), đi **xuyên qua** thì `HIT_BLOCK`. Gắp lại khối đã đặt là hợp lệ: việc đó trở lại "chưa xong". `L` không bao giờ có khối.
+- Câu hỏi chỉ đọc state, trả boolean qua `ctx.sense` (không emit, không stop, không đổi state; `sense` vẫn tính vào `maxActions`). `lineAhead`: `t` trong sa bàn và không phải `#` (có khối vẫn ✔). `blockColor(c)`: khối "ở chỗ Bíp" (đang gắp, hoặc nằm ở `p`) có `color === c`. `atLab`: `p` là `L` (✔ ngay lúc xuất phát ở `L`, nên `lặp đến khi đã về phòng thí nghiệm` xuất phát từ `L` chạy **0 vòng**). `holding`: có phần tử `'held'`.
+- **Vòng lặp không dừng**: thân có lệnh tốn giờ thì **hết giờ trước** (`OUT_OF_TIME`); chỉ vòng chỉ có câu hỏi / thân rỗng mới ra `TIMEOUT` của engine. Màn W6 có vòng lặp khai báo `level.feedback.TIMEOUT` = "Bíp hỏi mãi mà không làm gì. Vòng lặp không dừng!" (câu chung "Măng chóng mặt…" không hợp với Bíp) và gợi ý `lastReason: OUT_OF_TIME` riêng "Hết giờ khi đang lặp. Vòng lặp có dừng không?".
+
+**Chấm khi hết chương trình** (`evaluate`):
+- `missions`: còn ô `Z` chưa có rào, còn khối trung hòa chưa nằm trên trạm cùng màu, hoặc còn khối ô nhiễm chưa `'done'` → `incomplete` / `MISSIONS_LEFT` (xét trước). Xong hết mà `mustReturn` và `p` không phải `L` → `incomplete` / `NOT_HOME`. Ngược lại `success`.
+- `score`: điểm = `contain` × số ô `Z` có rào + `neutralize` × số khối trung hòa đúng trạm + `retrieve` × số khối ô nhiễm `'done'` + (`return` nếu `p` là `L`). ≥ `target` → `success`, ngược lại `incomplete` / `LOW_SCORE`. Không có `MISSIONS_LEFT`/`NOT_HOME`.
+- Crash ở mọi chế độ là thua (không chấm điểm).
+
+**Event** (`events.ts`; mọi event có `blockId`; event hành động mang `t` = `elapsed` sau hành động, để sân chơi chạy đồng hồ mà không đọc state):
+`move{from, to, dir, t}` (một ngã tư) · `turn{from, to, t}` · `bump{at, dir, into: 'offLine' | 'block'}` (Bíp ở `at`, không có `move` đi trước) · `grab{at, block, index, t}` · `release{at, block, index, result: 'placed' | 'contained' | 'neutralized' | 'retrieved', t}` · `gripFail{at, reason}` (`NOTHING_TO_GRAB`, `HANDS_FULL`, `HANDS_EMPTY`, `CELL_TAKEN`, `WRONG_PLACE`, `WRONG_COLOR`) · `timeUp{at, t}`. `index` = chỉ số cố định của khối. **Không có event `win`**: sân chơi diễn ăn mừng / bảng điểm trong `finish(outcome)` (`game-kind-sdk.md` §2). Điểm tính lại được từ `release.result`, `grab` (gắp lại khối đã đặt), vị trí cuối và `rules.points`.
+
+**reasonCodes:** `OFF_LINE`, `HIT_BLOCK`, `NOTHING_TO_GRAB`, `HANDS_FULL`, `HANDS_EMPTY`, `CELL_TAKEN`, `WRONG_PLACE`, `WRONG_COLOR`, `OUT_OF_TIME`, `MISSIONS_LEFT`, `NOT_HOME`, `LOW_SCORE` (cộng `TIMEOUT` chung). Câu cho `content/shared/feedback.json` (luật 17):
+
+| Mã | Câu (≤ 12 chữ) |
+|---|---|
+| `OFF_LINE` | Phía trước không có line. Bíp lạc rồi! |
+| `HIT_BLOCK` | Ối, đụng khối! Bíp không đi xuyên qua khối. |
+| `NOTHING_TO_GRAB` | Chỗ này không có khối để gắp. |
+| `HANDS_FULL` | Tay gắp đang bận. Thả khối cũ trước nhé! |
+| `HANDS_EMPTY` | Tay gắp trống, chưa có gì để thả. |
+| `CELL_TAKEN` | Chỗ này có khối rồi. Thả chỗ khác nhé! |
+| `WRONG_PLACE` | Khối này không đặt ở đây. |
+| `WRONG_COLOR` | Sai màu rồi! Trạm cần khối cùng màu. |
+| `OUT_OF_TIME` | Hết giờ rồi! Tìm đường ngắn hơn nhé. |
+| `MISSIONS_LEFT` | Còn việc chưa xong kìa! |
+| `NOT_HOME` | Xong việc rồi, nhưng Bíp chưa về phòng. |
+| `LOW_SCORE` | Chưa đủ điểm. Chọn việc nhiều điểm hơn nhé! |
+
+**`predictAnswer`:**
+- `missions`: `win` · `stop@r,c` (hết chương trình, `MISSIONS_LEFT` hoặc `NOT_HOME`) · `crash:<REASON>@r,c` (`r,c` = ngã tư **Bíp đứng** khi lỗi) · `outOfTime@r,c` · `timeout`.
+- `score`: `score:<điểm>` (hết chương trình hoặc hết giờ, thắng hay thua) · `crash:<REASON>@r,c` · `timeout`. Ví dụ `score:160`.
+
+Hình đáp án (`AnswerPicture`, dùng config đã gộp): sa bàn thu nhỏ, Bíp ở ô của khóa; `outOfTime` thêm đồng hồ cát; `score:` vẽ bảng điểm.
+
+**Mục tiêu sao:** robotlab v1 **không** cài `checkStarGoal` (luật 19: màn robotlab không có `starGoals`). W6 không cần: đánh đổi "nhiều cách giải" nằm ở `par` và ở màn `score`. Thêm loại mục tiêu khi một màn thật sự cần (ADR-0017).
+
+**Vét cạn `par`** (`game-kind-sdk.md` §4): luật trên giữ điều kiện 1–4. `elapsed` **nằm trong state** (cần cho luật hết giờ) dù là bộ đếm tăng dần (điều kiện 6 cảnh báo mất gộp trạng thái). Không thêm cơ chế gộp riêng: P3-01b **đo trước** (`npm run par` trên màn mẫu và trên bản nháp `l19`, boss; ghi số trạng thái và thời gian vào ADR). Chỉ khi quá chậm mới tính cách khác, bằng ADR riêng.
+
+**Thiết kế màn:** sa bàn nhỏ trước (3×3 tới 3×5), tới thử thách 3×5 nhiều bản đồ; sa bàn kiểu đề thi 7×7 chỉ ở màn sáng tạo. Màn `score` đặt `rules.timeLimit` nhỏ theo sa bàn (14–34 s) để thời gian **thật sự** ép phải chọn việc. "Đề ngẫu nhiên" ở v1 = màn nhiều bản đồ (ADR-0016) khác **màu khối**; một chương trình phải thắng mọi bản đồ. Nút "Đề mới" sinh sa bàn bằng `rng` có seed để sau (P3-08).
+
+**Sprite:** robot Bíp nhìn từ trên xuống 4 hướng (đi 2 khung, tay gắp mở/đóng, lắc đầu khi lỗi, vui), khối rào (xám, sọc) / trung hòa (tròn) / ô nhiễm (chấm) theo màu, trạm 3 màu, ô vùng ô nhiễm, phòng thí nghiệm, nhà. Bản tạm vẽ bằng `PIXI.Graphics` theo lưới pixel (P3-03) để không chặn nội dung; bản đẹp theo `playbooks/add-asset.md` (P3-02).
 
 ### 3.4 `turtle` — Họa sĩ · GĐ 4 (Thế giới 8–9)
 Bút vẽ trên canvas. Khối: `turtle_move(n)`, `turtle_turn(deg)`, `turtle_pen(up|down)`, `turtle_color`. Chấm bằng so sánh ảnh với ảnh mẫu (kênh alpha, ngưỡng sai khác như Blockly Games Turtle).
 
 ### 3.5 `farm` — Nông trại · GĐ 4 (Thế giới 7)
 Lưới ô có cây trồng mang số quả. Khối: đi/rẽ, `farm_harvest`, `farm_fruit_count`, biến. Chấm: trạng thái cuối + giá trị biến (vd "đếm đúng tổng số quả").
+> Đề xuất 07/10/2026 (`curriculum.md` §6.2): Thế giới 7 dạy biến trên `maze` và `robotlab` bằng khối biến chung của engine; `farm` dời sau (cần khối số cắm vào ô, tức capacity guard).
 
 ### 3.6 `sorter` — Băng chuyền · GĐ 4 (Thế giới 7, 10)
 Đồ vật lần lượt chạy qua băng chuyền. Khối: `sorter_color_is`, `sorter_shape_is`, `sorter_push(left|right)`, danh sách, đổi chỗ (thuật toán sắp xếp). Chấm: mọi vật vào đúng thùng / danh sách cuối đã sắp xếp.

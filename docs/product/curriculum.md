@@ -25,8 +25,8 @@ Kèm mỗi thế giới có **1 hoạt động ngoài màn hình** (unplugged) 5
 | 3 | `w03-xuong-sua-loi` | 🔧 Xưởng Sửa Lỗi | Gỡ lỗi: đọc, tìm, sửa | (ôn tập) | runner, maze | 15 | GĐ 2 |
 | 4 | `w04-nga-ba` | 🔀 Ngã Ba Quyết Định | Điều kiện nếu / nếu-không, cảm biến | nếu, nếu … nếu không, phía trước có…, có đường… | runner, maze | 20 | GĐ 2 |
 | 5 | `w05-song-cho-doi` | 🌊 Sông Chờ Đợi | Lặp có điều kiện | lặp đến khi, đã tới đích?, đã tới nơi? (đề xuất) | runner, maze | 20 | GĐ 2 |
-| 6 | `w06-thanh-pho-robot` | 🤖 Thành Phố Robot | Robot, cảm biến, tay gắp, nhiệm vụ AIROC | tiến n ô, dò line, gắp, thả, màu là…? | robotlab | 20 | GĐ 3 |
-| 7 | `w07-cho-dem-so` | 🏪 Chợ Đếm Số | Biến, đếm, so sánh | biến, tăng 1, so sánh | farm, sorter, robotlab | 20 | GĐ 4 |
+| 6 | `w06-thanh-pho-robot` | 🤖 Thành Phố Robot | Robot trên lưới line, tay gắp, nhiệm vụ AIROC, ngân sách thời gian | tiến … ô, rẽ trái/phải (như mê cung), gắp, thả, phía trước có line?, khối ở chỗ Bíp màu …?, đã về phòng thí nghiệm? (§6.1) | robotlab | 20 | GĐ 3 |
+| 7 | `w07-cho-dem-so` | 🏪 Chợ Đếm Số | Biến, đếm, so sánh | đặt, tăng thêm, so sánh, lặp [biến] lần (§6.2) | maze, robotlab (đề xuất §6.2; farm dời sau) | 20 | GĐ 3 (sau W6) |
 | 8 | `w08-xuong-phep-thuat` | 🪄 Xưởng Phép Thuật | Hàm, tham số | định nghĩa / gọi hàm | turtle, music, robotlab | 20 | GĐ 4 |
 | 9 | `w09-thap-hoa-si` | 🎨 Tháp Họa Sĩ | Lặp lồng nhau, góc, hình học | lặp lồng, góc, bút | turtle | 20 | GĐ 4 |
 | 10 | `w10-hoc-vien` | 🧠 Học Viện Thuật Toán | Tìm đường, sắp xếp, tìm kiếm, tối ưu | danh sách, đổi chỗ | sorter, maze | 20 | GĐ 5 |
@@ -511,15 +511,209 @@ Phụ thuộc vào các câu đang mở ở GĐ 1:
 - **A5 (`đã tới đích?` đúng khi còn măng):** không ảnh hưởng nhờ D9.
 - **A7 (lặp tối đa 20):** W4 boss cần 16 vòng; W5 dùng chính giới hạn này cho "lặp 20 lần không đủ".
 
-## 6. Thế giới 6–10 (khung, chi tiết hóa khi tới giai đoạn xây)
+## 6. Thế giới 6–10
+
+Thế giới 6 và 7 đã chi tiết hóa (§6.1, §6.2, 07/10/2026). Thế giới 8–10 vẫn là **khung**, chi tiết hóa khi tới giai đoạn xây.
 
 | Thế giới | Mục tiêu học | Ngộ nhận nhắm tới | Boss |
 |---|---|---|---|
-| 6 Thành Phố Robot | Điều khiển robot theo ô, dò line, gắp/thả, chọn chiến thuật nhiệm vụ trong thời gian giới hạn | "Robot luôn đi chính xác"; làm hết mọi nhiệm vụ mới tốt | Đề AIROC ngẫu nhiên, 180 s, về CRL |
-| 7 Chợ Đếm Số | Biến lưu giá trị thay đổi; đếm, cộng, so sánh | Biến là hằng số; tên biến là giá trị | Đếm và chia măng đều cho 3 nhà |
+| 6 Thành Phố Robot | xem §6.1 | | |
+| 7 Chợ Đếm Số | xem §6.2 | | |
 | 8 Xưởng Phép Thuật | Gói chuỗi lệnh thành hàm, dùng lại, thêm tham số | Hàm chạy ngay khi định nghĩa | Vẽ cả ngôi làng bằng 3 hàm |
 | 9 Tháp Họa Sĩ | Lặp lồng nhau, góc ngoài của đa giác | Vòng trong chạy 1 lần | Vẽ bông hoa tuyết |
 | 10 Học Viện Thuật Toán | So sánh các cách giải, sắp xếp, tìm kiếm, chọn đường ngắn nhất | Cách nào chạy được là tốt | Robot chọn thứ tự nhiệm vụ tối ưu |
+
+### 6.1 Thế giới 6 — 🤖 Thành Phố Robot (chi tiết, bản nháp P3-04, 07/10/2026)
+
+> Viết theo quyết định của điều phối ngày 07/10/2026, **sửa cùng ngày** theo review độc lập (gắp / thả tại ô Bíp đứng, khối rẽ giữ tên "rẽ trái / rẽ phải", màn thi quan trọng đặt sớm, boss nhẹ). Chung kết quốc gia miền Bắc AIROC là **17–18/10/2026**, nên W6 dạy đúng các thói quen cần trên Leanbot thật: **đếm ngã tư**, **quay tại chỗ rồi mới tiến**, **tay gắp giữ một khối**, **lập thứ tự nhiệm vụ**, **kết thúc ở phòng thí nghiệm**, **ngân sách thời gian**. Luật kiểu game: `game-kinds.md` §3.3. Mọi điểm, giây, sa bàn là **gần đúng** (`airoc-2026.md` §4), nằm trong dữ liệu; HLV gửi luật thật thì sửa dữ liệu (P3-07). Câu hỏi còn mở: `roadmap/coach-questions.md` mục H.
+
+Quy ước riêng của bảng W6 (ngoài quy ước §5):
+- **Sa bàn** viết từng hàng, ngăn bằng `/`: `#` nhà (không có line) · `.` ngã tư · `L` phòng thí nghiệm · `Z` ô vùng ô nhiễm · `r` `y` `g` trạm đỏ / vàng / xanh lá. Ô `r,c` đếm từ 0. Hướng như maze (`N` lên, `E` phải, `S` xuống, `W` trái). Không ghi chỗ xuất phát thì Bíp đứng ở `L`.
+- **Khối trên sa bàn** viết `rào@r,c`, `TH đỏ@r,c` (khối trung hòa đỏ), `ON vàng@r,c` (khối ô nhiễm vàng); `cầm TH đỏ` = `startHolding`.
+- **Chương trình** viết gọn: `tiến 3` = lệnh "tiến 3 ô"; `gắp`, `thả`, `rẽ trái`, `rẽ phải`; câu hỏi viết như nhãn. `rẽ phải ×2` = hai lệnh `rẽ phải` (hoặc `lặp 2 {rẽ phải}`, cũng 2 khối).
+- **Giờ** (giây) theo luật chung: tiến 2 s mỗi ngã tư, rẽ 1 s, gắp 2 s, thả 2 s, câu hỏi 0 s. Màn không ghi `timeLimit` dùng 120 s (không bao giờ hết giờ ở màn nhỏ).
+- **Chưa vét cạn** (robotlab chưa có): mọi `par`, `parEdits`, giây ở đây là **dự kiến**, tính tay theo luật §3.3. Khi soạn (P3-04), chạy `npm run par` trên engine thật, sửa sa bàn hoặc số, rồi ghi lại ở "Ghi chú khi soạn" như W3–W5.
+- **Chữ cho bé ở W6:** "khối" chỉ là khối thi đấu (rào, trung hòa, ô nhiễm); khối Blockly gọi là **"lệnh"**, cả chương trình là **"chương trình"**. Gợi ý `enter` của lệnh mới là "Lệnh mới! " + đúng tooltip (`game-kinds.md` §3.3).
+
+**Câu chuyện:** Măng và Bông về tới làng. Bên kia đồi là **Thành Phố Robot**, nơi bác Cú làm việc ở phòng thí nghiệm. Gió của phù thủy thổi **khối ô nhiễm** khắp thành phố. Bác Cú giới thiệu **robot Bíp** (giống Leanbot của các bé): Bíp chạy theo đường line, có tay gắp. Măng lập trình cho Bíp khoanh vùng, trung hòa, thu hồi, rồi về phòng đúng giờ. Boss là **Ngày hội robot**, giống một lượt thi AIROC. Kết thế giới: chợ phiên sắp mở, Bíp rủ Măng đi chợ (W7).
+**Bé làm được sau thế giới:**
+- đếm đúng số ngã tư cần đi (ngã tư đang đứng không tính) và dùng một lệnh `tiến 3 ô`;
+- rẽ tại chỗ rồi mới tiến; "trái/phải" là của **Bíp**;
+- dừng **đúng ô có khối** rồi gắp; tới đúng chỗ rồi thả; tay gắp giữ **một** khối;
+- làm đủ ba việc AIROC: khoanh vùng, trung hòa đúng màu, thu hồi về phòng thí nghiệm;
+- luôn cho Bíp **về phòng** ở cuối; biết Bíp chạy **hết lệnh** rồi mới chấm;
+- tính giờ và **chọn việc nhiều điểm**, chọn **thứ tự** việc cho đường ngắn;
+- (phần sau) dùng câu hỏi của robot trong `nếu … nếu không`, `lặp đến khi` để một chương trình chạy đúng khi đề đổi màu, đổi độ dài.
+
+**Ngộ nhận nhắm tới:** "Tiến 3 là tính cả ngã tư đang đứng"; "Rẽ là vừa quay vừa đi"; "Bíp đi xuyên qua khối được"; "Gắp được khối ở xa"; "Tay gắp cầm được nhiều khối"; "Bíp tự dừng khi về tới phòng"; "Xong việc là xong, không cần về"; "Hết giờ là mất hết điểm"; "Làm hết mọi nhiệm vụ mới tốt" (boss, `l18`).
+**Unplugged — "Robot băng keo":** dán băng keo thành lưới 3×4 trên sàn, chấm tròn ở mỗi ngã tư, một góc là "phòng thí nghiệm". Một bé làm Bíp, cầm cốc giấy làm tay gắp; bạn đọc thẻ lệnh "tiến 2 ô", "rẽ phải", "gắp", "thả". Vòng 1: đếm ngã tư (chỗ đang đứng không tính). Vòng 2: phải **đứng lên** chấm có khối gỗ mới gắp được, và chỉ cầm **một** khối; không được bước qua khối. Vòng 3: HLV bấm đồng hồ 60 giây, mỗi thẻ "tiến" tốn 5 giây; nhóm chọn việc nào làm trước để kịp về phòng.
+
+**Quyết định riêng của W6:**
+- **D13. Boss không dùng câu hỏi robot.** Boss là một lượt thi **không** đổi màu (nhẹ, 12 khối), thanh khối chỉ có lệnh đã học ở `l01`–`l10` (+ `lặp`). Đây là ngoại lệ có chủ ý của luật §7 "boss dùng mọi khối của kiểu game": ba câu hỏi robot (`l14`–`l16`) được ôn ở thử thách `l17`–`l19`, trong đó `l19` là lượt thi đầy đủ có đề đổi màu (20 khối). Lý do: màn thi quan trọng phải chơi được trước 17/10 dù các bé chưa xong W5 (HLV mở khóa W6 bằng tay, P3-06), và phạm vi cắt (H15) không được có khối xuất hiện lần đầu ở boss.
+- **D14. `mustReturn` từ `l08`.** Sau bài sửa lỗi "về phòng" (`l08`), mọi màn `missions` đều bắt về phòng; màn `score` có 40 điểm về phòng.
+- **D15. Không có mục tiêu ⭐ ở W6** (robotlab v1 không có `checkStarGoal`): đánh đổi nằm ở `par` (thứ tự việc, boss) và ở màn `score`.
+
+**Bài giảng `w06-lesson` (6 thẻ, mỗi thẻ ≤ 12 chữ):**
+1. "Về tới làng rồi! Bên kia đồi có tiếng bíp bíp." (nối truyện W5)
+2. "Đây là robot Bíp. Bíp chạy theo đường line đen."
+3. `demo` sa bàn `#####/L..../#####`, Bíp ở `1,4` nhìn `W`, chương trình `tiến 2`: "Tiến 2 ô: dừng ở ngã tư thứ 2."
+4. `demo` cùng sa bàn, `tiến 4, tiến 1` → `crash:OFF_LINE@1,0`: "Bíp làm hết mọi lệnh, về tới phòng vẫn đi tiếp!"
+5. "Rẽ trái, rẽ phải: Bíp quay tại chỗ, như Măng."
+6. `quiz` "Bíp đứng ở ngã tư. Tiến 1 ô thì Bíp tới đâu?": **Ngã tư kế bên** / Ngã tư thứ hai.
+
+| # | ID | Chặng | Kind | Mode | Ý chính | Nhiệm vụ | Khối | maxBlocks | par (dự kiến) | parEdits | Mục tiêu ⭐ |
+|---|---|---|---|---|---|---|---|---:|---:|---:|---|
+| — | `w06-lesson` | (bài giảng) | — | — | Bíp, ngã tư, chạy hết lệnh, rẽ như Măng | — | — | — | — | — | · |
+| 1 | `w06-l01` | guided | robotlab | build | Lệnh **tiến … ô**: một lệnh đi nhiều ngã tư | Đưa Bíp về phòng thí nghiệm. | tiến | — | 1 | — | · |
+| 2 | `w06-l02` | guided | robotlab | predict | Đếm ngã tư: chỗ đang đứng **không tính** | Bíp dừng ở ngã tư nào? Đoán xem! | (chỉ xem) | — | — | — | · |
+| 3 | `w06-l03` | guided | robotlab | build | **Rẽ** như mê cung: quay tại chỗ, rồi mới tiến | Đường về có khúc rẽ. Đưa Bíp về! | tiến, rẽ trái, rẽ phải | — | 3 | — | · |
+| 4 | `w06-l04` | guided | robotlab | parsons | Hai khúc rẽ: thứ tự rẽ và tiến | Lắp lại đường về cho Bíp nhé. | tiến, rẽ trái, rẽ phải | — | 5 | — | · |
+| 5 | `w06-l05` | practice | robotlab | build | Lệnh **gắp**: không đi xuyên khối; dừng **đúng ô có khối** rồi gắp | Rào đổ chắn đường. Gắp lên rồi về! | tiến, rẽ trái, rẽ phải, gắp | 4 | 3 | — | · |
+| 6 | `w06-l06` | practice | robotlab | build | Lệnh **thả** + **thu hồi**: đứng trong phòng rồi thả | Mang khối ô nhiễm vào phòng thí nghiệm. | tiến, rẽ trái, rẽ phải, gắp, thả, lặp | 8 | 6 | — | · |
+| 7 | `w06-l07` | practice | robotlab | build | **Khoanh vùng**: đứng **trên** ô vùng rồi thả rào | Đặt rào khoanh vùng ô nhiễm. | tiến, rẽ trái, rẽ phải, gắp, thả | 8 | 6 | — | · |
+| 8 | `w06-l08` | practice | robotlab | bughunt | **Về phòng** ở cuối: Bíp chấm khi hết lệnh (từ đây `mustReturn`, D14) | Bíp quên về phòng. Sửa giúp nhé! | tiến, rẽ trái, rẽ phải, gắp, thả | — | 7 | 1 | · |
+| 9 | `w06-l09` | practice | robotlab | build | **Trung hòa**: khối trung hòa vào trạm **cùng màu**; có trạm nhử | Chở khối trung hòa đỏ tới trạm đỏ. | tiến, rẽ trái, rẽ phải, gắp, thả | 9 | 7 | — | · |
+| 10 | `w06-l10` | practice | robotlab | parsons | Tay gắp giữ **một** khối: thả xong mới gắp khối sau | Hai khối ô nhiễm, một tay gắp. Xếp lại nhé! | tiến, rẽ phải, gắp, thả, lặp | — | 7 | — | · |
+| 11 | `w06-l11` | practice | robotlab | predict | **Đồng hồ và điểm**: hết giờ thì dừng, việc đã xong vẫn có điểm | Hết giờ thì Bíp được mấy điểm? | (chỉ xem) | — | — | — | · |
+| 12 | `w06-l12` | practice | robotlab | build | **Chọn việc**: chỉ đủ giờ cho một việc rồi về (`score` 200, 20 s) | Chỉ đủ giờ cho một việc. Chọn việc nào? | tiến, rẽ trái, rẽ phải, gắp, thả, lặp | 9 | 7 | — | · |
+| 13 | `w06-l13` | practice | robotlab | bughunt | Quên về phòng nên thiếu 40 điểm (`score` 200, 20 s) | Bíp làm giỏi mà thiếu điểm. Sửa nhé! | tiến, rẽ trái, rẽ phải, gắp, thả, lặp | — | 7 | 1 | · |
+| 14 | `w06-l14` | practice | robotlab | build | Câu hỏi **đã về phòng thí nghiệm?** trong `lặp đến khi` (2 bản đồ); `tiến 6 ô` đi quá ở bản đồ ngắn | Đường về dài ngắn khác nhau. Về phòng nào! | tiến, lặp, lặp đến khi, đã về phòng thí nghiệm? | 4 | 3 | — | · |
+| 15 | `w06-l15` | practice | robotlab | parsons | Câu hỏi **phía trước có line?**: hết line thì rẽ | Đường về khúc khuỷu. Lắp chương trình dò line! | tiến, rẽ trái, lặp đến khi, nếu…nếu không, phía trước có line?, đã về phòng thí nghiệm? | — | 6 | — | · |
+| 16 | `w06-l16` | practice | robotlab | build | Câu hỏi **khối ở chỗ Bíp màu …?**: đề đổi màu, nhìn rồi chọn trạm (2 bản đồ) | Khối trung hòa đổi màu mỗi lần. Chở đúng trạm! | tiến, rẽ trái, rẽ phải, thả, nếu, nếu…nếu không, khối ở chỗ Bíp màu? | 10 | 9 | — | · |
+| 17 | `w06-l17` | challenge | robotlab | bughunt | Câu hỏi màu ngược với nhánh: sửa ô chọn màu (2 bản đồ) | Bíp chở nhầm trạm. Sửa giúp nhé! | như màn 16 | — | 9 | 1 | · |
+| 18 | `w06-l18` | challenge | robotlab | predict | "Làm hết mọi việc" thì hết giờ giữa đường, mất cả điểm về phòng | Làm hết mọi việc có kịp không? | (chỉ xem) | — | — | — | · |
+| 19 | `w06-l19` | challenge | robotlab | build | **Lượt thi đầy đủ**: đề đổi màu (2 bản đồ), thu hồi + trung hòa + về phòng trong 34 s (`score` 300); khoanh vùng là bẫy | Lượt thi thật: đủ 300 điểm trong 34 giây! | mọi lệnh robot đã học + lặp, nếu, nếu…nếu không, lặp đến khi | 22 | 20 | — | · |
+| 20 | `w06-boss` | boss | robotlab | build | **"Ngày hội robot"**: chọn việc + chọn **thứ tự** + về phòng trong 30 s (`score` 300), không đổi màu (D13) | Ngày hội robot: đủ 300 điểm trong 30 giây! | tiến, rẽ trái, rẽ phải, gắp, thả, lặp | 14 | 12 | — | · |
+| ✦ | `w06-creative` | creative | robotlab | creative | Sa bàn tập 7×7 gần giống đề thi, đủ 3 việc, tự chọn chiến thuật | Sa bàn tập: tự đặt chiến thuật cho Bíp! | mọi lệnh robot (cả `đang gắp khối?`) + điều khiển | — | — | — | · |
+
+Chặng: 4 guided · 12 practice · 3 challenge · 1 boss. Mode: build 11 (kể cả boss) · parsons 3 · predict 3 · bughunt 3; build liền nhau nhiều nhất 3 (`l05`–`l07`). **Thứ tự theo mức quan trọng cho kỳ thi:** lệnh cơ bản (`l01`–`l07`) → thói quen thi không cần câu hỏi (`l08` về phòng, `l09` trung hòa, `l10` một tay gắp, `l11`–`l13` giờ, điểm, chọn việc) → câu hỏi robot W4/W5 (`l14`–`l16`) → thử thách → boss.
+
+Khối mới và nơi xuất hiện lần đầu (luật 7):
+- `tiến … ô` ở `l01` (`toolbox:robot_forward`, gợi ý "Lệnh mới! Tiến 3 ô: dừng ở ngã tư thứ 3." viết đúng số của màn: "tiến 4 ô… thứ 4"); `rẽ trái` / `rẽ phải` ở `l03` (`toolbox:`, gợi ý "Rẽ phải: quay sang phải tại chỗ, chưa đi.");
+- `gắp` ở `l05`, `thả` ở `l06` (`toolbox:`);
+- `đã về phòng thí nghiệm?` ở `l14` (`toolbox:`); `phía trước có line?` ở `l15` (parsons, `block:robot_line_ahead`); `khối ở chỗ Bíp màu …?` ở `l16` (`toolbox:`).
+- `đang gắp khối?` (`robot_holding`) **không** nằm trong thanh khối màn nào từ `l01` tới boss (chỉ màn sáng tạo, nơi luật 7 không áp dụng). W7 giới thiệu nó khi đếm (§6.2).
+- Ba việc AIROC, đồng hồ và điểm là **luật**, không phải khối; mỗi thứ có bài ngắn trước màn đầu tiên (như chìa khóa W4, T20).
+
+**Thanh khối:** `tiến` để sẵn số 1 (bé tự đổi). Có `lặp` từ `l06`. `maxLoopDepth: 1` mọi màn có vòng lặp. `l14` đặt `maxInstances: { cq_repeat: 1 }`. Màn có vòng lặp khai báo `feedback.TIMEOUT` và gợi ý `OUT_OF_TIME` riêng cho vòng lặp (`game-kinds.md` §3.3).
+
+**Bài "Khối mới" và bài luật** (3–5 thẻ, `beforeLevel`; thẻ `demo` cho thấy Bíp **dừng ở ngã tư nào** / khối nằm ở đâu; thẻ cuối `quiz`; mỗi thẻ ≤ 12 chữ):
+- `w06-lesson-tien` trước `l01`: "Lệnh mới! Tiến 3 ô: dừng ở ngã tư thứ 3." · demo `tiến 3` trên `######/L...../######` (Bíp ở `1,5`, nhìn `W`) dừng ở `1,2` · demo `tiến 1, tiến 1, tiến 1` cùng chỗ dừng: "Ba lệnh tiến 1 ô bằng một lệnh tiến 3 ô." · quiz "Tiến 2 ô: Bíp dừng ở đâu?".
+- `w06-lesson-gap` trước `l05`: "Lệnh mới! Gắp khối ở chỗ Bíp đứng." · "Bíp không đi xuyên qua khối." · "Muốn gắp thì dừng đúng ô có khối." · demo `tiến 4` đụng khối (`crash:HIT_BLOCK@1,3`) · demo `tiến 2, gắp` · quiz "Khối cách 2 ngã tư. Tiến mấy ô rồi gắp?": **2** / 1.
+- `w06-lesson-tha` trước `l06`: "Lệnh mới! Thả khối xuống chỗ Bíp đứng." · demo thả trên ngã tư trống · demo đứng trong phòng thả khối ô nhiễm: "Thả trong phòng thí nghiệm là thu hồi!" · quiz.
+- `w06-lesson-khoanh-vung` trước `l07`: "Vùng ô nhiễm có viền đỏ. Đứng lên vùng rồi thả rào." · demo đúng · demo thả cạnh vùng (`MISSIONS_LEFT`) · quiz.
+- `w06-lesson-trung-hoa` trước `l09`: "Khối trung hòa phải vào trạm cùng màu." · demo đúng màu · demo sai màu (`WRONG_COLOR`) · quiz.
+- `w06-lesson-dong-ho` trước `l11`: "Mỗi việc tốn vài giây. Hết giờ, Bíp dừng." · "Việc đã xong vẫn có điểm. Về phòng thêm 40 điểm." · demo hết giờ sau khi trung hòa xong · quiz "Hết giờ. Việc đã xong có được điểm không?": **Có** / Không.
+- `w06-lesson-ve-phong-chua` trước `l14`: "Câu hỏi mới: đã về phòng thí nghiệm?" · demo `lặp đến khi đã về phòng thí nghiệm? {tiến 1}` trên đường dài · demo cùng chương trình khi Bíp **đang ở** phòng: chạy 0 vòng · quiz.
+- `w06-lesson-co-line` trước `l15`: "Câu hỏi mới: phía trước có line?" · demo ✔ (ngã tư) / ✘ (nhà, mép sa bàn) · quiz.
+- `w06-lesson-mau` trước `l16`: "Câu hỏi mới: khối ở chỗ Bíp màu gì?" · demo Bíp cầm khối đỏ: ✔ đỏ, ✘ vàng · quiz.
+
+Chi tiết từng màn (sa bàn → lời giải dự kiến → kết quả tính tay; giờ chỉ ghi khi màn có `timeLimit` nhỏ):
+1. `l01` `#####/L..../#####`, Bíp ở `1,4` nhìn `W` (`start`), `missions` + `mustReturn`, không có việc khác. Lời giải `tiến 4` (1 khối). `tiến 1` × 4 cũng thắng (chỉ ⭐). Gợi ý `enter` "Lệnh mới! Tiến 4 ô: dừng ở ngã tư thứ 4."; `NOT_HOME` "Đếm lại ngã tư. Chỗ đang đứng không tính."; `OFF_LINE` "Bíp đi quá phòng rồi. Bớt 1 ô nhé!".
+2. `l02` `######/L...../######`, Bíp ở `1,5` nhìn `W`. Chương trình `tiến 4` → `stop@1,1`. Thẻ: **Ngay trước phòng thí nghiệm** ✔ · Trong phòng thí nghiệm (`win`) · Cách phòng 2 ngã tư (`stop@1,2`, ngộ nhận "chỗ đang đứng là 1"). Gợi ý tầng 1: "Chỉ tay theo từng ngã tư, đếm từ ngã tư kế bên."
+3. `l03` `#L##/#.##/#...`, Bíp ở `2,3` nhìn `W`. Lời giải `tiến 2, rẽ phải, tiến 2` (3). Ngộ nhận "rẽ là đi": `tiến 2, rẽ phải, tiến 1` → `NOT_HOME@1,1`. Gợi ý `enter` "Rẽ phải: quay sang phải tại chỗ, chưa đi."; `OFF_LINE` "Bíp đang nhìn hướng nào? Rẽ đúng phía chưa?".
+4. `l04` `L..##/##.##/##...`, Bíp ở `2,4` nhìn `W`. Khối xáo trộn của `tiến 2, rẽ phải, tiến 2, rẽ trái, tiến 2` (5). Đổi chỗ hai lệnh rẽ → `crash:OFF_LINE@2,2`. Gợi ý `enter` "Khúc rẽ thứ nhất: Bíp nhìn bên nào?".
+5. `l05` `#####/L..../#####`, Bíp ở `1,4` nhìn `W`, `rào@1,2`, `mustReturn`. Lời giải `tiến 2, gắp, tiến 2` (3; dừng **trên** rào, gắp, về phòng, tay còn cầm rào: được). `tiến 4` → `crash:HIT_BLOCK@1,3` (rào chưa phải ngã tư cuối). `tiến 1, gắp` → `crash:NOTHING_TO_GRAB@1,3`. Gợi ý `enter` "Lệnh mới! Gắp khối ở chỗ Bíp đứng."; `HIT_BLOCK` "Bíp không đi xuyên qua khối. Dừng đúng ô, hoặc đi vòng."
+6. `l06` `#####/L..../#####`, Bíp ở `L` nhìn `E`, `ON đỏ@1,3`, `missions`. Lời giải `tiến 3, gắp, rẽ phải ×2, tiến 3, thả` (6; kết thúc trong phòng). Thả trước khi về (`…, gắp, thả`) → khối nằm ở `1,3`, `MISSIONS_LEFT`; về phòng mà quên thả → `MISSIONS_LEFT`. Gợi ý `enter` "Lệnh mới! Thả khối xuống chỗ Bíp đứng."; `MISSIONS_LEFT` "Khối ô nhiễm đã vào phòng chưa? Đứng trong phòng rồi thả."
+7. `l07` `###Z#/L..../#####`, Bíp ở `L` nhìn `E`, `rào@1,2`, `missions` (chưa `mustReturn`). Lời giải `tiến 2, gắp, tiến 1, rẽ trái, tiến 1, thả` (6; rào lên `0,3`). Ngộ nhận "thả cạnh vùng": `tiến 2, gắp, tiến 1, thả` → rào ở `1,3`, `MISSIONS_LEFT`. `tiến 3` → `crash:HIT_BLOCK@1,1`. Gợi ý `MISSIONS_LEFT` "Vùng có viền đỏ có rào chưa? Đứng lên vùng rồi thả."
+8. `l08` `#####/LZ.../#####`, Bíp ở `L` nhìn `E`, `rào@1,3`, `mustReturn`. Ban đầu `tiến 3, gắp, rẽ phải ×2, tiến 2, thả` → khoanh vùng xong ở `1,1`, `incomplete` / `NOT_HOME`. Sửa 1 thao tác: thêm `tiến 1` (về `L`). Sửa khác: `tiến 2` → `tiến 3` rồi thả rào trong phòng → `WRONG_PLACE`. Gợi ý `enter` chỉ nút Từng bước; `NOT_HOME` "Bíp chạy hết lệnh mới chấm. Lệnh cuối đưa Bíp về đâu?".
+9. `l09` `#####/L.r.y/#####`, Bíp ở `L` nhìn `E`, `TH đỏ@1,3`, `mustReturn`. Lời giải `tiến 3, gắp, rẽ phải ×2, tiến 1, thả, tiến 2` (7; đi qua trạm đỏ trống, dừng trên khối, quay lại trạm đỏ, thả, về). Mang sang trạm vàng (`…, gắp, tiến 1, thả`) → `crash:WRONG_COLOR@1,4`. Gợi ý `enter` "Trạm nào cùng màu với khối?".
+10. `l10` `###/.L./###`, Bíp ở `L` nhìn `E`, `ON đỏ@1,2`, `ON đỏ@1,0`, `mustReturn`. Khối xáo trộn của `lặp 2 {tiến 1, gắp, rẽ phải ×2, tiến 1, thả}` (7: vòng 1 lấy khối bên phải, vòng 2 lấy khối bên trái, mỗi vòng kết thúc trong phòng). Để `thả` ra ngoài vòng lặp → vòng 2 Bíp cầm khối đi vào ô có khối → `crash:HIT_BLOCK@1,1`. Gợi ý `enter` "Tay gắp chỉ giữ một khối. Thả xong mới gắp tiếp."
+11. `l11` `#####/L...r/#####`, Bíp ở `L` nhìn `E`, `TH đỏ@1,2`, `score` 200, `timeLimit` 14. Chương trình `tiến 2, gắp, tiến 2, thả, rẽ phải ×2, tiến 4`: dừng trên khối 4 s, gắp 6 s, tới trạm 10 s, thả 12 s (trung hòa xong), rẽ 13 s, 14 s; ngã tư kế cần 16 s > 14 → `timeUp`, Bíp ở `1,4` → `score:160`. Thẻ: **160 điểm, hết giờ ở trạm** ✔ · 200 điểm, về kịp phòng (`score:200`) · 0 điểm (`score:0`, ngộ nhận "hết giờ là mất hết"). Khớp quiz bài `w06-lesson-dong-ho` (việc đã xong vẫn có điểm).
+12. `l12` `##r##/Z#.##/..L##`, Bíp ở `L` nhìn `N`, `TH đỏ@1,2`, `rào@2,0`, `score` 200, `timeLimit` 20. Lời giải `tiến 1, gắp, tiến 1, thả, rẽ phải ×2, tiến 2` (7 khối, 14 s, 160 + 40). Khoanh vùng + về: 85 điểm, 21 s. Trung hòa, về, rồi đi khoanh vùng → tới rào lúc 19 s, gắp cần 21 s > 20 → hết giờ ở `2,0`, 160 < 200. Gợi ý `enter` "Việc nào nhiều điểm? Còn đủ giờ về phòng không?"; `LOW_SCORE` "Đếm giây từng việc. Bỏ bớt việc ít điểm nhé."
+13. `l13` `#####/L.y../#####`, Bíp ở `L` nhìn `E`, `TH vàng@1,3`, `score` 200, `timeLimit` 20. Ban đầu `tiến 3, gắp, rẽ phải ×2, tiến 1, thả` → trung hòa xong ở `1,2` lúc 14 s, 160 điểm, `LOW_SCORE`. Sửa 1 thao tác: thêm `tiến 2` (về phòng lúc 18 s, 200). Gợi ý `LOW_SCORE` "Đủ việc rồi. Còn 40 điểm ở đâu nhỉ?".
+14. `l14` bản đồ 1 `#######/L....../#######` (Bíp ở `1,6`), bản đồ 2 `####/L.../####` (Bíp ở `1,3`), nhìn `W`, `mustReturn`. Lời giải `lặp đến khi đã về phòng thí nghiệm? {tiến 1}` (3). `tiến 6` / `lặp 6 {tiến 1}`: thắng bản đồ 1, bản đồ 2 đi quá phòng → `crash:OFF_LINE@1,0` (không có thắng giữa chừng). Gợi ý `enter` "Câu hỏi mới: đã về phòng thí nghiệm?"; `OFF_LINE` "Bíp đi quá phòng. Hỏi đã về chưa, trước mỗi bước."
+15. `l15` `L.../###./#...`, Bíp ở `2,1` nhìn `E`, `mustReturn`. Khối xáo trộn của `lặp đến khi đã về phòng thí nghiệm? {nếu phía trước có line? {tiến 1} nếu không {rẽ trái}}` (6; rẽ ở `2,3` và `0,3`). Đổi hai nhánh → vòng đầu rẽ sang nhà rồi tiến vào nhà: `crash:OFF_LINE@2,1`. Gợi ý `enter` "Câu hỏi mới: phía trước có line? Có line thì tiến."
+16. `l16` `#####/r.L.y/#####`, Bíp ở `L` nhìn `N`, bản đồ 1 `cầm TH đỏ`, bản đồ 2 `cầm TH vàng`, `mustReturn`. Lời giải `nếu khối ở chỗ Bíp màu đỏ? {rẽ trái} nếu không {rẽ phải}, tiến 2, thả, rẽ phải ×2, tiến 2` (9; `thả` và đường về nằm **sau** `nếu`, dùng chung cho hai màu). Dạng một nhánh (`rẽ phải, nếu … đỏ? {rẽ phải ×2}`) tốn 10. Chương trình không hỏi chỉ thắng một bản đồ (`WRONG_COLOR` ở bản đồ kia). Gợi ý `enter` "Câu hỏi mới: khối ở chỗ Bíp màu gì?".
+17. `l17` sa bàn và bản đồ của `l16`. Ban đầu: lời giải `l16` nhưng hai nhánh đổi chỗ (`đỏ → rẽ phải`) → `crash:WRONG_COLOR@1,4` ở bản đồ 1. Sửa 1 thao tác: ô chọn màu `đỏ → vàng` (đổi chỗ hai lệnh rẽ cũng thắng, 2 thao tác). Gợi ý tầng 1 "Khối đỏ đi nhánh nào? Trạm đỏ ở bên nào của Bíp?".
+18. `l18` sa bàn `l12`. Chương trình = lời giải `l12` + `rẽ phải, tiến 2, gắp, rẽ phải, tiến 1, thả, rẽ phải ×2, tiến 1, rẽ trái, tiến 2` (đi khoanh vùng). Về phòng lúc 14 s, rời phòng, dừng trên rào lúc 19 s, gắp cần 21 s > 20 → hết giờ ở `2,0`: `score:160`. Thẻ: **160 điểm** ✔ · 245 điểm (làm hết, ngộ nhận) · 200 điểm ("về rồi là có 40").
+19. `l19` `##.##/r.L.y/Z....`, Bíp ở `L` nhìn `N`, `ON đỏ@0,2`, bản đồ 1 `TH đỏ@2,2`, bản đồ 2 `TH vàng@2,2`, cả hai `rào@2,4`; `score` 300, `timeLimit` 34. Lời giải `tiến 1, gắp, rẽ phải ×2, tiến 1, thả` (thu hồi, 10 s, Bíp trong phòng nhìn `S`) `, tiến 1, gắp, rẽ phải ×2, tiến 1` (lấy khối trung hòa, 18 s, nhìn `N`) `, nếu khối ở chỗ Bíp màu đỏ? {rẽ trái} nếu không {rẽ phải}, tiến 2, thả, rẽ phải ×2, tiến 2` (31 s): 100 + 160 + 40 = 300, 20 khối. Khoanh vùng (rào ở `2,4` → vùng `2,0`) tốn hơn 20 s cho 45 điểm: làm thêm là hết giờ ngoài phòng.
+20. `boss` `##Z##/r.L../##.##`, Bíp ở `L` nhìn `W`, `TH đỏ@1,1`, `ON đỏ@1,4`, `rào@2,2`, `score` 300, `timeLimit` 30, một bản đồ.
+    - Lời giải `tiến 1, gắp, tiến 1, thả` (trung hòa ở trạm `1,0`, 8 s) `, rẽ phải ×2, tiến 4` (đi qua phòng, dừng trên khối ô nhiễm, 18 s) `, gắp, rẽ phải ×2, tiến 2, thả` (thu hồi trong phòng, 28 s): 160 + 100 + 40 = 300, **12 khối**.
+    - **Thứ tự**: thu hồi trước rồi trung hòa (`rẽ phải ×2, tiến 2, gắp, rẽ phải ×2, tiến 2, thả, tiến 1, gắp, tiến 1, thả, rẽ phải ×2, tiến 2`) cũng 300 trong 28 s nhưng 15 khối (chỉ ⭐).
+    - **Bẫy "làm hết":** khoanh vùng (rào `2,2` → vùng `0,2`) tốn khoảng 17 s cho 45 điểm. Trung hòa + khoanh vùng + về = 245 < 300; thu hồi + khoanh vùng + về = 185. Chỉ "trung hòa + thu hồi + về" đạt 300. Câu kết boss: "Không cần làm hết. Chọn đúng việc, về đúng giờ!".
+- `w06-creative`: sa bàn 7×7 kiểu đề thi, đủ 3 loại việc, `score` không chấm, đồng hồ 120 s chạy thật, thanh khối đủ mọi lệnh. Dòng ghi "Sa bàn tập, gần giống đề thi" (`airoc-2026.md` §4).
+
+**Gợi ý tầng 0 chung cho W6** (ngoài từng màn): `OFF_LINE` "Bíp đang nhìn hướng nào? Đếm lại ngã tư nhé."; `HIT_BLOCK` "Bíp không đi xuyên qua khối. Dừng đúng ô, hoặc đi vòng." (không bảo gắp lên, vì khối đó có thể là việc đã xong); `HANDS_FULL` "Tay gắp chỉ giữ một khối. Thả xong mới gắp tiếp."; `NOT_HOME` "Lệnh cuối cùng đưa Bíp về phòng chưa?"; `OUT_OF_TIME` "Đường nào ngắn hơn? Bớt rẽ thừa nhé." (màn có vòng lặp: câu vòng lặp ở `game-kinds.md` §3.3). Không câu nào nói "ô số N".
+
+**Truyện chia chương** (`world.json` `chapters`, P2-24; mỗi dòng ≤ 12 chữ; `art.prop` cần thêm `robot` và `lab` vào `STORY_PROPS`, P3-04; các chương mở ở màn nằm trong phạm vi cắt H15):
+1. `ve-lang` "Về tới làng" (mở đầu): "Về tới làng rồi! Bên kia đồi có tiếng bíp bíp." · "Đó là Thành Phố Robot, nơi bác Cú làm việc." · "Gió thổi khối ô nhiễm khắp thành phố!" (`cast: owl, bunny`, `prop: lab`)
+2. `ban-moi-bip` "Bạn mới tên Bíp" (sau `l04`): "Bác Cú giới thiệu robot nhỏ tên Bíp." · "Bíp chạy theo line, đếm ngã tư rất giỏi." (`cast: owl`, `prop: robot`)
+3. `tay-gap` "Tay gắp của Bíp" (sau `l10`): "Bíp gắp từng khối một, không tham." · "Khoanh vùng, trung hòa, thu hồi: ba việc của Bíp." (`prop: robot`)
+4. `dong-ho` "Đồng hồ thành phố" (sau `l13`): "Mỗi việc tốn vài giây." · "Không kịp làm hết thì chọn việc quan trọng." · "Ngày hội robot sắp bắt đầu!" (`cast: owl`, `prop: lab`)
+5. `thanh-pho-sach` "Thành phố sạch rồi" (sau `boss`): "Bíp về phòng đúng giờ. Cả thành phố vỗ tay!" · "Chợ phiên sắp mở. Bíp rủ Măng đi chợ!" (`cast: bunny`, `prop: robot`)
+
+`theme.scene` mới `thanh-pho-robot` (kiểu P2-23: nền thành phố pixel, sa bàn màu giấy, line đen, nhà khối hộp).
+
+**Phạm vi cắt nếu trễ** (câu H15, `phase-3.md`): `w06-lesson` + các bài trước `l01`–`l13` + `l01`–`l13` + boss (D13: boss không có câu hỏi, không đổi màu, mọi lệnh của boss đã có từ `l01`–`l10`). Thêm sau: `l14`–`l19`, ba bài câu hỏi, màn sáng tạo. Truyện 5 chương vẫn đủ (chương mở ở `l04`, `l10`, `l13`, boss).
+
+Ghi chú khi soạn (P3-04): điền sau khi chạy `content:check` và `npm run par`.
+
+### 6.2 Thế giới 7 — 🏪 Chợ Đếm Số (đề xuất chi tiết, soạn sau W6)
+
+> Đề xuất 07/10/2026. Xây sau khi W6 xong và HLV chơi thử (spike + ADR P3-09a → engine P3-09 → P3-10 → P3-11). Bảng màn mức "ý + nhiệm vụ + sa bàn phác"; số `par` là phỏng đoán, chốt khi chi tiết hóa lần hai (P3-10).
+
+**Chọn cách làm biến (khuyến nghị: phương án A).**
+
+| | A. Biến trên `maze` + `robotlab` (khuyến nghị) | B. Kiểu game mới `farm` |
+|---|---|---|
+| Việc phải xây | Khối biến chung của engine, bảng biến trên sân chơi (React, dùng chung), luật chấm "đếm đúng", 1 khối hỏi maze mới | Cả một kiểu game (headless + stage + sprite + editor) **và** khối biến |
+| Khối số | **Chỉ dùng ô số trên khối** (field), không có ô cắm số: không cần capacity guard (`later-phases.md`), vét cạn vẫn hữu hạn | `farm_fruit_count` là khối số cắm vào ô → cần shadow block + capacity guard + vét cạn biểu thức |
+| Nối với AIROC | Đếm khối đã giao, `lặp [số khối] lần` trên robot: dùng lại ngay cho thi | Không |
+| Bất lợi | Cảnh "chợ" chỉ là trang trí trên mê cung/sa bàn; không có `biến + biến` (để W10) | Chậm hơn ~1 giai đoạn; thêm một sân chơi mới cho bé học luật |
+
+`cq_repeat` hiện có **ô số** (field, ADR-0004), không phải ô cắm. Phương án A **không** đổi `cq_repeat`: thêm khối riêng `lặp [biến] lần`.
+
+**Khối biến đề xuất** (engine, chung mọi kiểu game; tên biến khai báo ở màn `level.variables: { id, name }[]` tối đa 2, vd `{ id: 'bamboo', name: 'số măng' }`; dropdown chỉ hiện biến của màn, bé không tự tạo biến ở W7):
+| Khối | Nhãn | Tooltip (đề xuất) |
+|---|---|---|
+| `cq_var_set` | đặt [số măng ▾] = [0] | Cho số vào hộp, số cũ bị thay |
+| `cq_var_add` | tăng [số măng ▾] thêm [1] | Cộng thêm vào số đang có trong hộp |
+| `cq_var_compare` | [số măng ▾] [= ▾ / < / >] [3]? | ✔ khi số trong hộp đúng như vậy, ✘ khi không |
+| `cq_repeat_var` | lặp [số măng ▾] lần | Làm các khối bên trong, số lần bằng số trong hộp |
+| `maze_bamboo_ahead` | phía trước có măng? | ✔ khi ô ngay trước Măng có măng chưa nhặt |
+
+- Biến chỉ là số nguyên 0–99 (vượt thì giữ 99, tất định). Mỗi lần đổi biến, engine ghi event chung `var{blockId, id, value}`; "bảng hộp" cạnh sân chơi hiện số mới (giống `sense`).
+- **Chấm "đếm đúng"**: trường màn `countGoal: { var, equals: number[] }` (một số cho mỗi bản đồ). Thắng của kiểu game **và** biến đúng số → thắng; sai số → `incomplete` / `WRONG_COUNT` "Đếm chưa đúng. Đếm lại nhé!". Khóa đoán thêm đuôi `#<id>=<n>` (vd `win#bamboo=3`).
+- **Giá trị đầu theo bản đồ:** `level.variables[].start?: number[]` (một số cho mỗi bản đồ, mặc định 0). Dùng cho "biến của đề" (đơn hàng khác nhau mỗi bản đồ, `l11`); hộp hiện số đầu trước khi chạy.
+- **Rủi ro kỹ thuật cần spike trước (P3-09a, có ADR):**
+  - `cq_repeat_var` **phụ thuộc trạng thái** (số lần lặp đọc lúc chạy), khác `cq_repeat` có số cố định; nó **không** nằm trong `CONTROL_TYPES` của vét cạn (`@codequest/validator`), nên vét cạn hiện tại không hiểu khối này.
+  - Biến hiện nằm **ngoài** trạng thái kiểu game mà `FastSim` phát lại (vét cạn ghi lời gọi API của từng khối rồi phát lại trên state; khối biến không gọi API nào). Spike chọn: biến là trạng thái của engine được `FastSim` mang theo, hay API chung ghi vào state của kiểu game.
+  - Vét cạn chỉ hữu hạn vì giá trị ô số **cố định bởi thanh khối** (như `cq_repeat` hiện nay: thanh khối để sẵn số, vét cạn thử 0–9 / số của thanh khối), và biến bị chặn 0–99.
+- Luật soạn **R4** (như R1): màn tự ghép dạy biến có ≥ 2 bản đồ khác số; bỏ khối biến khỏi thanh khối thì không gì thắng.
+- ADR của P3-09a quyết định: biến của engine, `countGoal`, event `var`, cách vét cạn.
+
+**Câu chuyện:** chợ phiên của Thành Phố Robot. Các cô bác bán hàng nhờ Măng và Bíp **đếm**: bác Heo đếm măng, Mèo đếm cá, bác Cú đếm khối giao về phòng thí nghiệm. Biến là **chiếc hộp có tên**, giữ một số và đổi được. Boss: "Chia măng đều cho 3 nhà" bằng đếm và so sánh.
+**Bé làm được:** đặt và tăng biến; đếm trong vòng lặp + `nếu`; so sánh biến để chọn đường / dừng vòng lặp; dùng biến làm số lần lặp.
+**Ngộ nhận nhắm tới:** "Biến là hằng số" (giá trị không đổi); "Tên biến là giá trị"; "`đặt` trong vòng lặp vẫn đếm được"; "Đếm số ô thay vì số vật".
+**Unplugged — "Hộp đếm":** mỗi bé một hộp giấy có nhãn tên ("số táo"). Đi dọc hàng ghế, gặp táo thì bỏ một hạt đậu vào hộp. Cuối hàng đọc số trong hộp. Vòng 2: một bạn "đặt = 0" sai chỗ (đổ hộp ở mỗi ghế).
+
+| # | ID | Chặng | Kind | Mode | Ý chính | Nhiệm vụ (dự kiến) | Sa bàn / bản đồ (phác) | par (đoán) |
+|---|---|---|---|---|---|---|---|---:|
+| — | `w07-lesson` | (bài giảng) | — | — | Biến = hộp có tên; demo `đặt = 0`, tăng 3 lần → 3 | — | — | — |
+| 1 | `w07-l01` | guided | maze | parsons | Khối **đặt** và **tăng thêm**: nhặt măng nào tăng 1 | Bác Heo nhờ đếm măng trên lối chợ. | hành lang thẳng, 3 măng | 7 |
+| 2 | `w07-l02` | guided | maze | predict | Biến đổi theo vòng: `lặp 3 {tiến, tăng 1}` → 3, không phải 1 | Hộp số măng là mấy? Đoán xem! | hành lang 4 ô | — |
+| 3 | `w07-l03` | guided | maze | build | Khối hỏi **phía trước có măng?** + `nếu` + tăng; 2 bản đồ khác số măng (`countGoal` 2 / 4) | Mỗi sạp một số măng. Đếm đúng nhé! | hành lang 6 ô, măng rải khác nhau | 6 |
+| 4 | `w07-l04` | guided | maze | build | Khối **lặp [biến] lần**: đếm xong dùng lại số đó | Đếm bậc thang rồi đi xuống đúng ngần ấy. | bậc thang lên rồi xuống, 2 bản đồ khác số bậc | 9 |
+| 5 | `w07-l05` | practice | maze | bughunt | `đặt = 0` nằm **trong** vòng lặp: hộp bị đổ mỗi vòng | Hộp cứ về 0. Sửa giúp bác Heo! | như `l03` | 6 |
+| 6 | `w07-l06` | practice | robotlab | build | Đếm khối đã thu hồi: tăng sau mỗi lần thả trong phòng (`countGoal`) | Bác Cú cần biết đã thu mấy khối. | sa bàn `l06` W6 mở rộng, 2 khối | 10 |
+| 7 | `w07-l07` | practice | maze | predict | Hai biến khác tên: tăng biến nào thì biến đó đổi | Hộp cá hay hộp măng tăng? | hành lang có măng và cá | — |
+| 8 | `w07-l08` | practice | maze | build | Khối **so sánh**: đếm rồi `nếu số măng > 2` rẽ trái, nếu không rẽ phải (2 bản đồ) | Nhiều măng thì vào sạp lớn. | hành lang + ngã ba cuối | 9 |
+| 9 | `w07-l09` | practice | robotlab | parsons | `lặp đến khi số khối = 2`: dừng khi đủ, không đếm ô | Giao đủ 2 khối thì về nghỉ. | hàng khối trên một line | 9 |
+| 10 | `w07-l10` | practice | maze | bughunt | Đếm ô thay vì đếm măng: `tăng` nằm ngoài `nếu` | Đếm nhầm cả ô trống. Sửa nhé! | như `l03` | 6 |
+| 11 | `w07-l11` | practice | robotlab | build | **Biến của đề**: `số khối` cho sẵn khác nhau mỗi bản đồ; `lặp [số khối] lần {…}` | Đơn hàng mỗi lần một khác. Giao đủ nhé! | 2 bản đồ, đơn 2 / 3 | 8 |
+| 12 | `w07-l12` | practice | maze | predict | `nếu số măng = 3` hỏi **lúc chạy tới**, không phải lúc đầu | Măng rẽ ở ngã ba nào? | ngã ba sau 3 măng | — |
+| 13 | `w07-l13` | practice | robotlab | build | Thu hồi mọi khối, đếm riêng khối đỏ bằng `nếu khối ở chỗ Bíp màu đỏ? {tăng}` (`countGoal`) | Đếm khối đỏ ở bãi giao hàng. | 2 bản đồ khác số khối đỏ | 10 |
+| 14 | `w07-l14` | practice | maze | parsons | Hai biến cùng lúc: đếm măng và đếm cá trong một vòng | Bác Heo và Mèo cùng nhờ đếm. | hành lang có cả hai | 10 |
+| 15 | `w07-l15` | practice | robotlab | bughunt | Tăng **trước** khi chắc thả được: thả sai chỗ (`WRONG_PLACE`) mà hộp vẫn tăng | Số trong hộp nhiều hơn khối giao. | như `l06` | 10 |
+| 16 | `w07-l16` | practice | maze | build | Đếm để chọn: so sánh với số cho sẵn, có mục tiêu ⭐ | Chọn sạp nào? Đếm rồi quyết định. | 2 bản đồ | 10 |
+| 17 | `w07-l17` | challenge | robotlab | build | Robot AIROC + biến: giao đúng số trong giờ, `lặp đến khi số khối = …` | Giao đúng đơn trong 40 giây! | 2 bản đồ | 12 |
+| 18 | `w07-l18` | challenge | maze | predict | Biến trong `lặp đến khi` lồng `nếu`: đoán số cuối | Cuối chợ, hộp có mấy? | mê cung nhỏ | — |
+| 19 | `w07-l19` | challenge | maze | bughunt | 2 lỗi: `đặt` sai chỗ + so sánh `<` thay vì `>` | Hai lỗi trong máy đếm. | 2 bản đồ | 10 |
+| 20 | `w07-boss` | boss | maze | build | **"Chia măng đều cho 3 nhà"**: đếm măng, so sánh, giao đủ mỗi nhà (3 bản đồ) | Chia măng đều cho 3 nhà! | 3 bản đồ | 12 |
+| ✦ | `w07-creative` | creative | robotlab | creative | Sa bàn tập + biến: đếm điểm của chính mình | Tự đếm điểm cho Bíp! | 7×7 | — |
+
+Chặng: 4 guided · 12 practice · 3 challenge · 1 boss. Mode: build 8 · parsons 3 · predict 5 · bughunt 4. Khối mới lần đầu: `đặt`, `tăng` (`l01`, parsons), `phía trước có măng?` (`l03`), `lặp [biến] lần` (`l04`), `so sánh` (`l08`), `đang gắp khối?` (robot, `l09` parsons: `lặp đến khi …` có hỏi tay gắp trước khi gắp tiếp; chưa dùng ở W6). Robot quay lại ở `l06`, `l09`, `l11`, `l13`, `l15`, `l17` (như `master-plan.md` §1.2: "robot quay lại trong boss W7–8"; boss W7 để maze vì chia đều cần mê cung nhiều nhà). Boss W8 dùng robotlab + hàm.
 
 ## 7. Quy tắc soạn chương trình học
 `content:check` tự kiểm các luật có dấu ⚙ (luật 7–8 ở `architecture/content-model.md` §5).
