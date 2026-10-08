@@ -158,6 +158,35 @@ const ISLAND_THEMES: Readonly<Partial<Record<SceneTheme, IslandTheme>>> = {
       p: shade(B.robot, 0.75),
     },
   },
+  'thanh-pho-robot': {
+    ground: {
+      g: mix(C.paper2, C.brand, 0.3),
+      G: mix(C.brand, C.inkSoft, 0.3),
+      L: C.sky,
+      d: C.inkSoft,
+      s: C.paper2,
+    },
+    landmark: [
+      '..........c.................',
+      '..........n.................',
+      '.........kkk.......kkkkkk...',
+      '.........kwk......kpttpptk..',
+      '........kbbbk.....kppppppk..',
+      '........kbwbk.....kkrrrrkk..',
+      '........kbbbk......kr..rk...',
+      '........kbwbk.....nnkkkknn..',
+    ],
+    colors: {
+      c: C.oops,
+      n: C.inkSoft,
+      k: C.ink,
+      w: C.coinShine,
+      b: C.brand,
+      p: C.paper,
+      t: B.sensor,
+      r: B.robot,
+    },
+  },
 };
 
 /** Fogged landmark letters (locked island): the shape stays, in lavender. */

@@ -4,6 +4,7 @@ import type { Level, LessonCard, SceneTheme } from '@codequest/content-schema';
 import { getGameKind } from '@codequest/games';
 import { BlocklyWorkspace } from '../../blockly/BlocklyWorkspace';
 import { markSense } from '../../blockly/senseMark';
+import { useWithSharedRules } from '../../features/content/sharedRules';
 import { runProgram } from '../../features/play/run';
 import { vi } from '../../i18n/vi';
 import { getStageKind } from '../../stages/registry';
@@ -38,6 +39,11 @@ export function LessonDemo({
   /** The result of the last run (e2e reads it as data-result, e.g. a TIMEOUT demo). */
   const [lastResult, setLastResult] = useState<string | null>(null);
 
+  // Robotlab demos run on the shared clock and points (game-kinds.md §3.3): `null` while those
+  // load, then the card with its config resolved. Other kinds come back as they are.
+  const rules = useWithSharedRules(card);
+  const resolved = rules.status === 'ready' ? rules.value : null;
+  const config = resolved?.config;
   // A demo is a tiny level built from the card, so the engine and stage run it unchanged.
   const level = useMemo<Level>(
     () => ({
@@ -50,21 +56,22 @@ export function LessonDemo({
       objective: card.text,
       learningGoal: card.text,
       toolbox: [],
-      config: card.config,
+      config,
       initialWorkspace: card.workspace,
       hints: [],
     }),
-    [card, id, worldId],
+    [card, config, id, worldId],
   );
   // Only kinds with both a simulation and a renderer can be played; others show the program.
   const playable = useMemo(() => {
     const kind = getGameKind(card.kind);
     return (
+      resolved !== null &&
       kind !== undefined &&
       getStageKind(card.kind) !== undefined &&
-      kind.configSchema.safeParse(card.config).success
+      kind.configSchema.safeParse(resolved.config).success
     );
-  }, [card]);
+  }, [card.kind, resolved]);
 
   const highlight = useCallback((blockId: string | null) => {
     const workspace = workspaceRef.current;
@@ -108,7 +115,7 @@ export function LessonDemo({
     const controller = new AbortController();
     StageController.mount(container, controller.signal, {
       kind: card.kind,
-      config: card.config,
+      config,
       ...(theme !== undefined && { theme }),
       onHighlight: highlight,
       onSense: sense,
@@ -133,12 +140,13 @@ export function LessonDemo({
       stageRef.current = null;
       setReady(false);
     };
-  }, [playable, card.kind, card.config, card.autoplay, theme, highlight, sense, run]);
+  }, [playable, card.kind, config, card.autoplay, theme, highlight, sense, run]);
 
   return (
     <div
       className="cq-play grid min-h-0 grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-4"
       data-testid="lesson-demo"
+      data-rules={rules.status}
     >
       <div className="h-[260px] overflow-hidden rounded-chip border-3 border-ink">
         <BlocklyWorkspace
@@ -153,6 +161,11 @@ export function LessonDemo({
           className="h-full"
         />
       </div>
+      {rules.status === 'error' && (
+        <p role="alert" className="self-center font-body text-ink-soft">
+          {t.demoRulesError}
+        </p>
+      )}
       {playable && (
         <div className="grid grid-rows-[minmax(0,1fr)_auto] gap-3">
           <div
