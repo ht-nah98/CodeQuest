@@ -1,6 +1,7 @@
 import { Graphics } from 'pixi.js';
 import { UI_COLORS } from '../../ui/tokens';
 import {
+  CITY_DETAIL,
   FOREST_DETAIL,
   LANG_TRE_DETAIL,
   MOUNTAIN_DETAIL,
@@ -101,6 +102,9 @@ export function drawSky(layout: RunnerLayout, theme?: SceneTheme): Graphics {
       break;
     case 'song':
       sun(sky, layout, RIVER_DETAIL);
+      break;
+    case 'thanh-pho-robot':
+      sun(sky, layout, LANG_TRE_DETAIL);
       break;
     case 'rung-lap-lai':
       lightShafts(sky, layout);
@@ -325,7 +329,41 @@ export function drawFar(layout: RunnerLayout, theme?: SceneTheme): Graphics {
   if (art.id === 'xuong') return workshopShelves(layout, art);
   if (art.id === 'nga-ba') return mountains(layout, art);
   if (art.id === 'song') return farShore(layout, art);
+  if (art.id === 'thanh-pho-robot') return skyline(layout, art);
   return farBamboo(layout, art);
+}
+
+/**
+ * Robot city skyline: blocks of towers in soft lavender-grey with lit windows, an antenna with a
+ * beacon here and there. Flat and pale, so it never looks like a crate or a goal.
+ */
+function skyline(layout: RunnerLayout, art: SceneArt): Graphics {
+  const { groundTop, tileScale: u } = layout;
+  const span = spanOf(layout, PARALLAX.far);
+  const d = CITY_DETAIL;
+  const g = new Graphics();
+  const next = sequence(43);
+  let x = -snap(next() * 10 * u, u);
+  while (x < span + 20 * u) {
+    const w = (10 + Math.floor(next() * 10)) * u;
+    const h = snap(groundTop * (0.28 + next() * 0.32), u);
+    const top = groundTop - h;
+    g.rect(x, top, w, h).fill(next() < 0.5 ? art.far.main : art.far.dark);
+    g.rect(x, top, w, u).fill(art.far.light);
+    // Windows in a grid, some lit.
+    for (let wy = top + 3 * u; wy < groundTop - 3 * u; wy += 4 * u) {
+      for (let wx = x + 2 * u; wx < x + w - 2 * u; wx += 4 * u) {
+        g.rect(wx, wy, 2 * u, 2 * u).fill(next() < 0.35 ? d.window : d.windowDark);
+      }
+    }
+    if (next() < 0.3) {
+      const ax = x + snap(w / 2, u);
+      g.rect(ax, top - 5 * u, u, 5 * u).fill(d.antenna);
+      g.rect(ax - u, top - 6 * u, 3 * u, u).fill(d.beacon);
+    }
+    x += w + (1 + Math.floor(next() * 4)) * u;
+  }
+  return g;
 }
 
 /** The far bamboo grove standing on the horizon (denser and taller in the forest). */

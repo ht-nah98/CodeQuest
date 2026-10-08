@@ -1,0 +1,101 @@
+{
+  "id": "w06-lesson-dong-ho",
+  "worldId": "w06-thanh-pho-robot",
+  "title": "Đồng hồ và điểm",
+  "beforeLevel": "w06-l11",
+  "cards": [
+    {
+      "type": "say",
+      "pose": "think",
+      "text": "Mỗi lệnh tốn vài giây tập. Hết giờ, Bíp dừng."
+    },
+    {
+      "type": "say",
+      "pose": "point",
+      "text": "Tiến 1 ô: 2 giây. Rẽ: 1 giây. Gắp, thả: 2 giây."
+    },
+    {
+      "type": "say",
+      "pose": "point",
+      "text": "Trung hòa 160, thu hồi 100, khoanh vùng 45, về 40."
+    },
+    {
+      "type": "demo",
+      "text": "Hết giờ lúc Bíp đang quay: thu hồi 100, ở phòng 40.",
+      "kind": "robotlab",
+      "config": {
+        "map": ["#####", "L....", "#####"],
+        "startDir": "W",
+        "start": [1, 2],
+        "startHolding": {
+          "kind": "pollution",
+          "color": "RED"
+        },
+        "goal": {
+          "type": "score",
+          "target": 200
+        },
+        "rules": {
+          "timeLimit": 7
+        }
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "robot_forward",
+                  "id": "b1",
+                  "fields": {
+                    "N": 2
+                  },
+                  "next": {
+                    "block": {
+                      "type": "robot_release",
+                      "id": "b2",
+                      "next": {
+                        "block": {
+                          "type": "robot_turn_right",
+                          "id": "b3",
+                          "next": {
+                            "block": {
+                              "type": "robot_turn_right",
+                              "id": "b4",
+                              "next": {
+                                "block": {
+                                  "type": "robot_forward",
+                                  "id": "b5",
+                                  "fields": {
+                                    "N": 1
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "quiz",
+      "text": "Hết giờ. Việc đã xong có được điểm không?",
+      "options": ["Có", "Không"],
+      "correct": 0,
+      "explain": "Việc đã xong vẫn giữ điểm. Chỉ thiếu điểm về phòng."
+    }
+  ]
+}

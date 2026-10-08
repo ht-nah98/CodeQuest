@@ -1,0 +1,5 @@
+{
+  "timeLimit": 120,
+  "costs": { "forward": 2, "turn": 1, "grab": 2, "release": 2 },
+  "points": { "contain": 45, "neutralize": 160, "retrieve": 100, "return": 40 }
+}

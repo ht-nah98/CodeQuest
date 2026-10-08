@@ -152,6 +152,23 @@ API trong sandbox: `forward(id)`, `turn('LEFT' | 'RIGHT', id)`, `isPath('AHEAD' 
 
 Config được kiểm (zod `mazeConfigSchema`): 3–12 hàng × 3–12 cột, các hàng dài bằng nhau, chỉ có ký tự `# . S G b`, đúng 1 `S` và 1 `G`, `startDir` là `N/E/S/W`, `goal.collectAll: true` cần ít nhất 1 `b`, `goal.items` (P2-11c: `{ kind: 'key' | 'friend'; at: [r, c] }[]`, ≥ 1) mỗi vật phẩm nằm trên một ô `.` (không tường, không `S`/`G`/`b`), không trùng nhau, không có khóa lạ. Schema **không** kiểm `G` có tới được không; việc đó do luật 9 của `content:check` (lời giải phải thắng). Bản đồ không bắt buộc có viền `#`: đi ra ngoài mép cũng là `HIT_WALL`, nên `MazeStage` (P1-04) phải vẽ viền tường quanh bản đồ để bé thấy được chỗ đâm.
 
+### 1.3 Event của `robotlab` (P3-01a/b, ADR-0021)
+Type: `RobotLabEvent` export từ `@codequest/games` (`packages/games/src/robotlab/events.ts`). Ô `[r, c]`, hướng `N/E/S/W` như maze. Mọi event hành động mang `t` = `elapsed` (giây) **sau** hành động, để sân chơi chạy đồng hồ mà không đọc state. `index` = chỉ số cố định của khối (`startHolding` là 0 nếu có, rồi `config.blocks`).
+
+| Event | Trường | Ý nghĩa cho sân chơi |
+|---|---|---|
+| `move` | `from`, `to`, `dir`, `t` | Đi **một** ngã tư (`tiến 3 ô` = 3 event `move`, dừng một nhịp ở từng ngã tư) |
+| `turn` | `from`, `to`, `t` | Quay 90° tại chỗ |
+| `bump` | `at`, `dir`, `into: 'offLine' \| 'block'` | Đứng ở `at` không đi tiếp được: không có line (`OFF_LINE`) hoặc khối chắn (`HIT_BLOCK`). Không có `move` đi trước; crash |
+| `grab` | `at`, `block`, `index`, `t` | Gắp khối `index` ở ngã tư Bíp đứng |
+| `release` | `at`, `block`, `index`, `result`, `t` | Thả: `placed` (nằm ở `at`), `contained` (rào trên `Z`), `neutralized` (đúng trạm), `retrieved` (khối biến vào phòng) |
+| `gripFail` | `at`, `reason` | Gắp / thả không được (`NOTHING_TO_GRAB`, `HANDS_FULL`, `HANDS_EMPTY`, `CELL_TAKEN`, `WRONG_PLACE`, `WRONG_COLOR`); crash |
+| `timeUp` | `at`, `t` | Hành động kế sẽ vượt `timeLimit`: Bíp dừng ở `at`, đồng hồ đỏ |
+
+**Không có event `win`**: robotlab chấm khi hết chương trình (ADR-0021), sân chơi diễn ăn mừng / bảng điểm trong `finish(outcome)`. Câu hỏi (`lineAhead`, `blockColor`, `atLab`, `holding`) chỉ qua `ctx.sense`, không tốn giờ. Thứ tự cố định của mọi hành động: kiểm ô → kiểm giờ → làm (`game-kinds.md` §3.3). Config vào `createState`, `AnswerPicture` và factory của sân chơi phải là config **đã gộp** luật chung (`resolveLevelConfigs` / `resolveRobotlabRules`, `content-model.md` §3).
+
+`predictAnswer`: `missions` → `win` · `stop@r,c` · `crash:<REASON>@r,c` · `outOfTime@r,c` · `timeout`; `score` → `score:<điểm>` · `crash:…` · `timeout`.
+
 ## 2. Nửa hiển thị: `StageRenderer`
 Interface định nghĩa trong `apps/web/src/stages/types.ts`:
 
@@ -209,3 +226,4 @@ Từng bước ở `docs/playbooks/add-game-kind.md`. Tóm tắt:
 4. **State là dữ liệu thuần:** object, mảng, `Set`, `Map`, số, chuỗi, boolean (`structuredClone` sao được và so sánh được bằng nội dung). Không có hàm, class instance hay tham chiếu vòng.
 5. `maxSteps` / `maxActions` chỉ được kiểm ở bước chạy lại ví dụ bằng `runLevel`; lệch thì báo ✖ `runLevel disagrees`.
 6. **Mục tiêu sao chỉ đọc state** (P2-21): `checkStarGoal` chỉ dựa vào trạng thái cuối và config, nên vét cạn chấm được trạng thái phát lại. Thông tin cần cho mục tiêu phải nằm trong state. Đừng thêm bộ đếm tăng mãi (số bước, số lần đá…) vào state chỉ để chấm: mỗi giá trị đếm là một trạng thái mới, vét cạn mất khả năng gộp trạng thái và chậm theo cấp số nhân. Mục tiêu kiểu "≤ N bước" cần cách tìm riêng (ADR-0017).
+7. **Ô số và đồng hồ (P3-01b, ADR-0021):** ô `field_number` số nguyên có `min`/`max` (≤ 9 giá trị) mà toolbox không ghim được thử mọi giá trị như ô chọn. Kiểu game có luật chung (robotlab) được tìm trên level đã gộp (`resolveLevelConfigs`). Bộ đếm cần cho luật chơi (đồng hồ `elapsed` của robotlab) **được** nằm trong state; đo trước khi lo: ba màn mẫu robotlab chỉ vài trăm trạng thái.

@@ -1,0 +1,138 @@
+{
+  "id": "w06-l05",
+  "worldId": "w06-thanh-pho-robot",
+  "stage": "practice",
+  "kind": "robotlab",
+  "mode": "parsons",
+  "title": "Rào chắn đường",
+  "objective": "Xếp lệnh: gắp rào lên, rồi về phòng.",
+  "learningGoal": "Muốn gắp thì dừng đúng ngã tư có khối: tiến tới ô có rào, gắp, rồi mới đi tiếp về phòng.",
+  "misconception": "Gắp được khối ở xa, không cần dừng đúng chỗ.",
+  "mission": "Rào đổ chắn đường. Gắp lên rồi về!",
+  "toolbox": [],
+  "par": 3,
+  "config": {
+    "map": ["#####", "L....", "#####"],
+    "startDir": "W",
+    "start": [1, 4],
+    "blocks": [
+      {
+        "kind": "fence",
+        "at": [1, 2]
+      }
+    ],
+    "goal": {
+      "type": "missions",
+      "mustReturn": true
+    }
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false
+        },
+        {
+          "type": "robot_forward",
+          "id": "b3",
+          "fields": {
+            "N": 2
+          },
+          "x": 300,
+          "y": 40
+        },
+        {
+          "type": "robot_forward",
+          "id": "b1",
+          "fields": {
+            "N": 2
+          },
+          "x": 460,
+          "y": 104
+        },
+        {
+          "type": "robot_grab",
+          "id": "b2",
+          "x": 300,
+          "y": 168
+        }
+      ]
+    }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "robot_forward",
+              "id": "b1",
+              "fields": {
+                "N": 2
+              },
+              "next": {
+                "block": {
+                  "type": "robot_grab",
+                  "id": "b2",
+                  "next": {
+                    "block": {
+                      "type": "robot_forward",
+                      "id": "b3",
+                      "fields": {
+                        "N": 2
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "new-grab",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Lệnh mới! Gắp khối ở chỗ Bíp đứng.",
+      "point": "block:robot_grab"
+    },
+    {
+      "id": "nothing",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "NOTHING_TO_GRAB"
+      },
+      "say": "Khối nằm ở ngã tư nào? Dừng đúng chỗ đó rồi gắp.",
+      "point": "block:robot_grab"
+    },
+    {
+      "id": "loose",
+      "when": {
+        "trigger": "run-end",
+        "orphans": true
+      },
+      "say": "Còn lệnh rời. Nối hết vào khi bắt đầu nhé!"
+    }
+  ],
+  "thinkingHint": "Rào nằm ở ngã tư thứ mấy?",
+  "feedback": {
+    "EMPTY_PROGRAM": "Con chưa ghép lệnh nào. Kéo lệnh vào đây nhé!",
+    "LOOSE_BLOCKS": "Còn lệnh chưa ghép. Ghép hết vào nhé!",
+    "UNUSED_BLOCKS": "Còn chỗ trống, hoặc lệnh chưa chạy. Ghép lại nhé!"
+  }
+}

@@ -32,7 +32,7 @@
 | P2-21 | Sao theo mục tiêu màn: nhiều đường giải, đường tối ưu được nhiều sao nhất (góp ý HLV 03/10) | P2-10, P2-15 | AI (luật HLV đã duyệt 03/10) | 🟨 chờ HLV xem |
 | P2-22 | Xem cả đường: phóng to bản đồ nhỏ, kéo trái/phải, vạch đếm ô (góp ý HLV 03/10) | — | AI | 🟨 chờ HLV xem |
 | P2-23 | Cảnh riêng cho từng thế giới: nền, nền đất, ô tường, đồ trang trí (góp ý HLV 04/10) | P2-21 (UI) | AI (HLV duyệt chủ đề 04/10, không cần duyệt ảnh) | 🟨 |
-| P2-24 | Truyện của Măng chia chương trên trang thế giới, mở dần theo màn (góp ý HLV 06/10) + sửa chữ tiêu đề mất dấu | P2-08, P2-13, P2-14 (nội dung W3–W5) | AI soạn · HLV duyệt lời truyện | 🟨 chờ HLV đọc duyệt |
+| P2-24 | Truyện của Măng chia chương trên trang thế giới, mở dần theo màn (góp ý HLV 06/10) + sửa chữ tiêu đề mất dấu | P2-08, P2-13, P2-14 (nội dung W3–W5) | AI soạn · HLV duyệt lời truyện | ✅ HLV duyệt lời truyện 07/10 |
 
 Thay đổi so với khung ở `later-phases.md`: P2-08 khung (nội dung Thế giới 3–5) tách thành **P2-08** (W3), **P2-13** (W4), **P2-14** (W5). Phần "sorter tối thiểu nếu Thế giới 4 cần" **hủy**: Thế giới 4 dùng `runner` và `maze` (`curriculum.md` §2), sorter để GĐ 4. P2-09 khung tách thành **P2-09** (PWA, AI làm ngay) và **P2-18** (deploy, cần Vercel). Thêm P2-10…P2-20. "Thợ săn lỗi" trong `master-plan.md` §9 là mode `bughunt`, đã có từ P1-06.
 

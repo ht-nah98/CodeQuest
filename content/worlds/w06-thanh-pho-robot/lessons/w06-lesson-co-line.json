@@ -1,0 +1,173 @@
+{
+  "id": "w06-lesson-co-line",
+  "worldId": "w06-thanh-pho-robot",
+  "title": "Có line không?",
+  "beforeLevel": "w06-l15",
+  "cards": [
+    {
+      "type": "say",
+      "pose": "point",
+      "text": "Câu hỏi mới: phía trước có line? Có thì đúng."
+    },
+    {
+      "type": "demo",
+      "text": "Phía trước có ngã tư: đúng, Bíp tiến.",
+      "kind": "robotlab",
+      "config": {
+        "map": ["###", "L..", "###"],
+        "startDir": "W",
+        "start": [1, 2],
+        "goal": {
+          "type": "missions",
+          "mustReturn": true
+        }
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "cq_if",
+                  "id": "b1",
+                  "inputs": {
+                    "COND": {
+                      "block": {
+                        "type": "robot_line_ahead",
+                        "id": "b1c"
+                      }
+                    },
+                    "DO": {
+                      "block": {
+                        "type": "robot_forward",
+                        "id": "b2",
+                        "fields": {
+                          "N": 1
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "demo",
+      "text": "Phía trước là mép sa bàn: sai, Bíp đứng yên.",
+      "kind": "robotlab",
+      "config": {
+        "map": ["###", "L..", "###"],
+        "startDir": "E",
+        "start": [1, 2],
+        "goal": {
+          "type": "missions",
+          "mustReturn": true
+        }
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "cq_if",
+                  "id": "b1",
+                  "inputs": {
+                    "COND": {
+                      "block": {
+                        "type": "robot_line_ahead",
+                        "id": "b1c"
+                      }
+                    },
+                    "DO": {
+                      "block": {
+                        "type": "robot_forward",
+                        "id": "b2",
+                        "fields": {
+                          "N": 1
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "demo",
+      "text": "Phía trước là nhà: sai, Bíp đứng yên.",
+      "kind": "robotlab",
+      "config": {
+        "map": ["#.#", "L..", "###"],
+        "startDir": "S",
+        "start": [1, 1],
+        "goal": {
+          "type": "missions",
+          "mustReturn": true
+        }
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "cq_if",
+                  "id": "b1",
+                  "inputs": {
+                    "COND": {
+                      "block": {
+                        "type": "robot_line_ahead",
+                        "id": "b1c"
+                      }
+                    },
+                    "DO": {
+                      "block": {
+                        "type": "robot_forward",
+                        "id": "b2",
+                        "fields": {
+                          "N": 1
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "quiz",
+      "text": "Phía trước Bíp là nhà. Có line không?",
+      "options": ["Không có line", "Có line"],
+      "correct": 0,
+      "explain": "Nhà không có line, nên câu hỏi là sai."
+    }
+  ]
+}

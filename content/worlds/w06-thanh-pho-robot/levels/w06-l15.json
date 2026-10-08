@@ -1,0 +1,177 @@
+{
+  "id": "w06-l15",
+  "worldId": "w06-thanh-pho-robot",
+  "stage": "practice",
+  "kind": "robotlab",
+  "mode": "parsons",
+  "title": "Dò line",
+  "objective": "Xếp chương trình dò line cho Bíp về phòng.",
+  "learningGoal": "Hỏi \"phía trước có line?\": có thì tiến 1 ô, hết line thì rẽ trái. Lặp đến khi về phòng.",
+  "misconception": "Thấy line hay không thấy line thì Bíp cũng tiến.",
+  "mission": "Đường về khúc khuỷu. Lắp chương trình dò line!",
+  "toolbox": [],
+  "maxLoopDepth": 1,
+  "par": 6,
+  "config": {
+    "map": ["L...", "###.", "#..."],
+    "startDir": "E",
+    "start": [2, 1],
+    "goal": {
+      "type": "missions",
+      "mustReturn": true
+    }
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false
+        },
+        {
+          "type": "robot_forward",
+          "id": "b3",
+          "fields": {
+            "N": 1
+          },
+          "x": 300,
+          "y": 40
+        },
+        {
+          "type": "cq_if_else",
+          "id": "b2",
+          "x": 460,
+          "y": 104
+        },
+        {
+          "type": "cq_repeat_until",
+          "id": "b1",
+          "x": 300,
+          "y": 168
+        },
+        {
+          "type": "robot_turn_left",
+          "id": "b4",
+          "x": 460,
+          "y": 232
+        },
+        {
+          "type": "robot_line_ahead",
+          "id": "b2c",
+          "x": 300,
+          "y": 296
+        },
+        {
+          "type": "robot_at_lab",
+          "id": "b1c",
+          "x": 460,
+          "y": 360
+        }
+      ]
+    }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat_until",
+              "id": "b1",
+              "inputs": {
+                "COND": {
+                  "block": {
+                    "type": "robot_at_lab",
+                    "id": "b1c"
+                  }
+                },
+                "DO": {
+                  "block": {
+                    "type": "cq_if_else",
+                    "id": "b2",
+                    "inputs": {
+                      "COND": {
+                        "block": {
+                          "type": "robot_line_ahead",
+                          "id": "b2c"
+                        }
+                      },
+                      "DO": {
+                        "block": {
+                          "type": "robot_forward",
+                          "id": "b3",
+                          "fields": {
+                            "N": 1
+                          }
+                        }
+                      },
+                      "ELSE": {
+                        "block": {
+                          "type": "robot_turn_left",
+                          "id": "b4"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "new-line",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Câu hỏi mới: phía trước có line? Có ngã tư thì đúng.",
+      "point": "block:robot_line_ahead"
+    },
+    {
+      "id": "off",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "OFF_LINE"
+      },
+      "say": "Phía trước không có line thì Bíp nên làm gì?",
+      "point": "block:cq_if_else"
+    },
+    {
+      "id": "loose",
+      "when": {
+        "trigger": "run-end",
+        "orphans": true
+      },
+      "say": "Còn lệnh rời. Nối hết vào khi bắt đầu nhé!"
+    },
+    {
+      "id": "loop-time",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "OUT_OF_TIME"
+      },
+      "say": "Hết giờ khi đang lặp. Vòng lặp có dừng không?"
+    }
+  ],
+  "thinkingHint": "Hết đường line, Bíp làm gì để đi tiếp?",
+  "feedback": {
+    "EMPTY_CONDITION": "Ô câu hỏi còn trống. Cắm một câu hỏi vào nhé!",
+    "EMPTY_PROGRAM": "Con chưa ghép lệnh nào. Kéo lệnh vào đây nhé!",
+    "LOOSE_BLOCKS": "Còn lệnh chưa ghép. Ghép hết vào nhé!",
+    "TIMEOUT": "Bíp hỏi mãi mà không làm gì. Vòng lặp không dừng!",
+    "UNUSED_BLOCKS": "Còn chỗ trống, hoặc lệnh chưa chạy. Ghép lại nhé!"
+  }
+}

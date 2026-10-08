@@ -4,6 +4,7 @@ import type { GameEvent } from '@codequest/engine';
 import { runnerConfigSchema } from '@codequest/games';
 import { loadPandaSheet, loadTiles } from './assets';
 import { mazeStage } from './maze';
+import { robotlabStage } from './robotlab';
 import { RunnerStage } from './runner/RunnerStage';
 import { sceneArt } from './sceneThemes';
 import type { PandaAnimationListener, StageRenderer } from './types';
@@ -70,6 +71,7 @@ const runnerStage: StageKind = {
 export const stageKinds: Partial<Record<GameKindId, StageKind>> = {
   runner: runnerStage,
   maze: mazeStage,
+  robotlab: robotlabStage,
 };
 
 /** The stage of a game kind, or `undefined` when it has no renderer yet. */

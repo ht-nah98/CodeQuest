@@ -1,0 +1,112 @@
+{
+  "id": "w06-lesson-gap",
+  "worldId": "w06-thanh-pho-robot",
+  "title": "Lệnh gắp",
+  "beforeLevel": "w06-l05",
+  "cards": [
+    {
+      "type": "say",
+      "pose": "point",
+      "text": "Lệnh mới! Gắp khối ở chỗ Bíp đứng. Bíp đứng yên."
+    },
+    {
+      "type": "demo",
+      "text": "Bíp không đi xuyên qua khối.",
+      "kind": "robotlab",
+      "config": {
+        "map": ["######", "L.....", "######"],
+        "startDir": "W",
+        "start": [1, 5],
+        "blocks": [
+          {
+            "kind": "fence",
+            "at": [1, 2]
+          }
+        ],
+        "goal": {
+          "type": "missions",
+          "mustReturn": true
+        }
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "robot_forward",
+                  "id": "b1",
+                  "fields": {
+                    "N": 4
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "demo",
+      "text": "Muốn gắp thì dừng đúng ô có khối.",
+      "kind": "robotlab",
+      "config": {
+        "map": ["######", "L.....", "######"],
+        "startDir": "W",
+        "start": [1, 5],
+        "blocks": [
+          {
+            "kind": "fence",
+            "at": [1, 2]
+          }
+        ],
+        "goal": {
+          "type": "missions",
+          "mustReturn": true
+        }
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "robot_forward",
+                  "id": "b1",
+                  "fields": {
+                    "N": 3
+                  },
+                  "next": {
+                    "block": {
+                      "type": "robot_grab",
+                      "id": "b2"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "quiz",
+      "text": "Khối cách 4 ngã tư. Tiến mấy ô rồi gắp?",
+      "options": ["Tiến 4 ô", "Tiến 3 ô"],
+      "correct": 0,
+      "explain": "Dừng đúng ô có khối, rồi mới gắp."
+    }
+  ]
+}

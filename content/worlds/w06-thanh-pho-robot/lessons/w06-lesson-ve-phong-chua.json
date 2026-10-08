@@ -1,0 +1,126 @@
+{
+  "id": "w06-lesson-ve-phong-chua",
+  "worldId": "w06-thanh-pho-robot",
+  "title": "Đã về phòng?",
+  "beforeLevel": "w06-l14",
+  "cards": [
+    {
+      "type": "say",
+      "pose": "point",
+      "text": "Câu hỏi mới: đã về phòng thí nghiệm?"
+    },
+    {
+      "type": "say",
+      "pose": "think",
+      "text": "Đúng khi Bíp đứng ở phòng, sai khi chưa."
+    },
+    {
+      "type": "demo",
+      "text": "Chưa về thì tiến 1 ô. Về tới phòng là dừng!",
+      "kind": "robotlab",
+      "config": {
+        "map": ["########", "L.......", "########"],
+        "startDir": "W",
+        "start": [1, 7],
+        "goal": {
+          "type": "missions",
+          "mustReturn": true
+        }
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "cq_repeat_until",
+                  "id": "b1",
+                  "inputs": {
+                    "COND": {
+                      "block": {
+                        "type": "robot_at_lab",
+                        "id": "b1c"
+                      }
+                    },
+                    "DO": {
+                      "block": {
+                        "type": "robot_forward",
+                        "id": "b2",
+                        "fields": {
+                          "N": 1
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "demo",
+      "text": "Bíp đang ở phòng: hỏi là đúng ngay, chạy 0 vòng.",
+      "kind": "robotlab",
+      "config": {
+        "map": ["########", "L.......", "########"],
+        "startDir": "E",
+        "goal": {
+          "type": "missions",
+          "mustReturn": true
+        }
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "cq_repeat_until",
+                  "id": "b1",
+                  "inputs": {
+                    "COND": {
+                      "block": {
+                        "type": "robot_at_lab",
+                        "id": "b1c"
+                      }
+                    },
+                    "DO": {
+                      "block": {
+                        "type": "robot_forward",
+                        "id": "b2",
+                        "fields": {
+                          "N": 1
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "quiz",
+      "text": "Bíp đứng sẵn trong phòng. Vòng lặp chạy mấy vòng?",
+      "options": ["0 vòng", "1 vòng"],
+      "correct": 0,
+      "explain": "Hỏi trước mỗi vòng. Đúng ngay thì không chạy."
+    }
+  ]
+}

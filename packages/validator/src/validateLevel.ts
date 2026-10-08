@@ -12,7 +12,12 @@ import {
   runLevel,
   type AnyGameKindDefinition,
 } from '@codequest/engine';
-import { getGameKind } from '@codequest/games';
+import {
+  getGameKind,
+  needsSharedRules,
+  resolveLevelConfigs,
+  type SharedLevelRules,
+} from '@codequest/games';
 import { describeError, formatSchemaIssues, type GameKindLookup, type RuleIssue } from './issue';
 import {
   hintIssues,
@@ -20,6 +25,7 @@ import {
   limitIssues,
   modeIssues,
   pedagogyIssues,
+  robotlabTimeIssues,
   shadowIssues,
   starGoalIssues,
   toolboxTypes,
@@ -41,6 +47,11 @@ export interface ValidateLevelOptions {
   isDraft?: boolean;
   /** Game kind registry; defaults to `getGameKind` of `@codequest/games`. */
   getKind?: GameKindLookup;
+  /**
+   * Shared rules merged into the level's maps before anything runs (`resolveLevelConfigs`):
+   * a robotlab level needs `robotlab` (`content/shared/robotlab.json`), else rule 1 fails.
+   */
+  shared?: SharedLevelRules;
 }
 
 export interface LevelValidation {
@@ -56,9 +67,16 @@ export interface LevelValidation {
  * Rule 1 for a level beyond its own schema: `config` and every map in `variants` must match its
  * kind's `configSchema`.
  */
-function levelConfigIssues(level: Level, kind: AnyGameKindDefinition | undefined): RuleIssue[] {
+function levelConfigIssues(
+  level: Level,
+  kind: AnyGameKindDefinition | undefined,
+  shared: SharedLevelRules,
+): RuleIssue[] {
   if (kind === undefined) {
     return [{ rule: 1, message: `game kind "${level.kind}" is not implemented yet` }];
+  }
+  if (needsSharedRules(level.kind) && shared[level.kind] === undefined) {
+    return [{ rule: 1, message: `${level.kind} needs the shared rules shared/${level.kind}.json` }];
   }
   const maps: Array<[unknown, string]> = [
     [level.config, 'config'],
@@ -146,20 +164,26 @@ function solutionIssues(
   return { issues, blocksUsed };
 }
 
-/** Rules 1 (config), 5–6 (not in drafts), 9–16, 19 and 20 for a schema-valid level. */
+/**
+ * Rules 1 (config), 5–6 (not in drafts), 9–16, 19 and 20 for a schema-valid level. Every run
+ * uses the level with its shared rules merged in (`resolveLevelConfigs`).
+ */
 function checkParsedLevel(
-  level: Level,
+  written: Level,
   isDraft: boolean,
   getKind: GameKindLookup,
+  shared: SharedLevelRules,
 ): { issues: RuleIssue[]; solutionBlocks: number | null } {
+  const level = resolveLevelConfigs(written, shared);
   const kind = getKind(level.kind);
   const issues = [
     ...(isDraft ? [] : pedagogyIssues(level)),
     ...shadowIssues(level),
     ...goalSpriteIssues(level),
   ];
-  const configIssues = levelConfigIssues(level, kind);
+  const configIssues = levelConfigIssues(level, kind, shared);
   issues.push(...configIssues);
+  if (configIssues.length === 0) issues.push(...robotlabTimeIssues(level));
   let solutionBlocks: number | null = null;
   // The run rules 9–11, 13–16 and 19 need a valid config of an implemented kind.
   if (configIssues.length > 0 || kind === undefined) {
@@ -198,7 +222,12 @@ export function validateLevel(json: unknown, options: ValidateLevelOptions = {})
   const issues: RuleIssue[] = parsed.success ? [] : formatSchemaIssues(parsed.error);
   let solutionBlocks: number | null = null;
   if (parsed.success) {
-    const checked = checkParsedLevel(parsed.data, isDraft, options.getKind ?? getGameKind);
+    const checked = checkParsedLevel(
+      parsed.data,
+      isDraft,
+      options.getKind ?? getGameKind,
+      options.shared ?? {},
+    );
     issues.push(...checked.issues);
     solutionBlocks = checked.solutionBlocks;
   }

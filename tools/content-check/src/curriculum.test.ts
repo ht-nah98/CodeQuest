@@ -3,7 +3,7 @@
 import { fileURLToPath } from 'node:url';
 import { countWords } from '@codequest/validator';
 import { describe, expect, it, vi } from 'vitest';
-import { PROVISIONAL_WORLDS } from './curriculum';
+import { ACTION_LABELS, hintNamesLabel, PROVISIONAL_WORLDS } from './curriculum';
 import { loadContentFiles } from './load';
 import { checkContent, publicAssetExists, type ContentFile, type Issue } from './rules';
 
@@ -237,6 +237,21 @@ describe('rule 7', () => {
     expect(run(t).warnings.map((issue) => issue.message)).toEqual([
       'block "runner_jump" first appears here (guided/build); no hint mentions "nhảy" (introduce it in kid words)',
     ]);
+  });
+
+  it('matches a label with a number field: "tiến 3 ô" names "tiến %1 ô" (P3-01b)', () => {
+    const label = ACTION_LABELS.get('robot_forward') ?? '';
+    expect(label).toBe('tiến ô');
+    expect(hintNamesLabel('Lệnh mới! Tiến 3 ô: dừng ở ngã tư thứ 3.', label)).toBe(true);
+    expect(hintNamesLabel('Tiến ô nào?', label)).toBe(true);
+    expect(hintNamesLabel('Tiến tới ô kế bên.', label)).toBe(false);
+    expect(hintNamesLabel('Tiến 3 bước.', label)).toBe(false);
+  });
+
+  it('keeps robot turns as their own blocks with the maze labels', () => {
+    expect(ACTION_LABELS.get('robot_turn_left')).toBe('rẽ trái');
+    expect(ACTION_LABELS.get('maze_turn_left')).toBe('rẽ trái');
+    expect(ACTION_LABELS.get('robot_grab')).toBe('gắp');
   });
 
   it('rejects a new block in a predict level', () => {

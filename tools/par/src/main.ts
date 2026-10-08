@@ -3,11 +3,12 @@
 // Exhaustive search for the fewest blocks that win each build/bughunt level (and, for bughunt,
 // the fewest edits that fix initialWorkspace). Exit 1 if a level's par or parEdits is wrong.
 import { readdirSync, readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
 import { LevelSchema } from '@codequest/content-schema';
-import { findLevelFiles, judgeLevel, type Verdict } from './par';
+import { resolveLevelConfigs } from '@codequest/games';
+import { findLevelFiles, judgeLevel, readSharedRules, type Verdict } from './par';
 
 const { values, positionals } = parseArgs({
   allowPositionals: true,
@@ -63,6 +64,9 @@ if (files.length === 0) {
   process.exit(2);
 }
 
+// Shared rules (content/shared/robotlab.json) merged into each level before the search.
+const shared = readSharedRules((path) => readFileSync(path, 'utf8'), join(contentDir, 'shared'));
+
 const started = performance.now();
 let errors = 0;
 let warnings = 0;
@@ -81,7 +85,7 @@ for (const file of files) {
     }
     const parsed = LevelSchema.safeParse(json);
     verdict = parsed.success
-      ? judgeLevel(parsed.data, {
+      ? judgeLevel(resolveLevelConfigs(parsed.data, shared), {
           ...(maxSize !== undefined && { maxSize }),
           ...(depth !== undefined && { maxDepth: depth }),
           ...(budget !== undefined && { maxWork: budget }),

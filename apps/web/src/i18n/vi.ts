@@ -38,6 +38,12 @@ export const vi = {
     // Runner full-track strip under the stage (screen readers; cells counted from 1).
     trackStrip: (cells: number, at: number) =>
       `Cả đường: ${String(cells)} ô, Măng ở ô ${String(at)}`,
+    // Robot lab stage HUD (W6, P3-03): clock unit, points and the practice-board tag.
+    robotlab: {
+      seconds: 'giây',
+      points: 'điểm',
+      practiceBoard: 'Sa bàn tập, gần giống đề thi',
+    },
     controlsLabel: 'Điều khiển',
     run: 'Chạy',
     stop: 'Dừng',
@@ -358,6 +364,8 @@ export const vi = {
 
   // "/w/:worldId/lesson/:lessonId" Bài giảng.
   lesson: {
+    // A robot lab demo whose shared rules (content/shared/robotlab.json) could not be read.
+    demoRulesError: 'Chưa mở được sa bàn. Thử tải lại trang nhé.',
     cardOf: (n: number, total: number) => `Thẻ ${String(n)} / ${String(total)}`,
     prev: 'Trước',
     next: 'Tiếp',

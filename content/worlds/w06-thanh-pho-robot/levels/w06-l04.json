@@ -1,0 +1,162 @@
+{
+  "id": "w06-l04",
+  "worldId": "w06-thanh-pho-robot",
+  "stage": "guided",
+  "kind": "robotlab",
+  "mode": "parsons",
+  "title": "Hai khúc rẽ",
+  "objective": "Xếp các lệnh cho Bíp về phòng nhé!",
+  "learningGoal": "Đường có hai khúc rẽ: tiến tới khúc rẽ, quay đúng phía, rồi tiến tiếp. Thứ tự rẽ phải trước, rẽ trái sau.",
+  "misconception": "Thứ tự hai lệnh rẽ không quan trọng.",
+  "mission": "Lắp lại đường về cho Bíp nhé.",
+  "toolbox": [],
+  "par": 5,
+  "config": {
+    "map": ["L..##", "##.##", "##..."],
+    "startDir": "W",
+    "start": [2, 4],
+    "goal": {
+      "type": "missions",
+      "mustReturn": true
+    }
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false
+        },
+        {
+          "type": "robot_forward",
+          "id": "b5",
+          "fields": {
+            "N": 2
+          },
+          "x": 300,
+          "y": 40
+        },
+        {
+          "type": "robot_forward",
+          "id": "b3",
+          "fields": {
+            "N": 2
+          },
+          "x": 460,
+          "y": 104
+        },
+        {
+          "type": "robot_forward",
+          "id": "b1",
+          "fields": {
+            "N": 2
+          },
+          "x": 300,
+          "y": 168
+        },
+        {
+          "type": "robot_turn_left",
+          "id": "b4",
+          "x": 460,
+          "y": 232
+        },
+        {
+          "type": "robot_turn_right",
+          "id": "b2",
+          "x": 300,
+          "y": 296
+        }
+      ]
+    }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "robot_forward",
+              "id": "b1",
+              "fields": {
+                "N": 2
+              },
+              "next": {
+                "block": {
+                  "type": "robot_turn_right",
+                  "id": "b2",
+                  "next": {
+                    "block": {
+                      "type": "robot_forward",
+                      "id": "b3",
+                      "fields": {
+                        "N": 2
+                      },
+                      "next": {
+                        "block": {
+                          "type": "robot_turn_left",
+                          "id": "b4",
+                          "next": {
+                            "block": {
+                              "type": "robot_forward",
+                              "id": "b5",
+                              "fields": {
+                                "N": 2
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "first-turn",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Khúc rẽ thứ nhất: Bíp nhìn bên nào?",
+      "point": "stage"
+    },
+    {
+      "id": "side",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "OFF_LINE"
+      },
+      "say": "Rẽ trái hay rẽ phải? Nhìn theo mặt Bíp nhé.",
+      "point": "block:robot_turn_right"
+    },
+    {
+      "id": "loose",
+      "when": {
+        "trigger": "run-end",
+        "orphans": true
+      },
+      "say": "Còn lệnh rời. Nối hết vào khi bắt đầu nhé!"
+    }
+  ],
+  "thinkingHint": "Tới mỗi khúc rẽ, Bíp quay về phía nào?",
+  "feedback": {
+    "EMPTY_PROGRAM": "Con chưa ghép lệnh nào. Kéo lệnh vào đây nhé!",
+    "LOOSE_BLOCKS": "Còn lệnh chưa ghép. Ghép hết vào nhé!",
+    "UNUSED_BLOCKS": "Còn chỗ trống, hoặc lệnh chưa chạy. Ghép lại nhé!"
+  }
+}

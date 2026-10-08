@@ -12,5 +12,17 @@
   "MISSED_ITEMS": "Còn măng chưa nhặt kìa!",
   "HIT_BRANCH": "Cộc! Cành thấp quá, Măng phải cúi.",
   "HIT_CRATE": "Thùng chắn đường. Đá nó đi!",
-  "WRONG_ANSWER": "Chưa đúng. Cùng chạy thử để xem nhé!"
+  "WRONG_ANSWER": "Chưa đúng. Cùng chạy thử để xem nhé!",
+  "OFF_LINE": "Phía trước không có line. Bíp lạc rồi!",
+  "HIT_BLOCK": "Ối, đụng khối! Bíp không đi xuyên qua khối.",
+  "NOTHING_TO_GRAB": "Chỗ này không có khối để gắp.",
+  "HANDS_FULL": "Tay gắp đang bận. Thả khối cũ trước nhé!",
+  "HANDS_EMPTY": "Tay gắp trống, chưa có gì để thả.",
+  "CELL_TAKEN": "Chỗ này có khối rồi. Thả chỗ khác nhé!",
+  "WRONG_PLACE": "Khối này không đặt ở đây.",
+  "WRONG_COLOR": "Sai màu rồi! Trạm cần khối cùng màu.",
+  "OUT_OF_TIME": "Hết giờ rồi! Tìm đường ngắn hơn nhé.",
+  "MISSIONS_LEFT": "Còn việc chưa xong kìa!",
+  "NOT_HOME": "Xong việc rồi, nhưng Bíp chưa về phòng.",
+  "LOW_SCORE": "Chưa đủ điểm. Chọn việc nhiều điểm hơn nhé!"
 }

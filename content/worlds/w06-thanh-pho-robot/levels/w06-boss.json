@@ -1,0 +1,188 @@
+{
+  "id": "w06-boss",
+  "worldId": "w06-thanh-pho-robot",
+  "stage": "boss",
+  "kind": "robotlab",
+  "mode": "build",
+  "title": "Ngày hội robot",
+  "objective": "Đủ 300 điểm trong 30 giây. Không quá 14 lệnh!",
+  "learningGoal": "Một lượt thi: chọn việc nhiều điểm (trung hòa, thu hồi), chọn thứ tự cho đường ngắn, rồi về phòng kịp giờ. Không cần làm hết.",
+  "mission": "Ngày hội robot: đủ 300 điểm trong 30 giây!",
+  "toolbox": [
+    "robot_forward",
+    "robot_turn_left",
+    "robot_turn_right",
+    "robot_grab",
+    "robot_release",
+    "cq_repeat"
+  ],
+  "maxBlocks": 14,
+  "maxLoopDepth": 1,
+  "par": 12,
+  "config": {
+    "map": ["##Z##", "r.L..", "##.##"],
+    "startDir": "W",
+    "blocks": [
+      {
+        "kind": "neutralizer",
+        "color": "RED",
+        "at": [1, 1]
+      },
+      {
+        "kind": "pollution",
+        "color": "RED",
+        "at": [1, 4]
+      },
+      {
+        "kind": "fence",
+        "at": [2, 2]
+      }
+    ],
+    "goal": {
+      "type": "score",
+      "target": 300
+    },
+    "rules": {
+      "timeLimit": 30
+    }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "robot_forward",
+              "id": "b1",
+              "fields": {
+                "N": 1
+              },
+              "next": {
+                "block": {
+                  "type": "robot_grab",
+                  "id": "b2",
+                  "next": {
+                    "block": {
+                      "type": "robot_forward",
+                      "id": "b3",
+                      "fields": {
+                        "N": 1
+                      },
+                      "next": {
+                        "block": {
+                          "type": "robot_release",
+                          "id": "b4",
+                          "next": {
+                            "block": {
+                              "type": "robot_turn_right",
+                              "id": "b5",
+                              "next": {
+                                "block": {
+                                  "type": "robot_turn_right",
+                                  "id": "b6",
+                                  "next": {
+                                    "block": {
+                                      "type": "robot_forward",
+                                      "id": "b7",
+                                      "fields": {
+                                        "N": 4
+                                      },
+                                      "next": {
+                                        "block": {
+                                          "type": "robot_grab",
+                                          "id": "b8",
+                                          "next": {
+                                            "block": {
+                                              "type": "robot_turn_right",
+                                              "id": "b9",
+                                              "next": {
+                                                "block": {
+                                                  "type": "robot_turn_right",
+                                                  "id": "b10",
+                                                  "next": {
+                                                    "block": {
+                                                      "type": "robot_forward",
+                                                      "id": "b11",
+                                                      "fields": {
+                                                        "N": 2
+                                                      },
+                                                      "next": {
+                                                        "block": {
+                                                          "type": "robot_release",
+                                                          "id": "b12"
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "plan",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Ngày hội robot! Chọn đúng việc, về đúng giờ nhé.",
+      "point": "stage"
+    },
+    {
+      "id": "low",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "LOW_SCORE"
+      },
+      "say": "Không cần làm hết. Việc nào nhiều điểm, ít giây?",
+      "point": "stage"
+    },
+    {
+      "id": "holding",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "HIT_BLOCK"
+      },
+      "say": "Tay đang cầm khối? Thả xong mới tới khối khác.",
+      "point": "stage"
+    },
+    {
+      "id": "loop-time",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "OUT_OF_TIME"
+      },
+      "say": "Hết giờ khi đang lặp. Vòng lặp có dừng không?"
+    }
+  ],
+  "thinkingHint": "Làm việc nào trước thì đường về ngắn hơn?",
+  "feedback": {
+    "EMPTY_PROGRAM": "Con chưa ghép lệnh nào. Kéo lệnh vào đây nhé!",
+    "TOO_MANY_BLOCKS": "Nhiều lệnh quá. Đổi thứ tự việc thử xem!"
+  }
+}

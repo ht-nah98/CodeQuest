@@ -1,0 +1,88 @@
+{
+  "id": "w06-creative",
+  "worldId": "w06-thanh-pho-robot",
+  "stage": "creative",
+  "kind": "robotlab",
+  "mode": "creative",
+  "title": "Sa bàn tập",
+  "objective": "Sa bàn tập, gần giống đề thi. Tự đặt chiến thuật!",
+  "learningGoal": "Tự lập chiến thuật trên sa bàn 7×7 gần giống đề thi: đủ ba việc, đồng hồ 120 giây.",
+  "mission": "Sa bàn tập: tự đặt chiến thuật cho Bíp!",
+  "toolbox": [
+    "robot_forward",
+    "robot_turn_left",
+    "robot_turn_right",
+    "robot_grab",
+    "robot_release",
+    {
+      "type": "cq_repeat",
+      "fields": {
+        "TIMES": 2
+      }
+    },
+    "cq_repeat_until",
+    "cq_if",
+    "cq_if_else",
+    "robot_line_ahead",
+    "robot_block_color",
+    "robot_at_lab"
+  ],
+  "config": {
+    "map": ["r..Z..y", ".#.#.#.", "...L...", ".#.#.#.", "g.....Z", ".#.#.#.", "......."],
+    "startDir": "S",
+    "blocks": [
+      {
+        "kind": "fence",
+        "at": [6, 0]
+      },
+      {
+        "kind": "fence",
+        "at": [6, 6]
+      },
+      {
+        "kind": "neutralizer",
+        "color": "RED",
+        "at": [2, 1]
+      },
+      {
+        "kind": "neutralizer",
+        "color": "YELLOW",
+        "at": [4, 3]
+      },
+      {
+        "kind": "neutralizer",
+        "color": "GREEN",
+        "at": [6, 3]
+      },
+      {
+        "kind": "pollution",
+        "color": "RED",
+        "at": [0, 1]
+      },
+      {
+        "kind": "pollution",
+        "color": "YELLOW",
+        "at": [2, 5]
+      }
+    ],
+    "goal": {
+      "type": "score",
+      "target": 300
+    }
+  },
+  "hints": [
+    {
+      "id": "free",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Sa bàn tập! Chọn việc, rồi bấm Chạy xem.",
+      "point": "stage"
+    }
+  ],
+  "feedback": {
+    "EMPTY_CONDITION": "Ô câu hỏi còn trống. Cắm một câu hỏi vào nhé!",
+    "EMPTY_PROGRAM": "Con chưa ghép lệnh nào. Kéo lệnh vào đây nhé!",
+    "TIMEOUT": "Bíp hỏi mãi mà không làm gì. Vòng lặp không dừng!"
+  }
+}

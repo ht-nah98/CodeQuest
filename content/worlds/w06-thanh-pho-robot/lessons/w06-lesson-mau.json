@@ -1,0 +1,141 @@
+{
+  "id": "w06-lesson-mau",
+  "worldId": "w06-thanh-pho-robot",
+  "title": "Khối màu gì?",
+  "beforeLevel": "w06-l16",
+  "cards": [
+    {
+      "type": "say",
+      "pose": "point",
+      "text": "Câu hỏi mới: khối ở chỗ Bíp màu gì?"
+    },
+    {
+      "type": "say",
+      "pose": "think",
+      "text": "Khối ở chỗ Bíp: khối Bíp đang cầm, hoặc nằm dưới Bíp."
+    },
+    {
+      "type": "demo",
+      "text": "Bíp cầm khối đỏ. Hỏi màu đỏ: đúng, Bíp tiến.",
+      "kind": "robotlab",
+      "config": {
+        "map": ["r###", "L...", "####"],
+        "startDir": "W",
+        "start": [1, 3],
+        "startHolding": {
+          "kind": "neutralizer",
+          "color": "RED"
+        },
+        "goal": {
+          "type": "missions",
+          "mustReturn": true
+        }
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "cq_if",
+                  "id": "b1",
+                  "inputs": {
+                    "COND": {
+                      "block": {
+                        "type": "robot_block_color",
+                        "id": "b1c",
+                        "fields": {
+                          "COLOR": "RED"
+                        }
+                      }
+                    },
+                    "DO": {
+                      "block": {
+                        "type": "robot_forward",
+                        "id": "b2",
+                        "fields": {
+                          "N": 1
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "demo",
+      "text": "Hỏi màu vàng: sai, Bíp đứng yên.",
+      "kind": "robotlab",
+      "config": {
+        "map": ["r###", "L...", "####"],
+        "startDir": "W",
+        "start": [1, 3],
+        "startHolding": {
+          "kind": "neutralizer",
+          "color": "RED"
+        },
+        "goal": {
+          "type": "missions",
+          "mustReturn": true
+        }
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "cq_if",
+                  "id": "b1",
+                  "inputs": {
+                    "COND": {
+                      "block": {
+                        "type": "robot_block_color",
+                        "id": "b1c",
+                        "fields": {
+                          "COLOR": "YELLOW"
+                        }
+                      }
+                    },
+                    "DO": {
+                      "block": {
+                        "type": "robot_forward",
+                        "id": "b2",
+                        "fields": {
+                          "N": 1
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "quiz",
+      "text": "Bíp cầm khối vàng. Hỏi màu đỏ thì sao?",
+      "options": ["Sai", "Đúng"],
+      "correct": 0,
+      "explain": "Khối vàng, không phải đỏ."
+    }
+  ]
+}

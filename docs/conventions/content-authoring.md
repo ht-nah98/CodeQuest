@@ -56,6 +56,12 @@ Góp ý HLV 03/10/2026: bé hay đoán sai một khối làm Măng đi bao xa. *
 | nhảy | bay qua 1 ô, đáp ô thứ 2 (xa 2 ô, cả trên đất bằng) | Bay qua 1 ô, đáp xuống ô thứ 2 |
 | đá | **đứng yên**, ô phía trước đổi (thùng đổ) | Đá ô phía trước, Măng đứng yên |
 | rẽ trái / rẽ phải | **không đi**, chỉ quay 90° | Quay sang trái (phải) tại chỗ, chưa đi |
+| tiến … ô (robot Bíp, W6) | đi đúng số ngã tư chọn trên lệnh, dừng ở từng ngã tư (ngã tư đang đứng không tính) | Tiến 3 ô: dừng ở ngã tư thứ 3 |
+| rẽ trái / rẽ phải (robot Bíp) | **không đi**, chỉ quay 90° (khối riêng `robot_turn_*`, câu giống mê cung) | Quay sang trái (phải) tại chỗ, chưa đi |
+| gắp (robot Bíp) | **đứng yên**, gắp khối ở ngã tư Bíp đứng | Gắp khối ở chỗ Bíp đứng |
+| thả (robot Bíp) | **đứng yên**, thả khối xuống ngã tư Bíp đứng | Thả khối xuống chỗ Bíp đứng |
+
+Robot Bíp (W6, `game-kinds.md` §3.3): gợi ý `enter` của lệnh mới là "Lệnh mới! " + đúng tooltip, **đúng từng chữ** ("Lệnh mới! Tiến 3 ô: dừng ở ngã tư thứ 3."), không đổi số theo lời giải của màn; luật 7 coi "tiến 4 ô" là đã nhắc tên lệnh `tiến … ô`. Thanh khối ghi `"robot_forward"` (không ghi `fields`): bé tự đổi số, và `npm run par` thử mọi số 1–9; ghi `fields` là ghim số đó cho vét cạn.
 
 Khối mới của Thế giới 3–5 (`nếu`, `nếu … nếu không`, `lặp đến khi`, `đã tới nơi?`, chìa khóa / đón bạn) cần đúng 3 thứ trên khi xây (`product/curriculum.md` §5.4 T20).
 

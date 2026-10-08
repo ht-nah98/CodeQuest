@@ -1,0 +1,83 @@
+{
+  "id": "robot-maps",
+  "worldId": "_sandbox",
+  "stage": "practice",
+  "kind": "robotlab",
+  "mode": "build",
+  "title": "Về phòng nào",
+  "objective": "Đường về dài ngắn khác nhau. Về phòng nào!",
+  "learningGoal": "Hỏi đã về phòng chưa trước mỗi bước.",
+  "misconception": "Bíp tự dừng khi về tới phòng.",
+  "toolbox": ["robot_forward", "cq_repeat", "cq_repeat_until", "robot_at_lab"],
+  "par": 3,
+  "maxBlocks": 4,
+  "maxLoopDepth": 1,
+  "maxInstances": {
+    "cq_repeat": 1
+  },
+  "config": {
+    "map": ["#######", "L......", "#######"],
+    "startDir": "W",
+    "start": [1, 6],
+    "goal": {
+      "type": "missions",
+      "mustReturn": true
+    }
+  },
+  "variants": [
+    {
+      "map": ["####", "L...", "####"],
+      "startDir": "W",
+      "start": [1, 3],
+      "goal": {
+        "type": "missions",
+        "mustReturn": true
+      }
+    }
+  ],
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "next": {
+            "block": {
+              "type": "cq_repeat_until",
+              "id": "b1",
+              "inputs": {
+                "COND": {
+                  "block": {
+                    "type": "robot_at_lab",
+                    "id": "b2"
+                  }
+                },
+                "DO": {
+                  "block": {
+                    "type": "robot_forward",
+                    "id": "b3",
+                    "fields": {
+                      "N": 1
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "over",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "OFF_LINE"
+      },
+      "say": "Bíp đi quá phòng. Hỏi đã về chưa nhé.",
+      "point": "stage"
+    }
+  ]
+}

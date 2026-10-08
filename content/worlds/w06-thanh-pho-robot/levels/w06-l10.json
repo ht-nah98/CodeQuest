@@ -1,0 +1,218 @@
+{
+  "id": "w06-l10",
+  "worldId": "w06-thanh-pho-robot",
+  "stage": "practice",
+  "kind": "robotlab",
+  "mode": "parsons",
+  "title": "Một tay gắp",
+  "objective": "Xếp lệnh để thu hồi cả hai khối nhé!",
+  "learningGoal": "Tay gắp chỉ giữ một khối: mỗi vòng gắp một khối, mang về phòng, thả xong mới đi lấy khối sau.",
+  "misconception": "Tay gắp cầm được nhiều khối một lúc.",
+  "mission": "Hai khối ô nhiễm, một tay gắp. Xếp lại nhé!",
+  "toolbox": [],
+  "maxLoopDepth": 1,
+  "par": 7,
+  "config": {
+    "map": ["###", ".L.", "###"],
+    "startDir": "E",
+    "blocks": [
+      {
+        "kind": "pollution",
+        "color": "RED",
+        "at": [1, 2]
+      },
+      {
+        "kind": "pollution",
+        "color": "RED",
+        "at": [1, 0]
+      }
+    ],
+    "goal": {
+      "type": "missions",
+      "mustReturn": true
+    }
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false
+        },
+        {
+          "type": "robot_release",
+          "id": "b7",
+          "x": 300,
+          "y": 40
+        },
+        {
+          "type": "robot_turn_right",
+          "id": "b5",
+          "x": 460,
+          "y": 104
+        },
+        {
+          "type": "robot_grab",
+          "id": "b3",
+          "x": 300,
+          "y": 168
+        },
+        {
+          "type": "cq_repeat",
+          "id": "b1",
+          "fields": {
+            "TIMES": 2
+          },
+          "x": 460,
+          "y": 232
+        },
+        {
+          "type": "robot_forward",
+          "id": "b6",
+          "fields": {
+            "N": 1
+          },
+          "x": 300,
+          "y": 296
+        },
+        {
+          "type": "robot_turn_right",
+          "id": "b4",
+          "x": 460,
+          "y": 360
+        },
+        {
+          "type": "robot_forward",
+          "id": "b2",
+          "fields": {
+            "N": 1
+          },
+          "x": 300,
+          "y": 424
+        }
+      ]
+    }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "b1",
+              "fields": {
+                "TIMES": 2
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "robot_forward",
+                    "id": "b2",
+                    "fields": {
+                      "N": 1
+                    },
+                    "next": {
+                      "block": {
+                        "type": "robot_grab",
+                        "id": "b3",
+                        "next": {
+                          "block": {
+                            "type": "robot_turn_right",
+                            "id": "b4",
+                            "next": {
+                              "block": {
+                                "type": "robot_turn_right",
+                                "id": "b5",
+                                "next": {
+                                  "block": {
+                                    "type": "robot_forward",
+                                    "id": "b6",
+                                    "fields": {
+                                      "N": 1
+                                    },
+                                    "next": {
+                                      "block": {
+                                        "type": "robot_release",
+                                        "id": "b7"
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "one-hand",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Tay gắp chỉ giữ một khối. Thả xong mới gắp tiếp.",
+      "point": "block:robot_release"
+    },
+    {
+      "id": "holding",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "HIT_BLOCK"
+      },
+      "say": "Vòng sau, tay Bíp còn cầm khối không?",
+      "point": "block:cq_repeat"
+    },
+    {
+      "id": "left",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "MISSIONS_LEFT"
+      },
+      "say": "Lặp 2 lần: mỗi vòng thu hồi một khối.",
+      "point": "block:cq_repeat"
+    },
+    {
+      "id": "loose",
+      "when": {
+        "trigger": "run-end",
+        "orphans": true
+      },
+      "say": "Còn lệnh rời. Nối hết vào khi bắt đầu nhé!"
+    },
+    {
+      "id": "loop-time",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "OUT_OF_TIME"
+      },
+      "say": "Hết giờ khi đang lặp. Vòng lặp có dừng không?"
+    }
+  ],
+  "thinkingHint": "Mỗi vòng, Bíp mang mấy khối về phòng?",
+  "feedback": {
+    "EMPTY_PROGRAM": "Con chưa ghép lệnh nào. Kéo lệnh vào đây nhé!",
+    "HIT_BLOCK": "Tay đang cầm khối. Thả xong mới tới khối khác.",
+    "LOOSE_BLOCKS": "Còn lệnh chưa ghép. Ghép hết vào nhé!",
+    "UNUSED_BLOCKS": "Còn chỗ trống, hoặc lệnh chưa chạy. Ghép lại nhé!"
+  }
+}

@@ -1,0 +1,193 @@
+{
+  "id": "w06-l13",
+  "worldId": "w06-thanh-pho-robot",
+  "stage": "practice",
+  "kind": "robotlab",
+  "mode": "bughunt",
+  "title": "Thiếu 40 điểm",
+  "objective": "Bíp thiếu 40 điểm. Sửa 1 chỗ thôi nhé!",
+  "learningGoal": "Về phòng ở cuối được thêm 40 điểm. Trung hòa xong mà không về thì chỉ có 160: thêm một lệnh tiến về phòng.",
+  "misconception": "Xong việc là đủ điểm, không cần về phòng.",
+  "mission": "Bíp làm giỏi mà thiếu điểm. Sửa nhé!",
+  "toolbox": [
+    "robot_forward",
+    "robot_turn_left",
+    "robot_turn_right",
+    "robot_grab",
+    "robot_release",
+    "cq_repeat"
+  ],
+  "maxLoopDepth": 1,
+  "par": 7,
+  "parEdits": 1,
+  "config": {
+    "map": ["#####", "L.y..", "#####"],
+    "startDir": "E",
+    "blocks": [
+      {
+        "kind": "neutralizer",
+        "color": "YELLOW",
+        "at": [1, 3]
+      }
+    ],
+    "goal": {
+      "type": "score",
+      "target": 200
+    },
+    "rules": {
+      "timeLimit": 20
+    }
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "robot_forward",
+              "id": "b1",
+              "fields": {
+                "N": 3
+              },
+              "next": {
+                "block": {
+                  "type": "robot_grab",
+                  "id": "b2",
+                  "next": {
+                    "block": {
+                      "type": "robot_turn_right",
+                      "id": "b3",
+                      "next": {
+                        "block": {
+                          "type": "robot_turn_right",
+                          "id": "b4",
+                          "next": {
+                            "block": {
+                              "type": "robot_forward",
+                              "id": "b5",
+                              "fields": {
+                                "N": 1
+                              },
+                              "next": {
+                                "block": {
+                                  "type": "robot_release",
+                                  "id": "b6"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "robot_forward",
+              "id": "b1",
+              "fields": {
+                "N": 3
+              },
+              "next": {
+                "block": {
+                  "type": "robot_grab",
+                  "id": "b2",
+                  "next": {
+                    "block": {
+                      "type": "robot_turn_right",
+                      "id": "b3",
+                      "next": {
+                        "block": {
+                          "type": "robot_turn_right",
+                          "id": "b4",
+                          "next": {
+                            "block": {
+                              "type": "robot_forward",
+                              "id": "b5",
+                              "fields": {
+                                "N": 1
+                              },
+                              "next": {
+                                "block": {
+                                  "type": "robot_release",
+                                  "id": "b6",
+                                  "next": {
+                                    "block": {
+                                      "type": "robot_forward",
+                                      "id": "b7",
+                                      "fields": {
+                                        "N": 2
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "step",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Bấm Từng bước. Hết lệnh, Bíp đứng ở đâu?",
+      "point": "step"
+    },
+    {
+      "id": "low",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "LOW_SCORE"
+      },
+      "say": "Đủ việc rồi. Còn 40 điểm ở đâu nhỉ?",
+      "point": "stage"
+    },
+    {
+      "id": "loop-time",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "OUT_OF_TIME"
+      },
+      "say": "Hết giờ khi đang lặp. Vòng lặp có dừng không?"
+    }
+  ],
+  "thinkingHint": "Hết lệnh, Bíp đang đứng ở đâu?",
+  "feedback": {
+    "EMPTY_PROGRAM": "Con chưa ghép lệnh nào. Kéo lệnh vào đây nhé!"
+  }
+}

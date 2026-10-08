@@ -1,0 +1,232 @@
+{
+  "id": "w06-l17",
+  "worldId": "w06-thanh-pho-robot",
+  "stage": "challenge",
+  "kind": "robotlab",
+  "mode": "bughunt",
+  "title": "Nhầm trạm",
+  "objective": "Bíp chở nhầm trạm. Sửa 1 chỗ thôi nhé!",
+  "learningGoal": "Câu hỏi màu phải khớp với nhánh: hỏi đỏ mà nhánh đúng rẽ về trạm vàng thì chở nhầm. Đổi màu trong câu hỏi là sửa xong.",
+  "misconception": "Có câu hỏi màu là đủ, hỏi màu nào cũng được.",
+  "mission": "Bíp chở nhầm trạm. Sửa giúp nhé!",
+  "toolbox": [
+    "robot_forward",
+    "robot_turn_left",
+    "robot_turn_right",
+    "robot_release",
+    "cq_if",
+    "cq_if_else",
+    "robot_block_color"
+  ],
+  "maxLoopDepth": 1,
+  "par": 9,
+  "parEdits": 1,
+  "config": {
+    "map": ["#####", "r.L.y", "#####"],
+    "startDir": "N",
+    "startHolding": {
+      "kind": "neutralizer",
+      "color": "RED"
+    },
+    "goal": {
+      "type": "missions",
+      "mustReturn": true
+    }
+  },
+  "variants": [
+    {
+      "map": ["#####", "r.L.y", "#####"],
+      "startDir": "N",
+      "startHolding": {
+        "kind": "neutralizer",
+        "color": "YELLOW"
+      },
+      "goal": {
+        "type": "missions",
+        "mustReturn": true
+      }
+    }
+  ],
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_if_else",
+              "id": "b1",
+              "inputs": {
+                "COND": {
+                  "block": {
+                    "type": "robot_block_color",
+                    "id": "b1c",
+                    "fields": {
+                      "COLOR": "RED"
+                    }
+                  }
+                },
+                "DO": {
+                  "block": {
+                    "type": "robot_turn_right",
+                    "id": "b2"
+                  }
+                },
+                "ELSE": {
+                  "block": {
+                    "type": "robot_turn_left",
+                    "id": "b3"
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "type": "robot_forward",
+                  "id": "b4",
+                  "fields": {
+                    "N": 2
+                  },
+                  "next": {
+                    "block": {
+                      "type": "robot_release",
+                      "id": "b5",
+                      "next": {
+                        "block": {
+                          "type": "robot_turn_right",
+                          "id": "b6",
+                          "next": {
+                            "block": {
+                              "type": "robot_turn_right",
+                              "id": "b7",
+                              "next": {
+                                "block": {
+                                  "type": "robot_forward",
+                                  "id": "b8",
+                                  "fields": {
+                                    "N": 2
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_if_else",
+              "id": "b1",
+              "inputs": {
+                "COND": {
+                  "block": {
+                    "type": "robot_block_color",
+                    "id": "b1c",
+                    "fields": {
+                      "COLOR": "YELLOW"
+                    }
+                  }
+                },
+                "DO": {
+                  "block": {
+                    "type": "robot_turn_right",
+                    "id": "b2"
+                  }
+                },
+                "ELSE": {
+                  "block": {
+                    "type": "robot_turn_left",
+                    "id": "b3"
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "type": "robot_forward",
+                  "id": "b4",
+                  "fields": {
+                    "N": 2
+                  },
+                  "next": {
+                    "block": {
+                      "type": "robot_release",
+                      "id": "b5",
+                      "next": {
+                        "block": {
+                          "type": "robot_turn_right",
+                          "id": "b6",
+                          "next": {
+                            "block": {
+                              "type": "robot_turn_right",
+                              "id": "b7",
+                              "next": {
+                                "block": {
+                                  "type": "robot_forward",
+                                  "id": "b8",
+                                  "fields": {
+                                    "N": 2
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "step",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Bấm Từng bước. Khối màu gì, Bíp rẽ bên nào?",
+      "point": "step"
+    },
+    {
+      "id": "wrong",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "WRONG_COLOR"
+      },
+      "say": "Câu hỏi hỏi màu nào? Nhánh đó rẽ về trạm nào?",
+      "point": "block:robot_block_color"
+    }
+  ],
+  "thinkingHint": "Khối đỏ đi nhánh nào? Trạm đỏ ở bên nào của Bíp?",
+  "feedback": {
+    "EMPTY_CONDITION": "Ô câu hỏi còn trống. Cắm một câu hỏi vào nhé!",
+    "EMPTY_PROGRAM": "Con chưa ghép lệnh nào. Kéo lệnh vào đây nhé!"
+  }
+}

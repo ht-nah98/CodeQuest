@@ -348,6 +348,63 @@ export const RIVER_DETAIL = {
   bridgeDark: mix(C.goDeep, B.robot, 0.4),
 } as const;
 
+// ---- Thành Phố Robot (W6): robot city, line-grid test mat, lab --------------------------------
+
+const CITY: SceneArt = {
+  id: 'thanh-pho-robot',
+  sky: { high: mix(C.sky, C.brand, 0.2), mid: C.sky, low: shade(C.sky, 1.35) },
+  // A lavender-grey skyline far away, street hedges near the track.
+  far: {
+    main: mix(C.brand, C.paper2, 0.55),
+    dark: mix(C.brand, C.paper2, 0.4),
+    light: mix(C.brand, C.paper2, 0.8),
+  },
+  near: {
+    main: mix(C.go, C.paper, 0.3),
+    dark: mix(C.go, C.paper, 0.15),
+    light: mix(C.go, C.paper, 0.55),
+  },
+  backdrop: [],
+  ground: {
+    patterns: GROUND_PATTERNS['thanh-pho-robot'],
+    palette: {
+      k: mix(C.ink, C.brandDeep, 0.4),
+      c: mix(C.paper2, C.brand, 0.2),
+      C: mix(C.paper2, C.brand, 0.4),
+      p: mix(C.paper2, C.coin, 0.15),
+      P: mix(C.paper2, C.coin, 0.3),
+      j: mix(C.paper2, C.brand, 0.45),
+      a: mix(C.inkSoft, C.paper2, 0.62),
+      A: mix(C.inkSoft, C.paper2, 0.45),
+    },
+  },
+  maze: {
+    patterns: MAZE_PATTERNS['thanh-pho-robot'],
+    palette: {
+      q: mix(C.paper2, C.brandSoft, 0.35),
+      r: shade(mix(C.paper2, C.brandSoft, 0.35), 0.9),
+      n: mix(C.paper2, C.brand, 0.4),
+      W: C.brandDeep,
+      w: C.brand,
+      g: mix(C.sky, C.brand, 0.3),
+    },
+    background: mix(C.ground, C.sky, 0.35),
+  },
+  svgSky: shade(C.sky, 1.35),
+  decor: null,
+};
+
+/** The skyline's windows and antennas, and the robot lab board's pavement (stages/robotlab). */
+export const CITY_DETAIL = {
+  window: C.coinShine,
+  windowDark: mix(C.brand, C.paper2, 0.3),
+  antenna: C.inkSoft,
+  beacon: C.oops,
+  /** The pavement around the robot lab's test mat, and its slab seams. */
+  pavement: mix(C.ground, C.sky, 0.35),
+  pavementSeam: shade(mix(C.ground, C.sky, 0.35), 0.94),
+} as const;
+
 /** Each theme's backdrop: the sky in the action band and the big layers behind the track. */
 const withBackdrop = (art: SceneArt, extra: readonly string[] = []): SceneArt => ({
   ...art,
@@ -378,6 +435,7 @@ export const SCENE_ART: Readonly<Record<SceneTheme, SceneArt>> = {
     RIVER_DETAIL.boat,
     RIVER_DETAIL.bridge,
   ]),
+  'thanh-pho-robot': withBackdrop(CITY, [CITY.far.dark, CITY.far.light]),
 };
 
 /** The art of a theme; no theme (a stage mounted without one) is Làng Tre. */

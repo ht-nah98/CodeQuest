@@ -14,6 +14,7 @@ import {
   runnerCell,
 } from '../features/play/answerKey';
 import { UI_COLORS } from '../ui/tokens';
+import { RobotAnswerPicture } from './robotlab/RobotAnswer';
 import { sceneArt } from './sceneThemes';
 import {
   MAZE_CELL,
@@ -312,6 +313,8 @@ export function AnswerPicture({
   /** The world's scenery (P2-23): sky, ground and maze tiles; absent = Làng Tre. */
   theme?: SceneTheme | undefined;
 }) {
+  // Robotlab keys have their own forms (outOfTime, score:<n>, timeout) and a resolved config.
+  if (kind === 'robotlab') return <RobotAnswerPicture config={config} answerKey={answerKey} />;
   const answer = parseAnswerKey(answerKey);
   if (answer === null) return null;
   if (kind === 'runner') {

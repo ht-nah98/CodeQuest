@@ -1,0 +1,188 @@
+{
+  "id": "w06-l08",
+  "worldId": "w06-thanh-pho-robot",
+  "stage": "practice",
+  "kind": "robotlab",
+  "mode": "bughunt",
+  "title": "Quên về phòng",
+  "objective": "Bíp quên về phòng. Sửa 1 chỗ thôi nhé!",
+  "learningGoal": "Bíp chạy hết mọi lệnh rồi mới chấm. Khoanh vùng xong mà lệnh cuối không đưa Bíp về phòng thì chưa thắng: thêm một lệnh tiến.",
+  "misconception": "Xong việc là xong, Bíp tự về phòng.",
+  "mission": "Bíp quên về phòng. Sửa giúp nhé!",
+  "toolbox": [
+    "robot_forward",
+    "robot_turn_left",
+    "robot_turn_right",
+    "robot_grab",
+    "robot_release"
+  ],
+  "par": 7,
+  "parEdits": 1,
+  "config": {
+    "map": ["#####", "LZ...", "#####"],
+    "startDir": "E",
+    "blocks": [
+      {
+        "kind": "fence",
+        "at": [1, 3]
+      }
+    ],
+    "goal": {
+      "type": "missions",
+      "mustReturn": true
+    }
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "robot_forward",
+              "id": "b1",
+              "fields": {
+                "N": 3
+              },
+              "next": {
+                "block": {
+                  "type": "robot_grab",
+                  "id": "b2",
+                  "next": {
+                    "block": {
+                      "type": "robot_turn_right",
+                      "id": "b3",
+                      "next": {
+                        "block": {
+                          "type": "robot_turn_right",
+                          "id": "b4",
+                          "next": {
+                            "block": {
+                              "type": "robot_forward",
+                              "id": "b5",
+                              "fields": {
+                                "N": 2
+                              },
+                              "next": {
+                                "block": {
+                                  "type": "robot_release",
+                                  "id": "b6"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "robot_forward",
+              "id": "b1",
+              "fields": {
+                "N": 3
+              },
+              "next": {
+                "block": {
+                  "type": "robot_grab",
+                  "id": "b2",
+                  "next": {
+                    "block": {
+                      "type": "robot_turn_right",
+                      "id": "b3",
+                      "next": {
+                        "block": {
+                          "type": "robot_turn_right",
+                          "id": "b4",
+                          "next": {
+                            "block": {
+                              "type": "robot_forward",
+                              "id": "b5",
+                              "fields": {
+                                "N": 2
+                              },
+                              "next": {
+                                "block": {
+                                  "type": "robot_release",
+                                  "id": "b6",
+                                  "next": {
+                                    "block": {
+                                      "type": "robot_forward",
+                                      "id": "b7",
+                                      "fields": {
+                                        "N": 1
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "step",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Bấm Từng bước. Hết lệnh, Bíp đứng ở đâu?",
+      "point": "step"
+    },
+    {
+      "id": "home",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "NOT_HOME"
+      },
+      "say": "Bíp chạy hết lệnh mới chấm. Lệnh cuối đưa Bíp về đâu?",
+      "point": "stage"
+    },
+    {
+      "id": "place",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "WRONG_PLACE"
+      },
+      "say": "Rào thả ở đâu thì khoanh được vùng?",
+      "point": "stage"
+    }
+  ],
+  "thinkingHint": "Xong việc rồi, Bíp còn phải làm gì nữa?",
+  "feedback": {
+    "EMPTY_PROGRAM": "Con chưa ghép lệnh nào. Kéo lệnh vào đây nhé!"
+  }
+}

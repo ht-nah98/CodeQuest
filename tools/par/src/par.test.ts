@@ -5,7 +5,8 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { LevelSchema, type Level } from '@codequest/content-schema';
 import { describe, expect, it } from 'vitest';
-import { findLevelFiles, judgeLevel, type ContentReader } from './par';
+import { resolveLevelConfigs } from '@codequest/games';
+import { findLevelFiles, judgeLevel, readSharedRules, type ContentReader } from './par';
 
 const contentDir = fileURLToPath(new URL('../../../content', import.meta.url));
 const mainPath = fileURLToPath(new URL('./main.ts', import.meta.url));
@@ -198,4 +199,30 @@ describe('npm run par', () => {
     expect(flag.output).toContain('--depth needs a whole number ≥ 0, got "two"');
     rmSync(dir, { recursive: true });
   }, 60_000);
+});
+
+describe('robotlab (P3-01b)', () => {
+  const samples = fileURLToPath(
+    new URL('../../content-check/fixtures/robotlab-samples/', import.meta.url),
+  );
+  const read = (path: string): string => readFileSync(path, 'utf8');
+
+  it('reads the shared rules, or none when the file is missing or invalid', () => {
+    expect(readSharedRules(read, join(contentDir, 'shared')).robotlab?.timeLimit).toBe(120);
+    expect(readSharedRules(read, join(samples, 'missing'))).toEqual({});
+    expect(readSharedRules(() => '{"timeLimit": 0}', '/x')).toEqual({});
+  });
+
+  it.each([
+    ['robot-missions', 'robot-missions robotlab/build  par 7  min 7 (6 shortest)'],
+    ['robot-maps', 'robot-maps robotlab/build  maps 2  par 3  min 3 (2 shortest)'],
+    ['robot-score', 'robot-score robotlab/build  par 7  min 7 (14 shortest)'],
+  ])('confirms the hand-worked par of %s', (id, head) => {
+    const path = join(samples, 'worlds', '_sandbox', 'levels', `${id}.json`);
+    const level = LevelSchema.parse(JSON.parse(read(path)));
+    const shared = readSharedRules(read, join(samples, 'shared'));
+    const verdict = judgeLevel(resolveLevelConfigs(level, shared), {});
+    expect(verdict.mark).toBe('✔');
+    expect(verdict.head).toBe(head);
+  });
 });

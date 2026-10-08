@@ -5,7 +5,14 @@ import { z } from 'zod';
  * the maze's wall and floor tiles, the static pictures and the world's island on the map.
  * Decoration only: hazards, items and goals look the same in every theme.
  */
-export const SCENE_THEMES = ['lang-tre', 'rung-lap-lai', 'xuong', 'nga-ba', 'song'] as const;
+export const SCENE_THEMES = [
+  'lang-tre',
+  'rung-lap-lai',
+  'xuong',
+  'nga-ba',
+  'song',
+  'thanh-pho-robot',
+] as const;
 export const SceneThemeSchema = z.enum(SCENE_THEMES);
 export type SceneTheme = z.infer<typeof SceneThemeSchema>;
 /** The theme of a world without `theme.scene` (and of the dev sandbox): Làng Tre. */
@@ -45,6 +52,8 @@ export const STORY_PROPS = [
   'cage-open',
   'dock',
   'key',
+  'robot',
+  'lab',
 ] as const;
 export const StoryPropSchema = z.enum(STORY_PROPS);
 export type StoryProp = z.infer<typeof StoryPropSchema>;

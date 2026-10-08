@@ -189,12 +189,57 @@ const RIVER_GROUND: GroundPatterns = {
   ],
 };
 
+/** Thành Phố Robot: a kerb and paving slabs over light asphalt with grit. */
+const CITY_GROUND: GroundPatterns = {
+  top: [
+    'kkkkkkkkkkkkkkkkkk',
+    'kkkkkkkkkkkkkkkkkk',
+    'cccccccccccccccccc',
+    'cCccccccccccccCccc',
+    'ppppppppjppppppppj',
+    'ppppppppjppppppppj',
+    'pPppppppjppppPpppj',
+    'ppppppppjppppppppj',
+    'jjjjjjjjjjjjjjjjjj',
+    'aaaaaaaaaaaaaaaaaa',
+    'aaaaAaaaaaaaaaaaaa',
+    'aaaaaaaaaaaaAaaaaa',
+    'aaaaaaaaaaaaaaaaaa',
+    'aAaaaaaaaaaaaaaaaa',
+    'aaaaaaaaaaaaaaaaaa',
+    'aaaaaaaaaaAaaaaaaa',
+    'aaaaaaaaaaaaaaaaaa',
+    'aaaaaaaaaaaaaaaAaa',
+  ],
+  fill: [
+    'aaaaaaaaaaaaaaaaaa',
+    'aaaAaaaaaaaaaaaaaa',
+    'aaaaaaaaaaaaaaaaaa',
+    'aaaaaaaaaaaAaaaaaa',
+    'aaaaaaaaaaaaaaaaaa',
+    'aaaaaaaAaaaaaaaaaa',
+    'aaaaaaaaaaaaaaaaAa',
+    'aaaaaaaaaaaaaaaaaa',
+    'aAaaaaaaaaaaaaaaaa',
+    'aaaaaaaaaaaaaaaaaa',
+    'aaaaaaaaaAaaaaaaaa',
+    'aaaaaaaaaaaaaaaaaa',
+    'aaaaaaaaaaaaaaAaaa',
+    'aaaaAaaaaaaaaaaaaa',
+    'aaaaaaaaaaaaaaaaaa',
+    'aaaaaaaaaaaAaaaaaa',
+    'aaaaaaaaaaaaaaaaaa',
+    'aaAaaaaaaaaaaaaaaa',
+  ],
+};
+
 /** Ground patterns of the themes that draw their own ground (Làng Tre keeps Kenney's). */
 export const GROUND_PATTERNS = {
   'rung-lap-lai': FOREST_GROUND,
   xuong: WORKSHOP_GROUND,
   'nga-ba': MOUNTAIN_GROUND,
   song: RIVER_GROUND,
+  'thanh-pho-robot': CITY_GROUND,
 } as const satisfies Record<string, GroundPatterns>;
 
 /** The six runner ground pieces, named like the Kenney tiles they stand in for. */
@@ -361,10 +406,43 @@ const RIVER_MAZE: MazePatterns = {
   ],
 };
 
+/** Thành Phố Robot: paving slabs between walls of city blocks with lit windows. */
+const CITY_MAZE: MazePatterns = {
+  floor: [
+    'qqqqqqqqqqqr',
+    'qqqqqqqqnqqr',
+    'qqqqqqqqqqqr',
+    'qqnqqqqqqqqr',
+    'qqqqqqqqqqqr',
+    'qqqqqqqqqqqr',
+    'qqqqqqqnqqqr',
+    'qnqqqqqqqqqr',
+    'qqqqqqqqqqqr',
+    'qqqqqnqqqqqr',
+    'qqqqqqqqqqqr',
+    'rrrrrrrrrrrr',
+  ],
+  wall: [
+    'WWWWWWWWWWWW',
+    'WwwwwwwwwwwW',
+    'WwggwwggwwwW',
+    'WwggwwggwwwW',
+    'WwwwwwwwwwwW',
+    'WwwwggwwggwW',
+    'WwwwggwwggwW',
+    'WwwwwwwwwwwW',
+    'WwggwwggwwwW',
+    'WwggwwggwwwW',
+    'WwwwwwwwwwwW',
+    'WWWWWWWWWWWW',
+  ],
+};
+
 /** Maze tiles of the themes that draw their own (Làng Tre keeps maze/pixelArt.ts). */
 export const MAZE_PATTERNS = {
   'rung-lap-lai': FOREST_MAZE,
   xuong: WORKSHOP_MAZE,
   'nga-ba': MOUNTAIN_MAZE,
   song: RIVER_MAZE,
+  'thanh-pho-robot': CITY_MAZE,
 } as const satisfies Record<string, MazePatterns>;

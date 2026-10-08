@@ -1,0 +1,114 @@
+{
+  "id": "robotlab-stage",
+  "worldId": "_sandbox",
+  "stage": "guided",
+  "kind": "robotlab",
+  "mode": "build",
+  "title": "Thử sa bàn robot",
+  "objective": "Mang khối ô nhiễm về phòng thí nghiệm nhé!",
+  "learningGoal": "Đếm ngã tư, quay tại chỗ, gắp khối rồi thả trong phòng thí nghiệm.",
+  "misconception": "Bíp đi xuyên qua khối được.",
+  "toolbox": [
+    "robot_forward",
+    "robot_turn_left",
+    "robot_turn_right",
+    "robot_grab",
+    "robot_release"
+  ],
+  "par": 6,
+  "maxBlocks": 12,
+  "config": {
+    "map": ["#.Z.#", "L....", "#r#y#"],
+    "startDir": "E",
+    "blocks": [
+      {
+        "kind": "pollution",
+        "color": "RED",
+        "at": [1, 3]
+      },
+      {
+        "kind": "neutralizer",
+        "color": "YELLOW",
+        "at": [0, 1]
+      },
+      {
+        "kind": "fence",
+        "at": [0, 3]
+      }
+    ],
+    "goal": {
+      "type": "score",
+      "target": 140
+    },
+    "rules": {
+      "timeLimit": 20
+    }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "robot_forward",
+              "id": "fwd1",
+              "fields": {
+                "N": 3
+              },
+              "next": {
+                "block": {
+                  "type": "robot_grab",
+                  "id": "grab1",
+                  "next": {
+                    "block": {
+                      "type": "robot_turn_right",
+                      "id": "right1",
+                      "next": {
+                        "block": {
+                          "type": "robot_turn_right",
+                          "id": "right2",
+                          "next": {
+                            "block": {
+                              "type": "robot_forward",
+                              "id": "fwd2",
+                              "fields": {
+                                "N": 3
+                              },
+                              "next": {
+                                "block": {
+                                  "type": "robot_release",
+                                  "id": "drop1"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "hit-block",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "HIT_BLOCK"
+      },
+      "say": "Bíp không đi xuyên qua khối. Dừng đúng ô nhé!",
+      "point": "stage"
+    }
+  ]
+}

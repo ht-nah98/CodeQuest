@@ -1,0 +1,162 @@
+{
+  "id": "w06-l16",
+  "worldId": "w06-thanh-pho-robot",
+  "stage": "practice",
+  "kind": "robotlab",
+  "mode": "build",
+  "title": "Đúng trạm màu",
+  "objective": "Một chương trình cho 2 bản đồ. Không quá 10 lệnh!",
+  "learningGoal": "Đề đổi màu: hỏi \"khối ở chỗ Bíp màu đỏ?\" rồi rẽ về trạm cùng màu. Lệnh thả và đường về nằm sau nếu, dùng chung cho hai màu.",
+  "misconception": "Một đường đi cố định thắng được mọi màu.",
+  "mission": "Khối trung hòa đổi màu mỗi lần. Chở đúng trạm!",
+  "toolbox": [
+    "robot_forward",
+    "robot_turn_left",
+    "robot_turn_right",
+    "robot_release",
+    "cq_if",
+    "cq_if_else",
+    "robot_block_color"
+  ],
+  "maxBlocks": 10,
+  "maxLoopDepth": 1,
+  "par": 9,
+  "config": {
+    "map": ["#####", "r.L.y", "#####"],
+    "startDir": "N",
+    "startHolding": {
+      "kind": "neutralizer",
+      "color": "RED"
+    },
+    "goal": {
+      "type": "missions",
+      "mustReturn": true
+    }
+  },
+  "variants": [
+    {
+      "map": ["#####", "r.L.y", "#####"],
+      "startDir": "N",
+      "startHolding": {
+        "kind": "neutralizer",
+        "color": "YELLOW"
+      },
+      "goal": {
+        "type": "missions",
+        "mustReturn": true
+      }
+    }
+  ],
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_if_else",
+              "id": "b1",
+              "inputs": {
+                "COND": {
+                  "block": {
+                    "type": "robot_block_color",
+                    "id": "b1c",
+                    "fields": {
+                      "COLOR": "RED"
+                    }
+                  }
+                },
+                "DO": {
+                  "block": {
+                    "type": "robot_turn_left",
+                    "id": "b2"
+                  }
+                },
+                "ELSE": {
+                  "block": {
+                    "type": "robot_turn_right",
+                    "id": "b3"
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "type": "robot_forward",
+                  "id": "b4",
+                  "fields": {
+                    "N": 2
+                  },
+                  "next": {
+                    "block": {
+                      "type": "robot_release",
+                      "id": "b5",
+                      "next": {
+                        "block": {
+                          "type": "robot_turn_right",
+                          "id": "b6",
+                          "next": {
+                            "block": {
+                              "type": "robot_turn_right",
+                              "id": "b7",
+                              "next": {
+                                "block": {
+                                  "type": "robot_forward",
+                                  "id": "b8",
+                                  "fields": {
+                                    "N": 2
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "new-color",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Câu hỏi mới: khối ở chỗ Bíp màu gì?",
+      "point": "toolbox:robot_block_color"
+    },
+    {
+      "id": "maps",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "2 bản đồ, khối đổi màu. Đúng cả hai nhé!",
+      "point": "stage"
+    },
+    {
+      "id": "wrong",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "WRONG_COLOR"
+      },
+      "say": "Khối màu gì? Trạm cùng màu ở bên nào?",
+      "point": "toolbox:robot_block_color"
+    }
+  ],
+  "thinkingHint": "Khối đỏ thì đi bên nào, khối vàng thì sao?",
+  "feedback": {
+    "EMPTY_CONDITION": "Ô câu hỏi còn trống. Cắm một câu hỏi vào nhé!",
+    "EMPTY_PROGRAM": "Con chưa ghép lệnh nào. Kéo lệnh vào đây nhé!",
+    "TOO_MANY_BLOCKS": "Nhiều lệnh quá. Thử dùng lệnh lặp xem?"
+  }
+}

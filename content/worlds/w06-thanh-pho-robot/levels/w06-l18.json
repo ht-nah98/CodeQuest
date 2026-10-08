@@ -1,0 +1,205 @@
+{
+  "id": "w06-l18",
+  "worldId": "w06-thanh-pho-robot",
+  "stage": "challenge",
+  "kind": "robotlab",
+  "mode": "predict",
+  "title": "Làm hết?",
+  "objective": "Đọc chương trình, đoán Bíp được mấy điểm.",
+  "learningGoal": "Làm thêm việc ít điểm làm hết giờ giữa đường: Bíp rời phòng nên mất 40 điểm về phòng, chỉ còn 160.",
+  "misconception": "Làm hết mọi việc thì luôn được nhiều điểm nhất.",
+  "mission": "Làm hết mọi việc có kịp không?",
+  "toolbox": [],
+  "config": {
+    "map": ["##r##", "Z#.##", "..L##"],
+    "startDir": "N",
+    "blocks": [
+      {
+        "kind": "neutralizer",
+        "color": "RED",
+        "at": [1, 2]
+      },
+      {
+        "kind": "fence",
+        "at": [2, 0]
+      }
+    ],
+    "goal": {
+      "type": "score",
+      "target": 200
+    },
+    "rules": {
+      "timeLimit": 20
+    }
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "robot_forward",
+              "id": "b1",
+              "fields": {
+                "N": 1
+              },
+              "next": {
+                "block": {
+                  "type": "robot_grab",
+                  "id": "b2",
+                  "next": {
+                    "block": {
+                      "type": "robot_forward",
+                      "id": "b3",
+                      "fields": {
+                        "N": 1
+                      },
+                      "next": {
+                        "block": {
+                          "type": "robot_release",
+                          "id": "b4",
+                          "next": {
+                            "block": {
+                              "type": "robot_turn_right",
+                              "id": "b5",
+                              "next": {
+                                "block": {
+                                  "type": "robot_turn_right",
+                                  "id": "b6",
+                                  "next": {
+                                    "block": {
+                                      "type": "robot_forward",
+                                      "id": "b7",
+                                      "fields": {
+                                        "N": 2
+                                      },
+                                      "next": {
+                                        "block": {
+                                          "type": "robot_turn_right",
+                                          "id": "b8",
+                                          "next": {
+                                            "block": {
+                                              "type": "robot_forward",
+                                              "id": "b9",
+                                              "fields": {
+                                                "N": 2
+                                              },
+                                              "next": {
+                                                "block": {
+                                                  "type": "robot_grab",
+                                                  "id": "b10",
+                                                  "next": {
+                                                    "block": {
+                                                      "type": "robot_turn_right",
+                                                      "id": "b11",
+                                                      "next": {
+                                                        "block": {
+                                                          "type": "robot_forward",
+                                                          "id": "b12",
+                                                          "fields": {
+                                                            "N": 1
+                                                          },
+                                                          "next": {
+                                                            "block": {
+                                                              "type": "robot_release",
+                                                              "id": "b13",
+                                                              "next": {
+                                                                "block": {
+                                                                  "type": "robot_turn_right",
+                                                                  "id": "b14",
+                                                                  "next": {
+                                                                    "block": {
+                                                                      "type": "robot_turn_right",
+                                                                      "id": "b15",
+                                                                      "next": {
+                                                                        "block": {
+                                                                          "type": "robot_forward",
+                                                                          "id": "b16",
+                                                                          "fields": {
+                                                                            "N": 1
+                                                                          },
+                                                                          "next": {
+                                                                            "block": {
+                                                                              "type": "robot_turn_left",
+                                                                              "id": "b17",
+                                                                              "next": {
+                                                                                "block": {
+                                                                                  "type": "robot_forward",
+                                                                                  "id": "b18",
+                                                                                  "fields": {
+                                                                                    "N": 2
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "predict": {
+    "options": [
+      {
+        "key": "score:160",
+        "label": "160 điểm"
+      },
+      {
+        "key": "score:245",
+        "label": "245 điểm, làm hết mọi việc"
+      },
+      {
+        "key": "score:200",
+        "label": "200 điểm, vì đã về phòng"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "trace",
+      "when": {
+        "trigger": "idle"
+      },
+      "say": "Đếm giây từng lệnh. Hết giờ, Bíp ở đâu?",
+      "point": "stage"
+    }
+  ],
+  "thinkingHint": "Đi khoanh vùng thêm thì có kịp về phòng không?"
+}

@@ -1,0 +1,150 @@
+{
+  "id": "w06-lesson",
+  "worldId": "w06-thanh-pho-robot",
+  "title": "Robot Bíp",
+  "cards": [
+    {
+      "type": "say",
+      "pose": "happy",
+      "text": "Về tới làng rồi! Bên kia đồi có tiếng bíp bíp."
+    },
+    {
+      "type": "say",
+      "pose": "point",
+      "text": "Đây là robot Bíp. Bíp chạy theo đường line đen."
+    },
+    {
+      "type": "demo",
+      "text": "Tiến 2 ô: dừng ở ngã tư thứ 2.",
+      "kind": "robotlab",
+      "config": {
+        "map": ["#####", "L....", "#####"],
+        "startDir": "W",
+        "start": [1, 4],
+        "goal": {
+          "type": "missions",
+          "mustReturn": true
+        }
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "robot_forward",
+                  "id": "b1",
+                  "fields": {
+                    "N": 2
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "demo",
+      "text": "Bíp làm hết mọi lệnh, về tới phòng vẫn đi tiếp!",
+      "kind": "robotlab",
+      "config": {
+        "map": ["#####", "L....", "#####"],
+        "startDir": "W",
+        "start": [1, 4],
+        "goal": {
+          "type": "missions",
+          "mustReturn": true
+        }
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "robot_forward",
+                  "id": "b1",
+                  "fields": {
+                    "N": 4
+                  },
+                  "next": {
+                    "block": {
+                      "type": "robot_forward",
+                      "id": "b2",
+                      "fields": {
+                        "N": 1
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "demo",
+      "text": "Tiến 1 ô, rẽ trái: Bíp quay tại chỗ, chưa đi.",
+      "kind": "robotlab",
+      "config": {
+        "map": ["####", "L..#", "##.#"],
+        "startDir": "N",
+        "start": [2, 2],
+        "goal": {
+          "type": "missions",
+          "mustReturn": true
+        }
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "robot_forward",
+                  "id": "b1",
+                  "fields": {
+                    "N": 1
+                  },
+                  "next": {
+                    "block": {
+                      "type": "robot_turn_left",
+                      "id": "b2"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "quiz",
+      "text": "Bíp đứng ở ngã tư. Tiến 1 ô thì Bíp tới đâu?",
+      "options": ["Ngã tư kế bên", "Ngã tư thứ hai"],
+      "correct": 0,
+      "explain": "Chỗ đang đứng không tính. Ngã tư kế bên là thứ 1."
+    }
+  ]
+}

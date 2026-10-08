@@ -45,6 +45,11 @@ describe('action block tooltips', () => {
       maze_forward: 'Tiến 1 ô theo hướng Măng đang nhìn',
       maze_turn_left: 'Quay sang trái tại chỗ, chưa đi',
       maze_turn_right: 'Quay sang phải tại chỗ, chưa đi',
+      robot_forward: 'Tiến 3 ô: dừng ở ngã tư thứ 3',
+      robot_turn_left: 'Quay sang trái tại chỗ, chưa đi',
+      robot_turn_right: 'Quay sang phải tại chỗ, chưa đi',
+      robot_grab: 'Gắp khối ở chỗ Bíp đứng',
+      robot_release: 'Thả khối xuống chỗ Bíp đứng',
     });
   });
 });

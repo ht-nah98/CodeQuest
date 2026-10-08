@@ -1,0 +1,107 @@
+{
+  "id": "robotlab-predict",
+  "worldId": "_sandbox",
+  "stage": "practice",
+  "kind": "robotlab",
+  "mode": "predict",
+  "title": "Đoán xem Bíp dừng đâu",
+  "objective": "Bíp dừng ở đâu? Đoán xem!",
+  "learningGoal": "Đọc chương trình của Bíp và đoán chỗ Bíp dừng.",
+  "misconception": "Về tới phòng là thu hồi xong, không cần thả.",
+  "toolbox": [],
+  "config": {
+    "map": ["#.Z.#", "L....", "#r#y#"],
+    "startDir": "E",
+    "blocks": [
+      {
+        "kind": "pollution",
+        "color": "RED",
+        "at": [1, 3]
+      },
+      {
+        "kind": "neutralizer",
+        "color": "YELLOW",
+        "at": [0, 1]
+      },
+      {
+        "kind": "fence",
+        "at": [0, 3]
+      }
+    ],
+    "goal": {
+      "type": "missions",
+      "mustReturn": true
+    }
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "robot_forward",
+              "id": "fwd1",
+              "fields": {
+                "N": 3
+              },
+              "next": {
+                "block": {
+                  "type": "robot_grab",
+                  "id": "grab1",
+                  "next": {
+                    "block": {
+                      "type": "robot_turn_right",
+                      "id": "right1",
+                      "next": {
+                        "block": {
+                          "type": "robot_turn_right",
+                          "id": "right2",
+                          "next": {
+                            "block": {
+                              "type": "robot_forward",
+                              "id": "fwd2",
+                              "fields": {
+                                "N": 3
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "predict": {
+    "options": [
+      {
+        "key": "win",
+        "label": "Xong việc, về phòng"
+      },
+      {
+        "key": "stop@1,0",
+        "label": "Về phòng, tay còn cầm khối"
+      },
+      {
+        "key": "crash:HIT_BLOCK@1,2",
+        "label": "Đụng khối giữa đường"
+      },
+      {
+        "key": "outOfTime@1,3",
+        "label": "Hết giờ ở chỗ khối"
+      }
+    ]
+  },
+  "hints": []
+}

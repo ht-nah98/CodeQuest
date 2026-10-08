@@ -1,6 +1,7 @@
 import type { GameKindId } from '@codequest/content-schema';
 import type { AnyGameKindDefinition } from '@codequest/engine';
 import { maze } from './maze';
+import { robotlab } from './robotlab';
 import { runner } from './runner';
 
 /**
@@ -10,6 +11,7 @@ import { runner } from './runner';
 export const gameKinds: Readonly<Partial<Record<GameKindId, AnyGameKindDefinition>>> = {
   runner,
   maze,
+  robotlab,
 };
 
 /** The game kind for `level.kind`, or undefined if it is not implemented yet. */

@@ -1,0 +1,126 @@
+{
+  "id": "w06-thanh-pho-robot",
+  "order": 6,
+  "title": "Thành Phố Robot",
+  "emoji": "🤖",
+  "concept": "Lập trình robot: đếm ngã tư, gắp, thả, về đúng giờ",
+  "story": "Bác Cú mở phòng thí nghiệm ở Thành Phố Robot. Măng lập trình cho robot Bíp dọn khối ô nhiễm.",
+  "chapters": [
+    {
+      "id": "ve-lang",
+      "title": "Về tới làng",
+      "lines": [
+        "Về tới làng rồi! Bên kia đồi có tiếng bíp bíp.",
+        "Bác Cú mở thêm phòng thí nghiệm ở Thành Phố Robot.",
+        "Gió thổi khối ô nhiễm khắp thành phố!"
+      ],
+      "art": {
+        "cast": ["owl", "bunny"],
+        "prop": "lab"
+      }
+    },
+    {
+      "id": "bip-hoc-viec",
+      "title": "Bíp học việc",
+      "lines": ["Bíp đếm ngã tư giỏi rồi. Bác Cú khen!", "Giờ Bíp học dùng tay gắp."],
+      "unlockAfter": "w06-l04",
+      "art": {
+        "cast": ["owl"],
+        "prop": "robot"
+      }
+    },
+    {
+      "id": "tay-gap",
+      "title": "Tay gắp của Bíp",
+      "lines": [
+        "Bíp gắp từng khối một, không tham.",
+        "Khoanh vùng, trung hòa, thu hồi: ba việc của Bíp."
+      ],
+      "unlockAfter": "w06-l10",
+      "art": {
+        "prop": "robot"
+      }
+    },
+    {
+      "id": "dong-ho",
+      "title": "Đồng hồ thành phố",
+      "lines": [
+        "Mỗi việc tốn vài giây.",
+        "Đồng hồ chạy rồi! Bíp phải nhanh tay.",
+        "Ngày hội robot sắp bắt đầu!"
+      ],
+      "unlockAfter": "w06-l13",
+      "art": {
+        "cast": ["owl"],
+        "prop": "lab"
+      }
+    },
+    {
+      "id": "thanh-pho-sach",
+      "title": "Thành phố sạch rồi",
+      "lines": [
+        "Bíp về phòng đúng giờ. Cả thành phố vỗ tay!",
+        "Chợ phiên sắp mở. Bíp rủ Măng đi chợ!"
+      ],
+      "unlockAfter": "w06-boss",
+      "art": {
+        "cast": ["bunny"],
+        "prop": "robot"
+      }
+    }
+  ],
+  "theme": {
+    "tileset": "/tiles/ground.png",
+    "palette": "day",
+    "scene": "thanh-pho-robot"
+  },
+  "lessonIds": [
+    "w06-lesson",
+    "w06-lesson-tien",
+    "w06-lesson-gap",
+    "w06-lesson-tha",
+    "w06-lesson-khoanh-vung",
+    "w06-lesson-trung-hoa",
+    "w06-lesson-dong-ho",
+    "w06-lesson-ve-phong-chua",
+    "w06-lesson-co-line",
+    "w06-lesson-mau"
+  ],
+  "levelIds": [
+    "w06-l01",
+    "w06-l02",
+    "w06-l03",
+    "w06-l04",
+    "w06-l05",
+    "w06-l06",
+    "w06-l07",
+    "w06-l08",
+    "w06-l09",
+    "w06-l10",
+    "w06-l11",
+    "w06-l12",
+    "w06-l13",
+    "w06-l14",
+    "w06-l15",
+    "w06-l16",
+    "w06-l17",
+    "w06-l18",
+    "w06-l19",
+    "w06-boss",
+    "w06-creative"
+  ],
+  "unlock": {
+    "minStarRatio": 0.6
+  },
+  "unplugged": {
+    "title": "Robot băng keo",
+    "steps": [
+      "Dán băng keo thành lưới 3×4 trên sàn, chấm tròn ở mỗi ngã tư. Một góc là phòng thí nghiệm.",
+      "Một bé làm Bíp, cầm cốc giấy làm tay gắp. Bạn đọc thẻ lệnh: \"tiến 2 ô\", \"rẽ phải\", \"gắp\", \"thả\".",
+      "Vòng 1: đếm ngã tư. Chỗ đang đứng không tính.",
+      "Vòng 2: phải đứng lên chấm có khối gỗ mới gắp được, chỉ cầm một khối, không bước qua khối.",
+      "Robot thật dừng trước khối rồi đóng càng; trong game Bíp dừng trên khối cho dễ nhìn.",
+      "Vòng 3: HLV bấm đồng hồ 60 giây, mỗi thẻ \"tiến\" tốn 5 giây. Nhóm chọn việc nào làm trước để kịp về phòng."
+    ]
+  }
+}

@@ -7,6 +7,7 @@ import type { Condition, Level, StarGoalKind, WorkspaceJson } from '@codequest/c
 import {
   blockTypeCounts,
   CQ_START,
+  DEFAULT_MAX_ACTIONS,
   ENGINE_REASONS,
   loopDepth,
   editDistance,
@@ -15,6 +16,7 @@ import {
   runLevel,
   type AnyGameKindDefinition,
 } from '@codequest/engine';
+import { robotlabResolvedSchema } from '@codequest/games';
 import type { RuleIssue } from './issue';
 import { blockSignatures, blockTypesOf, countBlocksOfType, countShadows } from './workspace';
 import { countWords } from './words';
@@ -391,4 +393,32 @@ export function goalSpriteIssues(level: Level): RuleIssue[] {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+/**
+ * Rule 1 for robotlab (the level's time limit fits its action limit): the cheapest timed
+ * action costs `min(costs)` s, so a loop of it asking one question per pass emits up to
+ * `timeLimit / min × 2 + 2` actions before the clock stops it (each pass a question and an
+ * action, then the last question and the `timeUp` event). A body asking two questions per action
+ * (a `nếu` inside the loop) emits more; with the shared 120 s that stays far under 1000. Over `maxActions` the engine's
+ * TIMEOUT would end the run first and the child would never see OUT_OF_TIME. Needs the level
+ * with its shared rules merged in (`resolveLevelConfigs`); maps that do not parse are skipped.
+ */
+export function robotlabTimeIssues(level: Level): RuleIssue[] {
+  if (level.kind !== 'robotlab') return [];
+  const maxActions = level.limits?.maxActions ?? DEFAULT_MAX_ACTIONS;
+  const issues: RuleIssue[] = [];
+  [level.config, ...(level.variants ?? [])].forEach((raw, index) => {
+    const config = robotlabResolvedSchema.safeParse(raw);
+    if (!config.success) return;
+    const { timeLimit, costs } = config.data.rules;
+    const actions = Math.floor(timeLimit / Math.min(costs.forward, costs.turn, costs.grab, costs.release)) * 2 + 2;
+    if (actions > maxActions) {
+      issues.push({
+        rule: 1,
+        message: `timeLimit ${String(timeLimit)} allows ${String(actions)} actions > maxActions ${String(maxActions)} on map ${String(index + 1)}: a loop would end with TIMEOUT before OUT_OF_TIME`,
+      });
+    }
+  });
+  return issues;
 }
