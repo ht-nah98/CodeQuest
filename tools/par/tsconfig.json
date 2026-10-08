@@ -7,6 +7,7 @@
   "include": ["src"],
   "references": [
     { "path": "../../packages/content-schema" },
+    { "path": "../../packages/games" },
     { "path": "../../packages/validator" }
   ]
 }

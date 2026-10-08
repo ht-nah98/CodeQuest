@@ -18,7 +18,12 @@ import {
   type Level,
 } from '@codequest/content-schema';
 import { ENGINE_REASONS, type AnyGameKindDefinition } from '@codequest/engine';
-import { gameKinds, getGameKind } from '@codequest/games';
+import {
+  gameKinds,
+  getGameKind,
+  robotlabRulesSchema,
+  type SharedLevelRules,
+} from '@codequest/games';
 import {
   formatSchemaIssues,
   ID_PATTERNS,
@@ -72,8 +77,9 @@ export function publicAssetExists(publicPath: string): boolean {
   return statSync(full, { throwIfNoEntry: false })?.isFile() === true;
 }
 
-const SHARED_FILES = new Set(['feedback.json', 'shop.json', 'badges.json']);
+const SHARED_FILES = new Set(['feedback.json', 'shop.json', 'badges.json', 'robotlab.json']);
 const FEEDBACK_PATH = 'shared/feedback.json';
+const ROBOTLAB_RULES_PATH = 'shared/robotlab.json';
 
 const SHOP_ITEM_ID = /^(?:skin|pen|fx|music|bonus-level)-[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const BADGE_ID = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
@@ -135,6 +141,11 @@ function sharedIssues(
     const feedback = FeedbackFileSchema.safeParse(parsed);
     if (feedback.success) shared.feedback = feedback.data;
     return feedback.success ? [] : schemaIssues(path, feedback.error);
+  }
+  if (name === 'robotlab.json') {
+    // Shared robotlab rules (game-kinds.md §3.3), merged into each level by resolveRobotlabRules.
+    const rules = robotlabRulesSchema.safeParse(parsed);
+    return rules.success ? [] : schemaIssues(path, rules.error);
   }
   const issues: Issue[] = [];
   const check = (id: string, pattern: RegExp, extra: string | null): void => {
@@ -211,6 +222,24 @@ function readString(value: unknown, key: string): string | null {
   return typeof field === 'string' ? field : null;
 }
 
+/**
+ * Shared rules the levels run with (`resolveLevelConfigs`), read before any level so file
+ * order does not matter. A missing or invalid file leaves the kind out: its levels then fail
+ * rule 1, and the file itself is reported by `sharedIssues`.
+ */
+function readSharedRules(files: readonly ContentFile[]): SharedLevelRules {
+  const file = files.find((candidate) => candidate.path === ROBOTLAB_RULES_PATH);
+  if (file === undefined) return {};
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(file.text);
+  } catch {
+    return {};
+  }
+  const rules = robotlabRulesSchema.safeParse(parsed);
+  return rules.success ? { robotlab: rules.data } : {};
+}
+
 /** Runs all 21 rules over every JSON file under `content/` (paths relative to it). */
 export function checkContent(
   files: readonly ContentFile[],
@@ -220,7 +249,9 @@ export function checkContent(
   const issues: Issue[] = [];
   const curriculum: CurriculumInput = { worlds: [], levels: [], lessons: [] };
   const shared: SharedData = { feedback: null, assets: [] };
+  const sharedRules = readSharedRules(files);
   let hasLevels = false;
+  let hasRobotlabLevels = false;
   const firstPathById = new Map<string, string>();
   const claimId = (id: string, path: string): Issue | null => {
     const firstPath = firstPathById.get(id);
@@ -289,8 +320,13 @@ export function checkContent(
     };
     if (location.kind === 'level') {
       hasLevels = true;
+      if (readString(parsed, 'kind') === 'robotlab') hasRobotlabLevels = true;
       // Rules 1, 2 (ID pattern), 5–6, 9–16, in the order content:check always printed them.
-      const checked = validateLevel(parsed, { isDraft: location.isDraft, getKind });
+      const checked = validateLevel(parsed, {
+        isDraft: location.isDraft,
+        getKind,
+        shared: sharedRules,
+      });
       issues.push(...withPath(file.path, checked.issues));
       if (checked.level !== null) entry.detail = levelDetail(checked.level, checked.solutionBlocks);
       if (!location.isDraft) curriculum.levels.push({ ...worldFile, level: checked.level });
@@ -343,6 +379,15 @@ export function checkContent(
     issues.push(...feedbackIssues(shared.feedback, Object.values(gameKinds)));
   } else if (hasLevels && !files.some((file) => file.path === FEEDBACK_PATH)) {
     issues.push({ path: FEEDBACK_PATH, rule: 17, message: 'file is missing' });
+  }
+
+  // Rule 1: robotlab levels only run with the shared rules merged in.
+  if (hasRobotlabLevels && !files.some((file) => file.path === ROBOTLAB_RULES_PATH)) {
+    issues.push({
+      path: ROBOTLAB_RULES_PATH,
+      rule: 1,
+      message: 'file is missing; robotlab levels need the shared rules',
+    });
   }
 
   // Rule 18: referenced assets exist.

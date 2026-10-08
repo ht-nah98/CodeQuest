@@ -26,6 +26,7 @@ Trạng thái: **Đề xuất** → **Chấp nhận** → (**Đã bị thay th�
 | [0018](0018-conditional-search.md) | Khối điều kiện riêng, event `sense`, vét cạn `par` có điều kiện | Chấp nhận |
 | [0019](0019-mission-items.md) | Vật phẩm nhiệm vụ (`goal.items`: chìa khóa, đón bạn) là điều kiện thắng trong config | Chấp nhận |
 | [0020](0020-pwa-workbox-prompt-update.md) | PWA offline bằng `vite-plugin-pwa` (Workbox), cập nhật kiểu hỏi trước | Chấp nhận |
+| [0021](0021-robotlab-rules.md) | `robotlab`: chấm khi hết chương trình, đồng hồ ảo trong state, luật chung là dữ liệu, gắp / thả tại ô | Chấp nhận |
 
 ## Mẫu
 ```markdown

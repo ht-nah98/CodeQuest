@@ -1,0 +1,117 @@
+{
+  "id": "robot-score",
+  "worldId": "_sandbox",
+  "stage": "practice",
+  "kind": "robotlab",
+  "mode": "build",
+  "title": "Chọn việc",
+  "objective": "Chỉ đủ giờ cho một việc. Chọn việc nào?",
+  "learningGoal": "Chọn việc nhiều điểm và còn giờ về phòng.",
+  "misconception": "Làm hết mọi việc mới tốt.",
+  "toolbox": [
+    "robot_forward",
+    "robot_turn_left",
+    "robot_turn_right",
+    "robot_grab",
+    "robot_release",
+    "cq_repeat"
+  ],
+  "par": 7,
+  "maxBlocks": 9,
+  "maxLoopDepth": 1,
+  "config": {
+    "map": ["##r##", "Z#.##", "..L##"],
+    "startDir": "N",
+    "blocks": [
+      {
+        "kind": "neutralizer",
+        "color": "RED",
+        "at": [1, 2]
+      },
+      {
+        "kind": "fence",
+        "at": [2, 0]
+      }
+    ],
+    "goal": {
+      "type": "score",
+      "target": 200
+    },
+    "rules": {
+      "timeLimit": 20
+    }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "next": {
+            "block": {
+              "type": "robot_forward",
+              "id": "b1",
+              "fields": {
+                "N": 1
+              },
+              "next": {
+                "block": {
+                  "type": "robot_grab",
+                  "id": "b2",
+                  "next": {
+                    "block": {
+                      "type": "robot_forward",
+                      "id": "b3",
+                      "fields": {
+                        "N": 1
+                      },
+                      "next": {
+                        "block": {
+                          "type": "robot_release",
+                          "id": "b4",
+                          "next": {
+                            "block": {
+                              "type": "robot_turn_right",
+                              "id": "b5",
+                              "next": {
+                                "block": {
+                                  "type": "robot_turn_right",
+                                  "id": "b6",
+                                  "next": {
+                                    "block": {
+                                      "type": "robot_forward",
+                                      "id": "b7",
+                                      "fields": {
+                                        "N": 2
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "low",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "LOW_SCORE"
+      },
+      "say": "Đếm giây từng việc. Bỏ bớt việc ít điểm nhé.",
+      "point": "stage"
+    }
+  ]
+}

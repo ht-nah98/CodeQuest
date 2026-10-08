@@ -45,13 +45,14 @@ const MAX_BUILD_RUN = 3;
 
 /**
  * Kid-facing label of every action block (category `move`: it moves Măng or changes the world),
- * e.g. `runner_jump` → "nhảy". Rule 7 warns when the level introducing one never names it.
+ * e.g. `runner_jump` → "nhảy", `robot_forward` (`tiến %1 ô`) → "tiến ô": field placeholders
+ * dropped, spaces collapsed. Rule 7 warns when the level introducing one never names it.
  */
-const ACTION_LABELS: ReadonlyMap<string, string> = new Map(
+export const ACTION_LABELS: ReadonlyMap<string, string> = new Map(
   Object.values(gameKinds)
     .flatMap((kind) => kind.blocks)
     .filter((spec) => spec.category === 'move' && typeof spec.json.message0 === 'string')
-    .map((spec) => [spec.type, spec.json.message0.replace(/%\d+/g, '').trim().toLowerCase()]),
+    .map((spec) => [spec.type, words(spec.json.message0.replace(/%\d+/g, ' ')).trim()]),
 );
 
 /** Lower-case words of a sentence, space-padded, for whole-word matching ("đi" ≠ "đích"). */
@@ -60,6 +61,15 @@ function words(text: string): string {
     .toLowerCase()
     .replace(/[^\p{L}\p{N}]+/gu, ' ')
     .trim()} `;
+}
+
+/**
+ * Whether a hint names an action label as the child sees it on the block: whole words, and a
+ * number the child typed into a field counts as the field ("tiến 3 ô" names "tiến ô").
+ */
+export function hintNamesLabel(say: string, label: string): boolean {
+  const said = words(say);
+  return said.includes(` ${label} `) || said.replace(/ \p{N}+(?= )/gu, '').includes(` ${label} `);
 }
 
 function count<T>(items: readonly T[], keep: (item: T) => boolean): number {
@@ -223,7 +233,7 @@ export function checkCurriculum(input: CurriculumInput): CurriculumReport {
           if (
             label !== undefined &&
             label !== '' &&
-            !level.hints.some((hint) => words(hint.say).includes(` ${label} `))
+            !level.hints.some((hint) => hintNamesLabel(hint.say, label))
           ) {
             warnings.push({
               path,

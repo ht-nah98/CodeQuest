@@ -133,6 +133,33 @@ describe('content:check fixtures', () => {
     ]);
   });
 
+  it('robotlab-samples: the three robotlab sample levels pass with shared/robotlab.json (P3-01b)', () => {
+    const report = check('robotlab-samples');
+    expect(report.issues).toEqual([]);
+    expect(report.warnings).toEqual([]);
+    expect(report.entries.map((entry) => entry.detail).filter(Boolean)).toEqual([
+      'robotlab/build  par 3  sol 3  maps 2',
+      'robotlab/build  par 7  sol 7',
+      'robotlab/build  par 7  sol 7',
+    ]);
+  });
+
+  it('robotlab levels without shared/robotlab.json report rule 1 (file and levels)', () => {
+    const files = loadContentFiles(`${fixturesDir}robotlab-samples`).filter(
+      (file) => file.path !== 'shared/robotlab.json',
+    );
+    const report = checkContent(files);
+    expect(
+      report.issues.map((issue) => `${issue.path} ${String(issue.rule)} ${issue.message}`),
+    ).toEqual([
+      ...['robot-maps', 'robot-missions', 'robot-score'].map(
+        (id) =>
+          `worlds/_sandbox/levels/${id}.json 1 robotlab needs the shared rules shared/robotlab.json`,
+      ),
+      'shared/robotlab.json 1 file is missing; robotlab levels need the shared rules',
+    ]);
+  });
+
   it('exits 0 on the baseline, 0 on warnings only and 1 on errors', () => {
     const baseline = cli('baseline');
     expect(baseline.status).toBe(0);

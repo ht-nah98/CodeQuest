@@ -289,6 +289,15 @@ Schema kiểm (`superRefine`): kích thước 3–9, chỉ có ký tự của `R
 - `missions`: `win` · `stop@r,c` (hết chương trình, `MISSIONS_LEFT` hoặc `NOT_HOME`) · `crash:<REASON>@r,c` (`r,c` = ngã tư **Bíp đứng** khi lỗi) · `outOfTime@r,c` · `timeout`.
 - `score`: `score:<điểm>` (hết chương trình hoặc hết giờ, thắng hay thua) · `crash:<REASON>@r,c` · `timeout`. Ví dụ `score:160`.
 
+**Ghi chú cài đặt (P3-01a, 08/10/2026)** — code ở `packages/games/src/robotlab/`, khớp từng điểm dưới đây:
+- Schema: giây (`costs`) là số nguyên ≥ 1, điểm (`points`) là số nguyên ≥ 0; `rules.timeLimit` nguyên 1–600. Config đã gộp (`resolveRobotlabRules`) vẫn hợp lệ với `configSchema` của màn, nên `runLevel` giữ nguyên luật đã gộp; `createState` parse lại bằng `robotlabResolvedSchema`, thiếu trường nào là ném `robotlab config not resolved` (→ `INTERNAL_ERROR`).
+- State còn giữ (chỉ đọc) `map`, `rules`, `goal` để `evaluate` / `predictAnswer` không cần config.
+- Khối: lệnh hành động thuộc nhóm `move` (kiểu `move_blocks`), câu hỏi nhóm `sensor`. Ô số của `robot_forward` tên `N`; ô chọn màu của `robot_block_color` tên `COLOR` (`RED` / `YELLOW` / `GREEN`).
+- Thứ tự lỗi trong bước 1: **gắp** xét `HANDS_FULL` trước `NOTHING_TO_GRAB`; **thả** xét `HANDS_EMPTY`, rồi `CELL_TAKEN`, rồi bảng "Thả ở đâu". Lỗi ở bước 1 ghi `crashAt` = ô Bíp đứng.
+- Hết giờ ở màn `score` mà đã đủ `target` → `success` ngay (event cuối là `timeUp`); khóa đoán vẫn là `score:<điểm>`.
+- Nơi gọi `resolveRobotlabRules` đã nối ở P3-01a: helper test `resolvedFixture` (`robotlab.test.ts`) và `content:check` kiểm `shared/robotlab.json` bằng `robotlabRulesSchema`. **Chưa nối** (việc của P3-01b / P3-03): chạy lời giải màn robotlab trong `content:check` / `@codequest/validator`, `tools/par`, bộ nạp nội dung web (màn và thẻ `demo`), `runLevel` của màn `predict` trên web, `AnswerPicture`, `RobotLabStage`, level editor và worker vét cạn. Trước khi nối, màn robotlab chạy qua các chỗ đó sẽ ra `INTERNAL_ERROR` (không bao giờ chạy sai luật).
+- **P3-01b (08/10/2026):** đã nối `content:check` (đọc `shared/robotlab.json` trước mọi màn; thiếu file → luật 1), `validateLevel` (tùy chọn `shared`) và `npm run par` qua `resolveLevelConfigs(level, shared)` (`@codequest/games`, gộp `config` và mọi `variants`). Web dùng cùng hàm này; level editor và worker vét cạn: P3-05. Schema: `costs.forward`, `costs.turn` ≥ 1; luật 1 báo màn có `timeLimit / min(costs) × 2 + 2 > maxActions`. Vét cạn thử mọi số của `tiến [1–9] ô`. ADR-0021 (kèm số đo).
+
 Hình đáp án (`AnswerPicture`, dùng config đã gộp): sa bàn thu nhỏ, Bíp ở ô của khóa; `outOfTime` thêm đồng hồ cát; `score:` vẽ bảng điểm.
 
 **Mục tiêu sao:** robotlab v1 **không** cài `checkStarGoal` (luật 19: màn robotlab không có `starGoals`). W6 không cần: đánh đổi "nhiều cách giải" nằm ở `par` và ở màn `score`. Thêm loại mục tiêu khi một màn thật sự cần (ADR-0017).

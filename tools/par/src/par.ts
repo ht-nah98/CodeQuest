@@ -1,5 +1,6 @@
 import { basename, join, resolve } from 'node:path';
 import type { Level } from '@codequest/content-schema';
+import { robotlabRulesSchema, type SharedLevelRules } from '@codequest/games';
 import {
   findFixes,
   findParsonsArrangements,
@@ -81,6 +82,25 @@ export function findLevelFiles(
     );
   }
   return out;
+}
+
+/**
+ * Shared rules from `<sharedDir>/robotlab.json`, to merge into each level with
+ * `resolveLevelConfigs`. A missing or invalid file leaves robotlab out: its levels then fail
+ * loudly (INTERNAL_ERROR) instead of running with wrong rules; content:check says why.
+ */
+export function readSharedRules(
+  read: (path: string) => string,
+  sharedDir: string,
+): SharedLevelRules {
+  let json: unknown;
+  try {
+    json = JSON.parse(read(join(sharedDir, 'robotlab.json')));
+  } catch {
+    return {};
+  }
+  const rules = robotlabRulesSchema.safeParse(json);
+  return rules.success ? { robotlab: rules.data } : {};
 }
 
 /** One printed result: `✔`/`⚠`/`✖`/`–`, a headline and indented details. */

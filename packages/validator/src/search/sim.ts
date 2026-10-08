@@ -151,9 +151,27 @@ function unsupportedReason(kind: AnyGameKindDefinition, type: string): string | 
   return null;
 }
 
+/** Most values a `field_number` may have for the search to try them all. */
+export const MAX_NUMBER_FIELD_VALUES = 9;
+
+/**
+ * Every value of a whole-number `field_number` with `min` and `max` (at most
+ * `MAX_NUMBER_FIELD_VALUES` of them, e.g. robotlab's `tiến [1–9] ô`), or null for any other
+ * field (it keeps its Blockly default).
+ */
+function numberFieldValues(arg: Readonly<Record<string, unknown>>): number[] | null {
+  const { min, max, precision } = arg;
+  if (arg['type'] !== 'field_number' || precision !== 1) return null;
+  if (typeof min !== 'number' || typeof max !== 'number') return null;
+  if (!Number.isInteger(min) || !Number.isInteger(max) || max < min) return null;
+  if (max - min + 1 > MAX_NUMBER_FIELD_VALUES) return null;
+  return Array.from({ length: max - min + 1 }, (_, index) => min + index);
+}
+
 /**
  * Field values to try for a block: the toolbox entry's own fields, plus every option of each
- * `field_dropdown` the entry leaves open (one atom or sensor per combination). Other open
+ * `field_dropdown` and every value of each small whole-number `field_number` the entry leaves
+ * open (one atom or sensor per combination; the child can change those fields). Other open
  * fields keep their Blockly default.
  */
 function dropdownChoices(
@@ -167,15 +185,17 @@ function dropdownChoices(
   ];
   for (const arg of spec?.json.args0 ?? []) {
     const name = arg['name'];
+    if (typeof name !== 'string' || (given !== undefined && name in given)) continue;
     const options = arg['options'];
-    if (arg['type'] !== 'field_dropdown' || typeof name !== 'string' || !Array.isArray(options)) {
-      continue;
+    let values: Array<string | number> | null = numberFieldValues(arg);
+    if (values === null && arg['type'] === 'field_dropdown' && Array.isArray(options)) {
+      values = options
+        .map((option: unknown) => (Array.isArray(option) ? (option[1] as unknown) : undefined))
+        .filter((value): value is string => typeof value === 'string');
     }
-    if (given !== undefined && name in given) continue;
-    const values = options
-      .map((option: unknown) => (Array.isArray(option) ? (option[1] as unknown) : undefined))
-      .filter((value): value is string => typeof value === 'string');
-    choices = choices.flatMap((fields) => values.map((value) => ({ ...fields, [name]: value })));
+    if (values === null) continue;
+    const open = values;
+    choices = choices.flatMap((fields) => open.map((value) => ({ ...fields, [name]: value })));
   }
   return choices;
 }

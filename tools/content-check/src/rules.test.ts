@@ -258,6 +258,19 @@ describe('checkContent rules 1–2', () => {
     expect(rulesOf([json('shared/feedback.json', { TIMEOUT: '' })])).toEqual([1]);
   });
 
+  it('validates the shared robotlab rules', () => {
+    const rules = {
+      timeLimit: 120,
+      costs: { forward: 2, turn: 1, grab: 2, release: 2 },
+      points: { contain: 45, neutralize: 160, retrieve: 100, return: 40 },
+    };
+    expect(rulesOf([json('shared/robotlab.json', rules)])).toEqual([]);
+    expect(rulesOf([json('shared/robotlab.json', { ...rules, timeLimit: 0 })])).toEqual([1]);
+    expect(
+      new Set(rulesOf([json('shared/robotlab.json', { ...rules, costs: { forward: 2 } })])),
+    ).toEqual(new Set([1]));
+  });
+
   it('validates shop items and their ids', () => {
     expect(rulesOf([json('shared/shop.json', [{ ...shopItem, price: -1 }])])).toEqual([1]);
     expect(rulesOf([json('shared/shop.json', [{ ...shopItem, id: 'Skin_Astro' }])])).toEqual([

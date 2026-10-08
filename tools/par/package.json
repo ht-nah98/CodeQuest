@@ -5,6 +5,7 @@
   "type": "module",
   "dependencies": {
     "@codequest/content-schema": "*",
+    "@codequest/games": "*",
     "@codequest/validator": "*"
   }
 }
