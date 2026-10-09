@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import type { WorkspaceJson } from '@codequest/content-schema';
+import type { LevelVariable, WorkspaceJson } from '@codequest/content-schema';
 import { mountReadOnlyWorkspace, type ReadOnlyWorkspace } from '../../blockly/readOnlyWorkspace';
 import { loadBlocklyFonts } from '../../blockly/setup';
 import { vi } from '../../i18n/vi';
@@ -11,6 +11,8 @@ const t = vi.hints.solution;
 export interface SolutionViewerProps {
   /** `level.solution`. */
   solution: WorkspaceJson;
+  /** `level.variables` (ADR-0022): box blocks show the level's box names. */
+  variables?: readonly LevelVariable[] | undefined;
   onClose: () => void;
 }
 
@@ -18,7 +20,7 @@ export interface SolutionViewerProps {
  * Tier 3 (hint-engine.md §1): the level's solution in a read-only Blockly workspace inside an
  * overlay. The child's own workspace is untouched; they rebuild the program themselves.
  */
-export function SolutionViewer({ solution, onClose }: SolutionViewerProps) {
+export function SolutionViewer({ solution, variables, onClose }: SolutionViewerProps) {
   const ref = useRef<HTMLDivElement>(null);
   const boxRef = useRef<HTMLDivElement>(null);
   useModalDialog(ref, onClose);
@@ -31,7 +33,7 @@ export function SolutionViewer({ solution, onClose }: SolutionViewerProps) {
     let view: ReadOnlyWorkspace | null = null;
     void loadBlocklyFonts().then(() => {
       if (disposed) return;
-      view = mountReadOnlyWorkspace(box, solution, { scale: 1 });
+      view = mountReadOnlyWorkspace(box, solution, { scale: 1, variables });
       try {
         // Show the whole program; jsdom and a hidden box have no size to fit into.
         view.workspace.zoomToFit();
@@ -43,7 +45,7 @@ export function SolutionViewer({ solution, onClose }: SolutionViewerProps) {
       disposed = true;
       view?.dispose();
     };
-  }, [solution]);
+  }, [solution, variables]);
 
   return (
     <div ref={ref} className="fixed inset-0 z-40 grid place-items-center bg-ink/40 p-4">

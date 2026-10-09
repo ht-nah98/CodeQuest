@@ -1,13 +1,13 @@
 import type { Application } from 'pixi.js';
 import type { GameKindId, GoalSprite, SceneTheme } from '@codequest/content-schema';
-import type { GameEvent, RunOutcome } from '@codequest/engine';
+import type { GameEvent, RunOutcome, VarEvent } from '@codequest/engine';
 import { createStageApp, destroyStageApp } from './createStageApp';
 import { getStageKind, type StageFactory } from './registry';
 import { type PlayResult, Replay, type SenseMark, type Speed } from './replay';
 import { isAborted, type PandaAnimationListener, type StageRenderer } from './types';
 
 export type { PlayResult, Speed } from './replay';
-export { HIGHLIGHT_MS, SENSE_MS, TIMEOUT_REPLAY_MS } from './replay';
+export { HIGHLIGHT_MS, SENSE_MS, TIMEOUT_REPLAY_MS, VAR_MS } from './replay';
 export type { SenseMark } from './replay';
 
 export interface StageControllerOptions {
@@ -25,6 +25,8 @@ export interface StageControllerOptions {
   onHighlight: (blockId: string | null) => void;
   /** A question block was asked: show its ✔/✘ (P2-11); `null` clears the mark. */
   onSense?: (mark: SenseMark | null) => void;
+  /** A box changed during the replay (ADR-0022 §6): the box panel shows it. */
+  onVar?: (event: VarEvent) => void;
   onAnimation?: PandaAnimationListener;
   /** Step mode: true while the replay waits for `step()` (e2e reads it as data-waiting-step). */
   onWaitingStep?: (waiting: boolean) => void;

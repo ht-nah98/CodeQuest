@@ -51,6 +51,28 @@ describe('buildToolbox', () => {
     ]);
   });
 
+  it('puts the box blocks (ADR-0022) in their own "HỘP" group, pinned fields kept', () => {
+    const toolbox = buildToolbox({
+      mode: 'build',
+      toolbox: [
+        'maze_forward',
+        { type: 'cq_var_add', fields: { VAR: 'bamboo', NUM: 1 } },
+        { type: 'cq_repeat_var', fields: { VAR: 'bamboo' } },
+      ],
+    });
+    expect(toolbox.contents).toEqual([
+      label('DI CHUYỂN'),
+      { kind: 'block', type: 'maze_forward' },
+      label('HỘP'),
+      { kind: 'block', type: 'cq_var_add', fields: { VAR: 'bamboo', NUM: 1 } },
+      { kind: 'block', type: 'cq_repeat_var', fields: { VAR: 'bamboo' } },
+    ]);
+    expect(knownBlockSpecs().map((spec) => spec.type)).toEqual(
+      expect.arrayContaining(['cq_var_set', 'cq_var_add', 'cq_var_compare', 'cq_repeat_var']),
+    );
+    expect(BLOCK_STYLE_BY_CATEGORY.variable).toBe('variable_blocks');
+  });
+
   it('gives parsons levels an empty flyout, never no toolbox', () => {
     expect(buildToolbox({ mode: 'parsons', toolbox: ['t_walk'] }, SPECS)).toEqual({
       kind: 'flyoutToolbox',

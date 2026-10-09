@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { Ticker } from 'pixi.js';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import type { GameEvent, RunOutcome } from '@codequest/engine';
+import type { GameEvent, RunOutcome, VarEvent } from '@codequest/engine';
 import {
   HIGHLIGHT_MS,
   LOSE_TEMPO,
@@ -10,6 +10,7 @@ import {
   type SenseMark,
   TIMEOUT_REPLAY_MS,
   timeoutReplayEvents,
+  VAR_MS,
   WIN_TEMPO,
 } from './replay';
 import { type StageRenderer, tween } from './types';
@@ -311,7 +312,9 @@ describe('Replay', () => {
       blockId: `s${String(i)}`,
       value: false,
     }));
-    expect(timeoutReplayEvents(asks, () => 0)).toHaveLength(Math.ceil(TIMEOUT_REPLAY_MS / SENSE_MS));
+    expect(timeoutReplayEvents(asks, () => 0)).toHaveLength(
+      Math.ceil(TIMEOUT_REPLAY_MS / SENSE_MS),
+    );
   });
 
   it('a timed-out run ends with the dizzy cue instead of rest, then finish', async () => {
@@ -493,5 +496,96 @@ describe('Replay onReset', () => {
     hooked.reset();
     await expect(done).resolves.toBe('aborted');
     expect(order).toEqual(['onReset after reset', 'walk', 'onReset after reset']);
+  });
+});
+
+describe('Replay onVar (box panel, ADR-0022)', () => {
+  const run = (result: RunOutcome['result'], reasonCode: RunOutcome['reasonCode']): RunOutcome => ({
+    result,
+    reasonCode,
+    events: [
+      { type: 'highlight', blockId: 'add1' },
+      { type: 'var', blockId: 'add1', id: 'bamboo', value: 1 },
+      { type: 'highlight', blockId: 'w' },
+      { type: 'walk', blockId: 'w' },
+      { type: 'highlight', blockId: 'add1' },
+      { type: 'var', blockId: 'add1', id: 'bamboo', value: 1, overflow: true },
+    ],
+    stats: { steps: 3, actions: 3, blocksUsed: 2 },
+  });
+
+  it('hands var events to onVar for VAR_MS each, never to the renderer or onEvent', async () => {
+    const vars: VarEvent[] = [];
+    const sounds: string[] = [];
+    replay = new Replay(ticker, renderer, {
+      onHighlight: (id) => highlights.push(id),
+      onVar: (event) => vars.push(event),
+      onEvent: (event) => sounds.push(event.type),
+    });
+    const done = replay.play(run('crash', 'BOX_FULL'));
+    await advance(HIGHLIGHT_MS + VAR_MS / 2);
+    expect(vars).toEqual([{ type: 'var', blockId: 'add1', id: 'bamboo', value: 1 }]);
+    expect(renderer.played).toEqual([]);
+    await advance(3000);
+    await expect(done).resolves.toBe('finished');
+    expect(vars.map((event) => event.overflow ?? false)).toEqual([false, true]);
+    expect(renderer.played).toEqual(['walk']);
+    expect(sounds).toEqual(['walk']);
+    // A full box is no crash of the kind's own: Măng rests, then the end cue.
+    expect(renderer.calls.slice(-2)).toEqual(['rest', 'finish']);
+  });
+
+  it('step mode waits before every box change', async () => {
+    const vars: VarEvent[] = [];
+    replay = new Replay(ticker, renderer, {
+      onHighlight: (id) => highlights.push(id),
+      onVar: (event) => vars.push(event),
+    });
+    const done = replay.play(run('crash', 'BOX_FULL'), { step: true });
+    await advance(HIGHLIGHT_MS / LOSE_TEMPO + 50);
+    expect(replay.waitingForStep).toBe(true);
+    expect(vars).toHaveLength(0);
+    replay.step();
+    await advance((VAR_MS + HIGHLIGHT_MS) / LOSE_TEMPO + 50);
+    expect(vars).toHaveLength(1);
+    expect(replay.waitingForStep).toBe(true);
+    replay.step();
+    await advance((ACTION_MS + HIGHLIGHT_MS) / LOSE_TEMPO + 50);
+    expect(replay.waitingForStep).toBe(true);
+    replay.step();
+    await advance(VAR_MS / LOSE_TEMPO + 50);
+    await expect(done).resolves.toBe('finished');
+    expect(vars).toHaveLength(2);
+  });
+
+  it('a var event is never passed as `next`: walk, var, walk plays two walks with no next', async () => {
+    replay = new Replay(ticker, renderer, { onHighlight: (id) => highlights.push(id) });
+    const run: RunOutcome = {
+      result: 'success',
+      reasonCode: null,
+      events: [
+        { type: 'walk', blockId: 'w' },
+        { type: 'var', blockId: 'a', id: 'n', value: 1 },
+        { type: 'walk', blockId: 'w' },
+      ],
+      stats: { steps: 3, actions: 3, blocksUsed: 2 },
+    };
+    const done = replay.play(run);
+    await advance(3000);
+    await expect(done).resolves.toBe('finished');
+    expect(renderer.played).toEqual(['walk', 'walk']);
+    // Without the rule the first walk would get the var event as its `next`.
+    expect(renderer.nexts).toEqual([null, null]);
+  });
+
+  it('timeouts count a var event as VAR_MS and may cut before it', () => {
+    const events: GameEvent[] = [
+      { type: 'walk', blockId: 'w' },
+      { type: 'var', blockId: 'a', id: 'n', value: 1 } as VarEvent,
+      { type: 'walk', blockId: 'w' },
+    ];
+    expect(timeoutReplayEvents(events, () => 0)).toHaveLength(3);
+    const long = Array.from({ length: 20 }, () => events[1] as GameEvent);
+    expect(timeoutReplayEvents(long, () => 0)).toHaveLength(Math.ceil(TIMEOUT_REPLAY_MS / VAR_MS));
   });
 });

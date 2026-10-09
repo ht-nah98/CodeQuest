@@ -1,0 +1,70 @@
+{
+  "id": "maze-box-predict",
+  "worldId": "_sandbox",
+  "stage": "practice",
+  "kind": "maze",
+  "mode": "predict",
+  "title": "Hộp có mấy măng?",
+  "objective": "Măng tới đích. Hộp có mấy măng?",
+  "learningGoal": "Đọc chương trình và đoán số trong hộp lúc chạy xong.",
+  "misconception": "Hộp tự đếm cả ô trống.",
+  "toolbox": [],
+  "variables": [
+    {
+      "id": "bamboo",
+      "name": "số măng"
+    }
+  ],
+  "config": {
+    "map": ["######", "Sb.bbG", "######"],
+    "startDir": "E"
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "loop",
+              "fields": { "TIMES": 5 },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "cq_if",
+                    "id": "if1",
+                    "inputs": {
+                      "COND": { "block": { "type": "maze_bamboo_ahead", "id": "ask1" } },
+                      "DO": {
+                        "block": {
+                          "type": "cq_var_add",
+                          "id": "add1",
+                          "fields": { "VAR": "bamboo", "NUM": 1 }
+                        }
+                      }
+                    },
+                    "next": { "block": { "type": "maze_forward", "id": "fwd1" } }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "predict": {
+    "options": [
+      { "key": "win#bamboo=2", "label": "Tới đích, 2 măng" },
+      { "key": "win#bamboo=3", "label": "Tới đích, 3 măng" },
+      { "key": "win#bamboo=5", "label": "Tới đích, 5 măng" }
+    ]
+  },
+  "hints": []
+}
