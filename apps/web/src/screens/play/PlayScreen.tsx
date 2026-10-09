@@ -8,6 +8,7 @@ import {
 } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router';
 import * as Blockly from 'blockly';
+import { examConfig, planExam, planWorkspace, robotlabResolvedSchema } from '@codequest/games';
 import {
   type FeedbackFile,
   type Level,
@@ -55,6 +56,16 @@ import {
 import type { WinReward } from '../../features/play/session';
 import { hasStarGoals } from '../../features/play/starGoals';
 import { usePlaySession } from '../../features/play/usePlaySession';
+import {
+  addExamRun,
+  examBest,
+  examFinished,
+  type ExamScoreboard,
+  newScoreboard,
+  nextSeed,
+  parseSeed,
+  runPoints,
+} from '../../features/play/exam';
 import { useSignedInProfile } from '../../features/profiles';
 import { vi } from '../../i18n/vi';
 import type { PandaAnimation } from '../../stages/panda';
@@ -77,6 +88,7 @@ import { PlayTopBar } from './PlayTopBar';
 import { type PickMark, PredictCards } from './PredictCards';
 import { HintBox } from './HintBox';
 import { type MapMark, MapTabs } from './MapTabs';
+import { ExamBar } from './ExamBar';
 import { ResultsOverlay } from './ResultsOverlay';
 import { SolutionViewer } from './SolutionViewer';
 import { StarGoalsCard } from './StarGoalsCard';
@@ -228,6 +240,12 @@ const VOICED_WIN_LINES: readonly PlayLine[] = [
 
 type Phase = 'idle' | 'running' | 'success' | 'fail';
 
+/** A mock-exam level (P3-08) with the blocks of đề `seed` ("Đề mới"); other levels unchanged. */
+function examLevelOf(level: Level, seed: number): Level {
+  if (level.exam === undefined) return level;
+  return { ...level, config: examConfig(robotlabResolvedSchema.parse(level.config), seed) };
+}
+
 // Text labels, not 🐢/🐇: emoji fonts are not guaranteed on the children's laptops.
 const SPEEDS: ReadonlyArray<{ speed: Speed; label: string }> = [
   { speed: 0.5, label: t.speeds.slow },
@@ -277,23 +295,57 @@ function PlaySession({
   const { mode } = level;
   // The world's scenery (P2-23). Dev builds: `?theme=` previews another theme on any level
   // (internal review of a theme whose world has no content yet, e.g. song).
-  const [search] = useSearchParams();
+  const [search, setSearch] = useSearchParams();
   const theme =
     (import.meta.env.DEV ? parseSceneTheme(search.get('theme')) : null) ?? sceneThemeOf(world);
   const predict = mode === 'predict' ? level.predict : undefined;
+  // Mock exam (P3-08): the đề on the board (`?de=` replays one) and its scoreboard. `playLevel`
+  // is what runs and what the stage draws; the session, rewards and hints keep `level`.
+  const exam = level.exam;
+  const [scoreboard, setScoreboard] = useState<ExamScoreboard | null>(() =>
+    exam === undefined ? null : newScoreboard(parseSeed(search.get('de')) ?? exam.seed, exam.runs),
+  );
+  // `?de=` changed by the browser (back / forward, an edited address): show that đề. Adjusted
+  // during render (not in an effect); "Đề mới" itself writes the seed it already shows.
+  const urlSeed = parseSeed(search.get('de'));
+  const [seenUrlSeed, setSeenUrlSeed] = useState(urlSeed);
+  if (urlSeed !== seenUrlSeed) {
+    setSeenUrlSeed(urlSeed);
+    if (urlSeed !== null && scoreboard !== null && urlSeed !== scoreboard.seed) {
+      setScoreboard(newScoreboard(urlSeed, scoreboard.runs));
+    }
+  }
+  /** Mock exam: the scoreboard slot of the run replaying now (null: it does not count). */
+  const [liveSlot, setLiveSlot] = useState<number | null>(null);
+  const examSeed = scoreboard?.seed ?? null;
+  const playLevel = useMemo(
+    () => (examSeed === null ? level : examLevelOf(level, examSeed)),
+    [level, examSeed],
+  );
   const readyLine = useMemo(
     () =>
-      mode === 'build'
-        ? uiLine('play.ready', t.ready)
-        : uiLine(`play.readyByMode.${mode}`, t.readyByMode[mode]),
-    [mode],
+      examSeed !== null
+        ? { text: t.exam.ready(examSeed) }
+        : mode === 'build'
+          ? uiLine('play.ready', t.ready)
+          : uiLine(`play.readyByMode.${mode}`, t.readyByMode[mode]),
+    [mode, examSeed],
   );
   useMusic('adventure');
   const rootRef = useRef<HTMLElement>(null);
   const navigate = useNavigate();
   const stageBoxRef = useRef<HTMLDivElement>(null);
   // Multi-map levels (P2-12): map 1 is `config`, then each variant; the stage shows one at a time.
-  const maps = useMemo(() => mapsOf(level), [level]);
+  const maps = useMemo(() => mapsOf(playLevel), [playLevel]);
+  // Mock exam on another đề than the file's: the file's solution does not fit, show the
+  // generator's plan for this đề instead.
+  const solution = useMemo(
+    () =>
+      playLevel === level || examSeed === level.exam?.seed
+        ? level.solution
+        : planWorkspace(planExam(robotlabResolvedSchema.parse(playLevel.config)).steps),
+    [playLevel, level, examSeed],
+  );
   const [mapIndex, setMapIndex] = useState(0);
   /** The map on the stage, readable in callbacks and stage hooks. */
   const mapIndexRef = useRef(0);
@@ -627,10 +679,24 @@ function PlaySession({
       };
       let outcome: RunOutcome;
       try {
-        outcome = runProgram(level, json);
+        outcome = runProgram(playLevel, json);
       } catch {
         fail();
         return;
+      }
+      // Mock exam: the run counts as soon as it ran (like every run); its slot shows the points
+      // when the replay ends. What Măng says then: the run's points, or the best after the last.
+      let examLine: PlayLine | null = null;
+      if (scoreboard !== null) {
+        const points = runPoints(robotlabResolvedSchema.parse(playLevel.config), outcome);
+        const next = addExamRun(scoreboard, points);
+        setLiveSlot(next === scoreboard ? null : next.points.length - 1);
+        if (next === scoreboard) examLine = { text: t.exam.extraRun };
+        else if (examFinished(next)) examLine = { text: t.exam.finished(examBest(next) ?? 0) };
+        else if (outcome.result === 'success') {
+          examLine = { text: t.exam.runDone(next.points.length, points) };
+        }
+        setScoreboard(next);
       }
       // Every run counts as soon as it ran, even if the replay is stopped or the child leaves
       // before it ends (rewards-engine.md §3 "Quy ước gọi").
@@ -667,11 +733,15 @@ function PlaySession({
         return 'finished';
       };
       playMaps().then((result) => {
-        if (result === 'finished') finish(outcome, rewardOf);
+        if (result !== 'finished') return;
+        finish(outcome, rewardOf);
+        if (examLine !== null) say(examLine);
       }, fail);
     },
     [
       level,
+      playLevel,
+      scoreboard,
       mode,
       feedback,
       finish,
@@ -974,6 +1044,20 @@ function PlaySession({
 
   const running = phase === 'running';
 
+  /** Mock exam: put đề `seed` on the board (a fresh stage) with an empty scoreboard. */
+  const chooseSeed = (seed: number) => {
+    if (scoreboard === null || running) return;
+    setScoreboard(newScoreboard(seed, scoreboard.runs));
+    setSearch(
+      (params) => {
+        const next = new URLSearchParams(params);
+        next.set('de', String(seed));
+        return next;
+      },
+      { replace: true },
+    );
+  };
+
   return (
     <main
       ref={rootRef}
@@ -1250,7 +1334,23 @@ function PlaySession({
           {mode === 'bughunt' && (
             <BughuntBar edits={edits} parEdits={level.parEdits ?? DEFAULT_PAR_EDITS} />
           )}
-          {mode === 'creative' && (
+          {scoreboard !== null && (
+            <ExamBar
+              board={scoreboard}
+              running={running}
+              pending={running ? liveSlot : null}
+              onNewExam={() => {
+                chooseSeed(nextSeed(scoreboard.seed, Math.random));
+              }}
+              onSeed={chooseSeed}
+              onRestart={() => {
+                setScoreboard(newScoreboard(scoreboard.seed, scoreboard.runs));
+                reset();
+                focusStage();
+              }}
+            />
+          )}
+          {mode === 'creative' && scoreboard === null && (
             <div className="flex min-h-14 items-center gap-3 border-t-3 border-ink bg-paper px-4 py-2">
               <span className="font-bold text-ink-soft">{t.creative.label}</span>
               <Button
@@ -1313,7 +1413,7 @@ function PlaySession({
         />
       )}
       {playHints.solutionOpen && level.solution !== undefined && (
-        <SolutionViewer solution={level.solution} onClose={playHints.closeSolution} />
+        <SolutionViewer solution={solution ?? level.solution} onClose={playHints.closeSolution} />
       )}
       {goalsCardOpen && (
         <StarGoalsCard

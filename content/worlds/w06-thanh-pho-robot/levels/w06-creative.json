@@ -5,8 +5,8 @@
   "kind": "robotlab",
   "mode": "creative",
   "title": "Sa bàn tập",
-  "objective": "Sa bàn tập, gần giống đề thi. Tự đặt chiến thuật!",
-  "learningGoal": "Tự lập chiến thuật trên sa bàn 7×7 gần giống đề thi: đủ ba việc, đồng hồ 120 giây.",
+  "objective": "Sa bàn Thành Phố Măng. Tự đặt chiến thuật!",
+  "learningGoal": "Tự lập chiến thuật trên sa bàn lớn Thành Phố Măng (9×7): đủ ba việc, đồng hồ 120 giây.",
   "mission": "Sa bàn tập: tự đặt chiến thuật cho Bíp!",
   "toolbox": [
     "robot_forward",
@@ -28,41 +28,54 @@
     "robot_at_lab"
   ],
   "config": {
-    "map": ["r..Z..y", ".#.#.#.", "...L...", ".#.#.#.", "g.....Z", ".#.#.#.", "......."],
-    "startDir": "S",
+    "map": [
+      "y##.#...g",
+      "......##.",
+      ".##.#....",
+      ".##L#.##.",
+      "....#..ZZ",
+      "#.#...##r",
+      "....#...."
+    ],
+    "startDir": "N",
     "blocks": [
       {
         "kind": "fence",
-        "at": [6, 0]
+        "at": [0, 5]
       },
       {
         "kind": "fence",
-        "at": [6, 6]
+        "at": [3, 5]
       },
       {
         "kind": "neutralizer",
         "color": "RED",
-        "at": [2, 1]
+        "at": [2, 7]
       },
       {
         "kind": "neutralizer",
         "color": "YELLOW",
-        "at": [4, 3]
+        "at": [6, 7]
       },
       {
         "kind": "neutralizer",
         "color": "GREEN",
-        "at": [6, 3]
+        "at": [2, 0]
+      },
+      {
+        "kind": "pollution",
+        "color": "GREEN",
+        "at": [4, 2]
       },
       {
         "kind": "pollution",
         "color": "RED",
-        "at": [0, 1]
+        "at": [0, 7]
       },
       {
         "kind": "pollution",
-        "color": "YELLOW",
-        "at": [2, 5]
+        "color": "RED",
+        "at": [6, 3]
       }
     ],
     "goal": {

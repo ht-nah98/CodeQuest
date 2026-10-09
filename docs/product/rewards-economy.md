@@ -43,6 +43,7 @@ Cách chơi đặc biệt:
 - `predict`: đúng ngay lần chọn đầu = ⭐⭐⭐, lần 2 = ⭐⭐, từ lần 3 trở đi = ⭐. Không có `par`.
 - `bughunt`: ⭐⭐ khi số khối thay đổi ≤ `parEdits` (mặc định 1), thay cho điều kiện số khối.
 - `creative`: không có sao. Lần lưu đầu tiên được +10 xu.
+- Thi thử (`level.exam`, mode `creative`, P3-08, W6 `w06-exam`): không sao, không xu, không có nút Lưu (bảng điểm 2 lượt thay chỗ). Chỉ là luyện tập; thưởng nếu HLV muốn: `coach-questions.md` H21.
 
 Sao tốt nhất của mỗi màn được lưu lại. Chơi lại chỉ có thể **tăng** sao, không bao giờ giảm.
 

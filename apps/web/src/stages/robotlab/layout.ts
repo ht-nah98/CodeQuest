@@ -41,6 +41,8 @@ export interface HudLayout {
   chips: ChipPlace[];
   /** Height reserved at the top for the chips (the board starts below). */
   band: number;
+  /** Width reserved on the left for a column of chips (`layoutHudColumn`), else 0. */
+  side?: number;
 }
 
 /**
@@ -61,6 +63,26 @@ export function layoutHud(widths: readonly number[], stageWidth: number): HudLay
   }
   const band = widths.length === 0 ? 0 : y + HUD_CHIP_HEIGHT + HUD_GAP;
   return { chips, band };
+}
+
+/**
+ * Stacks HUD chips in one column down the left edge (a wide stage with a tall board, e.g. the
+ * 9 × 7 Thành Phố Măng board: the chips would take two rows on top). Null when they do not fit
+ * the stage height above the bottom tag strip.
+ */
+export function layoutHudColumn(
+  widths: readonly number[],
+  stageHeight: number,
+  bottomBand = LABEL_STRIP,
+): HudLayout | null {
+  if (widths.length === 0) return null;
+  const tall = widths.length * (HUD_CHIP_HEIGHT + HUD_GAP) - HUD_GAP + 2 * HUD_MARGIN;
+  if (tall > stageHeight - bottomBand) return null;
+  const chips = widths.map((_, i) => ({
+    x: HUD_MARGIN,
+    y: HUD_MARGIN + i * (HUD_CHIP_HEIGHT + HUD_GAP),
+  }));
+  return { chips, band: 0, side: HUD_MARGIN + Math.max(...widths) + HUD_GAP };
 }
 
 export interface RobotLayout {
@@ -98,12 +120,14 @@ export function computeRobotLayout(
   height: number,
   topBand = 0,
   bottomBand = LABEL_STRIP,
+  leftBand = 0,
 ): RobotLayout {
   const spanRows = rows + 2 * MAT_CELLS;
   const spanCols = cols + 2 * MAT_CELLS;
   const usableHeight = Math.max(1, height - topBand - bottomBand);
+  const usableWidth = Math.max(1, width - leftBand);
   const fit = Math.min(
-    (width - 2 * MARGIN_PX) / spanCols,
+    (usableWidth - 2 * MARGIN_PX) / spanCols,
     (usableHeight - 2 * MARGIN_PX) / spanRows,
   );
   const snapped =
@@ -112,7 +136,7 @@ export function computeRobotLayout(
       : Math.floor(fit);
   const cellPx = clamp(snapped, MIN_CELL_PX, MAX_CELL_PX);
   const texel = Math.max(1, Math.floor(cellPx / ROBOT_CELL_TEXELS));
-  const originX = Math.round((width - cols * cellPx) / 2);
+  const originX = leftBand + Math.round((usableWidth - cols * cellPx) / 2);
   const originY = topBand + Math.round((usableHeight - rows * cellPx) / 2);
   return {
     width,

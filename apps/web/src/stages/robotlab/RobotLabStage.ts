@@ -15,6 +15,7 @@ import {
   type RobotColor,
   type RobotLabConfig,
   type RobotLabEvent,
+  boardOfMap,
   STATION_OF,
 } from '@codequest/games';
 import { vi } from '../../i18n/vi';
@@ -25,6 +26,7 @@ import { reducedMotion } from '../motion';
 import { CITY_DETAIL, sceneArt } from '../sceneThemes';
 import { pixelTexture } from '../tiles';
 import { isAborted, type StageRenderer, tween } from '../types';
+import { CITY_GROUND, type CellScenery, cityScenery, type SceneryArt, sceneryArt } from './cityArt';
 import {
   applyEvent,
   type BoardScore,
@@ -40,7 +42,9 @@ import {
   initialBoard,
   type JobKind,
   jobKinds,
+  type HudLayout,
   layoutHud,
+  layoutHudColumn,
   lineSegments,
   MAT_CELLS,
   robotGeometry,
@@ -52,8 +56,6 @@ import {
 import {
   blockArt,
   blockArtKey,
-  BUILDING,
-  BUILDING_PALETTES,
   CLAW_CLOSED,
   CLAW_OPEN,
   CLOCK,
@@ -106,20 +108,27 @@ const GLYPH_EM = 0.42;
 /** Run-end reasons that leave jobs to point at (finish cue). */
 const JOB_REASONS: ReadonlySet<string> = new Set(['MISSIONS_LEFT', 'LOW_SCORE']);
 
-type ArtName =
-  | 'trophy'
-  | 'body'
-  | 'clawOpen'
-  | 'clawClosed'
-  | 'flask'
-  | 'clock'
-  | 'sparkle'
-  | 'building0'
-  | 'building1';
+type ArtName = 'trophy' | 'body' | 'clawOpen' | 'clawClosed' | 'flask' | 'clock' | 'sparkle';
 
 /** Textures of the robot lab, made once per session (like the maze tiles). */
 let artCache: Record<ArtName, Texture> | null = null;
 const blockTextures = new Map<string, Texture>();
+const sceneryTextures = new Map<SceneryArt, Texture>();
+
+/** A scenery picture of a `#` cell (cityArt.ts), made once per session. */
+function sceneryTexture(name: SceneryArt): Texture {
+  let texture = sceneryTextures.get(name);
+  if (texture === undefined) {
+    const { rows, palette } = sceneryArt(name);
+    texture = pixelTexture(patternPixels(rows, palette));
+    sceneryTextures.set(name, texture);
+  }
+  return texture;
+}
+
+/** One smoke puff from the factory chimney: its age (ms) in a slow, looping rise. */
+const SMOKE_PUFFS = 3;
+const SMOKE_LIFE = 2400;
 
 function robotTextures(): Record<ArtName, Texture> {
   artCache ??= {
@@ -130,8 +139,6 @@ function robotTextures(): Record<ArtName, Texture> {
     clock: pixelTexture(patternPixels(CLOCK, { ...ROBOT_PALETTE, X: C.oops })),
     trophy: pixelTexture(patternPixels(TROPHY, ROBOT_PALETTE)),
     sparkle: pixelTexture(patternPixels(PATTERNS.sparkle)),
-    building0: pixelTexture(patternPixels(BUILDING, BUILDING_PALETTES[0])),
-    building1: pixelTexture(patternPixels(BUILDING, BUILDING_PALETTES[1])),
   };
   return artCache;
 }
@@ -203,6 +210,9 @@ export class RobotLabStage implements StageRenderer<RobotLabEvent> {
   /** Dots that light up as Bíp counts crossings, frames of the finish cue, crash flash. */
   private readonly glow = new Graphics();
   private readonly marks = new Graphics();
+  /** Smoke over the factory chimney (scenery; still when motion is reduced). */
+  private readonly smoke = new Graphics();
+  private readonly scenery: CellScenery[][];
   private readonly flash = new Graphics();
   private readonly robotBody = new Container();
   private readonly bodySprite: Sprite;
@@ -253,6 +263,7 @@ export class RobotLabStage implements StageRenderer<RobotLabEvent> {
     this.theme = theme ?? DEFAULT_SCENE_THEME;
     app.canvas.dataset.theme = this.theme;
     this.jobs = jobKinds(config);
+    this.scenery = cityScenery(config.map);
     this.state = initialBoard(config);
     this.score = boardScore(this.state, config);
     this.pose = this.startPose();
@@ -294,6 +305,7 @@ export class RobotLabStage implements StageRenderer<RobotLabEvent> {
     this.fx.addChild(...this.stars, ...(this.count ? [this.count] : []));
     this.world.addChild(
       this.board,
+      this.smoke,
       this.glow,
       this.marks,
       this.robotBody,
@@ -630,6 +642,10 @@ export class RobotLabStage implements StageRenderer<RobotLabEvent> {
     data.robotTimeUp = String(state.timeUp);
     data.robotStunned = String(this.stunned);
     data.robotFinish = this.finishCue ?? 'none';
+    // The đề on the board: where each block started (changes with "Đề mới", P3-08).
+    data.robotLayout = (this.config.blocks ?? [])
+      .map((block) => `${block.kind}@${cellKey(block.at)}`)
+      .join(' ');
   }
 
   /** Places every block on the board (hidden when held or retrieved) and the held one. */
@@ -744,6 +760,7 @@ export class RobotLabStage implements StageRenderer<RobotLabEvent> {
     });
 
     this.drawFinishMarks(still);
+    this.drawSmoke(still);
 
     for (const particle of this.particles) {
       particle.age += dt;
@@ -785,6 +802,28 @@ export class RobotLabStage implements StageRenderer<RobotLabEvent> {
     const wobble = this.shake > 0 ? Math.round(Math.sin(this.clock / 18) * 5 * this.shake) : 0;
     this.world.position.set(wobble, 0);
   };
+
+  /** Grey puffs rising from every chimney cell, drifting a little east; one still puff if reduced. */
+  private drawSmoke(still: boolean): void {
+    this.smoke.clear();
+    const { layout } = this;
+    const { cellPx } = layout;
+    this.scenery.forEach((row, r) => {
+      row.forEach((cell, c) => {
+        if (cell.kind !== 'art' || cell.art !== 'chimney') return;
+        const base = cellCenter(layout, r, c);
+        for (let i = 0; i < (still ? 1 : SMOKE_PUFFS); i++) {
+          const k = still
+            ? 0.35
+            : ((this.clock + (i * SMOKE_LIFE) / SMOKE_PUFFS) % SMOKE_LIFE) / SMOKE_LIFE;
+          const radius = cellPx * (0.1 + 0.12 * k);
+          this.smoke
+            .circle(base.x + cellPx * 0.25 * k, base.y - cellPx * (0.05 + 0.55 * k), radius)
+            .fill({ color: CITY_GROUND.smoke, alpha: 0.85 * (1 - k) });
+        }
+      });
+    });
+  }
 
   /** Pink frames on the jobs left (MISSIONS_LEFT, LOW_SCORE) or on the lab (NOT_HOME). */
   private drawFinishMarks(still: boolean): void {
@@ -830,18 +869,24 @@ export class RobotLabStage implements StageRenderer<RobotLabEvent> {
   /** Lays out HUD and board for a stage size, then redraws the board. */
   private rebuild(width: number, height: number): void {
     this.buildHud();
-    const band = layoutHud(
-      this.chips.map((chip) => chip.width),
-      width,
-    ).band;
-    this.layout = computeRobotLayout(
-      this.config.map.length,
-      this.config.map[0]?.length ?? 0,
-      width,
-      height,
-      band,
-    );
-    this.placeHud(width);
+    // HUD on top (rows), or in a column on the left when that gives bigger crossings.
+    const widths = this.chips.map((chip) => chip.width);
+    const rows = this.config.map.length;
+    const cols = this.config.map[0]?.length ?? 0;
+    const top = layoutHud(widths, width);
+    let hud: HudLayout = top;
+    this.layout = computeRobotLayout(rows, cols, width, height, top.band);
+    const column = layoutHudColumn(widths, height);
+    if (column !== null) {
+      const side = computeRobotLayout(rows, cols, width, height, 0, undefined, column.side);
+      if (side.cellPx > this.layout.cellPx) {
+        this.layout = side;
+        hud = column;
+      }
+    }
+    this.placeHud(width, hud);
+    // e2e: where the HUD went.
+    this.app.canvas.dataset.robotHud = hud.side === undefined ? 'top' : 'side';
     this.buildBoard();
   }
 
@@ -938,19 +983,76 @@ export class RobotLabStage implements StageRenderer<RobotLabEvent> {
     });
     this.board.addChild(tiles);
 
-    // Buildings on `#` cells.
-    map.forEach((row, r) => {
-      Array.from(row).forEach((tile, c) => {
-        if (tile !== '#') return;
-        const sprite = new Sprite((r + c) % 2 === 0 ? textures.building0 : textures.building1);
-        const scale = cellPx / 16;
-        sprite.scale.set(Math.max(1, Math.floor(scale)));
-        const size = 16 * Math.max(1, Math.floor(scale));
+    // Scenery (cityArt.ts): district ground, river and bridges, then pictures on `#` cells.
+    // Ground and water fill whole cells so a small board has no gaps; pictures snap to texels.
+    const scene = new Graphics();
+    const art: Sprite[] = [];
+    this.scenery.forEach((row, r) => {
+      row.forEach((cell, c) => {
         const { x, y } = cellCenter(layout, r, c);
-        sprite.position.set(Math.round(x - size / 2), Math.round(y - size / 2));
-        this.board.addChild(sprite);
+        const x0 = x - half;
+        const y0 = y - half;
+        if (cell.kind === 'water' || cell.kind === 'bridge') {
+          scene.rect(x0, y0, cellPx, cellPx).fill(CITY_GROUND.water);
+          // Waves: short strokes on a texel grid, offset by row so the river seems to flow.
+          for (let k = 0; k < 3; k++) {
+            const wx = x0 + ((k * 5 + r * 3) % 12) * (cellPx / 16);
+            const wy = y0 + (2 + k * 5) * (cellPx / 16);
+            scene.rect(wx, wy, 3 * (cellPx / 16), Math.max(1, cellPx / 16));
+          }
+          scene.fill(CITY_GROUND.wave);
+          const bank = Math.max(1, Math.round(cellPx / 16));
+          if (cell.kind === 'water') {
+            // Sandy banks on the sides that are not river.
+            if (
+              this.scenery[r]?.[c - 1]?.kind !== 'water' &&
+              this.scenery[r]?.[c - 1]?.kind !== 'bridge'
+            ) {
+              scene.rect(x0, y0, bank, cellPx);
+            }
+            if (
+              this.scenery[r]?.[c + 1]?.kind !== 'water' &&
+              this.scenery[r]?.[c + 1]?.kind !== 'bridge'
+            ) {
+              scene.rect(x0 + cellPx - bank, y0, bank, cellPx);
+            }
+            scene.fill(CITY_GROUND.bank);
+          }
+        }
+        if (cell.kind === 'bridge') {
+          // A wooden deck under the line, with rails on both sides.
+          const across = cell.across === 'EW';
+          const deck = Math.round(cellPx * 0.56);
+          const dx = across ? x0 : x - deck / 2;
+          const dy = across ? y - deck / 2 : y0;
+          const dw = across ? cellPx : deck;
+          const dh = across ? deck : cellPx;
+          scene.rect(dx, dy, dw, dh).fill(CITY_GROUND.plank);
+          const seam = Math.max(1, Math.round(cellPx / 16));
+          for (let k = 1; k < 4; k++) {
+            if (across) scene.rect(x0 + (k * cellPx) / 4, dy, seam, dh);
+            else scene.rect(dx, y0 + (k * cellPx) / 4, dw, seam);
+          }
+          scene.fill(CITY_GROUND.plankSeam);
+          const rail = 2 * seam;
+          if (across) scene.rect(dx, dy, dw, rail).rect(dx, dy + dh - rail, dw, rail);
+          else scene.rect(dx, dy, rail, dh).rect(dx + dw - rail, dy, rail, dh);
+          scene.fill(CITY_GROUND.rail);
+        }
+        if (cell.kind === 'art') {
+          if (cell.ground === 'grass') scene.rect(x0, y0, cellPx, cellPx).fill(CITY_GROUND.grass);
+          const sprite = new Sprite(sceneryTexture(cell.art));
+          const zoom = Math.max(1, Math.floor(cellPx / 16));
+          sprite.scale.set(zoom);
+          const size = 16 * zoom;
+          sprite.position.set(Math.round(x - size / 2), Math.round(y - size / 2));
+          art.push(sprite);
+        }
       });
     });
+    this.board.addChild(scene, ...art);
+    // e2e: which board's scenery is drawn ('none' for a map that is not a known board).
+    this.app.canvas.dataset.robotBoard = boardOfMap(map)?.id ?? 'none';
 
     // The black line between neighbouring crossings, then a dot on every crossing.
     const line = new Graphics();
@@ -1052,11 +1154,8 @@ export class RobotLabStage implements StageRenderer<RobotLabEvent> {
   }
 
   /** Puts the chips in rows along the top and the tag in the bottom-right corner. */
-  private placeHud(width: number): void {
-    const places = layoutHud(
-      this.chips.map((chip) => chip.width),
-      width,
-    ).chips;
+  private placeHud(width: number, hud: HudLayout): void {
+    const places = hud.chips;
     this.chips.forEach((chip, i) => {
       const place = places[i];
       if (place) chip.box.position.set(place.x, place.y);

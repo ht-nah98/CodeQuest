@@ -164,6 +164,21 @@ export const vi = {
       saved: 'Đã lưu bài của con rồi!',
       saveError: 'Ối, chưa lưu được. Thử lại nhé!',
     },
+    // Mock exam "thi thử" (P3-08): two runs per đề, the best counts. Bubble lines ≤ 12 words.
+    exam: {
+      boardLabel: 'Bảng điểm thi thử',
+      seedLabel: 'Đề số',
+      seedInput: 'Số đề, từ 1 tới 9999',
+      newExam: 'Đề mới',
+      restart: 'Thi lại',
+      run: (n: number) => `Lượt ${String(n)}`,
+      best: 'Tốt nhất',
+      empty: '—',
+      ready: (seed: number) => `Đề số ${String(seed)}. Ghép lệnh rồi chạy lượt 1 nhé!`,
+      runDone: (n: number, points: number) => `Lượt ${String(n)}: ${String(points)} điểm!`,
+      finished: (best: number) => `Xong hai lượt! Điểm tốt nhất: ${String(best)}.`,
+      extraRun: 'Xong hai lượt rồi. Bấm Thi lại hoặc Đề mới nhé!',
+    },
   },
 
   // Hint box, tier-0 hints, next-step popover, solution view (hint-engine.md, rewards-economy.md §2).
