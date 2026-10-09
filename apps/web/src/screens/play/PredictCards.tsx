@@ -1,4 +1,5 @@
-import type { GameKindId, GoalSprite, SceneTheme } from '@codequest/content-schema';
+import type { GameKindId, GoalSprite, LevelVariable, SceneTheme } from '@codequest/content-schema';
+import { splitVarSuffix } from '@codequest/engine';
 import { vi } from '../../i18n/vi';
 import { AnswerPicture } from '../../stages/AnswerPicture';
 import { sceneArt } from '../../stages/sceneThemes';
@@ -16,6 +17,8 @@ export interface PredictCardsProps {
   /** The world's scenery (P2-23): the cards show the world's ground and sky. */
   theme?: SceneTheme;
   options: ReadonlyArray<{ key: string; label: string }>;
+  /** `level.variables` (ADR-0022): keys with `#id=n` show a box badge with that box's name. */
+  variables?: readonly LevelVariable[];
   /** Cards already picked in this session, and how they turned out. */
   marks: Readonly<Record<string, PickMark>>;
   /** No pick while a replay runs or once the right card is found. */
@@ -40,6 +43,7 @@ export function PredictCards({
   goalSprite,
   theme,
   options,
+  variables,
   marks,
   disabled,
   onPick,
@@ -58,6 +62,13 @@ export function PredictCards({
       {options.map((option) => {
         const mark = marks[option.key];
         const markText = mark === 'right' ? t.rightMark : mark === 'wrong' ? t.wrongMark : null;
+        // A key with boxes (ADR-0022): the label says their numbers too, like the badges.
+        const boxText = Object.entries(splitVarSuffix(option.key).vars)
+          .map(([id, value]) =>
+            vi.play.boxes.badge(variables?.find((box) => box.id === id)?.name ?? id, value),
+          )
+          .join(', ');
+        const label = boxText === '' ? option.label : `${option.label}, ${boxText}`;
         // aria-disabled, not disabled: a card keeps keyboard focus while the replay runs.
         const locked = disabled || mark !== undefined;
         return (
@@ -68,7 +79,7 @@ export function PredictCards({
             data-key={option.key}
             data-mark={mark ?? 'none'}
             aria-disabled={locked}
-            aria-label={markText ? `${option.label}: ${markText}` : option.label}
+            aria-label={markText ? `${label}: ${markText}` : label}
             onClick={() => {
               if (!locked) onPick(option.key);
             }}
@@ -84,6 +95,7 @@ export function PredictCards({
                 answerKey={option.key}
                 goalSprite={goalSprite}
                 theme={theme}
+                variables={variables}
               />
             </span>
             <span className="block text-center font-display text-body leading-tight font-extrabold">

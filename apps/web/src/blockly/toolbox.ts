@@ -1,15 +1,27 @@
 import type { utils } from 'blockly';
 import type { Level, ToolboxEntry } from '@codequest/content-schema';
-import { COMMON_BLOCKS, type BlockCategory, type BlockSpec } from '@codequest/engine';
+import {
+  COMMON_BLOCKS,
+  type BlockCategory,
+  type BlockSpec,
+  VARIABLE_BLOCKS,
+} from '@codequest/engine';
 import { gameKinds } from '@codequest/games';
 import { vi } from '../i18n/vi';
 
 /** CSS class of the small group labels in the flyout (styled in blockly.css). */
 export const FLYOUT_LABEL_CLASS = 'cq-flyout-label';
 
-/** Every BlockSpec the app knows: the engine's common blocks plus every game kind's blocks. */
+/**
+ * Every BlockSpec the app knows: the engine's common and box blocks (ADR-0022) plus every game
+ * kind's blocks.
+ */
 export function knownBlockSpecs(): BlockSpec[] {
-  return [...COMMON_BLOCKS, ...Object.values(gameKinds).flatMap((kind) => kind.blocks)];
+  return [
+    ...COMMON_BLOCKS,
+    ...VARIABLE_BLOCKS,
+    ...Object.values(gameKinds).flatMap((kind) => kind.blocks),
+  ];
 }
 
 // Built-in Blockly blocks used by the curriculum, grouped like their blockStyle (§3).

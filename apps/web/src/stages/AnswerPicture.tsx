@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
-import type { GameKindId, GoalSprite, SceneTheme } from '@codequest/content-schema';
+import type { GameKindId, GoalSprite, LevelVariable, SceneTheme } from '@codequest/content-schema';
+import { splitVarSuffix } from '@codequest/engine';
 import {
   mazeConfigSchema,
   type MazeConfig,
@@ -13,6 +14,7 @@ import {
   type ParsedAnswer,
   runnerCell,
 } from '../features/play/answerKey';
+import { vi } from '../i18n/vi';
 import { UI_COLORS } from '../ui/tokens';
 import { RobotAnswerPicture } from './robotlab/RobotAnswer';
 import { sceneArt } from './sceneThemes';
@@ -295,10 +297,67 @@ function MazeAnswer({
 }
 
 /**
+ * A box's number on a predict card (ADR-0022 §2 "Khóa đoán"): a tiny crate with a raspberry lid
+ * (the box blocks' colour), like the crates of the box panel next to the stage.
+ */
+function VarBadge({ name, value }: { name: string; value: number }) {
+  const label = vi.play.boxes.badge(name, value);
+  return (
+    <span
+      data-testid="var-badge"
+      data-value={value}
+      title={label}
+      className="grid h-7 min-w-7 place-items-center rounded-kbd border-2 border-ink bg-paper px-1 pt-0.5 font-pixel text-pixel-sm leading-none text-ink shadow-[inset_0_3px_0_var(--color-block-var),0_2px_0_var(--color-ink)]"
+    >
+      <span className="sr-only">{label}</span>
+      <span aria-hidden="true">{value}</span>
+    </span>
+  );
+}
+
+/**
  * The picture of one predict answer (`key` in the kind's predictAnswer format) on the level's
- * board. Null when the kind has no picture yet or the key / config cannot be read.
+ * board. A key with boxes (`win#bamboo=3`, ADR-0022) is the kind's picture of `win` with a box
+ * badge per box in the corner. Null when the kind has no picture yet or the key / config cannot
+ * be read.
  */
 export function AnswerPicture({
+  answerKey,
+  variables,
+  ...rest
+}: {
+  kind: GameKindId;
+  config: unknown;
+  answerKey: string;
+  /** `level.goalSprite` (P2-11c): the goal cell's picture instead of the flag. */
+  goalSprite?: GoalSprite | undefined;
+  /** The world's scenery (P2-23): sky, ground and maze tiles; absent = Làng Tre. */
+  theme?: SceneTheme | undefined;
+  /** `level.variables` (ADR-0022): the names of the boxes in the key's suffix. */
+  variables?: readonly LevelVariable[] | undefined;
+}) {
+  const { base, vars } = splitVarSuffix(answerKey);
+  const boxes = Object.entries(vars);
+  const picture = <KindPicture {...rest} answerKey={base} />;
+  if (boxes.length === 0) return picture;
+  return (
+    <span className="relative block h-full w-full" data-answer-boxes={boxes.length}>
+      {picture}
+      <span className="absolute top-1 left-1 flex gap-1">
+        {boxes.map(([id, value]) => (
+          <VarBadge
+            key={id}
+            name={variables?.find((variable) => variable.id === id)?.name ?? id}
+            value={value}
+          />
+        ))}
+      </span>
+    </span>
+  );
+}
+
+/** The kind's own picture of a key without boxes. */
+function KindPicture({
   kind,
   config,
   answerKey,
@@ -308,9 +367,7 @@ export function AnswerPicture({
   kind: GameKindId;
   config: unknown;
   answerKey: string;
-  /** `level.goalSprite` (P2-11c): the goal cell's picture instead of the flag. */
   goalSprite?: GoalSprite | undefined;
-  /** The world's scenery (P2-23): sky, ground and maze tiles; absent = Làng Tre. */
   theme?: SceneTheme | undefined;
 }) {
   // Robotlab keys have their own forms (outOfTime, score:<n>, timeout) and a resolved config.

@@ -44,6 +44,29 @@ export const vi = {
       points: 'điểm',
       practiceBoard: 'Sa bàn tập, gần giống đề thi',
     },
+    // The box panel next to the stage (ADR-0022 §6). On screen a variable is always "hộp".
+    boxes: {
+      title: 'Hộp',
+      panelLabel: 'Bảng hộp',
+      /** Screen readers: "số măng: 3, tối đa 9". */
+      box: (name: string, value: number, max: number) =>
+        `${name}: ${String(value)}, tối đa ${String(max)}`,
+      full: 'Đầy!',
+      /** countGoal chip in the objective row: the number this map needs. */
+      countGoal: (n: number) => `Đếm đúng: ${String(n)}`,
+      // ADR-0022 decision 4: the box must hold the number when Măng reaches the goal.
+      countGoalTitle: (name: string, n: number) =>
+        `Tới đích thì hộp ${name} phải có đúng ${String(n)}`,
+      /** End-of-run verdict on the counted box (WRONG_COUNT): "cần 4". */
+      need: (n: number) => `cần ${String(n)}`,
+      verdictOk: (name: string, n: number) => `Hộp ${name} đếm đúng ${String(n)}`,
+      verdictNeed: (name: string, n: number) => `Hộp ${name} cần đúng ${String(n)}`,
+      // Live region (screen readers): a full box at once, the final numbers at the end.
+      announceFull: (name: string) => `Hộp ${name} đầy rồi!`,
+      announceEnd: (boxes: readonly string[]) => `Hộp lúc xong: ${boxes.join('; ')}`,
+      /** Predict card badge (screen readers): "hộp số măng: 3". */
+      badge: (name: string, n: number) => `hộp ${name}: ${String(n)}`,
+    },
     controlsLabel: 'Điều khiển',
     run: 'Chạy',
     stop: 'Dừng',
@@ -927,7 +950,8 @@ export const vi = {
       // Children call sensor blocks "câu hỏi", never "cảm biến" (glossary.md "Điều kiện").
       sensor: 'CÂU HỎI',
       robot: 'ROBOT',
-      variable: 'BIẾN & SỐ',
+      // The engine's box blocks (ADR-0022): children say "hộp", never "biến", on screen.
+      variable: 'HỘP',
       function: 'HÀM',
       pen: 'BÚT VẼ',
       event: 'SỰ KIỆN',

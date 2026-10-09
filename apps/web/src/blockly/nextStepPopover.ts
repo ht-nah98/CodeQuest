@@ -1,5 +1,5 @@
 import { type BlockSvg, DropDownDiv, Events, utils, WidgetDiv, type WorkspaceSvg } from 'blockly';
-import type { NextStep, StepAnchor } from '@codequest/engine';
+import { type NextStep, type StepAnchor, workspaceVariablesOf } from '@codequest/engine';
 import { vi } from '../i18n/vi';
 import './nextStepPopover.css';
 import { mountReadOnlyWorkspace, type ReadOnlyWorkspace } from './readOnlyWorkspace';
@@ -169,7 +169,7 @@ export function showNextStepPopover(
     preview = mountReadOnlyWorkspace(
       previewBox,
       { blocks: { languageVersion: 0, blocks: [block] } },
-      { scale: 0.9, scrollable: false },
+      { scale: 0.9, scrollable: false, variables: workspaceVariablesOf(workspace) },
     );
   }
 

@@ -22,6 +22,7 @@ import {
   CQ_START,
   editDistance,
   type RunOutcome,
+  type VarEvent,
 } from '@codequest/engine';
 import { DEFAULT_PAR_EDITS } from '@codequest/rewards';
 import {
@@ -93,6 +94,8 @@ import { ResultsOverlay } from './ResultsOverlay';
 import { SolutionViewer } from './SolutionViewer';
 import { StarGoalsCard } from './StarGoalsCard';
 import { type PlayLine, usePlayHints } from './usePlayHints';
+import { boxBlockInfo, useVarBoxes } from './useVarBoxes';
+import { VarBoxes } from './VarBoxes';
 import './play.css';
 
 const t = vi.play;
@@ -106,8 +109,15 @@ declare global {
       highlights: string[];
       /** Answers shown by question blocks during replays, as `<blockId>:yes|no` (P2-11). */
       senses: string[];
+      /**
+       * Box changes shown by the box panel during replays (ADR-0022), as `<id>=<value>`, with a
+       * trailing `!` when the box went over its max (BOX_FULL).
+       */
+      vars: string[];
       /** Mode predict: the engine's answer for the level's program. */
       answerKey?: string | undefined;
+      /** `reasonCode` of the last run (null for a win), e.g. WRONG_COUNT. */
+      reasonCode?: string | null;
     };
   }
 }
@@ -484,16 +494,45 @@ function PlaySession({
     if (blockId !== null) window.__cqPlay?.highlights.push(blockId);
   }, []);
 
+  // The box panel (ADR-0022 §6): levels with `variables` only. The block of the workspace
+  // tells `đặt` from `tăng`, and which box a question asks about.
+  const blockInfo = useCallback(
+    (blockId: string) => boxBlockInfo(workspaceRef.current, blockId),
+    [],
+  );
+  const {
+    state: boxes,
+    reset: resetBoxes,
+    onVar: boxChanged,
+    onAsked: boxAsked,
+    showVerdict,
+  } = useVarBoxes(level.variables, blockInfo);
+
   /** Cleanup of the ✔/✘ a question block shows while the replay asks it (P2-11). */
   const senseRef = useRef<(() => void) | null>(null);
-  const sense = useCallback((mark: SenseMark | null) => {
-    senseRef.current?.();
-    senseRef.current = null;
-    const workspace = workspaceRef.current;
-    if (!mark || !workspace) return;
-    senseRef.current = markSense(workspace, mark.blockId, mark.value);
-    window.__cqPlay?.senses.push(`${mark.blockId}:${mark.value ? 'yes' : 'no'}`);
-  }, []);
+  const sense = useCallback(
+    (mark: SenseMark | null) => {
+      senseRef.current?.();
+      senseRef.current = null;
+      const workspace = workspaceRef.current;
+      if (!mark || !workspace) return;
+      senseRef.current = markSense(workspace, mark.blockId, mark.value);
+      // A question about a box also lights that box's border (ADR-0022 §6).
+      boxAsked(mark.blockId, mark.value);
+      window.__cqPlay?.senses.push(`${mark.blockId}:${mark.value ? 'yes' : 'no'}`);
+    },
+    [boxAsked],
+  );
+
+  const onVar = useCallback(
+    (event: VarEvent) => {
+      boxChanged(event);
+      window.__cqPlay?.vars.push(
+        `${event.id}=${String(event.value)}${event.overflow === true ? '!' : ''}`,
+      );
+    },
+    [boxChanged],
+  );
 
   const clearShake = useCallback(() => {
     shakenRef.current?.classList.remove('cq-shake');
@@ -526,6 +565,7 @@ function PlaySession({
       boss: level.stage === 'boss',
       onHighlight: highlight,
       onSense: sense,
+      onVar,
       onAnimation: (animation: PandaAnimation) => {
         container.dataset.panda = animation;
       },
@@ -539,7 +579,11 @@ function PlaySession({
         audio.playSfx(sfx);
         feedOf()?.event(event);
       },
-      onReset: () => feedOf()?.reset(),
+      onReset: () => {
+        feedOf()?.reset();
+        // Every box back to this map's start (Làm lại, a map switch, the start of each run).
+        resetBoxes(mapIndexRef.current);
+      },
       ...(import.meta.env.DEV && {
         onClockSpeed: (clockSpeed: number) => {
           container.dataset.stageSpeed = String(clockSpeed);
@@ -578,7 +622,7 @@ function PlaySession({
       stageRef.current = null;
       setStageReady(false);
     };
-  }, [level, maps, planSources, theme, highlight, sense, readyLine, say]);
+  }, [level, maps, planSources, theme, highlight, sense, onVar, resetBoxes, readyLine, say]);
 
   /** Puts map `map` on the stage (a fresh scene at its start) and selects its tab. */
   const showMap = useCallback(
@@ -620,6 +664,17 @@ function PlaySession({
       // The results overlay or the fail line takes over: a "Xem cả đường" view left open from
       // the run would sit on top of them (P2-22).
       setPlanOpen(false);
+      // "Đếm đúng" (ADR-0022 §6): after a win or a wrong count, the counted box says ✔ or
+      // "cần N" for the map on the stage (the map the result comes from).
+      const goal = level.countGoal;
+      const need = goal?.equals[mapIndexRef.current];
+      if (
+        goal !== undefined &&
+        need !== undefined &&
+        (outcome.result === 'success' || outcome.reasonCode === 'WRONG_COUNT')
+      ) {
+        showVerdict(goal.var, need);
+      }
       if (outcome.result === 'success') {
         setWinMapGoals(outcome.maps?.map((map) => map.goals));
         setPhase('success');
@@ -635,7 +690,7 @@ function PlaySession({
         hintRunEnded();
       }
     },
-    [level, feedback, shake, say, hintRunEnded, playFailSfx],
+    [level, feedback, shake, say, hintRunEnded, playFailSfx, showVerdict],
   );
 
   /** Stage back to the start; the program is kept (screens-and-flows.md §4, `R`). */
@@ -684,6 +739,7 @@ function PlaySession({
         fail();
         return;
       }
+      if (window.__cqPlay) window.__cqPlay.reasonCode = outcome.reasonCode;
       // Mock exam: the run counts as soon as it ran (like every run); its slot shows the points
       // when the replay ends. What Măng says then: the run's points, or the best after the last.
       let examLine: PlayLine | null = null;
@@ -930,7 +986,7 @@ function PlaySession({
         if (level.mode === 'predict' && level.initialWorkspace !== undefined) {
           answerKey = runProgram(level, level.initialWorkspace).answerKey;
         }
-        window.__cqPlay = { Blockly, workspace, highlights: [], senses: [], answerKey };
+        window.__cqPlay = { Blockly, workspace, highlights: [], senses: [], vars: [], answerKey };
       }
     },
     [setWorkspaceFlush, level],
@@ -1043,6 +1099,14 @@ function PlaySession({
   };
 
   const running = phase === 'running';
+  /** "Đếm đúng" (ADR-0022 countGoal): the number the map on the stage needs, and its box. */
+  const countGoal = useMemo(() => {
+    const goal = level.countGoal;
+    const equals = goal?.equals[mapIndex];
+    if (goal === undefined || equals === undefined) return null;
+    const name = level.variables?.find((variable) => variable.id === goal.var)?.name ?? goal.var;
+    return { equals, name };
+  }, [level.countGoal, level.variables, mapIndex]);
 
   /** Mock exam: put đề `seed` on the board (a fresh stage) with an empty scoreboard. */
   const chooseSeed = (seed: number) => {
@@ -1127,6 +1191,13 @@ function PlaySession({
               {...(stageReady && !running && { onPeek: peekStage })}
             />
           )}
+          {level.variables !== undefined && (
+            <VarBoxes
+              state={boxes}
+              announce={{ running: phase === 'running', stepping }}
+              className="border-b-3 border-ink bg-paper px-4 pt-2.5 pb-2"
+            />
+          )}
 
           <div className="border-b-3 border-ink bg-paper-2 px-4 py-1.5">
             {/* Story line (P2-11c) above the task: why Măng goes, then what to do. */}
@@ -1151,6 +1222,16 @@ function PlaySession({
               </span>
               {level.objective}
               <span className="ml-auto flex shrink-0 items-center gap-2">
+                {countGoal !== null && (
+                  <span
+                    data-testid="play-count-goal"
+                    data-count={countGoal.equals}
+                    title={t.boxes.countGoalTitle(countGoal.name, countGoal.equals)}
+                    className="shrink-0 rounded-kbd border-2 border-ink bg-coin-shine px-2 pt-0.5 font-pixel text-pixel-sm font-normal whitespace-nowrap"
+                  >
+                    {t.boxes.countGoal(countGoal.equals)}
+                  </span>
+                )}
                 {/* Renders only once the line has a voice file (audio.md §3). */}
                 <SpeakButton voiceId={levelVoiceId(level.id, 'objective')} />
                 {starGoals && (
@@ -1299,6 +1380,7 @@ function PlaySession({
                 {...(level.goalSprite !== undefined && { goalSprite: level.goalSprite })}
                 theme={theme}
                 options={predict.options}
+                {...(level.variables !== undefined && { variables: level.variables })}
                 marks={allMarks}
                 disabled={
                   !sessionReady || !stageReady || phase === 'running' || phase === 'success'
@@ -1413,7 +1495,11 @@ function PlaySession({
         />
       )}
       {playHints.solutionOpen && level.solution !== undefined && (
-        <SolutionViewer solution={solution ?? level.solution} onClose={playHints.closeSolution} />
+        <SolutionViewer
+          solution={solution ?? level.solution}
+          variables={level.variables}
+          onClose={playHints.closeSolution}
+        />
       )}
       {goalsCardOpen && (
         <StarGoalsCard

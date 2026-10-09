@@ -15,6 +15,7 @@ import {
   analyzeWorkspace,
   CQ_START,
   type BlockSpec,
+  setWorkspaceVariables,
   type WorkspaceAnalysis,
 } from '@codequest/engine';
 import { audio, blocklySfx } from '../audio';
@@ -30,7 +31,8 @@ import { buildToolbox, knownBlockSpecs } from './toolbox';
 export type BlocklyLevel = Pick<
   Level,
   'id' | 'mode' | 'toolbox' | 'maxBlocks' | 'maxInstances' | 'maxLoopDepth' | 'initialWorkspace'
->;
+> &
+  Partial<Pick<Level, 'variables'>>;
 
 /** A snapshot of the workspace: reported after every change (debounced) or read on demand. */
 export interface WorkspaceState {
@@ -230,12 +232,13 @@ function mountWorkspace(
   callbacks: { readonly current: Callbacks },
 ): () => void {
   setupBlockly();
+  const toolbox = buildToolbox(level, specs);
   const workspace = inject(container, {
     renderer: 'zelos',
     theme: codequestTheme,
     // Never the default https://static.blockly.com/media/ (security-privacy.md).
     media: '/blockly-media/',
-    toolbox: buildToolbox(level, specs),
+    toolbox,
     // +1 for "khi bắt đầu", which Blockly counts too (§5).
     ...(level.maxBlocks !== undefined && { maxBlocks: level.maxBlocks + 1 }),
     ...(level.maxInstances && { maxInstances: level.maxInstances }),
@@ -255,6 +258,15 @@ function mountWorkspace(
     grid: { spacing: 24, length: 2, colour: UI_COLORS.brandSoft, snap: true },
     readOnly: level.mode === 'predict',
   });
+  // The level's boxes (ADR-0022): box fields here and in the flyout list them by name. `inject`
+  // already drew the flyout with placeholder labels, so it is drawn again once they are known
+  // (an empty toolbox, e.g. predict, has no flyout to redraw).
+  if (level.variables !== undefined) {
+    setWorkspaceVariables(workspace, level.variables);
+    if (toolbox.contents.length > 0 && workspace.getFlyout() !== null) {
+      workspace.updateToolbox(toolbox);
+    }
+  }
 
   fitFlyoutScale(workspace);
   const unforwardWheel = forwardScrollbarWheel(workspace);

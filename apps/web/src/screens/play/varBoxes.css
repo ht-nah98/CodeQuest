@@ -1,0 +1,297 @@
+/*
+ * The box panel ("bảng hộp", ADR-0022 §6, stage-rendering.md §1b). Each box is a little wooden
+ * crate: paper slats, a lid in the box blocks' colour (so the crate reads as "the thing the
+ * raspberry blocks change"), and a raspberry name tag hanging on its left. Colours and fonts are
+ * tokens only (tokens.css). Reduced motion: index.css cuts every animation to ~0 ms, so only the
+ * numbers change; the floating "+1" is hidden outright.
+ */
+
+.cq-varbox-tag {
+  display: flex;
+  align-items: center;
+  height: 40px;
+  padding: 0 10px 0 8px;
+  margin-right: -3px; /* tucks under the crate's border */
+  border: 3px solid var(--color-ink);
+  border-right: 0;
+  border-radius: var(--radius-kbd) 0 0 var(--radius-kbd);
+  background: var(--color-block-var);
+  color: var(--color-white);
+  font-family: var(--font-display);
+  font-size: var(--text-small);
+  font-weight: 800;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.cq-varbox-crate {
+  position: relative;
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 1px;
+  min-width: 70px;
+  height: 46px;
+  padding: 6px 10px 0;
+  border: 3px solid var(--color-ink);
+  border-radius: var(--radius-kbd);
+  /* Wooden slats under a raspberry lid, with the hard ink drop of every panel. */
+  background: repeating-linear-gradient(
+    180deg,
+    var(--color-paper) 0 10px,
+    var(--color-paper-2) 10px 12px
+  );
+  box-shadow:
+    inset 0 5px 0 var(--color-block-var),
+    0 3px 0 var(--color-ink);
+}
+
+.cq-varbox-num {
+  display: inline-block;
+  font-family: var(--font-pixel);
+  font-size: var(--text-pixel-lg);
+  line-height: 1;
+  color: var(--color-ink);
+}
+
+.cq-varbox-max {
+  font-family: var(--font-pixel);
+  font-size: var(--text-pixel-sm);
+  line-height: 1;
+  color: var(--color-ink-soft);
+}
+
+/* ---- tăng: the crate glints coin-gold, the number pops, "+n" floats up ---- */
+@keyframes cq-varbox-glint {
+  0% {
+    background: var(--color-coin);
+  }
+  100% {
+    background: repeating-linear-gradient(
+      180deg,
+      var(--color-paper) 0 10px,
+      var(--color-paper-2) 10px 12px
+    );
+  }
+}
+
+@keyframes cq-varbox-pop {
+  0%,
+  100% {
+    scale: 1;
+  }
+  50% {
+    scale: 1.25;
+  }
+}
+
+.cq-varbox[data-state='add'] .cq-varbox-crate {
+  animation: cq-varbox-glint 0.32s steps(4, end);
+}
+
+.cq-varbox[data-state='add'] .cq-varbox-num {
+  animation: cq-varbox-pop 0.2s ease-out;
+}
+
+@keyframes cq-varbox-plus {
+  0% {
+    translate: -50% 4px;
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    translate: -50% -22px;
+    opacity: 0;
+  }
+}
+
+.cq-varbox-plus {
+  position: absolute;
+  top: -14px;
+  left: 50%;
+  padding: 0 5px;
+  border: 2px solid var(--color-ink);
+  border-radius: var(--radius-kbd);
+  background: var(--color-coin);
+  font-family: var(--font-pixel);
+  font-size: var(--text-pixel-sm);
+  line-height: 1.05;
+  color: var(--color-ink);
+  pointer-events: none;
+  animation: cq-varbox-plus 0.6s steps(6, end) both;
+}
+
+/* ---- đặt: the old number is gone, the new one drops into the crate ---- */
+@keyframes cq-varbox-drop {
+  0% {
+    translate: 0 -70%;
+    opacity: 0;
+  }
+  60% {
+    translate: 0 8%;
+    opacity: 1;
+  }
+  100% {
+    translate: 0 0;
+  }
+}
+
+.cq-varbox[data-state='set'] .cq-varbox-num {
+  animation: cq-varbox-drop 0.25s ease-out;
+}
+
+/* ---- đầy (BOX_FULL): red crate, two hard shakes, "Đầy!" stamped on the lid ---- */
+@keyframes cq-varbox-shake {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  20% {
+    translate: -5px 0;
+  }
+  40% {
+    translate: 5px 0;
+  }
+  60% {
+    translate: -3px 0;
+  }
+  80% {
+    translate: 3px 0;
+  }
+}
+
+.cq-varbox[data-state='full'] .cq-varbox-crate {
+  border-color: var(--color-oops);
+  background: var(--color-oops-soft);
+  box-shadow:
+    inset 0 5px 0 var(--color-oops),
+    0 3px 0 var(--color-ink);
+  animation: cq-varbox-shake 0.4s ease-in-out 2;
+}
+
+.cq-varbox[data-state='full'] .cq-varbox-num,
+.cq-varbox[data-state='full'] .cq-varbox-max {
+  color: var(--color-oops);
+}
+
+.cq-varbox[data-state='full'] .cq-varbox-tag {
+  background: var(--color-oops);
+}
+
+.cq-varbox-full {
+  position: absolute;
+  top: -13px;
+  right: -10px;
+  padding: 0 4px;
+  border: 2px solid var(--color-ink);
+  border-radius: var(--radius-kbd);
+  background: var(--color-oops);
+  font-family: var(--font-pixel);
+  font-size: var(--text-pixel-sm);
+  line-height: 1.05;
+  color: var(--color-white);
+  rotate: 8deg;
+}
+
+/* ---- lesson demo: a smaller crate under the small stage ---- */
+.cq-varboxes-compact .cq-varbox-tag {
+  height: 34px;
+}
+
+.cq-varboxes-compact .cq-varbox-crate {
+  min-width: 58px;
+  height: 38px;
+  padding-top: 4px;
+}
+
+.cq-varboxes-compact .cq-varbox-num {
+  font-size: var(--text-hud);
+}
+
+[data-reduced-motion='true'] .cq-varbox-plus {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cq-varbox-plus {
+    display: none;
+  }
+}
+
+/* ---- a question about the box (cq_var_compare): its border lights ✔ / ✘ ---- */
+@keyframes cq-varbox-ask {
+  0%,
+  70% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.cq-varbox[data-state='yes'] .cq-varbox-crate {
+  border-color: var(--color-go-deep);
+  box-shadow:
+    inset 0 5px 0 var(--color-block-var),
+    0 0 0 3px var(--color-go),
+    0 3px 0 var(--color-ink);
+}
+
+.cq-varbox[data-state='no'] .cq-varbox-crate {
+  border-color: var(--color-oops);
+  box-shadow:
+    inset 0 5px 0 var(--color-block-var),
+    0 0 0 3px var(--color-oops-soft),
+    0 3px 0 var(--color-ink);
+}
+
+.cq-varbox-ask {
+  position: absolute;
+  top: -12px;
+  right: -10px;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border: 2px solid var(--color-ink);
+  border-radius: 999px;
+  font-family: var(--font-display);
+  font-size: var(--text-small);
+  font-weight: 800;
+  line-height: 1;
+  color: var(--color-white);
+  animation: cq-varbox-ask 0.8s steps(4, end) both;
+}
+
+.cq-varbox[data-state='yes'] .cq-varbox-ask {
+  background: var(--color-go-deep);
+}
+
+.cq-varbox[data-state='no'] .cq-varbox-ask {
+  background: var(--color-oops);
+}
+
+/* ---- end of a counted run: ✔ or "cần N" next to the crate ---- */
+.cq-varbox-verdict {
+  margin-left: 6px;
+  padding: 2px 6px 0;
+  border: 2px solid var(--color-ink);
+  border-radius: var(--radius-kbd);
+  background: var(--color-oops-soft);
+  font-family: var(--font-pixel);
+  font-size: var(--text-pixel-sm);
+  line-height: 1.05;
+  color: var(--color-ink);
+  white-space: nowrap;
+}
+
+.cq-varbox-verdict-ok {
+  background: var(--color-go);
+  font-family: var(--font-display);
+  font-weight: 800;
+}

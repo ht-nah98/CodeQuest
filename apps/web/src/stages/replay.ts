@@ -1,5 +1,5 @@
 import type { Ticker } from 'pixi.js';
-import type { GameEvent, RunOutcome, SenseEvent } from '@codequest/engine';
+import type { GameEvent, RunOutcome, SenseEvent, VarEvent } from '@codequest/engine';
 import { isAborted, type StageRenderer, tween } from './types';
 
 /** Playback speed chosen by the child (Chậm / Vừa / Nhanh). */
@@ -15,6 +15,11 @@ export const LOSE_TEMPO = 0.85;
  * curriculum.md §5.4 T7). The mark stays until the next action starts, so a step waits under it.
  */
 export const SENSE_MS = 380;
+/**
+ * How long a box change (`var` event, ADR-0022 §6) holds the replay at speed 1, so the box panel's
+ * pop / count-up is seen before the next block runs. Măng stands still meanwhile.
+ */
+export const VAR_MS = 320;
 /**
  * A timed-out run can hold thousands of events: replay only about its first 3 s of stage clock
  * at speed 1 (coach question G13, "tạm dùng 3 giây"), then Măng gets dizzy (T8).
@@ -39,11 +44,17 @@ export function timeoutReplayEvents(
   const kept: GameEvent[] = [];
   let ms = 0;
   for (const event of events) {
-    const boundary = event.type === 'highlight' || event.type === 'sense';
+    const boundary = event.type === 'highlight' || event.type === 'sense' || event.type === 'var';
     if (kept.length > 0 && boundary && ms >= TIMEOUT_REPLAY_MS) break;
     kept.push(event);
     ms +=
-      event.type === 'highlight' ? HIGHLIGHT_MS : event.type === 'sense' ? SENSE_MS : estimate(event);
+      event.type === 'highlight'
+        ? HIGHLIGHT_MS
+        : event.type === 'sense'
+          ? SENSE_MS
+          : event.type === 'var'
+            ? VAR_MS
+            : estimate(event);
   }
   return kept;
 }
@@ -58,6 +69,11 @@ export interface ReplayHooks {
    * the mark (the next action starts, the replay ends or the stage is reset).
    */
   onSense?: (mark: SenseMark | null) => void;
+  /**
+   * A box changed (`var` event, ADR-0022 §6): the box panel shows the new number (or, with
+   * `overflow`, that the box is full). Never handed to the renderer, which knows no boxes.
+   */
+  onVar?: (event: VarEvent) => void;
   /** Step mode: true while the replay waits for `step()` (e2e reads it as data-waiting-step). */
   onWaitingStep?: (waiting: boolean) => void;
   /** The clock's speed after every change (tempo, speed, pause); e2e reads it as data-stage-speed. */
@@ -107,7 +123,8 @@ export class Replay {
 
   /**
    * Replays a run from the start: highlight events light up their block for HIGHLIGHT_MS, sense
-   * events show the question's answer for SENSE_MS, action events go to the renderer. A timed-out
+   * events show the question's answer for SENSE_MS, var events go to `onVar` for VAR_MS (the box
+   * panel), action events go to the renderer. A timed-out
    * run plays only its start, then Măng gets dizzy. Resolves 'aborted' if reset / destroyed /
    * replayed meanwhile.
    */
@@ -125,7 +142,7 @@ export class Replay {
       ? timeoutReplayEvents(outcome.events, (event) => this.renderer.estimate(event))
       : outcome.events;
     // In step mode the replay waits once per block, before the first action after a highlight,
-    // and before every question (a loop asks again without a new highlight). Follow-up events of
+    // and before every question and box change (a loop asks again without a new highlight). Follow-up events of
     // the same block (fall, win) play on without another step.
     let blockStarted = false;
     try {
@@ -142,7 +159,8 @@ export class Replay {
         const firstOfBlock = blockStarted;
         blockStarted = false;
         const isSense = event.type === 'sense';
-        if (this.stepping && (firstOfBlock || isSense)) {
+        const isVar = event.type === 'var';
+        if (this.stepping && (firstOfBlock || isSense || isVar)) {
           this.renderer.rest();
           await this.waitForStep(signal);
           if (isAborted(signal)) return 'aborted';
@@ -158,12 +176,23 @@ export class Replay {
           continue;
         }
         this.clearSense();
+        if (isVar) {
+          this.hooks.onVar?.(event as VarEvent);
+          this.renderer.hold();
+          await tween(this.ticker, VAR_MS, signal);
+          continue;
+        }
         const next = events[index + 1];
         this.hooks.onEvent?.(event);
         await this.renderer.play(
           event,
           signal,
-          next?.type === 'highlight' || next?.type === 'sense' ? undefined : next,
+          next === undefined ||
+            next.type === 'highlight' ||
+            next.type === 'sense' ||
+            next.type === 'var'
+            ? undefined
+            : next,
         );
       }
       if (isAborted(signal)) return 'aborted';
@@ -173,7 +202,11 @@ export class Replay {
         // The loop never stops: Măng spins and sees stars, then stays dizzy (T8, T18).
         await this.renderer.dizzy(signal);
         if (isAborted(signal)) return 'aborted';
-      } else if (outcome.result !== 'success' && outcome.result !== 'crash') {
+      } else if (
+        (outcome.result !== 'success' && outcome.result !== 'crash') ||
+        // A full box ends the run without a crash of the kind's own: Măng just stops.
+        outcome.reasonCode === 'BOX_FULL'
+      ) {
         this.renderer.rest();
       }
       this.renderer.finish?.(outcome);

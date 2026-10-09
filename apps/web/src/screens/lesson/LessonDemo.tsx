@@ -10,6 +10,8 @@ import { vi } from '../../i18n/vi';
 import { getStageKind } from '../../stages/registry';
 import { type SenseMark, StageController } from '../../stages/StageController';
 import { Button, PixelIcon } from '../../ui';
+import { boxBlockInfo, useVarBoxes } from '../play/useVarBoxes';
+import { VarBoxes } from '../play/VarBoxes';
 
 const t = vi.lesson;
 
@@ -59,6 +61,8 @@ export function LessonDemo({
       config,
       initialWorkspace: card.workspace,
       hints: [],
+      // A demo with boxes (ADR-0022 §2b) runs them like a level, and its blocks show their names.
+      ...(card.variables !== undefined && { variables: card.variables }),
     }),
     [card, config, id, worldId],
   );
@@ -79,14 +83,31 @@ export function LessonDemo({
     workspace.highlightBlock(blockId);
   }, []);
 
+  /** The box panel under the small stage (demo cards with `variables`). */
+  const blockInfo = useCallback(
+    (blockId: string) => boxBlockInfo(workspaceRef.current, blockId),
+    [],
+  );
+  const {
+    state: boxes,
+    reset: resetBoxes,
+    onVar,
+    onAsked,
+  } = useVarBoxes(card.variables, blockInfo);
+
   /** The ✔/✘ a question block shows while the demo asks it (P2-11). */
   const senseRef = useRef<(() => void) | null>(null);
-  const sense = useCallback((mark: SenseMark | null) => {
-    senseRef.current?.();
-    senseRef.current = null;
-    const workspace = workspaceRef.current;
-    if (mark && workspace) senseRef.current = markSense(workspace, mark.blockId, mark.value);
-  }, []);
+  const sense = useCallback(
+    (mark: SenseMark | null) => {
+      senseRef.current?.();
+      senseRef.current = null;
+      const workspace = workspaceRef.current;
+      if (!mark || !workspace) return;
+      senseRef.current = markSense(workspace, mark.blockId, mark.value);
+      onAsked(mark.blockId, mark.value);
+    },
+    [onAsked],
+  );
 
   const run = useCallback(() => {
     const stage = stageRef.current;
@@ -119,6 +140,11 @@ export function LessonDemo({
       ...(theme !== undefined && { theme }),
       onHighlight: highlight,
       onSense: sense,
+      onVar,
+      // A demo has one map: its boxes go back to their start with the stage.
+      onReset: () => {
+        resetBoxes(0);
+      },
       onAnimation: (animation) => {
         container.dataset.panda = animation;
       },
@@ -140,7 +166,7 @@ export function LessonDemo({
       stageRef.current = null;
       setReady(false);
     };
-  }, [playable, card.kind, config, card.autoplay, theme, highlight, sense, run]);
+  }, [playable, card.kind, config, card.autoplay, theme, highlight, sense, onVar, resetBoxes, run]);
 
   return (
     <div
@@ -177,17 +203,26 @@ export function LessonDemo({
             data-result={lastResult ?? undefined}
             className="relative h-[196px] overflow-hidden rounded-chip border-3 border-ink bg-sky"
           />
-          <Button
-            variant="go"
-            size="md"
-            icon={<PixelIcon name="play" scale={1} />}
-            disabled={!ready || phase === 'running'}
-            onClick={run}
-            data-testid="lesson-demo-run"
-            className="justify-self-start"
-          >
-            {phase === 'done' ? t.demoAgain : t.demoRun}
-          </Button>
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+            <Button
+              variant="go"
+              size="md"
+              icon={<PixelIcon name="play" scale={1} />}
+              disabled={!ready || phase === 'running'}
+              onClick={run}
+              data-testid="lesson-demo-run"
+              className="justify-self-start"
+            >
+              {phase === 'done' ? t.demoAgain : t.demoRun}
+            </Button>
+            {card.variables !== undefined && (
+              <VarBoxes
+                state={boxes}
+                compact
+                announce={{ running: phase === 'running', stepping: false }}
+              />
+            )}
+          </div>
         </div>
       )}
     </div>

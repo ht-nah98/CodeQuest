@@ -19,6 +19,7 @@ Nguồn chuẩn cho: cách dùng Blockly 13 trong CodeQuest: wrapper React, them
 - **Bấm Chạy phải đọc workspace đồng bộ** qua `handle.getState()` (serialize + `analyzeWorkspace` + `remainingCapacity` ngay lúc gọi), **không** đọc state debounce: bé thả khối rồi nhấn Space ngay thì state debounce vẫn là chương trình cũ. `handle.flush()` giao ngay báo cáo `onChange` đang chờ. Khi gỡ workspace (unmount hoặc đổi màn), wrapper hủy thao tác di chuyển bằng bàn phím đang dở, flush báo cáo đang chờ (không bỏ mất), gọi `onDispose()` rồi mới `dispose()`. Báo cáo flush lúc đổi màn mang `levelId` của màn cũ, nên màn hình lọc theo `levelId`. `loadInitialWorkspace(ws, level)` dùng chung cho lúc inject và nút Làm lại; hàm này luôn `setDeletable(false)` cho `cq_start`, bất kể JSON nội dung ghi gì.
 - **Chờ font trước khi inject** (`document.fonts.load` cho Baloo 2 và VT323, kèm chữ có dấu để tải bộ `vietnamese`): Blockly đo chữ đúng một lần lúc vẽ khối, đo bằng font dự phòng thì nhãn tràn khỏi khối khi Baloo 2 tải xong. Vì vậy `onReady` đến sau một nhịp bất đồng bộ.
 - Một màn chơi chỉ có **một** workspace có hiển thị. Bài giảng dùng workspace **chỉ đọc** riêng (`readOnly: true`).
+- **Hộp (biến, ADR-0022):** `BlocklyLevel` có `variables?`. Ngay sau `inject`, wrapper gọi `setWorkspaceVariables(workspace, level.variables)` của engine để ô `field_cq_var` hiện **tên** hộp ("số măng") thay vì id. `inject` đã vẽ flyout trước lúc đó (nhãn giữ chỗ), nên khi thanh khối có khối thì gọi lại `workspace.updateToolbox(toolbox)` để vẽ lại; thanh khối rỗng (predict, thẻ `demo`) thì không gọi (`updateToolbox` ném *"Existing toolbox is null"*). Khối trong flyout tự đọc hộp của workspace chính (`workspaceVariablesOf` theo `targetWorkspace`). Workspace chỉ đọc (`mountReadOnlyWorkspace`) nhận tùy chọn `variables` và đăng ký trước khi nạp: lời giải (`SolutionViewer`, truyền `level.variables`) và bản xem trước của gợi ý tầng 2 (lấy `workspaceVariablesOf` của workspace chính). Thẻ `demo` của bài giảng truyền `card.variables` qua level giả của nó. `analyzeWorkspace` trong `getState()` vẫn gọi **không** có biến (đọc `fields.VAR` đúng nhờ field giữ mọi id hợp lệ).
 
 Tùy chọn `inject` chuẩn (viết bằng conditional spread vì `exactOptionalPropertyTypes` không cho gán `undefined` vào trường tùy chọn):
 ```ts
@@ -49,7 +50,7 @@ Tùy chọn `inject` chuẩn (viết bằng conditional spread vì `exactOptiona
 | `logic_blocks` | `cq_if`, `cq_if_else` (`controls_if`), `logic_*` | `#8A5CD1` |
 | `sensor_blocks` | cảm biến (`*_is_ahead`, `*_is_path`…) | `#178A7E` |
 | `robot_blocks` | gắp, thả… | `#A0612B` |
-| `variable_blocks` | `variables_*`, `math_*` | `#D13F73` |
+| `variable_blocks` | hộp của engine (`cq_var_set`, `cq_var_add`, `cq_var_compare`, `cq_repeat_var`, ADR-0022), `variables_*`, `math_*` | `#D13F73` |
 | `procedure_blocks` | `procedures_*` | `#5560C8` |
 | `pen_blocks` | turtle | `#2F8A3E` |
 | `event_blocks` | `cq_start` | `#FBC73F`, chữ màu mực |
@@ -90,6 +91,7 @@ Vì vậy:
 - Mode `parsons`: toolbox là flyout **rỗng**, cột thanh khối ẩn bằng CSS (vẫn phải có toolbox để Blockly không lỗi). CSS cần `display: none !important` vì Blockly đặt `style="display: block"` inline cho flyout.
 - Mode `parsons` (P1-06): **không** gắn `Events.disableOrphans` (lúc đầu gần như mọi khối đều rời, sọc xám làm cả bài khó đọc). Thay vào đó khối đứng đầu một chồng rời có class `cq-loose` (viền nét đứt màu mực, `opacity: 0.88`, `blockly.css`), cập nhật sau mỗi event không phải UI. Engine vẫn bỏ qua khối rời khi sinh code. Mọi khối `setDeletable(false)` khi nạp (Blockly chỉ copy/nhân bản khối xóa được), không có thùng rác.
 - Mode `predict`: không có thùng rác (workspace chỉ đọc, §2).
+- Nhóm `variable` có nhãn "HỘP" (với bé luôn gọi biến là hộp, ADR-0022 "Quyết định sản phẩm" 1); khối hộp có `category: 'variable'` và nằm trong `knownBlockSpecs()` (`COMMON_BLOCKS` + `VARIABLE_BLOCKS` + khối của mọi kiểu game), mục thanh khối ghim `VAR` / `NUM` như `{"type":"cq_var_add","fields":{"VAR":"bamboo","NUM":1}}` (luật 23 (a)).
 - Nhóm `sensor` có nhãn "CÂU HỎI" (với bé gọi khối hỏi là câu hỏi, không nói cảm biến: `glossary.md` "Điều kiện"); `logic` là "ĐIỀU KIỆN" (`cq_if`, `cq_if_else`), `cq_repeat_until` ở nhóm "LẶP".
 - Cỡ khối trong flyout tự co cho cả thanh khối vừa chiều cao khung (`fitFlyoutScale` trong `BlocklyWorkspace.tsx`): trong khoảng `FLYOUT_SCALE_MIN = 0.62` … `FLYOUT_SCALE_MAX = 0.8`, chừa 16 px ở đáy, tính lại khi mount và mỗi lần đổi kích thước (ResizeObserver). Không phụ thuộc nút phóng to/thu nhỏ vùng ghép. Thanh khối quá dài so với cỡ nhỏ nhất thì vẫn cuộn được bằng con lăn.
 - Cuộn flyout: bánh xe trên khối/nền, kéo nền, kéo thanh trượt. Bánh xe đặt trên **thanh trượt** (hoặc thanh trượt rỗng của flyout thùng rác nằm ở mép trái) bị SVG thanh trượt nuốt mất; `forwardScrollbarWheel` chuyển nó sang flyout. Test: `e2e/flyout-scroll.spec.ts`.

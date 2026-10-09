@@ -7,7 +7,8 @@ import {
   type Workspace,
   WorkspaceSvg,
 } from 'blockly';
-import type { WorkspaceJson } from '@codequest/content-schema';
+import type { LevelVariable, WorkspaceJson } from '@codequest/content-schema';
+import { setWorkspaceVariables } from '@codequest/engine';
 import './blockly.css';
 import { setupBlockly } from './setup';
 import { codequestTheme } from './theme';
@@ -27,7 +28,16 @@ export interface ReadOnlyWorkspace {
 export function mountReadOnlyWorkspace(
   container: HTMLElement,
   json: WorkspaceJson,
-  { scale = 1, scrollable = true }: { scale?: number; scrollable?: boolean } = {},
+  {
+    scale = 1,
+    scrollable = true,
+    variables,
+  }: {
+    scale?: number;
+    scrollable?: boolean;
+    /** The level's boxes (ADR-0022), so box blocks show their names instead of ids. */
+    variables?: readonly LevelVariable[] | undefined;
+  } = {},
 ): ReadOnlyWorkspace {
   setupBlockly();
   // Undefined before the first inject, whatever the type says.
@@ -57,6 +67,8 @@ export function mountReadOnlyWorkspace(
     }
   };
   restoreMain();
+  // Before loading: box fields read their names from the workspace when they render.
+  setWorkspaceVariables(workspace, variables);
   // A preview never reports changes, so loading it fires no events at all.
   Events.disable();
   try {

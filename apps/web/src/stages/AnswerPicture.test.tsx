@@ -136,3 +136,33 @@ describe('AnswerPicture themes (P2-23)', () => {
     expect(river.querySelector('[data-answer-cell] [data-panda]')).not.toBeNull();
   });
 });
+
+describe('AnswerPicture with boxes (ADR-0022)', () => {
+  it('draws the kind picture of the key without its box suffix, plus a badge per box', () => {
+    const { container } = render(
+      <AnswerPicture
+        kind="maze"
+        config={maze}
+        answerKey="stop@1,3#bamboo=3#fish=0"
+        variables={[
+          { id: 'bamboo', name: 'số măng' },
+          { id: 'fish', name: 'số cá' },
+        ]}
+      />,
+    );
+    expect(container.querySelector('[data-answer-cell="1,3"] [data-panda]')).not.toBeNull();
+    const badges = [...container.querySelectorAll('[data-testid="var-badge"]')];
+    expect(badges.map((badge) => badge.getAttribute('data-value'))).toEqual(['3', '0']);
+    expect(badges[0]?.getAttribute('title')).toBe('hộp số măng: 3');
+  });
+
+  it('a key without boxes has no badge; an unknown box shows its id', () => {
+    expect(draw('maze', maze, 'win').querySelector('[data-testid="var-badge"]')).toBeNull();
+    cleanup();
+    const unnamed = draw('maze', maze, 'win#n=2');
+    expect(unnamed.querySelector('[data-mark="win"]')).not.toBeNull();
+    expect(unnamed.querySelector('[data-testid="var-badge"]')?.getAttribute('title')).toBe(
+      'hộp n: 2',
+    );
+  });
+});
