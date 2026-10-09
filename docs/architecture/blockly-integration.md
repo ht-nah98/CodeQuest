@@ -77,7 +77,8 @@ Vì vậy:
 - **Chương trình luôn thấy hết bề ngang** (`fitProgramWidth` trong `BlocklyWorkspace.tsx`, mọi mode trừ `predict`): lúc nạp và sau mỗi thay đổi (báo cáo debounce, không khi đang kéo), nếu các khối rộng hơn vùng ghép thì thu nhỏ vừa đủ (không dưới 0,7) rồi `scrollBoundsIntoView`; vừa rồi thì không đổi gì (không phóng to lại, không giành cuộn của bé, chỉ kéo chương trình bị đẩy khỏi tầm nhìn về). Lý do: chương trình W4 có "nếu … nếu không" trong vòng lặp (vd `w04-boss` 8 khối) rộng hơn vùng ghép 1280×720 ở cỡ 1,1.
 - **Ô câu hỏi trống** trông như lỗ để cắm: zelos vẽ ô `COND` trống bằng `.blocklyOutlinePath`; `blockly.css` tô nền giấy, viền mực nét đứt. Chạy với ô trống: màn chơi rung khối điều kiện đầu tiên có ô trống (engine dừng trước mọi event).
 - `content:check` báo lỗi nếu màn có `maxBlocks` mà toolbox chứa khối có shadow.
-- Từ Thế giới 7 (biến, phép toán có shadow): viết **capacity guard** riêng trong `apps/web/src/blockly/capacity.ts` (đếm theo `analysis.blocksUsed`, chặn `BLOCK_CREATE` vượt mức) rồi mới dùng shadow trong màn có giới hạn. Việc này nằm trong roadmap GĐ 4.
+- Khối biến của Thế giới 7 (`cq_var_*`, `cq_repeat_var`, ADR-0022) **chỉ có ô số / ô chọn**, không có ô cắm hay shadow, nên **vẫn không cần** capacity guard.
+- Khi có phép toán có shadow (`biến + biến`, Thế giới 10): viết **capacity guard** riêng trong `apps/web/src/blockly/capacity.ts` (đếm theo `analysis.blocksUsed`, chặn `BLOCK_CREATE` vượt mức) rồi mới dùng shadow trong màn có giới hạn. Việc này nằm trong roadmap GĐ 4.
 - Mọi chỗ hiển thị và chấm điểm dùng `analysis.blocksUsed` (không tính `cq_start`, không tính shadow).
 - Thanh "còn N khối" = `workspace.remainingCapacity()` (khớp với việc Blockly khóa khối trong thanh khối). Lưu ý: **khối rời cũng chiếm chỗ**, nên nếu còn khối rời thì Măng nhắc "Có khối chưa nối vào khi bắt đầu".
 - Hết chỗ thì khối trong thanh khối tự bị khóa (hành vi có sẵn của Blockly) + gợi ý tầng 0 `capacityFull`.

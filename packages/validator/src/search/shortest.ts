@@ -2,7 +2,7 @@
  * Exhaustive search for the fewest blocks that win a level (`npm run par`, level editor).
  *
  * Programs are built from the toolbox: statement blocks, `cq_repeat` (every count in
- * `repeatTimes`), and with sensors `cq_if`, `cq_if_else` (either branch may be empty, not both)
+ * `repeatTimes`), `cq_repeat_var` (every box the toolbox allows, ADR-0022), and with sensors `cq_if`, `cq_if_else` (either branch may be empty, not both)
  * and `cq_repeat_until` (P2-11, ADR-0018), loops nested up to `maxDepth` and `maxLoopDepth`,
  * blocks per type up to `maxInstances`. They are searched by size, smallest first, as a
  * shortest-path problem over simulation states: programs whose prefixes reach the same state
@@ -13,7 +13,8 @@
  * Statements that cannot be part of a smallest program are skipped, which never changes the
  * minimum or the count: a body that loses or wins before its last block, a top-level `cq_if`
  * whose question answers the same on every map still running (inlining the branch is smaller),
- * a top-level `cq_repeat_until` that asks ✔ at once everywhere (it does nothing), a branch or
+ * a top-level `cq_repeat_until` that asks ✔ at once everywhere (it does nothing), a top-level
+ * `cq_repeat_var` whose box is 0 on every map still running (likewise), a branch or
  * loop body that is empty. Deterministic for the same level and options.
  */
 import type { Level } from '@codequest/content-schema';
@@ -23,6 +24,7 @@ import {
   CQ_IF_ELSE,
   CQ_REPEAT,
   CQ_REPEAT_UNTIL,
+  CQ_REPEAT_VAR,
   registerBlockSpecs,
   runLevel,
 } from '@codequest/engine';
@@ -220,6 +222,26 @@ class ShortestSearch {
           }
         }
       }
+      if (depth > 0 && this.sim.repeatVars.length > 0) {
+        for (const body of this.sequence(depth - 1, size - 1)) {
+          const usage = bodyUsage(limits, body, limits.of(CQ_REPEAT_VAR));
+          for (const timesVar of this.sim.repeatVars) {
+            this.budget.spend();
+            if (usage === null) continue;
+            this.count();
+            out.push({
+              size,
+              statement: {
+                repeatVar: sim.variables[timesVar]?.id ?? '',
+                body: body.map((entry) => entry.statement),
+              },
+              code: { timesVar, body: body.map((entry) => entry.code) },
+              memo: null,
+              usage,
+            });
+          }
+        }
+      }
       if (size >= 3) this.conditionalCatalog(depth, size, out);
     }
     this.catalogs.set(key, out);
@@ -364,7 +386,35 @@ class ShortestSearch {
       return;
     }
     if (this.loops) this.repeats(state, size, used, emit);
+    if (this.maxDepth > 0) this.boxRepeats(state, size, used, emit);
     if (size >= 3) this.conditionals(state, size, used, emit);
+  }
+
+  /**
+   * Top-level `cq_repeat_var` statements (ADR-0022): the body is grown on the maps whose box
+   * holds at least 1 (a first pass there; prefixes that lose are cut as in `repeats`), then the
+   * whole loop runs per map (each map has its own count). Skipped when the box is 0 on every map
+   * still running: the loop does nothing, so the program without it is smaller.
+   */
+  private boxRepeats(state: number, size: number, used: Usage, emit: Emit): void {
+    const { limits, sim } = this;
+    const start = limits.add(used, limits.of(CQ_REPEAT_VAR));
+    if (start === null) return;
+    for (const timesVar of sim.repeatVars) {
+      this.budget.spend();
+      const mask = sim.varMask(state, timesVar);
+      if (mask === 0) continue;
+      const box = sim.variables[timesVar]?.id ?? '';
+      this.grow(state, mask, this.maxDepth - 1, size - 1, start, (body, _after, usage) => {
+        this.budget.spend();
+        const outcome = sim.run(state, [{ timesVar, body: body.map((entry) => entry.code) }]);
+        emit(
+          () => ({ repeatVar: box, body: body.map((entry) => entry.statement) }),
+          outcome,
+          usage,
+        );
+      });
+    }
   }
 
   /** Top-level `cq_repeat` statements: every count from one run of the body per pass. */

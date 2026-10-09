@@ -7,6 +7,9 @@ export type { LevelValidation, ValidateLevelOptions } from './validateLevel';
 export { formatSchemaIssues } from './issue';
 export type { GameKindLookup, RuleIssue } from './issue';
 
+// Rule 23 (variables, ADR-0022) and authoring rule R4 as a test helper.
+export { VARIABLE_RULE, variableIssues, withoutVariables } from './variableRules';
+
 // Helpers the cross-file rules of content:check share.
 export { toolboxTypes } from './levelRules';
 export { blockTypesOf } from './workspace';

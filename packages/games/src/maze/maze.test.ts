@@ -580,6 +580,64 @@ describe('maze sensors', () => {
     expect(actions(outcome)).toHaveLength(1);
   });
 
+  it('bambooAhead: ✔ only for a shoot not picked up on the cell ahead (ADR-0022)', () => {
+    const config = mazeConfigSchema.parse({ map: ['Sb.', '.#b', '..G'], startDir: 'E' });
+    const state = createMazeState(config);
+    const senses: boolean[] = [];
+    const ctx: SimContext<MazeState, MazeEvent> = {
+      state,
+      emit: () => undefined,
+      sense: (value) => {
+        senses.push(value);
+        return value;
+      },
+      stop: () => {
+        throw new Error('stop');
+      },
+      rng: () => 0,
+      level: level(config),
+    };
+    const api = createMazeApi(ctx);
+    const ahead = (): unknown => api['bambooAhead']?.('q');
+    expect(ahead()).toBe(true);
+    state.dir = 'S'; // the open cell [1,0], no shoot
+    expect(ahead()).toBe(false);
+    state.dir = 'N'; // the map edge
+    expect(ahead()).toBe(false);
+    state.pos = [0, 2];
+    state.dir = 'S'; // a shoot on [1,2]…
+    expect(ahead()).toBe(true);
+    state.collected.add('1,2'); // …already picked up
+    expect(ahead()).toBe(false);
+    state.pos = [1, 0];
+    state.dir = 'E'; // the wall [1,1]
+    expect(ahead()).toBe(false);
+    expect(senses).toEqual([true, false, false, true, false, false]);
+  });
+
+  it('runs "nếu phía trước có măng?" as a question block with a tooltip', () => {
+    const spec = maze.blocks.find((block) => block.type === 'maze_bamboo_ahead');
+    expect(spec?.json.tooltip).toContain('măng chưa nhặt');
+    const bambooAhead = { type: 'maze_bamboo_ahead', id: 'q' };
+    const ifAhead = (id: string): object => ({
+      type: 'cq_if',
+      id,
+      inputs: {
+        COND: { block: { ...bambooAhead, id: `${id}q` } },
+        DO: { block: forward(`${id}f`) },
+      },
+    });
+    const outcome = run({ map: ['####', 'SbbG', '####'], startDir: 'E' }, [
+      ifAhead('a'),
+      ifAhead('b'),
+      ifAhead('c'),
+    ]);
+    expect(outcome.result).toBe('incomplete');
+    expect(
+      outcome.events.filter((event) => event.type === 'sense').map((event) => event.value),
+    ).toEqual([true, true, false]);
+  });
+
   it('senses relative to the facing direction and the map edge', () => {
     // S at the top-left corner of an open 3×3 map: walls are the map edges only.
     const config = mazeConfigSchema.parse({ map: ['S..', '.#.', '..G'], startDir: 'N' });
@@ -708,6 +766,7 @@ describe('maze definition', () => {
       'maze_turn_right',
       'maze_is_path',
       'maze_at_goal',
+      'maze_bamboo_ahead',
     ]);
   });
 

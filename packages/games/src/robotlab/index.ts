@@ -64,3 +64,17 @@ export type {
 export { ROBOTLAB_REASONS } from './reasons';
 export type { RobotLabReason } from './reasons';
 export type { RobotBlockState, RobotBlockWhere, RobotCell, RobotLabState } from './state';
+export { boardOfMap, ROBOT_BOARDS, ROBOT_SCENERY, THANH_PHO_MANG } from './boards';
+export type { RobotBoard, RobotBoardKit, RobotScenery } from './boards';
+export {
+  EXAM_FAIRNESS,
+  EXAM_SEED_MAX,
+  EXAM_SEED_MIN,
+  examConfig,
+  examIssues,
+  generateExam,
+  isExamSeed,
+  planExam,
+  planWorkspace,
+} from './exam';
+export type { Exam, ExamPlan, PlacedBlock, PlanStep } from './exam';

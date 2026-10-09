@@ -133,7 +133,12 @@ function describeError(error: unknown): string {
 export function judgeLevel(level: Level, options: ShortestOptions): Verdict {
   // A multi-map level (P2-12): the search only counts programs that win every map.
   const maps = level.variants === undefined ? '' : `  maps ${String(level.variants.length + 1)}`;
-  const name = `${level.id} ${level.kind}/${level.mode}${maps}`;
+  // Boxes (ADR-0022) are part of every searched state; the head names them.
+  const boxes =
+    level.variables === undefined
+      ? ''
+      : `  boxes ${level.variables.map((variable) => variable.id).join(',')}`;
+  const name = `${level.id} ${level.kind}/${level.mode}${maps}${boxes}`;
   if (level.mode === 'parsons') return judgeParsons(level, name, options);
   if (level.mode !== 'build' && level.mode !== 'bughunt') {
     return { mark: '–', head: `${name}  skipped (blocks are given)`, lines: [] };

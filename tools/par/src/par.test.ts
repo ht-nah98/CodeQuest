@@ -226,3 +226,26 @@ describe('robotlab (P3-01b)', () => {
     expect(verdict.head).toBe(head);
   });
 });
+
+describe('variables (P3-09, ADR-0022)', () => {
+  const fixtures = fileURLToPath(
+    new URL(
+      '../../content-check/fixtures/variables-samples/worlds/_sandbox/levels/',
+      import.meta.url,
+    ),
+  );
+
+  it('searches a level with boxes and names them in the head', () => {
+    const level = LevelSchema.parse(
+      JSON.parse(readFileSync(join(fixtures, 'var-count.json'), 'utf8')),
+    );
+    const verdict = judgeLevel(level, {});
+    expect(verdict.mark).toBe('✔');
+    expect(verdict.head).toBe(
+      'var-count maze/build  maps 2  boxes bamboo  par 5  min 5 (15 shortest)',
+    );
+    expect(verdict.lines[0]).toBe(
+      'shortest: repeat 6 [if bamboo_ahead [var_add(VAR=bamboo NUM=1)], forward]',
+    );
+  });
+});

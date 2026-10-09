@@ -35,7 +35,7 @@ content/
 | Loại | Mẫu | Ví dụ |
 |---|---|---|
 | World | `w<2 số>-<slug>` | `w01-lang-tre` |
-| Level | `w<2 số>-l<2 số>` · `w<2 số>-boss` · `w<2 số>-creative` · `w<2 số>-bonus<2 số>` | `w02-l05`, `w02-boss` |
+| Level | `w<2 số>-l<2 số>` · `w<2 số>-boss` · `w<2 số>-creative` · `w<2 số>-exam` (thi thử, P3-08) · `w<2 số>-bonus<2 số>` | `w02-l05`, `w02-boss` |
 | Lesson | `w<2 số>-lesson[-<slug>]` | `w01-lesson` |
 | Block type | `<kind>_<verb>` hoặc `cq_<tên>` cho khối chung | `runner_jump`, `cq_repeat`, `cq_start` |
 | Badge | kebab-case | `loop-master` |
@@ -98,6 +98,9 @@ interface Level {
   starGoals?: StarGoal[];                   // mục tiêu ⭐ (P2-21, ADR-0017); chỉ build/bughunt; StarGoal = { kind: 'collectAll' }
   initialWorkspace?: WorkspaceJson;         // bắt buộc với parsons (khối xáo trộn), predict, bughunt
   solution?: WorkspaceJson;                 // bắt buộc trừ predict/creative
+  variables?: Array<{ id: string; name: string; start?: number[]; max?: number }>;  // hộp (P3-09, ADR-0022): 1–2; id ^[a-z][a-z0-9_]*$; start một số mỗi bản đồ (mặc định 0); max 1–20 (mặc định 9)
+  countGoal?: { var: string; equals: number[] };  // "đếm đúng": hộp `var` (đã khai báo) bằng equals[i] ngay lúc thắng bản đồ i; chỉ build/bughunt/parsons
+  exam?: { runs: number; seed: number };    // thi thử (P3-08): runs 1–3, seed 1–9999 = đề trong config; chỉ robotlab mode creative (luật 22)
   predict?: { options: Array<{ key: string; label: string }>; };  // key theo predictAnswer; label ≤ 4 chữ; hình vẽ từ key + config (AnswerPicture, stage-rendering.md §4); đáp án đúng do engine tính
   hints: HintRule[];                        // gợi ý tầng 0 (xem hint-engine.md)
   thinkingHint?: string;                    // gợi ý tầng 1, bắt buộc trừ creative
@@ -113,7 +116,7 @@ interface Lesson {
 }
 type LessonCard =
   | { type: 'say'; pose: MascotPose; text: string; image?: string }
-  | { type: 'demo'; text: string; kind: GameKindId; config: unknown; workspace: WorkspaceJson; autoplay?: boolean }
+  | { type: 'demo'; text: string; kind: GameKindId; config: unknown; workspace: WorkspaceJson; autoplay?: boolean; variables?: LevelVariable[] /* hộp của demo (ADR-0022 §2b); start dài 1 */ }
   | { type: 'quiz'; text: string; options: string[]; correct: number; explain: string };
 type MascotPose = 'idle' | 'talk' | 'happy' | 'cheer' | 'think' | 'point' | 'oops';
 
@@ -176,7 +179,7 @@ Kiểm tay: ô 0 → đi 1 → nhảy 3 → đi 4 → nhảy 6 → đi 7 → nh�
 ## 5. Luật của `content:check` (`tools/content-check`)
 Chạy `npm run content:check`. Báo lỗi (exit 1) nếu vi phạm bất kỳ luật nào:
 
-> Luật **cấp màn** (1, 2 mẫu ID, 5–6, 9–16, 19–20) cài trong `@codequest/validator` (`validateLevel`), dùng chung với level editor trong trình duyệt. `tools/content-check` đọc file, kiểm luật liên file (2 tên file/trùng ID, 3–4, 7–8, 17–18, 21) và in bảng (ADR-0015).
+> Luật **cấp màn** (1, 2 mẫu ID, 5–6, 9–16, 19–20, 22–23) cài trong `@codequest/validator` (`validateLevel`), dùng chung với level editor trong trình duyệt. `tools/content-check` đọc file, kiểm luật liên file (2 tên file/trùng ID, 3–4, 7–8, 17–18, 21) và in bảng (ADR-0015).
 
 **Cấu trúc**
 1. Mọi file đúng schema zod. `level.config` đúng `configSchema` của `kind`.
@@ -209,6 +212,26 @@ Chạy `npm run content:check`. Báo lỗi (exit 1) nếu vi phạm bất kỳ l
 
 **Truyện** (P2-24)
 21. `world.chapters` (nếu có): `id` không trùng; `title` ≤ 5 chữ, mỗi dòng ≤ 12 chữ, không dùng ✔/✘ (font không có); chương 1 **không** có `unlockAfter`, mọi chương sau **phải** có; `unlockAfter` là màn trong `levelIds` của chính thế giới, đang dùng (không `retired`), chặng `guided`/`practice`/`boss` (bé nào cũng đi qua; `challenge`, `creative`, `bonus` là tùy chọn), và đứng **sau** màn mở chương trước (đúng thứ tự truyện). Số dòng 2–4 và `art` do schema (luật 1) kiểm. Lỗi ghi vd `rule 21: chapter "ket" unlockAfter "w01-l01" must come after the previous chapter's level`. Cài ở `tools/content-check/src/story.ts`; fixture `rule-21-story-chapters/`.
+
+**Thi thử** (P3-08)
+22. Màn có `exam` (`{ runs, seed }`, chỉ `robotlab` mode `creative`, schema): `config.map` là sa bàn đã biết (`boardOfMap`), `goal` là `score`, xuất phát ở `L` theo `startDir` của sa bàn, và `config.blocks` **đúng bằng** khối của đề `exam.seed` (`generateExam`, `game-kinds.md` §3.3). Lỗi ghi `rule 22: exam level: config.blocks differ from đề 7; expected [...]`. Cài trong `@codequest/validator` (`examLevelIssues`), test ở `packages/validator/src/robotlab.test.ts`.
+
+**Biến / hộp** (P3-09, ADR-0022; ADR viết "luật 22" trước khi P3-08 dùng số đó)
+23. Màn có khối biến hoặc `variables`. Lỗi (✖) trừ khi ghi "cảnh báo" (⚠). Lỗi ghi `rule 23: (<mục>) …`. Cài trong `@codequest/validator` (`variableIssues`, `variableRules.ts`); `LevelValidation.warnings` mang các cảnh báo. Fixture: `variables-samples/` (ba màn mẫu `_sandbox`: `var-count`, `var-order`, `robot-order`, xanh) và một fixture mỗi mục `extra-23<mục>-…/`, test ở `tools/content-check/src/variables.test.ts`.
+    - (a) Mục thanh khối `cq_var_set` / `cq_var_add` không ghim `VAR` và `NUM` (`cq_var_compare` thêm `OP`, `cq_repeat_var` chỉ `VAR`).
+    - (b) `VAR` trong thanh khối, `solution` hoặc `initialWorkspace` là hộp chưa khai báo.
+    - (c) Có khối biến mà không có `variables`.
+    - (d) ⚠ Khai báo `variables` mà thanh khối và chương trình cho sẵn không có khối biến nào.
+    - (e) Ô `NUM` không phải số nguyên ≥ 0 (`tăng` ≥ 1). Độ dài `start` / `equals` và giá trị ngoài `0…max` của chúng do schema (luật 1) bắt.
+    - (f) ⚠ Có `countGoal` mà `solution` không `đặt` hay `tăng` hộp đó.
+    - (g) Khối biến ở thế giới < 7 (khu nháp `_*` được miễn).
+    - (h) ⚠ Tên hộp > 3 chữ.
+    - (i) ⚠ Thân của `lặp [hộp] lần` đặt / tăng chính hộp đó (bẫy đọc-một-lần).
+    - (j) Màn `predict` có `variables`: mọi `predict.options[].key` có đủ đuôi `#<id>=<n>` theo thứ tự khai báo.
+    - (k) Ô `NUM` ghim lớn hơn `max` của hộp.
+    - (l) Măng trên ô `G`: không cần kiểm, một ô maze chỉ có một ký tự nên `b` không bao giờ trùng `G`.
+    - (R4) `build` / `bughunt` có hộp: thanh khối có `lặp [hộp] lần` hoặc `so sánh` cần ≥ 2 bản đồ; màn chỉ đếm (`countGoal`, không khối lái) cần ≥ 2 bản đồ có `equals` khác nhau. Phần "bỏ khối biến thì không thắng tới `par`" là test của thế giới (`withoutVariables`, `conventions/content-authoring.md` §2.2).
+    - Luật 7 (khối mới lần đầu) nhận khối biến như mọi khối. Luật 17: `WRONG_COUNT` và `BOX_FULL` có câu trong `feedback.json` của nội dung và mọi fixture.
 
 **Tài sản**
 18. Asset được tham chiếu (`theme.tileset`, `image`, `shop.asset`) tồn tại trong `apps/web/public/`.
@@ -252,6 +275,7 @@ Cách hiểu chi tiết (cài đặt ở P1-11):
 - **P2-14 review (05/10/2026):** mã engine `UNUSED_BLOCKS` (mode `parsons`: có khối chưa chạy, hoặc thân lặp / nhánh trống; câu G22; luật 17: `feedback.json` của nội dung và mọi fixture có câu). `npm run par` kiểm cả màn ghép hình (§8).
 - **P2-24 (06/10/2026):** trường `world.chapters` (truyện chia chương), **luật 21**, fixture `rule-21-story-chapters/`. Dòng tổng kết in `rules 1–21`; output của mọi màn không đổi.
 - **P3-01b (08/10/2026):** kiểu game `robotlab`, file `shared/robotlab.json` và bước gộp luật chung (§3); luật 1 thêm hai kiểm tra robotlab, luật 7 so nhãn có ô số (§5 ghi chú). Output các màn hiện có không đổi.
+- **P3-09 (09/10/2026):** trường `variables`, `countGoal`, thẻ `demo` có `variables`; mã engine `WRONG_COUNT`, `BOX_FULL` (luật 17); **luật 23** (biến, cảnh báo đi qua `LevelValidation.warnings`); fixture `variables-samples/` và `extra-23*`. Dòng tổng kết in `rules 1–23`; output của mọi màn hiện có không đổi.
 - **P2-15:** luật cấp màn chuyển sang package headless `@codequest/validator` (`validateLevel`); `content:check` cho output y hệt trước khi tách (đã so trên `content/` và cả 19 fixture). Thêm `npm run par` (§8).
 
 ## 8. Vét cạn `par` (`npm run par`)
@@ -272,3 +296,4 @@ Cách hiểu chi tiết (cài đặt ở P1-11):
 - **Đo trên máy dev (03/10/2026):** `npm run par -- --world w02` 10,9 giây (9,7 giây là `w02-l18`, `parEdits` 3, dừng ở ngân sách khi đếm cách sửa), bộ nhớ đỉnh của `npm run par -- w02-l18` 232 MB; `--world w01` 0,7 giây.
 - Giả định về kiểu game mà vét cạn cần: `game-kind-sdk.md` §4.
 - **Level editor (`/coach/editor`, P2-07):** nút "Tìm par nhỏ nhất" gọi cùng hai hàm trong một Web Worker với `WORKER_MAX_WORK` và giới hạn 60 giây (`shouldStop`); "Hủy" kết thúc worker (vét cạn chạy đồng bộ nên không nhận được tin nhắn hủy). Khác CLI: editor tìm tới `maxBlocks`, hoặc `max(par, 10)` khối khi chưa có `maxBlocks`, và sửa tới `max(parEdits, 2)` lần, để thấy cả trường hợp `par` / `parEdits` đặt quá thấp (báo "quá thấp"). Mức báo theo đúng quy tắc ✖/⚠ ở trên.
+- **Hộp** (P3-09, ADR-0022): màn có `variables` tìm trên cặp `{ game, vars }`, gộp trạng thái khi cả sân chơi lẫn mọi hộp bằng nhau. Khối biến được ghi như mọi khối (lời gọi `__var*`) rồi phát lại bằng `applyVarCall` của engine; vượt `max` là thua; thắng chỉ tính khi `countGoal` đúng (cả lúc thắng giữa chừng). `cq_var_compare` là câu hỏi; `cq_repeat_var` (một mục cho mỗi hộp thanh khối cho phép) đọc số vòng lúc vào vòng, chạy theo từng bản đồ; ở tầng ngoài cùng thân dựng bằng `grow` trên các bản đồ có hộp ≥ 1, và bỏ qua khi hộp = 0 ở mọi bản đồ còn chạy. Ô `NUM` / `OP` của khối biến phải ghim (luật 23 (a)). Dòng kết quả ghi `boxes <id,…>`, vd `✔ var-count maze/build  maps 2  boxes bamboo  par 5  min 5 (15 shortest)`. Màn không có `variables` tìm y như trước (W1–W6 `npm run par` giống từng ký tự trừ thời gian). Màn par ≥ 10 có đủ `lặp` + `nếu-không` + hộp thường không vét cạn được trong ngân sách: `par` tính tay, ⚠ chứ không ✖.

@@ -11,6 +11,7 @@ import {
   CQ_IF,
   CQ_IF_ELSE,
   CQ_REPEAT_UNTIL,
+  CQ_REPEAT_VAR,
   editDistance,
   registerBlockSpecs,
   runLevel,
@@ -38,7 +39,7 @@ import {
   type Statement,
 } from './program';
 import { searchedTypes } from './shortest';
-import { EMPTY_SLOT, FastSim, type Code } from './sim';
+import { EMPTY_SLOT, FastSim, UnsearchableLevel, type Code } from './sim';
 
 export interface FixOptions extends SearchOptions {
   /** Largest number of edits tried. Default `parEdits` (1 when missing). */
@@ -76,8 +77,16 @@ export interface FixResult {
   unsupported: string[];
 }
 
-/** One token symbol: a block, a sensor, a `cq_repeat` count or a conditional control block. */
-type TokenSymbol = { repeat: number } | { atom: number } | { cond: number } | { control: string };
+/**
+ * One token symbol: a block, a sensor, a `cq_repeat` count, a `cq_repeat_var` box (index into
+ * `level.variables`, ADR-0022) or a conditional control block.
+ */
+type TokenSymbol =
+  | { repeat: number }
+  | { repeatVar: number }
+  | { atom: number }
+  | { cond: number }
+  | { control: string };
 
 /** Input names of tokens, as in `editDistance`: '' under `cq_start`, then the inputs. */
 const INPUTS = ['', 'DO', 'ELSE', COND_INPUT] as const;
@@ -90,7 +99,9 @@ const INPUT_ORDER: readonly number[] = [-1, 1, 2, 0];
 
 function blockStatements(program: Program): Statement[] {
   return program.flatMap((statement): Statement[] => {
-    if ('repeat' in statement || 'until' in statement) return blockStatements(statement.body);
+    if ('repeat' in statement || 'repeatVar' in statement || 'until' in statement) {
+      return blockStatements(statement.body);
+    }
     if ('if' in statement) {
       return [...blockStatements(statement.then), ...blockStatements(statement.else ?? [])];
     }
@@ -100,7 +111,7 @@ function blockStatements(program: Program): Statement[] {
 
 function conditionsOf(program: Program): Condition[] {
   return program.flatMap((statement): Condition[] => {
-    if ('repeat' in statement) return conditionsOf(statement.body);
+    if ('repeat' in statement || 'repeatVar' in statement) return conditionsOf(statement.body);
     if ('until' in statement) {
       return [
         ...(statement.until === null ? [] : [statement.until]),
@@ -121,9 +132,20 @@ function conditionsOf(program: Program): Condition[] {
 function repeatCounts(program: Program): number[] {
   return program.flatMap((statement): number[] => {
     if ('repeat' in statement) return [statement.repeat, ...repeatCounts(statement.body)];
-    if ('until' in statement) return repeatCounts(statement.body);
+    if ('repeatVar' in statement || 'until' in statement) return repeatCounts(statement.body);
     if ('if' in statement)
       return [...repeatCounts(statement.then), ...repeatCounts(statement.else ?? [])];
+    return [];
+  });
+}
+
+/** Boxes the `cq_repeat_var` loops of a program count with. */
+function repeatVarsOf(program: Program): string[] {
+  return program.flatMap((statement): string[] => {
+    if ('repeatVar' in statement) return [statement.repeatVar, ...repeatVarsOf(statement.body)];
+    if ('repeat' in statement || 'until' in statement) return repeatVarsOf(statement.body);
+    if ('if' in statement)
+      return [...repeatVarsOf(statement.then), ...repeatVarsOf(statement.else ?? [])];
     return [];
   });
 }
@@ -131,7 +153,10 @@ function repeatCounts(program: Program): number[] {
 function controlTypes(program: Program, out = new Set<string>()): Set<string> {
   for (const statement of program) {
     if ('repeat' in statement) controlTypes(statement.body, out);
-    else if ('until' in statement) {
+    else if ('repeatVar' in statement) {
+      out.add(CQ_REPEAT_VAR);
+      controlTypes(statement.body, out);
+    } else if ('until' in statement) {
       out.add(CQ_REPEAT_UNTIL);
       controlTypes(statement.body, out);
     } else if ('if' in statement) {
@@ -150,7 +175,7 @@ function controlTypes(program: Program, out = new Set<string>()): Set<string> {
 function hasEmptyBody(code: Code): boolean {
   return code.some((item) => {
     if (typeof item === 'number') return false;
-    if ('times' in item || 'until' in item)
+    if ('times' in item || 'timesVar' in item || 'until' in item)
       return item.body.length === 0 || hasEmptyBody(item.body);
     const otherwise = item.else ?? [];
     return (
@@ -164,6 +189,7 @@ function hasEmptyBody(code: Code): boolean {
 type MutableItem =
   | number
   | { times: number; body: MutableItem[] }
+  | { timesVar: number; body: MutableItem[] }
   | { cond: number; then: MutableItem[]; else: MutableItem[] | null }
   | { until: number; body: MutableItem[] };
 
@@ -204,6 +230,13 @@ export function findFixes(original: Level, options: FixOptions = {}): FixResult 
   if (sim.hasRepeat)
     for (const times of options.repeatTimes ?? DEFAULT_REPEAT_TIMES) counts.add(times);
   for (const times of [...counts].sort((a, b) => a - b)) symbols.push({ repeat: times });
+  // Box loops (ADR-0022): the toolbox's, and those of initialWorkspace (keep or delete only).
+  const boxLoops = new Set(sim.repeatVars);
+  for (const id of repeatVarsOf(initial)) {
+    const index = sim.variables.findIndex((variable) => variable.id === id);
+    if (index !== -1) boxLoops.add(index);
+  }
+  for (const repeatVar of [...boxLoops].sort((a, b) => a - b)) symbols.push({ repeatVar });
   for (const control of controls) symbols.push({ control });
   sim.conds.forEach((_, cond) => symbols.push({ cond }));
   const base = symbols.length;
@@ -224,6 +257,16 @@ export function findFixes(original: Level, options: FixOptions = {}): FixResult 
             find((s) => 'repeat' in s && s.repeat === statement.repeat),
           ),
         );
+        toTokens(statement.body, depth + 1, DO, out);
+      } else if ('repeatVar' in statement) {
+        const box = sim.variables.findIndex((variable) => variable.id === statement.repeatVar);
+        const symbol = find((s) => 'repeatVar' in s && s.repeatVar === box);
+        if (symbol === -1) {
+          throw new UnsearchableLevel(
+            `unsearchable: initialWorkspace counts with box "${statement.repeatVar}", which the level does not declare`,
+          );
+        }
+        out.push(token(depth, input, symbol));
         toTokens(statement.body, depth + 1, DO, out);
       } else if ('if' in statement || 'until' in statement) {
         const isIf = 'if' in statement;
@@ -281,8 +324,13 @@ export function findFixes(original: Level, options: FixOptions = {}): FixResult 
         else if (input === COND) allowed = false;
         else if ('atom' in symbol) allowed = sim.atoms[symbol.atom]?.inToolbox === true;
         else if ('repeat' in symbol) allowed = sim.hasRepeat && depth < maxTokenDepth;
-        else allowed = sim.controls.has(symbol.control) && depth < maxTokenDepth;
+        else if ('repeatVar' in symbol) {
+          allowed = sim.repeatVars.includes(symbol.repeatVar) && depth < maxTokenDepth;
+        } else allowed = sim.controls.has(symbol.control) && depth < maxTokenDepth;
         if (!conditional && 'repeat' in symbol) allowed = depth < loopDepth;
+        if (!conditional && 'repeatVar' in symbol) {
+          allowed = sim.repeatVars.includes(symbol.repeatVar) && depth < loopDepth;
+        }
         if (allowed) here.push(token(depth, input, index));
       });
     }
@@ -368,6 +416,7 @@ export function findFixes(original: Level, options: FixOptions = {}): FixResult 
   function make(symbol: TokenSymbol): MutableItem {
     if ('atom' in symbol) return symbol.atom;
     if ('repeat' in symbol) return { times: symbol.repeat, body: [] };
+    if ('repeatVar' in symbol) return { timesVar: symbol.repeatVar, body: [] };
     if ('control' in symbol) {
       if (symbol.control === CQ_REPEAT_UNTIL) return { until: EMPTY_SLOT, body: [] };
       return { cond: EMPTY_SLOT, then: [], else: symbol.control === CQ_IF_ELSE ? [] : null };
@@ -377,7 +426,7 @@ export function findFixes(original: Level, options: FixOptions = {}): FixResult 
   /** The list an input of `owner` holds (null for the condition slot), or undefined if none. */
   function openInput(owner: MutableItem, input: number): MutableItem[] | null | undefined {
     if (typeof owner === 'number') return undefined;
-    if (input === COND) return 'times' in owner ? undefined : null;
+    if (input === COND) return 'times' in owner || 'timesVar' in owner ? undefined : null;
     if (input === DO) return 'then' in owner ? owner.then : owner.body;
     if (input === ELSE && 'then' in owner && owner.else !== null) return owner.else;
     return undefined;
@@ -386,6 +435,9 @@ export function findFixes(original: Level, options: FixOptions = {}): FixResult 
     code.map((item): Statement => {
       if (typeof item === 'number') return sim.atoms[item]?.statement ?? { block: '?' };
       if ('times' in item) return { repeat: item.times, body: toProgram(item.body) };
+      if ('timesVar' in item) {
+        return { repeatVar: sim.variables[item.timesVar]?.id ?? '?', body: toProgram(item.body) };
+      }
       const conditionOf = (index: number): Condition | null =>
         index === EMPTY_SLOT ? null : (sim.conds[index]?.condition ?? null);
       if ('until' in item) return { until: conditionOf(item.until), body: toProgram(item.body) };

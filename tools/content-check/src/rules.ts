@@ -1,5 +1,5 @@
 /**
- * content:check, all 21 rules of docs/architecture/content-model.md §5 (phases: §7).
+ * content:check, all 23 rules of docs/architecture/content-model.md §5 (phases: §7).
  * The per-level rules (1–2, 5–6, 9–16, 19) live in `@codequest/validator`, so the level editor
  * runs the same code in the browser. This file reads every file, checks rules 1–2 for worlds,
  * lessons and shared files, ID file names and uniqueness, 17 (feedback coverage) and 18
@@ -62,7 +62,7 @@ export interface CheckReport {
   entries: CheckedEntry[];
   /** Errors: any of them makes content:check exit 1. */
   issues: Issue[];
-  /** Printed but never fail the check (rule 8, provisional worlds). */
+  /** Printed but never fail the check (rule 8, provisional worlds, rule 23 (d) (f) (h) (i)). */
   warnings: Issue[];
 }
 
@@ -247,6 +247,7 @@ export function checkContent(
 ): CheckReport {
   const entries: CheckedEntry[] = [];
   const issues: Issue[] = [];
+  const levelWarnings: Issue[] = [];
   const curriculum: CurriculumInput = { worlds: [], levels: [], lessons: [] };
   const shared: SharedData = { feedback: null, assets: [] };
   const sharedRules = readSharedRules(files);
@@ -328,6 +329,8 @@ export function checkContent(
         shared: sharedRules,
       });
       issues.push(...withPath(file.path, checked.issues));
+      // Rule 23 (variables) warnings: (d), (f), (h), (i).
+      levelWarnings.push(...withPath(file.path, checked.warnings));
       if (checked.level !== null) entry.detail = levelDetail(checked.level, checked.solutionBlocks);
       if (!location.isDraft) curriculum.levels.push({ ...worldFile, level: checked.level });
       claimFileId(location, id, file.path);
@@ -371,7 +374,8 @@ export function checkContent(
   }
 
   // Rules 3–4, 7–8, 21 across worlds.
-  const { errors, warnings } = checkCurriculum(curriculum);
+  const { errors, warnings: curriculumWarnings } = checkCurriculum(curriculum);
+  const warnings = [...levelWarnings, ...curriculumWarnings];
   issues.push(...errors);
 
   // Rule 17: feedback.json covers every reason code.

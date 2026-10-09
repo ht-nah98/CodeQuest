@@ -61,7 +61,7 @@ describe('validateLevel', () => {
 
   it('rule 2: the ID pattern, except in drafts', () => {
     expect(messages(level({ id: 'level-1' }))).toEqual([
-      '2 level id "level-1" does not match ^w\\d{2}-(?:l\\d{2}|boss|creative|bonus\\d{2})$',
+      '2 level id "level-1" does not match ^w\\d{2}-(?:l\\d{2}|boss|creative|exam|bonus\\d{2})$',
     ]);
     expect(messages(level({ id: 'level-1' }), { isDraft: true })).toEqual([]);
   });

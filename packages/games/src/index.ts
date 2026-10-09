@@ -63,6 +63,20 @@ export {
   robotlabRulesSchema,
   robotlabScore,
   STATION_OF,
+  // Thành Phố Măng board and "Đề mới" (P3-08).
+  boardOfMap,
+  EXAM_FAIRNESS,
+  EXAM_SEED_MAX,
+  EXAM_SEED_MIN,
+  examConfig,
+  examIssues,
+  generateExam,
+  isExamSeed,
+  planExam,
+  planWorkspace,
+  ROBOT_BOARDS,
+  ROBOT_SCENERY,
+  THANH_PHO_MANG,
 } from './robotlab';
 export type {
   RobotBlock,
@@ -84,4 +98,11 @@ export type {
   RobotLabState,
   RobotReleaseResult,
   RobotTile,
+  Exam,
+  ExamPlan,
+  PlacedBlock,
+  PlanStep,
+  RobotBoard,
+  RobotBoardKit,
+  RobotScenery,
 } from './robotlab';

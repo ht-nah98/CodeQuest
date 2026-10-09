@@ -5,6 +5,7 @@ import {
   CQ_IF_ELSE,
   CQ_REPEAT,
   CQ_REPEAT_UNTIL,
+  CQ_REPEAT_VAR,
   CQ_START,
 } from '@codequest/engine';
 
@@ -15,13 +16,15 @@ export interface Condition {
 }
 
 /**
- * One statement of a program: a toolbox block, `cq_repeat` with its body, `cq_if` (no `else`)
- * or `cq_if_else` (with `else`, possibly empty), or `cq_repeat_until`. A condition is `null`
- * when its slot is empty (the engine refuses to run that: EMPTY_CONDITION).
+ * One statement of a program: a toolbox block, `cq_repeat` with its body, `cq_repeat_var`
+ * ("lặp [hộp] lần", ADR-0022: `repeatVar` is the box id), `cq_if` (no `else`) or `cq_if_else`
+ * (with `else`, possibly empty), or `cq_repeat_until`. A condition is `null` when its slot is
+ * empty (the engine refuses to run that: EMPTY_CONDITION).
  */
 export type Statement =
   | { readonly block: string; readonly fields?: Readonly<Record<string, unknown>> }
   | { readonly repeat: number; readonly body: Program }
+  | { readonly repeatVar: string; readonly body: Program }
   | { readonly if: Condition | null; readonly then: Program; readonly else?: Program }
   | { readonly until: Condition | null; readonly body: Program };
 
@@ -38,7 +41,7 @@ function isRecord(value: unknown): value is JsonRecord {
 export function programSize(program: Program): number {
   let size = 0;
   for (const statement of program) {
-    if ('repeat' in statement) size += 1 + programSize(statement.body);
+    if ('repeat' in statement || 'repeatVar' in statement) size += 1 + programSize(statement.body);
     else if ('if' in statement) {
       size += 1 + (statement.if === null ? 0 : 1) + programSize(statement.then);
       size += programSize(statement.else ?? []);
@@ -61,6 +64,9 @@ export function programBlockTypes(
     if ('repeat' in statement) {
       add(CQ_REPEAT);
       programBlockTypes(statement.body, out);
+    } else if ('repeatVar' in statement) {
+      add(CQ_REPEAT_VAR);
+      programBlockTypes(statement.body, out);
     } else if ('if' in statement) {
       add(statement.else === undefined ? CQ_IF : CQ_IF_ELSE);
       if (statement.if !== null) add(statement.if.block);
@@ -75,11 +81,15 @@ export function programBlockTypes(
   return out;
 }
 
-/** Deepest nesting of loops (`cq_repeat`, `cq_repeat_until`) in a program (`maxLoopDepth`). */
+/**
+ * Deepest nesting of loops (`cq_repeat`, `cq_repeat_var`, `cq_repeat_until`) in a program
+ * (`maxLoopDepth`).
+ */
 export function programLoopDepth(program: Program): number {
   let deepest = 0;
   for (const statement of program) {
-    if ('repeat' in statement) deepest = Math.max(deepest, 1 + programLoopDepth(statement.body));
+    if ('repeat' in statement || 'repeatVar' in statement)
+      deepest = Math.max(deepest, 1 + programLoopDepth(statement.body));
     else if ('until' in statement)
       deepest = Math.max(deepest, 1 + programLoopDepth(statement.body));
     else if ('if' in statement) {
@@ -110,8 +120,11 @@ export function programToWorkspace(program: Program): WorkspaceJson {
     let last: JsonRecord | undefined;
     for (const statement of statements) {
       let block: JsonRecord;
-      if ('repeat' in statement) {
-        block = { type: CQ_REPEAT, id: id(), fields: { TIMES: statement.repeat } };
+      if ('repeat' in statement || 'repeatVar' in statement) {
+        block =
+          'repeat' in statement
+            ? { type: CQ_REPEAT, id: id(), fields: { TIMES: statement.repeat } }
+            : { type: CQ_REPEAT_VAR, id: id(), fields: { VAR: statement.repeatVar } };
         const body = chain(statement.body);
         if (body !== undefined) block['inputs'] = { DO: { block: body } };
       } else if ('if' in statement || 'until' in statement) {
@@ -152,6 +165,7 @@ function connected(connection: unknown): JsonRecord | null {
 /** Inputs each control block may have. */
 const CONTROL_INPUTS: Readonly<Record<string, readonly string[]>> = {
   [CQ_REPEAT]: ['DO'],
+  [CQ_REPEAT_VAR]: ['DO'],
   [CQ_IF]: [COND_INPUT, 'DO'],
   [CQ_IF_ELSE]: [COND_INPUT, 'DO', 'ELSE'],
   [CQ_REPEAT_UNTIL]: [COND_INPUT, 'DO'],
@@ -160,7 +174,8 @@ const CONTROL_INPUTS: Readonly<Record<string, readonly string[]>> = {
 /**
  * The program under `cq_start` of a workspace JSON (orphans ignored), or null when it uses
  * something the search cannot express: value inputs other than a condition slot holding one
- * plain sensor block, other statement inputs, or a `cq_repeat` without a whole-number `TIMES`.
+ * plain sensor block, other statement inputs, a `cq_repeat` without a whole-number `TIMES`, or
+ * a `cq_repeat_var` without a `VAR`.
  */
 export function programFromWorkspace(workspace: WorkspaceJson): Program | null {
   const condition = (connection: unknown): Condition | null | undefined => {
@@ -192,6 +207,12 @@ export function programFromWorkspace(workspace: WorkspaceJson): Program | null {
         const times = Number(fields?.['TIMES']);
         if (!Number.isInteger(times)) return null;
         out.push({ repeat: times, body });
+        continue;
+      }
+      if (type === CQ_REPEAT_VAR) {
+        const box = fields?.['VAR'];
+        if (typeof box !== 'string') return null;
+        out.push({ repeatVar: box, body });
         continue;
       }
       const cond = condition(inputs[COND_INPUT]);
@@ -226,7 +247,7 @@ function formatBlock(type: string, given: Readonly<Record<string, unknown>> | un
 }
 
 /**
- * `walk, repeat 3 [walk, jump]`, `repeat 10 [if is_ahead(KIND=HOLE) [jump] else [walk]]`,
+ * `walk, repeat 3 [walk, jump]`, `repeat <bamboo> [forward]` (box loop), `repeat 10 [if is_ahead(KIND=HOLE) [jump] else [walk]]`,
  * `until at_goal [forward]`: block types without their `<kind>_` prefix.
  */
 export function formatProgram(program: Program): string {
@@ -234,6 +255,9 @@ export function formatProgram(program: Program): string {
     .map((statement) => {
       if ('repeat' in statement) {
         return `repeat ${String(statement.repeat)} [${formatProgram(statement.body)}]`;
+      }
+      if ('repeatVar' in statement) {
+        return `repeat <${statement.repeatVar}> [${formatProgram(statement.body)}]`;
       }
       if ('if' in statement) {
         const otherwise =

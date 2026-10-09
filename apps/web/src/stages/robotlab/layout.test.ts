@@ -21,6 +21,7 @@ import {
   jobKinds,
   LABEL_STRIP,
   layoutHud,
+  layoutHudColumn,
   lineSegments,
   MAT_CELLS,
   robotGeometry,
@@ -126,6 +127,21 @@ describe('layoutHud', () => {
     expect(two.chips[3]?.x).toBe(HUD_MARGIN);
     expect(two.band).toBe(HUD_MARGIN + 2 * (HUD_CHIP_HEIGHT + HUD_GAP));
     expect(layoutHud([], 516).band).toBe(0);
+  });
+
+  it('stacks chips in a left column for a 9 × 7 board, giving bigger crossings (P3-08)', () => {
+    const widths = [110, 80, 100, 100, 80, 110];
+    const column = layoutHudColumn(widths, 330);
+    expect(column?.chips.map((c) => c.x)).toEqual(widths.map(() => HUD_MARGIN));
+    expect(column?.chips[1]?.y).toBe(HUD_MARGIN + HUD_CHIP_HEIGHT + HUD_GAP);
+    expect(column?.side).toBe(HUD_MARGIN + 110 + HUD_GAP);
+    const top = computeRobotLayout(7, 9, 517, 330, layoutHud(widths, 517).band);
+    const side = computeRobotLayout(7, 9, 517, 330, 0, undefined, column?.side ?? 0);
+    expect(side.cellPx).toBeGreaterThan(top.cellPx);
+    expect(side.originX).toBeGreaterThanOrEqual(column?.side ?? 0);
+    // Too many chips for the height: no column.
+    expect(layoutHudColumn(widths, 200)).toBeNull();
+    expect(layoutHudColumn([], 330)).toBeNull();
   });
 });
 

@@ -5,7 +5,13 @@ import { COND_INPUT, CONDITION_BLOCK_TYPES } from '../blocks/common';
 import { HIGHLIGHT_FN } from '../blocks/generator';
 import { registerBlockSpecs } from '../blocks/registerBlockSpecs';
 import type { SimContext } from '../sdk/context';
-import type { DistributiveOmit, GameEvent, HighlightEvent, SenseEvent } from '../sdk/events';
+import type {
+  DistributiveOmit,
+  GameEvent,
+  HighlightEvent,
+  SenseEvent,
+  VarEvent,
+} from '../sdk/events';
 import type { GameKindApi, GameKindDefinition, Primitive } from '../sdk/gameKind';
 import type { MapOutcome, RunOutcome } from '../sdk/outcome';
 import { fnv1a } from '../rng/fnv1a';
@@ -16,6 +22,17 @@ import { editDistance } from './editDistance';
 import { withHeadlessWorkspace } from './headlessWorkspace';
 import { DEFAULT_MAX_ACTIONS, DEFAULT_MAX_STEPS } from './limits';
 import { StopSignal } from './stopSignal';
+import {
+  applyVarCall,
+  initialVars,
+  VAR_API_NAMES,
+  VAR_CMP_FN,
+  VAR_GET_FN,
+  varSuffix,
+} from './variables';
+
+/** Replaces the engine's variable functions (see `RunLevelInput.engineCalls`). */
+export type EngineCalls = (name: string, args: Primitive[]) => Primitive | undefined;
 
 export interface RunLevelInput<C, S, E extends GameEvent> {
   kind: GameKindDefinition<C, S, E>;
@@ -24,6 +41,13 @@ export interface RunLevelInput<C, S, E extends GameEvent> {
   workspace: WorkspaceJson;
   /** Defaults to `fnv1a(level.id)`. */
   seed?: number;
+  /**
+   * Internal, for the par search only (`@codequest/validator`, ADR-0022 §4): called instead of
+   * the engine's variable functions (`__varSet`, `__varAdd`, `__varGet`, `__varCmp`) with their
+   * name and arguments, and its result goes back to the sandbox. No `var` event, `sense` event
+   * or box rule applies then. The search uses it to record what each block calls.
+   */
+  engineCalls?: EngineCalls;
 }
 
 /** Thrown when the run exceeds `maxActions`; caught by `runLevel` like the step limit. */
@@ -83,36 +107,41 @@ export function runLevel<C, S, E extends GameEvent>(input: RunLevelInput<C, S, E
   let compiled: Compiled;
   try {
     registerBlockSpecs(kind.blocks);
-    compiled = withHeadlessWorkspace(workspace, (ws) => {
-      const analysis = analyzeLoaded(ws);
-      const start = analysis.startBlockId === null ? null : ws.getBlockById(analysis.startBlockId);
-      // Empty = nothing under cq_start, even if function definitions exist.
-      // Parsons (G22): a loop body or an if branch left empty means a block is not where it goes.
-      const emptyStatementInput = analysis.programBlockIds.some((id) =>
-        (ws.getBlockById(id)?.inputList ?? []).some(
-          (input) =>
-            input.connection?.type === ConnectionType.NEXT_STATEMENT &&
-            input.connection.targetBlock() === null,
-        ),
-      );
-      if (start === null || start.getNextBlock() === null)
-        return { analysis, emptyStatementInput, code: { kind: 'empty' } };
-      if (level.maxBlocks !== undefined && analysis.blocksUsed > level.maxBlocks) {
-        return { analysis, emptyStatementInput, code: { kind: 'too-many' } };
-      }
-      // A question slot left empty (P2-11): refuse to guess (Blockly would read it as false).
-      const emptyCondition = analysis.programBlockIds.some((id) => {
-        const block = ws.getBlockById(id);
-        return (
-          block !== null &&
-          CONDITION_BLOCK_TYPES.includes(block.type) &&
-          block.getInputTargetBlock(COND_INPUT) === null
+    compiled = withHeadlessWorkspace(
+      workspace,
+      (ws) => {
+        const analysis = analyzeLoaded(ws);
+        const start =
+          analysis.startBlockId === null ? null : ws.getBlockById(analysis.startBlockId);
+        // Empty = nothing under cq_start, even if function definitions exist.
+        // Parsons (G22): a loop body or an if branch left empty means a block is not where it goes.
+        const emptyStatementInput = analysis.programBlockIds.some((id) =>
+          (ws.getBlockById(id)?.inputList ?? []).some(
+            (input) =>
+              input.connection?.type === ConnectionType.NEXT_STATEMENT &&
+              input.connection.targetBlock() === null,
+          ),
         );
-      });
-      if (emptyCondition)
-        return { analysis, emptyStatementInput, code: { kind: 'empty-condition' } };
-      return { analysis, emptyStatementInput, code: compileLoaded(ws, start.id) };
-    });
+        if (start === null || start.getNextBlock() === null)
+          return { analysis, emptyStatementInput, code: { kind: 'empty' } };
+        if (level.maxBlocks !== undefined && analysis.blocksUsed > level.maxBlocks) {
+          return { analysis, emptyStatementInput, code: { kind: 'too-many' } };
+        }
+        // A question slot left empty (P2-11): refuse to guess (Blockly would read it as false).
+        const emptyCondition = analysis.programBlockIds.some((id) => {
+          const block = ws.getBlockById(id);
+          return (
+            block !== null &&
+            CONDITION_BLOCK_TYPES.includes(block.type) &&
+            block.getInputTargetBlock(COND_INPUT) === null
+          );
+        });
+        if (emptyCondition)
+          return { analysis, emptyStatementInput, code: { kind: 'empty-condition' } };
+        return { analysis, emptyStatementInput, code: compileLoaded(ws, start.id) };
+      },
+      level.variables,
+    );
   } catch (error) {
     return errorOutcome('INTERNAL_ERROR', 0, `workspace: ${describe(error)}`);
   }
@@ -145,7 +174,10 @@ export function runLevel<C, S, E extends GameEvent>(input: RunLevelInput<C, S, E
   const maps: Array<MapRun<S, E>> = [];
   for (const [index, config] of configs.entries()) {
     const mapLevel = index === 0 ? level : { ...level, config: level.variants?.[index - 1] };
-    const run = runMap(kind, mapLevel, config, code, analysis.blocksUsed, input.seed);
+    const run = runMap(kind, mapLevel, config, code, analysis.blocksUsed, input.seed, {
+      mapIndex: index,
+      engineCalls: input.engineCalls,
+    });
     maps.push(run);
     // A run that broke inside the engine says nothing about the other maps.
     if (run.outcome.result === 'error') break;
@@ -195,6 +227,10 @@ export function runLevel<C, S, E extends GameEvent>(input: RunLevelInput<C, S, E
         result: outcome.result,
         reasonCode: outcome.reasonCode,
       });
+      // Boxes (ADR-0022): `#<id>=<n>` of every box on the deciding map, in declaration order.
+      if (level.variables !== undefined) {
+        outcome.answerKey += varSuffix(level.variables, mapOutcome.vars ?? {});
+      }
     }
     if (level.mode === 'bughunt' && level.initialWorkspace !== undefined) {
       outcome.edits = editDistance(level.initialWorkspace, workspace);
@@ -232,8 +268,9 @@ interface MapRun<S, E extends GameEvent> {
 }
 
 /**
- * Interprets the compiled program on one map: a fresh state, rng, event log and limits, so each
- * map's run is the same as if the level had only that map.
+ * Interprets the compiled program on one map: a fresh state, rng, event log, limits and boxes
+ * (`variables[].start[mapIndex]`), so each map's run is the same as if the level had only that
+ * map.
  */
 function runMap<C, S, E extends GameEvent>(
   kind: GameKindDefinition<C, S, E>,
@@ -242,11 +279,12 @@ function runMap<C, S, E extends GameEvent>(
   code: string,
   blocksUsed: number,
   seed: number | undefined,
+  { mapIndex, engineCalls }: { mapIndex: number; engineCalls: EngineCalls | undefined },
 ): MapRun<S, E> {
   const rng = mulberry32(seed ?? fnv1a(level.id));
   const maxSteps = level.limits?.maxSteps ?? DEFAULT_MAX_STEPS;
   const maxActions = level.limits?.maxActions ?? DEFAULT_MAX_ACTIONS;
-  const events: Array<E | HighlightEvent | SenseEvent> = [];
+  const events: Array<E | HighlightEvent | SenseEvent | VarEvent> = [];
   let actions = 0;
   let steps = 0;
 
@@ -267,6 +305,37 @@ function runMap<C, S, E extends GameEvent>(
   };
   const stats = (): RunOutcome['stats'] => ({ steps, actions, blocksUsed });
 
+  // Boxes (ADR-0022): engine state next to the kind's state, never seen by the kind.
+  let vars: Readonly<Record<string, number>> = initialVars(level.variables, mapIndex);
+  const varApi: GameKindApi = Object.fromEntries(
+    VAR_API_NAMES.map((name) => [
+      name,
+      (...args: Primitive[]): Primitive | undefined => {
+        if (engineCalls !== undefined) return engineCalls(name, args);
+        const blockId = args[args.length - 1];
+        const owner = blockId === undefined ? null : String(blockId);
+        const applied = applyVarCall(vars, level.variables, name, args);
+        if (name === VAR_CMP_FN) return sense(applied.value === true, owner);
+        if (name === VAR_GET_FN) return applied.value;
+        if (actions >= maxActions) throw new ActionLimitSignal();
+        actions++;
+        const id = String(args[0]);
+        if (applied.overflow === true) {
+          events.push({ type: 'var', blockId: owner, id, value: vars[id] ?? 0, overflow: true });
+          stop('crash', 'BOX_FULL');
+        }
+        vars = applied.vars;
+        events.push({ type: 'var', blockId: owner, id, value: vars[id] ?? 0 });
+        return undefined;
+      },
+    ]),
+  );
+  /** "Đếm đúng": the countGoal box holds this map's number (true without countGoal). */
+  const countMet = (): boolean => {
+    const goal = level.countGoal;
+    return goal === undefined || vars[goal.var] === goal.equals[mapIndex];
+  };
+
   let state: S | undefined;
   let result: RunResult;
   let reasonCode: ReasonCode | null = null;
@@ -283,7 +352,7 @@ function runMap<C, S, E extends GameEvent>(
     const api = kind.createApi(ctx);
     const missing = kind.blocks.flatMap((spec) => spec.apiNames).filter((name) => !(name in api));
     if (missing.length > 0) throw new Error(`createApi lacks ${missing.join(', ')}`);
-    const interpreter = createInterpreter(code, api, rng, (blockId) => {
+    const interpreter = createInterpreter(code, { ...api, ...varApi }, rng, (blockId) => {
       events.push({ type: 'highlight', blockId });
     });
     let finished = false;
@@ -328,7 +397,15 @@ function runMap<C, S, E extends GameEvent>(
       };
     }
   }
+  // countGoal (ADR-0022): judged after the kind's own verdict, on both ways to win (the program
+  // ended and `evaluate` said yes, or the kind stopped it with a win mid-run): the box must hold
+  // the number at the moment of the win.
+  if (result === 'success' && level.mode !== 'creative' && !countMet()) {
+    result = 'incomplete';
+    reasonCode = 'WRONG_COUNT';
+  }
   const outcome: MapOutcome<E> = { result, reasonCode, events, stats: stats() };
+  if (level.variables !== undefined) outcome.vars = { ...vars };
   if (level.starGoals !== undefined && state !== undefined) {
     // A kind without `checkStarGoal` meets no goal; content:check rule 19 reports the level.
     const finalState = state;

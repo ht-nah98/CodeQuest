@@ -1,6 +1,7 @@
 import { Names, type Block } from 'blockly';
 import { Order, type JavascriptGenerator } from 'blockly/javascript';
 import type { BlockSpec } from '../sdk/blockSpec';
+import { CQ_REPEAT_VAR } from './variables';
 
 /** Hat block every program hangs from ("khi bắt đầu"); generates no code itself. */
 export const CQ_START = 'cq_start';
@@ -133,10 +134,11 @@ export const COMMON_BLOCKS: readonly BlockSpec[] = [
   },
 ];
 
-/** Loop blocks for `maxLoopDepth` (T16b): ours, plus Blockly's built-in loops. */
+/** Loop blocks for `maxLoopDepth` (T16b): ours (`cq_repeat_var`, ADR-0022), plus Blockly's. */
 export const LOOP_BLOCK_TYPES: readonly string[] = [
   CQ_REPEAT,
   CQ_REPEAT_UNTIL,
+  CQ_REPEAT_VAR,
   'controls_repeat',
   'controls_repeat_ext',
   'controls_whileUntil',

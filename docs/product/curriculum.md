@@ -584,7 +584,8 @@ Quy ước riêng của bảng W6 (ngoài quy ước §5):
 | 18 | `w06-l18` | challenge | robotlab | predict | "Làm hết mọi việc" thì hết giờ giữa đường, mất cả điểm về phòng | Làm hết mọi việc có kịp không? | (chỉ xem) | — | — | — | · |
 | 19 | `w06-l19` | challenge | robotlab | build | **Lượt thi đầy đủ**: đề đổi màu (2 bản đồ), thu hồi + trung hòa + về phòng trong 34 s (`score` 300); khoanh vùng là bẫy | Lượt thi thật: đủ 300 điểm trong 34 giây! | mọi lệnh robot đã học + lặp, nếu, nếu…nếu không, lặp đến khi | 22 | 20 | — | · |
 | 20 | `w06-boss` | boss | robotlab | build | **"Ngày hội robot"**: chọn việc + chọn **thứ tự** + về phòng trong 30 s (`score` 300), không đổi màu (D13) | Ngày hội robot: đủ 300 điểm trong 30 giây! | tiến, rẽ trái, rẽ phải, gắp, thả, lặp | 14 | 12 | — | · |
-| ✦ | `w06-creative` | creative | robotlab | creative | Sa bàn tập 7×7 gần giống đề thi, đủ 3 việc, tự chọn chiến thuật | Sa bàn tập: tự đặt chiến thuật cho Bíp! | mọi lệnh robot đã học (không có `đang gắp khối?`) + điều khiển | — | — | — | · |
+| ✦ | `w06-exam` | challenge | robotlab | creative | **Thi thử** (P3-08): 2 lượt × 120 s trên Thành Phố Măng, lượt tốt nhất được tính, "Đề mới" đổi chỗ khối (§6.1.1) | Thi thử ở Thành Phố Măng. Bíp sẵn sàng! | như màn sáng tạo | — | — | — | · |
+| ✦ | `w06-creative` | creative | robotlab | creative | Sa bàn tập Thành Phố Măng 9×7 (§6.1.1; bản đầu 7×7), đủ 3 việc, tự chọn chiến thuật | Sa bàn tập: tự đặt chiến thuật cho Bíp! | mọi lệnh robot đã học (không có `đang gắp khối?`) + điều khiển | — | — | — | · |
 
 Chặng: 4 guided · 12 practice · 3 challenge · 1 boss. Mode (sau khi soạn): build 10 (kể cả boss) · parsons 4 · predict 3 · bughunt 3; build liền nhau nhiều nhất 2. **Thứ tự theo mức quan trọng cho kỳ thi:** lệnh cơ bản (`l01`–`l07`) → thói quen thi không cần câu hỏi (`l08` về phòng, `l09` trung hòa, `l10` một tay gắp, `l11`–`l13` giờ, điểm, chọn việc) → câu hỏi robot W4/W5 (`l14`–`l16`) → thử thách → boss.
 
@@ -658,7 +659,7 @@ Ghi chú khi soạn (P3-04, 08/10/2026; **🟨 nháp, chờ HLV chơi thử**, c
   - `l05` **build → parsons** (khối `tiến 2, gắp, tiến 2`). Vét cạn tìm `tiến 2, tiến 2` (2 khối) thắng bản nháp: Bíp được **dừng trên** khối (ngã tư cuối, tay trống) rồi **đi tiếp ra khỏi** ô đó (đúng luật §3.3), nên không màn chỉ có `gắp` (không có `thả`) nào ép được phải gắp. Ở ghép hình, mọi lệnh phải chạy: chỉ một cách thắng, `gắp` đặt sai chỗ ra `NOTHING_TO_GRAB`. Bẫy `tiến 4` → `HIT_BLOCK` vẫn có trong demo bài `w06-lesson-gap` và ở `l07`. Lưu ý chung: rào trên đường chỉ bắt **dừng**, không bắt gắp.
   - `l10` ⚠ 3 cách ghép thắng: `gắp` đổi chỗ được với hai lệnh `rẽ phải` (rẽ không đi). Cả 3 đều thả **trong** vòng lặp (ý của màn), nên chấp nhận như W5 `l16`.
   - `w06-lesson-gap`: demo dùng sa bàn 6 cột (rào ở `1,2`, Bíp ở `1,5`) để không lộ lời giải `l05`.
-  - `w06-creative`: `score` 300 (một lượt thi). **Không** có `đang gắp khối?` trong thanh khối: luật 7 báo lỗi khi khối xuất hiện lần đầu ở màn `creative` (bảng trên ghi "luật 7 không áp dụng" là sai). Có `lặp`, `lặp đến khi`, `nếu`, `nếu … nếu không` và 3 câu hỏi đã học. Sa bàn 7×7: 2 ô vùng, 3 trạm, 3 khối trung hòa, 2 khối ô nhiễm, 2 rào; đồng hồ 120 s.
+  - `w06-creative`: `score` 300 (một lượt thi); từ P3-08 dùng sa bàn Thành Phố Măng 9×7 (§6.1.1). **Không** có `đang gắp khối?` trong thanh khối: luật 7 báo lỗi khi khối xuất hiện lần đầu ở màn `creative` (bảng trên ghi "luật 7 không áp dụng" là sai). Có `lặp`, `lặp đến khi`, `nếu`, `nếu … nếu không` và 3 câu hỏi đã học. Sa bàn 7×7: 2 ô vùng, 3 trạm, 3 khối trung hòa, 2 khối ô nhiễm, 2 rào; đồng hồ 120 s.
   - Bài: `w06-lesson` + 9 bài trước màn = **10** bài (phase-3 ghi 11; §6.1 chỉ liệt kê 9 bài trước màn).
 - **Chữ:** gợi ý `enter` của lệnh mới là "Lệnh mới! " + tooltip; riêng `l03` hai gợi ý "Lệnh mới! Rẽ trái: quay sang trái tại chỗ, chưa đi." / "… Rẽ phải: …" (thêm nhãn trước tooltip để luật 7 thấy tên lệnh). Câu hỏi mới dùng "Câu hỏi mới: …" như bảng. Chữ cho bé gọi code là "lệnh"; "khối" chỉ là khối thi đấu.
 - **Review độc lập (08/10/2026, REVISE), đã sửa:**
@@ -674,6 +675,39 @@ Ghi chú khi soạn (P3-04, 08/10/2026; **🟨 nháp, chờ HLV chơi thử**, c
 - Test `tools/content-check/src/w06.test.ts`: demo từng bài (ô Bíp dừng), đáp án 3 màn đoán, ghép sai, từng bước sửa, câu hỏi cần cho `l14`, `l16` (bỏ câu hỏi: không gì thắng trong `maxBlocks`), và **"chỉ đúng việc mới đủ điểm"**: vét cạn không vòng lặp tới 30 khối (mỗi lệnh ≥ 1 s nên phủ mọi chuỗi hành động) với điểm đổi để chỉ tổ hợp cấm mới đạt: `l12` trung hòa + khoanh vùng không kịp 20 s; `l19` (từng đề) và boss: thu hồi + trung hòa + khoanh vùng không kịp. Boss: lời giải "trung hòa trước" 12 khối = `par`; "thu hồi trước" 300 điểm với 15 khối nhưng màn thật báo `TOO_MANY_BLOCKS`; `l19` "trung hòa trước" 29 lệnh, cũng bị chặn. Test thêm: số giây / điểm trên thẻ = `shared/robotlab.json`, gợi ý "Lệnh mới! " + tooltip, số cách ghép thắng (`l04`, `l05`, `l15` 1, `l10` 3), câu "lệnh" thay "khối".
 - `theme.scene: "thanh-pho-robot"` (đã có trong `SCENE_THEMES`). Truyện: `STORY_PROPS` thêm `robot`, `lab` (hình tạm 12×12 ở `storyArt.ts`).
 - Chưa làm: thêm `w06-thanh-pho-robot` vào `PROVISIONAL_WORLDS` (nằm trong code luật `tools/content-check/src/curriculum.ts`; không cần vì `content:check` xanh); e2e (P3-03); review sư phạm độc lập; **HLV chơi thử từng màn**.
+
+#### 6.1.1 Sa bàn Thành Phố Măng và thi thử (P3-08, 09/10/2026)
+
+> Theo HLV (08/10/2026, H17): **không** chép sa bàn hay Blockly của Leanbot / AIROC (mỗi năm một đề), tự thiết kế; giữ cảm biến màu và line (H20). Sa bàn chỉ dùng ký tự robotlab (`# . L Z r y g`), **không đổi luật** engine. Dữ liệu: `THANH_PHO_MANG` ở `packages/games/src/robotlab/boards.ts`; luật bày khối: `exam.ts`.
+
+**Sa bàn** 9 cột × 7 hàng ngã tư (hàng 0 ở trên, cột 0 bên trái; Bíp xuất phát ở `L`, nhìn `N`):
+
+```
+      0 1 2 3 4 5 6 7 8          khu phố (cảnh, không phải luật)
+  0   y # # . # . . . g          0  · v t · w · · · ·    v nhà tranh  t rặng tre
+  1   . . . . . . # # .          1  · · · · b · m m ·    w sông       b cầu
+  2   . # # . # . . . .          2  · p p · w · · · ·    p công viên  m sạp chợ
+  3   . # # L # . # # .          3  · p p · w · c c ·    c nhà phố    f nhà máy
+  4   . . . . # . . Z Z          4  · · · · w · · · ·
+  5   # . # . . . # # r          5  v · t · b · f f ·
+  6   . . . . # . . . .          6  · · · · w · · · ·
+```
+
+**Chuyện của sa bàn:** Măng dẫn Bíp đi một vòng Thành Phố Măng. Phía tây sông là **làng tre** (nhà tranh, rặng tre; trạm vàng ở cuối ngõ cụt `0,0`) và **công viên** (cây, hồ sen, luống hoa) có line **chạy vòng quanh** (vòng 12 ngã tư, hàng 1 và 4, cột 0 và 3). **Phòng thí nghiệm** `L` ở mép đông công viên, sát **sông**. Sông có **hai cây cầu** (`1,4` và `5,4`): sang bờ đông phải chọn cầu trên hay cầu dưới. Phía đông: **phố chợ** (hàng 0, mái bạt sọc) dẫn tới trạm xanh ở `0,8`; **hẻm tắt** hàng 2; **nhà máy** có ống khói tỏa khói, cạnh **vùng ô nhiễm** `4,7`–`4,8` và trạm đỏ `5,8`.
+
+**Đường có chủ ý:** ngõ cụt `0,0` (trạm vàng), `0,3`, `6,0`; vòng quanh công viên (đi hai chiều đều tới); hai cầu (đường ngắn tùy việc); hẻm hàng 2 là đường tắt so với phố chợ; rào đặt lên `4,8` thì chặn lối `3,8 → 5,8`, phải vòng hàng 6.
+
+**Đề** (bộ khối của mỗi đề, giống nhau mọi đề nên điểm so được với nhau): 2 rào, 3 trung hòa (đỏ, vàng, xanh lá, một mỗi màu), 3 ô nhiễm (màu ngẫu nhiên, để dùng câu hỏi màu) = 8 khối, tối đa 2 × 45 + 3 × 160 + 3 × 100 + 40 = 910 điểm. 120 giây không đủ làm hết: phải chọn việc.
+
+**"Đề mới"** (`generateExam(board, seed, rules, target)`, thuần, tất định): `seed` 1–9999 ("Đề số 1234") → dòng số mulberry32 trộn các ngã tư `.` (trừ hai cầu), bày khối rồi kiểm; không đạt thì bày lại (tối đa 300 lần, chưa bao giờ cần: 9 999 đề đều có). Đề đạt khi:
+- khối chỉ ở ngã tư `.`, **không** trên cầu, **không** hai khối kề nhau;
+- **không dồn sát phòng**: nhiều nhất 1 khối trong vòng 2 bước line quanh `L`;
+- **việc nào cũng làm được**: từ lúc xuất phát, làm riêng việc đó rồi về `L` vẫn kịp 120 giây (với mọi khối khác nằm nguyên, Bíp không đi xuyên khối);
+- **có lời giải**: một kế hoạch tham lam (việc nhiều điểm / giây nhất còn kịp giờ, rồi về phòng) đạt ≥ `target` (300) trong 120 giây. Đo trên 9 999 đề: thấp nhất 300, trung vị 500, cao nhất 725 điểm.
+
+**Thi thử** (`w06-exam`, chặng `challenge`, mode `creative`, sau boss): 2 lượt × 120 giây, **lượt tốt nhất được tính** (luật 2025, `airoc-2026.md` §1). Bảng điểm dưới vùng ghép: Lượt 1 · Lượt 2 · Tốt nhất; lượt tính ngay khi chạy (dừng giữa chừng vẫn tính), lượt thứ ba không tính ("Xong hai lượt rồi. Bấm Thi lại hoặc Đề mới nhé!"). Lượt đụng khối / lạc line giữ điểm các việc đã xong (H22). "Đề mới" đổi số đề và chỗ các khối, xóa bảng điểm; ô "Đề số" gõ được (HLV cho cả nhóm cùng thi một đề), số đề nằm trên URL (`?de=1234`). Không sao, không xu (H21). File màn giữ **đề 2026** làm cấu hình chuẩn có lời giải 48 lệnh (kế hoạch tham lam, 660 điểm, 114 giây); luật 22 của `content:check` kiểm `config.blocks` đúng là đề 2026.
+
+**Màn sáng tạo** `w06-creative` dùng cùng sa bàn (khối của đề 17), `score` 300.
 
 ### 6.2 Thế giới 7 — 🏪 Chợ Đếm Số (đề xuất chi tiết, soạn sau W6)
 
@@ -693,21 +727,21 @@ Ghi chú khi soạn (P3-04, 08/10/2026; **🟨 nháp, chờ HLV chơi thử**, c
 **Khối biến đề xuất** (engine, chung mọi kiểu game; tên biến khai báo ở màn `level.variables: { id, name }[]` tối đa 2, vd `{ id: 'bamboo', name: 'số măng' }`; dropdown chỉ hiện biến của màn, bé không tự tạo biến ở W7):
 | Khối | Nhãn | Tooltip (đề xuất) |
 |---|---|---|
-| `cq_var_set` | đặt [số măng ▾] = [0] | Cho số vào hộp, số cũ bị thay |
+| `cq_var_set` | đặt [số măng ▾] thành [0] | Lệnh này cho số vào hộp. Số cũ mất |
 | `cq_var_add` | tăng [số măng ▾] thêm [1] | Cộng thêm vào số đang có trong hộp |
 | `cq_var_compare` | [số măng ▾] [= ▾ / < / >] [3]? | ✔ khi số trong hộp đúng như vậy, ✘ khi không |
-| `cq_repeat_var` | lặp [số măng ▾] lần | Làm các khối bên trong, số lần bằng số trong hộp |
+| `cq_repeat_var` | lặp [số măng ▾] lần | Làm các lệnh bên trong, số lần bằng số trong hộp lúc bắt đầu lặp |
 | `maze_bamboo_ahead` | phía trước có măng? | ✔ khi ô ngay trước Măng có măng chưa nhặt |
 
-- Biến chỉ là số nguyên 0–99 (vượt thì giữ 99, tất định). Mỗi lần đổi biến, engine ghi event chung `var{blockId, id, value}`; "bảng hộp" cạnh sân chơi hiện số mới (giống `sense`).
+- Biến là số nguyên `0…max` (`max` theo màn, mặc định 9, tối đa 20); vượt `max` thì thua `BOX_FULL` "Hộp đầy rồi!" (ADR-0022, đổi so với bản nháp "giữ 99"). Mỗi lần đổi biến, engine ghi event chung `var{blockId, id, value}`; "bảng hộp" cạnh sân chơi hiện số mới (giống `sense`).
 - **Chấm "đếm đúng"**: trường màn `countGoal: { var, equals: number[] }` (một số cho mỗi bản đồ). Thắng của kiểu game **và** biến đúng số → thắng; sai số → `incomplete` / `WRONG_COUNT` "Đếm chưa đúng. Đếm lại nhé!". Khóa đoán thêm đuôi `#<id>=<n>` (vd `win#bamboo=3`).
 - **Giá trị đầu theo bản đồ:** `level.variables[].start?: number[]` (một số cho mỗi bản đồ, mặc định 0). Dùng cho "biến của đề" (đơn hàng khác nhau mỗi bản đồ, `l11`); hộp hiện số đầu trước khi chạy.
 - **Rủi ro kỹ thuật cần spike trước (P3-09a, có ADR):**
   - `cq_repeat_var` **phụ thuộc trạng thái** (số lần lặp đọc lúc chạy), khác `cq_repeat` có số cố định; nó **không** nằm trong `CONTROL_TYPES` của vét cạn (`@codequest/validator`), nên vét cạn hiện tại không hiểu khối này.
   - Biến hiện nằm **ngoài** trạng thái kiểu game mà `FastSim` phát lại (vét cạn ghi lời gọi API của từng khối rồi phát lại trên state; khối biến không gọi API nào). Spike chọn: biến là trạng thái của engine được `FastSim` mang theo, hay API chung ghi vào state của kiểu game.
-  - Vét cạn chỉ hữu hạn vì giá trị ô số **cố định bởi thanh khối** (như `cq_repeat` hiện nay: thanh khối để sẵn số, vét cạn thử 0–9 / số của thanh khối), và biến bị chặn 0–99.
-- Luật soạn **R4** (như R1): màn tự ghép dạy biến có ≥ 2 bản đồ khác số; bỏ khối biến khỏi thanh khối thì không gì thắng.
-- ADR của P3-09a quyết định: biến của engine, `countGoal`, event `var`, cách vét cạn.
+  - Vét cạn chỉ hữu hạn vì giá trị ô số **cố định bởi thanh khối** (như `cq_repeat` hiện nay: thanh khối để sẵn số, vét cạn thử 0–9 / số của thanh khối), và biến bị chặn bởi `max` của màn (ADR-0022).
+- Luật soạn **R4** (ADR-0022): màn tự ghép mà hộp **lái** chương trình (`lặp [hộp] lần` hoặc so sánh) có ≥ 2 bản đồ và bỏ khối biến khỏi thanh khối thì không gì thắng tới `par`; màn **chỉ đếm** có ≥ 2 bản đồ với `countGoal` khác số. Màn "đếm rồi chọn đường" trên maze cần tường ngay ô thứ hai của nhánh sai (không có `có đường …` trong thanh khối), nếu không thì chuyển sang robotlab.
+- Đã quyết ở **ADR-0022** (09/10/2026): biến của engine, `countGoal`, event `var`, cách vét cạn, các câu hỏi sản phẩm.
 
 **Câu chuyện:** chợ phiên của Thành Phố Robot. Các cô bác bán hàng nhờ Măng và Bíp **đếm**: bác Heo đếm măng, Mèo đếm cá, bác Cú đếm khối giao về phòng thí nghiệm. Biến là **chiếc hộp có tên**, giữ một số và đổi được. Boss: "Chia măng đều cho 3 nhà" bằng đếm và so sánh.
 **Bé làm được:** đặt và tăng biến; đếm trong vòng lặp + `nếu`; so sánh biến để chọn đường / dừng vòng lặp; dùng biến làm số lần lặp.

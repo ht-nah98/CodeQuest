@@ -16,7 +16,7 @@ import {
   runLevel,
   type AnyGameKindDefinition,
 } from '@codequest/engine';
-import { robotlabResolvedSchema } from '@codequest/games';
+import { boardOfMap, generateExam, robotlabResolvedSchema } from '@codequest/games';
 import type { RuleIssue } from './issue';
 import { blockSignatures, blockTypesOf, countBlocksOfType, countShadows } from './workspace';
 import { countWords } from './words';
@@ -421,4 +421,48 @@ export function robotlabTimeIssues(level: Level): RuleIssue[] {
     }
   });
   return issues;
+}
+
+/**
+ * Rule 22 (P3-08): a mock-exam level (`exam`) plays a known board (`boardOfMap`) with a `score`
+ * goal, and its `config.blocks` are exactly the layout "Đề mới" generates for `exam.seed` (so the
+ * file's solution proves the đề a child sees first, and the generator stays deterministic).
+ */
+export function examLevelIssues(level: Level): RuleIssue[] {
+  if (level.exam === undefined) return [];
+  const parsed = robotlabResolvedSchema.safeParse(level.config);
+  if (!parsed.success) return [];
+  const config = parsed.data;
+  const board = boardOfMap(config.map);
+  if (board === undefined) {
+    return [{ rule: 22, message: 'exam level: config.map is not a known board (THANH_PHO_MANG…)' }];
+  }
+  if (config.goal.type !== 'score') {
+    return [{ rule: 22, message: 'exam level: goal must be "score"' }];
+  }
+  if (config.startDir !== board.startDir || config.start !== undefined) {
+    return [{ rule: 22, message: `exam level: start in the lab facing ${board.startDir}` }];
+  }
+  let expected: string;
+  try {
+    expected = JSON.stringify(
+      generateExam(board, level.exam.seed, config.rules, config.goal.target).blocks,
+    );
+  } catch (error) {
+    return [
+      {
+        rule: 22,
+        message: `exam level: ${error instanceof Error ? error.message : String(error)}`,
+      },
+    ];
+  }
+  if (JSON.stringify(config.blocks ?? []) !== expected) {
+    return [
+      {
+        rule: 22,
+        message: `exam level: config.blocks differ from đề ${String(level.exam.seed)}; expected ${expected}`,
+      },
+    ];
+  }
+  return [];
 }

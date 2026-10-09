@@ -1,0 +1,476 @@
+{
+  "id": "w06-exam",
+  "worldId": "w06-thanh-pho-robot",
+  "stage": "challenge",
+  "kind": "robotlab",
+  "mode": "creative",
+  "title": "Thi thử",
+  "objective": "Hai lượt, mỗi lượt 120 giây. Lượt tốt nhất được tính!",
+  "learningGoal": "Tập một buổi thi trên sa bàn lớn Thành Phố Măng: lập kế hoạch, chạy hai lượt 120 giây, lấy lượt nhiều điểm hơn. Bấm \"Đề mới\" để đổi chỗ các khối.",
+  "mission": "Thi thử ở Thành Phố Măng. Bíp sẵn sàng!",
+  "toolbox": [
+    "robot_forward",
+    "robot_turn_left",
+    "robot_turn_right",
+    "robot_grab",
+    "robot_release",
+    {
+      "type": "cq_repeat",
+      "fields": {
+        "TIMES": 2
+      }
+    },
+    "cq_repeat_until",
+    "cq_if",
+    "cq_if_else",
+    "robot_line_ahead",
+    "robot_block_color",
+    "robot_at_lab"
+  ],
+  "config": {
+    "map": [
+      "y##.#...g",
+      "......##.",
+      ".##.#....",
+      ".##L#.##.",
+      "....#..ZZ",
+      "#.#...##r",
+      "....#...."
+    ],
+    "startDir": "N",
+    "blocks": [
+      {
+        "kind": "fence",
+        "at": [5, 1]
+      },
+      {
+        "kind": "fence",
+        "at": [0, 3]
+      },
+      {
+        "kind": "neutralizer",
+        "color": "RED",
+        "at": [2, 6]
+      },
+      {
+        "kind": "neutralizer",
+        "color": "YELLOW",
+        "at": [3, 5]
+      },
+      {
+        "kind": "neutralizer",
+        "color": "GREEN",
+        "at": [1, 5]
+      },
+      {
+        "kind": "pollution",
+        "color": "GREEN",
+        "at": [1, 2]
+      },
+      {
+        "kind": "pollution",
+        "color": "YELLOW",
+        "at": [6, 3]
+      },
+      {
+        "kind": "pollution",
+        "color": "YELLOW",
+        "at": [6, 6]
+      }
+    ],
+    "goal": {
+      "type": "score",
+      "target": 300
+    }
+  },
+  "exam": {
+    "runs": 2,
+    "seed": 2026
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "robot_forward",
+              "id": "p1",
+              "fields": {
+                "N": 2
+              },
+              "next": {
+                "block": {
+                  "type": "robot_turn_right",
+                  "id": "p2",
+                  "next": {
+                    "block": {
+                      "type": "robot_forward",
+                      "id": "p3",
+                      "fields": {
+                        "N": 2
+                      },
+                      "next": {
+                        "block": {
+                          "type": "robot_grab",
+                          "id": "p4",
+                          "next": {
+                            "block": {
+                              "type": "robot_turn_left",
+                              "id": "p5",
+                              "next": {
+                                "block": {
+                                  "type": "robot_forward",
+                                  "id": "p6",
+                                  "fields": {
+                                    "N": 1
+                                  },
+                                  "next": {
+                                    "block": {
+                                      "type": "robot_turn_right",
+                                      "id": "p7",
+                                      "next": {
+                                        "block": {
+                                          "type": "robot_forward",
+                                          "id": "p8",
+                                          "fields": {
+                                            "N": 3
+                                          },
+                                          "next": {
+                                            "block": {
+                                              "type": "robot_release",
+                                              "id": "p9",
+                                              "next": {
+                                                "block": {
+                                                  "type": "robot_turn_right",
+                                                  "id": "p10",
+                                                  "next": {
+                                                    "block": {
+                                                      "type": "robot_forward",
+                                                      "id": "p11",
+                                                      "fields": {
+                                                        "N": 2
+                                                      },
+                                                      "next": {
+                                                        "block": {
+                                                          "type": "robot_turn_right",
+                                                          "id": "p12",
+                                                          "next": {
+                                                            "block": {
+                                                              "type": "robot_forward",
+                                                              "id": "p13",
+                                                              "fields": {
+                                                                "N": 2
+                                                              },
+                                                              "next": {
+                                                                "block": {
+                                                                  "type": "robot_grab",
+                                                                  "id": "p14",
+                                                                  "next": {
+                                                                    "block": {
+                                                                      "type": "robot_turn_left",
+                                                                      "id": "p15",
+                                                                      "next": {
+                                                                        "block": {
+                                                                          "type": "robot_turn_left",
+                                                                          "id": "p16",
+                                                                          "next": {
+                                                                            "block": {
+                                                                              "type": "robot_forward",
+                                                                              "id": "p17",
+                                                                              "fields": {
+                                                                                "N": 2
+                                                                              },
+                                                                              "next": {
+                                                                                "block": {
+                                                                                  "type": "robot_turn_right",
+                                                                                  "id": "p18",
+                                                                                  "next": {
+                                                                                    "block": {
+                                                                                      "type": "robot_forward",
+                                                                                      "id": "p19",
+                                                                                      "fields": {
+                                                                                        "N": 3
+                                                                                      },
+                                                                                      "next": {
+                                                                                        "block": {
+                                                                                          "type": "robot_release",
+                                                                                          "id": "p20",
+                                                                                          "next": {
+                                                                                            "block": {
+                                                                                              "type": "robot_forward",
+                                                                                              "id": "p21",
+                                                                                              "fields": {
+                                                                                                "N": 1
+                                                                                              },
+                                                                                              "next": {
+                                                                                                "block": {
+                                                                                                  "type": "robot_turn_right",
+                                                                                                  "id": "p22",
+                                                                                                  "next": {
+                                                                                                    "block": {
+                                                                                                      "type": "robot_forward",
+                                                                                                      "id": "p23",
+                                                                                                      "fields": {
+                                                                                                        "N": 2
+                                                                                                      },
+                                                                                                      "next": {
+                                                                                                        "block": {
+                                                                                                          "type": "robot_grab",
+                                                                                                          "id": "p24",
+                                                                                                          "next": {
+                                                                                                            "block": {
+                                                                                                              "type": "robot_forward",
+                                                                                                              "id": "p25",
+                                                                                                              "fields": {
+                                                                                                                "N": 1
+                                                                                                              },
+                                                                                                              "next": {
+                                                                                                                "block": {
+                                                                                                                  "type": "robot_turn_right",
+                                                                                                                  "id": "p26",
+                                                                                                                  "next": {
+                                                                                                                    "block": {
+                                                                                                                      "type": "robot_forward",
+                                                                                                                      "id": "p27",
+                                                                                                                      "fields": {
+                                                                                                                        "N": 1
+                                                                                                                      },
+                                                                                                                      "next": {
+                                                                                                                        "block": {
+                                                                                                                          "type": "robot_turn_left",
+                                                                                                                          "id": "p28",
+                                                                                                                          "next": {
+                                                                                                                            "block": {
+                                                                                                                              "type": "robot_forward",
+                                                                                                                              "id": "p29",
+                                                                                                                              "fields": {
+                                                                                                                                "N": 2
+                                                                                                                              },
+                                                                                                                              "next": {
+                                                                                                                                "block": {
+                                                                                                                                  "type": "robot_turn_right",
+                                                                                                                                  "id": "p30",
+                                                                                                                                  "next": {
+                                                                                                                                    "block": {
+                                                                                                                                      "type": "robot_forward",
+                                                                                                                                      "id": "p31",
+                                                                                                                                      "fields": {
+                                                                                                                                        "N": 2
+                                                                                                                                      },
+                                                                                                                                      "next": {
+                                                                                                                                        "block": {
+                                                                                                                                          "type": "robot_release",
+                                                                                                                                          "id": "p32",
+                                                                                                                                          "next": {
+                                                                                                                                            "block": {
+                                                                                                                                              "type": "robot_forward",
+                                                                                                                                              "id": "p33",
+                                                                                                                                              "fields": {
+                                                                                                                                                "N": 2
+                                                                                                                                              },
+                                                                                                                                              "next": {
+                                                                                                                                                "block": {
+                                                                                                                                                  "type": "robot_turn_left",
+                                                                                                                                                  "id": "p34",
+                                                                                                                                                  "next": {
+                                                                                                                                                    "block": {
+                                                                                                                                                      "type": "robot_forward",
+                                                                                                                                                      "id": "p35",
+                                                                                                                                                      "fields": {
+                                                                                                                                                        "N": 1
+                                                                                                                                                      },
+                                                                                                                                                      "next": {
+                                                                                                                                                        "block": {
+                                                                                                                                                          "type": "robot_grab",
+                                                                                                                                                          "id": "p36",
+                                                                                                                                                          "next": {
+                                                                                                                                                            "block": {
+                                                                                                                                                              "type": "robot_turn_left",
+                                                                                                                                                              "id": "p37",
+                                                                                                                                                              "next": {
+                                                                                                                                                                "block": {
+                                                                                                                                                                  "type": "robot_turn_left",
+                                                                                                                                                                  "id": "p38",
+                                                                                                                                                                  "next": {
+                                                                                                                                                                    "block": {
+                                                                                                                                                                      "type": "robot_forward",
+                                                                                                                                                                      "id": "p39",
+                                                                                                                                                                      "fields": {
+                                                                                                                                                                        "N": 1
+                                                                                                                                                                      },
+                                                                                                                                                                      "next": {
+                                                                                                                                                                        "block": {
+                                                                                                                                                                          "type": "robot_turn_right",
+                                                                                                                                                                          "id": "p40",
+                                                                                                                                                                          "next": {
+                                                                                                                                                                            "block": {
+                                                                                                                                                                              "type": "robot_forward",
+                                                                                                                                                                              "id": "p41",
+                                                                                                                                                                              "fields": {
+                                                                                                                                                                                "N": 2
+                                                                                                                                                                              },
+                                                                                                                                                                              "next": {
+                                                                                                                                                                                "block": {
+                                                                                                                                                                                  "type": "robot_release",
+                                                                                                                                                                                  "id": "p42",
+                                                                                                                                                                                  "next": {
+                                                                                                                                                                                    "block": {
+                                                                                                                                                                                      "type": "robot_forward",
+                                                                                                                                                                                      "id": "p43",
+                                                                                                                                                                                      "fields": {
+                                                                                                                                                                                        "N": 3
+                                                                                                                                                                                      },
+                                                                                                                                                                                      "next": {
+                                                                                                                                                                                        "block": {
+                                                                                                                                                                                          "type": "robot_grab",
+                                                                                                                                                                                          "id": "p44",
+                                                                                                                                                                                          "next": {
+                                                                                                                                                                                            "block": {
+                                                                                                                                                                                              "type": "robot_turn_left",
+                                                                                                                                                                                              "id": "p45",
+                                                                                                                                                                                              "next": {
+                                                                                                                                                                                                "block": {
+                                                                                                                                                                                                  "type": "robot_turn_left",
+                                                                                                                                                                                                  "id": "p46",
+                                                                                                                                                                                                  "next": {
+                                                                                                                                                                                                    "block": {
+                                                                                                                                                                                                      "type": "robot_forward",
+                                                                                                                                                                                                      "id": "p47",
+                                                                                                                                                                                                      "fields": {
+                                                                                                                                                                                                        "N": 3
+                                                                                                                                                                                                      },
+                                                                                                                                                                                                      "next": {
+                                                                                                                                                                                                        "block": {
+                                                                                                                                                                                                          "type": "robot_release",
+                                                                                                                                                                                                          "id": "p48"
+                                                                                                                                                                                                        }
+                                                                                                                                                                                                      }
+                                                                                                                                                                                                    }
+                                                                                                                                                                                                  }
+                                                                                                                                                                                                }
+                                                                                                                                                                                              }
+                                                                                                                                                                                            }
+                                                                                                                                                                                          }
+                                                                                                                                                                                        }
+                                                                                                                                                                                      }
+                                                                                                                                                                                    }
+                                                                                                                                                                                  }
+                                                                                                                                                                                }
+                                                                                                                                                                              }
+                                                                                                                                                                            }
+                                                                                                                                                                          }
+                                                                                                                                                                        }
+                                                                                                                                                                      }
+                                                                                                                                                                    }
+                                                                                                                                                                  }
+                                                                                                                                                                }
+                                                                                                                                                              }
+                                                                                                                                                            }
+                                                                                                                                                          }
+                                                                                                                                                        }
+                                                                                                                                                      }
+                                                                                                                                                    }
+                                                                                                                                                  }
+                                                                                                                                                }
+                                                                                                                                              }
+                                                                                                                                            }
+                                                                                                                                          }
+                                                                                                                                        }
+                                                                                                                                      }
+                                                                                                                                    }
+                                                                                                                                  }
+                                                                                                                                }
+                                                                                                                              }
+                                                                                                                            }
+                                                                                                                          }
+                                                                                                                        }
+                                                                                                                      }
+                                                                                                                    }
+                                                                                                                  }
+                                                                                                                }
+                                                                                                              }
+                                                                                                            }
+                                                                                                          }
+                                                                                                        }
+                                                                                                      }
+                                                                                                    }
+                                                                                                  }
+                                                                                                }
+                                                                                              }
+                                                                                            }
+                                                                                          }
+                                                                                        }
+                                                                                      }
+                                                                                    }
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "exam",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Thi thử! Chạy hai lượt, lượt tốt nhất được tính.",
+      "point": "stage"
+    },
+    {
+      "id": "low",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "LOW_SCORE"
+      },
+      "say": "Việc nào nhiều điểm mà gần Bíp?",
+      "point": "stage"
+    }
+  ],
+  "feedback": {
+    "EMPTY_CONDITION": "Ô câu hỏi còn trống. Cắm một câu hỏi vào nhé!",
+    "EMPTY_PROGRAM": "Con chưa ghép lệnh nào. Kéo lệnh vào đây nhé!",
+    "TIMEOUT": "Bíp hỏi mãi mà không làm gì. Vòng lặp không dừng!"
+  }
+}

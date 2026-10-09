@@ -1,0 +1,80 @@
+{
+  "id": "var-key",
+  "worldId": "_sandbox",
+  "stage": "practice",
+  "kind": "maze",
+  "mode": "predict",
+  "title": "Đoán hộp",
+  "objective": "Đoán số trong hộp sau khi chạy.",
+  "learningGoal": "Lặp theo hộp đọc số một lần.",
+  "misconception": "Tăng hộp thì lặp thêm.",
+  "toolbox": [],
+  "variables": [
+    {
+      "id": "order",
+      "name": "số ô",
+      "start": [2]
+    }
+  ],
+  "config": {
+    "map": ["#######", "S.....G", "#######"],
+    "startDir": "E"
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat_var",
+              "id": "b2",
+              "fields": {
+                "VAR": "order"
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "maze_forward",
+                    "id": "b1"
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "type": "cq_var_add",
+                  "id": "b3",
+                  "fields": {
+                    "VAR": "order",
+                    "NUM": 1
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "predict": {
+    "options": [
+      {
+        "key": "stop@1,2#order=3",
+        "label": "Đi 2 ô, hộp 3"
+      },
+      {
+        "key": "stop@1,3",
+        "label": "Đi 3 ô"
+      },
+      {
+        "key": "stop@1,3#order=3",
+        "label": "Đi 3 ô, hộp 3"
+      }
+    ]
+  },
+  "hints": [],
+  "thinkingHint": "Hộp đổi thì số vòng có đổi không?"
+}

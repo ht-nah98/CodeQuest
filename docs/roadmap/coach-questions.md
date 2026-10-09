@@ -114,3 +114,11 @@ Thiết kế: `product/game-kinds.md` §3.3 (luật robot), `product/curriculum.
 18. **Mở khóa W6 bằng tay:** các bé chưa xong W5, nên anh mở W6 cho từng bé ở Góc huấn luyện viên (P3-06). *Tạm dùng:* như vậy, không đổi luật mở khóa chung.
 19. **Chữ "khối" ở Thế giới 6.** Trong W6, "khối" là khối thi (rào, trung hòa, ô nhiễm), còn mảnh lập trình gọi là "lệnh". Nhưng chữ chung của giao diện (vd "Ghép khối rồi bấm Chạy", "Còn khối chưa ghép", "Chỉ 6 khối…") vẫn gọi mảnh lập trình là "khối". *Tạm dùng:* giữ nguyên chữ chung; các bé đã quen "khối" là mảnh ghép từ W1, và lời của W6 luôn nói rõ "khối màu đỏ", "khối rào". Anh muốn đổi chữ chung ở W6 thành "lệnh" không?
 20. **Bảng Trung cấp có cảm biến màu không?** Màn `l16`–`l19` dùng câu hỏi "khối ở chỗ Bíp màu …?" (đề đổi màu). *Tạm dùng:* giữ `l16`–`l19` làm bài luyện `nếu` dù robot thật không có cảm biến màu; anh biết luật thật thì báo để đổi.
+21. **Thi thử (P3-08) không có sao, không có xu.** Màn `w06-exam` "Thi thử" là luyện tập như màn sáng tạo: 2 lượt × 120 giây trên sa bàn Thành Phố Măng, bảng điểm lấy lượt tốt nhất, nút "Đề mới" đổi chỗ các khối (`curriculum.md` §6.1.1). *Tạm dùng:* không sao, không xu (bé có thể bấm "Đề mới" mãi tới khi gặp đề dễ). Nếu anh muốn thưởng: đề xuất +10 xu lần đầu đạt ≥ 300 điểm ở một đề, mỗi ngày một lần.
+22. **Lượt bị dừng giữa chừng vẫn giữ điểm.** Ở thi thử, Bíp đụng khối / lạc line thì lượt dừng, nhưng bảng điểm vẫn ghi điểm của các việc **đã xong** (như trọng tài dừng robot rồi đếm việc đã làm). Các màn thường của W6 vẫn tính "đụng là thua". *Tạm dùng:* giữ điểm đã làm. Luật thật khác thì báo.
+23. **Thi thử mở khi nào.** `w06-exam` là chặng `challenge`: mở khi bé xong mọi màn luyện tập của W6. *Tạm dùng:* như vậy; trước ngày thi anh mở sớm cho bé ở Góc huấn luyện viên (như H18). Mốc "đạt" của đề là 300 điểm (đề nào cũng có cách được ≥ 300 trong 120 giây).
+
+> **HLV trả lời 08/10/2026:**
+> - **H17:** không cần ảnh, không cần giống Blockly Leanbot hay sa bàn thật, vì mỗi năm một đề. AI tự thiết kế sa bàn, linh hoạt và sáng tạo.
+> - **H19:** giao diện chung giữ chữ "khối"; tooltip và lời W6 gọi là "lệnh", để bé hiểu cả hai.
+> - **H20:** có dùng cảm biến (màu, line), giữ `l14`–`l19`.

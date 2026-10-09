@@ -1,5 +1,6 @@
 import type { Block, Workspace } from 'blockly';
 import { JavascriptGenerator, javascriptGenerator } from 'blockly/javascript';
+import { VAR_API_NAMES } from '../run/variables';
 
 /** Sandbox function that records a highlight event; injected before every statement. */
 export const HIGHLIGHT_FN = '__hl';
@@ -21,6 +22,8 @@ export const BASE_RESERVED_WORDS = [
   'parseFloat,parseInt,escape,unescape,decodeURI,decodeURIComponent,encodeURI',
   'encodeURIComponent,setTimeout,setInterval,clearTimeout,clearInterval,constructor,self,window',
   HIGHLIGHT_FN,
+  // The engine's variable functions (ADR-0022), installed by runLevel for every kind.
+  ...VAR_API_NAMES,
 ].join(',');
 
 class EngineGenerator extends JavascriptGenerator {
