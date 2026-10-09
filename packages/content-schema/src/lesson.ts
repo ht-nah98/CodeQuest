@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { GameKindIdSchema } from './runtime';
+import { LevelVariablesSchema, checkVariables } from './variables';
 import { ContentWorkspaceJsonSchema } from './workspace';
 
 export const MASCOT_POSES = ['idle', 'talk', 'happy', 'cheer', 'think', 'point', 'oops'] as const;
@@ -14,14 +15,25 @@ export const LessonCardSchema = z.discriminatedUnion('type', [
     text: z.string().min(1),
     image: z.string().min(1).optional(),
   }),
-  z.strictObject({
-    type: z.literal('demo'),
-    text: z.string().min(1),
-    kind: GameKindIdSchema,
-    config: z.unknown(),
-    workspace: ContentWorkspaceJsonSchema,
-    autoplay: z.boolean().optional(),
-  }),
+  z
+    .strictObject({
+      type: z.literal('demo'),
+      text: z.string().min(1),
+      kind: GameKindIdSchema,
+      config: z.unknown(),
+      workspace: ContentWorkspaceJsonSchema,
+      autoplay: z.boolean().optional(),
+      /**
+       * Boxes the demo's variable blocks name (ADR-0022 §2b), same declaration as a level's. A
+       * demo has one map, so each box's `start` (if any) holds exactly one number.
+       */
+      variables: LevelVariablesSchema.optional(),
+    })
+    .superRefine((card, ctx) => {
+      checkVariables(card.variables, undefined, 1, (path, message) => {
+        ctx.addIssue({ code: 'custom', path, message });
+      });
+    }),
   z
     .strictObject({
       type: z.literal('quiz'),

@@ -17,8 +17,8 @@
 | P3-05 | Level editor: soạn màn `robotlab` | P3-01b, P3-03 | AI | ⬜ (sau 18/10) |
 | P3-06 | HLV mở khóa W6 bằng tay, chơi thử, sửa theo góp ý, cho các bé chơi | P3-04, P3-03 | HLV (AI sửa) | ⬜ |
 | P3-07 | HLV gửi luật AIROC thật + ảnh khối Blockly Leanbot và sa bàn → cập nhật dữ liệu | HLV có luật / ảnh (H2, H17) | HLV gửi · AI sửa | ⬜ |
-| P3-08 | "Đề mới": sinh sa bàn ngẫu nhiên có seed + chế độ thi thử 2 lượt | P3-03, P3-04 | AI | ⬜ (sau 18/10) |
-| P3-09a | Spike + ADR: biến trong engine và vét cạn | P3-01b | AI | ⬜ |
+| P3-08 | "Đề mới": sinh sa bàn ngẫu nhiên có seed + chế độ thi thử 2 lượt | P3-03, P3-04 | AI | 🟨 (09/10: sa bàn Thành Phố Măng, generator, `w06-exam`, e2e; chờ HLV chơi thử + review) |
+| P3-09a | Spike + ADR: biến trong engine và vét cạn | P3-01b | AI | ✅ (ADR-0022) |
 | P3-09 | Biến trong engine: khối biến chỉ có ô số, giá trị đầu theo bản đồ, event `var`, bảng hộp, `countGoal`, khối hỏi `phía trước có măng?`, vét cạn | P3-09a | AI | ⬜ |
 | P3-10 | Chi tiết hóa lần hai Thế giới 7 (bản đồ thật, vét cạn) + HLV duyệt | P3-06, P3-09 | AI soạn · HLV duyệt | ⬜ |
 | P3-11 | Nội dung Thế giới 7 · Chợ Đếm Số (20 màn + bài giảng) | P3-09, P3-10 | AI soạn nháp · HLV duyệt | ⬜ |
@@ -109,24 +109,33 @@ Theo `curriculum.md` §6.1. `world.json` (5 chương, cảnh `thanh-pho-robot`, 
 **Sản phẩm:** AI cập nhật `content/shared/robotlab.json` (điểm, giây, `timeLimit`), `airoc-2026.md` (chuyển "chưa rõ" → "xác nhận", ghi nguồn), sa bàn màn sáng tạo theo kích thước / bố cục thật, `rules` của các màn `score` nếu đổi số làm hỏng bài "chọn việc"; nhãn lệnh cho gần tên khối Leanbot nếu khác nhiều (đổi nhãn là đổi tooltip + gợi ý + glossary cùng lúc). Nếu sa bàn thật có đoạn line dài giữa hai dãy nhà **không có ngã tư để đếm**, ghi rõ khác biệt trong bài mở đầu W6 và hỏi HLV có cần lệnh "tiến tới ngã tư kế" không. Đổi luật chơi (vd thả sai màu không dừng lượt) thì làm qua ADR + tăng `version` của kiểu game.
 **Nghiệm thu:** `content:check` + `npm run par -- --world w06` xanh sau khi đổi số; test "chỉ chọn đúng việc mới đủ điểm" (P3-04) vẫn xanh hoặc màn được chỉnh lại; diff dữ liệu ghi trong PR kèm nguồn.
 
-### P3-08 · "Đề mới" và thi thử 2 lượt (sau thi)
+### P3-08 · "Đề mới" và thi thử 2 lượt
 **Sản phẩm:** bộ sinh sa bàn trong `createState` dùng `rng` có seed (seed hiện trên màn hình); nút "Đề mới" ở màn sáng tạo; chế độ "Thi thử" 2 lượt × `timeLimit`, ghi lượt tốt hơn (không xu, không sao). Cập nhật §3.3.
 **Nghiệm thu:** cùng seed ⇒ cùng sa bàn (test); mọi đề sinh ra có lời giải đạt điểm tối thiểu (200 seed, bộ giải tham lam); e2e một lượt thi thử.
+
+**🟨 Đã làm (09/10/2026, chờ HLV chơi thử, review độc lập):** làm sớm hơn lịch theo chỉ đạo HLV 08/10 (H17: tự thiết kế sa bàn).
+- **Sa bàn Thành Phố Măng** 9×7 (`curriculum.md` §6.1.1): làng tre, công viên có vòng line, sông hai cầu, phố chợ, hẻm tắt, nhà máy cạnh vùng ô nhiễm, phòng thí nghiệm. Dữ liệu `packages/games/src/robotlab/boards.ts`, **không đổi luật** engine.
+- **Khác bản kế hoạch:** đề **không** sinh trong `createState` (giữ engine nguyên, config vẫn là dữ liệu kiểm được): `generateExam` thuần (`exam.ts`) bày khối lên sa bàn cố định, web gọi `examConfig` khi bấm "Đề mới". Màn riêng `w06-exam` (chặng `challenge`, mode `creative`) thay vì nút ở màn sáng tạo; màn sáng tạo dùng cùng sa bàn.
+- Công bằng + có lời giải (`examIssues`, `planExam`), 9 999 đề đều đạt (thấp nhất 300 điểm theo kế hoạch tham lam). Test: tất định, 200 đề hợp lệ, 200 kế hoạch thắng bằng engine thật (`exam.test.ts`); luật 22 của `content:check` (`level.exam`); web `features/play/exam.test.ts`, `cityArt.test.ts`, `layout.test.ts` (HUD cột trái).
+- Giao diện: bảng điểm Lượt 1 · Lượt 2 · Tốt nhất, ô "Đề số" gõ được, "Đề mới", "Thi lại", `?de=`; cảnh thành phố vẽ bằng mã (`cityArt.ts`). e2e `apps/web/e2e/exam.spec.ts` (1280, 1366), ảnh ở `apps/web/test-results/exam/`.
+- Chờ HLV: H21 (thưởng cho thi thử), H22 (lượt đụng vẫn giữ điểm), H23 (khi nào mở thi thử).
 
 ### P3-09a · Spike + ADR: biến trong engine
 **Mục tiêu:** chốt thiết kế biến trước khi xây, vì vét cạn hiện không hiểu biến.
 **Phải trả lời (ghi trong ADR):**
 - `cq_repeat_var` **phụ thuộc trạng thái** (số vòng đọc lúc chạy), không nằm trong `CONTROL_TYPES` của `@codequest/validator`: vét cạn mở rộng thế nào.
 - Biến nằm **ngoài** trạng thái kiểu game mà `FastSim` phát lại (khối biến không gọi API nào): biến là trạng thái engine được `FastSim` mang theo, hay API chung ghi vào state của kiểu game.
-- Giữ vét cạn nhỏ: giá trị ô số của khối biến **cố định bởi thanh khối** (vét cạn không thử mọi số), biến chặn 0–99.
+- Giữ vét cạn nhỏ: giá trị ô số của khối biến **cố định bởi thanh khối** (vét cạn không thử mọi số), biến có trần `max` theo màn (mặc định 9, tối đa 20), vượt là `BOX_FULL` (ADR-0022, thay "chặn 0–99" của bản nháp).
 - Giá trị đầu theo bản đồ `variables[].start: number[]`; `countGoal` nhiều bản đồ; khóa đoán `#<id>=<n>`.
 
 **Nghiệm thu:** spike chạy được 1 màn maze đếm măng trên `npm run par` (nhánh tạm), số trạng thái đo được; ADR "Chấp nhận" hoặc ghi phương án thay.
+**Kết quả (09/10/2026):** ADR-0022 "Chấp nhận". Spike chạy `findShortestPrograms` thật trên bản chép tạm của vét cạn (ngoài repo, không qua CLI `npm run par`): `l03` maze par 5 (952 trạng thái, 0,2 s), `l11` maze par 4, `l08` cho thấy giới hạn par ≥ 10; `l11` robotlab chưa đo (việc 4 của P3-09).
 
 ### P3-09 · Biến trong engine
 **Mục tiêu:** nền cho W7 theo phương án A (`curriculum.md` §6.2), không cần capacity guard.
-**Sản phẩm:** theo ADR của P3-09a: khối chung `cq_var_set`, `cq_var_add`, `cq_var_compare`, `cq_repeat_var` (chỉ ô số và dropdown biến); `level.variables` (≤ 2, tên tiếng Việt, `start` theo bản đồ) và `level.countGoal` trong schema; lý do `WRONG_COUNT`; event chung `var{blockId, id, value}`; "bảng hộp" (React, dùng chung) cạnh sân chơi; khối hỏi `maze_bamboo_ahead`; vét cạn có biến; luật R4 trong `content-authoring.md`; bài giới thiệu `đang gắp khối?` cho W7.
-**Nghiệm thu:** unit test engine (đặt / tăng / so sánh / lặp theo biến, chặn 99, giá trị đầu theo bản đồ, tất định), `countGoal` nhiều bản đồ, vét cạn đúng `par` trên 2 màn maze + 1 robotlab; e2e bảng hộp đổi số theo từng bước; W1–W6 `npm run par` không đổi.
+**Sản phẩm:** theo ADR-0022 (10 việc con): khối chung `cq_var_set` (`đặt [hộp] thành [0]`), `cq_var_add`, `cq_var_compare`, `cq_repeat_var` (chỉ ô số và dropdown biến); `level.variables` (≤ 2, tên tiếng Việt, `start` theo bản đồ) và `level.countGoal` trong schema; lý do `WRONG_COUNT`, `BOX_FULL`; field `field_cq_var`; event chung `var{blockId, id, value}`; "bảng hộp" (React, dùng chung) cạnh sân chơi; khối hỏi `maze_bamboo_ahead`; vét cạn có biến; luật R4 trong `content-authoring.md`; bài giới thiệu `đang gắp khối?` cho W7.
+**Tiến độ (09/10/2026):** việc 1–5 (headless: schema, engine, `maze_bamboo_ahead`, vét cạn, `content:check` luật 23 + `tools/par`) xong, số đo ở ADR-0022 "Kết quả phần headless"; còn việc 6–8, 10 (web, giao diện khối, giọng đọc, bài giới thiệu) và việc 9 hoãn.
+**Nghiệm thu:** theo 10 việc con của ADR-0022 (việc 3 song song việc 2; level editor hoãn); unit test engine (đặt / tăng / so sánh / lặp theo biến, vượt `max` → `BOX_FULL`, giá trị đầu theo bản đồ, tất định), `countGoal` nhiều bản đồ, vét cạn đúng `par` trên 2 màn maze + 1 robotlab; e2e bảng hộp đổi số theo từng bước; W1–W6 `npm run par` không đổi.
 
 ### P3-10 · Chi tiết hóa lần hai Thế giới 7
 **Nghiệm thu:** §6.2 có "Chi tiết từng màn" như §5.2, dùng luật gắp / thả tại ô của W6; mọi màn build/bughunt vét cạn (sau P3-09); HLV duyệt hướng chung (HLV làm).

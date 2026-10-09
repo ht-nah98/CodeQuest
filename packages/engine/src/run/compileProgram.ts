@@ -1,5 +1,5 @@
 import type { Workspace } from 'blockly';
-import type { WorkspaceJson } from '@codequest/content-schema';
+import type { LevelVariable, WorkspaceJson } from '@codequest/content-schema';
 import { CQ_START } from '../blocks/common';
 import { engineGenerator } from '../blocks/generator';
 import { isProcedureDefinition, withHeadlessWorkspace } from './headlessWorkspace';
@@ -21,10 +21,18 @@ export function compileLoaded(ws: Workspace, startBlockId: string): string {
  * Generates JavaScript for the program under `cq_start` plus top-level function definitions
  * (orphan blocks are skipped).
  * Every statement is preceded by `__hl(<quoted block id>);`. Returns '' without `cq_start`.
+ * `variables`: the level's boxes (ADR-0022), for the box dropdowns.
  */
-export function compileProgram(workspace: WorkspaceJson): string {
-  return withHeadlessWorkspace(workspace, (ws) => {
-    const start = ws.getTopBlocks(false).find((block) => block.type === CQ_START);
-    return start === undefined ? '' : compileLoaded(ws, start.id);
-  });
+export function compileProgram(
+  workspace: WorkspaceJson,
+  variables?: readonly LevelVariable[],
+): string {
+  return withHeadlessWorkspace(
+    workspace,
+    (ws) => {
+      const start = ws.getTopBlocks(false).find((block) => block.type === CQ_START);
+      return start === undefined ? '' : compileLoaded(ws, start.id);
+    },
+    variables,
+  );
 }

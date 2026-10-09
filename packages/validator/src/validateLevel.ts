@@ -24,18 +24,20 @@ import {
   goalSpriteIssues,
   limitIssues,
   modeIssues,
+  examLevelIssues,
   pedagogyIssues,
   robotlabTimeIssues,
   shadowIssues,
   starGoalIssues,
   toolboxTypes,
 } from './levelRules';
+import { variableIssues } from './variableRules';
 import { blockTypesOf } from './workspace';
 
 /** Rule 2: ID patterns of content-model.md §2 (draft folders `worlds/_*` are exempt). */
 export const ID_PATTERNS = {
   world: /^w\d{2}-[a-z0-9]+(?:-[a-z0-9]+)*$/,
-  level: /^w\d{2}-(?:l\d{2}|boss|creative|bonus\d{2})$/,
+  level: /^w\d{2}-(?:l\d{2}|boss|creative|exam|bonus\d{2})$/,
   lesson: /^w\d{2}-lesson(?:-[a-z0-9]+(?:-[a-z0-9]+)*)?$/,
 } as const;
 
@@ -61,6 +63,8 @@ export interface LevelValidation {
   issues: RuleIssue[];
   /** Blocks used by `solution` when it could be counted (not for `predict` levels). */
   solutionBlocks: number | null;
+  /** Rule 23 warnings (variables, ADR-0022): printed by content:check, never failing it. */
+  warnings: RuleIssue[];
 }
 
 /**
@@ -173,8 +177,11 @@ function checkParsedLevel(
   isDraft: boolean,
   getKind: GameKindLookup,
   shared: SharedLevelRules,
-): { issues: RuleIssue[]; solutionBlocks: number | null } {
+): { issues: RuleIssue[]; solutionBlocks: number | null; warnings: RuleIssue[] } {
   const level = resolveLevelConfigs(written, shared);
+  // Rule 23 (variables) reads only the level JSON, so it runs whatever the config says.
+  const variables = variableIssues(level, isDraft);
+  const { warnings } = variables;
   const kind = getKind(level.kind);
   const issues = [
     ...(isDraft ? [] : pedagogyIssues(level)),
@@ -183,11 +190,16 @@ function checkParsedLevel(
   ];
   const configIssues = levelConfigIssues(level, kind, shared);
   issues.push(...configIssues);
-  if (configIssues.length === 0) issues.push(...robotlabTimeIssues(level));
+  if (configIssues.length === 0)
+    issues.push(...robotlabTimeIssues(level), ...examLevelIssues(level));
   let solutionBlocks: number | null = null;
   // The run rules 9–11, 13–16 and 19 need a valid config of an implemented kind.
   if (configIssues.length > 0 || kind === undefined) {
-    return { issues: [...issues, ...limitIssues(level)], solutionBlocks };
+    return {
+      issues: [...issues, ...limitIssues(level), ...variables.errors],
+      solutionBlocks,
+      warnings,
+    };
   }
   // A predict level runs initialWorkspace, never a solution (rule 15 checks it instead).
   if (level.solution !== undefined && level.mode !== 'predict') {
@@ -200,8 +212,9 @@ function checkParsedLevel(
     ...hintIssues(level, kind),
     ...starGoalIssues(level, kind),
     ...limitIssues(level),
+    ...variables.errors,
   );
-  return { issues, solutionBlocks };
+  return { issues, solutionBlocks, warnings };
 }
 
 function readId(value: unknown): string | null {
@@ -221,6 +234,7 @@ export function validateLevel(json: unknown, options: ValidateLevelOptions = {})
   const parsed = LevelSchema.safeParse(json);
   const issues: RuleIssue[] = parsed.success ? [] : formatSchemaIssues(parsed.error);
   let solutionBlocks: number | null = null;
+  let warnings: RuleIssue[] = [];
   if (parsed.success) {
     const checked = checkParsedLevel(
       parsed.data,
@@ -230,6 +244,7 @@ export function validateLevel(json: unknown, options: ValidateLevelOptions = {})
     );
     issues.push(...checked.issues);
     solutionBlocks = checked.solutionBlocks;
+    warnings = checked.warnings;
   }
   const id = readId(json);
   if (!isDraft && id !== null && !ID_PATTERNS.level.test(id)) {
@@ -238,5 +253,5 @@ export function validateLevel(json: unknown, options: ValidateLevelOptions = {})
       message: `level id "${id}" does not match ${ID_PATTERNS.level.source}`,
     });
   }
-  return { level: parsed.success ? parsed.data : null, issues, solutionBlocks };
+  return { level: parsed.success ? parsed.data : null, issues, solutionBlocks, warnings };
 }

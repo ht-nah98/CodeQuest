@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { HintRuleSchema } from './hint';
 import { GameKindIdSchema, LevelModeSchema } from './runtime';
+import { CountGoalSchema, LevelVariablesSchema, checkVariables } from './variables';
 import { ContentWorkspaceJsonSchema } from './workspace';
 
 /** Role of a level inside its world. A lesson is not a stage. */
@@ -119,6 +120,17 @@ export const LevelSchema = z
      * bughunt; each kind at most once.
      */
     starGoals: z.array(StarGoalSchema).min(1).max(STAR_GOAL_KINDS.length).optional(),
+    /**
+     * Engine variables ("hộp", P3-09, ADR-0022): 1–2 boxes the variable blocks name. Each box's
+     * `start` holds one number per map; values stay within `0…max` (going over loses BOX_FULL).
+     */
+    variables: LevelVariablesSchema.optional(),
+    /**
+     * "Đếm đúng" (ADR-0022): a map is won only when the kind wins **and** box `var` holds
+     * `equals[i]` at that moment (else `incomplete` / `WRONG_COUNT`). Modes build, bughunt,
+     * parsons only.
+     */
+    countGoal: CountGoalSchema.optional(),
     initialWorkspace: ContentWorkspaceJsonSchema.optional(),
     solution: ContentWorkspaceJsonSchema.optional(),
     predict: z
@@ -151,6 +163,18 @@ export const LevelSchema = z
       })
       .optional(),
     retired: z.boolean().optional(),
+    /**
+     * Mock exam ("thi thử", P3-08, game-kinds.md §3.3): `runs` runs per đề, the best counts on the
+     * scoreboard; `seed` is the đề this file's `config.blocks` hold (content:check rule 22 checks
+     * they are exactly the generator's layout). "Đề mới" re-rolls the seed in the app. Robotlab
+     * levels in mode creative only (practice: no stars, no coins).
+     */
+    exam: z
+      .strictObject({
+        runs: z.number().int().min(1).max(3),
+        seed: z.number().int().min(1).max(9999),
+      })
+      .optional(),
   })
   .superRefine((level, ctx) => {
     const require = (key: keyof typeof level, why: string): void => {
@@ -207,11 +231,38 @@ export const LevelSchema = z
         kinds.add(goal.kind);
       });
     }
+    if (level.exam !== undefined && (level.kind !== 'robotlab' || level.mode !== 'creative')) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['exam'],
+        message: '"exam" only fits kind robotlab in mode creative',
+      });
+    }
     if (level.goalSprite !== undefined && !GOAL_SPRITE_KINDS.has(level.kind)) {
       ctx.addIssue({
         code: 'custom',
         path: ['goalSprite'],
         message: '"goalSprite" only fits kinds runner and maze',
+      });
+    }
+    checkVariables(
+      level.variables,
+      level.countGoal,
+      1 + (level.variants?.length ?? 0),
+      (path, message) => {
+        ctx.addIssue({ code: 'custom', path, message });
+      },
+    );
+    if (
+      level.countGoal !== undefined &&
+      level.mode !== 'build' &&
+      level.mode !== 'bughunt' &&
+      level.mode !== 'parsons'
+    ) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['countGoal'],
+        message: '"countGoal" only fits modes build, bughunt and parsons',
       });
     }
     const ids = new Set<string>();

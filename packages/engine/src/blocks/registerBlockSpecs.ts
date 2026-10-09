@@ -1,6 +1,8 @@
 import { Blocks, common } from 'blockly';
 import { engineGenerator } from './generator';
 import { COMMON_BLOCKS } from './common';
+import { registerVariableField } from './variableField';
+import { VARIABLE_BLOCKS } from './variables';
 import type { BlockSpec } from '../sdk/blockSpec';
 
 const registered = new Map<string, BlockSpec>();
@@ -24,10 +26,13 @@ function register(spec: BlockSpec): void {
 }
 
 /**
- * Defines Blockly blocks and generators for `specs` (plus `cq_start`/`cq_repeat`).
+ * Defines Blockly blocks and generators for `specs` (plus the common blocks `cq_start`,
+ * `cq_repeat`… and the engine's variable blocks with their `field_cq_var`, ADR-0022).
  * Idempotent: registering the same spec again is a no-op.
  */
 export function registerBlockSpecs(specs: readonly BlockSpec[]): void {
+  registerVariableField();
   for (const spec of COMMON_BLOCKS) register(spec);
+  for (const spec of VARIABLE_BLOCKS) register(spec);
   for (const spec of specs) register(spec);
 }

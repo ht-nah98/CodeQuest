@@ -66,4 +66,16 @@ export const mazeBlocks: readonly BlockSpec[] = [
     },
     generator: (block, gen) => [`atGoal(${gen.quote_(block.id)})`, Order.FUNCTION_CALL],
   },
+  {
+    // W7 counting (ADR-0022): asks about the cell Măng would step onto next.
+    type: 'maze_bamboo_ahead',
+    category: 'sensor',
+    apiNames: ['bambooAhead'],
+    json: {
+      message0: 'phía trước có măng?',
+      tooltip: '✔ khi ô ngay trước Măng có măng chưa nhặt, ✘ khi không có',
+      ...sensor,
+    },
+    generator: (block, gen) => [`bambooAhead(${gen.quote_(block.id)})`, Order.FUNCTION_CALL],
+  },
 ];

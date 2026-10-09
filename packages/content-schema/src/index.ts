@@ -53,3 +53,17 @@ export type { Badge, BadgeEvent, BadgeRule } from './badge';
 
 export { FeedbackFileSchema } from './feedback';
 export type { FeedbackFile } from './feedback';
+
+export {
+  checkVariables,
+  CountGoalSchema,
+  DEFAULT_VARIABLE_MAX,
+  LevelVariableSchema,
+  LevelVariablesSchema,
+  MAX_VARIABLES,
+  VARIABLE_ID,
+  VARIABLE_MAX_LIMIT,
+  variableMax,
+  variableStart,
+} from './variables';
+export type { CountGoal, LevelVariable } from './variables';

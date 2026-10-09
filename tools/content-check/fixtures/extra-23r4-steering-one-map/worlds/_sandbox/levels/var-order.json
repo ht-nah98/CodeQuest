@@ -1,0 +1,94 @@
+{
+  "id": "var-order",
+  "worldId": "_sandbox",
+  "stage": "practice",
+  "kind": "maze",
+  "mode": "build",
+  "title": "Đơn hàng",
+  "objective": "Đi đúng số ô trong hộp.",
+  "learningGoal": "Dùng số trong hộp làm số lần lặp.",
+  "misconception": "Hộp tự đếm, không cần khối tăng.",
+  "toolbox": [
+    "maze_forward",
+    "maze_turn_left",
+    "maze_turn_right",
+    "cq_repeat",
+    {
+      "type": "cq_repeat_var",
+      "fields": {
+        "VAR": "order"
+      }
+    },
+    {
+      "type": "cq_var_add",
+      "fields": {
+        "VAR": "order",
+        "NUM": 1
+      }
+    }
+  ],
+  "par": 4,
+  "variables": [
+    {
+      "id": "order",
+      "name": "số ô",
+      "start": [3]
+    }
+  ],
+  "config": {
+    "map": ["######", "#S...#", "####G#", "######"],
+    "startDir": "E"
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat_var",
+              "id": "b2",
+              "fields": {
+                "VAR": "order"
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "maze_forward",
+                    "id": "b1"
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "type": "maze_turn_right",
+                  "id": "b3",
+                  "next": {
+                    "block": {
+                      "type": "maze_forward",
+                      "id": "b4"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "box",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Hộp nói Măng phải đi mấy ô.",
+      "point": "toolbox:cq_repeat_var"
+    }
+  ],
+  "thinkingHint": "Mỗi bản đồ, hộp cho số nào?"
+}

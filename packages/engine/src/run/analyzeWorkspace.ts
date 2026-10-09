@@ -1,5 +1,5 @@
 import type { Workspace } from 'blockly';
-import type { WorkspaceJson } from '@codequest/content-schema';
+import type { LevelVariable, WorkspaceJson } from '@codequest/content-schema';
 import { CQ_START } from '../blocks/common';
 import { isProcedureDefinition, programBlocks, withHeadlessWorkspace } from './headlessWorkspace';
 
@@ -49,8 +49,12 @@ export function analyzeLoaded(ws: Workspace): WorkspaceAnalysis {
 
 /**
  * Counts program blocks, orphan blocks and block types of a Blockly workspace JSON.
- * Throws if the JSON uses a block type that is not registered.
+ * Throws if the JSON uses a block type that is not registered. `variables` (a level's boxes)
+ * only name the box dropdowns; without them the counts are the same (ADR-0022).
  */
-export function analyzeWorkspace(workspace: WorkspaceJson): WorkspaceAnalysis {
-  return withHeadlessWorkspace(workspace, analyzeLoaded);
+export function analyzeWorkspace(
+  workspace: WorkspaceJson,
+  variables?: readonly LevelVariable[],
+): WorkspaceAnalysis {
+  return withHeadlessWorkspace(workspace, analyzeLoaded, variables);
 }

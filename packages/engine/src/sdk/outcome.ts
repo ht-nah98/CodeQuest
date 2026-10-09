@@ -1,10 +1,10 @@
 import type { ReasonCode, RunResult } from '@codequest/content-schema';
-import type { GameEvent, HighlightEvent, SenseEvent } from './events';
+import type { GameEvent, HighlightEvent, SenseEvent, VarEvent } from './events';
 
 export interface RunStats {
   /** Interpreter steps executed. */
   steps: number;
-  /** Game events and `sense` events emitted, highlights excluded. */
+  /** Game events, `sense` and `var` events emitted, highlights excluded. */
   actions: number;
   /** Blocks in the program, without `cq_start` and shadow blocks. */
   blocksUsed: number;
@@ -15,9 +15,12 @@ export interface RunOutcome<E extends GameEvent = GameEvent> {
   result: RunResult;
   /** `null` exactly when `result` is `success`. */
   reasonCode: ReasonCode | null;
-  events: ReadonlyArray<E | HighlightEvent | SenseEvent>;
+  events: ReadonlyArray<E | HighlightEvent | SenseEvent | VarEvent>;
   stats: RunStats;
-  /** Mode `predict` only: `kind.predictAnswer` of the final state. */
+  /**
+   * Mode `predict` only: `kind.predictAnswer` of the final state, plus `#<id>=<n>` for every box
+   * of a level with `variables` (ADR-0022), read with `splitVarSuffix`.
+   */
   answerKey?: string;
   /** Mode `bughunt` only: `editDistance(level.initialWorkspace, workspace)`. */
   edits?: number;
@@ -42,10 +45,16 @@ export interface RunOutcome<E extends GameEvent = GameEvent> {
    * or the last map when every map is won.
    */
   mapIndex?: number;
+  /**
+   * Levels with `variables` only (ADR-0022), when the program ran: each box's final number on
+   * this map (top level: the map of the result). The web's box panel rebuilds the numbers from
+   * the `var` events instead.
+   */
+  vars?: Record<string, number>;
 }
 
 /** One map's run of a multi-map level: what `StageController.play` replays on that map. */
 export type MapOutcome<E extends GameEvent = GameEvent> = Pick<
   RunOutcome<E>,
-  'result' | 'reasonCode' | 'events' | 'stats' | 'debug' | 'goals'
+  'result' | 'reasonCode' | 'events' | 'stats' | 'debug' | 'goals' | 'vars'
 >;

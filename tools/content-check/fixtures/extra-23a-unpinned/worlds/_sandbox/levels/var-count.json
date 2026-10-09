@@ -1,0 +1,116 @@
+{
+  "id": "var-count",
+  "worldId": "_sandbox",
+  "stage": "practice",
+  "kind": "maze",
+  "mode": "build",
+  "title": "Đếm măng",
+  "objective": "Đếm đúng số măng trên lối chợ.",
+  "learningGoal": "Đếm bằng nếu và tăng trong vòng lặp.",
+  "misconception": "Hộp tự đếm, không cần khối tăng.",
+  "toolbox": [
+    "maze_forward",
+    "cq_repeat",
+    "cq_if",
+    "maze_bamboo_ahead",
+    {
+      "type": "cq_var_set",
+      "fields": {
+        "VAR": "bamboo",
+        "NUM": 0
+      }
+    },
+    {
+      "type": "cq_var_add",
+      "fields": {
+        "VAR": "bamboo"
+      }
+    }
+  ],
+  "par": 5,
+  "variables": [
+    {
+      "id": "bamboo",
+      "name": "số măng"
+    }
+  ],
+  "countGoal": {
+    "var": "bamboo",
+    "equals": [2, 4]
+  },
+  "config": {
+    "map": ["#######", "S.b..bG", "#######"],
+    "startDir": "E"
+  },
+  "variants": [
+    {
+      "map": ["#######", "Sbb.bbG", "#######"],
+      "startDir": "E"
+    }
+  ],
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "b5",
+              "fields": {
+                "TIMES": 6
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "cq_if",
+                    "id": "b3",
+                    "inputs": {
+                      "COND": {
+                        "block": {
+                          "type": "maze_bamboo_ahead",
+                          "id": "b1"
+                        }
+                      },
+                      "DO": {
+                        "block": {
+                          "type": "cq_var_add",
+                          "id": "b2",
+                          "fields": {
+                            "VAR": "bamboo",
+                            "NUM": 1
+                          }
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "maze_forward",
+                        "id": "b4"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "count",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "WRONG_COUNT"
+      },
+      "say": "Gặp măng phía trước thì tăng hộp nhé.",
+      "point": "toolbox:cq_var_add"
+    }
+  ],
+  "thinkingHint": "Khi nào thì hộp số măng phải tăng?"
+}

@@ -10,6 +10,10 @@ export const ENGINE_REASONS = [
   'EMPTY_CONDITION',
   'LOOSE_BLOCKS',
   'UNUSED_BLOCKS',
+  // Variables (ADR-0022): a box was not the countGoal number when the map was won; a box went
+  // over its max.
+  'WRONG_COUNT',
+  'BOX_FULL',
   'TIMEOUT',
   'INTERNAL_ERROR',
 ] as const;

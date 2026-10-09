@@ -1,0 +1,9 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`runLevel with variables > is deterministic: two runs give the same event log 1`] = `
+[
+  "var:a:bamboo=3",
+  "var:a:bamboo=4",
+  "sense:c=true",
+]
+`;

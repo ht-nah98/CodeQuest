@@ -83,5 +83,11 @@ export function createMazeApi(ctx: MazeContext): GameKindApi {
       return ctx.sense(isOpen(state, ahead), String(blockId));
     },
     atGoal: (blockId) => ctx.sense(tileAt(ctx.state.map, ctx.state.pos) === 'G', String(blockId)),
+    bambooAhead: (blockId) => {
+      const state = ctx.state;
+      const ahead = neighbour(state.pos, state.dir);
+      const shoot = tileAt(state.map, ahead) === 'b' && !state.collected.has(cellKey(ahead));
+      return ctx.sense(shoot, String(blockId));
+    },
   };
 }

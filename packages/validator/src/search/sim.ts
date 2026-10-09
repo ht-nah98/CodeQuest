@@ -22,6 +22,14 @@
  * of the per-map states, a program wins when it wins every map and loses as soon as one map is
  * lost. A level with one map uses its map's states directly (no tuple layer).
  *
+ * A level with `variables` (ADR-0022) searches pairs `{ game, vars }`: the boxes are engine
+ * state that no game kind sees, so `stateKey` compares both and two programs merge only when the
+ * map and every box agree. The variable blocks are recorded like any block (their `__var*`
+ * calls, through `runLevel`'s `engineCalls`) and replayed with the engine's own `applyVarCall`
+ * on `vars`; the kind's API runs on `game`. A box over its `max` loses (BOX_FULL), a win counts
+ * only when the `countGoal` box holds the map's number, and `cq_repeat_var` reads its count from
+ * `vars` when the loop begins. A level without `variables` keeps the kind's states unwrapped.
+ *
  * Assumptions (game-kind-sdk.md §4), enforced where possible:
  * - a statement block's API calls depend only on the block (its fields), never on sensor
  *   results: a statement block whose code calls a value block's API is unsupported;
@@ -34,22 +42,31 @@
  * - the state is plain data (objects, arrays, Set, Map, primitives) that `structuredClone`
  *   copies and `stateKey` compares.
  */
-import type { Level, ToolboxEntry } from '@codequest/content-schema';
+import type { Level, LevelVariable, ToolboxEntry } from '@codequest/content-schema';
 import {
+  applyVarCall,
   COND_INPUT,
   CQ_IF,
   CQ_IF_ELSE,
   CQ_REPEAT,
   CQ_REPEAT_UNTIL,
+  CQ_REPEAT_VAR,
   DEFAULT_MAX_ACTIONS,
+  FIELD_CQ_VAR,
   fnv1a,
+  initialVars,
+  isVarCall,
   mulberry32,
   runLevel,
   StopSignal,
+  VAR_CMP_FN,
+  VARIABLE_BLOCKS,
   type AnyGameKindDefinition,
+  type BlockSpec,
   type GameKindApi,
   type Primitive,
   type SimContext,
+  type VarValues,
 } from '@codequest/engine';
 import type { GameEvent } from '@codequest/engine';
 import { SearchAborted } from './budget';
@@ -77,9 +94,14 @@ export const EMPTY_SLOT = -1;
 
 /** A program with atoms and sensors as indices into `FastSim.atoms` / `FastSim.conds`. */
 export type Code = readonly CodeItem[];
-export type CodeItem = number | RepeatCode | IfCode | UntilCode;
+export type CodeItem = number | RepeatCode | RepeatVarCode | IfCode | UntilCode;
 export interface RepeatCode {
   times: number;
+  body: Code;
+}
+/** `cq_repeat_var`: `timesVar` indexes `level.variables`; the count is read when it begins. */
+export interface RepeatVarCode {
+  timesVar: number;
   body: Code;
 }
 /** `cq_if` (`else` null) or `cq_if_else` (`else` a list, maybe empty). */
@@ -94,7 +116,13 @@ export interface UntilCode {
 }
 
 /** Control blocks the search builds programs from (when the toolbox offers them). */
-export const CONTROL_TYPES: readonly string[] = [CQ_REPEAT, CQ_IF, CQ_IF_ELSE, CQ_REPEAT_UNTIL];
+export const CONTROL_TYPES: readonly string[] = [
+  CQ_REPEAT,
+  CQ_REPEAT_VAR,
+  CQ_IF,
+  CQ_IF_ELSE,
+  CQ_REPEAT_UNTIL,
+];
 
 /** A toolbox block a program can use as a plain statement. */
 export interface Atom {
@@ -142,9 +170,15 @@ export function stateKey(value: unknown): string {
   return value === undefined ? 'u' : JSON.stringify(value);
 }
 
+/** A search state of a level with `variables`: the kind's state and the boxes (ADR-0022). */
+interface Boxed {
+  game: unknown;
+  vars: VarValues;
+}
+
 /** Why a toolbox entry cannot be searched as a statement, or null when it is a plain one. */
-function unsupportedReason(kind: AnyGameKindDefinition, type: string): string | null {
-  const spec = kind.blocks.find((block) => block.type === type);
+function unsupportedReason(specs: readonly BlockSpec[], type: string): string | null {
+  const spec = specs.find((block) => block.type === type);
   if (spec === undefined) return 'not a block of this game kind';
   const inputs = (spec.json.args0 ?? []).filter((arg) => String(arg['type']).startsWith('input_'));
   if (inputs.some((arg) => arg['type'] !== 'input_dummy')) return 'has inputs';
@@ -170,16 +204,17 @@ function numberFieldValues(arg: Readonly<Record<string, unknown>>): number[] | n
 
 /**
  * Field values to try for a block: the toolbox entry's own fields, plus every option of each
- * `field_dropdown` and every value of each small whole-number `field_number` the entry leaves
- * open (one atom or sensor per combination; the child can change those fields). Other open
- * fields keep their Blockly default.
+ * `field_dropdown`, every box of an open `field_cq_var` (ADR-0022) and every value of each small
+ * whole-number `field_number` the entry leaves open (one atom or sensor per combination; the
+ * child can change those fields). Other open fields keep their Blockly default.
  */
 function dropdownChoices(
-  kind: AnyGameKindDefinition,
+  specs: readonly BlockSpec[],
+  variables: readonly LevelVariable[],
   type: string,
   given: Readonly<Record<string, unknown>> | undefined,
 ): Array<Readonly<Record<string, unknown>> | undefined> {
-  const spec = kind.blocks.find((block) => block.type === type);
+  const spec = specs.find((block) => block.type === type);
   let choices: Array<Record<string, unknown> | undefined> = [
     given === undefined ? undefined : { ...given },
   ];
@@ -188,6 +223,9 @@ function dropdownChoices(
     if (typeof name !== 'string' || (given !== undefined && name in given)) continue;
     const options = arg['options'];
     let values: Array<string | number> | null = numberFieldValues(arg);
+    if (values === null && arg['type'] === FIELD_CQ_VAR) {
+      values = variables.map((variable) => variable.id);
+    }
     if (values === null && arg['type'] === 'field_dropdown' && Array.isArray(options)) {
       values = options
         .map((option: unknown) => (Array.isArray(option) ? (option[1] as unknown) : undefined))
@@ -207,20 +245,28 @@ function dropdownChoices(
 export function hasEmptySlot(code: Code): boolean {
   return code.some((item) => {
     if (typeof item === 'number') return false;
-    if ('times' in item) return hasEmptySlot(item.body);
+    if ('times' in item || 'timesVar' in item) return hasEmptySlot(item.body);
     if ('until' in item) return item.until === EMPTY_SLOT || hasEmptySlot(item.body);
     return item.cond === EMPTY_SLOT || hasEmptySlot(item.then) || hasEmptySlot(item.else ?? []);
   });
 }
 
 /** Whether a compiled statement is a control block (not a plain atom). */
-export function isCompound(item: CodeItem): item is RepeatCode | IfCode | UntilCode {
+export function isCompound(
+  item: CodeItem,
+): item is RepeatCode | RepeatVarCode | IfCode | UntilCode {
   return typeof item !== 'number';
 }
 
 export class FastSim {
   readonly kind: AnyGameKindDefinition;
   readonly level: Level;
+  /** The kind's blocks and the engine's variable blocks: every block the search can read. */
+  readonly specs: readonly BlockSpec[];
+  /** `level.variables`, or none. */
+  readonly variables: readonly LevelVariable[];
+  /** Indices into `variables` that a toolbox `cq_repeat_var` may count with. */
+  readonly repeatVars: readonly number[];
   /** Searchable toolbox blocks, in toolbox order. */
   readonly atoms: Atom[] = [];
   /** Searchable sensor blocks (one per dropdown choice), in toolbox order. */
@@ -256,9 +302,12 @@ export class FastSim {
   ) {
     this.kind = kind;
     this.level = level;
+    this.specs = [...kind.blocks, ...VARIABLE_BLOCKS];
+    this.variables = level.variables ?? [];
     this.untilCap = level.limits?.maxActions ?? DEFAULT_MAX_ACTIONS;
     this.maps = [level.config, ...(level.variants ?? [])].map(
-      (config) => new MapSim(this, { ...level, config }, kind.configSchema.parse(config)),
+      (config, index) =>
+        new MapSim(this, { ...level, config }, kind.configSchema.parse(config), index),
     );
     this.initial =
       this.maps.length === 1
@@ -266,6 +315,7 @@ export class FastSim {
         : this.internTuple(Int32Array.from(this.maps, (map) => map.initial));
 
     const controls = new Set<string>();
+    const repeatVars = new Set<number>();
     const seen = new Set<string>();
     const entries: Array<[ToolboxEntry | Statement, boolean, boolean]> = [
       ...level.toolbox.map((entry): [ToolboxEntry, boolean, boolean] => [entry, true, false]),
@@ -273,30 +323,49 @@ export class FastSim {
       ...extraConditions.map((entry): [Statement, boolean, boolean] => [entry, false, true]),
     ];
     for (const [entry, inToolbox, asCondition] of entries) {
-      if (typeof entry !== 'string' && ('repeat' in entry || 'if' in entry || 'until' in entry)) {
+      if (
+        typeof entry !== 'string' &&
+        ('repeat' in entry || 'repeatVar' in entry || 'if' in entry || 'until' in entry)
+      ) {
         continue;
       }
       const type = typeof entry === 'string' ? entry : 'type' in entry ? entry.type : entry.block;
+      const given = typeof entry === 'string' ? undefined : entry.fields;
+      if (type === CQ_REPEAT_VAR) {
+        // One loop per box the entry allows (its pinned VAR, or every box of the level).
+        if (!inToolbox) continue;
+        for (const fields of dropdownChoices(this.specs, this.variables, type, given)) {
+          const index = this.variables.findIndex((variable) => variable.id === fields?.['VAR']);
+          if (index !== -1) repeatVars.add(index);
+        }
+        if (repeatVars.size > 0) controls.add(type);
+        else this.unsupported.push(`${type}: names no box of the level`);
+        continue;
+      }
       if (CONTROL_TYPES.includes(type)) {
         if (inToolbox) controls.add(type);
         continue;
       }
-      const spec = kind.blocks.find((block) => block.type === type);
-      const given = typeof entry === 'string' ? undefined : entry.fields;
+      const spec = this.specs.find((block) => block.type === type);
       if (asCondition || spec?.json.output !== undefined) {
         this.addConditions(type, given, inToolbox);
         continue;
       }
-      const reason = unsupportedReason(kind, type);
+      const reason = unsupportedReason(this.specs, type);
       if (reason !== null) {
         this.unsupported.push(`${type}: ${reason}`);
         continue;
       }
-      for (const fields of dropdownChoices(kind, type, given)) {
+      for (const fields of dropdownChoices(this.specs, this.variables, type, given)) {
         const statement = fields === undefined ? { block: type } : { block: type, fields };
         const key = stateKey(statement);
         if (seen.has(key)) continue;
         seen.add(key);
+        const box = this.undeclaredBox(type, fields);
+        if (box !== null) {
+          this.unsupported.push(`${type}: names box "${box}", which the level does not declare`);
+          continue;
+        }
         try {
           this.atoms.push({ statement, calls: this.record(statement), inToolbox });
         } catch (error) {
@@ -307,6 +376,7 @@ export class FastSim {
     }
     this.controls = controls;
     this.hasRepeat = controls.has(CQ_REPEAT);
+    this.repeatVars = [...repeatVars].sort((a, b) => a - b);
   }
 
   /** Records a sensor block for every open dropdown choice (duplicates are skipped). */
@@ -315,7 +385,7 @@ export class FastSim {
     given: Readonly<Record<string, unknown>> | undefined,
     inToolbox: boolean,
   ): void {
-    const spec = this.kind.blocks.find((block) => block.type === type);
+    const spec = this.specs.find((block) => block.type === type);
     const inputs = (spec?.json.args0 ?? []).filter((arg) =>
       String(arg['type']).startsWith('input_'),
     );
@@ -324,9 +394,14 @@ export class FastSim {
       this.unsupported.push(`${type}: ${why}`);
       return;
     }
-    for (const fields of dropdownChoices(this.kind, type, given)) {
+    for (const fields of dropdownChoices(this.specs, this.variables, type, given)) {
       const condition = fields === undefined ? { block: type } : { block: type, fields };
       if (this.condIndex(condition) !== -1) continue;
+      const box = this.undeclaredBox(type, fields);
+      if (box !== null) {
+        this.unsupported.push(`${type}: names box "${box}", which the level does not declare`);
+        continue;
+      }
       try {
         this.conds.push({ condition, call: this.recordCondition(condition), inToolbox });
       } catch (error) {
@@ -334,6 +409,22 @@ export class FastSim {
         this.unsupported.push(`${type}: ${error.message}`);
       }
     }
+  }
+
+  /**
+   * The box a block's `field_cq_var` names when the level does not declare it (the engine would
+   * stop with INTERNAL_ERROR), else null.
+   */
+  private undeclaredBox(
+    type: string,
+    fields: Readonly<Record<string, unknown>> | undefined,
+  ): string | null {
+    const spec = this.specs.find((block) => block.type === type);
+    const field = (spec?.json.args0 ?? []).find((arg) => arg['type'] === FIELD_CQ_VAR);
+    if (field === undefined) return null;
+    const box = fields?.[String(field['name'])];
+    const id = typeof box === 'string' ? box : JSON.stringify(box ?? null);
+    return this.variables.some((variable) => variable.id === id) ? null : id;
   }
 
   private get firstMap(): MapSim {
@@ -404,6 +495,21 @@ export class FastSim {
     return mask;
   }
 
+  /** Bit i set: map i still runs and box `variable` holds at least 1 there (ADR-0022). */
+  varMask(state: number, variable: number): number {
+    const id = this.variables[variable]?.id ?? '';
+    if (this.maps.length === 1) {
+      return state >= 0 && this.firstMap.varValue(state, id) >= 1 ? 1 : 0;
+    }
+    const tuple = this.tuples[state] ?? new Int32Array();
+    let mask = 0;
+    this.maps.forEach((map, index) => {
+      const sub = tuple[index] ?? LOSS;
+      if (sub >= 0 && map.varValue(sub, id) >= 1) mask |= 1 << index;
+    });
+    return mask;
+  }
+
   /** Bit i set: map i still runs and sensor `cond` answers ✔ there. */
   trueMask(state: number, cond: number): number {
     if (this.maps.length === 1) return state >= 0 && this.firstMap.test(state, cond) ? 1 : 0;
@@ -424,6 +530,13 @@ export class FastSim {
         const body = this.compile(statement.body);
         if (body === null) return null;
         out.push({ times: statement.repeat, body });
+      } else if ('repeatVar' in statement) {
+        const timesVar = this.variables.findIndex(
+          (variable) => variable.id === statement.repeatVar,
+        );
+        const body = this.compile(statement.body);
+        if (timesVar === -1 || body === null) return null;
+        out.push({ timesVar, body });
       } else if ('if' in statement || 'until' in statement) {
         const condition = 'if' in statement ? statement.if : statement.until;
         const cond = condition === null ? EMPTY_SLOT : this.condIndex(condition);
@@ -446,7 +559,10 @@ export class FastSim {
     return out;
   }
 
-  /** Runs compiled code from a state on every map still running. */
+  /**
+   * Runs compiled code from a state on every map still running. Questions and box loops (each
+   * map has its own count) run per map.
+   */
   run(state: number, code: Code): number {
     let current = state;
     for (const item of code) {
@@ -541,14 +657,33 @@ export class FastSim {
     };
   }
 
+  /** The search state of a map: the kind's state, wrapped with the boxes on a level with them. */
+  wrap(game: unknown, vars: VarValues): unknown {
+    return this.level.variables === undefined ? game : ({ game, vars } satisfies Boxed);
+  }
+
+  /** The kind's state and the boxes of a search state (the one place that reads the wrapping). */
+  unwrap(state: unknown): Boxed {
+    return this.level.variables === undefined ? { game: state, vars: {} } : (state as Boxed);
+  }
+
   /** Runs atom `atom`'s calls from a state of one map (used by `MapSim`). */
   compute(map: MapSim, state: unknown, atom: number): unknown {
     this.steps++;
     const calls = this.atoms[atom]?.calls ?? [];
-    const ctx = this.context(map, state);
+    const { game, vars: before } = this.unwrap(state);
+    let vars = before;
+    const ctx = this.context(map, game);
     try {
       const api = this.kind.createApi(ctx);
       for (const call of calls) {
+        if (isVarCall(call.name)) {
+          // The engine's own box rules (an unknown box throws: INTERNAL_ERROR, a loss here).
+          const applied = applyVarCall(vars, this.level.variables, call.name, call.args);
+          if (applied.overflow === true) return LOSS_STATE;
+          vars = applied.vars;
+          continue;
+        }
         const fn = api[call.name];
         if (fn === undefined) return LOSS_STATE;
         fn(...call.args);
@@ -556,15 +691,32 @@ export class FastSim {
     } catch (error) {
       if (error instanceof UnsearchableLevel) throw error;
       const won = error instanceof StopSignal && error.result === 'success';
-      return won && this.meetsGoals(map, ctx.state) ? WIN_STATE : LOSS_STATE;
+      return won && this.meetsGoals(map, ctx.state) && this.countMet(map, vars)
+        ? WIN_STATE
+        : LOSS_STATE;
     }
-    return ctx.state;
+    return this.wrap(ctx.state, vars);
+  }
+
+  /** "Đếm đúng": the `countGoal` box holds this map's number (true without `countGoal`). */
+  countMet(map: MapSim, vars: VarValues): boolean {
+    const goal = this.level.countGoal;
+    return goal === undefined || vars[goal.var] === goal.equals[map.index];
   }
 
   /** The answer of sensor `cond` in a state of one map (used by `MapSim`). */
-  answer(map: MapSim, state: unknown, cond: number): boolean {
+  answer(map: MapSim, boxed: unknown, cond: number): boolean {
     const call = this.conds[cond]?.call;
     if (call === undefined) throw new Error(`no sensor ${String(cond)}`);
+    const { game: state, vars } = this.unwrap(boxed);
+    if (call.name === VAR_CMP_FN) {
+      // A box question reads `vars` only and never changes the state (assumption 1b holds).
+      try {
+        return applyVarCall(vars, this.level.variables, call.name, call.args).value === true;
+      } catch (error) {
+        throw new UnsearchableLevel(`unsearchable: ${String(error)}`);
+      }
+    }
     const ctx = this.context(map, state);
     let value: unknown;
     try {
@@ -604,10 +756,10 @@ export class FastSim {
     }
   }
 
-  /** API names of the kind's value (sensor) blocks. */
+  /** API names of the value (sensor) blocks: the kind's and the box question `__varCmp`. */
   private sensorNames(): Set<string> {
     return new Set(
-      this.kind.blocks.filter((spec) => spec.json.output !== undefined).flatMap((s) => s.apiNames),
+      this.specs.filter((spec) => spec.json.output !== undefined).flatMap((s) => s.apiNames),
     );
   }
 
@@ -668,13 +820,16 @@ export class FastSim {
   ): Array<{ name: string; args: Primitive[] }> {
     const calls: Array<{ name: string; args: Primitive[] }> = [];
     const names = this.kind.blocks.flatMap((spec) => spec.apiNames);
+    const record = (name: string, args: Primitive[]): undefined => {
+      if (forbidden.has(name)) throw new Error(`calls the sensor ${name}`);
+      calls.push({ name, args });
+      return undefined;
+    };
     const recorder: GameKindApi = Object.fromEntries(
       names.map((name) => [
         name,
-        (...args: Primitive[]) => {
-          if (forbidden.has(name)) throw new Error(`calls the sensor ${name}`);
-          calls.push({ name, args });
-          return undefined;
+        (...args: Primitive[]): undefined => {
+          record(name, args);
         },
       ]),
     );
@@ -692,6 +847,8 @@ export class FastSim {
       kind: { ...this.kind, createApi: () => recorder },
       level,
       workspace,
+      // The variable blocks' `__var*` calls are recorded too (ADR-0022), never applied.
+      engineCalls: record,
     });
     if (outcome.result === 'error') {
       throw new UnsupportedBlock(
@@ -720,9 +877,17 @@ class MapSim {
     /** The level with this map as its `config` (what the API sees as `ctx.level`). */
     readonly level: Level,
     readonly config: unknown,
+    /** Map index: 0 for `config`, then each variant (`start` and `countGoal.equals` index). */
+    readonly index: number,
   ) {
     const rng = mulberry32(fnv1a(level.id));
-    this.initial = this.intern(owner.kind.createState(config, rng));
+    const game = owner.kind.createState(config, rng);
+    this.initial = this.intern(owner.wrap(game, initialVars(level.variables, index)));
+  }
+
+  /** The number in box `id` in a state (0 on a level without boxes). */
+  varValue(state: number, id: string): number {
+    return this.owner.unwrap(this.snapshots[state]).vars[id] ?? 0;
   }
 
   get stateCount(): number {
@@ -780,6 +945,10 @@ class MapSim {
         current = this.step(current, item);
       } else if ('times' in item) {
         for (let i = 0; i < item.times && current >= 0; i++) current = this.run(current, item.body);
+      } else if ('timesVar' in item) {
+        // Read once, when the loop begins (ADR-0022): the body may change the box.
+        const times = this.varValue(current, this.owner.variables[item.timesVar]?.id ?? '');
+        for (let i = 0; i < times && current >= 0; i++) current = this.run(current, item.body);
       } else if ('then' in item) {
         if (item.cond === EMPTY_SLOT) return LOSS;
         if (this.test(current, item.cond)) current = this.run(current, item.then);
@@ -801,11 +970,12 @@ class MapSim {
   finish(state: number): boolean {
     const known = this.finals[state];
     if (known !== undefined) return known;
-    const snapshot = structuredClone(this.snapshots[state]);
+    const { game, vars } = this.owner.unwrap(structuredClone(this.snapshots[state]));
     const result =
       this.level.mode === 'creative' ||
-      (this.owner.kind.evaluate(snapshot, this.config).success &&
-        this.owner.meetsGoals(this, snapshot));
+      (this.owner.kind.evaluate(game, this.config).success &&
+        this.owner.meetsGoals(this, game) &&
+        this.owner.countMet(this, vars));
     this.finals[state] = result;
     return result;
   }

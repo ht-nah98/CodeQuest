@@ -21,5 +21,19 @@ export interface SenseEvent {
   value: boolean;
 }
 
+/**
+ * A box changed (ADR-0022 §3): after every `đặt` / `tăng` (also when the number stays the same),
+ * logged by the engine and counted towards `maxActions` like `sense`. `id` is the box, `value` its
+ * new number; with `overflow` the box went over its `max` and keeps `value` (the old number): the
+ * run then ends `crash` / `BOX_FULL`. Not part of any game kind's event union.
+ */
+export interface VarEvent {
+  type: 'var';
+  blockId: string | null;
+  id: string;
+  value: number;
+  overflow?: true;
+}
+
 /** `Omit` that distributes over a union; plain `Omit<Union, K>` loses variant-only fields. */
 export type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K> : never;

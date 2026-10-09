@@ -20,6 +20,12 @@
 - **Vét cạn (R3).** Mọi màn build/bughunt chạy `npm run par`; số nào khác bảng ở `curriculum.md` thì sửa bản đồ cho giữ ý dạy và ghi lại ở mục "Ghi chú khi soạn" của thế giới đó.
 - Cành và thùng chỉ ở màn ghép hình, đoán, săn lỗi (D3), vì "luôn cúi", "luôn đá" thắng mà không cần hỏi.
 
+### 2.2 Màn có hộp (biến, từ Thế giới 7; ADR-0022, luật soạn R4)
+- **Hộp lái chương trình** (thanh khối có `lặp [hộp] lần` hoặc `so sánh`), mode `build` / `bughunt`: ≥ 2 bản đồ (`content:check` luật 23 kiểm), và test của thế giới (`w07.test.ts`) chạy vét cạn trên `withoutVariables(level)` (`@codequest/validator`: bỏ mọi khối biến khỏi thanh khối, bỏ `variables` và `countGoal`): **không** được thắng tới `par`. Số đo của spike cho thấy đây là chỗ hỏng thật: Măng đi thử cả hai nhánh rồi thắng nhờ A1, hoặc đi men tường.
+- **Chỉ đếm** (hộp chỉ được `đặt` / `tăng`, chấm bằng `countGoal`): ≥ 2 bản đồ có `countGoal.equals` **khác nhau**, để một số cố định không thắng được (luật 23 kiểm).
+- Mục thanh khối của khối biến **ghim** `VAR` và `NUM` (`so sánh` cả `OP`; `lặp [hộp] lần` ghim `VAR`), vì vét cạn chỉ thử số ghim (luật 23 (a)). Màn cần cả `=` và `>` thì đặt hai mục.
+- Không dùng bẫy "đổi hộp trong thân `lặp [hộp] lần`" ở màn thử thách (luật 23 (i) cảnh báo). Màn dạy `đặt` cần `start` ≠ 0, hoặc dạy bằng `parsons` / `bughunt`.
+
 ## 3. Gợi ý
 - Mỗi màn `guided` có ≥ 2 luật gợi ý tầng 0; `practice` ≥ 1.
 - `thinkingHint` là **câu hỏi**, không chứa tên khối cần dùng.

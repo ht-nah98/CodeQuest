@@ -100,3 +100,41 @@ describe('findParsonsArrangements on robotlab', () => {
     expect(result).toMatchObject({ complete: true, wins: 2 });
   });
 });
+
+// P3-08: the mock-exam level of W6 holds the generator's đề of its seed (rule 22).
+describe('rule 22: exam levels', () => {
+  async function examLevel(): Promise<Level> {
+    const json = await vi.importActual<{ default: unknown }>(
+      '../../../content/worlds/w06-thanh-pho-robot/levels/w06-exam.json',
+    );
+    return LevelSchema.parse(json.default);
+  }
+
+  it('w06-exam passes: its blocks are đề 2026 and its plan wins', async () => {
+    const checked = validateLevel(await examLevel(), { shared });
+    expect(checked.issues).toEqual([]);
+  });
+
+  it('reports blocks that are not the đề of the seed', async () => {
+    const level = await examLevel();
+    const moved = { ...level, exam: { runs: 2, seed: 7 } };
+    const issues = validateLevel(moved, { shared }).issues.filter((issue) => issue.rule === 22);
+    expect(issues).toHaveLength(1);
+    expect(issues[0]?.message).toMatch(/config\.blocks differ from đề 7/);
+  });
+
+  it('reports an exam on a map that is not a known board', async () => {
+    const level = await sample('robot-score');
+    const exam = { ...level, mode: 'creative' as const, exam: { runs: 2, seed: 1 } };
+    expect(validateLevel(exam, { isDraft: true, shared }).issues).toContainEqual({
+      rule: 22,
+      message: 'exam level: config.map is not a known board (THANH_PHO_MANG…)',
+    });
+  });
+
+  it('refuses "exam" outside robotlab creative levels (schema)', async () => {
+    const level = await sample('robot-score');
+    const parsed = LevelSchema.safeParse({ ...level, exam: { runs: 2, seed: 1 } });
+    expect(parsed.success).toBe(false);
+  });
+});

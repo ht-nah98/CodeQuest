@@ -1,17 +1,25 @@
 import { Events, Options, Workspace, serialization, type Block } from 'blockly';
-import type { WorkspaceJson } from '@codequest/content-schema';
+import type { LevelVariable, WorkspaceJson } from '@codequest/content-schema';
 import { registerBlockSpecs } from '../blocks/registerBlockSpecs';
+import { setWorkspaceVariables } from '../blocks/variableField';
 import { normalizeIds } from './normalizeIds';
 
 /**
  * Loads workspace JSON into a fresh headless Blockly workspace and passes it to `use`,
  * disposing it afterwards. Events are disabled so loading schedules no timers. Missing block
- * ids are filled in by `normalizeIds` so Blockly never draws random ones.
+ * ids are filled in by `normalizeIds` so Blockly never draws random ones. `variables` are the
+ * level's boxes (ADR-0022), named by the `field_cq_var` dropdowns; without them the fields
+ * show a placeholder but still keep their ids.
  */
-export function withHeadlessWorkspace<T>(json: WorkspaceJson, use: (ws: Workspace) => T): T {
+export function withHeadlessWorkspace<T>(
+  json: WorkspaceJson,
+  use: (ws: Workspace) => T,
+  variables?: readonly LevelVariable[],
+): T {
   registerBlockSpecs([]);
   // Blockly requires an Options instance; a plain object fails on `connectionChecker`.
   const ws = new Workspace(new Options({}));
+  setWorkspaceVariables(ws, variables);
   Events.disable();
   try {
     serialization.workspaces.load(normalizeIds(json), ws, { recordUndo: false });

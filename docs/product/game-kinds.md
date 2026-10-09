@@ -49,7 +49,22 @@ Khối của engine (`packages/engine/src/blocks/common.ts`), dùng chung cho m�
 - Ô ◇ (điều kiện, input `COND`) nhận **một** khối hỏi (cảm biến) của kiểu game. Ô để trống thì chương trình không chạy: `error` / `EMPTY_CONDITION` ("Ô câu hỏi còn trống. Cắm một khối hỏi vào nhé!"), không đoán thay bé.
 - Mỗi lần cảm biến được hỏi, engine ghi event `sense{blockId, value}` (`blockId` = khối hỏi, `value` = ✔/✘) để sân chơi cho khối hỏi sáng ✔/✘. `sense` **tính vào `maxActions`**.
 - Vòng lặp không dừng (điều kiện không bao giờ ✔, thân rỗng, thân không làm Măng đổi chỗ) kết thúc `timeout` / `TIMEOUT` khi hết `maxActions` (mỗi câu hỏi là một action, nên thường tới trước) hoặc `maxSteps`; tất định (cùng chương trình ⇒ cùng event log). Khóa đoán của `predict` là `timeout`.
-- `level.maxLoopDepth` (P2-11, T16b): số tầng vòng lặp lồng nhau tối đa (`cq_repeat`, `cq_repeat_until`); `1` = không lặp lồng. `maxInstances` đếm theo từng loại khối nên không chặn được một `lặp đến khi` nằm trong một `lặp`.
+- `level.maxLoopDepth` (P2-11, T16b): số tầng vòng lặp lồng nhau tối đa (`cq_repeat`, `cq_repeat_var`, `cq_repeat_until`); `1` = không lặp lồng. `maxInstances` đếm theo từng loại khối nên không chặn được một `lặp đến khi` nằm trong một `lặp`.
+
+**Khối biến ("hộp", P3-09, ADR-0022)** (`packages/engine/src/blocks/variables.ts`, `category: 'variable'`, style `variable_blocks`), dùng chung mọi kiểu game từ Thế giới 7. Chỉ có ô số / ô chọn (field), **không** có ô cắm hay shadow, nên không cần capacity guard. Ô hộp là field riêng `field_cq_var`: menu là các hộp của màn (`level.variables`), chưa có màn thì một mục giữ chỗ.
+
+| Khối | Nhãn | Field | Hàm sandbox | Tooltip |
+|---|---|---|---|---|
+| `cq_var_set` | đặt [hộp] thành [0] | `VAR`, `NUM` 0–20 | `__varSet(id, n, blockId)` | Lệnh này cho số vào hộp. Số cũ mất |
+| `cq_var_add` | tăng [hộp] thêm [1] | `VAR`, `NUM` 1–9 | `__varAdd(id, n, blockId)` | Lệnh này cộng thêm vào số trong hộp |
+| `cq_var_compare` | [hộp] [= / < / >] [3] ? (khối hỏi, output `Boolean`) | `VAR`, `OP` (`EQ`/`LT`/`GT`), `NUM` 0–20 | `__varCmp(id, op, n, blockId)` | Câu hỏi: ✔ khi số trong hộp đúng như vậy, ✘ khi không |
+| `cq_repeat_var` | lặp [hộp] lần | `VAR` | `__varGet(id, blockId)` một lần, rồi `for` | Làm các lệnh bên trong, số lần bằng số trong hộp lúc bắt đầu lặp |
+
+- Hộp là số nguyên `0…max` (`max` theo màn, mặc định 9, tối đa 20). **Vượt `max` thì thua** `crash` / `BOX_FULL` ("Hộp đầy rồi!"). Mỗi bản đồ bắt đầu từ `variables[].start[i]` (mặc định 0).
+- `đặt` / `tăng` ghi event chung `var{blockId, id, value}` (kể cả khi số không đổi; vượt trần thì thêm `overflow: true` và `value` là số cũ), tính vào `maxActions`. `so sánh` ghi `sense` như mọi khối hỏi. `lặp [hộp] lần` **đọc hộp một lần** lúc bắt đầu lặp (như Scratch) và nằm trong `maxLoopDepth`.
+- **Đếm đúng** `level.countGoal: { var, equals[] }`: bản đồ i thắng khi kiểu game thắng **và** hộp bằng `equals[i]` ngay lúc thắng (maze thắng giữa chừng khi chạm `G` cũng vậy); sai số → `incomplete` / `WRONG_COUNT` ("Đếm chưa đúng. Đếm lại nhé!").
+- **Khóa đoán** của màn có hộp nối thêm `#<id>=<n>` cho mọi hộp theo thứ tự khai báo, lấy từ bản đồ quyết định: `win#bamboo=3`, `stop@1,4#bamboo=2#fish=0`. `splitVarSuffix` (engine) tách đuôi trước khi bộ đọc khóa của kiểu game chạy.
+- Kiểu game không đọc, không ghi hộp (`GameKindDefinition` không đổi). Khối hỏi riêng của maze cho việc đếm: `maze_bamboo_ahead` (§3.2).
 
 ## 3. Kiểu game (`GameKind`)
 
@@ -133,6 +148,7 @@ Tọa độ ô viết `r,c` (hàng, cột, từ 0, hàng 0 ở trên cùng).
 | `maze_turn_left` / `maze_turn_right` | rẽ trái / rẽ phải | `turn(dir, id)` | Quay 90° tại chỗ |
 | `maze_is_path` | có đường [phía trước ▾ / bên trái ▾ / bên phải ▾] | `isPath(dir, id)` → boolean | Cảm biến (Thế giới 4). Giá trị: `AHEAD`, `LEFT`, `RIGHT` |
 | `maze_at_goal` | đã tới đích? | `atGoal(id)` → boolean | Dùng với "lặp đến khi" (Thế giới 5). Tới `G` là thắng ngay (khi không còn măng phải nhặt), nên trong lúc chạy thường ✘ |
+| `maze_bamboo_ahead` | phía trước có măng? | `bambooAhead(id)` → boolean | Cảm biến (Thế giới 7, ADR-0022): ✔ khi ô ngay trước Măng có măng chưa nhặt; măng đã nhặt, ô trống, tường, ngoài bản đồ là ✘ |
 
 **Luật**
 | Hành động | Kết quả |
@@ -304,7 +320,16 @@ Hình đáp án (`AnswerPicture`, dùng config đã gộp): sa bàn thu nhỏ, B
 
 **Vét cạn `par`** (`game-kind-sdk.md` §4): luật trên giữ điều kiện 1–4. `elapsed` **nằm trong state** (cần cho luật hết giờ) dù là bộ đếm tăng dần (điều kiện 6 cảnh báo mất gộp trạng thái). Không thêm cơ chế gộp riêng: P3-01b **đo trước** (`npm run par` trên màn mẫu và trên bản nháp `l19`, boss; ghi số trạng thái và thời gian vào ADR). Chỉ khi quá chậm mới tính cách khác, bằng ADR riêng.
 
-**Thiết kế màn:** sa bàn nhỏ trước (3×3 tới 3×5), tới thử thách 3×5 nhiều bản đồ; sa bàn kiểu đề thi 7×7 chỉ ở màn sáng tạo. Màn `score` đặt `rules.timeLimit` nhỏ theo sa bàn (14–34 s) để thời gian **thật sự** ép phải chọn việc. "Đề ngẫu nhiên" ở v1 = màn nhiều bản đồ (ADR-0016) khác **màu khối**; một chương trình phải thắng mọi bản đồ. Nút "Đề mới" sinh sa bàn bằng `rng` có seed để sau (P3-08).
+**Thiết kế màn:** sa bàn nhỏ trước (3×3 tới 3×5), tới thử thách 3×5 nhiều bản đồ; sa bàn kiểu đề thi 7×7 chỉ ở màn sáng tạo. Màn `score` đặt `rules.timeLimit` nhỏ theo sa bàn (14–34 s) để thời gian **thật sự** ép phải chọn việc. "Đề ngẫu nhiên" ở v1 = màn nhiều bản đồ (ADR-0016) khác **màu khối**; một chương trình phải thắng mọi bản đồ. Nút "Đề mới" (P3-08): mục dưới.
+
+**Sa bàn Thành Phố Măng, "Đề mới" và thi thử** (P3-08, 09/10/2026; thiết kế và bản đồ: `curriculum.md` §6.1.1). **Không đổi luật** ở trên: đề chỉ là một config robotlab bình thường.
+- **Sa bàn cố định** `RobotBoard` (`packages/games/src/robotlab/boards.ts`): `map` (ký tự robotlab), `scenery` (cùng cỡ, một chữ mỗi ô, **chỉ là cảnh**: `.` mái nhà phố theo vị trí · `v` nhà tranh · `t` rặng tre · `p` công viên · `w` sông · `b` cầu (trên ngã tư) · `m` sạp chợ · `c` nhà phố · `f` nhà máy), `startDir`, `keepClear` (ngã tư không bao giờ có khối: hai cầu), `kit` (2 rào, trung hòa đỏ / vàng / xanh lá, 3 ô nhiễm). `boardOfMap(map)` tìm sa bàn theo **đúng** bản đồ; config robotlab **không** có trường cảnh (schema strict, không thêm trường), nên sân chơi đọc cảnh qua `boardOfMap`, bản đồ khác vẫn vẽ mái nhà theo vị trí như cũ.
+- **`generateExam(board, seed, rules, target)`** (`exam.ts`, thuần, tất định, không `Math.random` / `Date`): `seed` nguyên 1–9999 (ngoài khoảng → ném lỗi) → `mulberry32(seed)` xáo các ngã tư `.` (trừ `keepClear`), lấy lần lượt ô không kề khối đã chọn và không quá `EXAM_FAIRNESS.nearLabMax` (1) khối trong `nearLabSteps` (2) bước line quanh `L`; màu ô nhiễm rút từ cùng dòng số. Đề đạt khi `examIssues` rỗng và `planExam` đạt ≥ `target`; không đạt thì bày lại (≤ 300 lần; trên cả 9 999 đề chưa lần nào hết). Trả `{ seed, blocks, plan }`, `blocks` theo thứ tự `kit` (rào, trung hòa, ô nhiễm).
+- **`examIssues(board, blocks, rules)`**: khối trên `.`, không trên `keepClear`, không trùng, không kề nhau, gần phòng ≤ 1, đúng `kit`, và **mỗi việc làm riêng** (từ xuất phát: tới khối, gắp, tới đích trống, thả, rồi về `L`) kịp `timeLimit` với các khối khác nằm nguyên.
+- **`planExam(config)`** (bằng chứng có lời giải, không vét cạn): Dijkstra trên (ngã tư, hướng) với giây thật (`forward` mỗi ngã tư, `turn`), hàng đợi theo giây (giây nguyên nên tất định). Không đi xuyên khối; tay trống được **dừng** trên ô có khối; tay cầm khối không vào ô có khối; đứng trên khối vừa thả vẫn rẽ / đi ra được. Tham lam: việc có điểm / giây cao nhất còn kịp giờ, hết việc thì về `L` nếu kịp. `planWorkspace(steps)` đổi kế hoạch ra chương trình (`tiến N` gộp tối đa 9). Unit test chạy kế hoạch của 200 đề bằng **engine thật** (`runLevel`): thắng, khóa đoán `score:<điểm>` đúng bằng điểm kế hoạch.
+- **`examConfig(config, seed)`**: config đã gộp luật của một sa bàn đã biết (`score`) với khối của đề `seed`, giữ nguyên luật và mục tiêu. Web dùng hàm này cho "Đề mới".
+- **Màn thi thử** có trường `level.exam: { runs, seed }` (`content-schema`, chỉ cho `robotlab` mode `creative`). `content:check` luật 22: `config.map` là sa bàn đã biết, `goal` `score`, xuất phát ở `L` theo `startDir` của sa bàn, `config.blocks` **đúng bằng** `generateExam(…, exam.seed, …).blocks`; lời giải (luật 9) chứng minh đề đó.
+- **Điểm một lượt thi** (web, `features/play/exam.ts` `runPoints`): điểm của bảng sau event cuối (như HUD), **kể cả lượt dừng vì đụng / lạc** (giữ việc đã xong, `coach-questions.md` H22). Khác `evaluate` (crash là thua) chỉ ở bảng điểm thi thử; khóa đoán và kết quả lượt không đổi.
 
 **Sprite:** robot Bíp nhìn từ trên xuống 4 hướng (đi 2 khung, tay gắp mở/đóng, lắc đầu khi lỗi, vui), khối rào (xám, sọc) / trung hòa (tròn) / ô nhiễm (chấm) theo màu, trạm 3 màu, ô vùng ô nhiễm, phòng thí nghiệm, nhà. Bản tạm vẽ bằng `PIXI.Graphics` theo lưới pixel (P3-03) để không chặn nội dung; bản đẹp theo `playbooks/add-asset.md` (P3-02).
 

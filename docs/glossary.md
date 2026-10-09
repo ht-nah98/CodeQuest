@@ -36,6 +36,7 @@ Dùng **đúng** các từ này. Cột "Trong code" là tên dùng cho type, bi�
 | Nhánh | input `DO` / `ELSE` | Chỗ chứa khối trong "nếu". Không nhầm với **cành** (ô `branch` của runner) |
 | Điều kiện | input `COND` (`COND_INPUT`); trong vét cạn `Condition` | Ô hình lục giác của "nếu" / "lặp đến khi", nơi cắm một khối hỏi (cảm biến). Với bé gọi là "câu hỏi", không nói "cảm biến". Ô để trống thì không chạy (`EMPTY_CONDITION`) |
 | Lặp đến khi | `cq_repeat_until` (P2-11) | Khối "lặp đến khi ◇": **trước mỗi vòng** hỏi điều kiện; ✔ thì dừng và chạy khối nằm dưới, ✘ thì chạy thêm một vòng. Có thể chạy 0 vòng. Tooltip: "Hỏi trước mỗi vòng: ✘ thì làm thêm một vòng, ✔ thì dừng và chạy khối bên dưới". Thế giới 5 |
+| Biến / hộp | `variable` / `var`; `level.variables`, khối `cq_var_*`, `cq_repeat_var`, event `var` (P3-09, ADR-0022) | Bài giảng nói một lần "biến là chiếc hộp có tên"; khối, bảng cạnh sân chơi và lời Măng chỉ nói **"hộp"** và tên hộp (vd "số măng"). Hộp giữ một số nguyên `0…max`; vượt trần thì thua `BOX_FULL` ("Hộp đầy rồi!"). "Đếm đúng" = `countGoal` (sai số: `WRONG_COUNT`). Thế giới 7 |
 | Vòng lặp không dừng | `TIMEOUT` (khóa đoán `timeout`) | Vòng lặp mà điều kiện không bao giờ đúng; Măng "chóng mặt". Không gọi là "lặp vô hạn" với bé |
 | Từng bước | nút `step` (`vi.play.step`, đã có); điểm gợi ý `point: "step"` (`HintTargetSchema`, P2-11; nút nhấp nháy như nút Chạy) | Nút chạy từng khối một, dùng để tìm khối gây lỗi (Thế giới 3) |
 | Lỗi (đề xuất) | `bug` | Khối làm chương trình chạy khác ý. "Sửa lỗi", "Săn lỗi" (mode `bughunt`) |
@@ -130,3 +131,7 @@ Luật đầy đủ: `product/game-kinds.md` §3.3. Trong lời nói cho bé ở
 | Khối ở chỗ Bíp màu …? | `robot_block_color` | Câu hỏi: khối Bíp đang gắp (hoặc khối dưới chỗ Bíp đứng) có màu con chọn |
 | Đã về phòng thí nghiệm? | `robot_at_lab` | Câu hỏi: Bíp đang đứng ở phòng thí nghiệm |
 | Đang gắp khối? | `robot_holding` | Câu hỏi: tay gắp đang giữ khối (giới thiệu ở W7) |
+| Thành Phố Măng | `THANH_PHO_MANG` (`RobotBoard`) | Sa bàn 9×7 của CodeQuest (P3-08), tự thiết kế, không chép sa bàn thi |
+| Đề (đề số …) | `seed` (1–9999), `generateExam` | Một cách bày khối lên sa bàn; cùng số đề thì cùng chỗ khối |
+| Đề mới | `nextSeed`, `examConfig` | Nút đổi sang đề khác (số đề mới, khối đổi chỗ) |
+| Thi thử · lượt · lượt tốt nhất | `level.exam` `{ runs, seed }`, `ExamScoreboard` | Màn `w06-exam`: 2 lượt × 120 giây, lượt nhiều điểm hơn được tính; không sao, không xu |
