@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { expect, type Page, test } from '@playwright/test';
 import type * as BlocklyModule from 'blockly';
-import { signInTestProfile } from './helpers';
+import { confirmRestart, signInTestProfile } from './helpers';
 
 // P3-09 web acceptance (ADR-0022 §6, docs/roadmap/phase-3.md): boxes ("hộp") on the dev-only
 // _sandbox levels maze-boxes (count bamboo, countGoal 2 / 4, max 4), robotlab-boxes (lặp [số
@@ -312,6 +312,7 @@ test.describe('boxes (hộp, ADR-0022)', () => {
     // Làm lại (R) empties the box and clears the red.
     await stage(page).focus();
     await page.keyboard.press('KeyR');
+    await confirmRestart(page);
     await expect(box(page, 'bamboo')).toHaveAttribute('data-value', '0');
     await expect(box(page, 'bamboo')).toHaveAttribute('data-state', 'idle');
 

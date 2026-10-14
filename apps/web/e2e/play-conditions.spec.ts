@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { expect, type Page, test } from '@playwright/test';
 import type * as BlocklyModule from 'blockly';
-import { signInTestProfile } from './helpers';
+import { confirmRestart, signInTestProfile } from './helpers';
 
 // P2-11a / P2-11c web acceptance (docs/roadmap/phase-2.md): Thế giới 4 levels with the new
 // blocks. A child builds "lặp { nếu phía trước có hố thì nhảy, nếu không thì đi }" with the mouse
@@ -260,7 +260,8 @@ test.describe('Thế giới 4: nếu, nếu … nếu không, câu hỏi sáng �
     expect(['yes', 'no']).toContain(answer);
     await expect(page.locator('.cq-blockly .cq-sense-badge')).toHaveCount(1);
     await page.screenshot({ path: `${SHOTS}/${project}-l02-question-lit.png` });
-    await page.keyboard.press('r');
+    // Dừng (Space while stepping) clears the mark and keeps the program.
+    await page.keyboard.press('Space');
     await expect(page.locator('.cq-blockly [data-sense]')).toHaveCount(0);
 
     await page.getByTestId('play-run').click();
@@ -335,6 +336,7 @@ test.describe('_sandbox runner-until: lặp đến khi, Từng bước, giới h
     await page.screenshot({ path: `${SHOTS}/${testInfo.project.name}-timeout-dizzy.png` });
     // Làm lại: no longer dizzy.
     await page.keyboard.press('r');
+    await confirmRestart(page);
     await expect.poll(() => canvasData(page, 'dizzy')).toBe('false');
   });
 

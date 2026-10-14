@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { expect, type Page, test } from '@playwright/test';
 import type * as BlocklyModule from 'blockly';
-import { pandaBecomes, signInTestProfile } from './helpers';
+import { confirmRestart, pandaBecomes, signInTestProfile } from './helpers';
 
 // P1-04 acceptance (docs/roadmap/phase-1.md): every maze event acted out on /play/:levelId,
 // using the dev-only _sandbox levels maze-try (bordered map) and maze-bamboo (no border, collectAll).
@@ -183,8 +183,9 @@ test.describe('/play maze', () => {
     await page.waitForTimeout(300);
     await stageShot(page, `${project}-bump-dazed`);
 
-    // R puts Măng back at the start, no longer dazed.
+    // R (after the confirm) puts Măng back at the start, no longer dazed.
     await page.keyboard.press('r');
+    await confirmRestart(page);
     await expect(stage).toHaveAttribute('data-phase', 'idle');
     await expect(stage).toHaveAttribute('data-panda', 'idle');
     await expect(board(page)).toHaveAttribute('data-maze-stunned', 'false');
@@ -231,11 +232,12 @@ test.describe('/play maze', () => {
     await stageShot(page, `${project}-missed`);
     await stage.focus();
     await page.keyboard.press('r');
+    await confirmRestart(page);
     await expect(board(page)).toHaveAttribute('data-maze-missed', 'false');
     await expect(board(page)).toHaveAttribute('data-maze-shoots', '2');
   });
 
-  test('Làm lại in the middle of a collect puts the shoot back for good', async ({ page }) => {
+  test('Dừng in the middle of a collect puts the shoot back for good', async ({ page }) => {
     await open(page, 'maze-bamboo');
     const stage = page.getByTestId('play-stage');
     await expect(board(page)).toHaveAttribute('data-maze-shoots', '2');
@@ -243,7 +245,8 @@ test.describe('/play maze', () => {
     await page.getByTestId('play-run').click();
     await pandaBecomes(page, 'happy'); // the shoot at (2,2) is rising out of its cell
     await stage.focus();
-    await page.keyboard.press('r');
+    // Space while playing = Dừng: the same stage reset as Làm lại, without its confirm.
+    await page.keyboard.press('Space');
     await expect(stage).toHaveAttribute('data-phase', 'idle');
     await expect(board(page)).toHaveAttribute('data-maze-shoots', '2');
     await expect(board(page)).toHaveAttribute('data-maze-collected', '0/2');

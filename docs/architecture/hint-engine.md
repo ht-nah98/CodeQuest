@@ -7,7 +7,7 @@ Nguồn chuẩn cho: cú pháp luật gợi ý tầng 0, cách đánh giá, các
 |---|---|---|
 | 0 · tự động | `level.hints[]` (luật `when` → `say`/`point`) + luật chung | Hint engine, theo ngữ cảnh |
 | 1 · gợi ý tư duy | `level.thinkingHint` | Bé bấm mua |
-| 2 · chỉ bước tiếp | Tính từ `level.solution` (popover, `blockly-integration.md` §8) | Bé bấm mua |
+| 2 · chỉ bước tiếp | Tính từ `level.solution`: giữ đoạn đầu bé đã ghép đúng, chỉ **khối tiếp theo** sau đoạn đó (popover, `blockly-integration.md` §8) | Bé bấm mua |
 | 3 · xem lời giải | `level.solution` hiển thị chỉ đọc trong lớp phủ | Bé bấm mua |
 
 ## 2. Ngữ cảnh đánh giá
@@ -101,7 +101,8 @@ Ngoài ra, sau mỗi lượt thua, **câu phản hồi theo reasonCode** (`feedb
 | `matches(cond, ctx)` / `compare(value, numCmp)` | Đánh giá điều kiện (thuần) |
 | `globalRules(level, ctx): GlobalHintRule[]` | Luật chung áp dụng cho màn này, theo thứ tự khai báo |
 | `selectHint(level, ctx): HintSelection \| null` | Thuật toán §5. `HintSelection = { source: 'level', rule: HintRule, target } \| { source: 'global', rule: GlobalHintRule, target }`, `target` = `point` hoặc `null` |
-| `nextStep(solution, current, { toolbox?, capacityLeft? }): NextStep \| null` | Gợi ý tầng 2 (`blockly-integration.md` §8), thuần trên JSON |
+| `nextStep(solution \| solutions[], current, { toolbox?, capacityLeft? }): NextStep \| null` | Gợi ý tầng 2 (`blockly-integration.md` §8), thuần trên JSON. Nhận một lời giải hoặc nhiều lời giải thắng; dùng lời giải có đoạn đầu đúng dài nhất với chương trình của bé |
+| `correctPrefix(solution, current)` | Số khối, theo thứ tự chương trình (kể cả thân lặp / nếu), bé đã ghép đúng tính từ khối đầu |
 | `structuralDistance(solution, current)` | Số bước sửa còn lại theo cách `nextStep` đo (0 = giống lời giải) |
 
 `level` là `HintLevel = Pick<Level, 'mode' | 'toolbox' | 'hints' | 'thinkingHint'>`. `HintContext.capacityLeft` = `Infinity` khi màn không có `maxBlocks`.

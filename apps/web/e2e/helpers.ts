@@ -1,4 +1,4 @@
-import type { Page } from '@playwright/test';
+import { expect, type Page } from '@playwright/test';
 
 // Shared e2e helpers. Screens after "/" need a signed-in profile (screens-and-flows.md §1).
 
@@ -32,4 +32,13 @@ export async function pandaBecomes(page: Page, animation: string): Promise<void>
     animation,
     { polling: 'raf', timeout: 15_000 },
   );
+}
+
+/**
+ * Answers "Có" to the "Làm lại" confirm (button or `R`, screens-and-flows.md §4): the whole level
+ * goes back to its start, the child's program included.
+ */
+export async function confirmRestart(page: Page): Promise<void> {
+  await page.getByTestId('restart-yes').click();
+  await expect(page.getByTestId('restart-confirm')).toHaveCount(0);
 }

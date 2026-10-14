@@ -79,7 +79,7 @@ import {
   StageController,
 } from '../../stages/StageController';
 import { TrackStrip } from '../../stages/TrackStrip';
-import { Bubble, Button, CapacityBricks, Panel, PixelIcon, SpeakButton } from '../../ui';
+import { Bubble, Button, CapacityBricks, Dialog, Panel, PixelIcon, SpeakButton } from '../../ui';
 import { canOpenLevel } from '../../features/content/catalog';
 import { ScreenMessage } from '../shared/ScreenMessage';
 import { useChild } from '../shared/useChild';
@@ -257,6 +257,8 @@ function examLevelOf(level: Level, seed: number): Level {
 }
 
 // Text labels, not 🐢/🐇: emoji fonts are not guaranteed on the children's laptops.
+/** Speed of a new play screen: Nhanh (2×). A lost replay still plays at most 1×. */
+const DEFAULT_SPEED: Speed = 2;
 const SPEEDS: ReadonlyArray<{ speed: Speed; label: string }> = [
   { speed: 0.5, label: t.speeds.slow },
   { speed: 1, label: t.speeds.normal },
@@ -389,9 +391,10 @@ function PlaySession({
   useEffect(() => {
     bubbleRef.current = bubble;
   });
-  const [speed, setSpeed] = useState<Speed>(1);
+  // Nhanh by default (coach's playtest: Vừa was too slow). Not stored: each level starts at Nhanh.
+  const [speed, setSpeed] = useState<Speed>(DEFAULT_SPEED);
   /** The chosen speed, for a stage mounted later (level change, dev Fast Refresh). */
-  const speedRef = useRef<Speed>(1);
+  const speedRef = useRef<Speed>(DEFAULT_SPEED);
   const [stepping, setStepping] = useState(false);
   /** Step mode now, for the next map of a multi-map replay (the child may switch mid-run). */
   const steppingRef = useRef(false);
@@ -693,7 +696,10 @@ function PlaySession({
     [level, feedback, shake, say, hintRunEnded, playFailSfx, showVerdict],
   );
 
-  /** Stage back to the start; the program is kept (screens-and-flows.md §4, `R`). */
+  /**
+   * Stage back to the start; the program is kept. Used by Dừng, a fresh run, an edit after a run
+   * and "Chơi lại"; the "Làm lại" button and `R` use `restartLevel` (after a confirm).
+   */
   const reset = useCallback(() => {
     stageRef.current?.reset();
     cancelPendingTips();
@@ -703,6 +709,51 @@ function PlaySession({
     setPhase('idle');
     say(readyLine);
   }, [clearShake, readyLine, say, cancelPendingTips]);
+
+  /** "Làm lại" asks first: it throws the child's program away. */
+  const [restartAsk, setRestartAsk] = useState(false);
+  const restartNoRef = useRef<HTMLButtonElement>(null);
+  /** The confirm paused a running replay: Không lets it go on. */
+  const pausedForAskRef = useRef(false);
+
+  /** Opens the "Làm lại" confirm; a replay on screen waits under it (no results pop up). */
+  const askRestart = useCallback(() => {
+    const stage = stageRef.current;
+    if (stage?.playing && !stage.paused) {
+      stage.pause();
+      setPaused(true);
+      pausedForAskRef.current = true;
+    }
+    setRestartAsk(true);
+  }, []);
+
+  /** Không / Esc: nothing changes; a replay the confirm paused carries on. */
+  const cancelRestart = useCallback(() => {
+    setRestartAsk(false);
+    if (!pausedForAskRef.current) return;
+    pausedForAskRef.current = false;
+    const stage = stageRef.current;
+    if (stage?.playing && stage.paused) {
+      stage.resume();
+      setPaused(false);
+    }
+  }, []);
+
+  /**
+   * "Làm lại" (screens-and-flows.md §4, `R`): the whole level as before the child did anything:
+   * replay stopped, map 1 at its start, boxes at their start, the level's start program back in
+   * the workspace (one Ctrl+Z brings the child's program back). Hints bought and the level
+   * session are kept.
+   */
+  const restartLevel = useCallback(() => {
+    closeStepPopover();
+    setPlanOpen(false);
+    reset();
+    // showMap puts the scene at the map's start; onReset puts the boxes back.
+    showMap(0);
+    setMapMarks([]);
+    handleRef.current?.restart();
+  }, [closeStepPopover, reset, showMap]);
 
   const run = useCallback(
     (step: boolean) => {
@@ -961,7 +1012,7 @@ function PlaySession({
       event.preventDefault();
       event.stopPropagation();
       if (action === 'reset') {
-        reset();
+        askRestart();
         return;
       }
       run(action === 'step');
@@ -970,7 +1021,15 @@ function PlaySession({
     return () => {
       window.removeEventListener('keydown', onKeyDown, { capture: true });
     };
-  }, [run, reset, mode, hintsAvailable, sessionReady, openHintBox]);
+  }, [run, mode, hintsAvailable, sessionReady, openHintBox, askRestart]);
+
+  // Closing the "Làm lại" confirm: the Dialog gives focus back to the Làm lại button as it
+  // unmounts, where Space would open it again. Focus goes to the stage, where Space runs.
+  const restartAskWasOpenRef = useRef(restartAsk);
+  useEffect(() => {
+    if (restartAskWasOpenRef.current && !restartAsk) stageBoxRef.current?.focus();
+    restartAskWasOpenRef.current = restartAsk;
+  }, [restartAsk]);
 
   const onReady = useCallback(
     (workspace: Blockly.WorkspaceSvg, handle: WorkspaceHandle) => {
@@ -1336,10 +1395,8 @@ function PlaySession({
                 icon="↺"
                 shortcut="R"
                 className="ml-auto"
-                onClick={() => {
-                  reset();
-                  focusStage();
-                }}
+                data-testid="play-reset"
+                onClick={askRestart}
               >
                 {t.reset}
               </Button>
@@ -1508,6 +1565,37 @@ function PlaySession({
             setGoalsCardOpen(false);
           }}
         />
+      )}
+      {restartAsk && (
+        <Dialog
+          title={t.restart.title}
+          onClose={cancelRestart}
+          initialFocus={restartNoRef}
+          data-testid="restart-confirm"
+          className="grid w-[420px] gap-5 px-8 pt-6 pb-8"
+        >
+          <div className="flex justify-end gap-3">
+            <Button
+              ref={restartNoRef}
+              variant="go"
+              data-testid="restart-no"
+              onClick={cancelRestart}
+            >
+              {t.restart.no}
+            </Button>
+            <Button
+              data-testid="restart-yes"
+              className="bg-oops"
+              onClick={() => {
+                pausedForAskRef.current = false;
+                setRestartAsk(false);
+                restartLevel();
+              }}
+            >
+              {t.restart.yes}
+            </Button>
+          </div>
+        </Dialog>
       )}
       {reward !== null && phase === 'success' && (
         <ResultsOverlay

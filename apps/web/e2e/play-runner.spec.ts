@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { expect, type Page, test } from '@playwright/test';
 import type * as BlocklyModule from 'blockly';
-import { pandaBecomes, signInTestProfile } from './helpers';
+import { confirmRestart, pandaBecomes, signInTestProfile } from './helpers';
 
 // P0-07 acceptance (docs/roadmap/phase-0.md): one runner level played end to end on /play/:levelId.
 
@@ -141,7 +141,7 @@ test.describe('/play/w01-l03 runner', () => {
     await page.waitForTimeout(400); // let the success panel pop in
     await page.screenshot({ path: `${SHOTS}/${project}-success.png` });
 
-    // Làm lại: stage back to the start, program kept.
+    // Chơi lại: stage back to the start, program kept.
     await page.getByRole('button', { name: 'Chơi lại' }).click();
     await expect(page.getByTestId('play-success')).toHaveCount(0);
     await expect(page.getByTestId('play-stage')).toHaveAttribute('data-panda', 'idle');
@@ -172,10 +172,20 @@ test.describe('/play/w01-l03 runner', () => {
     await page.waitForTimeout(300);
     await page.screenshot({ path: `${SHOTS}/${project}-fell.png` });
 
-    // R puts the stage back and stops the shake.
+    // R asks, then puts the whole level back: stage at the start, no shake, only "khi bắt đầu".
     await page.keyboard.press('r');
+    await confirmRestart(page);
     await expect(page.getByTestId('play-stage')).toHaveAttribute('data-phase', 'idle');
     expect(await hasClass(page, 'w2', 'cq-shake')).toBe(false);
+    await expect
+      .poll(() =>
+        page.evaluate(() =>
+          (window as unknown as HookWindow).__cqPlay.workspace
+            .getAllBlocks(false)
+            .map((block) => block.type),
+        ),
+      )
+      .toEqual(['cq_start']);
   });
 
   test('@smoke a loop that never ends in time: TIMEOUT line, page stays responsive', async ({
@@ -202,6 +212,7 @@ test.describe('/play/w01-l03 runner', () => {
     expect(Date.now() - ping).toBeLessThan(500);
     await page.screenshot({ path: `${SHOTS}/${project}-timeout.png` });
     await page.getByRole('button', { name: /Làm lại/ }).click();
+    await confirmRestart(page);
     await expect(page.getByTestId('play-stage')).toHaveAttribute('data-phase', 'idle');
   });
 

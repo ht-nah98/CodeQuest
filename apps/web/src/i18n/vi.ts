@@ -74,6 +74,8 @@ export const vi = {
     pause: 'Tạm dừng',
     resume: 'Tiếp tục',
     reset: 'Làm lại',
+    // "Làm lại" throws the program away: asked first (Esc / Không keeps it).
+    restart: { title: 'Xóa hết và làm lại từ đầu?', yes: 'Có', no: 'Không' },
     speedLabel: 'Tốc độ',
     speeds: { slow: 'Chậm', normal: 'Vừa', fast: 'Nhanh' },
     mangSays: 'Măng nói',
