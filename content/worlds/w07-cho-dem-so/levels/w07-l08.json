@@ -1,0 +1,132 @@
+{
+  "id": "w07-l08",
+  "worldId": "w07-cho-dem-so",
+  "stage": "practice",
+  "kind": "maze",
+  "mode": "build",
+  "title": "Nhà trái hay nhà phải",
+  "objective": "Nhìn số trong hộp, rồi giao đúng nhà.",
+  "learningGoal": "Khối so sánh hỏi số trong hộp lúc chạy tới: hộp 4 > 2 là ✔, rẽ trái; hộp 1 > 2 là ✘, rẽ phải.",
+  "misconception": "So sánh hỏi tên hộp, không hỏi số bên trong.",
+  "mission": "Nhiều măng thì giao nhà bên trái.",
+  "goalSprite": "home",
+  "toolbox": [
+    "maze_forward",
+    "maze_turn_left",
+    "maze_turn_right",
+    "cq_repeat",
+    "cq_if",
+    "cq_if_else",
+    {
+      "type": "cq_var_compare",
+      "fields": {
+        "VAR": "bamboo",
+        "OP": "GT",
+        "NUM": 2
+      }
+    }
+  ],
+  "maxBlocks": 8,
+  "maxLoopDepth": 1,
+  "par": 7,
+  "variables": [
+    {
+      "id": "bamboo",
+      "name": "số măng",
+      "start": [4, 1]
+    }
+  ],
+  "config": {
+    "map": ["#####", "#G.##", "##.##", "##S##", "#####"],
+    "startDir": "N"
+  },
+  "variants": [
+    {
+      "map": ["#####", "##.G#", "##.##", "##S##", "#####"],
+      "startDir": "N"
+    }
+  ],
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "maze_forward",
+              "id": "fwd1",
+              "next": {
+                "block": {
+                  "type": "maze_forward",
+                  "id": "fwd2",
+                  "next": {
+                    "block": {
+                      "type": "cq_if_else",
+                      "id": "if1",
+                      "inputs": {
+                        "COND": {
+                          "block": {
+                            "type": "cq_var_compare",
+                            "id": "ask1",
+                            "fields": {
+                              "VAR": "bamboo",
+                              "OP": "GT",
+                              "NUM": 2
+                            }
+                          }
+                        },
+                        "DO": {
+                          "block": {
+                            "type": "maze_turn_left",
+                            "id": "left1"
+                          }
+                        },
+                        "ELSE": {
+                          "block": {
+                            "type": "maze_turn_right",
+                            "id": "right1"
+                          }
+                        }
+                      },
+                      "next": {
+                        "block": {
+                          "type": "maze_forward",
+                          "id": "fwd3"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "cmp",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Khối mới! So số trong hộp với số bên phải. Đúng thì ✔.",
+      "point": "toolbox:cq_var_compare"
+    },
+    {
+      "id": "wall",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "HIT_WALL"
+      },
+      "say": "Bản đồ này hộp có mấy? Lớn hơn 2 không?",
+      "point": "toolbox:cq_var_compare"
+    }
+  ],
+  "thinkingHint": "Hộp có 4 thì Măng rẽ bên nào?"
+}

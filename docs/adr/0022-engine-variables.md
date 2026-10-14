@@ -71,7 +71,7 @@ Mọi khối đều là khối chung của engine (`packages/engine/src/blocks/v
 |---|---|---|---|---|
 | `cq_var_set` | đặt %1 thành %2 | `VAR` (`field_cq_var`), `NUM` (`field_number` 0–20, precision 1) | `__varSet('bamboo', 0, id);` | Lệnh này cho số vào hộp. Số cũ mất |
 | `cq_var_add` | tăng %1 thêm %2 | `VAR`, `NUM` (1–9) | `__varAdd('bamboo', 1, id);` | Lệnh này cộng thêm vào số trong hộp |
-| `cq_var_compare` | %1 %2 %3 ? (output `Boolean`) | `VAR`, `OP` (`field_dropdown` `=`/`<`/`>` → `EQ`/`LT`/`GT`), `NUM` (0–20) | `__varCmp('bamboo', 'GT', 2, id)` | Câu hỏi: ✔ khi số trong hộp đúng như vậy, ✘ khi không |
+| `cq_var_compare` | %1 %2 %3 ? (output `Boolean`) | `VAR`, `OP` (`field_dropdown` `=`/`<`/`>` → `EQ`/`LT`/`GT`), `NUM` (0–20) | `__varCmp('bamboo', 'GT', 2, id)` | So số trong hộp với số bên phải. Đúng thì ✔, sai thì ✘ |
 | `cq_repeat_var` | lặp %1 lần %2 %3 (`DO`) | `VAR` | `var n = __varGet('bamboo', id); for (var c = 0; c < n; c++) {…}` | Làm các lệnh bên trong, số lần bằng số trong hộp lúc bắt đầu lặp |
 | `maze_bamboo_ahead` | phía trước có măng? | — | `bambooAhead(id)` (API maze, `ctx.sense`) | ✔ khi ô ngay trước Măng có măng chưa nhặt |
 

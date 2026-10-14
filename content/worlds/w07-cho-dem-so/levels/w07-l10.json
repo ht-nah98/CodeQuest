@@ -1,0 +1,179 @@
+{
+  "id": "w07-l10",
+  "worldId": "w07-cho-dem-so",
+  "stage": "practice",
+  "kind": "maze",
+  "mode": "bughunt",
+  "title": "Đếm nhầm ô trống",
+  "objective": "Hộp đếm cả ô trống. Sửa 1 chỗ nhé!",
+  "learningGoal": "Khối tăng nằm ngoài nếu nên chạy mọi vòng: hộp đếm ô chứ không đếm măng. Kéo khối tăng vào trong nếu.",
+  "misconception": "Đếm số ô thay vì số măng.",
+  "mission": "Đếm nhầm cả ô trống. Sửa nhé!",
+  "goalSprite": "home",
+  "toolbox": [
+    "maze_forward",
+    "cq_repeat",
+    "cq_if",
+    "maze_bamboo_ahead",
+    {
+      "type": "cq_var_add",
+      "fields": {
+        "VAR": "bamboo",
+        "NUM": 1
+      }
+    }
+  ],
+  "maxLoopDepth": 1,
+  "par": 5,
+  "parEdits": 1,
+  "variables": [
+    {
+      "id": "bamboo",
+      "name": "số măng"
+    }
+  ],
+  "countGoal": {
+    "var": "bamboo",
+    "equals": [2, 4]
+  },
+  "config": {
+    "map": ["#########", "#S.b..bG#", "#########"],
+    "startDir": "E"
+  },
+  "variants": [
+    {
+      "map": ["#########", "#Sbbb.bG#", "#########"],
+      "startDir": "E"
+    }
+  ],
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "loop1",
+              "fields": {
+                "TIMES": 6
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "cq_if",
+                    "id": "if1",
+                    "inputs": {
+                      "COND": {
+                        "block": {
+                          "type": "maze_bamboo_ahead",
+                          "id": "ask1"
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "cq_var_add",
+                        "id": "add1",
+                        "fields": {
+                          "VAR": "bamboo",
+                          "NUM": 1
+                        },
+                        "next": {
+                          "block": {
+                            "type": "maze_forward",
+                            "id": "fwd1"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "loop1",
+              "fields": {
+                "TIMES": 6
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "cq_if",
+                    "id": "if1",
+                    "inputs": {
+                      "COND": {
+                        "block": {
+                          "type": "maze_bamboo_ahead",
+                          "id": "ask1"
+                        }
+                      },
+                      "DO": {
+                        "block": {
+                          "type": "cq_var_add",
+                          "id": "add1",
+                          "fields": {
+                            "VAR": "bamboo",
+                            "NUM": 1
+                          }
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "maze_forward",
+                        "id": "fwd1"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "step",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Bấm Từng bước. Hộp tăng khi nào?",
+      "point": "step"
+    },
+    {
+      "id": "cells",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "WRONG_COUNT"
+      },
+      "say": "Hộp tăng cả khi không có măng. Khối tăng nằm đâu?",
+      "point": "block:cq_var_add"
+    }
+  ],
+  "thinkingHint": "Ô trống có làm hộp tăng không?"
+}

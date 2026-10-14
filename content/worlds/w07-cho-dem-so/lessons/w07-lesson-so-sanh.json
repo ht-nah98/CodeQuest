@@ -1,0 +1,135 @@
+{
+  "id": "w07-lesson-so-sanh",
+  "worldId": "w07-cho-dem-so",
+  "title": "Khối so sánh",
+  "beforeLevel": "w07-l08",
+  "cards": [
+    {
+      "type": "say",
+      "pose": "point",
+      "text": "Khối mới! So số trong hộp với số bên phải. Đúng thì ✔."
+    },
+    {
+      "type": "demo",
+      "text": "Hộp có 4. 4 lớn hơn 2: ✔, Măng rẽ trái.",
+      "kind": "maze",
+      "config": {
+        "map": ["#####", "#S.G#", "#####"],
+        "startDir": "E"
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "cq_if",
+                  "id": "if1",
+                  "inputs": {
+                    "COND": {
+                      "block": {
+                        "type": "cq_var_compare",
+                        "id": "ask1",
+                        "fields": {
+                          "VAR": "bamboo",
+                          "OP": "GT",
+                          "NUM": 2
+                        }
+                      }
+                    },
+                    "DO": {
+                      "block": {
+                        "type": "maze_turn_left",
+                        "id": "left1"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "variables": [
+        {
+          "id": "bamboo",
+          "name": "số măng",
+          "start": [4]
+        }
+      ]
+    },
+    {
+      "type": "demo",
+      "text": "Hộp có 1. 1 không lớn hơn 2: ✘, Măng không rẽ.",
+      "kind": "maze",
+      "config": {
+        "map": ["#####", "#S.G#", "#####"],
+        "startDir": "E"
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "cq_if",
+                  "id": "if1",
+                  "inputs": {
+                    "COND": {
+                      "block": {
+                        "type": "cq_var_compare",
+                        "id": "ask1",
+                        "fields": {
+                          "VAR": "bamboo",
+                          "OP": "GT",
+                          "NUM": 2
+                        }
+                      }
+                    },
+                    "DO": {
+                      "block": {
+                        "type": "maze_turn_left",
+                        "id": "left1"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "variables": [
+        {
+          "id": "bamboo",
+          "name": "số măng",
+          "start": [1]
+        }
+      ]
+    },
+    {
+      "type": "say",
+      "pose": "think",
+      "text": "Dấu = là bằng, < là nhỏ hơn, > là lớn hơn."
+    },
+    {
+      "type": "quiz",
+      "text": "Hộp có 2. Câu «số măng > 2» là gì?",
+      "options": ["✘ sai", "✔ đúng"],
+      "correct": 0,
+      "explain": "2 bằng 2, không lớn hơn 2."
+    }
+  ]
+}

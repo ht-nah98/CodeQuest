@@ -1,0 +1,119 @@
+{
+  "id": "w07-lesson-lap-hop",
+  "worldId": "w07-cho-dem-so",
+  "title": "Khối lặp hộp lần",
+  "beforeLevel": "w07-l04",
+  "cards": [
+    {
+      "type": "say",
+      "pose": "point",
+      "text": "Khối mới! Lặp «số bước» lần. Hộp có mấy, lặp mấy lần."
+    },
+    {
+      "type": "demo",
+      "text": "Hộp có 3: Măng tiến 3 ô.",
+      "kind": "maze",
+      "config": {
+        "map": ["########", "#S....G#", "########"],
+        "startDir": "E"
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "cq_repeat_var",
+                  "id": "boxloop1",
+                  "fields": {
+                    "VAR": "steps"
+                  },
+                  "inputs": {
+                    "DO": {
+                      "block": {
+                        "type": "maze_forward",
+                        "id": "fwd1"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "variables": [
+        {
+          "id": "steps",
+          "name": "số bước",
+          "start": [3]
+        }
+      ]
+    },
+    {
+      "type": "demo",
+      "text": "Hộp có 1: Măng tiến 1 ô. Cùng chương trình!",
+      "kind": "maze",
+      "config": {
+        "map": ["########", "#S....G#", "########"],
+        "startDir": "E"
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "cq_repeat_var",
+                  "id": "boxloop1",
+                  "fields": {
+                    "VAR": "steps"
+                  },
+                  "inputs": {
+                    "DO": {
+                      "block": {
+                        "type": "maze_forward",
+                        "id": "fwd1"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "variables": [
+        {
+          "id": "steps",
+          "name": "số bước",
+          "start": [1]
+        }
+      ]
+    },
+    {
+      "type": "say",
+      "pose": "think",
+      "text": "Khối lặp xem hộp một lần, lúc bắt đầu lặp."
+    },
+    {
+      "type": "quiz",
+      "text": "Hộp có 2. Lặp «số bước» lần, tiến. Măng đi mấy ô?",
+      "options": ["2 ô", "1 ô"],
+      "correct": 0,
+      "explain": "Hộp có 2 nên lặp 2 lần, mỗi lần 1 ô."
+    }
+  ]
+}

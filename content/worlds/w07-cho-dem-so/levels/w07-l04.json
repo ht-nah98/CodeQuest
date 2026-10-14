@@ -1,0 +1,108 @@
+{
+  "id": "w07-l04",
+  "worldId": "w07-cho-dem-so",
+  "stage": "guided",
+  "kind": "maze",
+  "mode": "build",
+  "title": "Hộp chỉ số bước",
+  "objective": "Đi đúng số bước trong hộp, rồi rẽ xuống.",
+  "learningGoal": "Lặp hộp lần lặp đúng bằng số trong hộp: hộp 3 thì 3 vòng, hộp 5 thì 5 vòng. Một chương trình đi đúng cả hai bản đồ.",
+  "misconception": "Lặp hộp lần chỉ chạy 1 lần; tên hộp là số.",
+  "mission": "Bác Heo ghi số bước vào hộp. Đi đúng nhé!",
+  "goalSprite": "home",
+  "toolbox": [
+    "maze_forward",
+    "maze_turn_left",
+    "maze_turn_right",
+    "cq_repeat",
+    {
+      "type": "cq_repeat_var",
+      "fields": {
+        "VAR": "steps"
+      }
+    }
+  ],
+  "maxBlocks": 5,
+  "maxLoopDepth": 1,
+  "par": 4,
+  "variables": [
+    {
+      "id": "steps",
+      "name": "số bước",
+      "start": [3, 5]
+    }
+  ],
+  "config": {
+    "map": ["########", "#S.....#", "####G###", "########"],
+    "startDir": "E"
+  },
+  "variants": [
+    {
+      "map": ["########", "#S.....#", "######G#", "########"],
+      "startDir": "E"
+    }
+  ],
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat_var",
+              "id": "boxloop1",
+              "fields": {
+                "VAR": "steps"
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "maze_forward",
+                    "id": "fwd1"
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "type": "maze_turn_right",
+                  "id": "right1",
+                  "next": {
+                    "block": {
+                      "type": "maze_forward",
+                      "id": "fwd2"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "box",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Làm các lệnh bên trong, số lần bằng số trong hộp.",
+      "point": "toolbox:cq_repeat_var"
+    },
+    {
+      "id": "wall",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "HIT_WALL"
+      },
+      "say": "Bản đồ này hộp có mấy? Lặp đúng ngần ấy.",
+      "point": "toolbox:cq_repeat_var"
+    }
+  ],
+  "thinkingHint": "Ở bản đồ 2, hộp có số mấy?"
+}

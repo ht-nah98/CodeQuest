@@ -1,0 +1,179 @@
+{
+  "id": "w07-l01",
+  "worldId": "w07-cho-dem-so",
+  "stage": "guided",
+  "kind": "maze",
+  "mode": "parsons",
+  "title": "Đếm măng vào hộp",
+  "objective": "Xếp khối cho hộp đếm đúng số măng.",
+  "learningGoal": "Khối đặt cho số vào hộp, số cũ mất; khối tăng cộng thêm vào số đang có. Hộp còn 3 từ hôm qua, nên đặt về 0 trước, rồi nhặt măng nào tăng 1.",
+  "misconception": "Hộp tự đếm măng; đặt và tăng giống nhau.",
+  "mission": "Bác Heo nhờ Măng đếm măng trên lối chợ.",
+  "goalSprite": "home",
+  "toolbox": [],
+  "maxLoopDepth": 1,
+  "par": 5,
+  "variables": [
+    {
+      "id": "bamboo",
+      "name": "số măng",
+      "start": [3]
+    }
+  ],
+  "countGoal": {
+    "var": "bamboo",
+    "equals": [2]
+  },
+  "config": {
+    "map": ["######", "#SbbG#", "######"],
+    "startDir": "E"
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false
+        },
+        {
+          "type": "cq_repeat",
+          "id": "loop1",
+          "fields": {
+            "TIMES": 2
+          },
+          "x": 300,
+          "y": 40
+        },
+        {
+          "type": "maze_forward",
+          "id": "fwd2",
+          "x": 460,
+          "y": 104
+        },
+        {
+          "type": "maze_forward",
+          "id": "fwd1",
+          "x": 300,
+          "y": 168
+        },
+        {
+          "type": "cq_var_set",
+          "id": "set1",
+          "fields": {
+            "VAR": "bamboo",
+            "NUM": 0
+          },
+          "x": 460,
+          "y": 232
+        },
+        {
+          "type": "cq_var_add",
+          "id": "add1",
+          "fields": {
+            "VAR": "bamboo",
+            "NUM": 1
+          },
+          "x": 300,
+          "y": 296
+        }
+      ]
+    }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_var_set",
+              "id": "set1",
+              "fields": {
+                "VAR": "bamboo",
+                "NUM": 0
+              },
+              "next": {
+                "block": {
+                  "type": "cq_repeat",
+                  "id": "loop1",
+                  "fields": {
+                    "TIMES": 2
+                  },
+                  "inputs": {
+                    "DO": {
+                      "block": {
+                        "type": "maze_forward",
+                        "id": "fwd1",
+                        "next": {
+                          "block": {
+                            "type": "cq_var_add",
+                            "id": "add1",
+                            "fields": {
+                              "VAR": "bamboo",
+                              "NUM": 1
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "next": {
+                    "block": {
+                      "type": "maze_forward",
+                      "id": "fwd2"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "set",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Khối mới! Lệnh này cho số vào hộp. Số cũ mất.",
+      "point": "block:cq_var_set"
+    },
+    {
+      "id": "add",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Khối mới! Lệnh này cộng thêm vào số trong hộp.",
+      "point": "block:cq_var_add"
+    },
+    {
+      "id": "old",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "WRONG_COUNT"
+      },
+      "say": "Hộp còn số cũ? Đặt về 0 trước khi đếm.",
+      "point": "block:cq_var_set"
+    },
+    {
+      "id": "loose",
+      "when": {
+        "trigger": "run-end",
+        "orphans": true
+      },
+      "say": "Còn khối rời. Nối hết vào khi bắt đầu nhé!"
+    }
+  ],
+  "thinkingHint": "Trước khi đếm, trong hộp đã có mấy?"
+}

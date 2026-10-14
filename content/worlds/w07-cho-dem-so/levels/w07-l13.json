@@ -1,0 +1,181 @@
+{
+  "id": "w07-l13",
+  "worldId": "w07-cho-dem-so",
+  "stage": "practice",
+  "kind": "robotlab",
+  "mode": "build",
+  "title": "Đếm khối đỏ",
+  "objective": "Về phòng, đếm khối đỏ trên đường.",
+  "learningGoal": "Mỗi bước hỏi khối ở chỗ Bíp màu đỏ?: đỏ thì tăng, vàng thì thôi. Hộp đếm khối đỏ, không đếm mọi khối.",
+  "misconception": "Đếm mọi khối, không xem màu.",
+  "mission": "Đếm khối đỏ ở bãi giao hàng.",
+  "toolbox": [
+    "robot_forward",
+    "cq_repeat",
+    "cq_if",
+    "robot_block_color",
+    {
+      "type": "cq_var_add",
+      "fields": {
+        "VAR": "red",
+        "NUM": 1
+      }
+    }
+  ],
+  "maxBlocks": 6,
+  "maxLoopDepth": 1,
+  "par": 5,
+  "variables": [
+    {
+      "id": "red",
+      "name": "số khối đỏ"
+    }
+  ],
+  "countGoal": {
+    "var": "red",
+    "equals": [2, 1]
+  },
+  "config": {
+    "map": ["#####", "L....", "#####"],
+    "startDir": "W",
+    "start": [1, 4],
+    "blocks": [
+      {
+        "kind": "pollution",
+        "color": "RED",
+        "at": [1, 1]
+      },
+      {
+        "kind": "pollution",
+        "color": "YELLOW",
+        "at": [1, 2]
+      },
+      {
+        "kind": "pollution",
+        "color": "RED",
+        "at": [1, 3]
+      }
+    ],
+    "goal": {
+      "type": "score",
+      "target": 40
+    }
+  },
+  "variants": [
+    {
+      "map": ["#####", "L....", "#####"],
+      "startDir": "W",
+      "start": [1, 4],
+      "blocks": [
+        {
+          "kind": "pollution",
+          "color": "YELLOW",
+          "at": [1, 1]
+        },
+        {
+          "kind": "pollution",
+          "color": "RED",
+          "at": [1, 2]
+        },
+        {
+          "kind": "pollution",
+          "color": "YELLOW",
+          "at": [1, 3]
+        }
+      ],
+      "goal": {
+        "type": "score",
+        "target": 40
+      }
+    }
+  ],
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "loop1",
+              "fields": {
+                "TIMES": 4
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "robot_forward",
+                    "id": "fwd1",
+                    "fields": {
+                      "N": 1
+                    },
+                    "next": {
+                      "block": {
+                        "type": "cq_if",
+                        "id": "if1",
+                        "inputs": {
+                          "COND": {
+                            "block": {
+                              "type": "robot_block_color",
+                              "id": "ask1",
+                              "fields": {
+                                "COLOR": "RED"
+                              }
+                            }
+                          },
+                          "DO": {
+                            "block": {
+                              "type": "cq_var_add",
+                              "id": "add1",
+                              "fields": {
+                                "VAR": "red",
+                                "NUM": 1
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "ask",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "WRONG_COUNT"
+      },
+      "say": "Mỗi bước, khối dưới Bíp màu gì?",
+      "point": "toolbox:robot_block_color"
+    },
+    {
+      "id": "block",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "HIT_BLOCK"
+      },
+      "say": "Bíp không đi xuyên qua khối ô nhiễm. Tiến từng ô một."
+    },
+    {
+      "id": "home",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "LOW_SCORE"
+      },
+      "say": "Bíp đã về phòng thí nghiệm chưa?"
+    }
+  ],
+  "thinkingHint": "Khối vàng có được đếm không?"
+}

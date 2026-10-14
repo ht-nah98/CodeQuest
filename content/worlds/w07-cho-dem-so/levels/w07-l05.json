@@ -1,0 +1,214 @@
+{
+  "id": "w07-l05",
+  "worldId": "w07-cho-dem-so",
+  "stage": "practice",
+  "kind": "maze",
+  "mode": "bughunt",
+  "title": "Hộp cứ về 0",
+  "objective": "Đếm đúng măng ở cả 3 bản đồ. Sửa nhé!",
+  "learningGoal": "Khối đặt 0 nằm trong vòng lặp nên mỗi vòng hộp bị đổ về 0. Đặt 0 một lần, ở trước vòng lặp.",
+  "misconception": "Đặt 0 trong vòng lặp vẫn đếm được.",
+  "mission": "Hộp cứ về 0. Sửa giúp bác Heo!",
+  "goalSprite": "home",
+  "toolbox": [
+    "maze_forward",
+    "cq_repeat",
+    "cq_if",
+    "maze_bamboo_ahead",
+    {
+      "type": "cq_var_set",
+      "fields": {
+        "VAR": "bamboo",
+        "NUM": 0
+      }
+    },
+    {
+      "type": "cq_var_add",
+      "fields": {
+        "VAR": "bamboo",
+        "NUM": 1
+      }
+    }
+  ],
+  "maxInstances": {
+    "cq_repeat": 1
+  },
+  "maxLoopDepth": 1,
+  "par": 6,
+  "parEdits": 2,
+  "variables": [
+    {
+      "id": "bamboo",
+      "name": "số măng",
+      "start": [5, 4, 3]
+    }
+  ],
+  "countGoal": {
+    "var": "bamboo",
+    "equals": [3, 2, 4]
+  },
+  "config": {
+    "map": ["#########", "#Sb.bb.G#", "#########"],
+    "startDir": "E"
+  },
+  "variants": [
+    {
+      "map": ["#########", "#S.b..bG#", "#########"],
+      "startDir": "E"
+    },
+    {
+      "map": ["#########", "#Sbbb.bG#", "#########"],
+      "startDir": "E"
+    }
+  ],
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "loop1",
+              "fields": {
+                "TIMES": 6
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "cq_var_set",
+                    "id": "set1",
+                    "fields": {
+                      "VAR": "bamboo",
+                      "NUM": 0
+                    },
+                    "next": {
+                      "block": {
+                        "type": "cq_if",
+                        "id": "if1",
+                        "inputs": {
+                          "COND": {
+                            "block": {
+                              "type": "maze_bamboo_ahead",
+                              "id": "ask1"
+                            }
+                          },
+                          "DO": {
+                            "block": {
+                              "type": "cq_var_add",
+                              "id": "add1",
+                              "fields": {
+                                "VAR": "bamboo",
+                                "NUM": 1
+                              }
+                            }
+                          }
+                        },
+                        "next": {
+                          "block": {
+                            "type": "maze_forward",
+                            "id": "fwd1"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_var_set",
+              "id": "set1",
+              "fields": {
+                "VAR": "bamboo",
+                "NUM": 0
+              },
+              "next": {
+                "block": {
+                  "type": "cq_repeat",
+                  "id": "loop1",
+                  "fields": {
+                    "TIMES": 6
+                  },
+                  "inputs": {
+                    "DO": {
+                      "block": {
+                        "type": "cq_if",
+                        "id": "if1",
+                        "inputs": {
+                          "COND": {
+                            "block": {
+                              "type": "maze_bamboo_ahead",
+                              "id": "ask1"
+                            }
+                          },
+                          "DO": {
+                            "block": {
+                              "type": "cq_var_add",
+                              "id": "add1",
+                              "fields": {
+                                "VAR": "bamboo",
+                                "NUM": 1
+                              }
+                            }
+                          }
+                        },
+                        "next": {
+                          "block": {
+                            "type": "maze_forward",
+                            "id": "fwd1"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "step",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Bấm Từng bước. Xem hộp sau mỗi vòng.",
+      "point": "step"
+    },
+    {
+      "id": "reset",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "WRONG_COUNT"
+      },
+      "say": "Mỗi vòng hộp về 0. Khối đặt nên ở đâu?",
+      "point": "block:cq_var_set"
+    }
+  ],
+  "thinkingHint": "Khối đặt chạy mấy lần?"
+}

@@ -1,0 +1,100 @@
+{
+  "id": "w07-l07",
+  "worldId": "w07-cho-dem-so",
+  "stage": "practice",
+  "kind": "maze",
+  "mode": "predict",
+  "title": "Hộp nào tăng?",
+  "objective": "Đọc chương trình, đoán số trong hai hộp.",
+  "learningGoal": "Chỉ hộp có tên trên khối tăng mới đổi. Hộp tên số măng không tự đếm măng: không khối nào tăng số măng, nên nó vẫn 0.",
+  "misconception": "Tên hộp là thứ nó đếm: hộp số măng tự đếm măng; tăng hộp này thì hộp kia cũng đổi.",
+  "mission": "Hộp số măng hay hộp số bước tăng? Đoán xem!",
+  "goalSprite": "home",
+  "toolbox": [],
+  "variables": [
+    {
+      "id": "bamboo",
+      "name": "số măng"
+    },
+    {
+      "id": "steps",
+      "name": "số bước"
+    }
+  ],
+  "config": {
+    "map": ["########", "#Sb.b.G#", "########"],
+    "startDir": "E"
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "loop1",
+              "fields": {
+                "TIMES": 4
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "maze_forward",
+                    "id": "fwd1",
+                    "next": {
+                      "block": {
+                        "type": "cq_var_add",
+                        "id": "add1",
+                        "fields": {
+                          "VAR": "steps",
+                          "NUM": 1
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "predict": {
+    "options": [
+      {
+        "key": "stop@1,5#bamboo=0#steps=4",
+        "label": "Số măng 0, số bước 4"
+      },
+      {
+        "key": "stop@1,5#bamboo=2#steps=4",
+        "label": "Số măng 2, số bước 4"
+      },
+      {
+        "key": "stop@1,5#bamboo=4#steps=0",
+        "label": "Số măng 4, số bước 0"
+      },
+      {
+        "key": "stop@1,5#bamboo=2#steps=0",
+        "label": "Số măng 2, số bước 0"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "name",
+      "when": {
+        "trigger": "idle"
+      },
+      "say": "Đọc tên hộp ghi trên khối tăng.",
+      "point": "stage"
+    }
+  ],
+  "thinkingHint": "Khối tăng ghi tên hộp nào?"
+}

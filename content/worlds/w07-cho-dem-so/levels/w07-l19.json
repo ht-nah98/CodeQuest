@@ -1,0 +1,293 @@
+{
+  "id": "w07-l19",
+  "worldId": "w07-cho-dem-so",
+  "stage": "challenge",
+  "kind": "maze",
+  "mode": "bughunt",
+  "title": "Hai lỗi máy đếm",
+  "objective": "Hơn 2 măng thì lên. Máy sai hai chỗ, sửa nhé!",
+  "learningGoal": "Đặt 0 phải ở trước vòng lặp, và câu so sánh phải là lớn hơn 2. Sửa một chỗ thì vẫn sai một bản đồ.",
+  "mission": "Hai lỗi trong máy đếm. Sửa nhé!",
+  "goalSprite": "home",
+  "toolbox": [
+    "maze_forward",
+    "maze_turn_left",
+    "maze_turn_right",
+    "cq_repeat",
+    "cq_if",
+    "cq_if_else",
+    "maze_bamboo_ahead",
+    {
+      "type": "cq_var_set",
+      "fields": {
+        "VAR": "bamboo",
+        "NUM": 0
+      }
+    },
+    {
+      "type": "cq_var_add",
+      "fields": {
+        "VAR": "bamboo",
+        "NUM": 1
+      }
+    },
+    {
+      "type": "cq_var_compare",
+      "fields": {
+        "VAR": "bamboo",
+        "OP": "GT",
+        "NUM": 2
+      }
+    }
+  ],
+  "maxInstances": {
+    "cq_repeat": 1
+  },
+  "maxLoopDepth": 1,
+  "par": 11,
+  "parEdits": 3,
+  "variables": [
+    {
+      "id": "bamboo",
+      "name": "số măng",
+      "start": [5, 4, 6]
+    }
+  ],
+  "config": {
+    "map": ["#######", "#####G#", "#Sbb.b#", "#######"],
+    "startDir": "E"
+  },
+  "variants": [
+    {
+      "map": ["#######", "#######", "#Sb..b#", "#####G#"],
+      "startDir": "E"
+    },
+    {
+      "map": ["#######", "#######", "#S.b..#", "#####G#"],
+      "startDir": "E"
+    }
+  ],
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "loop1",
+              "fields": {
+                "TIMES": 4
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "cq_var_set",
+                    "id": "set1",
+                    "fields": {
+                      "VAR": "bamboo",
+                      "NUM": 0
+                    },
+                    "next": {
+                      "block": {
+                        "type": "cq_if",
+                        "id": "if1",
+                        "inputs": {
+                          "COND": {
+                            "block": {
+                              "type": "maze_bamboo_ahead",
+                              "id": "ask1"
+                            }
+                          },
+                          "DO": {
+                            "block": {
+                              "type": "cq_var_add",
+                              "id": "add1",
+                              "fields": {
+                                "VAR": "bamboo",
+                                "NUM": 1
+                              }
+                            }
+                          }
+                        },
+                        "next": {
+                          "block": {
+                            "type": "maze_forward",
+                            "id": "fwd1"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "type": "cq_if_else",
+                  "id": "if2",
+                  "inputs": {
+                    "COND": {
+                      "block": {
+                        "type": "cq_var_compare",
+                        "id": "ask2",
+                        "fields": {
+                          "VAR": "bamboo",
+                          "OP": "LT",
+                          "NUM": 2
+                        }
+                      }
+                    },
+                    "DO": {
+                      "block": {
+                        "type": "maze_turn_left",
+                        "id": "left1"
+                      }
+                    },
+                    "ELSE": {
+                      "block": {
+                        "type": "maze_turn_right",
+                        "id": "right1"
+                      }
+                    }
+                  },
+                  "next": {
+                    "block": {
+                      "type": "maze_forward",
+                      "id": "fwd2"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_var_set",
+              "id": "set1",
+              "fields": {
+                "VAR": "bamboo",
+                "NUM": 0
+              },
+              "next": {
+                "block": {
+                  "type": "cq_repeat",
+                  "id": "loop1",
+                  "fields": {
+                    "TIMES": 4
+                  },
+                  "inputs": {
+                    "DO": {
+                      "block": {
+                        "type": "cq_if",
+                        "id": "if1",
+                        "inputs": {
+                          "COND": {
+                            "block": {
+                              "type": "maze_bamboo_ahead",
+                              "id": "ask1"
+                            }
+                          },
+                          "DO": {
+                            "block": {
+                              "type": "cq_var_add",
+                              "id": "add1",
+                              "fields": {
+                                "VAR": "bamboo",
+                                "NUM": 1
+                              }
+                            }
+                          }
+                        },
+                        "next": {
+                          "block": {
+                            "type": "maze_forward",
+                            "id": "fwd1"
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "next": {
+                    "block": {
+                      "type": "cq_if_else",
+                      "id": "if2",
+                      "inputs": {
+                        "COND": {
+                          "block": {
+                            "type": "cq_var_compare",
+                            "id": "ask2",
+                            "fields": {
+                              "VAR": "bamboo",
+                              "OP": "GT",
+                              "NUM": 2
+                            }
+                          }
+                        },
+                        "DO": {
+                          "block": {
+                            "type": "maze_turn_left",
+                            "id": "left1"
+                          }
+                        },
+                        "ELSE": {
+                          "block": {
+                            "type": "maze_turn_right",
+                            "id": "right1"
+                          }
+                        }
+                      },
+                      "next": {
+                        "block": {
+                          "type": "maze_forward",
+                          "id": "fwd2"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "step",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Bấm Từng bước. Xem hộp và câu so sánh.",
+      "point": "step"
+    },
+    {
+      "id": "two",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "HIT_WALL"
+      },
+      "say": "Sửa một chỗ vẫn sai? Có khi còn chỗ thứ hai."
+    }
+  ],
+  "thinkingHint": "Hộp có bị đổ về 0 không? Dấu so sánh đúng chưa?"
+}

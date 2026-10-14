@@ -1,0 +1,114 @@
+{
+  "id": "w07-cho-dem-so",
+  "order": 7,
+  "title": "Chợ Đếm Số",
+  "emoji": "🏪",
+  "concept": "Biến là chiếc hộp có tên: đặt, tăng, so sánh, lặp theo hộp",
+  "story": "Chợ phiên mở ở Thành Phố Robot. Bác Heo, Mèo và bác Cú nhờ Măng và Bíp đếm giúp.",
+  "chapters": [
+    {
+      "id": "cho-phien",
+      "title": "Chợ phiên mở rồi",
+      "lines": [
+        "Chợ phiên mở rồi! Măng và Bíp cùng đi chợ.",
+        "Bác Heo nhờ Măng đếm măng trên các sạp.",
+        "Bác Cú tặng Măng một chiếc hộp có tên."
+      ],
+      "art": {
+        "cast": ["pig", "owl"],
+        "prop": "market"
+      }
+    },
+    {
+      "id": "hop-biet-nho",
+      "title": "Chiếc hộp biết nhớ",
+      "lines": ["Hộp nhớ số giúp Măng. Tăng thì số lớn thêm.", "Bác Heo khen: đếm đúng từng sạp!"],
+      "unlockAfter": "w07-l04",
+      "art": {
+        "cast": ["pig"],
+        "prop": "box"
+      }
+    },
+    {
+      "id": "bip-giao-hang",
+      "title": "Bíp giao hàng",
+      "lines": ["Bác Cú cần biết Bíp thu mấy khối ô nhiễm.", "Mèo cũng nhờ Bíp đếm khối vàng."],
+      "unlockAfter": "w07-l05",
+      "art": {
+        "cast": ["owl", "cat"],
+        "prop": "robot"
+      }
+    },
+    {
+      "id": "ba-nha",
+      "title": "Ba nhà đặt măng",
+      "lines": ["Ba nhà đặt măng của bác Heo.", "Đếm măng trên sạp, hộp sẽ chỉ đường tới nhà."],
+      "unlockAfter": "w07-l17",
+      "art": {
+        "cast": ["pig"],
+        "prop": "home"
+      }
+    },
+    {
+      "id": "cho-tan",
+      "title": "Chợ tan",
+      "lines": [
+        "Ba nhà đều có măng. Bác Heo cười tít mắt!",
+        "Bác Cú gọi: Xưởng Phép Thuật đang chờ Măng!"
+      ],
+      "unlockAfter": "w07-boss",
+      "art": {
+        "cast": ["pig", "owl"],
+        "prop": "market"
+      }
+    }
+  ],
+  "theme": {
+    "tileset": "/tiles/ground.png",
+    "palette": "day",
+    "scene": "thanh-pho-robot"
+  },
+  "lessonIds": [
+    "w07-lesson",
+    "w07-lesson-dat-tang",
+    "w07-lesson-mang-truoc",
+    "w07-lesson-lap-hop",
+    "w07-lesson-so-sanh"
+  ],
+  "levelIds": [
+    "w07-l01",
+    "w07-l02",
+    "w07-l03",
+    "w07-l04",
+    "w07-l05",
+    "w07-l06",
+    "w07-l07",
+    "w07-l08",
+    "w07-l09",
+    "w07-l10",
+    "w07-l11",
+    "w07-l12",
+    "w07-l13",
+    "w07-l14",
+    "w07-l15",
+    "w07-l16",
+    "w07-l17",
+    "w07-l18",
+    "w07-l19",
+    "w07-boss",
+    "w07-creative"
+  ],
+  "unlock": {
+    "minStarRatio": 0.6
+  },
+  "unplugged": {
+    "title": "Hộp đếm",
+    "steps": [
+      "Mỗi bé một hộp giấy, dán nhãn tên, ví dụ \"số táo\".",
+      "Đi dọc hàng ghế. Gặp quả táo thì bỏ một hạt đậu vào hộp.",
+      "Cuối hàng, đổ ra đếm: số trong hộp là số táo.",
+      "Vòng 2: một bạn đổ hộp ở mỗi ghế (đặt về 0 sai chỗ). Cuối hàng hộp còn mấy?",
+      "Vòng 3: hộp có 3 hạt. Bạn kia bước đúng 3 bước theo hộp."
+    ]
+  }
+}

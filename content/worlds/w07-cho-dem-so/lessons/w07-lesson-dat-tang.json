@@ -1,0 +1,111 @@
+{
+  "id": "w07-lesson-dat-tang",
+  "worldId": "w07-cho-dem-so",
+  "title": "Khối đặt và tăng",
+  "beforeLevel": "w07-l01",
+  "cards": [
+    {
+      "type": "say",
+      "pose": "point",
+      "text": "Khối mới! Đặt: lệnh này cho số vào hộp. Số cũ mất."
+    },
+    {
+      "type": "demo",
+      "text": "Hộp có 5. Đặt thành 0: số 5 mất, Măng đứng yên.",
+      "kind": "maze",
+      "config": {
+        "map": ["#####", "#S.G#", "#####"],
+        "startDir": "E"
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "cq_var_set",
+                  "id": "set1",
+                  "fields": {
+                    "VAR": "bamboo",
+                    "NUM": 0
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "variables": [
+        {
+          "id": "bamboo",
+          "name": "số măng",
+          "start": [5]
+        }
+      ]
+    },
+    {
+      "type": "say",
+      "pose": "point",
+      "text": "Khối mới! Tăng: lệnh này cộng thêm vào số trong hộp."
+    },
+    {
+      "type": "demo",
+      "text": "Hộp có 2. Nhặt măng, tăng thêm 1: hộp có 3.",
+      "kind": "maze",
+      "config": {
+        "map": ["######", "#Sb.G#", "######"],
+        "startDir": "E"
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "maze_forward",
+                  "id": "fwd1",
+                  "next": {
+                    "block": {
+                      "type": "cq_var_add",
+                      "id": "add1",
+                      "fields": {
+                        "VAR": "bamboo",
+                        "NUM": 1
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "variables": [
+        {
+          "id": "bamboo",
+          "name": "số măng",
+          "start": [2]
+        }
+      ]
+    },
+    {
+      "type": "quiz",
+      "text": "Hộp có 4. Đặt thành 1. Hộp có mấy?",
+      "options": ["1", "5"],
+      "correct": 0,
+      "explain": "Đặt thì số cũ mất. Hộp chỉ còn 1."
+    }
+  ]
+}

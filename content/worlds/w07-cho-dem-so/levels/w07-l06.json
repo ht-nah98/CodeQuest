@@ -1,0 +1,193 @@
+{
+  "id": "w07-l06",
+  "worldId": "w07-cho-dem-so",
+  "stage": "practice",
+  "kind": "robotlab",
+  "mode": "build",
+  "title": "Bác Cú đếm khối",
+  "objective": "Thu hồi 2 khối đỏ. Mỗi chuyến, tăng hộp 1.",
+  "learningGoal": "Khối tăng cộng thêm vào số đang có: bản đồ 2 hộp có sẵn 3, thu thêm 2 khối đỏ thì hộp có 5.",
+  "misconception": "Tăng là bắt đầu lại từ 0; hộp tự đếm.",
+  "mission": "Bác Cú cần biết đã thu mấy khối đỏ.",
+  "toolbox": [
+    "robot_forward",
+    "robot_turn_left",
+    "robot_turn_right",
+    "robot_grab",
+    "robot_release",
+    "cq_repeat",
+    {
+      "type": "cq_var_add",
+      "fields": {
+        "VAR": "blocks",
+        "NUM": 1
+      }
+    }
+  ],
+  "maxBlocks": 10,
+  "maxLoopDepth": 1,
+  "par": 9,
+  "variables": [
+    {
+      "id": "blocks",
+      "name": "số khối đỏ",
+      "start": [0, 3]
+    }
+  ],
+  "countGoal": {
+    "var": "blocks",
+    "equals": [2, 5]
+  },
+  "config": {
+    "map": ["#.#", ".L.", "#.#"],
+    "startDir": "N",
+    "blocks": [
+      {
+        "kind": "pollution",
+        "color": "RED",
+        "at": [0, 1]
+      },
+      {
+        "kind": "pollution",
+        "color": "RED",
+        "at": [1, 0]
+      }
+    ],
+    "goal": {
+      "type": "missions",
+      "mustReturn": true
+    }
+  },
+  "variants": [
+    {
+      "map": ["#.#", ".L.", "#.#"],
+      "startDir": "N",
+      "blocks": [
+        {
+          "kind": "pollution",
+          "color": "RED",
+          "at": [0, 1]
+        },
+        {
+          "kind": "pollution",
+          "color": "RED",
+          "at": [1, 0]
+        }
+      ],
+      "goal": {
+        "type": "missions",
+        "mustReturn": true
+      }
+    }
+  ],
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "loop1",
+              "fields": {
+                "TIMES": 2
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "robot_forward",
+                    "id": "fwd1",
+                    "fields": {
+                      "N": 1
+                    },
+                    "next": {
+                      "block": {
+                        "type": "robot_grab",
+                        "id": "grab1",
+                        "next": {
+                          "block": {
+                            "type": "robot_turn_right",
+                            "id": "right1",
+                            "next": {
+                              "block": {
+                                "type": "robot_turn_right",
+                                "id": "right2",
+                                "next": {
+                                  "block": {
+                                    "type": "robot_forward",
+                                    "id": "fwd2",
+                                    "fields": {
+                                      "N": 1
+                                    },
+                                    "next": {
+                                      "block": {
+                                        "type": "robot_release",
+                                        "id": "drop1",
+                                        "next": {
+                                          "block": {
+                                            "type": "cq_var_add",
+                                            "id": "add1",
+                                            "fields": {
+                                              "VAR": "blocks",
+                                              "NUM": 1
+                                            },
+                                            "next": {
+                                              "block": {
+                                                "type": "robot_turn_right",
+                                                "id": "right3"
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "add",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Mỗi khối đỏ vào phòng, tăng hộp thêm 1.",
+      "point": "toolbox:cq_var_add"
+    },
+    {
+      "id": "old",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "WRONG_COUNT"
+      },
+      "say": "Bản đồ 2 hộp có sẵn 3. Tăng thêm cho đủ."
+    },
+    {
+      "id": "block",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "HIT_BLOCK"
+      },
+      "say": "Bíp không đi xuyên qua khối đỏ. Dừng đúng ô nhé."
+    }
+  ],
+  "thinkingHint": "Hộp có sẵn 3, thu thêm 2 khối đỏ thì có mấy?"
+}

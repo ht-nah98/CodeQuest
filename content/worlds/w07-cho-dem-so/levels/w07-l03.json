@@ -1,0 +1,124 @@
+{
+  "id": "w07-l03",
+  "worldId": "w07-cho-dem-so",
+  "stage": "guided",
+  "kind": "maze",
+  "mode": "build",
+  "title": "Đếm măng từng sạp",
+  "objective": "Đếm đúng số măng ở cả 2 bản đồ.",
+  "learningGoal": "Hỏi phía trước có măng? rồi mới tăng: hộp chỉ tăng khi có măng, nên một chương trình đếm đúng mọi sạp.",
+  "misconception": "Đếm số ô thay vì số măng.",
+  "mission": "Mỗi sạp một số măng. Đếm đúng nhé!",
+  "goalSprite": "home",
+  "toolbox": [
+    "maze_forward",
+    "cq_repeat",
+    "cq_if",
+    "maze_bamboo_ahead",
+    {
+      "type": "cq_var_add",
+      "fields": {
+        "VAR": "bamboo",
+        "NUM": 1
+      }
+    }
+  ],
+  "maxBlocks": 6,
+  "maxLoopDepth": 1,
+  "par": 5,
+  "variables": [
+    {
+      "id": "bamboo",
+      "name": "số măng"
+    }
+  ],
+  "countGoal": {
+    "var": "bamboo",
+    "equals": [2, 4]
+  },
+  "config": {
+    "map": ["#########", "#S.bb..G#", "#########"],
+    "startDir": "E"
+  },
+  "variants": [
+    {
+      "map": ["#########", "#Sbb.bbG#", "#########"],
+      "startDir": "E"
+    }
+  ],
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "loop1",
+              "fields": {
+                "TIMES": 6
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "cq_if",
+                    "id": "if1",
+                    "inputs": {
+                      "COND": {
+                        "block": {
+                          "type": "maze_bamboo_ahead",
+                          "id": "ask1"
+                        }
+                      },
+                      "DO": {
+                        "block": {
+                          "type": "cq_var_add",
+                          "id": "add1",
+                          "fields": {
+                            "VAR": "bamboo",
+                            "NUM": 1
+                          }
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "maze_forward",
+                        "id": "fwd1"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "ask",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Khối mới! ✔ khi ô ngay trước Măng có măng chưa nhặt.",
+      "point": "toolbox:maze_bamboo_ahead"
+    },
+    {
+      "id": "count",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "WRONG_COUNT"
+      },
+      "say": "Hộp chỉ tăng khi có măng. Hỏi trước khi tiến.",
+      "point": "toolbox:cq_if"
+    }
+  ],
+  "thinkingHint": "Khi nào thì hộp phải tăng?"
+}

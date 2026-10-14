@@ -1,0 +1,172 @@
+{
+  "id": "w07-l16",
+  "worldId": "w07-cho-dem-so",
+  "stage": "practice",
+  "kind": "maze",
+  "mode": "build",
+  "title": "Đếm rồi chọn nhà",
+  "objective": "Đếm măng, rồi chọn đúng lối ở cuối đường.",
+  "learningGoal": "Đếm trước, so sánh sau: hơn 2 măng thì rẽ trái, không thì rẽ phải. Lúc so sánh, hộp đã có số vừa đếm.",
+  "misconception": "So sánh trước khi đếm; hộp chưa đếm đã biết số.",
+  "mission": "Giao nhà nào? Đếm rồi quyết định.",
+  "goalSprite": "home",
+  "toolbox": [
+    "maze_forward",
+    "maze_turn_left",
+    "maze_turn_right",
+    "cq_repeat",
+    "cq_if",
+    "cq_if_else",
+    "maze_bamboo_ahead",
+    {
+      "type": "cq_var_add",
+      "fields": {
+        "VAR": "bamboo",
+        "NUM": 1
+      }
+    },
+    {
+      "type": "cq_var_compare",
+      "fields": {
+        "VAR": "bamboo",
+        "OP": "GT",
+        "NUM": 2
+      }
+    }
+  ],
+  "maxBlocks": 12,
+  "maxLoopDepth": 1,
+  "par": 10,
+  "variables": [
+    {
+      "id": "bamboo",
+      "name": "số măng"
+    }
+  ],
+  "config": {
+    "map": ["#######", "#####G#", "#Sbbb.#", "#######"],
+    "startDir": "E"
+  },
+  "variants": [
+    {
+      "map": ["#######", "#######", "#S.bb.#", "#####G#"],
+      "startDir": "E"
+    },
+    {
+      "map": ["#######", "#####G#", "#S.bbb#", "#######"],
+      "startDir": "E"
+    }
+  ],
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "loop1",
+              "fields": {
+                "TIMES": 4
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "cq_if",
+                    "id": "if1",
+                    "inputs": {
+                      "COND": {
+                        "block": {
+                          "type": "maze_bamboo_ahead",
+                          "id": "ask1"
+                        }
+                      },
+                      "DO": {
+                        "block": {
+                          "type": "cq_var_add",
+                          "id": "add1",
+                          "fields": {
+                            "VAR": "bamboo",
+                            "NUM": 1
+                          }
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "maze_forward",
+                        "id": "fwd1"
+                      }
+                    }
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "type": "cq_if_else",
+                  "id": "if2",
+                  "inputs": {
+                    "COND": {
+                      "block": {
+                        "type": "cq_var_compare",
+                        "id": "ask2",
+                        "fields": {
+                          "VAR": "bamboo",
+                          "OP": "GT",
+                          "NUM": 2
+                        }
+                      }
+                    },
+                    "DO": {
+                      "block": {
+                        "type": "maze_turn_left",
+                        "id": "left1"
+                      }
+                    },
+                    "ELSE": {
+                      "block": {
+                        "type": "maze_turn_right",
+                        "id": "right1"
+                      }
+                    }
+                  },
+                  "next": {
+                    "block": {
+                      "type": "maze_forward",
+                      "id": "fwd2"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "wall",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "HIT_WALL"
+      },
+      "say": "Lúc so sánh, hộp đã đếm đủ măng chưa?",
+      "point": "toolbox:cq_var_compare"
+    },
+    {
+      "id": "done",
+      "when": {
+        "trigger": "idle"
+      },
+      "say": "Đếm xong chưa? Rồi mới hỏi số măng.",
+      "point": "stage"
+    }
+  ],
+  "thinkingHint": "Đếm xong mới hỏi, hay hỏi trước khi đếm?"
+}

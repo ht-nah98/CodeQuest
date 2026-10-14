@@ -1,0 +1,91 @@
+{
+  "id": "w07-lesson",
+  "worldId": "w07-cho-dem-so",
+  "title": "Chiếc hộp có tên",
+  "cards": [
+    {
+      "type": "say",
+      "pose": "talk",
+      "text": "Chợ phiên mở rồi! Bác Heo nhờ Măng đếm măng."
+    },
+    {
+      "type": "say",
+      "pose": "point",
+      "text": "Biến là chiếc hộp có tên. Hộp giữ một số."
+    },
+    {
+      "type": "demo",
+      "text": "Nhặt một măng, hộp tăng 1. Số trong hộp đổi được.",
+      "kind": "maze",
+      "config": {
+        "map": ["#######", "#Sbb.G#", "#######"],
+        "startDir": "E"
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "maze_forward",
+                  "id": "fwd1",
+                  "next": {
+                    "block": {
+                      "type": "cq_var_add",
+                      "id": "add1",
+                      "fields": {
+                        "VAR": "bamboo",
+                        "NUM": 1
+                      },
+                      "next": {
+                        "block": {
+                          "type": "maze_forward",
+                          "id": "fwd2",
+                          "next": {
+                            "block": {
+                              "type": "cq_var_add",
+                              "id": "add2",
+                              "fields": {
+                                "VAR": "bamboo",
+                                "NUM": 1
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "variables": [
+        {
+          "id": "bamboo",
+          "name": "số măng",
+          "start": [0]
+        }
+      ]
+    },
+    {
+      "type": "say",
+      "pose": "think",
+      "text": "Tên để gọi hộp. Số bên trong mới là thứ hộp giữ."
+    },
+    {
+      "type": "quiz",
+      "text": "Hộp tên «số măng» đang có 2. Hộp giữ gì?",
+      "options": ["Số 2", "Chữ «số măng»"],
+      "correct": 0,
+      "explain": "Tên để gọi hộp. Hộp giữ số 2."
+    }
+  ]
+}

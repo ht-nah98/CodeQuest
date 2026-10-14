@@ -1,5 +1,5 @@
 // Landmarks of the story chapters' pictures (P2-24, `chapter.art.prop`): the goal pictures of
-// the stages (stages/goalArt.ts) plus six scenery props drawn here in the same 12×12 pixel
+// the stages (stages/goalArt.ts) plus eight scenery props drawn here in the same 12×12 pixel
 // style and token colours. Placeholders until the artist's vignettes arrive, like goalArt.
 import type { StoryProp } from '@codequest/content-schema';
 import { CAGE_OPEN_ART, GOAL_ART, ITEM_ART, type GoalArt } from '../../stages/goalArt';
@@ -101,6 +101,38 @@ const LAB = [
   'kkkkkkkkkkkk',
 ];
 
+/** A market stall (Thế giới 7): striped awning over a counter with bamboo shoots. */
+const MARKET = [
+  '............',
+  'oowwoowwooww',
+  'oowwoowwooww',
+  '.k........k.',
+  '.k........k.',
+  '.k..g..g..k.',
+  '.k.yY.yY..k.',
+  'kkkkkkkkkkkk',
+  '.kppppppppk.',
+  '.kpqqqqqqpk.',
+  '.kppppppppk.',
+  '.kk......kk.',
+];
+
+/** The named box (Thế giới 7): a wooden crate with a paper label. */
+const BOX = [
+  '............',
+  '............',
+  '.YYYYYYYYYY.',
+  '.YyyyyyyyyY.',
+  '.YyywwwwyyY.',
+  '.YyywkkwyyY.',
+  '.YyywwwwyyY.',
+  '.YyyyyyyyyY.',
+  '.YYYYYYYYYY.',
+  '.YyyyyyyyyY.',
+  '.YYYYYYYYYY.',
+  '............',
+];
+
 const scenery = (rows: readonly string[]): GoalArt => ({ rows, palette: PALETTE });
 
 export const STORY_PROP_ART: Readonly<Record<StoryProp, GoalArt>> = {
@@ -118,4 +150,6 @@ export const STORY_PROP_ART: Readonly<Record<StoryProp, GoalArt>> = {
   key: ITEM_ART.key,
   robot: scenery(ROBOT),
   lab: scenery(LAB),
+  market: scenery(MARKET),
+  box: scenery(BOX),
 };

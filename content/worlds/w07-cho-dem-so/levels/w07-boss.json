@@ -1,0 +1,190 @@
+{
+  "id": "w07-boss",
+  "worldId": "w07-cho-dem-so",
+  "stage": "boss",
+  "kind": "maze",
+  "mode": "build",
+  "title": "Giao măng cho 3 nhà",
+  "objective": "Đếm măng, rồi giao tới đúng nhà.",
+  "learningGoal": "Đếm măng bằng nếu và tăng, rồi dùng lại chính hộp đó: lặp hộp lần để đi xuống đúng số bước tới nhà.",
+  "misconception": "Hộp chỉ để xem, không dùng lại được trong chương trình.",
+  "mission": "Giao măng cho 3 nhà! Đếm rồi đi đúng.",
+  "goalSprite": "home",
+  "toolbox": [
+    "maze_forward",
+    "maze_turn_left",
+    "maze_turn_right",
+    "cq_repeat",
+    "cq_if",
+    "maze_bamboo_ahead",
+    {
+      "type": "cq_var_add",
+      "fields": {
+        "VAR": "bamboo",
+        "NUM": 1
+      }
+    },
+    {
+      "type": "cq_repeat_var",
+      "fields": {
+        "VAR": "bamboo"
+      }
+    }
+  ],
+  "maxBlocks": 11,
+  "maxLoopDepth": 1,
+  "par": 10,
+  "variables": [
+    {
+      "id": "bamboo",
+      "name": "số măng"
+    }
+  ],
+  "config": {
+    "map": [
+      "#########",
+      "#Sb.b..##",
+      "######.##",
+      "######.G#",
+      "######.##",
+      "######.##",
+      "#########"
+    ],
+    "startDir": "E"
+  },
+  "variants": [
+    {
+      "map": [
+        "#########",
+        "#Sbbb.b##",
+        "######.##",
+        "######.##",
+        "######.##",
+        "######.G#",
+        "#########"
+      ],
+      "startDir": "E"
+    },
+    {
+      "map": [
+        "#########",
+        "#S.bb.b##",
+        "######.##",
+        "######.##",
+        "######.G#",
+        "######.##",
+        "#########"
+      ],
+      "startDir": "E"
+    }
+  ],
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "loop1",
+              "fields": {
+                "TIMES": 5
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "cq_if",
+                    "id": "if1",
+                    "inputs": {
+                      "COND": {
+                        "block": {
+                          "type": "maze_bamboo_ahead",
+                          "id": "ask1"
+                        }
+                      },
+                      "DO": {
+                        "block": {
+                          "type": "cq_var_add",
+                          "id": "add1",
+                          "fields": {
+                            "VAR": "bamboo",
+                            "NUM": 1
+                          }
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "maze_forward",
+                        "id": "fwd1"
+                      }
+                    }
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "type": "maze_turn_right",
+                  "id": "right1",
+                  "next": {
+                    "block": {
+                      "type": "cq_repeat_var",
+                      "id": "boxloop1",
+                      "fields": {
+                        "VAR": "bamboo"
+                      },
+                      "inputs": {
+                        "DO": {
+                          "block": {
+                            "type": "maze_forward",
+                            "id": "fwd2"
+                          }
+                        }
+                      },
+                      "next": {
+                        "block": {
+                          "type": "maze_turn_left",
+                          "id": "left1",
+                          "next": {
+                            "block": {
+                              "type": "maze_forward",
+                              "id": "fwd3"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "plan",
+      "when": {
+        "trigger": "idle"
+      },
+      "say": "Đếm xong, hộp giúp gì?",
+      "point": "stage"
+    },
+    {
+      "id": "turn",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "HIT_WALL"
+      },
+      "say": "Rẽ sớm hay muộn? Hộp có đúng số măng không?"
+    }
+  ],
+  "thinkingHint": "Số trong hộp còn dùng được vào việc khác không?"
+}

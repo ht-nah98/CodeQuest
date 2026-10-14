@@ -1,0 +1,101 @@
+{
+  "id": "w07-l02",
+  "worldId": "w07-cho-dem-so",
+  "stage": "guided",
+  "kind": "maze",
+  "mode": "predict",
+  "title": "Hộp có mấy?",
+  "objective": "Đọc chương trình, đoán số trong hộp.",
+  "learningGoal": "Hộp có sẵn 1. Khối tăng nằm trong vòng lặp nên chạy 3 lần, mỗi lần cộng thêm 1: hộp có 4.",
+  "misconception": "Hộp chỉ tăng một lần; tăng là đếm lại từ 0.",
+  "mission": "Hộp số măng là mấy? Đoán xem!",
+  "goalSprite": "home",
+  "toolbox": [],
+  "variables": [
+    {
+      "id": "bamboo",
+      "name": "số măng",
+      "start": [1]
+    }
+  ],
+  "config": {
+    "map": ["########", "#Sbbb.G#", "########"],
+    "startDir": "E"
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "loop1",
+              "fields": {
+                "TIMES": 3
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "maze_forward",
+                    "id": "fwd1",
+                    "next": {
+                      "block": {
+                        "type": "cq_var_add",
+                        "id": "add1",
+                        "fields": {
+                          "VAR": "bamboo",
+                          "NUM": 1
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "predict": {
+    "options": [
+      {
+        "key": "stop@1,4#bamboo=4",
+        "label": "Ở măng thứ ba, hộp có 4"
+      },
+      {
+        "key": "stop@1,4#bamboo=3",
+        "label": "Ở măng thứ ba, hộp có 3"
+      },
+      {
+        "key": "stop@1,4#bamboo=2",
+        "label": "Ở măng thứ ba, hộp có 2"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "look",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Hộp có sẵn mấy? Mỗi vòng thêm mấy?",
+      "point": "stage"
+    },
+    {
+      "id": "count",
+      "when": {
+        "trigger": "idle"
+      },
+      "say": "Sau vòng 1 hộp có 2. Sau vòng 2 thì sao?",
+      "point": "stage"
+    }
+  ],
+  "thinkingHint": "Vòng lặp chạy mấy lần? Lúc đầu hộp có mấy?"
+}

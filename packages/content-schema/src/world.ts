@@ -54,6 +54,8 @@ export const STORY_PROPS = [
   'key',
   'robot',
   'lab',
+  'market',
+  'box',
 ] as const;
 export const StoryPropSchema = z.enum(STORY_PROPS);
 export type StoryProp = z.infer<typeof StoryPropSchema>;
