@@ -26,7 +26,7 @@ Kèm mỗi thế giới có **1 hoạt động ngoài màn hình** (unplugged) 5
 | 4 | `w04-nga-ba` | 🔀 Ngã Ba Quyết Định | Điều kiện nếu / nếu-không, cảm biến | nếu, nếu … nếu không, phía trước có…, có đường… | runner, maze | 20 | GĐ 2 |
 | 5 | `w05-song-cho-doi` | 🌊 Sông Chờ Đợi | Lặp có điều kiện | lặp đến khi, đã tới đích?, đã tới nơi? (đề xuất) | runner, maze | 20 | GĐ 2 |
 | 6 | `w06-thanh-pho-robot` | 🤖 Thành Phố Robot | Robot trên lưới line, tay gắp, nhiệm vụ AIROC, ngân sách thời gian | tiến … ô, rẽ trái/phải (như mê cung), gắp, thả, phía trước có line?, khối ở chỗ Bíp màu …?, đã về phòng thí nghiệm? (§6.1) | robotlab | 20 | GĐ 3 |
-| 7 | `w07-cho-dem-so` | 🏪 Chợ Đếm Số | Biến, đếm, so sánh | đặt, tăng thêm, so sánh, lặp [biến] lần (§6.2) | maze, robotlab (đề xuất §6.2; farm dời sau) | 20 | GĐ 3 (sau W6) |
+| 7 | `w07-cho-dem-so` | 🏪 Chợ Đếm Số | Biến ("hộp"), đếm, so sánh | đặt, tăng thêm, so sánh, lặp [hộp] lần, phía trước có măng? (§6.2) | maze, robotlab (§6.2; farm dời sau) | 20 | GĐ 3 (sau W6) |
 | 8 | `w08-xuong-phep-thuat` | 🪄 Xưởng Phép Thuật | Hàm, tham số | định nghĩa / gọi hàm | turtle, music, robotlab | 20 | GĐ 4 |
 | 9 | `w09-thap-hoa-si` | 🎨 Tháp Họa Sĩ | Lặp lồng nhau, góc, hình học | lặp lồng, góc, bút | turtle | 20 | GĐ 4 |
 | 10 | `w10-hoc-vien` | 🧠 Học Viện Thuật Toán | Tìm đường, sắp xếp, tìm kiếm, tối ưu | danh sách, đổi chỗ | sorter, maze | 20 | GĐ 5 |
@@ -709,9 +709,9 @@ Ghi chú khi soạn (P3-04, 08/10/2026; **🟨 nháp, chờ HLV chơi thử**, c
 
 **Màn sáng tạo** `w06-creative` dùng cùng sa bàn (khối của đề 17), `score` 300.
 
-### 6.2 Thế giới 7 — 🏪 Chợ Đếm Số (đề xuất chi tiết, soạn sau W6)
+### 6.2 Thế giới 7 — 🏪 Chợ Đếm Số (chi tiết, bản nháp P3-10/P3-11, 09/10/2026)
 
-> Đề xuất 07/10/2026. Xây sau khi W6 xong và HLV chơi thử (spike + ADR P3-09a → engine P3-09 → P3-10 → P3-11). Bảng màn mức "ý + nhiệm vụ + sa bàn phác"; số `par` là phỏng đoán, chốt khi chi tiết hóa lần hai (P3-10).
+> Đề xuất 07/10/2026; chi tiết hóa lần hai và soạn nội dung 09/10/2026 (P3-10, P3-11; HLV giao quyết định sản phẩm cho AI). Bảng và "Chi tiết từng màn" dưới đây là bản đã soạn trong `content/worlds/w07-cho-dem-so/`, **🟨 nháp, chờ HLV chơi thử** (P3-12).
 
 **Chọn cách làm biến (khuyến nghị: phương án A).**
 
@@ -729,7 +729,7 @@ Ghi chú khi soạn (P3-04, 08/10/2026; **🟨 nháp, chờ HLV chơi thử**, c
 |---|---|---|
 | `cq_var_set` | đặt [số măng ▾] thành [0] | Lệnh này cho số vào hộp. Số cũ mất |
 | `cq_var_add` | tăng [số măng ▾] thêm [1] | Cộng thêm vào số đang có trong hộp |
-| `cq_var_compare` | [số măng ▾] [= ▾ / < / >] [3]? | ✔ khi số trong hộp đúng như vậy, ✘ khi không |
+| `cq_var_compare` | [số măng ▾] [= ▾ / < / >] [3]? | So số trong hộp với số bên phải. Đúng thì ✔, sai thì ✘ |
 | `cq_repeat_var` | lặp [số măng ▾] lần | Làm các lệnh bên trong, số lần bằng số trong hộp lúc bắt đầu lặp |
 | `maze_bamboo_ahead` | phía trước có măng? | ✔ khi ô ngay trước Măng có măng chưa nhặt |
 
@@ -743,37 +743,116 @@ Ghi chú khi soạn (P3-04, 08/10/2026; **🟨 nháp, chờ HLV chơi thử**, c
 - Luật soạn **R4** (ADR-0022): màn tự ghép mà hộp **lái** chương trình (`lặp [hộp] lần` hoặc so sánh) có ≥ 2 bản đồ và bỏ khối biến khỏi thanh khối thì không gì thắng tới `par`; màn **chỉ đếm** có ≥ 2 bản đồ với `countGoal` khác số. Màn "đếm rồi chọn đường" trên maze cần tường ngay ô thứ hai của nhánh sai (không có `có đường …` trong thanh khối), nếu không thì chuyển sang robotlab.
 - Đã quyết ở **ADR-0022** (09/10/2026): biến của engine, `countGoal`, event `var`, cách vét cạn, các câu hỏi sản phẩm.
 
-**Câu chuyện:** chợ phiên của Thành Phố Robot. Các cô bác bán hàng nhờ Măng và Bíp **đếm**: bác Heo đếm măng, Mèo đếm cá, bác Cú đếm khối giao về phòng thí nghiệm. Biến là **chiếc hộp có tên**, giữ một số và đổi được. Boss: "Chia măng đều cho 3 nhà" bằng đếm và so sánh.
-**Bé làm được:** đặt và tăng biến; đếm trong vòng lặp + `nếu`; so sánh biến để chọn đường / dừng vòng lặp; dùng biến làm số lần lặp.
-**Ngộ nhận nhắm tới:** "Biến là hằng số" (giá trị không đổi); "Tên biến là giá trị"; "`đặt` trong vòng lặp vẫn đếm được"; "Đếm số ô thay vì số vật".
-**Unplugged — "Hộp đếm":** mỗi bé một hộp giấy có nhãn tên ("số táo"). Đi dọc hàng ghế, gặp táo thì bỏ một hạt đậu vào hộp. Cuối hàng đọc số trong hộp. Vòng 2: một bạn "đặt = 0" sai chỗ (đổ hộp ở mỗi ghế).
+**Câu chuyện** (nối chương cuối W6 "Chợ phiên sắp mở. Bíp rủ Măng đi chợ!"): chợ phiên mở ở Thành Phố Robot. Bác Heo nhờ Măng đếm măng trên các sạp, bác Cú nhờ Bíp đếm khối thu về phòng thí nghiệm, Mèo nhờ đếm khối vàng. Bác Cú tặng Măng **chiếc hộp có tên**: hộp giữ một số và đổi được. Boss: "Giao măng cho 3 nhà" (đếm măng trên sạp, rồi hộp chỉ số bước tới nhà). Kết thế giới: bác Cú gọi Măng sang Xưởng Phép Thuật (W8).
+**Bé làm được:** đặt và tăng hộp (tăng cộng thêm vào số đang có); đếm bằng `nếu … {tăng}` trong vòng lặp (hỏi **trước** khi tiến); so sánh hộp để chọn đường và để dừng vòng lặp; dùng hộp làm số lần lặp, kể cả hộp vừa đếm được; hai hộp khác tên.
+**Ngộ nhận nhắm tới:** "Biến là hằng số" (`l02`, `l06`: hộp đổi theo từng vòng, tăng cộng vào số cũ); "Tên biến là giá trị" (bài mở đầu, `l07`, `l15`); "`đặt` trong vòng lặp vẫn đếm được" (`l05`, `l19`); "Đếm số ô thay vì số vật" (`l03`, `l09`, `l10`); "Hộp tự đếm" (`l07`); "`lặp [hộp] lần` đọc lại hộp mỗi vòng" (`l12`).
+**Unplugged — "Hộp đếm":** mỗi bé một hộp giấy có nhãn tên ("số táo"). Đi dọc hàng ghế, gặp táo thì bỏ một hạt đậu vào hộp. Cuối hàng đọc số trong hộp. Vòng 2: một bạn "đặt = 0" sai chỗ (đổ hộp ở mỗi ghế). Vòng 3: hộp có 3 hạt, bạn kia bước đúng 3 bước.
 
-| # | ID | Chặng | Kind | Mode | Ý chính | Nhiệm vụ (dự kiến) | Sa bàn / bản đồ (phác) | par (đoán) |
-|---|---|---|---|---|---|---|---|---:|
-| — | `w07-lesson` | (bài giảng) | — | — | Biến = hộp có tên; demo `đặt = 0`, tăng 3 lần → 3 | — | — | — |
-| 1 | `w07-l01` | guided | maze | parsons | Khối **đặt** và **tăng thêm**: nhặt măng nào tăng 1 | Bác Heo nhờ đếm măng trên lối chợ. | hành lang thẳng, 3 măng | 7 |
-| 2 | `w07-l02` | guided | maze | predict | Biến đổi theo vòng: `lặp 3 {tiến, tăng 1}` → 3, không phải 1 | Hộp số măng là mấy? Đoán xem! | hành lang 4 ô | — |
-| 3 | `w07-l03` | guided | maze | build | Khối hỏi **phía trước có măng?** + `nếu` + tăng; 2 bản đồ khác số măng (`countGoal` 2 / 4) | Mỗi sạp một số măng. Đếm đúng nhé! | hành lang 6 ô, măng rải khác nhau | 6 |
-| 4 | `w07-l04` | guided | maze | build | Khối **lặp [biến] lần**: đếm xong dùng lại số đó | Đếm bậc thang rồi đi xuống đúng ngần ấy. | bậc thang lên rồi xuống, 2 bản đồ khác số bậc | 9 |
-| 5 | `w07-l05` | practice | maze | bughunt | `đặt = 0` nằm **trong** vòng lặp: hộp bị đổ mỗi vòng | Hộp cứ về 0. Sửa giúp bác Heo! | như `l03` | 6 |
-| 6 | `w07-l06` | practice | robotlab | build | Đếm khối đã thu hồi: tăng sau mỗi lần thả trong phòng (`countGoal`) | Bác Cú cần biết đã thu mấy khối. | sa bàn `l06` W6 mở rộng, 2 khối | 10 |
-| 7 | `w07-l07` | practice | maze | predict | Hai biến khác tên: tăng biến nào thì biến đó đổi | Hộp cá hay hộp măng tăng? | hành lang có măng và cá | — |
-| 8 | `w07-l08` | practice | maze | build | Khối **so sánh**: đếm rồi `nếu số măng > 2` rẽ trái, nếu không rẽ phải (2 bản đồ) | Nhiều măng thì vào sạp lớn. | hành lang + ngã ba cuối | 9 |
-| 9 | `w07-l09` | practice | robotlab | parsons | `lặp đến khi số khối = 2`: dừng khi đủ, không đếm ô | Giao đủ 2 khối thì về nghỉ. | hàng khối trên một line | 9 |
-| 10 | `w07-l10` | practice | maze | bughunt | Đếm ô thay vì đếm măng: `tăng` nằm ngoài `nếu` | Đếm nhầm cả ô trống. Sửa nhé! | như `l03` | 6 |
-| 11 | `w07-l11` | practice | robotlab | build | **Biến của đề**: `số khối` cho sẵn khác nhau mỗi bản đồ; `lặp [số khối] lần {…}` | Đơn hàng mỗi lần một khác. Giao đủ nhé! | 2 bản đồ, đơn 2 / 3 | 8 |
-| 12 | `w07-l12` | practice | maze | predict | `nếu số măng = 3` hỏi **lúc chạy tới**, không phải lúc đầu | Măng rẽ ở ngã ba nào? | ngã ba sau 3 măng | — |
-| 13 | `w07-l13` | practice | robotlab | build | Thu hồi mọi khối, đếm riêng khối đỏ bằng `nếu khối ở chỗ Bíp màu đỏ? {tăng}` (`countGoal`) | Đếm khối đỏ ở bãi giao hàng. | 2 bản đồ khác số khối đỏ | 10 |
-| 14 | `w07-l14` | practice | maze | parsons | Hai biến cùng lúc: đếm măng và đếm cá trong một vòng | Bác Heo và Mèo cùng nhờ đếm. | hành lang có cả hai | 10 |
-| 15 | `w07-l15` | practice | robotlab | bughunt | Tăng **trước** khi chắc thả được: thả sai chỗ (`WRONG_PLACE`) mà hộp vẫn tăng | Số trong hộp nhiều hơn khối giao. | như `l06` | 10 |
-| 16 | `w07-l16` | practice | maze | build | Đếm để chọn: so sánh với số cho sẵn, có mục tiêu ⭐ | Chọn sạp nào? Đếm rồi quyết định. | 2 bản đồ | 10 |
-| 17 | `w07-l17` | challenge | robotlab | build | Robot AIROC + biến: giao đúng số trong giờ, `lặp đến khi số khối = …` | Giao đúng đơn trong 40 giây! | 2 bản đồ | 12 |
-| 18 | `w07-l18` | challenge | maze | predict | Biến trong `lặp đến khi` lồng `nếu`: đoán số cuối | Cuối chợ, hộp có mấy? | mê cung nhỏ | — |
-| 19 | `w07-l19` | challenge | maze | bughunt | 2 lỗi: `đặt` sai chỗ + so sánh `<` thay vì `>` | Hai lỗi trong máy đếm. | 2 bản đồ | 10 |
-| 20 | `w07-boss` | boss | maze | build | **"Chia măng đều cho 3 nhà"**: đếm măng, so sánh, giao đủ mỗi nhà (3 bản đồ) | Chia măng đều cho 3 nhà! | 3 bản đồ | 12 |
-| ✦ | `w07-creative` | creative | robotlab | creative | Sa bàn tập + biến: đếm điểm của chính mình | Tự đếm điểm cho Bíp! | 7×7 | — |
+**Gọi tên với bé** (ADR-0022 quyết định 1): bài mở đầu nói một lần "Biến là chiếc hộp có tên"; mọi chỗ khác chỉ nói "hộp" và tên hộp. **Chữ "khối" / "lệnh"** (HLV 08/10/2026): chữ cho bé ở W7 gọi khối Blockly là **"khối"** như giao diện chung (không ghi đè `EMPTY_PROGRAM`… như W6); chữ "lệnh" chỉ nằm trong tooltip ("Lệnh này cho số vào hộp. Số cũ mất"). Màn robot vẫn gọi rào / trung hòa / ô nhiễm là "khối" kèm loại hoặc màu ("khối đỏ", "khối vàng").
 
-Chặng: 4 guided · 12 practice · 3 challenge · 1 boss. Mode: build 8 · parsons 3 · predict 5 · bughunt 4. Khối mới lần đầu: `đặt`, `tăng` (`l01`, parsons), `phía trước có măng?` (`l03`), `lặp [biến] lần` (`l04`), `so sánh` (`l08`), `đang gắp khối?` (robot, `l09` parsons: `lặp đến khi …` có hỏi tay gắp trước khi gắp tiếp; chưa dùng ở W6). Robot quay lại ở `l06`, `l09`, `l11`, `l13`, `l15`, `l17` (như `master-plan.md` §1.2: "robot quay lại trong boss W7–8"; boss W7 để maze vì chia đều cần mê cung nhiều nhà). Boss W8 dùng robotlab + hàm.
+**Bài giảng `w07-lesson` (5 thẻ):** 1. "Chợ phiên mở rồi! Bác Heo nhờ Măng đếm măng." · 2. "Biến là chiếc hộp có tên. Hộp giữ một số." · 3. `demo` `tiến, tăng, tiến, tăng` trên `#Sbb.G#` → hộp 2 · 4. "Tên để gọi hộp. Số bên trong mới là thứ hộp giữ." · 5. `quiz` "Hộp tên «số măng» đang có 2. Hộp giữ gì?": **Số 2** / Chữ «số măng».
+
+**Bài "Khối mới"** (`beforeLevel`; câu luật cho bé = tooltip, có demo chạy được, `content-authoring.md` §5.1):
+- `w07-lesson-dat-tang` trước `l01`: "Khối mới! Đặt: lệnh này cho số vào hộp. Số cũ mất." · demo hộp 5, `đặt thành 0` → 0, Măng đứng yên · "Khối mới! Tăng: lệnh này cộng thêm vào số trong hộp." · demo hộp 2, `tiến, tăng` → 3 · quiz "Hộp có 4. Đặt thành 1. Hộp có mấy?": **1** / 5.
+- `w07-lesson-mang-truoc` trước `l03`: "Khối mới! ✔ khi ô ngay trước Măng có măng chưa nhặt." · demo măng trước mặt: `nếu phía trước có măng? {tăng}` → 1, Măng đứng yên · demo ô trống → 0 · quiz "Câu hỏi có làm Măng đi không?": **Không** / Có.
+- `w07-lesson-lap-hop` trước `l04`: "Khối mới! Lặp «số bước» lần. Hộp có mấy, lặp mấy lần." · demo cùng chương trình `lặp [số bước] lần {tiến}` với hộp 3 (3 ô) và hộp 1 (1 ô) · "Khối lặp xem hộp một lần, lúc bắt đầu lặp." · quiz "Hộp có 2. Lặp «số bước» lần, tiến. Măng đi mấy ô?": **2 ô** / 1 ô.
+- `w07-lesson-so-sanh` trước `l08`: "Khối mới! So số trong hộp với số bên phải. Đúng thì ✔." (tooltip mới) · demo `nếu số măng > 2 {rẽ trái}` với hộp 4 (rẽ) và hộp 1 (không rẽ) · "Dấu = là bằng, < là nhỏ hơn, > là lớn hơn." · quiz "Hộp có 2. Câu «số măng > 2» là gì?": **✘ sai** / ✔ đúng.
+- Gợi ý `enter` của màn đầu tiên dùng khối là "Khối mới! " + tooltip (hoặc phần đầu tooltip khi câu dài quá 12 chữ: `phía trước có măng?`, `so sánh`; riêng `lặp [hộp] lần` bỏ "Khối mới!" vì phần đầu tooltip đã 11 chữ); test `w07.test.ts` so từng chữ với tooltip.
+
+Quy ước bảng W7: bản đồ maze / sa bàn robot viết như §5 / §6.1; `b` = măng. Chương trình: `tăng` = `tăng [hộp] thêm 1`, `đặt 0` = `đặt [hộp] thành 0`, `lặp [số bước]` = `lặp [hộp] lần`, `số măng > 2?` = khối so sánh. Mọi mục thanh khối của khối biến **ghim** `VAR` / `NUM` / `OP` (luật 23 (a)). `(N bản đồ)` = `variants`; "hộp đầu" = `variables[].start` theo bản đồ; "đếm đúng" = `countGoal.equals`.
+
+| # | ID | Chặng | Kind | Mode | Ý chính | Nhiệm vụ | Khối | maxBlocks | par | parEdits |
+|---|---|---|---|---|---|---|---|---:|---:|---:|
+| — | `w07-lesson` | (bài giảng) | — | — | Biến = chiếc hộp có tên; tên ≠ số | — | — | — | — | — |
+| 1 | `w07-l01` | guided | maze | parsons | Khối **đặt**, **tăng**: hộp còn số cũ, đặt 0 trước vòng lặp | Bác Heo nhờ Măng đếm măng trên lối chợ. | (ghép) | — | 5 | — |
+| 2 | `w07-l02` | guided | maze | predict | Tăng trong vòng lặp chạy mỗi vòng, cộng vào số cũ (1 + 3 = 4) | Hộp số măng là mấy? Đoán xem! | (chỉ xem) | — | — | — |
+| 3 | `w07-l03` | guided | maze | build | Khối **phía trước có măng?**: hỏi rồi mới tăng (2 bản đồ, đếm 2 / 4) | Mỗi sạp một số măng. Đếm đúng nhé! | tiến, lặp, nếu, phía trước có măng?, tăng | 6 | 5 | — |
+| 4 | `w07-l04` | guided | maze | build | Khối **lặp [hộp] lần**: hộp cho sẵn 3 / 5 (2 bản đồ) | Bác Heo ghi số bước vào hộp. Đi đúng nhé! | tiến, rẽ ×2, lặp, lặp [số bước] lần | 5 | 4 | — |
+| 5 | `w07-l05` | practice | maze | bughunt | `đặt 0` **trong** vòng lặp: hộp bị đổ mỗi vòng (3 bản đồ, hộp đầu 5 / 4 / 3) | Hộp cứ về 0. Sửa giúp bác Heo! | tiến, lặp, nếu, phía trước có măng?, đặt 0, tăng | — | 6 | 2 |
+| 6 | `w07-l06` | practice | robotlab | build | Đếm khối thu hồi: tăng sau mỗi chuyến; hộp đầu 0 / 3 → đếm đúng 2 / 5 | Bác Cú cần biết đã thu mấy khối đỏ. | lệnh robot, lặp, tăng | 10 | 9 | — |
+| 7 | `w07-l07` | practice | maze | predict | Hai hộp: chỉ hộp ghi trên khối tăng mới đổi; hộp không tự đếm | Hộp số măng hay hộp số bước tăng? Đoán xem! | (chỉ xem) | — | — | — |
+| 8 | `w07-l08` | practice | maze | build | Khối **so sánh**: hộp cho sẵn 4 / 1, `> 2` rẽ trái, không thì rẽ phải (2 bản đồ) | Nhiều măng thì giao nhà bên trái. | tiến, rẽ ×2, lặp, nếu, nếu…nếu không, số măng > 2? | 8 | 7 | — |
+| 9 | `w07-l09` | practice | maze | parsons | `lặp đến khi số măng = 3`: đếm măng chứ không đếm ô, đủ thì rẽ | Đủ 3 măng thì rẽ về nhà. | (ghép) | — | 8 | — |
+| 10 | `w07-l10` | practice | maze | bughunt | `tăng` nằm **ngoài** `nếu`: hộp đếm ô (2 bản đồ) | Đếm nhầm cả ô trống. Sửa nhé! | như `l03` | — | 5 | 1 |
+| 11 | `w07-l11` | practice | robotlab | build | **Hộp của đề**: đơn hàng 3 / 2, `lặp [đơn hàng] lần {chuyến}` (2 bản đồ) | Đơn hàng mỗi lần một khác. Giao đủ nhé! | lệnh robot, lặp, lặp [đơn hàng] lần | 9 | 8 | — |
+| 12 | `w07-l12` | practice | maze | predict | `lặp [hộp] lần` **đọc hộp một lần**: tăng hộp trong thân không thêm vòng | Hộp tăng trong vòng lặp. Lặp mấy vòng? | (chỉ xem) | — | — | — |
+| 13 | `w07-l13` | practice | robotlab | build | Đếm riêng **khối đỏ** bằng `nếu khối ở chỗ Bíp màu đỏ? {tăng}` (2 bản đồ, đỏ 2 / 1) | Đếm khối đỏ ở bãi giao hàng. | tiến, lặp, nếu, khối ở chỗ Bíp màu?, tăng | 6 | 5 | — |
+| 14 | `w07-l14` | practice | maze | parsons | Hai hộp trong một vòng: có măng tăng số măng, không thì tăng số ô trống | Bác Heo và Mèo cùng nhờ đếm. | (ghép) | — | 8 | — |
+| 15 | `w07-l15` | practice | robotlab | bughunt | Tăng **nhầm hộp**: gặp khối vàng mà tăng hộp đỏ (2 bản đồ) | Mèo đếm khối vàng mà hộp vẫn 0. | tiến, lặp, nếu, khối ở chỗ Bíp màu?, tăng đỏ, tăng vàng | — | 5 | 1 |
+| 16 | `w07-l16` | practice | maze | build | **Đếm rồi chọn**: đếm măng, rồi `> 2` rẽ trái, không thì rẽ phải (3 bản đồ) | Giao nhà nào? Đếm rồi quyết định. | tiến, rẽ ×2, lặp, nếu, nếu…nếu không, phía trước có măng?, tăng, số măng > 2? | 12 | 10 ⚠ | — |
+| 17 | `w07-l17` | practice | robotlab | build | Đếm bước lúc đi (`lặp đến khi khối đỏ`), `lặp [số bước] lần` lúc về (2 bản đồ) | Bíp đếm bước lúc đi để biết đường về. | lệnh robot, lặp, lặp đến khi, màu?, tăng, lặp [số bước] lần | 11 | 10 | — |
+| 18 | `w07-l18` | challenge | maze | predict | Đếm trong `lặp đến khi` lồng `nếu`: măng ngoài đường đi không được đếm | Cuối chợ, hộp có mấy? Đoán xem! | (chỉ xem) | — | — | — |
+| 19 | `w07-l19` | challenge | maze | bughunt | 2 lỗi: `đặt 0` trong vòng lặp + so sánh `<` thay vì `>` (3 bản đồ) | Hai lỗi trong máy đếm. Sửa nhé! | như `l16` + đặt 0 | — | 11 ⚠ | 3 ⚠ |
+| 20 | `w07-boss` | boss | maze | build | **"Giao măng cho 3 nhà"**: đếm măng trên sạp, rồi `lặp [số măng] lần {tiến}` xuống tới nhà (3 bản đồ) | Giao măng cho 3 nhà! Đếm rồi đi đúng. | tiến, rẽ ×2, lặp, nếu, phía trước có măng?, tăng, lặp [số măng] lần | 11 | 10 | — |
+| ✦ | `w07-creative` | creative | robotlab | creative | Sa bàn Thành Phố Măng + hộp "số việc" (đặt, tăng, so sánh, lặp theo hộp) | Tự đếm việc cho Bíp trên sa bàn tập! | mọi lệnh robot (trừ `đang gắp khối?`) + điều khiển + khối hộp | — | — | — |
+
+Chặng: 4 guided · 13 practice · 2 challenge · 1 boss (`l17` là practice vì ý "đếm rồi dùng lại hộp" của boss phải có ở màn bắt buộc). Mode: build 9 (kể cả boss) · parsons 3 · predict 4 · bughunt 4; build liền nhau nhiều nhất 2. Kiểu game: maze 14, robotlab 6 (`l06`, `l11`, `l13`, `l15`, `l17`, sáng tạo). Khối mới lần đầu (luật 7): `đặt`, `tăng` ở `l01` (`block:`), `phía trước có măng?` ở `l03`, `lặp [hộp] lần` ở `l04`, `so sánh` ở `l08` (`toolbox:`). Mọi màn có vòng lặp `maxLoopDepth: 1`; `l05`, `l19` thêm `maxInstances: { cq_repeat: 1 }` (chặn cách "sửa" bằng cách chẻ vòng lặp thành hai).
+
+Chi tiết từng màn (bản đồ → chương trình → kết quả, đã chạy trên engine thật):
+1. `l01` `######/#SbbG#/######` (nhìn `E`), hộp đầu 3, đếm đúng 2. Khối xáo trộn của `đặt 0, lặp 2 {tiến, tăng}, tiến` (5). ⚠ 5 cách ghép thắng / 120 (`tiến` / `tăng` đổi chỗ trong vòng lặp), đều đặt 0 trước khi đếm; quên `đặt` → 5, `đặt` trong vòng lặp → 0 hoặc 1. Chấp nhận như W6 `l10` (ý của màn là đặt / tăng, không phải thứ tự trong vòng).
+2. `l02` `########/#Sbbb.G#/########`, hộp đầu 1, `lặp 3 {tiến, tăng}` → `stop@1,4#bamboo=4`. Thẻ: **Ở măng thứ ba, hộp có 4** ✔ · hộp có 3 (bỏ số cũ) · hộp có 2 (tăng một lần).
+3. `l03` bản đồ 1 `#S.bb..G#`, bản đồ 2 `#Sbb.bbG#` (giữa hai hàng tường, nhìn `E`), đếm đúng 2 / 4. Lời giải `lặp 6 {nếu phía trước có măng? {tăng}, tiến}` (5). Hỏi **sau** khi tiến (`lặp 6 {tiến, nếu …}`) bỏ sót măng đầu ở bản đồ 2 (3 ≠ 4). `lặp 6 {tiến, tăng}` đếm ô (6).
+4. `l04` bản đồ 1 `########/#S.....#/####G###/########`, bản đồ 2 G ở `2,6`, hộp `số bước` 3 / 5. Lời giải `lặp [số bước] lần {tiến}, rẽ phải, tiến` (4, đúng 1 cách). Số cố định đâm tường ở một bản đồ.
+5. `l05` bản đồ `#Sb.bb.G#`, `#S.b..bG#`, `#Sbbb.bG#`, hộp đầu 5 / 4 / 3, đếm đúng 3 / 2 / 4. Ban đầu `lặp 6 {đặt 0, nếu … {tăng}, tiến}` → hộp 0 lúc tới sạp (`WRONG_COUNT`). Sửa: kéo `đặt 0` ra trước vòng lặp (2 thao tác theo cách đếm của engine: bỏ một chỗ, thêm một chỗ). Xóa `đặt` thì giữ số cũ → sai (mọi bản đồ hộp đầu > 0). Bản đồ thứ 3 chặn một chương trình 6 khối "đếm trùng" thắng 2 bản đồ.
+6. `l06` sa bàn chữ thập `#.#/.L./#.#` (Bíp ở `L` nhìn `N`), ô nhiễm đỏ ở `0,1` và `1,0`, hai bản đồ cùng sa bàn, hộp đầu 0 / 3, đếm đúng 2 / 5. Lời giải `lặp 2 {tiến 1, gắp, rẽ phải ×2, tiến 1, thả, tăng, rẽ phải}` (9).
+7. `l07` `########/#Sb.b.G#/########`, hai hộp `số măng`, `số bước`, `lặp 4 {tiến, tăng số bước}` → `stop@1,5#bamboo=0#steps=4`. Thẻ: **Số măng 0, số bước 4** ✔ · số măng 2 (tên hộp là thứ nó đếm: hộp tự đếm) · số măng 4, số bước 0 (nhầm hộp) · số măng 2, số bước 0 (cả hai).
+8. `l08` bản đồ 1 `#####/#G.##/##.##/##S##/#####`, bản đồ 2 G ở `1,3` (nhìn `N`), hộp đầu 4 / 1. Lời giải `tiến, tiến, nếu số măng > 2? {rẽ trái} nếu không {rẽ phải}, tiến` (7). Nhánh sai là tường ngay cạnh ngã ba (ADR-0022 quyết định 6), không có `có đường …`.
+9. `l09` `###########/#S.b.bb.b.#/######G####/###########`. Khối xáo trộn của `lặp đến khi số măng = 3? {nếu phía trước có măng? {tăng}, tiến}, rẽ phải, tiến` (8). **1** cách ghép thắng / 2400; đổi chỗ `tiến` lên trước → dừng sớm một ô, `HIT_WALL@1,5`.
+10. `l10` `#S.b..bG#` / `#Sbbb.bG#`, đếm đúng 2 / 4. Ban đầu `lặp 6 {nếu phía trước có măng? {}, tăng, tiến}` → 6 / 6. Sửa 1: kéo `tăng` vào trong `nếu` (đúng 1 cách sửa).
+11. `l11` sa bàn chữ thập, đơn hàng 3 (ô nhiễm ở `0,1`, `1,0`, `2,1`) / 2 (`0,1`, `1,0`). Lời giải `lặp [đơn hàng] lần {tiến 1, gắp, rẽ phải ×2, tiến 1, thả, rẽ phải}` (8). Lặp 3 ở đơn 2 → `NOTHING_TO_GRAB`; lặp 2 ở đơn 3 → `MISSIONS_LEFT`.
+12. `l12` `########/#S.....#/#####G##/########`, hộp `số bước` đầu 2, `lặp [số bước] lần {tiến, tăng số bước}` → 2 vòng, `stop@1,3#steps=4`. Thẻ: **Đi 2 ô, hộp có 4** ✔ · Đi 2 ô, hộp vẫn 2 · Đi mãi, đụng tường (`crash:HIT_WALL@1,6#steps=7`, ngộ nhận đọc lại hộp mỗi vòng). Luật 23 (i) cảnh báo đúng chỗ (bẫy có chủ đích, màn `practice`).
+13. `l13` sa bàn `#####/L..../#####`, Bíp ở `1,4` nhìn `W`, 3 khối ô nhiễm ở `1,1`–`1,3` (đỏ, vàng, đỏ / vàng, đỏ, vàng), `score` 40 (về phòng, không phải dọn), đếm đúng 2 / 1. Lời giải `lặp 4 {tiến 1, nếu khối ở chỗ Bíp màu đỏ? {tăng}}` (5). `tiến 4` → `HIT_BLOCK`; đếm mọi khối → 4.
+14. `l14` `########/#Sb.b..#/######G#/########`, đếm đúng `số ô trống` 3. Khối xáo trộn của `lặp 5 {nếu phía trước có măng? {tăng số măng} nếu không {tăng số ô trống}, tiến}, rẽ phải, tiến` (8). **1** cách ghép thắng / 12 600.
+15. `l15` sa bàn của `l13`, khối vàng, đỏ, vàng / đỏ, vàng, đỏ; đếm đúng `số khối vàng` 2 / 1. Ban đầu `lặp 4 {tiến 1, nếu … màu vàng? {tăng số khối đỏ}}` → hộp vàng 0. Sửa 1: đổi tên hộp trên khối tăng (3 cách sửa 1 thao tác, đều tăng hộp vàng trong nhánh vàng).
+16. `l16` bản đồ `#######/#####G#/#Sbbb.#/#######`, `…/#S.bb./#####G#`, `…#####G#/#S.bbb#…` (nhìn `E`), đếm 3 / 2 / 3. Lời giải `lặp 4 {nếu phía trước có măng? {tăng}, tiến}, nếu số măng > 2? {rẽ trái} nếu không {rẽ phải}, tiến` (10). Ba bản đồ chọn sao cho không ô nào một mình tách được "lên" với "xuống" (bản 2 bản đồ đầu tiên có lối tắt 10 khối không hộp, nhìn măng ở từng ô).
+17. `l17` sa bàn `#######/L....../#######`, Bíp ở `L` nhìn `E`, một khối ô nhiễm đỏ ở `1,3` / `1,5`, `mustReturn`. Lời giải `lặp đến khi khối ở chỗ Bíp màu đỏ? {tiến 1, tăng}, gắp, rẽ phải ×2, lặp [số bước] lần {tiến 1}, thả` (10). Không có `đã về phòng thí nghiệm?` / `phía trước có line?` trong thanh khối, nên đường về phải dùng hộp.
+18. `l18` `#######/#S.b..#/##b##b#/#G..b.#/#######`, `lặp đến khi đã tới đích? {nếu có đường phía trước {nếu phía trước có măng? {tăng}, tiến} nếu không {rẽ phải}}` → `win#bamboo=3`. Thẻ: **hộp có 3** ✔ · 4 (đếm cả măng ở lối giữa `2,2`, Măng không đi qua) · 2 (quên măng ngay sau chỗ rẽ).
+19. `l19` bản đồ `#Sbb.b#` (lên, 3), `#Sb..b#` (xuống, 2), `#S.b..#` (xuống, 1), hộp đầu 5 / 4 / 6; không ô nào một mình tách được "lên" với "xuống" (bản trước có lối tắt 12 khối không hộp, nhìn ô đầu). Ban đầu `lặp 4 {đặt 0, nếu … {tăng}, tiến}, nếu số măng < 2? {rẽ trái} nếu không {rẽ phải}, tiến`. Sửa 3 thao tác: kéo `đặt 0` ra trước (2) + đổi `<` thành `>` (1). Sửa một lỗi vẫn đâm tường (test).
+20. `boss` 3 bản đồ 7×9: hàng sạp `#Sb.b..##` / `#Sbbb.b##` / `#S.bb.b##` (2 / 4 / 3 măng), rồi đường xuống cột 6, nhà ở `3,7` / `5,7` / `4,7`. Lời giải `lặp 5 {nếu phía trước có măng? {tăng}, tiến}, rẽ phải, lặp [số măng] lần {tiến}, rẽ trái, tiến` (10).
+- `w07-creative`: sa bàn Thành Phố Măng của `w06-creative`, hộp `số việc` (`max` 20), thanh khối có `đặt 0`, `tăng`, `số việc = 3?`, `lặp [số việc] lần`.
+
+**Truyện chia chương** (`world.json`; `STORY_PROPS` thêm `market` (sạp chợ) và `box` (hộp gỗ có nhãn), hình tạm 12×12 ở `storyArt.ts`):
+1. `cho-phien` "Chợ phiên mở rồi" (mở đầu): "Chợ phiên mở rồi! Măng và Bíp cùng đi chợ." · "Bác Heo nhờ Măng đếm măng trên các sạp." · "Bác Cú tặng Măng một chiếc hộp có tên." (`pig`, `owl`, `market`)
+2. `hop-biet-nho` "Chiếc hộp biết nhớ" (sau `l04`) (`pig`, `box`)
+3. `bip-giao-hang` "Bíp giao hàng" (sau `l05`, trước màn robot đầu tiên `l06`) (`owl`, `cat`, `robot`)
+4. `ba-nha` "Ba nhà đặt măng" (sau `l17`, màn practice cuối; luật 21 không cho mở sau màn challenge `l19`) (`pig`, `home`)
+5. `cho-tan` "Chợ tan" (sau `boss`): "Ba nhà đều có măng. Bác Heo cười tít mắt!" · "Bác Cú gọi: Xưởng Phép Thuật đang chờ Măng!" (`pig`, `owl`, `market`)
+
+`theme.scene`: **chưa có cảnh chợ**; dùng `thanh-pho-robot` (chợ phiên ở Thành Phố Robot; cảnh này có cả mê cung `CITY_MAZE`). Cảnh `cho` riêng là việc của web (P2-23 kiểu).
+
+Ghi chú khi soạn (P3-10 + P3-11, 09/10/2026; **🟨 nháp, chờ HLV chơi thử**):
+- `content:check` xanh, 1 cảnh báo có chủ đích (`l12`, luật 23 (i)). `npm run par` từng màn (`NODE_OPTIONS=--max-old-space-size=2048`, một việc mỗi lúc):
+
+  | Màn | par tính tay | `npm run par` |
+  |---|---:|---|
+  | `l03` | 5 | ✔ 5 (15 cách, đều `lặp N≥6` cùng thân) |
+  | `l04` | 4 | ✔ 4 (1 cách) |
+  | `l05` | 6 / sửa 2 | ✔ 6 (15) / sửa 2 (15 cách, đều "kéo `đặt` ra trước") |
+  | `l06` | 9 | ✔ 9 (144 cách: đổi chỗ rẽ / gắp / tăng) |
+  | `l08` | 7 | ✔ 7 (40) |
+  | `l10` | 5 / sửa 1 | ✔ 5 / sửa 1 (đúng 1 cách sửa) |
+  | `l11` | 8 | ✔ 8 (12) |
+  | `l13` | 5 | ✔ 5 (2) |
+  | `l15` | 5 / sửa 1 | ✔ 5 / sửa 1 (3 cách) |
+  | `l16` | 10 | ⚠ không thắng ≤ 8 rồi chạm trần catalogue; với `lặp` 2–6 không thắng ≤ 9 → `par` 10 tính tay |
+  | `l17` | 10 | ⚠ mặc định dừng ở ≤ 8; `--budget 400000000` ✔ 10 (76 cách, 69 s) |
+  | `l19` | 11 / sửa 3 | ⚠ không thắng ≤ 8, không sửa được ≤ 1 → giữ tay (như W6 `l19`) |
+  | `boss` | 10 | ⚠ không thắng ≤ 9 (`--budget 400000000`, 31 s) → `par` 10 đã chứng minh |
+  | ghép hình | — | `l01` ⚠ 5 / 120, `l09` 1 / 2400, `l14` 1 / 12 600 |
+- **R4** (`w07.test.ts`, `withoutVariables`, giới hạn `maxBlocks ?? par`): không gì thắng ở `l04`, `l08`, `l11`, `l17` (vét cạn đủ); boss tới 11 với số vòng `lặp` 2–6; `l16`, `l19` chỉ vét cạn đủ tới 10 (số vòng 2–6; quá 10 chạm trần catalogue / 2 GB heap), cộng một test cấu trúc: không ô nào của hành lang tách được bản đồ "lên" với "xuống" (chặn lối tắt nhìn một ô). Màn chỉ đếm (`l03`, `l05`, `l06`, `l10`, `l13`, `l15`) có `countGoal.equals` khác nhau (luật 23).
+- **Lối tắt ADR M6 đã đóng:** `l04` dùng dạng "hộp của đề" (không có `lặp đến khi` / `có đường …`, không men tường); `l08` chọn đường bằng hộp cho sẵn, nhánh sai là tường; `l16` (đếm rồi chọn) cần 3 bản đồ.
+- **Lệch so với bản đề xuất:**
+  - `l01` 7 → 5 khối (một vòng lặp); `l02` hộp đầu 1 (thêm ý "tăng cộng vào số cũ").
+  - `l04`: "đếm bậc thang rồi đi xuống" (lối tắt men tường, ADR) chuyển thành hộp cho sẵn; ý "đếm xong dùng lại số đó" dời lên boss và `l17`.
+  - `l08`: so sánh với hộp cho sẵn (một ý mới), "đếm + so sánh" dời sang `l16`.
+  - `l09` robot → **maze** ghép hình; `đang gắp khối?` **không** giới thiệu ở W7: câu hỏi này không giúp đếm vì gắp ở ô trống là thua (`NOTHING_TO_GRAB`), không "thử gắp" được. Để W8 nếu cần.
+  - `l13` đếm khối đỏ **không** thu hồi (màn `score` 40 = về phòng), để chương trình 5 khối; `l14` hai hộp là "măng / ô trống" (maze không có cá).
+  - `l15`: "tăng trước khi chắc thả được" không dạy được (thả sai chỗ là thua, hộp không được chấm) → "tăng nhầm hộp".
+  - `l16` bỏ mục tiêu ⭐ (không có đánh đổi thật), 3 bản đồ; `l17` "đếm đường đi, đường về" thay "giao đúng đơn trong 40 giây".
+  - **Boss**: "chia măng đều cho 3 nhà" cần phép chia / mang hàng, engine không có. Thay bằng "giao măng cho 3 nhà": đếm măng, rồi hộp vừa đếm là số bước tới nhà (đếm + dùng lại hộp). Boss không dùng `so sánh` (đã ôn ở `l16`, `l19`); ngoại lệ có chủ đích của luật §7 như D13 của W6.
+  - Mode: build 9 / predict 4 (đề xuất 8 / 5).
+- Review sư phạm độc lập của AI (critic, 09/10/2026), đã sửa: `l01` không còn dựa vào A1 để tăng ít hơn số vòng; `l17` thành practice; `l18` gọi `2,2` là lối giữa (không phải hốc); `l19` nói luật "hơn 2 măng thì lên"; chữ "lặp «số bước» lần" thay "lặp hộp lần"; `l14` gợi ý không lộ lời giải, Mèo thay Gà con; bỏ gợi ý `OUT_OF_TIME` / `feedback.TIMEOUT` ở màn robot không có `lặp đến khi`; chương 3 mở sau `l05`. Còn để HLV quyết: mission gọi đích là "sạp" mà hình đích là nhà (`l08`, `l09`, `l16`). Tooltip `cq_var_compare` đã đổi thành "So số trong hộp với số bên phải. Đúng thì ✔, sai thì ✘" (09/10).
+- Chưa làm: e2e, **HLV chơi thử từng màn**.
 
 ## 7. Quy tắc soạn chương trình học
 `content:check` tự kiểm các luật có dấu ⚙ (luật 7–8 ở `architecture/content-model.md` §5).

@@ -1,0 +1,184 @@
+{
+  "id": "w07-l11",
+  "worldId": "w07-cho-dem-so",
+  "stage": "practice",
+  "kind": "robotlab",
+  "mode": "build",
+  "title": "Đơn hàng của Bíp",
+  "objective": "Giao đủ số khối ô nhiễm ghi trong hộp đơn hàng.",
+  "learningGoal": "Lặp hộp lần dùng số trong hộp: đơn 3 khối thì 3 chuyến, đơn 2 khối thì 2 chuyến. Một chương trình giao đúng mọi đơn.",
+  "misconception": "Lặp hộp lần luôn chạy cùng số vòng.",
+  "mission": "Đơn hàng mỗi lần một khác. Giao đủ nhé!",
+  "toolbox": [
+    "robot_forward",
+    "robot_turn_left",
+    "robot_turn_right",
+    "robot_grab",
+    "robot_release",
+    "cq_repeat",
+    {
+      "type": "cq_repeat_var",
+      "fields": {
+        "VAR": "order"
+      }
+    }
+  ],
+  "maxBlocks": 9,
+  "maxLoopDepth": 1,
+  "par": 8,
+  "variables": [
+    {
+      "id": "order",
+      "name": "đơn hàng",
+      "start": [3, 2]
+    }
+  ],
+  "config": {
+    "map": ["#.#", ".L.", "#.#"],
+    "startDir": "N",
+    "blocks": [
+      {
+        "kind": "pollution",
+        "color": "RED",
+        "at": [0, 1]
+      },
+      {
+        "kind": "pollution",
+        "color": "RED",
+        "at": [1, 0]
+      },
+      {
+        "kind": "pollution",
+        "color": "RED",
+        "at": [2, 1]
+      }
+    ],
+    "goal": {
+      "type": "missions",
+      "mustReturn": true
+    }
+  },
+  "variants": [
+    {
+      "map": ["#.#", ".L.", "#.#"],
+      "startDir": "N",
+      "blocks": [
+        {
+          "kind": "pollution",
+          "color": "RED",
+          "at": [0, 1]
+        },
+        {
+          "kind": "pollution",
+          "color": "RED",
+          "at": [1, 0]
+        }
+      ],
+      "goal": {
+        "type": "missions",
+        "mustReturn": true
+      }
+    }
+  ],
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat_var",
+              "id": "boxloop1",
+              "fields": {
+                "VAR": "order"
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "robot_forward",
+                    "id": "fwd1",
+                    "fields": {
+                      "N": 1
+                    },
+                    "next": {
+                      "block": {
+                        "type": "robot_grab",
+                        "id": "grab1",
+                        "next": {
+                          "block": {
+                            "type": "robot_turn_right",
+                            "id": "right1",
+                            "next": {
+                              "block": {
+                                "type": "robot_turn_right",
+                                "id": "right2",
+                                "next": {
+                                  "block": {
+                                    "type": "robot_forward",
+                                    "id": "fwd2",
+                                    "fields": {
+                                      "N": 1
+                                    },
+                                    "next": {
+                                      "block": {
+                                        "type": "robot_release",
+                                        "id": "drop1",
+                                        "next": {
+                                          "block": {
+                                            "type": "robot_turn_right",
+                                            "id": "right3"
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "trip",
+      "when": {
+        "trigger": "idle"
+      },
+      "say": "Mỗi chuyến giao một khối. Đơn này mấy chuyến?",
+      "point": "toolbox:cq_repeat_var"
+    },
+    {
+      "id": "empty",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "NOTHING_TO_GRAB"
+      },
+      "say": "Đơn này có mấy khối ô nhiễm? Xem hộp đơn hàng.",
+      "point": "toolbox:cq_repeat_var"
+    },
+    {
+      "id": "left",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "MISSIONS_LEFT"
+      },
+      "say": "Còn khối ô nhiễm chưa giao. Hộp ghi mấy chuyến?"
+    }
+  ],
+  "thinkingHint": "Mỗi bản đồ, hộp đơn hàng có mấy?"
+}

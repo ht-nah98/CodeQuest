@@ -178,6 +178,18 @@ export function structuralDistance(solution: WorkspaceJson, current: WorkspaceJs
   return solProgram && program ? distance(solProgram, program) : 0;
 }
 
+/**
+ * How many blocks, in program order (loop and `nếu` bodies included, shadows ignored), the
+ * child's program has right from the first one under `cq_start`, compared with `solution`.
+ */
+export function correctPrefix(solution: WorkspaceJson, current: WorkspaceJson): number {
+  const solProgram = toProgram(solution);
+  const program = toProgram(current);
+  return solProgram && program
+    ? prefixLength(tokensOf(solProgram.chain), tokensOf(program.chain))
+    : 0;
+}
+
 // ---- Applying a step to a copy of the program (what the child's drag does in Blockly) ----
 
 function cloneChain(chain: Node[]): Node[] {
@@ -576,39 +588,210 @@ function isLooseMove(program: Program, step: NextStep): boolean {
   return step.kind === 'move' && program.loose.some((stack) => contains(stack, step.blockId));
 }
 
+// ---- Prefix first: the child's correct start is kept, the next block after it is shown ----
+
+function lexLess(a: number[], b: number[]): boolean {
+  for (const [i, x] of a.entries()) {
+    const y = b[i] ?? 0;
+    if (x !== y) return x < y;
+  }
+  return false;
+}
+
+/** How many tokens, from the first one, the child's program has right (nested bodies included). */
+function prefixLength(sol: Token[], cur: Token[]): number {
+  let k = 0;
+  for (;;) {
+    const s = sol[k];
+    const c = cur[k];
+    if (s === undefined || c === undefined || !same(s, c)) return k;
+    k++;
+  }
+}
+
+/** On a tie, among the steps that change the child's block at the end of the prefix. */
+const KIND_RANK: Record<NextStep['kind'], number> = {
+  edit: 0,
+  replace: 1,
+  remove: 2,
+  move: 3,
+  add: 4,
+  reset: 5,
+};
+
 /**
- * The next thing the child should do to get closer to `solution`. Compares the blocks under
- * `cq_start` in program order (the tokens of `editDistance`, shadows ignored), aligns them with
- * an edit-distance table, and returns the first edit of that alignment that brings the program
- * closer (`structuralDistance`) once done the way Blockly does it: a drag takes the blocks below
- * along, a delete takes the blocks inside. When no single step can (a loop to unwrap or to
- * wrap around blocks), it returns a step after which one can. Null when the program already matches (or either
- * workspace has no `cq_start`). Pure, works on JSON.
+ * The step at the end of the child's correct prefix (the longest run of tokens, in program
+ * order, equal to the solution's): edit, replace or remove the first wrong block, or add / move
+ * in the next missing one. The chosen step must make the correct prefix longer, or (extra blocks
+ * after a complete solution) keep it and lower `structuralDistance`. Ranking: longest prefix,
+ * then a step that changes the child's block at that place (edit, replace, remove) before one
+ * that puts a block in front of it (add, move), then fewest edits left. So a block the child
+ * just put there is fixed, rather than a new copy of the right block being asked for above it. Null when no such step exists (the
+ * global search of `nextStep` then decides).
+ */
+function prefixStep(
+  solProgram: Program,
+  program: Program,
+  options: NextStepOptions,
+  before: number,
+): NextStep | null {
+  const sol = tokensOf(solProgram.chain);
+  const cur = tokensOf(program.chain);
+  const k = prefixLength(sol, cur);
+  const want = sol[k];
+  const have = cur[k];
+  const aligned = new Map<Node, Node>();
+  for (let i = 0; i < k; i++) {
+    const s = sol[i];
+    const c = cur[i];
+    if (s && c) aligned.set(s.node, c.node);
+  }
+  const allowed = (type: string): boolean =>
+    options.toolbox === undefined || options.toolbox.includes(type);
+  const midStack = (token: Token): boolean => token.index < token.list.length - 1;
+
+  const steps: NextStep[] = [];
+  if (have)
+    steps.push({ kind: 'remove', blockId: have.node.id, midStack: midStack(have), loose: false });
+  if (want) {
+    const block = previewBlock(want.node.json);
+    const sameSlot = have !== undefined && have.depth === want.depth && have.input === want.input;
+    if (have && sameSlot && have.node.type === want.node.type) {
+      steps.push({ kind: 'edit', block, blockId: have.node.id });
+    }
+    const anchor = anchorFor(sol, k, aligned, program.startId);
+    if (anchor) {
+      // Replacing a block deletes what is inside it: only for a block with nothing inside.
+      if (have && sameSlot && have.node.inputs.size === 0 && allowed(want.node.type)) {
+        steps.push({
+          kind: 'replace',
+          block,
+          anchor,
+          blockId: have.node.id,
+          midStack: midStack(have),
+        });
+      }
+      const looseNodes = program.loose.flatMap((stack) => tokensOf(stack).map((t) => t.node));
+      for (const node of [...cur.slice(k).map((t) => t.node), ...looseNodes]) {
+        if (node.key !== want.node.key) continue;
+        const found = locate(program, node.id);
+        const withTail = found !== null && found.index < found.list.length - 1;
+        steps.push({ kind: 'move', blockId: node.id, anchor, withTail });
+      }
+      // A block the program already has as often as the solution (bughunt: in the wrong place)
+      // is reused: adding a copy would only mean deleting the old one later.
+      const surplus =
+        (keyCounts(program).get(want.node.key) ?? 0) >=
+        (keyCounts(solProgram).get(want.node.key) ?? 0);
+      if (allowed(want.node.type) && !surplus) steps.push({ kind: 'add', block, anchor });
+    }
+  }
+
+  // The block at the first wrong place has the right type, only its fields differ (the child
+  // dragged "tiến", 1 by default, where "tiến 2" goes): fix it in place, never ask for a new one
+  // above it, which reads as the hint repeating itself (coach's playtest, 10/2026).
+  const rankOf = (step: NextStep, prefix: number, now: number): number[] => [
+    step.kind === 'edit' ? 0 : 1,
+    -prefix,
+    now,
+    step.kind === 'edit' || step.kind === 'replace' || step.kind === 'remove' ? 0 : 1,
+    KIND_RANK[step.kind],
+  ];
+  let best: { step: NextStep; rank: number[] } | null = null;
+  for (const step of steps) {
+    const after = apply(program, step);
+    if (after === null || shape(after) === shape(program)) continue;
+    if (!keepsNeededBlocks(solProgram, program, after, options)) continue;
+    const prefix = prefixLength(sol, tokensOf(after.chain));
+    const now = distance(solProgram, after);
+    if (prefix < k || (prefix === k && now >= before)) continue;
+    const rank = rankOf(step, prefix, now);
+    if (best === null || lexLess(rank, best.rank)) best = { step, rank };
+  }
+  return best?.step ?? null;
+}
+
+/** The solution the child is closest to: longest correct prefix, then fewest edits left. */
+function closestSolution(solutions: Program[], program: Program): Program | null {
+  const cur = tokensOf(program.chain);
+  let best: { sol: Program; prefix: number; left: number } | null = null;
+  for (const sol of solutions) {
+    const prefix = prefixLength(tokensOf(sol.chain), cur);
+    const left = distance(sol, program);
+    if (best === null || prefix > best.prefix || (prefix === best.prefix && left < best.left)) {
+      best = { sol, prefix, left };
+    }
+  }
+  return best?.sol ?? null;
+}
+
+function isSolutionList(
+  solution: WorkspaceJson | readonly WorkspaceJson[],
+): solution is readonly WorkspaceJson[] {
+  return Array.isArray(solution);
+}
+
+/**
+ * The next thing the child should do to get closer to `solution` (one workspace, or several
+ * winning programs: the one sharing the longest correct start with the child's program is
+ * used). Compares the blocks under `cq_start` in program order (the tokens of `editDistance`,
+ * shadows ignored, loop and `nếu` bodies included).
+ *
+ * First, prefix first: the longest run of tokens the child already has right is kept, and the
+ * step is about the first block after it: fix the wrong block there (edit / replace / remove),
+ * or add / move in the missing one. So after following a step, the next purchase shows the block
+ * after it, never the first one again.
+ *
+ * When no such step lengthens the correct start (a full workspace, a parsons level missing a
+ * block), it falls back to aligning the programs with an edit-distance table and returns the
+ * first edit of that alignment that brings the program closer (`structuralDistance`) once done
+ * the way Blockly does it: a drag takes the blocks below along, a delete takes the blocks
+ * inside. When no single step can (a loop to unwrap or to wrap around blocks), it returns a
+ * step after which one can. Null when the program already matches (or a workspace has no
+ * `cq_start`). Pure, works on JSON.
  */
 export function nextStep(
-  solution: WorkspaceJson,
+  solution: WorkspaceJson | readonly WorkspaceJson[],
   current: WorkspaceJson,
   options: NextStepOptions = {},
 ): NextStep | null {
-  const solProgram = toProgram(solution);
   const program = toProgram(current);
-  if (solProgram === null || program === null) return null;
+  if (program === null) return null;
+  const solutions = (isSolutionList(solution) ? solution : [solution])
+    .map(toProgram)
+    .filter((sol): sol is Program => sol !== null);
+  const solProgram = closestSolution(solutions, program);
+  if (solProgram === null) return null;
   const before = distance(solProgram, program);
   if (before === 0) return null;
   const { steps, firstAdd, needsBlockFirst } = candidatesFor(solProgram, program, options);
 
   // No free slot for the next new block: a loose stack (useless, yet it fills the capacity) goes first.
   const orphan = program.loose[0]?.[0];
-  if ((options.capacityLeft ?? Infinity) <= 0 && orphan && needsBlockFirst) {
+  const capacityFull = (options.capacityLeft ?? Infinity) <= 0;
+  if (capacityFull && orphan && needsBlockFirst) {
     return { kind: 'remove', blockId: orphan.id, midStack: false, loose: true };
   }
+  // A full workspace keeps the search below, which knows how to free a slot first.
+  if (!capacityFull) {
+    const atPrefix = prefixStep(solProgram, program, options, before);
+    if (atPrefix) return atPrefix;
+  }
 
+  // The search below never shortens the child's correct start while another step exists, so a
+  // prefix-first step and a search step cannot undo each other.
+  const solTokens = tokensOf(solProgram.chain);
+  const startNow = prefixLength(solTokens, tokensOf(program.chain));
+  let minPrefix = startNow;
+  const keepsStart = (after: Program): boolean =>
+    prefixLength(solTokens, tokensOf(after.chain)) >= minPrefix;
   const outcomesOf = (list: NextStep[]) =>
     list.flatMap((step) => {
       const after = apply(program, step);
       return after === null ||
         shape(after) === shape(program) ||
-        !keepsNeededBlocks(solProgram, program, after, options)
+        !keepsNeededBlocks(solProgram, program, after, options) ||
+        !keepsStart(after)
         ? []
         : [{ step, after, now: distance(solProgram, after) }];
     });
@@ -618,6 +801,7 @@ export function nextStep(
       return (
         done !== null &&
         keepsNeededBlocks(solProgram, after, done, options) &&
+        keepsStart(done) &&
         distance(solProgram, done) < before
       );
     });
@@ -639,8 +823,13 @@ export function nextStep(
     );
     return opening?.step ?? null;
   };
-  const chosen =
+  const search = (): NextStep | null =>
     choose(steps, false) ?? choose(broadCandidates(solProgram, program, options), true);
+  let chosen = search();
+  if (chosen === null && startNow > 0) {
+    minPrefix = 0;
+    chosen = search();
+  }
   if (chosen) return chosen;
   return firstAdd ?? steps[0] ?? { kind: 'reset' };
 }

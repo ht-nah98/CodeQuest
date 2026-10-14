@@ -1,0 +1,245 @@
+{
+  "id": "w07-l15",
+  "worldId": "w07-cho-dem-so",
+  "stage": "practice",
+  "kind": "robotlab",
+  "mode": "bughunt",
+  "title": "Hộp vàng vẫn 0",
+  "objective": "Mèo cần số khối vàng. Sửa 1 chỗ nhé!",
+  "learningGoal": "Gặp khối vàng, khối tăng lại ghi hộp số khối đỏ, nên hộp số khối vàng không đổi. Đổi tên hộp trên khối tăng.",
+  "misconception": "Tăng hộp này thì hộp kia cũng đổi.",
+  "mission": "Mèo đếm khối vàng mà hộp vẫn 0.",
+  "toolbox": [
+    "robot_forward",
+    "cq_repeat",
+    "cq_if",
+    "robot_block_color",
+    {
+      "type": "cq_var_add",
+      "fields": {
+        "VAR": "red",
+        "NUM": 1
+      }
+    },
+    {
+      "type": "cq_var_add",
+      "fields": {
+        "VAR": "yellow",
+        "NUM": 1
+      }
+    }
+  ],
+  "maxLoopDepth": 1,
+  "par": 5,
+  "parEdits": 1,
+  "variables": [
+    {
+      "id": "red",
+      "name": "số khối đỏ"
+    },
+    {
+      "id": "yellow",
+      "name": "số khối vàng"
+    }
+  ],
+  "countGoal": {
+    "var": "yellow",
+    "equals": [2, 1]
+  },
+  "config": {
+    "map": ["#####", "L....", "#####"],
+    "startDir": "W",
+    "start": [1, 4],
+    "blocks": [
+      {
+        "kind": "pollution",
+        "color": "YELLOW",
+        "at": [1, 1]
+      },
+      {
+        "kind": "pollution",
+        "color": "RED",
+        "at": [1, 2]
+      },
+      {
+        "kind": "pollution",
+        "color": "YELLOW",
+        "at": [1, 3]
+      }
+    ],
+    "goal": {
+      "type": "score",
+      "target": 40
+    }
+  },
+  "variants": [
+    {
+      "map": ["#####", "L....", "#####"],
+      "startDir": "W",
+      "start": [1, 4],
+      "blocks": [
+        {
+          "kind": "pollution",
+          "color": "RED",
+          "at": [1, 1]
+        },
+        {
+          "kind": "pollution",
+          "color": "YELLOW",
+          "at": [1, 2]
+        },
+        {
+          "kind": "pollution",
+          "color": "RED",
+          "at": [1, 3]
+        }
+      ],
+      "goal": {
+        "type": "score",
+        "target": 40
+      }
+    }
+  ],
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "loop1",
+              "fields": {
+                "TIMES": 4
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "robot_forward",
+                    "id": "fwd1",
+                    "fields": {
+                      "N": 1
+                    },
+                    "next": {
+                      "block": {
+                        "type": "cq_if",
+                        "id": "if1",
+                        "inputs": {
+                          "COND": {
+                            "block": {
+                              "type": "robot_block_color",
+                              "id": "ask1",
+                              "fields": {
+                                "COLOR": "YELLOW"
+                              }
+                            }
+                          },
+                          "DO": {
+                            "block": {
+                              "type": "cq_var_add",
+                              "id": "add1",
+                              "fields": {
+                                "VAR": "red",
+                                "NUM": 1
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "loop1",
+              "fields": {
+                "TIMES": 4
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "robot_forward",
+                    "id": "fwd1",
+                    "fields": {
+                      "N": 1
+                    },
+                    "next": {
+                      "block": {
+                        "type": "cq_if",
+                        "id": "if1",
+                        "inputs": {
+                          "COND": {
+                            "block": {
+                              "type": "robot_block_color",
+                              "id": "ask1",
+                              "fields": {
+                                "COLOR": "YELLOW"
+                              }
+                            }
+                          },
+                          "DO": {
+                            "block": {
+                              "type": "cq_var_add",
+                              "id": "add1",
+                              "fields": {
+                                "VAR": "yellow",
+                                "NUM": 1
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "step",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Bấm Từng bước. Gặp khối vàng, hộp nào tăng?",
+      "point": "step"
+    },
+    {
+      "id": "box",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "WRONG_COUNT"
+      },
+      "say": "Khối tăng ghi tên hộp nào?",
+      "point": "block:cq_var_add"
+    }
+  ],
+  "thinkingHint": "Gặp khối vàng, hộp nào phải tăng?"
+}

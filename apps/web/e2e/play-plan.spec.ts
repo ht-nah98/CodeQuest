@@ -1,7 +1,7 @@
 import { mkdirSync, readFileSync } from 'node:fs';
 import { expect, type Locator, type Page, test } from '@playwright/test';
 import type * as BlocklyModule from 'blockly';
-import { signInTestProfile } from './helpers';
+import { confirmRestart, signInTestProfile } from './helpers';
 
 // P2-22 acceptance (docs/roadmap/phase-2.md): "Xem cả đường". On a long World 2 track, a maze
 // and the multi-map sandbox level: the button opens a big view, it pans to the end, the cell
@@ -201,6 +201,7 @@ test('long W2 track: dragging the strip moves the stage while Măng is idle', as
   // Làm lại gives the view back to Măng.
   await page.getByTestId('play-stage').focus();
   await page.keyboard.press('r');
+  await confirmRestart(page);
   await expect(strip).toHaveAttribute('data-peek', 'false');
   await expect(strip).toHaveAttribute('data-view', before ?? '');
 });

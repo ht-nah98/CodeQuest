@@ -1,0 +1,134 @@
+{
+  "id": "w07-creative",
+  "worldId": "w07-cho-dem-so",
+  "stage": "creative",
+  "kind": "robotlab",
+  "mode": "creative",
+  "title": "Tự đếm cho Bíp",
+  "objective": "Sa bàn tập. Dùng hộp để tự đếm việc!",
+  "learningGoal": "Tự lập chiến thuật trên sa bàn Thành Phố Măng, dùng hộp để đếm việc đã xong hoặc số bước.",
+  "mission": "Tự đếm việc cho Bíp trên sa bàn tập!",
+  "toolbox": [
+    "robot_forward",
+    "robot_turn_left",
+    "robot_turn_right",
+    "robot_grab",
+    "robot_release",
+    {
+      "type": "cq_repeat",
+      "fields": {
+        "TIMES": 2
+      }
+    },
+    "cq_repeat_until",
+    "cq_if",
+    "cq_if_else",
+    "robot_line_ahead",
+    "robot_block_color",
+    "robot_at_lab",
+    {
+      "type": "cq_var_set",
+      "fields": {
+        "VAR": "jobs",
+        "NUM": 0
+      }
+    },
+    {
+      "type": "cq_var_add",
+      "fields": {
+        "VAR": "jobs",
+        "NUM": 1
+      }
+    },
+    {
+      "type": "cq_var_compare",
+      "fields": {
+        "VAR": "jobs",
+        "OP": "EQ",
+        "NUM": 3
+      }
+    },
+    {
+      "type": "cq_repeat_var",
+      "fields": {
+        "VAR": "jobs"
+      }
+    }
+  ],
+  "variables": [
+    {
+      "id": "jobs",
+      "name": "số việc",
+      "max": 20
+    }
+  ],
+  "config": {
+    "map": [
+      "y##.#...g",
+      "......##.",
+      ".##.#....",
+      ".##L#.##.",
+      "....#..ZZ",
+      "#.#...##r",
+      "....#...."
+    ],
+    "startDir": "N",
+    "blocks": [
+      {
+        "kind": "fence",
+        "at": [0, 5]
+      },
+      {
+        "kind": "fence",
+        "at": [3, 5]
+      },
+      {
+        "kind": "neutralizer",
+        "color": "RED",
+        "at": [2, 7]
+      },
+      {
+        "kind": "neutralizer",
+        "color": "YELLOW",
+        "at": [6, 7]
+      },
+      {
+        "kind": "neutralizer",
+        "color": "GREEN",
+        "at": [2, 0]
+      },
+      {
+        "kind": "pollution",
+        "color": "GREEN",
+        "at": [4, 2]
+      },
+      {
+        "kind": "pollution",
+        "color": "RED",
+        "at": [0, 7]
+      },
+      {
+        "kind": "pollution",
+        "color": "RED",
+        "at": [6, 3]
+      }
+    ],
+    "goal": {
+      "type": "score",
+      "target": 300
+    }
+  },
+  "hints": [
+    {
+      "id": "free",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Sa bàn tập! Xong việc nào, tăng hộp số việc.",
+      "point": "stage"
+    }
+  ],
+  "feedback": {
+    "TIMEOUT": "Bíp hỏi mãi mà không làm gì. Vòng lặp không dừng!"
+  }
+}

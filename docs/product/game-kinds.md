@@ -57,7 +57,7 @@ Khối của engine (`packages/engine/src/blocks/common.ts`), dùng chung cho m�
 |---|---|---|---|---|
 | `cq_var_set` | đặt [hộp] thành [0] | `VAR`, `NUM` 0–20 | `__varSet(id, n, blockId)` | Lệnh này cho số vào hộp. Số cũ mất |
 | `cq_var_add` | tăng [hộp] thêm [1] | `VAR`, `NUM` 1–9 | `__varAdd(id, n, blockId)` | Lệnh này cộng thêm vào số trong hộp |
-| `cq_var_compare` | [hộp] [= / < / >] [3] ? (khối hỏi, output `Boolean`) | `VAR`, `OP` (`EQ`/`LT`/`GT`), `NUM` 0–20 | `__varCmp(id, op, n, blockId)` | Câu hỏi: ✔ khi số trong hộp đúng như vậy, ✘ khi không |
+| `cq_var_compare` | [hộp] [= / < / >] [3] ? (khối hỏi, output `Boolean`) | `VAR`, `OP` (`EQ`/`LT`/`GT`), `NUM` 0–20 | `__varCmp(id, op, n, blockId)` | So số trong hộp với số bên phải. Đúng thì ✔, sai thì ✘ |
 | `cq_repeat_var` | lặp [hộp] lần | `VAR` | `__varGet(id, blockId)` một lần, rồi `for` | Làm các lệnh bên trong, số lần bằng số trong hộp lúc bắt đầu lặp |
 
 - Hộp là số nguyên `0…max` (`max` theo màn, mặc định 9, tối đa 20). **Vượt `max` thì thua** `crash` / `BOX_FULL` ("Hộp đầy rồi!"). Mỗi bản đồ bắt đầu từ `variables[].start[i]` (mặc định 0).

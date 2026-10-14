@@ -1,7 +1,7 @@
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { expect, type Page, test } from '@playwright/test';
 import type * as BlocklyModule from 'blockly';
-import { pandaBecomes, signInTestProfile } from './helpers';
+import { confirmRestart, pandaBecomes, signInTestProfile } from './helpers';
 
 // P1-03 / P1-05 acceptance (docs/roadmap/phase-1.md): every runner event is acted out on the
 // sandbox levels (dev build only), and the stage controls (pause, step, speed, reset) work
@@ -273,6 +273,7 @@ test.describe('stage controls mid-replay', () => {
     await page.getByTestId('play-run').click();
     await pandaBecomes(page, 'jump');
     await page.getByRole('button', { name: /Làm lại/ }).click();
+    await confirmRestart(page);
     await expect(stage(page)).toHaveAttribute('data-phase', 'idle');
     await expect(stage(page)).toHaveAttribute('data-panda', 'idle');
     await expect(page.locator('.blocklyHighlighted')).toHaveCount(0);
@@ -308,6 +309,7 @@ test.describe('stage controls mid-replay', () => {
     await pauseButton(page).click();
     await stage(page).focus();
     await page.keyboard.press('r');
+    await confirmRestart(page);
     await expect(stage(page)).toHaveAttribute('data-phase', 'idle');
     await expect(stage(page)).toHaveAttribute('data-paused', 'false');
     await expect(pauseButton(page)).toBeDisabled();
@@ -344,7 +346,10 @@ test.describe('stage controls mid-replay', () => {
           .getByTestId('play-success')
           .getByRole('button', { name: /^Chơi lại/ })
           .click();
-      } else await page.getByRole('button', { name: /Làm lại/ }).click();
+      } else {
+        await page.getByRole('button', { name: /Làm lại/ }).click();
+        await confirmRestart(page);
+      }
       await expect(stage(page)).toHaveAttribute('data-phase', 'idle');
       return run;
     };
@@ -442,6 +447,8 @@ test.describe('full-track strip', () => {
   }, testInfo) => {
     const project = testInfo.project.name;
     await open(page, 'runner-long');
+    // Vừa: slow enough to pause mid-track (Nhanh is the default).
+    await page.getByRole('radio', { name: 'Vừa' }).click();
     await setProgram(page, sandbox('runner-long').solution);
     await expect(strip(page)).toHaveAttribute('data-cells', '30');
     await expect(strip(page)).toHaveAccessibleName('Cả đường: 30 ô, Măng ở ô 1');
@@ -468,10 +475,13 @@ test.describe('full-track strip', () => {
     await page.screenshot({ path: `${SHOTS}/${project}-strip-running.png` });
 
     await page.getByRole('button', { name: /Làm lại/ }).click();
+    await confirmRestart(page);
     await expect(strip(page)).toHaveAttribute('data-at', '0');
     await expect(strip(page)).toHaveAttribute('data-view', startView ?? '');
     await expect(strip(page).locator('[data-bamboo]')).toHaveCount(4);
 
+    // Làm lại also emptied the program: build it again.
+    await setProgram(page, sandbox('runner-long').solution);
     await page.getByRole('radio', { name: 'Nhanh' }).click();
     await page.getByTestId('play-run').click();
     await expect(page.getByTestId('play-success')).toBeVisible({ timeout: 30_000 });

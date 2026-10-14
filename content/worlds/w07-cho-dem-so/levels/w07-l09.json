@@ -1,0 +1,199 @@
+{
+  "id": "w07-l09",
+  "worldId": "w07-cho-dem-so",
+  "stage": "practice",
+  "kind": "maze",
+  "mode": "parsons",
+  "title": "Đủ 3 măng thì rẽ",
+  "objective": "Xếp khối: đủ 3 măng thì rẽ về nhà.",
+  "learningGoal": "Lặp đến khi số măng = 3: trước mỗi vòng hỏi hộp. Hộp đếm măng chứ không đếm ô, đủ 3 thì dừng rồi rẽ.",
+  "misconception": "Đếm số ô đã đi thay vì số măng.",
+  "mission": "Đủ 3 măng thì rẽ về nhà.",
+  "goalSprite": "home",
+  "toolbox": [],
+  "maxLoopDepth": 1,
+  "par": 8,
+  "variables": [
+    {
+      "id": "bamboo",
+      "name": "số măng"
+    }
+  ],
+  "config": {
+    "map": ["###########", "#S.b.bb.b.#", "######G####", "###########"],
+    "startDir": "E"
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false
+        },
+        {
+          "type": "cq_var_compare",
+          "id": "ask1",
+          "fields": {
+            "VAR": "bamboo",
+            "OP": "EQ",
+            "NUM": 3
+          },
+          "x": 300,
+          "y": 40
+        },
+        {
+          "type": "cq_var_add",
+          "id": "add1",
+          "fields": {
+            "VAR": "bamboo",
+            "NUM": 1
+          },
+          "x": 460,
+          "y": 104
+        },
+        {
+          "type": "maze_forward",
+          "id": "fwd2",
+          "x": 300,
+          "y": 168
+        },
+        {
+          "type": "cq_if",
+          "id": "if1",
+          "x": 460,
+          "y": 232
+        },
+        {
+          "type": "maze_forward",
+          "id": "fwd1",
+          "x": 300,
+          "y": 296
+        },
+        {
+          "type": "cq_repeat_until",
+          "id": "until1",
+          "x": 460,
+          "y": 360
+        },
+        {
+          "type": "maze_bamboo_ahead",
+          "id": "ask2",
+          "x": 300,
+          "y": 424
+        },
+        {
+          "type": "maze_turn_right",
+          "id": "right1",
+          "x": 460,
+          "y": 488
+        }
+      ]
+    }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat_until",
+              "id": "until1",
+              "inputs": {
+                "COND": {
+                  "block": {
+                    "type": "cq_var_compare",
+                    "id": "ask1",
+                    "fields": {
+                      "VAR": "bamboo",
+                      "OP": "EQ",
+                      "NUM": 3
+                    }
+                  }
+                },
+                "DO": {
+                  "block": {
+                    "type": "cq_if",
+                    "id": "if1",
+                    "inputs": {
+                      "COND": {
+                        "block": {
+                          "type": "maze_bamboo_ahead",
+                          "id": "ask2"
+                        }
+                      },
+                      "DO": {
+                        "block": {
+                          "type": "cq_var_add",
+                          "id": "add1",
+                          "fields": {
+                            "VAR": "bamboo",
+                            "NUM": 1
+                          }
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "maze_forward",
+                        "id": "fwd1"
+                      }
+                    }
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "type": "maze_turn_right",
+                  "id": "right1",
+                  "next": {
+                    "block": {
+                      "type": "maze_forward",
+                      "id": "fwd2"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "eq",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Số măng = 3? ✔ khi hộp có đúng 3.",
+      "point": "block:cq_var_compare"
+    },
+    {
+      "id": "early",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "HIT_WALL"
+      },
+      "say": "Rẽ sớm quá? Hỏi măng trước, rồi mới tiến."
+    },
+    {
+      "id": "loose",
+      "when": {
+        "trigger": "run-end",
+        "orphans": true
+      },
+      "say": "Còn khối rời. Nối hết vào khi bắt đầu nhé!"
+    }
+  ],
+  "thinkingHint": "Vòng lặp dừng lúc hộp có mấy?"
+}

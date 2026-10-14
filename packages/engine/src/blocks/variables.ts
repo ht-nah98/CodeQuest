@@ -107,7 +107,7 @@ export const VARIABLE_BLOCKS: readonly BlockSpec[] = [
       ],
       output: 'Boolean',
       style,
-      tooltip: 'Câu hỏi: ✔ khi số trong hộp đúng như vậy, ✘ khi không',
+      tooltip: 'So số trong hộp với số bên phải. Đúng thì ✔, sai thì ✘',
     },
     generator: (block, gen) => {
       const op = String(block.getFieldValue('OP'));

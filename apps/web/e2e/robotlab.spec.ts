@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { expect, type Page, test } from '@playwright/test';
 import type * as BlocklyModule from 'blockly';
-import { signInTestProfile } from './helpers';
+import { confirmRestart, signInTestProfile } from './helpers';
 
 // P3-03 acceptance (docs/roadmap/phase-3.md): the robot lab stage on /play/:levelId with the
 // dev-only _sandbox levels robotlab-stage (score 140 in 20 s) and robotlab-predict (missions).
@@ -190,6 +190,7 @@ test.describe('/play robotlab', () => {
     await stageShot(page, 'crash', project);
     // Làm lại puts Bíp back in the lab, clock full again.
     await page.keyboard.press('r');
+    await confirmRestart(page);
     await expect(canvas).toHaveAttribute('data-robot-crash', 'none');
     await expect(canvas).toHaveAttribute('data-robot-clock', '20');
   });
@@ -270,6 +271,7 @@ test.describe('/play robotlab', () => {
     await page.getByTestId('play-run').click();
     await boardShows(page, 'robotPos', '1,1');
     await page.keyboard.press('r');
+    await confirmRestart(page);
     const canvas = board(page);
     await expect(page.getByTestId('play-stage')).toHaveAttribute('data-phase', 'idle');
     await expect(canvas).toHaveAttribute('data-robot-pos', '1,0');

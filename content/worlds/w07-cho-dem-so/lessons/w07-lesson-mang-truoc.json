@@ -1,0 +1,128 @@
+{
+  "id": "w07-lesson-mang-truoc",
+  "worldId": "w07-cho-dem-so",
+  "title": "Phía trước có măng?",
+  "beforeLevel": "w07-l03",
+  "cards": [
+    {
+      "type": "say",
+      "pose": "point",
+      "text": "Khối mới! ✔ khi ô ngay trước Măng có măng chưa nhặt."
+    },
+    {
+      "type": "demo",
+      "text": "Phía trước có măng: ✔. Hộp tăng, Măng đứng yên.",
+      "kind": "maze",
+      "config": {
+        "map": ["#####", "#SbG#", "#####"],
+        "startDir": "E"
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "cq_if",
+                  "id": "if1",
+                  "inputs": {
+                    "COND": {
+                      "block": {
+                        "type": "maze_bamboo_ahead",
+                        "id": "ask1"
+                      }
+                    },
+                    "DO": {
+                      "block": {
+                        "type": "cq_var_add",
+                        "id": "add1",
+                        "fields": {
+                          "VAR": "bamboo",
+                          "NUM": 1
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "variables": [
+        {
+          "id": "bamboo",
+          "name": "số măng",
+          "start": [0]
+        }
+      ]
+    },
+    {
+      "type": "demo",
+      "text": "Phía trước là ô trống: ✘. Hộp giữ nguyên.",
+      "kind": "maze",
+      "config": {
+        "map": ["######", "#S.bG#", "######"],
+        "startDir": "E"
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "cq_if",
+                  "id": "if1",
+                  "inputs": {
+                    "COND": {
+                      "block": {
+                        "type": "maze_bamboo_ahead",
+                        "id": "ask1"
+                      }
+                    },
+                    "DO": {
+                      "block": {
+                        "type": "cq_var_add",
+                        "id": "add1",
+                        "fields": {
+                          "VAR": "bamboo",
+                          "NUM": 1
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "variables": [
+        {
+          "id": "bamboo",
+          "name": "số măng",
+          "start": [0]
+        }
+      ]
+    },
+    {
+      "type": "quiz",
+      "text": "Câu hỏi có làm Măng đi không?",
+      "options": ["Không, Măng đứng yên", "Có, Măng đi 1 ô"],
+      "correct": 0,
+      "explain": "Câu hỏi chỉ nhìn. Muốn đi phải có khối tiến."
+    }
+  ]
+}

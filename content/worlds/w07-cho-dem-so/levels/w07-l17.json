@@ -1,0 +1,208 @@
+{
+  "id": "w07-l17",
+  "worldId": "w07-cho-dem-so",
+  "stage": "practice",
+  "kind": "robotlab",
+  "mode": "build",
+  "title": "Đếm đường đi về",
+  "objective": "Tìm khối đỏ, đếm bước, rồi về đúng phòng.",
+  "learningGoal": "Lúc đi, mỗi ngã tư tăng hộp số bước; lúc về, lặp hộp lần với tiến 1 ô. Đi mấy ô thì về mấy ô.",
+  "misconception": "Đường về phải tự đếm lại bằng mắt; hộp không dùng lại được.",
+  "mission": "Bíp đếm bước lúc đi để biết đường về.",
+  "toolbox": [
+    "robot_forward",
+    "robot_turn_left",
+    "robot_turn_right",
+    "robot_grab",
+    "robot_release",
+    "cq_repeat",
+    "cq_repeat_until",
+    "robot_block_color",
+    {
+      "type": "cq_var_add",
+      "fields": {
+        "VAR": "steps",
+        "NUM": 1
+      }
+    },
+    {
+      "type": "cq_repeat_var",
+      "fields": {
+        "VAR": "steps"
+      }
+    }
+  ],
+  "maxBlocks": 11,
+  "maxLoopDepth": 1,
+  "par": 10,
+  "variables": [
+    {
+      "id": "steps",
+      "name": "số bước"
+    }
+  ],
+  "config": {
+    "map": ["#######", "L......", "#######"],
+    "startDir": "E",
+    "blocks": [
+      {
+        "kind": "pollution",
+        "color": "RED",
+        "at": [1, 3]
+      }
+    ],
+    "goal": {
+      "type": "missions",
+      "mustReturn": true
+    }
+  },
+  "variants": [
+    {
+      "map": ["#######", "L......", "#######"],
+      "startDir": "E",
+      "blocks": [
+        {
+          "kind": "pollution",
+          "color": "RED",
+          "at": [1, 5]
+        }
+      ],
+      "goal": {
+        "type": "missions",
+        "mustReturn": true
+      }
+    }
+  ],
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat_until",
+              "id": "until1",
+              "inputs": {
+                "COND": {
+                  "block": {
+                    "type": "robot_block_color",
+                    "id": "ask1",
+                    "fields": {
+                      "COLOR": "RED"
+                    }
+                  }
+                },
+                "DO": {
+                  "block": {
+                    "type": "robot_forward",
+                    "id": "fwd1",
+                    "fields": {
+                      "N": 1
+                    },
+                    "next": {
+                      "block": {
+                        "type": "cq_var_add",
+                        "id": "add1",
+                        "fields": {
+                          "VAR": "steps",
+                          "NUM": 1
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "type": "robot_grab",
+                  "id": "grab1",
+                  "next": {
+                    "block": {
+                      "type": "robot_turn_right",
+                      "id": "right1",
+                      "next": {
+                        "block": {
+                          "type": "robot_turn_right",
+                          "id": "right2",
+                          "next": {
+                            "block": {
+                              "type": "cq_repeat_var",
+                              "id": "boxloop1",
+                              "fields": {
+                                "VAR": "steps"
+                              },
+                              "inputs": {
+                                "DO": {
+                                  "block": {
+                                    "type": "robot_forward",
+                                    "id": "fwd2",
+                                    "fields": {
+                                      "N": 1
+                                    }
+                                  }
+                                }
+                              },
+                              "next": {
+                                "block": {
+                                  "type": "robot_release",
+                                  "id": "drop1"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "far",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "OFF_LINE"
+      },
+      "say": "Đi mấy ô thì về mấy ô. Hộp nhớ giúp."
+    },
+    {
+      "id": "short",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "NOT_HOME"
+      },
+      "say": "Về thiếu ô? Hộp đếm đủ bước chưa?"
+    },
+    {
+      "id": "left",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "MISSIONS_LEFT"
+      },
+      "say": "Khối đỏ đã vào phòng chưa? Đứng trong phòng rồi thả."
+    },
+    {
+      "id": "loop-time",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "OUT_OF_TIME"
+      },
+      "say": "Hết giờ khi đang lặp. Vòng lặp có dừng không?"
+    }
+  ],
+  "thinkingHint": "Lúc về, Bíp cần tiến mấy ô?",
+  "feedback": {
+    "TIMEOUT": "Bíp hỏi mãi mà không làm gì. Vòng lặp không dừng!"
+  }
+}

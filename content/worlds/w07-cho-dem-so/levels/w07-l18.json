@@ -1,0 +1,131 @@
+{
+  "id": "w07-l18",
+  "worldId": "w07-cho-dem-so",
+  "stage": "challenge",
+  "kind": "maze",
+  "mode": "predict",
+  "title": "Cuối chợ, hộp có mấy?",
+  "objective": "Đọc chương trình, đoán số măng trong hộp.",
+  "learningGoal": "Hộp chỉ tăng khi Măng hỏi và thấy măng ngay trước mặt. Măng ở lối giữa (2,2) không nằm trên đường Măng đi nên không được đếm.",
+  "mission": "Cuối chợ, hộp có mấy? Đoán xem!",
+  "goalSprite": "exit",
+  "toolbox": [],
+  "variables": [
+    {
+      "id": "bamboo",
+      "name": "số măng"
+    }
+  ],
+  "config": {
+    "map": ["#######", "#S.b..#", "##b##b#", "#G..b.#", "#######"],
+    "startDir": "E"
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat_until",
+              "id": "until1",
+              "inputs": {
+                "COND": {
+                  "block": {
+                    "type": "maze_at_goal",
+                    "id": "ask1"
+                  }
+                },
+                "DO": {
+                  "block": {
+                    "type": "cq_if_else",
+                    "id": "if1",
+                    "inputs": {
+                      "COND": {
+                        "block": {
+                          "type": "maze_is_path",
+                          "id": "ask2",
+                          "fields": {
+                            "DIR": "AHEAD"
+                          }
+                        }
+                      },
+                      "DO": {
+                        "block": {
+                          "type": "cq_if",
+                          "id": "if2",
+                          "inputs": {
+                            "COND": {
+                              "block": {
+                                "type": "maze_bamboo_ahead",
+                                "id": "ask3"
+                              }
+                            },
+                            "DO": {
+                              "block": {
+                                "type": "cq_var_add",
+                                "id": "add1",
+                                "fields": {
+                                  "VAR": "bamboo",
+                                  "NUM": 1
+                                }
+                              }
+                            }
+                          },
+                          "next": {
+                            "block": {
+                              "type": "maze_forward",
+                              "id": "fwd1"
+                            }
+                          }
+                        }
+                      },
+                      "ELSE": {
+                        "block": {
+                          "type": "maze_turn_right",
+                          "id": "right1"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "predict": {
+    "options": [
+      {
+        "key": "win#bamboo=3",
+        "label": "Tới cửa ra, hộp có 3"
+      },
+      {
+        "key": "win#bamboo=4",
+        "label": "Tới cửa ra, hộp có 4"
+      },
+      {
+        "key": "win#bamboo=2",
+        "label": "Tới cửa ra, hộp có 2"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "path",
+      "when": {
+        "trigger": "idle"
+      },
+      "say": "Chỉ tay theo đường đi. Cây măng nào nằm trên đường?",
+      "point": "stage"
+    }
+  ],
+  "thinkingHint": "Măng có đi qua lối giữa không?"
+}

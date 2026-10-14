@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { Events, Options, serialization, Workspace } from 'blockly';
 import type { WorkspaceJson } from '@codequest/content-schema';
 import {
+  correctPrefix,
   editDistance,
   mulberry32,
   NEXT_STEP_BLOCK_ID,
@@ -119,6 +120,153 @@ describe('nextStep: insert, delete, move (blockly-integration.md §8)', () => {
       block: preview('line_step'),
       anchor: { blockId: 'c', input: 'DO' },
     });
+  });
+});
+
+describe('nextStep: prefix first (step-by-step hint)', () => {
+  // Solution: đi, nhảy, đi, nổ (four blocks), and one with a loop body.
+  const abcd = ws([A('s1'), B('s2'), A('s3'), C('s4')]);
+  const addAfter = (type: string, blockId: string) => ({
+    kind: 'add',
+    block: preview(type),
+    anchor: { blockId, input: null },
+  });
+
+  it('empty program: the first block under "khi bắt đầu"', () => {
+    expect(nextStep(abcd, ws([]))).toEqual(addAfter('line_step', 'start'));
+  });
+
+  it('a correct start of 1, 2 and 3 blocks: the block right after it', () => {
+    expect(nextStep(abcd, ws([A('a')]))).toEqual(addAfter('line_win', 'a'));
+    expect(nextStep(abcd, ws([A('a'), B('b')]))).toEqual(addAfter('line_step', 'b'));
+    expect(nextStep(abcd, ws([A('a'), B('b'), A('c')]))).toEqual(addAfter('line_boom', 'c'));
+  });
+
+  it('each step, once done, moves the hint one block further', () => {
+    let current = ws([]);
+    const seen: number[] = [];
+    for (let step = nextStep(abcd, current); step; step = nextStep(abcd, current)) {
+      current = doInBlockly(current, step);
+      seen.push(correctPrefix(abcd, current));
+    }
+    expect(seen).toEqual([1, 2, 3, 4]);
+  });
+
+  it('a wrong block at position 2 is pointed at to be changed, not step 1 again', () => {
+    expect(nextStep(abcd, ws([A('a'), X('x')]))).toEqual({
+      kind: 'replace',
+      block: preview('line_win'),
+      anchor: { blockId: 'a', input: null },
+      blockId: 'x',
+      midStack: false,
+    });
+    // A block that is right one place further down stays: the missing one goes in above it.
+    expect(nextStep(abcd, ws([A('a'), A('w')]))).toEqual(addAfter('line_win', 'a'));
+  });
+
+  it('a first block of the right type with the wrong number is edited in place', () => {
+    // w06-l07: "tiến 2, gắp, tiến 1, …"; the child dragged "tiến" (1 by default) under the start.
+    const forward = (id: string, times: number): Block => repeat(id, times);
+    const solution = ws([forward('s1', 2), B('s2'), forward('s3', 1), C('s4')]);
+    expect(nextStep(solution, ws([forward('kid', 1)]))).toEqual({
+      kind: 'edit',
+      block: preview('cq_repeat', { fields: { TIMES: 2 } }),
+      blockId: 'kid',
+    });
+  });
+
+  it('a first block of another type: adding above wins when it leaves fewer edits', () => {
+    // "đi, nhảy, đi, nổ"; the child put "nổ" first: it stays for the end, "đi" goes above it.
+    expect(nextStep(abcd, ws([C('kid')]))).toEqual(addAfter('line_step', 'start'));
+  });
+
+  it('edits a real dropdown and a box field (FieldCqVar) in Blockly', () => {
+    const set = (id: string, box: string): Block => ({
+      type: 'cq_var_set',
+      id,
+      fields: { VAR: box, NUM: 0 },
+    });
+    const ask = (id: string, op: string): Block => ({
+      type: 'cq_var_compare',
+      id,
+      fields: { VAR: 'bamboo', OP: op, NUM: 2 },
+    });
+    const when = (id: string, op: string): Block => ({
+      type: 'cq_if',
+      id,
+      inputs: { COND: { block: ask(`${id}-ask`, op) }, DO: { block: A(`${id}-a`) } },
+    });
+    const solution = ws([set('s1', 'bamboo'), when('s2', 'EQ')]);
+    let current = ws([set('box', 'red'), when('if', 'LT')]);
+    const first = nextStep(solution, current);
+    expect(first).toEqual({
+      kind: 'edit',
+      block: preview('cq_var_set', { fields: { VAR: 'bamboo', NUM: 0 } }),
+      blockId: 'box',
+    });
+    if (first === null) return;
+    current = doInBlockly(current, first);
+    const second = nextStep(solution, current);
+    expect(second).toEqual({
+      kind: 'edit',
+      block: preview('cq_var_compare', { fields: { VAR: 'bamboo', OP: 'EQ', NUM: 2 } }),
+      blockId: 'if-ask',
+    });
+    if (second === null) return;
+    current = doInBlockly(current, second);
+    expect(nextStep(solution, current)).toBeNull();
+  });
+
+  it('bughunt: a block in the wrong place is moved, never added twice', () => {
+    // w07-l05: "đặt hộp" inside the loop instead of before it.
+    const solution = ws([X('s1'), repeat('s2', 6, A('s3'), B('s4'))]);
+    const buggy = ws([repeat('loop', 6, X('set'), A('a'), B('b'))]);
+    expect(nextStep(solution, buggy)).toMatchObject({ kind: 'move', blockId: 'set' });
+    // w01-l11: two blocks swapped; the wrong one is changed, no copy is added before it.
+    const swapped = nextStep(abcd, ws([A('a'), A('c'), B('b'), C('d')]));
+    expect(swapped?.kind).not.toBe('add');
+  });
+
+  it('extra blocks after a complete program: remove the first extra one', () => {
+    expect(nextStep(abcd, ws([A('a'), B('b'), A('c'), C('d'), X('x'), B('y')]))).toEqual({
+      kind: 'remove',
+      blockId: 'x',
+      midStack: true,
+      loose: false,
+    });
+    expect(nextStep(abcd, ws([A('a'), B('b'), A('c'), C('d'), B('y')]))).toMatchObject({
+      kind: 'remove',
+      blockId: 'y',
+    });
+  });
+
+  it('inside a loop body: the next block of the body, then the block after the loop', () => {
+    const solution = ws([A('s1'), repeat('s2', 3, A('s3'), B('s4')), C('s5')]);
+    expect(nextStep(solution, ws([A('a'), repeat('r', 3)]))).toEqual({
+      kind: 'add',
+      block: preview('line_step'),
+      anchor: { blockId: 'r', input: 'DO' },
+    });
+    expect(nextStep(solution, ws([A('a'), repeat('r', 3, A('in'))]))).toEqual(
+      addAfter('line_win', 'in'),
+    );
+    expect(nextStep(solution, ws([A('a'), repeat('r', 3, A('in'), B('in2'))]))).toEqual(
+      addAfter('line_boom', 'r'),
+    );
+    // A wrong block in the body is pointed at, not the loop.
+    expect(nextStep(solution, ws([A('a'), repeat('r', 3, A('in'), X('x'))]))).toMatchObject({
+      kind: 'replace',
+      blockId: 'x',
+      anchor: { blockId: 'in', input: null },
+    });
+  });
+
+  it('with several solutions, follows the one the child has started', () => {
+    const other = ws([B('t1'), A('t2'), A('t3'), C('t4')]);
+    expect(nextStep([abcd, other], ws([B('b')]))).toEqual(addAfter('line_step', 'b'));
+    expect(nextStep([abcd, other], ws([A('a')]))).toEqual(addAfter('line_win', 'a'));
+    expect(nextStep([abcd, other], ws([B('b'), A('a'), A('c'), C('d')]))).toBeNull();
+    expect(nextStep([], ws([A('a')]))).toBeNull();
   });
 });
 
@@ -324,17 +472,20 @@ function randomProgram(rand: () => number, prefix: string): Block[] {
 }
 
 describe('nextStep property', () => {
-  it('every step, done in Blockly, lowers structuralDistance, at worst over two steps', () => {
+  it('every step, done in Blockly, lengthens the correct start or lowers structuralDistance', () => {
     const rand = mulberry32(20261002);
     for (let round = 0; round < 300; round++) {
       const solution = ws(randomProgram(rand, 's'));
       let current = ws(randomProgram(rand, 'c'));
       let left = structuralDistance(solution, current);
       expect(left === 0).toBe(editDistance(solution, current) === 0);
-      // Distance before the current two-step plan: a step may not help yet (lift blocks out of a
-      // loop, add a loop to move blocks into), but the next one always ends below it.
-      let planStart = left;
+      // Progress is (correct start, edits left): a longer correct start, or the same one with
+      // fewer edits left. A step of the fallback search may not help yet (lift blocks out of a
+      // loop, add a loop to move blocks into), but the next one always does.
+      let plan = { prefix: correctPrefix(solution, current), left };
       let planSteps = 0;
+      const budget = left + 3;
+      let steps = 0;
       for (let guard = 0; left > 0; guard++) {
         expect(guard).toBeLessThan(60);
         const before = current;
@@ -343,16 +494,22 @@ describe('nextStep property', () => {
           throw new Error(`no step: ${JSON.stringify({ solution, current })}`);
         }
         current = doInBlockly(current, step);
-        const now = structuralDistance(solution, current);
+        steps++;
+        const now = {
+          prefix: correctPrefix(solution, current),
+          left: structuralDistance(solution, current),
+        };
         const context = JSON.stringify({ step, solution, before });
         planSteps++;
-        if (now < planStart) {
-          planStart = now;
+        if (now.prefix > plan.prefix || (now.prefix === plan.prefix && now.left < plan.left)) {
+          plan = now;
           planSteps = 0;
         }
         expect(planSteps, context).toBeLessThan(2);
-        left = now;
+        left = now.left;
       }
+      // Never far more steps than the edits the program needed at first.
+      expect(steps).toBeLessThanOrEqual(budget);
       expect(nextStep(solution, current)).toBeNull();
       expect(editDistance(solution, current)).toBe(0);
     }

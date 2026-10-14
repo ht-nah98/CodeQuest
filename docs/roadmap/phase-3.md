@@ -20,8 +20,8 @@
 | P3-08 | "Đề mới": sinh sa bàn ngẫu nhiên có seed + chế độ thi thử 2 lượt | P3-03, P3-04 | AI | 🟨 (09/10: sa bàn Thành Phố Măng, generator, `w06-exam`, e2e; chờ HLV chơi thử + review) |
 | P3-09a | Spike + ADR: biến trong engine và vét cạn | P3-01b | AI | ✅ (ADR-0022) |
 | P3-09 | Biến trong engine: khối biến chỉ có ô số, giá trị đầu theo bản đồ, event `var`, bảng hộp, `countGoal`, khối hỏi `phía trước có măng?`, vét cạn | P3-09a | AI | ⬜ |
-| P3-10 | Chi tiết hóa lần hai Thế giới 7 (bản đồ thật, vét cạn) + HLV duyệt | P3-06, P3-09 | AI soạn · HLV duyệt | ⬜ |
-| P3-11 | Nội dung Thế giới 7 · Chợ Đếm Số (20 màn + bài giảng) | P3-09, P3-10 | AI soạn nháp · HLV duyệt | ⬜ |
+| P3-10 | Chi tiết hóa lần hai Thế giới 7 (bản đồ thật, vét cạn) + HLV duyệt | P3-06, P3-09 | AI soạn · HLV duyệt | 🟨 nháp, chờ HLV chơi thử |
+| P3-11 | Nội dung Thế giới 7 · Chợ Đếm Số (20 màn + bài giảng) | P3-09, P3-10 | AI soạn nháp · HLV duyệt | 🟨 nháp, chờ HLV chơi thử |
 | P3-12 | HLV chơi thử W7 | P3-11 | HLV | ⬜ |
 | P3-13 | Phát hành `v0.3.0` | P3-06, P3-12 | HLV + AI | ⬜ |
 
@@ -142,6 +142,7 @@ Theo `curriculum.md` §6.1. `world.json` (5 chương, cảnh `thanh-pho-robot`, 
 
 ### P3-11 · Nội dung Thế giới 7 · Chợ Đếm Số
 Như P3-04, theo §6.2 đã duyệt. **Nghiệm thu:** như P3-04 cho `w07`, cộng test R4 (bỏ khối biến khỏi thanh khối thì không gì thắng). **HLV chơi thử trước khi merge.**
+**Tiến độ (09/10/2026, 🟨 nháp, chờ HLV chơi thử):** P3-10 và P3-11 soạn cùng lúc (HLV giao quyết định sản phẩm cho AI). §6.2 có "Chi tiết từng màn", bảng `par` (tay / vét cạn) và các chỗ lệch bản đề xuất (boss "giao măng cho 3 nhà", không giới thiệu `đang gắp khối?`). `content/worlds/w07-cho-dem-so/`: 20 màn + sáng tạo, bài mở đầu + 4 bài "Khối mới", 5 chương truyện; `tools/content-check/src/w07.test.ts` (demo, đáp án đoán, từng cách sửa, R4, chữ "khối" / "lệnh", gợi ý = tooltip). `STORY_PROPS` thêm `market`, `box`. Cảnh: dùng `thanh-pho-robot` (chưa có cảnh chợ). Chưa: e2e, review sư phạm độc lập, HLV chơi thử (P3-12).
 
 ### P3-12 · HLV chơi thử W7
 Như P3-06 cho `w07-cho-dem-so`.

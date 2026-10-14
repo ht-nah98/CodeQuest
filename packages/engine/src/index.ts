@@ -88,5 +88,10 @@ export { GLOBAL_HINT_IDS, globalRules } from './hints/globalRules';
 export type { GlobalHintId, GlobalHintRule, HintLevel } from './hints/globalRules';
 export { selectHint } from './hints/selectHint';
 export type { HintSelection } from './hints/selectHint';
-export { NEXT_STEP_BLOCK_ID, nextStep, structuralDistance } from './hints/nextStep';
+export {
+  correctPrefix,
+  NEXT_STEP_BLOCK_ID,
+  nextStep,
+  structuralDistance,
+} from './hints/nextStep';
 export type { NextStep, NextStepOptions, StepAnchor } from './hints/nextStep';

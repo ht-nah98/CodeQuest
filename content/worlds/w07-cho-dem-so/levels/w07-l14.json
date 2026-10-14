@@ -1,0 +1,211 @@
+{
+  "id": "w07-l14",
+  "worldId": "w07-cho-dem-so",
+  "stage": "practice",
+  "kind": "maze",
+  "mode": "parsons",
+  "title": "Hai hộp, một vòng",
+  "objective": "Xếp khối: đếm măng và đếm ô trống.",
+  "learningGoal": "Mỗi vòng hỏi một lần: có măng thì tăng số măng, không thì tăng số ô trống. Mỗi khối tăng ghi đúng tên hộp của nó.",
+  "misconception": "Tăng hộp nào cũng như nhau.",
+  "mission": "Bác Heo và Mèo cùng nhờ đếm.",
+  "goalSprite": "home",
+  "toolbox": [],
+  "maxLoopDepth": 1,
+  "par": 8,
+  "variables": [
+    {
+      "id": "bamboo",
+      "name": "số măng"
+    },
+    {
+      "id": "empty",
+      "name": "số ô trống"
+    }
+  ],
+  "countGoal": {
+    "var": "empty",
+    "equals": [3]
+  },
+  "config": {
+    "map": ["########", "#Sb.b..#", "######G#", "########"],
+    "startDir": "E"
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false
+        },
+        {
+          "type": "cq_if_else",
+          "id": "if1",
+          "x": 300,
+          "y": 40
+        },
+        {
+          "type": "cq_var_add",
+          "id": "add2",
+          "fields": {
+            "VAR": "empty",
+            "NUM": 1
+          },
+          "x": 460,
+          "y": 104
+        },
+        {
+          "type": "maze_forward",
+          "id": "fwd2",
+          "x": 300,
+          "y": 168
+        },
+        {
+          "type": "maze_bamboo_ahead",
+          "id": "ask1",
+          "x": 460,
+          "y": 232
+        },
+        {
+          "type": "maze_forward",
+          "id": "fwd1",
+          "x": 300,
+          "y": 296
+        },
+        {
+          "type": "cq_repeat",
+          "id": "loop1",
+          "fields": {
+            "TIMES": 5
+          },
+          "x": 460,
+          "y": 360
+        },
+        {
+          "type": "cq_var_add",
+          "id": "add1",
+          "fields": {
+            "VAR": "bamboo",
+            "NUM": 1
+          },
+          "x": 300,
+          "y": 424
+        },
+        {
+          "type": "maze_turn_right",
+          "id": "right1",
+          "x": 460,
+          "y": 488
+        }
+      ]
+    }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "loop1",
+              "fields": {
+                "TIMES": 5
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "cq_if_else",
+                    "id": "if1",
+                    "inputs": {
+                      "COND": {
+                        "block": {
+                          "type": "maze_bamboo_ahead",
+                          "id": "ask1"
+                        }
+                      },
+                      "DO": {
+                        "block": {
+                          "type": "cq_var_add",
+                          "id": "add1",
+                          "fields": {
+                            "VAR": "bamboo",
+                            "NUM": 1
+                          }
+                        }
+                      },
+                      "ELSE": {
+                        "block": {
+                          "type": "cq_var_add",
+                          "id": "add2",
+                          "fields": {
+                            "VAR": "empty",
+                            "NUM": 1
+                          }
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "maze_forward",
+                        "id": "fwd1"
+                      }
+                    }
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "type": "maze_turn_right",
+                  "id": "right1",
+                  "next": {
+                    "block": {
+                      "type": "maze_forward",
+                      "id": "fwd2"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "two",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Mỗi ô hỏi một lần. Mỗi hộp đếm một thứ.",
+      "point": "block:cq_if_else"
+    },
+    {
+      "id": "swap",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "WRONG_COUNT"
+      },
+      "say": "Hai khối tăng có bị đổi chỗ không?"
+    },
+    {
+      "id": "loose",
+      "when": {
+        "trigger": "run-end",
+        "orphans": true
+      },
+      "say": "Còn khối rời. Nối hết vào khi bắt đầu nhé!"
+    }
+  ],
+  "thinkingHint": "Ô trống thì tăng hộp nào?"
+}

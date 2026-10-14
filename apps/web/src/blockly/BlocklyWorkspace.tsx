@@ -56,6 +56,11 @@ export interface WorkspaceHandle {
   getState(): WorkspaceState;
   /** Delivers a pending debounced `onChange` report immediately (no-op when none is pending). */
   flush(): void;
+  /**
+   * "Làm lại": puts the level's start program back (a lone "khi bắt đầu", the parsons pieces,
+   * the bughunt program), as one undo step: Ctrl+Z / "Hoàn tác" brings the child's program back.
+   */
+  restart(): void;
 }
 
 export interface BlocklyWorkspaceProps {
@@ -86,15 +91,8 @@ const DEFAULT_WORKSPACE: WorkspaceJson = {
   blocks: { languageVersion: 0, blocks: [{ type: CQ_START, x: 40, y: 40 }] },
 };
 
-/**
- * Loads the level's initial program (or a lone "khi bắt đầu") into `workspace`, replacing what
- * is there. Also used for "Làm lại" within the same level (blockly-integration.md §2).
- */
-export function loadInitialWorkspace(workspace: WorkspaceSvg, level: BlocklyLevel): void {
-  workspace.clear();
-  serialization.workspaces.load(level.initialWorkspace ?? DEFAULT_WORKSPACE, workspace, {
-    recordUndo: false,
-  });
+/** What the content JSON cannot change: "khi bắt đầu" (and every parsons block) stays put. */
+function protectStartBlocks(workspace: WorkspaceSvg, level: BlocklyLevel): void {
   // "khi bắt đầu" can move but never be deleted, whatever the content JSON says (§4).
   for (const start of workspace.getBlocksByType(CQ_START, false)) start.setDeletable(false);
   // Parsons has no toolbox to get a block back from: no block can be deleted (nor, as Blockly
@@ -102,6 +100,19 @@ export function loadInitialWorkspace(workspace: WorkspaceSvg, level: BlocklyLeve
   if (level.mode === 'parsons') {
     for (const block of workspace.getAllBlocks(false)) block.setDeletable(false);
   }
+}
+
+/**
+ * Loads the level's initial program (or a lone "khi bắt đầu") into `workspace`, replacing what
+ * is there, with an empty undo stack (blockly-integration.md §2). "Làm lại" in the play screen
+ * uses `WorkspaceHandle.restart`, which can be undone.
+ */
+export function loadInitialWorkspace(workspace: WorkspaceSvg, level: BlocklyLevel): void {
+  workspace.clear();
+  serialization.workspaces.load(level.initialWorkspace ?? DEFAULT_WORKSPACE, workspace, {
+    recordUndo: false,
+  });
+  protectStartBlocks(workspace, level);
   workspace.clearUndo();
 }
 
@@ -298,11 +309,15 @@ function mountWorkspace(
   };
 
   const parsons = level.mode === 'parsons';
+  /** Event group of the last "Làm lại": its deletes and creates make no sound. */
+  let restartGroup: string | null = null;
   if (!parsons) workspace.addChangeListener(Events.disableOrphans);
   workspace.addChangeListener((event) => {
     if (!event.isUiEvent) {
       // Loading a program (recordUndo off) is silent; a drop, snap or delete by the child is not.
-      if (event.recordUndo) audio.playSfx(blocklySfx(sfxEvent(event)));
+      if (event.recordUndo && event.group !== restartGroup) {
+        audio.playSfx(blocklySfx(sfxEvent(event)));
+      }
       if (parsons) markLooseBlocks(workspace);
       schedule();
     } else if (
@@ -334,7 +349,24 @@ function mountWorkspace(
   if (parsons) markLooseBlocks(workspace);
   if (level.mode !== 'predict') fitProgramWidth(workspace);
   schedule();
-  callbacks.current.onReady?.(workspace, { getState, flush });
+  const restart = () => {
+    if (KeyboardMover.mover.isMoving()) KeyboardMover.mover.abortMove();
+    // One event group, recorded for undo: `load` clears the workspace and loads in that group,
+    // so a single Ctrl+Z puts every block of the child's program back.
+    Events.setGroup(true);
+    restartGroup = Events.getGroup();
+    try {
+      serialization.workspaces.load(level.initialWorkspace ?? DEFAULT_WORKSPACE, workspace, {
+        recordUndo: true,
+      });
+    } finally {
+      Events.setGroup(false);
+    }
+    protectStartBlocks(workspace, level);
+    if (parsons) markLooseBlocks(workspace);
+    fitProgramWidth(workspace);
+  };
+  callbacks.current.onReady?.(workspace, { getState, flush, restart });
 
   const resizeObserver = new ResizeObserver(() => {
     svgResize(workspace);

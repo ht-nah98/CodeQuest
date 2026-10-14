@@ -180,4 +180,4 @@ type MapOutcome<E> = Pick<RunOutcome<E>, 'result' | 'reasonCode' | 'events' | 's
 ## 10. Phát lại (ở `apps/web`, không thuộc engine)
 Engine chỉ trả event **logic**, không có thời lượng. `StageController` của web quyết định mỗi event diễn bao lâu (theo tốc độ đang chọn), tô sáng `blockId` bằng `workspace.highlightBlock(id)`, hỗ trợ chạy / tạm dừng / từng bước / tua về đầu. Xem `stage-rendering.md`.
 
-Tốc độ do bé chọn: 0,5× · 1× · 2×. Khi lượt chạy **thua**, tốc độ phát lại tối đa là 1× (chọn 2× thì vẫn phát 1×) để bé kịp nhìn chỗ sai.
+Tốc độ do bé chọn: 0,5× · 1× · 2× (Chậm · Vừa · Nhanh). Màn chơi mở ở **Nhanh** (góp ý HLV 10/2026: Vừa quá chậm); tốc độ không lưu theo hồ sơ, mỗi lần vào màn lại là Nhanh. Khi lượt chạy **thua**, tốc độ phát lại tối đa là 1× (chọn 2× thì vẫn phát 1×) để bé kịp nhìn chỗ sai.
