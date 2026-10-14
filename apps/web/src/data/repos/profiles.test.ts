@@ -14,6 +14,7 @@ import {
   createProfile,
   deleteProfile,
   ensureCoachProfile,
+  ensureCoachProfileWithHash,
   getProfile,
   listProfiles,
   ProfileError,
@@ -206,6 +207,16 @@ describe('coach review profile', () => {
     expect(await verifyPin(coach.id, '2468')).toBe(true);
     expect(await verifyPin(coach.id, '0000')).toBe(false);
     expect(JSON.stringify(await db.profiles.toArray())).not.toContain('2468');
+  });
+
+  it('can be seeded from a ready PIN hash (production builds)', async () => {
+    const hash = await hashPin('1357');
+    expect(await ensureCoachProfileWithHash(() => hash, NOW)).toBe(true);
+    expect(await ensureCoachProfileWithHash(() => hash, NOW)).toBe(false);
+    const coach = await theCoach();
+    expect(coach).toMatchObject({ nickname: 'HLV', role: 'coach' });
+    expect(await verifyPin(coach.id, '1357')).toBe(true);
+    expect(await getBalance(coach.id)).toBe(0);
   });
 
   it('keeps the existing profile and its progress, even with another PIN', async () => {

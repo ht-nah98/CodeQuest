@@ -23,7 +23,8 @@
     "voice": "tsx tools/voice/src/main.ts",
     "e2e": "npm -w apps/web run e2e --",
     "sprites": "python3 tools/sprites/clean.py",
-    "sprites:pack": "python3 tools/sprites/pack.py"
+    "sprites:pack": "python3 tools/sprites/pack.py",
+    "coach-pin-hash": "python3 tools/coach/pin_hash.py"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

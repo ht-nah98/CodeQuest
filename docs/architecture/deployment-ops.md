@@ -246,7 +246,11 @@ Cần H3 xong (Vercel đọc code từ GitHub).
    | Build Command | `npm run build` (typecheck toàn repo rồi `vite build` trong `apps/web`) |
    | Output Directory | `apps/web/dist` |
    | Node.js Version | **22.x**, tự lấy từ `"engines": {"node": ">=22 <23"}`; nếu build báo sai phiên bản, đặt tay ở **Settings → Build and Deployment → Node.js Version** |
-4. **Hiện tại chưa cần biến môi trường nào**: app chạy local-first, chưa nối Supabase (tới P2-16). Bản deploy đầu tiên bỏ qua bước này; khi có H1 thì thêm như bảng dưới rồi Redeploy.
+4. **Biến môi trường duy nhất hiện có: `VITE_COACH_PIN_HASH`** (tùy chọn, HLV yêu cầu 14/10/2026). Có biến này thì bản production có hồ sơ **HLV** (cú mèo) với PIN của HLV, mở sẵn mọi thế giới và mọi màn. Cách đặt:
+   1. Trên máy dev: `npm run coach-pin-hash -- <PIN 4 số>` → in ra một dòng `pbkdf2-sha256$100000$…`.
+   2. Vercel → project → **Settings → Environment Variables** → Key `VITE_COACH_PIN_HASH`, Value = dòng vừa in, chọn **Production** (và Preview nếu muốn) → Save.
+   3. **Deployments → … → Redeploy** (Vite chỉ đọc biến lúc build).
+   Repo **không** chứa PIN hay hash. PIN 4 số chỉ là khóa nhẹ để các bé không vào nhầm, không phải bí mật (`security-privacy.md` §3). Hồ sơ HLV không vào file sao lưu và không đồng bộ. App vẫn chạy local-first, chưa nối Supabase (tới P2-16); khi có H1 thì thêm như bảng dưới rồi Redeploy.
    4. **Environment Variables** (đặt trước khi bấm Deploy; mỗi biến một hàng cho từng môi trường):
    | Name | Value | Environment |
    |---|---|---|

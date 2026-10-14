@@ -7,11 +7,22 @@ describe('coachProfile.ts source', () => {
     .filter((line) => !line.trimStart().startsWith('//'))
     .join('\n');
 
-  it('reads VITE_COACH_PIN only after the DEV guard (so production bundles drop it)', () => {
-    const guard = code.indexOf('if (!import.meta.env.DEV) return;');
-    const read = code.indexOf('import.meta.env.VITE_COACH_PIN');
-    expect(guard).toBeGreaterThan(-1);
-    expect(read).toBeGreaterThan(guard);
-    expect(code.match(/VITE_COACH_PIN/g)).toHaveLength(1);
+  it('reads VITE_COACH_PIN only after the production branch returned (so bundles drop it)', () => {
+    const prodBranch = code.indexOf('if (!import.meta.env.DEV) {');
+    const prodEnd = code.indexOf('    return;\n  }', prodBranch);
+    const read = code.indexOf('import.meta.env.VITE_COACH_PIN;');
+    expect(prodBranch).toBeGreaterThan(-1);
+    expect(prodEnd).toBeGreaterThan(prodBranch);
+    expect(read).toBeGreaterThan(prodEnd);
+    expect(code.match(/VITE_COACH_PIN\b/g)).toHaveLength(1);
+  });
+
+  it('production reads only the PIN hash, never a PIN', () => {
+    const prodBranch = code.slice(
+      code.indexOf('if (!import.meta.env.DEV) {'),
+      code.indexOf('    return;\n  }'),
+    );
+    expect(prodBranch).toContain('import.meta.env.VITE_COACH_PIN_HASH');
+    expect(prodBranch).toContain('isWellFormedPinHash');
   });
 });
