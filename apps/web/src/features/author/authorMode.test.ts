@@ -47,8 +47,13 @@ describe('unlockOverrideIds', () => {
     expect(unlockOverrideIds(catalog, base)).toEqual(new Set(['_sandbox']));
   });
 
-  it('opens nothing in production builds, even for the coach', () => {
-    expect(unlockOverrideIds(catalog, { dev: false, unlockAll: true, coach: true }).size).toBe(0);
+  it('opens nothing in production builds for children, even with ?unlock=all', () => {
+    expect(unlockOverrideIds(catalog, { dev: false, unlockAll: true, coach: false }).size).toBe(0);
+  });
+
+  it('opens every world and level for the coach profile in production builds too', () => {
+    const all = unlockOverrideIds(catalog, { dev: true, unlockAll: true, coach: false });
+    expect(unlockOverrideIds(catalog, { dev: false, unlockAll: false, coach: true })).toEqual(all);
   });
 
   it('adds what the coach opened for the child, in every build', () => {

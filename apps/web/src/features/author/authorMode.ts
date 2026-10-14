@@ -63,7 +63,8 @@ export function unlockOverrideIds(
 ): Set<string> {
   if (catalog === null) return new Set<string>();
   const manual = options.manual ?? [];
-  if (!options.dev) return new Set(manual);
+  // The coach profile opens everything in any build (production too, coach request 14/10/2026).
+  if (!options.dev) return new Set(options.coach ? [...allIds(catalog), ...manual] : manual);
   const dev = options.unlockAll || options.coach ? allIds(catalog) : [SANDBOX_WORLD_ID];
   return new Set([...dev, ...manual]);
 }

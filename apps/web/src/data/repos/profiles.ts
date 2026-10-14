@@ -135,9 +135,20 @@ async function migrateLegacyCoach(): Promise<boolean> {
  */
 export async function ensureCoachProfile(pin: string, now: Date = new Date()): Promise<boolean> {
   if (!isValidPin(pin)) return false;
+  return ensureCoachProfileWithHash(() => hashPin(pin), now);
+}
+
+/**
+ * Same as ensureCoachProfile, from a ready PIN hash (production builds get only a hash of the
+ * coach PIN, from the deploy settings). `pinHashOf` runs only when a profile is created.
+ */
+export async function ensureCoachProfileWithHash(
+  pinHashOf: () => Promise<string> | string,
+  now: Date = new Date(),
+): Promise<boolean> {
   const exists = async () => (await db.profiles.filter((p) => p.role === 'coach').count()) > 0;
   if (await exists()) return migrateLegacyCoach();
-  const pinHash = await hashPin(pin);
+  const pinHash = await pinHashOf();
   return db.transaction('rw', db.profiles, async () => {
     if (await exists()) return false;
     const key = nicknameKey(COACH_NICKNAME);
