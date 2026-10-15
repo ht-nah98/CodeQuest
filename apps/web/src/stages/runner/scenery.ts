@@ -9,6 +9,8 @@ import {
   type SceneArt,
   sceneArt,
   type SceneTheme,
+  SPELL_DETAIL,
+  TOWER_DETAIL,
   WORKSHOP_DETAIL,
 } from '../sceneThemes';
 import type { RunnerLayout } from './layout';
@@ -115,6 +117,12 @@ export function drawSky(layout: RunnerLayout, theme?: SceneTheme): Graphics {
     case 'nga-ba':
       duskSky(sky, layout, band);
       break;
+    case 'xuong-phep-thuat':
+      spellWall(sky, layout, band);
+      break;
+    case 'thap-hoa-si':
+      sun(sky, layout, TOWER_DETAIL);
+      break;
   }
   return sky;
 }
@@ -172,6 +180,32 @@ function workshopWall(sky: Graphics, layout: RunnerLayout, band: number): void {
     .fill(d.glassLight);
 }
 
+/** Spell workshop: dark rafters, a plum plank wall and an arched window onto a starry night. */
+function spellWall(sky: Graphics, layout: RunnerLayout, band: number): void {
+  const { width, groundTop, tileScale: u } = layout;
+  const d = SPELL_DETAIL;
+  for (let x = 4 * u; x < width; x += 34 * u) sky.rect(x, 0, 4 * u, band);
+  sky.fill(d.beam);
+  for (let x = 0; x < width; x += 18 * u) sky.rect(x, band, u, groundTop - band);
+  sky.fill(d.panelLine);
+  sky.rect(0, band - 3 * u, width, 4 * u).fill(d.beam);
+  sky.rect(0, band - 3 * u, width, u).fill(d.beamLight);
+  // The window: a round top on a tall pane, a frame, night glass and a few stars.
+  const cx = snap(width * 0.84, u);
+  const top = snap(groundTop * 0.1, u);
+  const r = 7;
+  disc(sky, cx, top + r * u, r + 1, u, d.frame);
+  sky.rect(cx - (r + 1) * u, top + r * u, (2 * r + 3) * u, 11 * u).fill(d.frame);
+  disc(sky, cx, top + r * u, r, u, d.glass);
+  sky.rect(cx - r * u, top + r * u, (2 * r + 1) * u, 10 * u).fill(d.glass);
+  sky
+    .rect(cx - 3 * u, top + 4 * u, u, u)
+    .rect(cx + 2 * u, top + 7 * u, u, u)
+    .rect(cx - 2 * u, top + 11 * u, u, u)
+    .rect(cx + 3 * u, top + 3 * u, u, u)
+    .fill(d.star);
+}
+
 /** Mountain pass at dusk: a few first stars and a big low-lit sun high over the peaks. */
 function duskSky(sky: Graphics, layout: RunnerLayout, band: number): void {
   const { width, groundTop, tileScale: u } = layout;
@@ -196,7 +230,9 @@ export function drawClouds(layout: RunnerLayout, theme?: SceneTheme): Graphics {
   const art = sceneArt(theme);
   if (art.id === 'rung-lap-lai') return canopy(layout);
   if (art.id === 'xuong') return lanterns(layout);
-  if (art.id === 'nga-ba') return streaks(layout);
+  if (art.id === 'nga-ba') return streaks(layout, MOUNTAIN_DETAIL.cloud);
+  if (art.id === 'thap-hoa-si') return streaks(layout, TOWER_DETAIL.cloud);
+  if (art.id === 'xuong-phep-thuat') return starJars(layout);
   return clouds(layout);
 }
 
@@ -277,8 +313,30 @@ function lanterns(layout: RunnerLayout): Graphics {
   return g;
 }
 
-/** Dusk: long thin pink clouds. */
-function streaks(layout: RunnerLayout): Graphics {
+/** A star jar hanging from a rope, 5 × 7 texels. */
+const STAR_JAR = ['..c..', '.ccc.', 'gggsg', 'gsssg', 'ggsgg', 'ggggg', '.ggg.'];
+
+/** Spell workshop: star jars hanging on ropes from the rafters. */
+function starJars(layout: RunnerLayout): Graphics {
+  const { groundTop, tileScale: u } = layout;
+  const span = spanOf(layout, PARALLAX.clouds);
+  const d = SPELL_DETAIL;
+  const palette = { c: d.jarCap, g: d.jarGlass, s: d.jarStar };
+  const g = new Graphics();
+  const next = sequence(59);
+  const gap = Math.max(150, layout.width * 0.34);
+  // Small and high: the jars end above the action band (groundTop × 0.3), like the lanterns.
+  for (let x = layout.width * 0.12; x < span + gap; x += gap * (0.8 + next() * 0.4)) {
+    const left = snap(x, u);
+    const drop = snap(groundTop * (0.05 + next() * 0.07), u);
+    g.rect(left + 2 * u, 0, u, drop).fill(d.rope);
+    picture(g, left, drop, STAR_JAR, u, palette);
+  }
+  return g;
+}
+
+/** Long thin clouds (dusk pink, or the painter's brush strokes). */
+function streaks(layout: RunnerLayout, color: string): Graphics {
   const { groundTop, tileScale: u } = layout;
   const span = spanOf(layout, PARALLAX.clouds);
   const g = new Graphics();
@@ -290,7 +348,7 @@ function streaks(layout: RunnerLayout): Graphics {
     const w = (14 + Math.floor(next() * 14)) * u;
     g.rect(left + 4 * u, y, w - 8 * u, u).rect(left, y + u, w, u);
   }
-  g.fill({ color: MOUNTAIN_DETAIL.cloud, alpha: 0.85 });
+  g.fill({ color, alpha: 0.85 });
   return g;
 }
 
@@ -330,6 +388,8 @@ export function drawFar(layout: RunnerLayout, theme?: SceneTheme): Graphics {
   if (art.id === 'nga-ba') return mountains(layout, art);
   if (art.id === 'song') return farShore(layout, art);
   if (art.id === 'thanh-pho-robot') return skyline(layout, art);
+  if (art.id === 'xuong-phep-thuat') return bookcases(layout, art);
+  if (art.id === 'thap-hoa-si') return paintedTowers(layout, art);
   return farBamboo(layout, art);
 }
 
@@ -438,6 +498,77 @@ function workshopShelves(layout: RunnerLayout, art: SceneArt): Graphics {
   return g;
 }
 
+/** Spell workshop wall: bookcases of pastel spell books with star jars on top. */
+function bookcases(layout: RunnerLayout, art: SceneArt): Graphics {
+  const { groundTop, tileScale: u } = layout;
+  const span = spanOf(layout, PARALLAX.far);
+  const d = SPELL_DETAIL;
+  const g = new Graphics();
+  const next = sequence(61);
+  const caseW = 26 * u;
+  for (
+    let x = snap(next() * 14 * u, u);
+    x < span + 30 * u;
+    x += caseW + (14 + Math.floor(next() * 30)) * u
+  ) {
+    const top = snap(groundTop * (0.36 + next() * 0.08), u);
+    g.rect(x, top, caseW, groundTop - top).fill(art.far.main);
+    g.rect(x, top, u, groundTop - top).rect(x + caseW - u, top, u, groundTop - top);
+    g.rect(x - u, top - u, caseW + 2 * u, u).fill(art.far.dark);
+    const shelf = 9 * u;
+    for (let sy = top + shelf; sy <= groundTop; sy += shelf) {
+      let bx = x + 2 * u;
+      while (bx + 2 * u < x + caseW - u) {
+        const h = (5 + Math.floor(next() * 3)) * u;
+        const spine = d.books[Math.floor(next() * d.books.length)] ?? art.far.light;
+        g.rect(bx, sy - u - h, 2 * u, h).fill(spine);
+        bx += 2 * u + (next() < 0.25 ? u : 0);
+      }
+      g.rect(x, sy - u, caseW, u).fill(art.far.dark);
+    }
+    // Two star jars on top of the case.
+    for (const jx of [x + 4 * u, x + 16 * u]) {
+      g.rect(jx, top - 6 * u, 4 * u, 5 * u).fill(d.jarGlass);
+      g.rect(jx + u, top - 7 * u, 2 * u, u).fill(d.jarCap);
+      g.rect(jx + u, top - 4 * u, 2 * u, 2 * u).fill(d.jarStar);
+    }
+  }
+  return g;
+}
+
+/** Painter's tower: pastel towers of five floors, each with an arched window and a flag on top. */
+function paintedTowers(layout: RunnerLayout, art: SceneArt): Graphics {
+  const { groundTop, tileScale: u } = layout;
+  const span = spanOf(layout, PARALLAX.far);
+  const d = TOWER_DETAIL;
+  const g = new Graphics();
+  const next = sequence(67);
+  const w = 14 * u;
+  const floor = Math.max(5 * u, snap(groundTop * 0.09, u));
+  for (
+    let x = snap(next() * 10 * u, u);
+    x < span + 20 * u;
+    x += w + (10 + Math.floor(next() * 22)) * u
+  ) {
+    const top = groundTop - 5 * floor;
+    for (let i = 0; i < 5; i++) {
+      const y = groundTop - (i + 1) * floor;
+      g.rect(x, y, w, floor).fill(d.floors[i] ?? art.far.main);
+      g.rect(x, y, w, u).fill(d.seam);
+      // An arched window: a pane with its top corners cut.
+      g.rect(x + 5 * u, y + 2 * u, 4 * u, floor - 3 * u).rect(x + 6 * u, y + u, 2 * u, u);
+      g.fill(d.window);
+    }
+    // A stepped roof and a flag.
+    for (let row = 0; row < 5; row++)
+      g.rect(x + (row + 1) * u, top - (row + 1) * u, w - 2 * (row + 1) * u, u);
+    g.fill(d.roof);
+    g.rect(x + 6 * u, top - 9 * u, u, 4 * u).fill(d.seam);
+    g.rect(x + 7 * u, top - 9 * u, 3 * u, 2 * u).fill(d.flag);
+  }
+  return g;
+}
+
 /** Mountain range: stepped peaks lit from the left, snow on the tops. */
 function mountains(layout: RunnerLayout, art: SceneArt): Graphics {
   const { groundTop, tileScale: u } = layout;
@@ -502,6 +633,8 @@ export function drawNear(layout: RunnerLayout, theme?: SceneTheme, boss = false)
   if (art.id === 'xuong') return workbenches(layout, art);
   if (art.id === 'nga-ba') return rocksAndSigns(layout, art);
   if (art.id === 'song') return riverBank(layout, art, boss);
+  if (art.id === 'xuong-phep-thuat') return spellDesks(layout, art);
+  if (art.id === 'thap-hoa-si') return easels(layout, art);
   return hills(layout, art);
 }
 
@@ -622,6 +755,91 @@ function workbenches(layout: RunnerLayout, art: SceneArt): Graphics {
     g.rect(x + 5 * u, top - u, 8 * u, u).fill(d.shelf);
     g.rect(x + 12 * u, top - 3 * u, 2 * u, 3 * u).fill(d.metalDark);
     picture(g, x + 18 * u, top - SPRING.length * u, SPRING, u, springPalette);
+  }
+  return g;
+}
+
+/** An open spellbook, 13 × 4 texels. */
+const OPEN_BOOK = ['.ppppp.ppppp.', 'ppnnppcppnnpp', 'ppppppcpppppp', 'ccccccccccccc'];
+
+/** A star jar on a desk, 4 × 5 texels. */
+const DESK_JAR = ['.cc.', 'gggg', 'gsSg', 'gggg', 'gggg'];
+
+/** Spell workshop: desks with an open spellbook, a wand and a star jar on each. */
+function spellDesks(layout: RunnerLayout, art: SceneArt): Graphics {
+  const { groundTop, tileScale: u } = layout;
+  const span = spanOf(layout, PARALLAX.hills);
+  const d = SPELL_DETAIL;
+  const g = new Graphics();
+  const next = sequence(71);
+  const book = { p: d.page, n: d.rope, c: d.cover };
+  const jar = { c: d.jarCap, g: d.jarGlass, s: d.jarStar, S: d.jarStar };
+  for (let x = snap(next() * 20 * u, u); x < span; x += (48 + Math.floor(next() * 40)) * u) {
+    const top = groundTop - 14 * u;
+    const w = 30 * u;
+    g.rect(x + u, top + 2 * u, 2 * u, 12 * u).rect(x + w - 3 * u, top + 2 * u, 2 * u, 12 * u);
+    g.rect(x + u, top + 9 * u, w - 2 * u, u);
+    g.fill(art.near.dark);
+    g.rect(x, top, w, 3 * u).fill(art.near.main);
+    g.rect(x, top, w, u).fill(art.near.light);
+    // On the desk (never on the floor next to the track): a book, a wand and a jar.
+    picture(g, x + 3 * u, top - 4 * u, OPEN_BOOK, u, book);
+    for (let i = 0; i < 6; i++) g.rect(x + (18 + i) * u, top - (1 + i) * u, u, u);
+    g.fill(d.wand);
+    g.rect(x + 24 * u, top - 8 * u, u, u).fill(d.wandStar);
+    picture(g, x + 25 * u, top - 5 * u, DESK_JAR, u, jar);
+  }
+  return g;
+}
+
+/** An easel with a painted canvas, 12 × 14 texels. */
+const EASEL = [
+  '.....ee.....',
+  '.kkkkkkkkkk.',
+  '.kwwwwwwwwk.',
+  '.kwrrwwwbbk.',
+  '.kwrrwwwbbk.',
+  '.kwwwwwwwwk.',
+  '.kwwgggwwyk.',
+  '.kwwgggwwyk.',
+  '.kkkkkkkkkk.',
+  '..e..ee..e..',
+  '..e..ee..e..',
+  '.e...ee...e.',
+  '.e...ee...e.',
+  'e....ee....e',
+];
+
+/** A paint palette, 10 × 5 texels. */
+const PALETTE_PIC = ['..pppppp..', '.prpbppyp.', 'ppppppppgp', '.pppkpppp.', '..pppppp..'];
+
+/** Painter's tower: easels with canvases, and small tables with a palette on each. */
+function easels(layout: RunnerLayout, art: SceneArt): Graphics {
+  const { groundTop, tileScale: u } = layout;
+  const span = spanOf(layout, PARALLAX.hills);
+  const d = TOWER_DETAIL;
+  const g = new Graphics();
+  const next = sequence(73);
+  const [red, blue, green, yellow] = d.paints;
+  const easel = {
+    e: d.easel,
+    k: d.canvasEdge,
+    w: d.canvas,
+    r: red ?? d.easel,
+    b: blue ?? d.easel,
+    g: green ?? d.easel,
+    y: yellow ?? d.easel,
+  };
+  const pal = { ...easel, p: d.palette, k: d.canvasEdge };
+  for (let x = snap(next() * 20 * u, u); x < span; x += (46 + Math.floor(next() * 40)) * u) {
+    picture(g, x, groundTop - EASEL.length * u, EASEL, u, easel);
+    // A small table next to it, with a palette (on the table, not on the floor).
+    const tx = x + 16 * u;
+    const top = groundTop - 9 * u;
+    g.rect(tx, top, 14 * u, 2 * u).fill(art.near.main);
+    g.rect(tx + u, top + 2 * u, 2 * u, 7 * u).rect(tx + 11 * u, top + 2 * u, 2 * u, 7 * u);
+    g.fill(art.near.dark);
+    picture(g, tx + 2 * u, top - PALETTE_PIC.length * u, PALETTE_PIC, u, pal);
   }
   return g;
 }

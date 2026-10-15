@@ -233,6 +233,75 @@ const CITY_GROUND: GroundPatterns = {
   ],
 };
 
+/** Xưởng Phép Thuật: a plum rug with a gold star rune over dark wooden beams. */
+const SPELL_GROUND: GroundPatterns = {
+  top: [
+    'kkkkkkkkkkkkkkkkkk',
+    'kkkkkkkkkkkkkkkkkk',
+    'tttttttttttttttttt',
+    'wwwwwwwwwwwwwwwwww',
+    'wwWWWwwwwwwwwwwWWw',
+    'wwwwwwwwwswwwwwwww',
+    'wwwwwwwwsssWwwwwww',
+    'wwwwwwwwwswwwwwwww',
+    'jjjjjjjjjjjjjjjjjj',
+    'bbbbbbbbjbbbbbbbbb',
+    'bBBbbbbbjbbbbbBBbb',
+    'bbbbbbbbjbbbbbbbbb',
+    'bbbbbBBbjbbbbbbbbb',
+    'bbbbbbbbjbbbbbbbbb',
+    'jjjjjjjjjjjjjjjjjj',
+    'bbbbbbbbbbbbbjbbbb',
+    'bbBBbbbbbbbbbjbbbb',
+    'bbbbbbbbbbbbbjbbbb',
+  ],
+  fill: WORKSHOP_GROUND.fill,
+};
+
+/** Tháp Họa Sĩ: pale tower stones with paint splashes. */
+const TOWER_GROUND: GroundPatterns = {
+  top: [
+    'kkkkkkkkkkkkkkkkkk',
+    'kkkkkkkkkkkkkkkkkk',
+    'tttttttttttttttttt',
+    'ssssssssssssssssss',
+    'sspsssssssssssssss',
+    'sppsssssssssssqsss',
+    'ssssssssssssssqqss',
+    'ssssssssssssssssss',
+    'SSSSSSSSSSSSSSSSSS',
+    'ssssSsssssssssssss',
+    'ssssSsssssssssssss',
+    'ssssSssssshsssssss',
+    'ssssSsssssshhsssss',
+    'SSSSSSSSSSSSSSSSSS',
+    'sssssssssssssSssss',
+    'sssssssssssssSssss',
+    'sssssssssssssSssss',
+    'sssssssssssssSssss',
+  ],
+  fill: [
+    'SSSSSSSSSSSSSSSSSS',
+    'ssssSsssssssssssss',
+    'ssssSsssrrssssssss',
+    'ssssSsssrrrsssssss',
+    'ssssSsssssssssssss',
+    'SSSSSSSSSSSSSSSSSS',
+    'sssssssssssssSssss',
+    'sssssssssssssSssss',
+    'sssqssssssssssSsss',
+    'sssqqsssssssssSsss',
+    'SSSSSSSSSSSSSSSSSS',
+    'ssssSsssssssssssss',
+    'ssssSsssssssssssss',
+    'ssssSsssssssssssss',
+    'ssssSssssssssssssp',
+    'SSSSSSSSSSSSSSSSSS',
+    'sssssssssssssSssss',
+    'sssssssssssssSssss',
+  ],
+};
+
 /** Ground patterns of the themes that draw their own ground (Làng Tre keeps Kenney's). */
 export const GROUND_PATTERNS = {
   'rung-lap-lai': FOREST_GROUND,
@@ -240,6 +309,8 @@ export const GROUND_PATTERNS = {
   'nga-ba': MOUNTAIN_GROUND,
   song: RIVER_GROUND,
   'thanh-pho-robot': CITY_GROUND,
+  'xuong-phep-thuat': SPELL_GROUND,
+  'thap-hoa-si': TOWER_GROUND,
 } as const satisfies Record<string, GroundPatterns>;
 
 /** The six runner ground pieces, named like the Kenney tiles they stand in for. */
@@ -438,6 +509,70 @@ const CITY_MAZE: MazePatterns = {
   ],
 };
 
+/** Xưởng Phép Thuật: a parquet floor with gold sparks between walls of spell bookshelves. */
+const SPELL_MAZE: MazePatterns = {
+  floor: [
+    'pppppppppppr',
+    'ppPPpppppppr',
+    'pnpppppppnpr',
+    'ooooooooooor',
+    'pppppposppsr',
+    'pppPPPoppppr',
+    'ppppppoppPpr',
+    'ooooooooooor',
+    'pppoppppppPr',
+    'pPpoppppppnr',
+    'pppoppppPppr',
+    'rrrrrrrrrrrr',
+  ],
+  wall: [
+    'WWWWWWWWWWWW',
+    'WabcabdcabcW',
+    'WabcabdcabcW',
+    'WabcabdcabcW',
+    'WabcabdcabcW',
+    'WWWWWWWWWWWW',
+    'WdcbadcbadcW',
+    'WdcbadcbadcW',
+    'WdcbadcbadcW',
+    'WdcbadcbadcW',
+    'WdcbadcbadcW',
+    'WWWWWWWWWWWW',
+  ],
+};
+
+/** Tháp Họa Sĩ: pale canvas tiles with paint dabs between walls of dark tower stone. */
+const TOWER_MAZE: MazePatterns = {
+  floor: [
+    'qqqqqqqqqqqr',
+    'qqhqqqqqqqqr',
+    'qhhqqqqqqqqr',
+    'qqqqqqqqqqqr',
+    'qqqqqqqquqqr',
+    'qqqqqqqquuqr',
+    'qqqqqqqqqqqr',
+    'qqqqgqqqqqqr',
+    'qqqggqqqqqqr',
+    'qqqqqqqqqhhr',
+    'qqqqqqqqqqqr',
+    'rrrrrrrrrrrr',
+  ],
+  wall: [
+    'WWWWWWWWWWWW',
+    'WwwwwwWwwwwW',
+    'WwwwwwWwwwwW',
+    'WwwwwwWwwwwW',
+    'WWWWWWWWWWWW',
+    'WwwWwwwwwwwW',
+    'WwwWwwwwwwwW',
+    'WwwWwwwwwwwW',
+    'WWWWWWWWWWWW',
+    'WwwwwwWwwwwW',
+    'WwwwwwWwwwwW',
+    'WWWWWWWWWWWW',
+  ],
+};
+
 /** Maze tiles of the themes that draw their own (Làng Tre keeps maze/pixelArt.ts). */
 export const MAZE_PATTERNS = {
   'rung-lap-lai': FOREST_MAZE,
@@ -445,4 +580,6 @@ export const MAZE_PATTERNS = {
   'nga-ba': MOUNTAIN_MAZE,
   song: RIVER_MAZE,
   'thanh-pho-robot': CITY_MAZE,
+  'xuong-phep-thuat': SPELL_MAZE,
+  'thap-hoa-si': TOWER_MAZE,
 } as const satisfies Record<string, MazePatterns>;

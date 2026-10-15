@@ -12,6 +12,8 @@ export const SCENE_THEMES = [
   'nga-ba',
   'song',
   'thanh-pho-robot',
+  'xuong-phep-thuat',
+  'thap-hoa-si',
 ] as const;
 export const SceneThemeSchema = z.enum(SCENE_THEMES);
 export type SceneTheme = z.infer<typeof SceneThemeSchema>;
@@ -56,6 +58,10 @@ export const STORY_PROPS = [
   'lab',
   'market',
   'box',
+  'spellbook',
+  'wand',
+  'easel',
+  'tower',
 ] as const;
 export const StoryPropSchema = z.enum(STORY_PROPS);
 export type StoryProp = z.infer<typeof StoryPropSchema>;
