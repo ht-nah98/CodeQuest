@@ -64,7 +64,6 @@ function tileColours(name: string): string[] {
   return colours;
 }
 
-
 /** Colours covering at least `share` of a pattern's texels. */
 function dominant(
   rows: readonly string[],
@@ -312,5 +311,41 @@ describe('scene themes (P2-23)', () => {
         for (const item of mazeItems) expect(standsOut(item, f), `${item.name} on ${f}`).toBe(true);
       }
     });
+  });
+});
+
+describe('W8 and W9 scenes (P4-14)', () => {
+  const NEW = ['xuong-phep-thuat', 'thap-hoa-si'] as const;
+
+  it('knows both themes, with their own ground and maze tiles', () => {
+    for (const id of NEW) {
+      expect(SCENE_THEMES).toContain(id);
+      expect(parseSceneTheme(id)).toBe(id);
+      expect(SCENE_ART[id].ground).not.toBeNull();
+      expect(SCENE_ART[id].maze.patterns).not.toBeNull();
+    }
+  });
+
+  it('looks different from every other theme (sky, ground and maze floor)', () => {
+    const look = (art: SceneArt): string =>
+      JSON.stringify([art.sky, art.far, art.near, art.ground?.patterns, art.maze.patterns]);
+    for (const id of NEW) {
+      for (const [other, art] of THEMES) {
+        if (other !== id) expect(look(SCENE_ART[id]), `${id} vs ${other}`).not.toBe(look(art));
+      }
+    }
+    expect(SCENE_ART['xuong-phep-thuat'].maze.patterns?.wall).not.toEqual(
+      SCENE_ART.xuong.maze.patterns?.wall,
+    );
+  });
+
+  it('draws the workshop walls as bookshelves and the tower walls as stone bricks', () => {
+    const spell = SCENE_ART['xuong-phep-thuat'].maze;
+    const books = new Set(
+      Array.from(spell.patterns?.wall.join('') ?? '').filter((c) => 'abcd'.includes(c)),
+    );
+    expect(books.size).toBe(4);
+    const tower = SCENE_ART['thap-hoa-si'].maze;
+    expect(tower.patterns?.wall.some((row) => row === 'WWWWWWWWWWWW')).toBe(true);
   });
 });

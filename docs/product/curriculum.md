@@ -27,8 +27,8 @@ Kèm mỗi thế giới có **1 hoạt động ngoài màn hình** (unplugged) 5
 | 5 | `w05-song-cho-doi` | 🌊 Sông Chờ Đợi | Lặp có điều kiện | lặp đến khi, đã tới đích?, đã tới nơi? (đề xuất) | runner, maze | 20 | GĐ 2 |
 | 6 | `w06-thanh-pho-robot` | 🤖 Thành Phố Robot | Robot trên lưới line, tay gắp, nhiệm vụ AIROC, ngân sách thời gian | tiến … ô, rẽ trái/phải (như mê cung), gắp, thả, phía trước có line?, khối ở chỗ Bíp màu …?, đã về phòng thí nghiệm? (§6.1) | robotlab | 20 | GĐ 3 |
 | 7 | `w07-cho-dem-so` | 🏪 Chợ Đếm Số | Biến ("hộp"), đếm, so sánh | đặt, tăng thêm, so sánh, lặp [hộp] lần, phía trước có măng? (§6.2) | maze, robotlab (§6.2; farm dời sau) | 20 | GĐ 3 (sau W6) |
-| 8 | `w08-xuong-phep-thuat` | 🪄 Xưởng Phép Thuật | Hàm, tham số | định nghĩa / gọi hàm | turtle, music, robotlab | 20 | GĐ 4 |
-| 9 | `w09-thap-hoa-si` | 🎨 Tháp Họa Sĩ | Lặp lồng nhau, góc, hình học | lặp lồng, góc, bút | turtle | 20 | GĐ 4 |
+| 8 | `w08-xuong-phep-thuat` | 🪄 Xưởng Phép Thuật | Hàm ("phép thuật"), một tham số số | dạy phép, làm phép, dạy phép với hộp, làm phép với số (§6.3) | maze, robotlab (§6.3; turtle, music dời) | 20 | GĐ 4 |
+| 9 | `w09-thap-hoa-si` | 🎨 Tháp Họa Sĩ | Lặp lồng nhau, góc, hình học | tiến … bước, rẽ phải / trái … độ, nhấc bút, hạ bút (§6.4) | turtle | 20 | GĐ 4 |
 | 10 | `w10-hoc-vien` | 🧠 Học Viện Thuật Toán | Tìm đường, sắp xếp, tìm kiếm, tối ưu | danh sách, đổi chỗ | sorter, maze | 20 | GĐ 5 |
 
 > Robot nằm ở **tầng giữa** (Thế giới 6) theo quyết định của huấn luyện viên. Bé đến đó đã có tuần tự, lặp, gỡ lỗi, điều kiện, lặp có điều kiện: đủ những gì Blockly cần cho AIROC. Robot quay lại trong boss Thế giới 7–8.
@@ -550,14 +550,14 @@ Phụ thuộc vào các câu đang mở ở GĐ 1:
 
 ## 6. Thế giới 6–10
 
-Thế giới 6 và 7 đã chi tiết hóa (§6.1, §6.2, 07/10/2026). Thế giới 8–10 vẫn là **khung**, chi tiết hóa khi tới giai đoạn xây.
+Thế giới 6 và 7 đã chi tiết hóa (§6.1, §6.2, 07/10/2026). Thế giới 8 và 9 có **bản nháp lần một** (§6.3, §6.4, 15/10/2026, `roadmap/phase-4.md`); Thế giới 10 vẫn là **khung**.
 
 | Thế giới | Mục tiêu học | Ngộ nhận nhắm tới | Boss |
 |---|---|---|---|
 | 6 Thành Phố Robot | xem §6.1 | | |
 | 7 Chợ Đếm Số | xem §6.2 | | |
-| 8 Xưởng Phép Thuật | Gói chuỗi lệnh thành hàm, dùng lại, thêm tham số | Hàm chạy ngay khi định nghĩa | Vẽ cả ngôi làng bằng 3 hàm |
-| 9 Tháp Họa Sĩ | Lặp lồng nhau, góc ngoài của đa giác | Vòng trong chạy 1 lần | Vẽ bông hoa tuyết |
+| 8 Xưởng Phép Thuật | xem §6.3 | | |
+| 9 Tháp Họa Sĩ | xem §6.4 | | |
 | 10 Học Viện Thuật Toán | So sánh các cách giải, sắp xếp, tìm kiếm, chọn đường ngắn nhất | Cách nào chạy được là tốt | Robot chọn thứ tự nhiệm vụ tối ưu |
 
 ### 6.1 Thế giới 6 — 🤖 Thành Phố Robot (chi tiết, bản nháp P3-04, 07/10/2026)
@@ -905,6 +905,286 @@ Ghi chú khi soạn (P3-10 + P3-11, 09/10/2026; **🟨 nháp, chờ HLV chơi th
 - **Ngõ cụt có việc**: ở `l16`, `l19`, boss mỗi lối rẽ là đường thật ở một bản đồ và ngõ cụt 1 ô ở bản đồ khác, nên số vòng cố định đi vào ngõ cụt; boss có ngõ cụt cạnh nhà (rẽ nhầm phía). `l10` là màn duy nhất có ngõ cụt trang trí; `l14` bỏ ngõ cụt trang trí của bản nháp đầu.
 - `content:check` luật 24 ở W7: 12 → **1** cảnh báo (M1 `l08`, màn giới thiệu `so sánh`, nhánh sai phải là tường ngay cạnh). 0 M2.
 - **Lệch kế hoạch:** `l03` giữ hành lang (màn `guided` giới thiệu `phía trước có măng?`), `l14` giữ bản cũ; boss làm thay. `par` `l05` 6 → 9, `l10` 5 → 8; `l16` `maxBlocks` 12 → 10; boss `par` 10 giữ, `l19` 11 / sửa 3 giữ. `l10` hộp `max` 20. Thêm 1 bài (`w07-lesson-hai-hop`). Tóm tắt `difficulty-pass.md` §1 cho W7 là số cũ.
+
+-------
+### 6.3 Thế giới 8 — 🪄 Xưởng Phép Thuật (bản nháp lần một, P4, 15/10/2026)
+
+> Viết theo quyết định của điều phối ngày 15/10/2026 (`roadmap/phase-4.md`), sửa cùng ngày theo review độc lập.
+> - W8 dạy **hàm** ("phép thuật"), sau đó **một tham số số**. Chạy trên `maze` và `robotlab` có sẵn; W8 **không** dùng `turtle` và `music`.
+> - Engine: ADR-0023 (Đề xuất).
+> - Bảng dưới là **bản nháp lần một**. Bản đồ, sa bàn và `par` thật làm ở P4-10 (chi tiết hóa lần hai) và P4-11 (soạn), sau khi engine có phép (P4-02…P4-05).
+> - Câu hỏi còn mở: `roadmap/coach-questions.md` mục I. Câu nào cũng có mặc định, không chặn việc.
+
+**Gọi tên với bé** (mặc định I1):
+- Bài mở đầu nói một lần: "Phép thuật là một nhóm lệnh có tên". Mọi chỗ khác chỉ nói "phép" và tên phép.
+- **Định nghĩa** = "dạy phép", **gọi** = "làm phép", **tham số** = "hộp của phép" (nối với hộp của W7).
+- Chữ cho bé gọi khối Blockly là **"khối"**, như giao diện chung. Tooltip nói **"lệnh"** (luật HLV 08/10).
+- Tooltip và bong bóng phát lại của khối phép **không nêu tên nhân vật** ("Đang làm phép «bậc thang»"), vì cùng khối chạy cho Măng (maze) và Bíp (robotlab). Bài giảng và gợi ý của từng màn thì nói tên Măng hoặc Bíp.
+
+**Bé làm được sau thế giới:**
+- Gói một chuỗi lệnh lặp lại **không đều** (không gói được bằng một vòng lặp) thành một phép có tên, rồi làm phép ở nhiều chỗ.
+- Biết **dạy phép chưa làm gì**: phải có `làm phép` thì Măng / Bíp mới làm.
+- Biết làm phép xong thì **quay lại khối ngay sau** khối `làm phép`.
+- Biết sửa lỗi **một lần trong phép** là đúng ở mọi chỗ làm phép.
+- Dùng được hai phép khác tên; đặt `làm phép` trong vòng lặp và ngoài vòng lặp.
+- Viết được phép có câu hỏi bên trong, để một phép dùng cho đoạn đường dài, ngắn khác nhau.
+- (Phần sau) Dùng phép có **hộp riêng**: mỗi lần làm phép, hộp nhận một số mới (`làm phép cầu thang với 3`), và hộp đó dùng trong `lặp [số bậc] lần`.
+- (Boss) Chia một nhiệm vụ robot thành 2–3 phép.
+
+**Ngộ nhận nhắm tới:**
+
+| Ngộ nhận | Màn |
+|---|---|
+| "Phép chạy ngay khi dạy" | `l02`, bài mở đầu |
+| "Làm phép xong thì chương trình dừng" | `l07` |
+| "Sửa phép thì phải sửa từng chỗ" | `l05` |
+| "Hai phép khác tên mà làm giống nhau" | `l09`, `l10` |
+| "Phép chỉ đúng cho một độ dài" | `l11` |
+| "Hộp của phép giữ số của lần làm đầu tiên" | `l14` |
+| "Phép có hộp mà vẫn dùng số cố định thì vẫn đúng" | `l16` |
+
+**Unplugged — "Thẻ phép thuật":** mỗi nhóm có thẻ trống ghi tên phép ("phép lò cò").
+- Một bé viết lên thẻ 3 động tác (nhảy, nhảy, xoay). Bạn đọc chương trình: "bước, làm phép lò cò, bước, làm phép lò cò".
+- Vòng 2: chỉ đọc thẻ phép mà không gọi. Bạn kia có làm không?
+- Vòng 3: thẻ "phép bước với hộp số bước", đọc "làm phép bước với 3".
+
+**Câu chuyện** (nối chương cuối W7 "Bác Cú gọi: Xưởng Phép Thuật đang chờ Măng!"):
+- Xưởng của bác Cú có cuốn **sách phép** bị gió (phù thủy W6) thổi bay hết chữ.
+- Bác Cú dạy Măng "phép thuật": đặt tên cho một nhóm lệnh, rồi chỉ cần gọi tên.
+- Măng viết lại từng phép giúp dân làng (Gấu nâu leo dốc, Cáo con đi qua hành lang xưởng), rồi dạy Bíp các phép robot.
+- Boss: **"Ngày hội phép thuật"** ở Thành Phố Robot. Bíp dọn cả thành phố bằng 3 phép.
+- Kết thế giới: cô Thỏ mời Măng lên Tháp Họa Sĩ (W9).
+- `STORY_PROPS` thêm `spellbook` (sách phép), `wand` (đũa phép); không thêm nhân vật.
+- Cảnh `theme.scene: 'xuong-phep-thuat'` (P4-14).
+
+**Khối mới** (ADR-0023). Nhãn và tooltip là **đề xuất**. Câu luật cho bé = gợi ý `enter` "Khối mới! " + tooltip, ≤ 12 chữ. Tên phép do màn khai báo (`level.procedures`).
+
+| Khối | Nhãn | Tooltip (câu luật) | Ví dụ chạy được (thẻ `demo`) |
+|---|---|---|---|
+| `cq_proc_def` | dạy phép [bậc thang ▾] | Dạy phép: nhớ các lệnh bên trong, chưa làm ngay | phép `bậc thang` = tiến, rẽ trái, tiến, rẽ phải; chương trình chỉ có `tiến` → Măng đi 1 ô, không leo |
+| `cq_proc_call` | làm phép [bậc thang ▾] | Làm phép: làm hết lệnh trong phép, rồi làm tiếp | cùng phép; `làm phép, làm phép, tiến` → Măng leo 2 bậc rồi đi thêm 1 ô |
+| `cq_proc_def_n` | dạy phép [cầu thang ▾] với hộp [số bậc] | Dạy phép với hộp: làm phép thì hộp nhận số | phép `cầu thang` = `lặp [số bậc] lần {tiến, rẽ trái, tiến, rẽ phải}`; `làm phép với 1`, `làm phép với 3` → 1 bậc rồi 3 bậc; bảng hộp hiện 1, 0, 3, 0 |
+| `cq_proc_call_n` | làm phép [cầu thang ▾] với [3] | Làm phép với số: hộp của phép nhận số này | (cùng thẻ trên) |
+
+**Bài và thẻ cho từng ý mới.** Mỗi ý có câu cho bé, một thẻ `demo` chạy được và một câu chuẩn ở `content-authoring.md` §5.1. Luật HLV 14/10.
+
+| Bài (`beforeLevel`) | Ý mới (màn) | Thẻ |
+|---|---|---|
+| `w08-lesson-phep` | `dạy phép`, `làm phép` (`l01`); làm phép xong thì quay lại khối ngay sau (`l07`) | 1. "Khối mới! Dạy phép: nhớ các lệnh bên trong, chưa làm ngay" · 2. demo "chỉ dạy" (bảng trên) · 3. "Khối mới! Làm phép: làm hết lệnh trong phép, rồi làm tiếp" · 4. demo `làm phép, làm phép, tiến` (bảng trên). Thẻ 4 là demo của ý `l07`: Măng đi tiếp `tiến` sau phép. Câu chuẩn của `l07` là phần "rồi làm tiếp" của tooltip, nên `l07` không cần bài riêng · 5. quiz "Làm phép xong thì sao?": **Làm khối tiếp theo** / Dừng lại |
+| `w08-lesson-phep-trong-lap` | làm phép trong vòng lặp (`l08`) | "Làm phép trong vòng lặp: mỗi vòng làm phép 1 lần." · demo `lặp 2 {làm phép bậc thang}, rẽ phải, làm phép bậc thang` · quiz "Lặp 2 lần, làm phép. Phép chạy mấy lần?": **2** / 1 |
+| `w08-lesson-hai-phep` | hai phép khác tên (`l09`) | "Mỗi phép một tên. Gọi tên nào, làm phép đó." · demo hai phép `bậc thang`, `vòng cột` (8 khối) cùng một chương trình, đổi tên trên một khối `làm phép` → đường khác · quiz |
+| `w08-lesson-phep-hoi` | phép có câu hỏi dùng cho nhiều độ dài (`l11`) | "Phép có câu hỏi thì dùng được cho đường dài, ngắn." · demo phép `tới ngã ba` = `lặp đến khi có đường bên trái {tiến}, rẽ trái` trên 2 bản đồ (đoạn 2 ô và 4 ô) · quiz |
+| `w08-lesson-hop-cua-phep` | `dạy phép với hộp`, `làm phép với` (`l13`); mỗi lần làm phép, hộp nhận số mới (`l14`) | 2 thẻ "Khối mới! …" (tooltip) · demo `cầu thang` 1 rồi 3 (bảng trên) · "Mỗi lần làm phép, hộp nhận số mới." · quiz "Làm phép với 3, rồi với 1. Leo mấy bậc?": **4** / 6 |
+
+**Bài giảng `w08-lesson` (5 thẻ):**
+1. "Bác Cú mở Xưởng Phép Thuật. Vào xem nào!"
+2. "Phép thuật là một nhóm lệnh có tên."
+3. `demo` hành lang bậc thang, phép `bậc thang`, `làm phép, làm phép` → leo 2 bậc: "Làm phép 2 lần, Măng leo 2 bậc."
+4. `demo` cùng phép, chương trình chỉ có `tiến`: "Chỉ dạy phép thì Măng chưa làm."
+5. `quiz` "Dạy phép xong, Măng có làm ngay không?": **Chưa, phải làm phép** / Có, làm ngay.
+
+**Quy ước bảng W8:**
+- Bản đồ, sa bàn, chương trình viết như §5, §6.1, §6.2.
+- `phép A` = khối `dạy phép A` cùng thân. `A` trong chương trình = `làm phép A`. `A(3)` = `làm phép A với 3`.
+- Cột "par" là **ước lượng**; số thật có sau P4-10.
+
+**Luật soạn riêng W8** (ghi vào `content-authoring.md` ở P4-05 / P4-11):
+- **Phép phải tiết kiệm khối.** Phép có b khối thân, được gọi c lần, tiết kiệm `c·b − (1 + b + c)` khối so với chép thẳng. Cần ≥ 1, tức là `(c − 1)(b − 1) ≥ 3`. Ví dụ: thân 4, gọi 2 lần; thân 3, gọi 3 lần; thân 2, gọi 4 lần. Phép 2 khối gọi 2 lần **không** tiết kiệm gì.
+- **R5** (ADR-0023 §4): màn `practice` / `challenge` / boss `build` / `bughunt` có phép phải làm sao để bỏ khối phép khỏi thanh khối thì không gì thắng. Có hai cách:
+  - `maxBlocks` nhỏ hơn số khối của bản chép thẳng;
+  - **hoặc** `maxInstances` trên khối hành động, ví dụ `maze_forward: 4` khi thân phép có 2 `tiến`. Cách này dễ chứng minh hơn.
+- R5 không áp dụng cho màn `guided` (`l01`–`l04`). Vét cạn R5 có ngân sách 120 s một màn; hết ngân sách thì ghi "⚠ R5" kèm lý do (ADR-0023).
+- **Gợi ý theo `lastReason`.** Mọi màn có phép có gợi ý cho `TOO_MANY_BLOCKS` và gợi ý tầng 0 `capacityFull`, ghi đè gợi ý chung: "Đoạn nào lặp lại? Dạy thành phép nhé!" (câu hỏi, không lộ tên khối).
+- **Độ sâu vòng lặp hiệu dụng** (ADR-0023 §3): W8 giữ `maxLoopDepth: 1`, tức là phép có vòng lặp trong thân **không** được gọi trong vòng lặp. Cụ thể:
+  - `l08` (gọi trong vòng lặp): thân phép không có vòng lặp.
+  - `l11`, `l15`, `l17`, boss (thân có `lặp đến khi` / `lặp [hộp] lần`): mọi `làm phép` nằm thẳng dưới `cq_start`, không trong vòng lặp.
+- **Luật 24 áp dụng như W4+:**
+  - Mê cung `build` / `bughunt` có ≥ 2 ngã ba và ≥ 1 ngõ cụt có việc.
+  - Một hình lời giải dùng ≤ 2 lần, tính cả thân phép.
+  - Chuỗi lặp lại trong bản đồ phải **không đều**: xen giữa là rẽ khác nhau, đoạn dài khác nhau, hoặc khác bản đồ. Nếu đều thì một vòng lặp ngắn hơn phép, và R5 sẽ bắt.
+- Mỗi màn phép `build` có ≥ 1 ngõ cụt ở chỗ một chương trình sai hợp lý đi vào: "làm phép thừa một lần" hoặc "làm phép trước khi rẽ".
+- **Phép robot** (`l06`, `l10`, `l12`, `l16`, `l18`, boss): đồng hồ đủ rộng cho mọi cách đúng (ý của W8 là phép, không phải chọn việc), trừ boss.
+- **Tên phép** ngắn, bé hiểu: "bậc thang", "vòng cột", "đi gắp", "về thả", "tới ngã ba", "cầu thang".
+
+| # | ID | Chặng | Kind | Mode | Ý chính (một ý) | Khối mới / bài trước | par ước lượng |
+|---|---|---|---|---|---|---|---:|
+| — | `w08-lesson` | (bài giảng) | — | — | Phép = nhóm lệnh có tên; dạy chưa làm | — | — |
+| 1 | `w08-l01` | guided | maze | parsons | **Dạy phép, làm phép**: ghép thân `bậc thang` (4 khối) và gọi 2 lần trên dốc 2 bậc có khúc rẽ | `cq_proc_def`, `cq_proc_call` (`block:`) · `w08-lesson-phep` | 8 |
+| 2 | `w08-l02` | guided | maze | predict | Dạy mà không làm: chương trình chính không gọi phép, Măng chỉ đi 2 ô | — | — |
+| 3 | `w08-l03` | guided | maze | build | Phép **cho sẵn** (khối `dạy phép` đặt sẵn), bé ghép chương trình chính: làm phép ở 3 chỗ, xen giữa là các khúc rẽ khác nhau | — | 9 |
+| 4 | `w08-l04` | guided | maze | build | Chương trình chính cho sẵn, bé **tự viết thân phép** (2 bản đồ: cùng chương trình chính, khác hình) | — | 9 |
+| 5 | `w08-l05` | practice | maze | bughunt | Sai một khối trong phép → sai ở mọi chỗ làm phép; **sửa một lần là đúng hết** (mê cung 2 ngã ba) | — | 10 / sửa 1 |
+| 6 | `w08-l06` | practice | robotlab | build | Phép với lệnh robot: `giao khối` (gắp, quay đầu, tiến 1, thả: 5 khối) làm ở 3 trạm, đường giữa các trạm khác nhau | — | 13 |
+| 7 | `w08-l07` | practice | maze | predict | **Làm xong phép thì quay lại khối ngay sau**: chương trình `A, rẽ phải, A, tiến` dừng ở đâu? (demo ở thẻ 4 của `w08-lesson-phep`) | — | — |
+| 8 | `w08-l08` | practice | maze | build | **Làm phép trong vòng lặp** và ngoài vòng lặp: `lặp 2 {A}, rẽ phải, A`, thân A không có vòng lặp (đường xoắn, ngõ cụt chặn `lặp 3`) | `w08-lesson-phep-trong-lap` | 10 |
+| 9 | `w08-l09` | practice | maze | parsons | **Hai phép khác tên**: `bậc thang` (4 khối, gọi 2 lần) và `vòng cột` (rẽ phải, tiến, rẽ trái, tiến, tiến, rẽ trái, tiến, rẽ phải: đi vòng qua một cột, về lại hàng cũ phía sau cột; 8 khối, gọi 2 lần) | `w08-lesson-hai-phep` | 18 |
+| 10 | `w08-l10` | practice | robotlab | bughunt | Làm **nhầm phép**: gọi `về thả` ở chỗ cần `đi gắp` (đổi tên trên khối, 1 thao tác), 2 bản đồ | — | 11 / sửa 1 |
+| 11 | `w08-l11` | practice | maze | build | **Phép có câu hỏi**: `tới ngã ba` = `lặp đến khi có đường bên trái {tiến}, rẽ trái` (4 khối), gọi 3 lần thẳng dưới `cq_start` cho 3 đoạn dài khác nhau; 3 bản đồ khác hình (M3) | `w08-lesson-phep-hoi` | 9 |
+| 12 | `w08-l12` | practice | robotlab | build | Hai phép trên sa bàn 2 chiều (`đi gắp`, `về thả`), `mustReturn`, 2 bản đồ | — | 14 |
+| 13 | `w08-l13` | practice | maze | parsons | **Phép có hộp**: `cầu thang` với hộp `số bậc`, gọi với 2 rồi với 3 | `cq_proc_def_n`, `cq_proc_call_n` (`block:`) · `w08-lesson-hop-cua-phep` | 9 |
+| 14 | `w08-l14` | practice | maze | predict | Mỗi lần làm phép, hộp nhận số mới: `cầu thang(3)`, `cầu thang(1)` → leo 4 bậc (ngộ nhận: 6 bậc, 3 bậc) | — | — |
+| 15 | `w08-l15` | practice | maze | build | Tự viết phép có hộp, gọi 3 lần với 3 số khác nhau, thẳng dưới `cq_start`; dốc có ngõ cụt ở bậc thừa | — | 10 |
+| 16 | `w08-l16` | practice | robotlab | bughunt | Thân phép dùng `lặp 2 lần` cố định thay vì `lặp [số ô] lần`: đúng ở lần làm phép đầu, sai ở lần sau (2 bản đồ) | — | 12 / sửa 1 |
+| 17 | `w08-l17` | challenge | maze | build | Hai phép (một có hộp), `maxBlocks` = `par`; mê cung 3 ngã ba; chép thẳng thì vượt `maxBlocks`; mọi `làm phép` nằm ngoài vòng lặp | — | 12 |
+| 18 | `w08-l18` | challenge | robotlab | bughunt | 2 lỗi: một trong thân phép, một ở số của `làm phép … với` | — | 13 / sửa 2 |
+| 19 | `w08-l19` | challenge | maze | predict | Đọc chương trình có hai phép + hộp: Măng dừng ở ô nào? | — | — |
+| 20 | `w08-boss` | boss | robotlab | build | **"Ngày hội phép thuật"**: sa bàn 5×7, 3 phép (`đi [số ô]` có hộp, `trung hòa`, `thu hồi`), về phòng, có giờ; chọn thứ tự việc như boss W6 | — | ~18 ⚠ (`parUnproven`) |
+| ✦ | `w08-creative` | creative | robotlab | creative | Sa bàn Thành Phố Măng + 3 phép tên sẵn (`phép 1`, `phép 2`, `phép 3`, một phép có hộp) | — | — |
+
+Tổng kết bảng:
+- **Chặng:** 4 guided · 12 practice · 3 challenge · 1 boss.
+- **Mode:** build 9 (kể cả boss) · parsons 3 · predict 4 · bughunt 4. Không có quá 2 màn build liền nhau.
+- **Kiểu game:** maze 14; robotlab 6 (`l06`, `l10`, `l12`, `l16`, `l18`, boss) + màn sáng tạo.
+- **Khối mới lần đầu (luật 7):** `dạy phép`, `làm phép` ở `l01`; `dạy phép với hộp`, `làm phép với` ở `l13`. Cả hai màn là `parsons`, gợi ý `block:`.
+- Boss dùng mọi khối mới của W8 (luật §7).
+- Mọi màn có phép: `maxInstances` của mỗi type `cq_proc_def*` = số phép dùng type đó. Không có `làm phép` trong thân phép (ADR-0023, mặc định I2).
+
+**Truyện chia chương** (đề xuất):
+1. `sach-phep` "Sách phép trống trơn" (mở đầu)
+2. `phep-dau-tien` "Phép đầu tiên" (sau `l04`)
+3. `bip-hoc-phep` "Bíp học phép" (sau `l05`, trước `l06`)
+4. `phep-co-hop` "Phép có hộp" (sau `l12`, trước bài `w08-lesson-hop-cua-phep`)
+5. `ngay-hoi` "Ngày hội phép thuật" (sau boss): "Cô Thỏ gọi: lên Tháp Họa Sĩ vẽ nhé!"
+
+-------
+### 6.4 Thế giới 9 — 🎨 Tháp Họa Sĩ (bản nháp lần một, P4, 15/10/2026)
+
+> Viết theo quyết định của điều phối ngày 15/10/2026, sửa cùng ngày theo review độc lập.
+> - W9 dạy **lặp lồng nhau** và **góc** trên kiểu game mới **`turtle`** (ADR-0024, Đề xuất). Măng cầm bút lông vẽ trên giấy.
+> - Chấm bằng **tập nét** so với hình mẫu, không theo thứ tự. Vẽ **nét lạ thì dừng ngay**.
+> - Góc chỉ là bội số của 30° (mặc định I6).
+> - Mọi chương trình trong bảng **đã chạy bằng một bộ mô phỏng nhỏ** (script tạm, số thực, ngày 15/10). Cột "nét" là số nét đơn vị vẽ ra.
+> - Hình mẫu thật (trên lưới, trong giấy) và `par` vét cạn làm ở P4-12, P4-13.
+
+**Gọi tên với bé:**
+- Dùng các chữ "bút", "nét", "hình mẫu", "rẽ … độ".
+- Bài mở đầu nói: "90 độ là góc vuông. Quay đủ 1 vòng là 360 độ." (mặc định I7).
+- Lặp lồng nhau gọi là **"vòng lặp trong vòng lặp"**, hai phần là "vòng trong" và "vòng ngoài".
+- Mọi số viết bằng chữ số (`ui-copy-guide.md` §2).
+
+**Bé làm được sau thế giới:**
+- Vẽ đoạn thẳng, góc, hình chữ nhật bằng `tiến … bước` và `rẽ … độ`; biết rẽ **không** vẽ.
+- Biết **góc rẽ quyết định hình**: tam giác đều rẽ 120, hình vuông rẽ 90, lục giác rẽ 60; số cạnh × góc rẽ = 360 (đi đủ 1 vòng).
+- Nhấc bút / hạ bút để vẽ hình rời nhau và nét đứt.
+- Dùng **vòng lặp trong vòng lặp**: mỗi lần vòng ngoài chạy 1 lần, vòng trong chạy **hết**; đếm được tổng số lần (3 × 4 = 12 cạnh).
+- Đặt khối đúng vòng (trong hay ngoài) để xoay, dời hoặc ngắt hình.
+- (Ôn W8) Gói một hình thành phép, rồi làm phép ở 2 chỗ.
+- (Boss) Vẽ bông hoa tuyết 6 cánh có khe hở.
+
+**Ngộ nhận nhắm tới:**
+
+| Ngộ nhận | Màn |
+|---|---|
+| "Rẽ cũng vẽ nét" | `l02`, bài mở đầu |
+| "Rẽ theo góc **trong** của hình" (lục giác rẽ 120) | `l06` |
+| "Vòng trong chạy 1 lần" | `l11` |
+| "Khối nào trong vòng lặp cũng như nhau, đặt đâu cũng được" | `l12` |
+| "Nhấc bút là Măng đứng yên" | `l08` |
+| "Phải vẽ đúng thứ tự như hình mẫu" (chấm bằng tập nét) | bài mở đầu |
+
+**Unplugged — "Rùa băng keo":** một bé đứng trên lưới băng keo dán trên sàn, cầm phấn. Bạn đọc thẻ "tiến 2 bước", "rẽ phải 90 độ"; bé xoay người, tay chỉ hướng.
+- Vòng 1: vẽ hình vuông, đếm số lần rẽ (4 lần, đủ 1 vòng).
+- Vòng 2: vẽ tam giác. Thử rẽ 60 (sai), rồi rẽ 120.
+- Vòng 3: thẻ "lặp 3 lần { lặp 4 lần {…}, tiến 2 }". Cả nhóm đếm số cạnh trước khi vẽ.
+
+**Câu chuyện** (nối chương cuối W8):
+- Tháp Họa Sĩ của cô Thỏ có 5 tầng, mỗi tầng một bức tường trống.
+- Gió thổi bay hết màu vẽ. Măng cầm bút lông vẽ lại hàng rào, cửa sổ, mái nhà, hoa, rồi bông hoa tuyết trên đỉnh tháp cho lễ hội mùa đông.
+- `STORY_PROPS` thêm `easel` (giá vẽ), `tower` (tháp). Nhân vật `bunny` (cô Thỏ) đã có sẵn.
+- Cảnh `theme.scene: 'thap-hoa-si'` (P4-14).
+
+**Khối mới** (ADR-0024). Tooltip là **đề xuất** và **bắt đầu bằng nhãn khối**, để gợi ý `enter` "Khối mới! " + tooltip qua luật 7 (`ACTION_LABELS`) và ≤ 12 chữ. Ô `DEG` là dropdown tĩnh 30…180, mỗi màn ghim 1–2 góc.
+
+| Khối | Nhãn | Tooltip (câu luật) | Ví dụ chạy được (thẻ `demo`) |
+|---|---|---|---|
+| `turtle_forward` | tiến [3] bước | Tiến 3 bước: bút hạ thì có nét dài 3 | `tiến 3` → 1 nét dài 3 |
+| `turtle_turn_right` | rẽ phải [90 ▾] độ | Rẽ phải 90 độ: quay tại chỗ, chưa đi | `tiến 2, rẽ phải 90, tiến 2` → chữ L; chỉ có `rẽ phải 90` → không có nét |
+| `turtle_turn_left` | rẽ trái [90 ▾] độ | Rẽ trái 90 độ: quay tại chỗ, chưa đi | `lặp 3 {tiến 1, rẽ trái 90, tiến 1, rẽ phải 90}` → bậc thang đi lên |
+| `turtle_pen_up` | nhấc bút | Nhấc bút: đi tiếp thì không có nét | `tiến 1, nhấc bút, tiến 1, hạ bút, tiến 1` → nét đứt |
+| `turtle_pen_down` | hạ bút | Hạ bút: đi tiếp thì có nét | (cùng thẻ trên) |
+
+**Bài và thẻ cho từng ý mới:**
+- **Bài "Khối mới"** (`beforeLevel`). Mỗi bài gồm câu luật (tooltip), demo ở bảng trên và một quiz:
+
+  | Bài | Trước màn | Khối |
+  |---|---|---|
+  | `w09-lesson-but` | `l01` | tiến |
+  | `w09-lesson-re-phai` | `l02` | rẽ phải |
+  | `w09-lesson-re-trai` | `l05` | rẽ trái |
+  | `w09-lesson-nhac-but` | `l08` | nhấc bút, hạ bút (một ý: "bút lên / xuống") |
+
+- **Ý mới không phải khối** (bài ngắn `beforeLevel`, câu chuẩn ở `content-authoring.md` §5.1):
+
+  | Bài | Trước màn | Câu chuẩn | Demo / quiz |
+  |---|---|---|---|
+  | `w09-lesson-goc` | `l04` | "Góc rẽ đổi hình. Rẽ 120 độ 3 lần: tam giác." | cùng chương trình `lặp 3 {tiến 3, rẽ phải [d]}` với `d` = 120 (tam giác, 9 nét) và `d` = 90 (hình vuông thiếu 1 cạnh) |
+  | `w09-lesson-mot-vong` | `l06` | "Đi đủ 1 vòng là quay 360 độ." | demo lục giác `lặp 6 {tiến 2, rẽ phải 60}` (6 × 60 = 360, 12 nét). Quiz "Tam giác: rẽ mấy độ?": **120** / 60 |
+  | `w09-lesson-lap-long` | `l10` | "Vòng trong chạy hết, vòng ngoài mới đi tiếp." | demo `lặp 3 {lặp 4 {tiến 2, rẽ phải 90}, tiến 2}` → 3 hình vuông liền nhau; "Từng bước" hiện số vòng trong / ngoài |
+  | `w09-lesson-xoay-hinh` | `l13` | "Rẽ ở vòng ngoài: hình xoay sau mỗi lần vẽ." | demo `lặp 6 {lặp 4 {tiến 2, rẽ phải 90}, rẽ phải 60}` → bông 6 hình vuông (48 nét) |
+
+**Bài giảng `w09-lesson` (6 thẻ):**
+1. "Cô Thỏ nhờ Măng vẽ lại Tháp Họa Sĩ."
+2. "Bút hạ thì Măng đi đâu cũng có nét."
+3. `demo` `tiến 3`: "Tiến 3 bước, có 1 nét dài 3."
+4. `demo` `rẽ phải 90`: "Rẽ chỉ quay. Rẽ không vẽ nét."
+5. "Vẽ thứ tự nào cũng được, miễn giống hình mẫu."
+6. `quiz` "Măng rẽ phải 90 độ. Có nét mới không?": **Không** / Có.
+
+**Quy ước bảng W9:**
+- `tiến 3` = `turtle_forward` 3. `phải 90`, `trái 120` = khối rẽ. `nhấc`, `hạ` = khối bút. Măng bắt đầu nhìn sang phải (`E`), bút hạ.
+- Giấy ≤ 12 × 12 bước.
+- Mọi thanh khối **ghim** số bước và số độ (vét cạn chỉ thử số ghim, như `robot_forward`), trừ `l01`–`l03`.
+- Từ `l10` dùng `maxLoopDepth: 2`; trước đó là `1`. Độ sâu hiệu dụng (ADR-0023) tính cả phép ở `l16`.
+- Cột "Hình lời giải" bỏ số bước **và** số độ (luật 24 M2 cho `turtle`, ADR-0024); ảnh gương trái ↔ phải là cùng hình.
+- **Luật soạn T1** (`difficulty.ts`, chỉ cảnh báo): mỗi màn `build` / `bughunt` có ≥ 1 cách sai hợp lý vẽ **nét lạ** trước khi xong (ghi trong cột cuối).
+
+| # | ID | Chặng | Mode | Ý chính (một ý) · chương trình đúng (đã mô phỏng) | Khối · nét | Hình lời giải | Bẫy (T1) / bài trước |
+|---|---|---|---|---|---|---|---|
+| — | `w09-lesson` | (bài giảng) | — | Bút, nét; rẽ không vẽ; thứ tự nào cũng được | — | — | — |
+| 1 | `w09-l01` | guided | build | Khối **tiến … bước**: hàng rào thẳng · `tiến 5` (ô số mở 1–9) | 1 · 5 | `tiến` | `tiến 6` vẽ nét lạ · `w09-lesson-but` |
+| 2 | `w09-l02` | guided | parsons | Khối **rẽ phải … độ**: khung cửa chữ U · `tiến 2, phải 90, tiến 3, phải 90, tiến 2` | 5 · 7 | chuỗi U | (ghép hình) · `w09-lesson-re-phai` |
+| 3 | `w09-l03` | guided | build | Hình chữ nhật bằng vòng lặp đã học · `lặp 2 {tiến 3, phải 90, tiến 1, phải 90}` | 5 · 8 | `lặp{tiến, phải, tiến, phải}` | `lặp 4` cũng đúng; đổi 3 ↔ 1 vẽ nét lạ |
+| 4 | `w09-l04` | guided | predict | **Góc rẽ đổi hình** · `lặp 3 {tiến 3, phải 120}` → tam giác (9 nét); lựa chọn: tam giác / hình vuông thiếu cạnh / lục giác dở | 3 · 9 | `lặp{tiến, phải}` (lần 1) | `w09-lesson-goc` |
+| 5 | `w09-l05` | practice | build | Khối **rẽ trái**: bậc thang đi lên · `lặp 3 {tiến 1, trái 90, tiến 1, phải 90}` | 5 · 6 | `lặp{tiến, trái, tiến, phải}` | đổi trái ↔ phải thì bậc đi xuống, nét lạ ngay · `w09-lesson-re-trai` |
+| 6 | `w09-l06` | practice | bughunt | **Đi đủ 1 vòng = 360**: lục giác cho sẵn `lặp 6 {tiến 2, phải 120}` (góc trong; vẽ nét lạ ở cạnh thứ 2) → sửa thành `phải 60` | 3 · 12 / sửa 1 | `lặp{tiến, phải}` (lần 2, khác mode) | `w09-lesson-mot-vong` |
+| 7 | `w09-l07` | practice | build | Ngôi nhà: hình vuông rồi mái tam giác · `lặp 4 {tiến 2, phải 90}, trái 60, tiến 2, phải 120, tiến 2` (bắt đầu ở góc trên trái) | 7 · 12 | `lặp{tiến, phải}, trái, tiến, phải, tiến` | `trái 30` (nhầm góc của mái) vẽ nét lạ |
+| 8 | `w09-l08` | practice | build | Khối **nhấc bút / hạ bút**: nét đứt · `lặp 3 {tiến 1, nhấc, tiến 1, hạ}` | 5 · 3 | `lặp{tiến, nhấc, tiến, hạ}` | quên `nhấc` vẽ khe thành nét lạ · `w09-lesson-nhac-but` |
+| 9 | `w09-l09` | practice | parsons | Hai hình vuông rời nhau · `lặp 4 {tiến 2, phải 90}, nhấc, tiến 3, hạ, lặp 4 {tiến 2, phải 90}` | 9 · 16 | `lặp{…}, nhấc, tiến, hạ, lặp{…}` | (ghép hình) |
+| 10 | `w09-l10` | practice | build | **Vòng lặp trong vòng lặp**: 3 hình vuông liền nhau · `lặp 3 {lặp 4 {tiến 2, phải 90}, tiến 2}` | 5 · 20 | `lặp{lặp{tiến, phải}, tiến}` | `tiến 2` vào vòng trong vẽ nét lạ · `w09-lesson-lap-long` |
+| 11 | `w09-l11` | practice | predict | Vòng trong chạy hết · `lặp 2 {tiến 2, lặp 3 {tiến 1, trái 120}}` → đường dài 5 với **2** tam giác (9 nét); lựa chọn 2 / 1 / 6 tam giác | 5 · 9 | `lặp{tiến, lặp{tiến, trái}}` | — |
+| 12 | `w09-l12` | practice | bughunt | Khối **sai vòng**: 3 tam giác cách nhau, đúng là `lặp 3 {lặp 3 {tiến 1, trái 120}, nhấc, tiến 2, hạ}`; cho sẵn `nhấc, tiến 2, hạ` nằm **trong** vòng trong (nét lạ ngay tam giác đầu) → kéo cả 3 khối ra vòng ngoài (1 thao tác) | 7 · 9 / sửa 1 | `lặp{lặp{tiến, trái}, nhấc, tiến, hạ}` | — |
+| 13 | `w09-l13` | practice | build | **Xoay hình ở vòng ngoài**: bông 6 hình vuông · `lặp 6 {lặp 4 {tiến 2, phải 90}, phải 60}` | 5 · 48 | `lặp{lặp{tiến, phải}, phải}` | `phải 60` vào vòng trong vẽ nét lạ · `w09-lesson-xoay-hinh` |
+| 14 | `w09-l14` | practice | parsons | **Rẽ trước, vẽ sau**: chong chóng 4 tam giác · `lặp 4 {phải 90, lặp 3 {tiến 2, trái 120}}` | 5 · 24 | `lặp{phải, lặp{tiến, trái}}` | (ghép hình: `phải 90` đặt sau vòng trong thì cánh đầu lệch) |
+| 15 | `w09-l15` | practice | build | Bút trong vòng trong: khung tranh nét đứt · `lặp 4 {lặp 2 {tiến 1, nhấc, tiến 1, hạ}, phải 90}` | 7 · 8 | `lặp{lặp{tiến, nhấc, tiến, hạ}, phải}` | `phải 90` vào vòng trong vẽ nét lạ |
+| 16 | `w09-l16` | practice | build | (ôn W8) Phép `cánh` = `lặp 2 {tiến 2, phải 60, tiến 2, phải 120}` (hình thoi, 6 khối kể cả `dạy phép`), dùng ở 2 chỗ: `lặp 3 {cánh, phải 120}` (hoa), `phải 90, tiến 3` (cuống), `cánh` (lá) | 12 · 35 (chép thẳng: 14) | phép + `lặp{phép, phải}, phải, tiến, phép` | `phải 60` thay `phải 120` ở vòng ngoài vẽ nét lạ; R5: `maxBlocks` 12 |
+| 17 | `w09-l17` | practice | bughunt | Cành tuyết chữ Y: `lặp 3 {tiến 2, lặp 2 {trái 60, tiến 1, phải 180, tiến 1}, trái 60, tiến 2, trái 60}`; cho sẵn `phải 120` thay `phải 180` ở vòng trong (nét lạ ở nhánh đầu) | 10 · 12 / sửa 1 | `lặp{tiến, lặp{trái, tiến, phải, tiến}, trái, tiến, trái}` | — |
+| 18 | `w09-l18` | challenge | build | Bậc thang hình vuông: `lặp 3 {lặp 4 {tiến 1, trái 90}, tiến 1, trái 90, tiến 1, phải 90}`, `maxBlocks` = `par`; "vẽ từng ô" vượt khối | 8 · 12 | `lặp{lặp{tiến, trái}, tiến, trái, tiến, phải}` | `phải 90` cuối thiếu thì bậc 2 lệch, nét lạ |
+| 19 | `w09-l19` | challenge | predict | Cờ chong chóng · `lặp 4 {tiến 1, lặp 3 {tiến 1, phải 120}, phải 90}` vẽ gì? (4 cán + 4 lá cờ tam giác, 16 nét) / 1 tam giác / 4 hình vuông | 6 · 16 | `lặp{tiến, lặp{tiến, phải}, phải}` | — |
+| 20 | `w09-boss` | boss | build | **"Bông hoa tuyết"** 6 cánh, mỗi cánh có **khe hở** ở giữa và 2 nhánh chữ V ở đầu: `lặp 6 {tiến 1, nhấc, tiến 1, hạ, tiến 1, lặp 2 {trái 60, tiến 1, phải 180, tiến 1}, trái 60, tiến 1, nhấc, tiến 1, hạ, tiến 1, trái 120}`. Không nhấc bút thì khe thành nét lạ ngay cánh đầu (bản không nhấc: 10 khối, 30 nét). Dùng mọi khối W9 | 18 · 24 | (riêng) | ~18 ⚠ (`parUnproven` nếu vét cạn không xong) |
+| ✦ | `w09-creative` | creative | creative | Giấy trắng 12 × 12, mọi khối bút + lặp + 3 phép tên sẵn | — | — | — |
+
+Tổng kết bảng:
+- **Chặng:** 4 guided · 13 practice · 2 challenge · 1 boss.
+- **Mode:** build 11 (kể cả boss) · parsons 3 · predict 3 · bughunt 3. Không có quá 2 màn build liền nhau.
+- **Kiểu game:** `turtle` cả 20 màn. W9 là thế giới của kiểu game mới; ý "nhiều mê cung hơn" của HLV giữ ở W8 (14/20).
+- **Hình lời giải** (bỏ số, bỏ độ, coi ảnh gương là một): chỉ `lặp{tiến, phải}` dùng 2 lần (`l04` đoán, `l06` săn lỗi: khác mode, M2 cho phép). Mọi hình khác dùng 1 lần.
+- **Khối mới lần đầu:** `tiến … bước` ở `l01`, `rẽ phải` ở `l02`, `rẽ trái` ở `l05`, `nhấc bút` + `hạ bút` ở `l08`. Hai khối bút là một ý "bút lên / xuống", luôn đi đôi; cả hai có gợi ý `toolbox:`.
+- `l16` dùng phép của W8 (ôn, không phải ý mới); vét cạn chế độ thân cố định (ADR-0023).
+
+**Truyện chia chương** (đề xuất):
+1. `thap-trong` "Tháp trống trơn" (mở đầu)
+2. `mai-nha` "Mái nhà" (sau `l07`)
+3. `but-nhay` "Bút biết nhảy" (sau `l09`)
+4. `vong-trong-vong` "Vòng trong vòng" (sau `l15`)
+5. `hoa-tuyet` "Hoa tuyết trên đỉnh tháp" (sau boss): "Học Viện Thuật Toán đang chờ Măng!" (W10)
+
+### 6.5 Thế giới 10 (khung)
+- Giữ dòng khung ở bảng §6: Học Viện Thuật Toán, so sánh cách giải, sắp xếp, tìm kiếm, đường ngắn nhất; kiểu game `sorter`, `maze`.
+- Ứng viên cho W10 đã ghi lại từ W8–W9:
+  - phép gọi phép (bỏ `SPELL_IN_SPELL`);
+  - tham số cắm vào ô (`tiến [n] ô`, cần capacity guard);
+  - `biến + biến`.
+- Chi tiết hóa ở GĐ 5.
 
 ## 7. Quy tắc soạn chương trình học
 `content:check` tự kiểm các luật có dấu ⚙ (luật 7–8 ở `architecture/content-model.md` §5).

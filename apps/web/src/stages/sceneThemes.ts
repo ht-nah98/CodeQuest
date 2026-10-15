@@ -405,6 +405,163 @@ export const CITY_DETAIL = {
   pavementSeam: shade(mix(C.ground, C.sky, 0.35), 0.94),
 } as const;
 
+// ---- Xưởng Phép Thuật (W8): wooden spell workshop, bookshelves, star jars (P4-14) -----------------
+
+const SPELL: SceneArt = {
+  id: 'xuong-phep-thuat',
+  sky: {
+    high: mix(C.brandDeep, C.ink, 0.35),
+    mid: mix(C.brand, C.paper, 0.6),
+    low: mix(C.brandSoft, C.paper, 0.45),
+  },
+  // Lavender-wood bookcases far away, warm wooden desks near the track.
+  far: {
+    main: mix(C.brand, C.paper, 0.55),
+    dark: mix(C.brand, C.paper, 0.4),
+    light: mix(C.brand, C.paper, 0.8),
+  },
+  near: {
+    main: mix(B.robot, C.paper, 0.5),
+    dark: mix(B.robot, C.paper, 0.4),
+    light: mix(B.robot, C.paper, 0.7),
+  },
+  backdrop: [],
+  ground: {
+    patterns: GROUND_PATTERNS['xuong-phep-thuat'],
+    palette: {
+      k: mix(C.ink, C.brandDeep, 0.4),
+      t: mix(C.brand, C.paper, 0.7),
+      w: mix(C.brand, C.paper, 0.5),
+      W: mix(C.brand, C.paper, 0.35),
+      s: C.coinShine,
+      j: mix(C.brand, B.robot, 0.5),
+      b: mix(C.brand, C.paper, 0.45),
+      B: mix(C.brand, C.paper, 0.32),
+    },
+  },
+  maze: {
+    patterns: MAZE_PATTERNS['xuong-phep-thuat'],
+    palette: {
+      p: mix(C.paper2, C.brand, 0.12),
+      P: mix(C.paper2, C.brand, 0.3),
+      n: C.inkSoft,
+      o: mix(C.paper2, C.brand, 0.28),
+      r: mix(C.paper2, C.brand, 0.42),
+      s: C.coin,
+      W: shade(B.robot, 0.45),
+      a: C.brandDeep,
+      b: shade(B.var, 0.7),
+      c: shade(B.fn, 0.7),
+      d: shade(B.pen, 0.65),
+    },
+    background: mix(C.ground, C.brand, 0.25),
+  },
+  svgSky: mix(C.brand, C.paper, 0.6),
+  decor: null,
+};
+
+/** The spell workshop's rafters, arched night window, bookcases, hanging star jars and desks. */
+export const SPELL_DETAIL = {
+  beam: mix(C.brandDeep, C.ink, 0.3),
+  beamLight: C.brandDeep,
+  panelLine: mix(C.brand, C.paper, 0.45),
+  frame: shade(B.robot, 0.6),
+  glass: mix(C.brandDeep, C.ink, 0.5),
+  star: C.coinShine,
+  shelf: mix(B.robot, C.paper, 0.35),
+  /** Pastel book spines on the far bookcases. */
+  books: [
+    mix(C.oops, C.paper, 0.55),
+    mix(B.move, C.paper, 0.55),
+    mix(C.go, C.paper, 0.5),
+    mix(C.coin, C.paper, 0.5),
+    mix(B.var, C.paper, 0.55),
+  ],
+  jarGlass: C.sky,
+  jarCap: C.inkSoft,
+  jarStar: C.coin,
+  rope: shade(B.robot, 0.6),
+  cover: C.brandDeep,
+  page: C.paper,
+  wand: shade(B.robot, 0.7),
+  wandStar: C.coin,
+} as const;
+
+// ---- Tháp Họa Sĩ (W9): five-floor painter's tower, easels, palettes (P4-14) -------------------
+
+const TOWER: SceneArt = {
+  id: 'thap-hoa-si',
+  sky: {
+    high: mix(C.sky, C.brand, 0.25),
+    mid: mix(C.sky, C.paper, 0.35),
+    low: mix(C.hint, C.paper, 0.55),
+  },
+  // Pastel painted towers on the horizon, easels and paint pots near the track.
+  far: {
+    main: mix(C.brand, C.paper, 0.55),
+    dark: mix(C.brand, C.paper, 0.4),
+    light: mix(C.brand, C.paper, 0.8),
+  },
+  near: {
+    main: mix(B.robot, C.paper, 0.5),
+    dark: mix(B.robot, C.paper, 0.4),
+    light: mix(B.robot, C.paper, 0.7),
+  },
+  backdrop: [],
+  ground: {
+    patterns: GROUND_PATTERNS['thap-hoa-si'],
+    palette: {
+      k: mix(C.ink, C.brandDeep, 0.4),
+      t: C.paper,
+      s: mix(C.brandSoft, C.paper2, 0.45),
+      S: mix(C.brand, C.paper2, 0.4),
+      p: C.hint,
+      q: C.sky,
+      r: mix(C.go, C.paper, 0.3),
+      h: mix(C.coin, C.paper, 0.2),
+    },
+  },
+  maze: {
+    patterns: MAZE_PATTERNS['thap-hoa-si'],
+    palette: {
+      q: mix(C.paper, C.paper2, 0.5),
+      r: shade(mix(C.paper, C.paper2, 0.5), 0.9),
+      h: C.hint,
+      u: C.sky,
+      g: mix(C.go, C.paper, 0.3),
+      W: C.brandDeep,
+      w: mix(C.brandDeep, C.brand, 0.45),
+    },
+    background: mix(C.ground, C.hint, 0.2),
+  },
+  svgSky: mix(C.hint, C.paper, 0.55),
+  decor: null,
+};
+
+/** The painter's tower: pastel floors, arched windows, paint-brush clouds, easels and palettes. */
+export const TOWER_DETAIL = {
+  sun: C.coinShine,
+  sunRim: shade(C.coin, 1.55),
+  cloud: mix(C.hint, C.paper, 0.35),
+  /** One pastel wall colour per floor of the far towers. */
+  floors: [
+    mix(C.hint, C.paper, 0.55),
+    mix(C.sky, C.paper, 0.35),
+    mix(C.go, C.paper, 0.55),
+    mix(C.coin, C.paper, 0.5),
+    mix(C.brand, C.paper, 0.6),
+  ],
+  window: mix(C.brandDeep, C.brand, 0.4),
+  roof: mix(C.oops, C.paper, 0.45),
+  flag: C.oops,
+  seam: mix(C.brand, C.paper, 0.45),
+  easel: shade(B.robot, 0.8),
+  canvas: C.white,
+  canvasEdge: C.inkSoft,
+  paints: [C.oops, B.move, C.go, C.coin] as readonly string[],
+  palette: mix(B.robot, C.paper, 0.6),
+} as const;
+
 /** Each theme's backdrop: the sky in the action band and the big layers behind the track. */
 const withBackdrop = (art: SceneArt, extra: readonly string[] = []): SceneArt => ({
   ...art,
@@ -436,6 +593,19 @@ export const SCENE_ART: Readonly<Record<SceneTheme, SceneArt>> = {
     RIVER_DETAIL.bridge,
   ]),
   'thanh-pho-robot': withBackdrop(CITY, [CITY.far.dark, CITY.far.light]),
+  'xuong-phep-thuat': withBackdrop(SPELL, [
+    SPELL.far.dark,
+    SPELL.near.light,
+    SPELL_DETAIL.shelf,
+    SPELL_DETAIL.panelLine,
+    ...SPELL_DETAIL.books,
+  ]),
+  'thap-hoa-si': withBackdrop(TOWER, [
+    TOWER.far.dark,
+    TOWER.near.light,
+    TOWER_DETAIL.cloud,
+    ...TOWER_DETAIL.floors,
+  ]),
 };
 
 /** The art of a theme; no theme (a stage mounted without one) is Làng Tre. */
