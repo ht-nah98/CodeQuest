@@ -5,9 +5,9 @@
   "kind": "robotlab",
   "mode": "build",
   "title": "Ngày hội robot",
-  "objective": "Đủ 300 điểm trong 30 giây. Không quá 14 lệnh!",
-  "learningGoal": "Một lượt thi: chọn việc nhiều điểm (trung hòa, thu hồi), chọn thứ tự cho đường ngắn, rồi về phòng kịp giờ. Không cần làm hết.",
-  "mission": "Ngày hội robot: đủ 300 điểm trong 30 giây!",
+  "objective": "Đủ 300 điểm trong 50 giây. Không quá 21 lệnh!",
+  "learningGoal": "Một lượt thi trên sa bàn lớn: chọn việc (trung hòa, thu hồi; khoanh vùng là bẫy) và thứ tự. Trung hòa trước, thu hồi khối ô nhiễm trên đường về rồi thả trong phòng: 300 điểm, 47 giây. Thu hồi trước thì hết giờ.",
+  "mission": "Ngày hội robot: đủ 300 điểm trong 50 giây!",
   "toolbox": [
     "robot_forward",
     "robot_turn_left",
@@ -16,26 +16,26 @@
     "robot_release",
     "cq_repeat"
   ],
-  "maxBlocks": 14,
+  "maxBlocks": 21,
   "maxLoopDepth": 1,
-  "par": 12,
+  "par": 19,
   "config": {
-    "map": ["##Z##", "r.L..", "##.##"],
-    "startDir": "W",
+    "map": ["r.....Z", ".#.#.#.", "...L...", ".#.#.#.", "......."],
+    "startDir": "N",
     "blocks": [
       {
         "kind": "neutralizer",
         "color": "RED",
-        "at": [1, 1]
+        "at": [4, 1]
       },
       {
         "kind": "pollution",
         "color": "RED",
-        "at": [1, 4]
+        "at": [0, 4]
       },
       {
         "kind": "fence",
-        "at": [2, 2]
+        "at": [2, 5]
       }
     ],
     "goal": {
@@ -43,7 +43,7 @@
       "target": 300
     },
     "rules": {
-      "timeLimit": 30
+      "timeLimit": 50
     }
   },
   "solution": {
@@ -58,64 +58,118 @@
           "deletable": false,
           "next": {
             "block": {
-              "type": "robot_forward",
+              "type": "robot_turn_left",
               "id": "b1",
-              "fields": {
-                "N": 1
-              },
               "next": {
                 "block": {
-                  "type": "robot_grab",
+                  "type": "robot_forward",
                   "id": "b2",
+                  "fields": {
+                    "N": 1
+                  },
                   "next": {
                     "block": {
-                      "type": "robot_forward",
+                      "type": "robot_turn_left",
                       "id": "b3",
-                      "fields": {
-                        "N": 1
-                      },
                       "next": {
                         "block": {
-                          "type": "robot_release",
+                          "type": "robot_forward",
                           "id": "b4",
+                          "fields": {
+                            "N": 2
+                          },
                           "next": {
                             "block": {
                               "type": "robot_turn_right",
                               "id": "b5",
                               "next": {
                                 "block": {
-                                  "type": "robot_turn_right",
+                                  "type": "robot_forward",
                                   "id": "b6",
+                                  "fields": {
+                                    "N": 1
+                                  },
                                   "next": {
                                     "block": {
-                                      "type": "robot_forward",
+                                      "type": "robot_grab",
                                       "id": "b7",
-                                      "fields": {
-                                        "N": 4
-                                      },
                                       "next": {
                                         "block": {
-                                          "type": "robot_grab",
+                                          "type": "robot_forward",
                                           "id": "b8",
+                                          "fields": {
+                                            "N": 1
+                                          },
                                           "next": {
                                             "block": {
                                               "type": "robot_turn_right",
                                               "id": "b9",
                                               "next": {
                                                 "block": {
-                                                  "type": "robot_turn_right",
+                                                  "type": "robot_forward",
                                                   "id": "b10",
+                                                  "fields": {
+                                                    "N": 4
+                                                  },
                                                   "next": {
                                                     "block": {
-                                                      "type": "robot_forward",
+                                                      "type": "robot_release",
                                                       "id": "b11",
-                                                      "fields": {
-                                                        "N": 2
-                                                      },
                                                       "next": {
                                                         "block": {
-                                                          "type": "robot_release",
-                                                          "id": "b12"
+                                                          "type": "robot_turn_right",
+                                                          "id": "b12",
+                                                          "next": {
+                                                            "block": {
+                                                              "type": "robot_forward",
+                                                              "id": "b13",
+                                                              "fields": {
+                                                                "N": 4
+                                                              },
+                                                              "next": {
+                                                                "block": {
+                                                                  "type": "robot_grab",
+                                                                  "id": "b14",
+                                                                  "next": {
+                                                                    "block": {
+                                                                      "type": "robot_turn_right",
+                                                                      "id": "b15",
+                                                                      "next": {
+                                                                        "block": {
+                                                                          "type": "robot_forward",
+                                                                          "id": "b16",
+                                                                          "fields": {
+                                                                            "N": 2
+                                                                          },
+                                                                          "next": {
+                                                                            "block": {
+                                                                              "type": "robot_turn_right",
+                                                                              "id": "b17",
+                                                                              "next": {
+                                                                                "block": {
+                                                                                  "type": "robot_forward",
+                                                                                  "id": "b18",
+                                                                                  "fields": {
+                                                                                    "N": 1
+                                                                                  },
+                                                                                  "next": {
+                                                                                    "block": {
+                                                                                      "type": "robot_release",
+                                                                                      "id": "b19"
+                                                                                    }
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
                                                         }
                                                       }
                                                     }
@@ -146,11 +200,11 @@
   },
   "hints": [
     {
-      "id": "plan",
+      "id": "order",
       "when": {
         "trigger": "enter"
       },
-      "say": "Ngày hội robot! Chọn đúng việc, về đúng giờ nhé.",
+      "say": "Đổi thứ tự việc thì số giây cũng đổi.",
       "point": "stage"
     },
     {
@@ -159,30 +213,23 @@
         "trigger": "run-end",
         "lastReason": "LOW_SCORE"
       },
-      "say": "Không cần làm hết. Việc nào nhiều điểm, ít giây?",
+      "say": "Đổi thứ tự việc thử xem. Cách nào ít giây hơn?",
       "point": "stage"
     },
     {
-      "id": "holding",
+      "id": "block",
       "when": {
         "trigger": "run-end",
         "lastReason": "HIT_BLOCK"
       },
-      "say": "Tay đang cầm khối? Thả xong mới tới khối khác.",
+      "say": "Bíp không đi xuyên qua khối. Dừng đúng ô, hoặc đi vòng.",
       "point": "stage"
-    },
-    {
-      "id": "loop-time",
-      "when": {
-        "trigger": "run-end",
-        "lastReason": "OUT_OF_TIME"
-      },
-      "say": "Hết giờ khi đang lặp. Vòng lặp có dừng không?"
     }
   ],
   "thinkingHint": "Làm việc nào trước thì đường về ngắn hơn?",
   "feedback": {
     "EMPTY_PROGRAM": "Con chưa ghép lệnh nào. Kéo lệnh vào đây nhé!",
-    "TOO_MANY_BLOCKS": "Nhiều lệnh quá. Đổi thứ tự việc thử xem!"
-  }
+    "TOO_MANY_BLOCKS": "Nhiều lệnh quá. Tìm đường ít khúc rẽ hơn nhé!"
+  },
+  "misconception": "Việc nào gần thì làm trước."
 }

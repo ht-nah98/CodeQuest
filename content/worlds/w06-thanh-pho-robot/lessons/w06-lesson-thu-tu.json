@@ -1,0 +1,300 @@
+{
+  "id": "w06-lesson-thu-tu",
+  "worldId": "w06-thanh-pho-robot",
+  "title": "Thứ tự việc",
+  "beforeLevel": "w06-boss",
+  "cards": [
+    {
+      "type": "say",
+      "pose": "think",
+      "text": "Đổi thứ tự việc thì số giây cũng đổi."
+    },
+    {
+      "type": "demo",
+      "text": "Khoanh vùng trước, thu hồi sau: về phòng kịp giờ!",
+      "kind": "robotlab",
+      "config": {
+        "map": ["Z..", ".#.", "..L"],
+        "startDir": "W",
+        "blocks": [
+          {
+            "kind": "fence",
+            "at": [2, 0]
+          },
+          {
+            "kind": "pollution",
+            "color": "RED",
+            "at": [0, 2]
+          }
+        ],
+        "goal": {
+          "type": "score",
+          "target": 185
+        },
+        "rules": {
+          "timeLimit": 30
+        }
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "robot_forward",
+                  "id": "b1",
+                  "fields": {
+                    "N": 2
+                  },
+                  "next": {
+                    "block": {
+                      "type": "robot_grab",
+                      "id": "b2",
+                      "next": {
+                        "block": {
+                          "type": "robot_turn_right",
+                          "id": "b3",
+                          "next": {
+                            "block": {
+                              "type": "robot_forward",
+                              "id": "b4",
+                              "fields": {
+                                "N": 2
+                              },
+                              "next": {
+                                "block": {
+                                  "type": "robot_release",
+                                  "id": "b5",
+                                  "next": {
+                                    "block": {
+                                      "type": "robot_turn_right",
+                                      "id": "b6",
+                                      "next": {
+                                        "block": {
+                                          "type": "robot_forward",
+                                          "id": "b7",
+                                          "fields": {
+                                            "N": 2
+                                          },
+                                          "next": {
+                                            "block": {
+                                              "type": "robot_grab",
+                                              "id": "b8",
+                                              "next": {
+                                                "block": {
+                                                  "type": "robot_turn_right",
+                                                  "id": "b9",
+                                                  "next": {
+                                                    "block": {
+                                                      "type": "robot_forward",
+                                                      "id": "b10",
+                                                      "fields": {
+                                                        "N": 2
+                                                      },
+                                                      "next": {
+                                                        "block": {
+                                                          "type": "robot_release",
+                                                          "id": "b11"
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "demo",
+      "text": "Thu hồi trước: hết giờ, Bíp chưa về phòng.",
+      "kind": "robotlab",
+      "config": {
+        "map": ["Z..", ".#.", "..L"],
+        "startDir": "W",
+        "blocks": [
+          {
+            "kind": "fence",
+            "at": [2, 0]
+          },
+          {
+            "kind": "pollution",
+            "color": "RED",
+            "at": [0, 2]
+          }
+        ],
+        "goal": {
+          "type": "score",
+          "target": 185
+        },
+        "rules": {
+          "timeLimit": 30
+        }
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "robot_turn_right",
+                  "id": "b1",
+                  "next": {
+                    "block": {
+                      "type": "robot_forward",
+                      "id": "b2",
+                      "fields": {
+                        "N": 2
+                      },
+                      "next": {
+                        "block": {
+                          "type": "robot_grab",
+                          "id": "b3",
+                          "next": {
+                            "block": {
+                              "type": "robot_turn_right",
+                              "id": "b4",
+                              "next": {
+                                "block": {
+                                  "type": "robot_turn_right",
+                                  "id": "b5",
+                                  "next": {
+                                    "block": {
+                                      "type": "robot_forward",
+                                      "id": "b6",
+                                      "fields": {
+                                        "N": 2
+                                      },
+                                      "next": {
+                                        "block": {
+                                          "type": "robot_release",
+                                          "id": "b7",
+                                          "next": {
+                                            "block": {
+                                              "type": "robot_turn_right",
+                                              "id": "b8",
+                                              "next": {
+                                                "block": {
+                                                  "type": "robot_forward",
+                                                  "id": "b9",
+                                                  "fields": {
+                                                    "N": 2
+                                                  },
+                                                  "next": {
+                                                    "block": {
+                                                      "type": "robot_grab",
+                                                      "id": "b10",
+                                                      "next": {
+                                                        "block": {
+                                                          "type": "robot_turn_right",
+                                                          "id": "b11",
+                                                          "next": {
+                                                            "block": {
+                                                              "type": "robot_forward",
+                                                              "id": "b12",
+                                                              "fields": {
+                                                                "N": 2
+                                                              },
+                                                              "next": {
+                                                                "block": {
+                                                                  "type": "robot_release",
+                                                                  "id": "b13",
+                                                                  "next": {
+                                                                    "block": {
+                                                                      "type": "robot_turn_right",
+                                                                      "id": "b14",
+                                                                      "next": {
+                                                                        "block": {
+                                                                          "type": "robot_forward",
+                                                                          "id": "b15",
+                                                                          "fields": {
+                                                                            "N": 2
+                                                                          },
+                                                                          "next": {
+                                                                            "block": {
+                                                                              "type": "robot_turn_right",
+                                                                              "id": "b16",
+                                                                              "next": {
+                                                                                "block": {
+                                                                                  "type": "robot_forward",
+                                                                                  "id": "b17",
+                                                                                  "fields": {
+                                                                                    "N": 2
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "quiz",
+      "text": "Hai cách đều làm đủ việc. Chọn cách nào?",
+      "options": ["Cách ít giây hơn", "Cách nào cũng được"],
+      "correct": 0,
+      "explain": "Ít giây hơn thì kịp về phòng, thêm 40 điểm."
+    }
+  ]
+}

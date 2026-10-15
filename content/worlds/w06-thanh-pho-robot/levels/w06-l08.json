@@ -6,7 +6,7 @@
   "mode": "bughunt",
   "title": "Quên về phòng",
   "objective": "Bíp quên về phòng. Sửa 1 chỗ thôi nhé!",
-  "learningGoal": "Bíp chạy hết mọi lệnh rồi mới chấm. Khoanh vùng xong mà lệnh cuối không đưa Bíp về phòng thì chưa thắng: thêm một lệnh tiến.",
+  "learningGoal": "Bíp chạy hết mọi lệnh rồi mới chấm. Trên phố răng lược, Bíp gắp rào ở ngõ cụt, thả lên vùng ngay cạnh phòng, nhưng lệnh cuối không đưa Bíp về: thêm một lệnh tiến.",
   "misconception": "Xong việc là xong, Bíp tự về phòng.",
   "mission": "Bíp quên về phòng. Sửa giúp nhé!",
   "toolbox": [
@@ -16,15 +16,16 @@
     "robot_grab",
     "robot_release"
   ],
-  "par": 7,
+  "par": 9,
   "parEdits": 1,
   "config": {
-    "map": ["#####", "LZ...", "#####"],
-    "startDir": "E",
+    "map": ["#.#.#", "LZ...", "###.#"],
+    "startDir": "N",
+    "start": [1, 3],
     "blocks": [
       {
         "kind": "fence",
-        "at": [1, 3]
+        "at": [0, 3]
       }
     ],
     "goal": {
@@ -47,7 +48,7 @@
               "type": "robot_forward",
               "id": "b1",
               "fields": {
-                "N": 3
+                "N": 1
               },
               "next": {
                 "block": {
@@ -66,12 +67,27 @@
                               "type": "robot_forward",
                               "id": "b5",
                               "fields": {
-                                "N": 2
+                                "N": 1
                               },
                               "next": {
                                 "block": {
-                                  "type": "robot_release",
-                                  "id": "b6"
+                                  "type": "robot_turn_right",
+                                  "id": "b6",
+                                  "next": {
+                                    "block": {
+                                      "type": "robot_forward",
+                                      "id": "b7",
+                                      "fields": {
+                                        "N": 2
+                                      },
+                                      "next": {
+                                        "block": {
+                                          "type": "robot_release",
+                                          "id": "b8"
+                                        }
+                                      }
+                                    }
+                                  }
                                 }
                               }
                             }
@@ -103,7 +119,7 @@
               "type": "robot_forward",
               "id": "b1",
               "fields": {
-                "N": 3
+                "N": 1
               },
               "next": {
                 "block": {
@@ -122,18 +138,33 @@
                               "type": "robot_forward",
                               "id": "b5",
                               "fields": {
-                                "N": 2
+                                "N": 1
                               },
                               "next": {
                                 "block": {
-                                  "type": "robot_release",
+                                  "type": "robot_turn_right",
                                   "id": "b6",
                                   "next": {
                                     "block": {
                                       "type": "robot_forward",
                                       "id": "b7",
                                       "fields": {
-                                        "N": 1
+                                        "N": 2
+                                      },
+                                      "next": {
+                                        "block": {
+                                          "type": "robot_release",
+                                          "id": "b8",
+                                          "next": {
+                                            "block": {
+                                              "type": "robot_forward",
+                                              "id": "b9",
+                                              "fields": {
+                                                "N": 1
+                                              }
+                                            }
+                                          }
+                                        }
                                       }
                                     }
                                   }
