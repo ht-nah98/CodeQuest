@@ -6,13 +6,13 @@
   "mode": "bughunt",
   "title": "Hai khối lộn chỗ",
   "objective": "Có 2 khối bị đổi chỗ. Con xếp lại giúp Măng!",
-  "learningGoal": "Nhận ra hai khối đúng nhưng đặt sai thứ tự, và đổi chỗ chúng lại.",
+  "learningGoal": "Nhận ra hai khối đúng nhưng đặt sai thứ tự (một ở đầu, một ở gần cuối), và đổi chỗ chúng lại.",
   "misconception": "Chương trình có đủ khối là chạy đúng, thứ tự không quan trọng.",
   "toolbox": ["runner_walk", "runner_jump", "runner_crouch", "runner_kick"],
-  "par": 6,
+  "par": 8,
   "parEdits": 2,
   "config": {
-    "cells": ["ground", "ground", "crate", "hole", "ground", "branch", "flag"],
+    "cells": ["ground", "branch", "ground", "hole", "ground", "ground", "crate", "ground", "flag"],
     "start": 0
   },
   "initialWorkspace": {
@@ -27,28 +27,40 @@
           "deletable": false,
           "next": {
             "block": {
-              "type": "runner_walk",
-              "id": "walk1",
+              "type": "runner_kick",
+              "id": "kick1",
               "next": {
                 "block": {
-                  "type": "runner_kick",
-                  "id": "kick1",
+                  "type": "runner_walk",
+                  "id": "walk1",
                   "next": {
                     "block": {
-                      "type": "runner_walk",
-                      "id": "walk2",
+                      "type": "runner_jump",
+                      "id": "jump1",
                       "next": {
                         "block": {
-                          "type": "runner_crouch",
-                          "id": "crouch1",
+                          "type": "runner_walk",
+                          "id": "walk2",
                           "next": {
                             "block": {
-                              "type": "runner_jump",
-                              "id": "jump1",
+                              "type": "runner_crouch",
+                              "id": "crouch1",
                               "next": {
                                 "block": {
                                   "type": "runner_walk",
-                                  "id": "walk3"
+                                  "id": "walk3",
+                                  "next": {
+                                    "block": {
+                                      "type": "runner_walk",
+                                      "id": "walk4",
+                                      "next": {
+                                        "block": {
+                                          "type": "runner_walk",
+                                          "id": "walk5"
+                                        }
+                                      }
+                                    }
+                                  }
                                 }
                               }
                             }
@@ -77,28 +89,40 @@
           "deletable": false,
           "next": {
             "block": {
-              "type": "runner_walk",
-              "id": "walk1",
+              "type": "runner_crouch",
+              "id": "crouch1",
               "next": {
                 "block": {
-                  "type": "runner_kick",
-                  "id": "kick1",
+                  "type": "runner_walk",
+                  "id": "walk1",
                   "next": {
                     "block": {
-                      "type": "runner_walk",
-                      "id": "walk2",
+                      "type": "runner_jump",
+                      "id": "jump1",
                       "next": {
                         "block": {
-                          "type": "runner_jump",
-                          "id": "jump1",
+                          "type": "runner_walk",
+                          "id": "walk2",
                           "next": {
                             "block": {
-                              "type": "runner_crouch",
-                              "id": "crouch1",
+                              "type": "runner_kick",
+                              "id": "kick1",
                               "next": {
                                 "block": {
                                   "type": "runner_walk",
-                                  "id": "walk3"
+                                  "id": "walk3",
+                                  "next": {
+                                    "block": {
+                                      "type": "runner_walk",
+                                      "id": "walk4",
+                                      "next": {
+                                        "block": {
+                                          "type": "runner_walk",
+                                          "id": "walk5"
+                                        }
+                                      }
+                                    }
+                                  }
                                 }
                               }
                             }
@@ -117,15 +141,6 @@
   },
   "hints": [
     {
-      "id": "order",
-      "when": {
-        "trigger": "run-end",
-        "lastReason": "FELL_IN_HOLE"
-      },
-      "say": "Tới hố thì Măng làm gì? Cúi hay nhảy?",
-      "point": "stage"
-    },
-    {
       "id": "branch",
       "when": {
         "trigger": "run-end",
@@ -133,7 +148,25 @@
       },
       "say": "Tới cành thì Măng phải cúi, đúng không?",
       "point": "stage"
+    },
+    {
+      "id": "crate",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "HIT_CRATE"
+      },
+      "say": "Tới thùng thì Măng phải làm gì trước?",
+      "point": "stage"
+    },
+    {
+      "id": "order",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "FELL_IN_HOLE"
+      },
+      "say": "Tới hố thì Măng làm gì? Cúi hay nhảy?",
+      "point": "stage"
     }
   ],
-  "thinkingHint": "Đọc từng khối: tới hố, tới cành, Măng đang làm gì?"
+  "thinkingHint": "Đọc từng khối: tới cành, tới thùng, Măng đang làm gì?"
 }

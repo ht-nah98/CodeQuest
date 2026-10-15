@@ -2,12 +2,12 @@
   "id": "w02-l16",
   "worldId": "w02-rung-lap-lai",
   "stage": "challenge",
-  "kind": "runner",
+  "kind": "maze",
   "mode": "build",
-  "title": "Đường dài, ít khối",
-  "objective": "Đường dài mà chỉ được 5 khối thôi!",
-  "learningGoal": "Tìm đoạn ngắn nhất lặp lại trên đường dài, lặp vừa đủ số lần rồi xử lý đoạn cuối khác.",
-  "misconception": "Đường càng dài thì càng cần nhiều khối.",
+  "title": "Lược măng",
+  "objective": "Nhặt 4 cây măng trong 4 ngõ, chỉ 10 khối!",
+  "learningGoal": "Thân vòng lặp có thể dài: rẽ vào ngõ, nhặt măng, quay đầu, ra lại đường, đi tới ngõ sau. Tìm đúng một vòng rồi lặp.",
+  "misconception": "Thân vòng lặp chỉ được vài khối.",
   "toolbox": [
     {
       "type": "cq_repeat",
@@ -15,36 +15,19 @@
         "TIMES": 2
       }
     },
-    "runner_walk",
-    "runner_jump",
-    "runner_crouch"
+    "maze_forward",
+    "maze_turn_left",
+    "maze_turn_right"
   ],
-  "maxBlocks": 5,
-  "par": 5,
+  "maxLoopDepth": 1,
+  "maxBlocks": 10,
+  "par": 9,
   "config": {
-    "cells": [
-      "ground",
-      "ground",
-      "branch",
-      "hole",
-      "ground",
-      "ground",
-      "branch",
-      "hole",
-      "ground",
-      "ground",
-      "branch",
-      "hole",
-      "ground",
-      "ground",
-      "branch",
-      "hole",
-      "ground",
-      "hole",
-      "flag"
-    ],
-    "start": 0,
-    "bamboo": [6, 14]
+    "map": ["############", "##b#b#b#b###", "#.S.......G#", "############"],
+    "startDir": "E",
+    "goal": {
+      "collectAll": true
+    }
   },
   "solution": {
     "blocks": {
@@ -66,27 +49,51 @@
               "inputs": {
                 "DO": {
                   "block": {
-                    "type": "runner_walk",
-                    "id": "walk1",
+                    "type": "maze_turn_left",
+                    "id": "left1",
                     "next": {
                       "block": {
-                        "type": "runner_crouch",
-                        "id": "crouch1",
+                        "type": "maze_forward",
+                        "id": "fwd1",
                         "next": {
                           "block": {
-                            "type": "runner_jump",
-                            "id": "jump1"
+                            "type": "maze_turn_right",
+                            "id": "right1",
+                            "next": {
+                              "block": {
+                                "type": "maze_turn_right",
+                                "id": "right2",
+                                "next": {
+                                  "block": {
+                                    "type": "maze_forward",
+                                    "id": "fwd2",
+                                    "next": {
+                                      "block": {
+                                        "type": "maze_turn_left",
+                                        "id": "left2",
+                                        "next": {
+                                          "block": {
+                                            "type": "maze_forward",
+                                            "id": "fwd3",
+                                            "next": {
+                                              "block": {
+                                                "type": "maze_forward",
+                                                "id": "fwd4"
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
                           }
                         }
                       }
                     }
                   }
-                }
-              },
-              "next": {
-                "block": {
-                  "type": "runner_jump",
-                  "id": "jump2"
                 }
               }
             }
@@ -106,34 +113,33 @@
       "point": "capacity"
     },
     {
+      "id": "missed",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "MISSED_ITEMS"
+      },
+      "say": "Còn măng chưa nhặt kìa! Ngõ nào Măng chưa vào?",
+      "point": "stage"
+    },
+    {
+      "id": "turn-back",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "HIT_WALL",
+        "has": "cq_repeat"
+      },
+      "say": "Vào ngõ cụt rồi thì quay đầu: rẽ 2 lần!",
+      "point": "stage"
+    },
+    {
       "id": "more",
       "when": {
         "trigger": "run-end",
         "lastReason": "NOT_AT_GOAL",
         "has": "cq_repeat"
       },
-      "say": "Măng dừng giữa đường. Còn đoạn nào chưa đi?",
+      "say": "Măng dừng giữa đường. Có mấy ngõ măng?",
       "point": "stage"
-    },
-    {
-      "id": "extra",
-      "when": {
-        "trigger": "run-end",
-        "lastReason": "FELL_IN_HOLE",
-        "has": "cq_repeat"
-      },
-      "say": "Đoạn cuối khác các đoạn kia. Vòng lặp có thừa không?",
-      "point": "block:cq_repeat"
-    },
-    {
-      "id": "short",
-      "when": {
-        "trigger": "run-end",
-        "lastReason": "HIT_BRANCH",
-        "has": "runner_crouch"
-      },
-      "say": "Còn cành mà Măng đã nhảy. Đường có mấy đoạn giống nhau?",
-      "point": "block:cq_repeat"
     },
     {
       "id": "fix-there",
@@ -143,9 +149,10 @@
           "gte": 2
         }
       },
-      "say": "Xem Măng vấp ở đâu, sửa đúng chỗ đó.",
-      "point": "stage"
+      "say": "Bấm Từng bước, xem Măng đi sai ở đâu.",
+      "point": "step",
+      "priority": 1
     }
   ],
-  "thinkingHint": "Đoạn nào cứ lặp đi lặp lại? Đoạn cuối có giống không?"
+  "thinkingHint": "Nhặt một cây măng rồi tới ngõ sau, Măng làm những gì?"
 }

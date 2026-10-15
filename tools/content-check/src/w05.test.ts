@@ -15,6 +15,7 @@ import { runLevel, type RunOutcome } from '@codequest/engine';
 import { getGameKind } from '@codequest/games';
 import { countWords, findParsonsArrangements, findShortestPrograms } from '@codequest/validator';
 import { describe, expect, it } from 'vitest';
+import { mazeJunctions } from './difficulty';
 
 const W05 = new URL('../../../content/worlds/w05-song-cho-doi/', import.meta.url);
 const read = (path: string): unknown => JSON.parse(readFileSync(new URL(path, W05), 'utf8'));
@@ -138,8 +139,15 @@ const demoKeys = (lessonId: string): (string | undefined)[] =>
   demosOf(lessonId).map((outcome) => outcome.answerKey);
 
 const holeOrWalk: Item = { if: 'HOLE', then: ['j'], else: ['w'] };
-/** "Đi đến khi thấy hố, nhảy, đi" with a given question and body (l08, l15, l18). */
-const waitThenJump = (ask: Ask, body: Item[]): Item[] => [{ u: ask, b: body }, 'j', 'w'];
+/** "Tiến đến khi có đường bên …, rẽ, tiến đến khi tới đích" (l08, l15, l18). */
+const waitThenTurn = (ask: Ask, body: Item[], turn: string): Item[] => [
+  { u: ask, b: body },
+  turn,
+  { u: 'MGOAL', b: ['f'] },
+];
+/** The answer key of a program on the first map of a level. */
+const outcomeOn = (level: Level, items: Item[]): string | undefined =>
+  runOn(level.kind, level.config, program(items)).answerKey;
 
 describe('World 5 lessons', () => {
   it('cards are short: at most 6 cards of at most 12 words each', () => {
@@ -174,8 +182,20 @@ describe('World 5 lessons', () => {
     expect(demoKeys('w05-lesson-toi-noi')).toEqual(['win', 'win']);
   });
 
-  it('đón bạn: standing on Gà con picks her up, jumping over her does not (NEED_FRIEND)', () => {
-    expect(demoKeys('w05-lesson-don-ban')).toEqual(['win', 'missed@4']);
+  it('quay tìm đường: Măng turns on the spot until the road is ahead, and never moves', () => {
+    const demos = demosOf('w05-lesson-xoay');
+    expect(demos.map((outcome) => outcome.answerKey)).toEqual(['stop@1,1', 'stop@1,3']);
+    const turns = demos.map(
+      (outcome) => outcome.events.filter((event) => event.type === 'turn').length,
+    );
+    expect(turns).toEqual([1, 3]);
+    expect(demos.some((outcome) => outcome.events.some((event) => event.type === 'move'))).toBe(
+      false,
+    );
+  });
+
+  it('đón bạn: walking over Gà con picks her up; a road past her does not (NEED_FRIEND)', () => {
+    expect(demoKeys('w05-lesson-don-ban')).toEqual(['win', 'missed@1,4']);
     const [, jumped] = demosOf('w05-lesson-don-ban');
     expect(jumped).toMatchObject({ result: 'incomplete', reasonCode: 'NEED_FRIEND' });
   });
@@ -186,7 +206,7 @@ describe('World 5 predict levels: the engine agrees with the right card', () => 
     ['w05-l03', 'win'], // asked before the first round: 0 rounds
     ['w05-l07', 'timeout'], // turning in place never reaches the dock
     ['w05-l11', 'crash:FELL_IN_HOLE@2'], // asked only between rounds
-    ['w05-l19', 'timeout'], // kicking never makes a hole appear (A4)
+    ['w05-l19', 'timeout'], // after the kick the if does nothing: Măng stands still (A4)
   ])('%s → %s', (id, key) => {
     const level = levelById(id);
     if (level.initialWorkspace === undefined) throw new Error(`${id} has no program`);
@@ -195,9 +215,20 @@ describe('World 5 predict levels: the engine agrees with the right card', () => 
 });
 
 describe('w05-l19 keeps its crate', () => {
-  it('cell 1 is a crate, so the kick in the loop really hits something', () => {
+  it('cell 2 is a crate, right after the first walk, so the kick in the loop hits something', () => {
     const level = levelById('w05-l19');
-    expect((level.config as { cells: string[] }).cells[1]).toBe('crate');
+    expect((level.config as { cells: string[] }).cells[2]).toBe('crate');
+  });
+
+  it('with a walk in the else branch the loop would stop at the hole and win', () => {
+    const level = levelById('w05-l19');
+    const program: Item[] = [
+      'w',
+      { u: 'HOLE', b: [{ if: 'CRATE', then: ['k'], else: ['w'] }] },
+      'j',
+      'w',
+    ];
+    expect(outcomeOn(level, program)).toBe('win');
   });
 });
 
@@ -226,17 +257,17 @@ describe('World 5 parsons: the wrong arrangements fail as the hints say', () => 
 });
 
 describe('World 5 bughunts: each fix does what the curriculum says (§5.3)', () => {
-  it('l05: "tiến" under the empty loop never runs (TIMEOUT); moved inside it wins', () => {
-    expect(keysOf('w05-l05', [{ u: 'MGOAL', b: [] }, 'f'])).toEqual(['timeout']);
-    expect(keysOf('w05-l05', [{ u: 'MGOAL', b: ['f'] }])).toEqual(['win']);
+  it('l05: "tiến" under the empty loop never runs (TIMEOUT); moved inside it wins both docks', () => {
+    expect(keysOf('w05-l05', [{ u: 'MGOAL', b: [] }, 'f'])).toEqual(['timeout', 'timeout']);
+    expect(keysOf('w05-l05', [{ u: 'MGOAL', b: ['f'] }])).toEqual(['win', 'win']);
   });
 
-  it('l08: waiting for a branch walks into the water; waiting for the hole wins', () => {
-    expect(keysOf('w05-l08', waitThenJump('BRANCH', ['w']))).toEqual([
-      'crash:FELL_IN_HOLE@3',
-      'crash:FELL_IN_HOLE@5',
+  it('l08: waiting for a road on the left turns at a dead end or past the turn', () => {
+    expect(keysOf('w05-l08', waitThenTurn('LEFT', ['f'], 'R'))).toEqual([
+      'crash:HIT_WALL@2,3',
+      'crash:HIT_WALL@5,4',
     ]);
-    expect(keysOf('w05-l08', waitThenJump('HOLE', ['w']))).toEqual(['win', 'win']);
+    expect(keysOf('w05-l08', waitThenTurn('RIGHT', ['f'], 'R'))).toEqual(['win', 'win']);
   });
 
   it('l12: the empty else-branch is stuck at the first corner; turning right wins', () => {
@@ -247,39 +278,58 @@ describe('World 5 bughunts: each fix does what the curriculum says (§5.3)', () 
     expect(keysOf('w05-l12', ask(['R']))).toEqual(['win']);
   });
 
-  it('l13: repeat 20 wins the short river but stops midway on the 40-cell one', () => {
-    expect(keysOf('w05-l13', [{ r: 20, b: [holeOrWalk] }])).toEqual(['stop@28', 'win']);
-    expect(keysOf('w05-l13', [{ u: 'RGOAL', b: [holeOrWalk] }])).toEqual(['win', 'win']);
+  it('l13: repeat 20 wins the short road but stops midway in the spiral (more than 20 rounds)', () => {
+    const body: Item[] = [{ if: 'AHEAD', then: ['f'], else: ['L'] }];
+    expect(keysOf('w05-l13', [{ r: 20, b: body }])).toEqual(['stop@7,9', 'win']);
+    expect(keysOf('w05-l13', [{ u: 'MGOAL', b: body }])).toEqual(['win', 'win']);
+    // Waiting for a road on the right instead stops at the side branch of map 2.
+    expect(keysOf('w05-l13', [{ u: 'RIGHT', b: body }])).toEqual(['win', 'stop@3,5']);
   });
 
-  it('l15: two walks per round win map 1 and overshoot on map 2; one walk wins both', () => {
-    expect(keysOf('w05-l15', waitThenJump('HOLE', ['w', 'w']))).toEqual([
+  it('l15: two steps per round win map 1 and overshoot the turn on map 2; one step wins both', () => {
+    const ask: Item = { if: 'LEFT', then: ['L'] };
+    expect(keysOf('w05-l15', [{ u: 'MGOAL', b: [ask, 'f', 'f'] }])).toEqual([
       'win',
-      'crash:FELL_IN_HOLE@10',
+      'crash:HIT_WALL@4,1',
     ]);
-    expect(keysOf('w05-l15', waitThenJump('HOLE', ['w']))).toEqual(['win', 'win']);
+    expect(keysOf('w05-l15', [{ u: 'MGOAL', b: [ask, 'f'] }])).toEqual(['win', 'win']);
   });
 
   it('l18: two bugs; fixing only one still loses, fixing both wins', () => {
-    expect(keysOf('w05-l18', waitThenJump('BRANCH', ['w', 'w']))).toEqual([
-      'crash:FELL_IN_HOLE@3',
-      'crash:FELL_IN_HOLE@10',
+    const program = (first: Ask, body: Item[]): Item[] => [
+      { u: first, b: ['f'] },
+      'R',
+      ...waitThenTurn('LEFT', body, 'L'),
+    ];
+    expect(keysOf('w05-l18', program('LEFT', ['f', 'f']))).toEqual([
+      'crash:HIT_WALL@2,5',
+      'crash:HIT_WALL@4,6',
     ]);
-    // Only the question fixed: this is l15's program, map 2 still overshoots.
-    expect(keysOf('w05-l18', waitThenJump('HOLE', ['w', 'w']))).toEqual([
-      'win',
-      'crash:FELL_IN_HOLE@10',
+    // Only the first question fixed: like l15, map 2 overshoots the second turn.
+    expect(keysOf('w05-l18', program('RIGHT', ['f', 'f']))).toEqual(['win', 'crash:HIT_WALL@4,1']);
+    // Only the extra step removed: Măng still turns at the dead end on the left.
+    expect(keysOf('w05-l18', program('LEFT', ['f']))).toEqual([
+      'crash:HIT_WALL@2,5',
+      'crash:HIT_WALL@4,6',
     ]);
-    // Only the extra walk removed: still waiting for a branch that never comes.
-    expect(keysOf('w05-l18', waitThenJump('BRANCH', ['w']))).toEqual([
-      'crash:FELL_IN_HOLE@3',
-      'crash:FELL_IN_HOLE@10',
-    ]);
-    expect(keysOf('w05-l18', waitThenJump('HOLE', ['w']))).toEqual(['win', 'win']);
+    expect(keysOf('w05-l18', program('RIGHT', ['f']))).toEqual(['win', 'win']);
   });
 });
 
 describe('World 5 build levels', () => {
+  it('l06: turning until the road is ahead finds both cave doors; one memorised turn does not', () => {
+    const findDoor = (turn: string): Item[] => [
+      { u: 'AHEAD', b: [turn] },
+      { u: 'MGOAL', b: ['f'] },
+    ];
+    expect(keysOf('w05-l06', findDoor('R'))).toEqual(['win', 'win']);
+    expect(keysOf('w05-l06', findDoor('L'))).toEqual(['win', 'win']);
+    expect(keysOf('w05-l06', ['R', { u: 'MGOAL', b: ['f'] }])).toEqual([
+      'win',
+      'crash:HIT_WALL@6,3',
+    ]);
+  });
+
   it('l01: jumping all the way falls in on one of the 2 banks', () => {
     expect(keysOf('w05-l01', [{ u: 'BRANCH', b: ['j'] }]).every((key) => key === 'win')).toBe(
       false,
@@ -301,11 +351,40 @@ describe('World 5 build levels', () => {
     expect(keysOf('w05-l17', [{ u: 'MGOAL', b: twoQuestions }])).toEqual(['win', 'win']);
   });
 
-  it('boss: the solution picks up Gà con on all 3 maps before reaching home', () => {
+  const straightFirst: Item = {
+    if: 'AHEAD',
+    then: ['f'],
+    else: [{ if: 'LEFT', then: ['L'], else: ['R'] }],
+  };
+
+  it('boss: following a wall misses Gà con or walks round the loop for ever', () => {
+    const left: Item[] = [
+      {
+        u: 'MGOAL',
+        b: [
+          { if: 'LEFT', then: ['L'] },
+          { if: 'AHEAD', then: ['f'], else: ['R'] },
+        ],
+      },
+    ];
+    const right: Item[] = [
+      {
+        u: 'MGOAL',
+        b: [
+          { if: 'RIGHT', then: ['R'] },
+          { if: 'AHEAD', then: ['f'], else: ['L'] },
+        ],
+      },
+    ];
+    expect(keysOf('w05-boss', left)).toEqual(['win', 'timeout']);
+    expect(keysOf('w05-boss', right)).toEqual(['missed@6,6', 'timeout']);
+  });
+
+  it('boss: going straight first picks up Gà con on both maps before reaching home', () => {
     const level = levelById('w05-boss');
-    const workspace = program([{ u: 'RGOAL', b: [holeOrWalk] }]);
+    const workspace = program([{ u: 'MGOAL', b: [straightFirst] }]);
     for (const config of [level.config, ...(level.variants ?? [])]) {
-      const outcome = runOn('runner', config, workspace);
+      const outcome = runOn('maze', config, workspace);
       expect(outcome.answerKey).toBe('win');
       const picked = outcome.events.some((event) => {
         const { type, item } = event as { type: string; item?: string };
@@ -342,6 +421,18 @@ describe('World 5 build levels', () => {
         minBlocks: null,
         complete: true,
       });
+    },
+  );
+
+  // M1 (roadmap/difficulty-pass.md §3.2): the new mazes have 2 junctions and a dead end.
+  it.each(['w05-l05', 'w05-l06', 'w05-l08', 'w05-l13', 'w05-l15', 'w05-l18'])(
+    '%s: some map has 2 junctions and a dead end (M1)',
+    (id) => {
+      const level = levelById(id);
+      const maps = [level.config, ...(level.variants ?? [])].map((config) =>
+        mazeJunctions((config as { map: string[] }).map),
+      );
+      expect(maps.some(({ junctions, deadEnds }) => junctions >= 2 && deadEnds >= 1)).toBe(true);
     },
   );
 

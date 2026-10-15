@@ -1,0 +1,112 @@
+{
+  "id": "w05-lesson-xoay",
+  "worldId": "w05-song-cho-doi",
+  "title": "Quay tìm đường",
+  "beforeLevel": "w05-l06",
+  "cards": [
+    {
+      "type": "say",
+      "pose": "point",
+      "text": "Rẽ đến khi có đường: Măng quay tại chỗ, chưa đi."
+    },
+    {
+      "type": "demo",
+      "text": "Cửa ở bên phải. Măng quay 1 lần là thấy đường.",
+      "kind": "maze",
+      "config": {
+        "map": ["#####", "#S.G#", "#####"],
+        "startDir": "N"
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "cq_repeat_until",
+                  "id": "until1",
+                  "inputs": {
+                    "COND": {
+                      "block": {
+                        "type": "maze_is_path",
+                        "id": "ask1",
+                        "fields": {
+                          "DIR": "AHEAD"
+                        }
+                      }
+                    },
+                    "DO": {
+                      "block": {
+                        "type": "maze_turn_right",
+                        "id": "right1"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "demo",
+      "text": "Cửa ở bên trái. Măng quay 3 lần mới thấy.",
+      "kind": "maze",
+      "config": {
+        "map": ["#####", "#G.S#", "#####"],
+        "startDir": "N"
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "cq_repeat_until",
+                  "id": "until1",
+                  "inputs": {
+                    "COND": {
+                      "block": {
+                        "type": "maze_is_path",
+                        "id": "ask1",
+                        "fields": {
+                          "DIR": "AHEAD"
+                        }
+                      }
+                    },
+                    "DO": {
+                      "block": {
+                        "type": "maze_turn_right",
+                        "id": "right1"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "quiz",
+      "text": "Măng quay đến khi thấy đường. Măng đi mấy ô?",
+      "options": ["1 ô", "Không ô nào"],
+      "correct": 1,
+      "explain": "Rẽ chỉ quay tại chỗ, chưa đi."
+    }
+  ]
+}

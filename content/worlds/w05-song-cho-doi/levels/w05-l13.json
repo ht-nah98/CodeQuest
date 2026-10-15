@@ -2,17 +2,18 @@
   "id": "w05-l13",
   "worldId": "w05-song-cho-doi",
   "stage": "practice",
-  "kind": "runner",
+  "kind": "maze",
   "mode": "bughunt",
   "title": "Lặp 20 lần chưa đủ",
-  "objective": "Bờ sông dài quá. Đổi khối lặp cho Măng tới bờ!",
-  "learningGoal": "Lặp 20 lần không đủ cho đường dài: đổi khối lặp thành lặp đến khi rồi cắm câu hỏi đã tới nơi? (2 thao tác). Lặp đến khi chạy bao nhiêu vòng cũng được.",
+  "objective": "Đường xoắn dài quá. Đổi khối lặp cho Măng tới nơi!",
+  "learningGoal": "Lặp 20 lần không đủ cho đường xoắn dài: đổi khối lặp thành lặp đến khi rồi cắm câu hỏi đã tới đích? (2 thao tác). Lặp đến khi chạy bao nhiêu vòng cũng được.",
   "misconception": "Lặp 20 lần là đủ cho mọi con đường.",
-  "mission": "Lặp 20 lần chưa sang tới bờ. Sửa nhé!",
-  "goalSprite": "flag",
+  "mission": "Lặp 20 lần chưa ra khỏi bãi đá. Sửa nhé!",
+  "goalSprite": "dock",
   "toolbox": [
-    "runner_walk",
-    "runner_jump",
+    "maze_forward",
+    "maze_turn_left",
+    "maze_turn_right",
     {
       "type": "cq_repeat",
       "fields": {
@@ -21,83 +22,32 @@
     },
     "cq_repeat_until",
     "cq_if_else",
-    "runner_is_ahead",
-    "runner_at_goal"
+    "maze_is_path",
+    "maze_at_goal"
   ],
   "maxLoopDepth": 1,
   "par": 6,
   "parEdits": 2,
   "config": {
-    "cells": [
-      "ground",
-      "ground",
-      "hole",
-      "ground",
-      "ground",
-      "ground",
-      "hole",
-      "ground",
-      "hole",
-      "ground",
-      "ground",
-      "ground",
-      "ground",
-      "hole",
-      "ground",
-      "ground",
-      "hole",
-      "ground",
-      "hole",
-      "ground",
-      "ground",
-      "ground",
-      "hole",
-      "ground",
-      "ground",
-      "ground",
-      "ground",
-      "hole",
-      "ground",
-      "hole",
-      "ground",
-      "ground",
-      "hole",
-      "ground",
-      "ground",
-      "ground",
-      "ground",
-      "ground",
-      "ground",
-      "flag"
+    "map": [
+      "###########",
+      "#S#.......#",
+      "#.#.#####.#",
+      "#.#.#G..#.#",
+      "#.#..##.#.#",
+      "#.#.###.#.#",
+      "#.#.#.#.#.#",
+      "#.#.....#.#",
+      "#.#######.#",
+      "#.........#",
+      "###########"
     ],
-    "start": 0
+    "startDir": "S"
   },
   "variants": [
     {
-      "cells": [
-        "ground",
-        "ground",
-        "ground",
-        "hole",
-        "ground",
-        "hole",
-        "ground",
-        "ground",
-        "ground",
-        "ground",
-        "ground",
-        "hole",
-        "ground",
-        "ground",
-        "hole",
-        "ground",
-        "hole",
-        "ground",
-        "ground",
-        "ground",
-        "flag"
-      ],
-      "start": 0
+      "map": ["########", "#.G...##", "#####.##", "####...#", "#####S##", "########"],
+      "startDir": "N"
     }
   ],
   "initialWorkspace": {
@@ -125,23 +75,23 @@
                     "inputs": {
                       "COND": {
                         "block": {
-                          "type": "runner_is_ahead",
+                          "type": "maze_is_path",
                           "id": "ask1",
                           "fields": {
-                            "KIND": "HOLE"
+                            "DIR": "AHEAD"
                           }
                         }
                       },
                       "DO": {
                         "block": {
-                          "type": "runner_jump",
-                          "id": "jump1"
+                          "type": "maze_forward",
+                          "id": "fwd1"
                         }
                       },
                       "ELSE": {
                         "block": {
-                          "type": "runner_walk",
-                          "id": "walk1"
+                          "type": "maze_turn_left",
+                          "id": "left1"
                         }
                       }
                     }
@@ -171,8 +121,8 @@
               "inputs": {
                 "COND": {
                   "block": {
-                    "type": "runner_at_goal",
-                    "id": "ask1"
+                    "type": "maze_at_goal",
+                    "id": "goal1"
                   }
                 },
                 "DO": {
@@ -182,23 +132,23 @@
                     "inputs": {
                       "COND": {
                         "block": {
-                          "type": "runner_is_ahead",
-                          "id": "ask2",
+                          "type": "maze_is_path",
+                          "id": "ask1",
                           "fields": {
-                            "KIND": "HOLE"
+                            "DIR": "AHEAD"
                           }
                         }
                       },
                       "DO": {
                         "block": {
-                          "type": "runner_jump",
-                          "id": "jump1"
+                          "type": "maze_forward",
+                          "id": "fwd1"
                         }
                       },
                       "ELSE": {
                         "block": {
-                          "type": "runner_walk",
-                          "id": "walk1"
+                          "type": "maze_turn_left",
+                          "id": "left1"
                         }
                       }
                     }
@@ -230,5 +180,9 @@
       "point": "block:cq_repeat"
     }
   ],
-  "thinkingHint": "Con có biết trước bờ sông dài bao nhiêu không?"
+  "thinkingHint": "Đường xoắn cần bao nhiêu vòng? Con có cần biết không?",
+  "maxInstances": {
+    "cq_repeat": 1,
+    "cq_repeat_until": 1
+  }
 }

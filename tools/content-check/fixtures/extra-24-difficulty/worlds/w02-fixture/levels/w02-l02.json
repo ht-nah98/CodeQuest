@@ -1,0 +1,57 @@
+{
+  "id": "w02-l02",
+  "worldId": "w02-fixture",
+  "stage": "practice",
+  "kind": "maze",
+  "mode": "build",
+  "title": "Hành lang",
+  "objective": "Tới đích nhé!",
+  "learningGoal": "Mẫu cho luật 24.",
+  "misconception": "Mẫu.",
+  "toolbox": ["maze_forward"],
+  "config": {
+    "map": ["#######", "#S...G#", "#######"],
+    "startDir": "E"
+  },
+  "hints": [],
+  "thinkingHint": "Đích ở đâu?",
+  "par": 4,
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "maze_forward",
+              "id": "fwd1",
+              "next": {
+                "block": {
+                  "type": "maze_forward",
+                  "id": "fwd2",
+                  "next": {
+                    "block": {
+                      "type": "maze_forward",
+                      "id": "fwd3",
+                      "next": {
+                        "block": {
+                          "type": "maze_forward",
+                          "id": "fwd4"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

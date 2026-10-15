@@ -1,0 +1,91 @@
+{
+  "id": "w02-l06",
+  "worldId": "w02-fixture",
+  "stage": "practice",
+  "kind": "maze",
+  "mode": "bughunt",
+  "title": "Sửa số lần",
+  "objective": "Tới đích nhé!",
+  "learningGoal": "Mẫu cho luật 24.",
+  "misconception": "Mẫu.",
+  "toolbox": [
+    "maze_forward",
+    "maze_turn_left",
+    {
+      "type": "cq_repeat",
+      "fields": {
+        "TIMES": 3
+      }
+    }
+  ],
+  "config": {
+    "map": ["######", "#S..G#", "##.###", "######"],
+    "startDir": "E"
+  },
+  "hints": [],
+  "thinkingHint": "Đích ở đâu?",
+  "par": 2,
+  "parEdits": 1,
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "rep1",
+              "fields": {
+                "TIMES": 2
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "maze_forward",
+                    "id": "fwd1"
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "rep1",
+              "fields": {
+                "TIMES": 3
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "maze_forward",
+                    "id": "fwd1"
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

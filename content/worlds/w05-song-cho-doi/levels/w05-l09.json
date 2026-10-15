@@ -6,7 +6,7 @@
   "mode": "build",
   "title": "Lối rẽ xuống bến",
   "objective": "Một chương trình cho 2 bờ. Không quá 8 khối!",
-  "learningGoal": "Hai vòng lặp đến khi nối tiếp: tiến đến khi bên phải có đường, rẽ phải, rồi tiến đến khi tới đích. Đúng cho 2 bờ có lối rẽ và bến đò ở chỗ khác nhau.",
+  "learningGoal": "Lần đầu tự ghép cả hai vòng lặp đến khi nối tiếp (ở màn 6, vòng thứ hai có sẵn): tiến đến khi bên phải có đường, rẽ phải, rồi tiến đến khi tới đích. Đúng cho 2 bờ có lối rẽ và bến đò ở chỗ khác nhau.",
   "misconception": "Chỉ dùng được một vòng lặp đến khi, và nó phải chạy tới đích.",
   "mission": "Tìm lối rẽ xuống bến đò.",
   "goalSprite": "dock",

@@ -2,13 +2,13 @@
   "id": "w03-l12",
   "worldId": "w03-xuong-sua-loi",
   "stage": "practice",
-  "kind": "runner",
+  "kind": "maze",
   "mode": "bughunt",
-  "title": "Hai lỗi",
+  "title": "Xe giao hàng",
   "objective": "Có 2 lỗi. Sửa từng lỗi, chạy lại nhé!",
-  "learningGoal": "Sửa một lỗi, chạy lại, thấy lỗi thứ hai lộ ra ở chỗ mới. Lỗi mới nghĩa là lỗi cũ đã sửa được.",
-  "misconception": "Sửa xong mà vẫn ngã nghĩa là sửa sai.",
-  "mission": "Máy của Chim cánh cụt có 2 lỗi.",
+  "learningGoal": "Sửa một lỗi, chạy lại, thấy lỗi thứ hai lộ ra ở chỗ mới: số lần lặp thiếu, rồi thiếu một khối tiến ở cuối. Lỗi mới nghĩa là lỗi cũ đã sửa được.",
+  "misconception": "Sửa xong mà vẫn đụng tường nghĩa là sửa sai.",
+  "mission": "Xe giao hàng của Chim cánh cụt có 2 lỗi.",
   "goalSprite": "machine",
   "toolbox": [
     {
@@ -17,29 +17,15 @@
         "TIMES": 2
       }
     },
-    "runner_walk",
-    "runner_jump",
-    "runner_crouch"
+    "maze_forward",
+    "maze_turn_left",
+    "maze_turn_right"
   ],
-  "par": 6,
+  "par": 8,
   "parEdits": 2,
   "config": {
-    "cells": [
-      "ground",
-      "ground",
-      "hole",
-      "ground",
-      "ground",
-      "hole",
-      "ground",
-      "ground",
-      "hole",
-      "ground",
-      "branch",
-      "ground",
-      "flag"
-    ],
-    "start": 0
+    "map": ["########", "#S....##", "####.###", "####.###", "####.###", "##....G#", "########"],
+    "startDir": "E"
   },
   "initialWorkspace": {
     "blocks": {
@@ -61,29 +47,40 @@
               "inputs": {
                 "DO": {
                   "block": {
-                    "type": "runner_walk",
-                    "id": "walk1",
-                    "next": {
-                      "block": {
-                        "type": "runner_jump",
-                        "id": "jump1"
-                      }
-                    }
+                    "type": "maze_forward",
+                    "id": "fwd1"
                   }
                 }
               },
               "next": {
                 "block": {
-                  "type": "runner_walk",
-                  "id": "walk2",
+                  "type": "maze_turn_right",
+                  "id": "right1",
                   "next": {
                     "block": {
-                      "type": "runner_walk",
-                      "id": "walk3",
+                      "type": "cq_repeat",
+                      "id": "rep2",
+                      "fields": {
+                        "TIMES": 4
+                      },
+                      "inputs": {
+                        "DO": {
+                          "block": {
+                            "type": "maze_forward",
+                            "id": "fwd2"
+                          }
+                        }
+                      },
                       "next": {
                         "block": {
-                          "type": "runner_walk",
-                          "id": "walk4"
+                          "type": "maze_turn_left",
+                          "id": "left1",
+                          "next": {
+                            "block": {
+                              "type": "maze_forward",
+                              "id": "fwd3"
+                            }
+                          }
                         }
                       }
                     }
@@ -116,29 +113,46 @@
               "inputs": {
                 "DO": {
                   "block": {
-                    "type": "runner_walk",
-                    "id": "walk1",
-                    "next": {
-                      "block": {
-                        "type": "runner_jump",
-                        "id": "jump1"
-                      }
-                    }
+                    "type": "maze_forward",
+                    "id": "fwd1"
                   }
                 }
               },
               "next": {
                 "block": {
-                  "type": "runner_crouch",
-                  "id": "crouch1",
+                  "type": "maze_turn_right",
+                  "id": "right1",
                   "next": {
                     "block": {
-                      "type": "runner_walk",
-                      "id": "walk2",
+                      "type": "cq_repeat",
+                      "id": "rep2",
+                      "fields": {
+                        "TIMES": 4
+                      },
+                      "inputs": {
+                        "DO": {
+                          "block": {
+                            "type": "maze_forward",
+                            "id": "fwd2"
+                          }
+                        }
+                      },
                       "next": {
                         "block": {
-                          "type": "runner_walk",
-                          "id": "walk3"
+                          "type": "maze_turn_left",
+                          "id": "left1",
+                          "next": {
+                            "block": {
+                              "type": "maze_forward",
+                              "id": "fwd3",
+                              "next": {
+                                "block": {
+                                  "type": "maze_forward",
+                                  "id": "fwd4"
+                                }
+                              }
+                            }
+                          }
                         }
                       }
                     }
@@ -164,16 +178,16 @@
       "id": "count",
       "when": {
         "trigger": "run-end",
-        "lastReason": "FELL_IN_HOLE"
+        "lastReason": "HIT_WALL"
       },
-      "say": "Đường có mấy hố? Vòng lặp chạy mấy vòng?",
-      "point": "block:cq_repeat"
+      "say": "Đoạn đầu dài mấy ô? Vòng lặp chạy mấy vòng?",
+      "point": "stage"
     },
     {
       "id": "new-bug",
       "when": {
         "trigger": "run-end",
-        "lastReason": "HIT_BRANCH"
+        "lastReason": "NOT_AT_GOAL"
       },
       "say": "Lỗi mới! Lỗi cũ con sửa được rồi đó.",
       "point": "stage"

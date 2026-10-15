@@ -1,0 +1,17 @@
+{
+  "id": "w02-fixture",
+  "order": 2,
+  "title": "Mê cung thử",
+  "emoji": "🌳",
+  "concept": "Mê cung thật",
+  "story": "Màn mẫu để kiểm luật 24.",
+  "theme": {
+    "tileset": "/tiles/ground.png",
+    "palette": "day"
+  },
+  "lessonIds": ["w02-lesson"],
+  "levelIds": ["w02-l01", "w02-l02", "w02-l03", "w02-l04", "w02-l05", "w02-l06", "w02-boss"],
+  "unlock": {
+    "minStarRatio": 0.6
+  }
+}

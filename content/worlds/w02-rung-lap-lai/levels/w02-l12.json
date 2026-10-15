@@ -5,8 +5,8 @@
   "kind": "maze",
   "mode": "build",
   "title": "Vòng quanh khóm tre",
-  "objective": "Đi vòng quanh khóm tre tới đích, chỉ 4 khối nhé!",
-  "learningGoal": "Mỗi cạnh của đường quanh khóm tre giống nhau (tiến, tiến, rẽ phải) nên lặp được cả cạnh.",
+  "objective": "Đi vòng quanh khóm tre tới đích, chỉ 5 khối nhé!",
+  "learningGoal": "Mỗi cạnh của đường quanh khóm tre giống nhau (rẽ phải, tiến, tiến) nên lặp được cả cạnh; đoạn cuối khác mẫu thì ghép riêng sau khối lặp.",
   "misconception": "Mỗi góc rẽ phải ghép riêng, không cho vào khối lặp được.",
   "toolbox": [
     {
@@ -19,11 +19,11 @@
     "maze_turn_left",
     "maze_turn_right"
   ],
-  "maxBlocks": 4,
-  "par": 4,
+  "maxBlocks": 5,
+  "par": 5,
   "config": {
-    "map": ["#####", ".S..#", "###.#", ".G..#", "#####"],
-    "startDir": "E"
+    "map": ["#######", "#.S...#", "####.##", ".G...##", "####.##", "#######"],
+    "startDir": "N"
   },
   "solution": {
     "blocks": {
@@ -45,21 +45,27 @@
               "inputs": {
                 "DO": {
                   "block": {
-                    "type": "maze_forward",
-                    "id": "fwd1",
+                    "type": "maze_turn_right",
+                    "id": "right1",
                     "next": {
                       "block": {
                         "type": "maze_forward",
-                        "id": "fwd2",
+                        "id": "fwd1",
                         "next": {
                           "block": {
-                            "type": "maze_turn_right",
-                            "id": "right1"
+                            "type": "maze_forward",
+                            "id": "fwd2"
                           }
                         }
                       }
                     }
                   }
+                }
+              },
+              "next": {
+                "block": {
+                  "type": "maze_forward",
+                  "id": "fwd3"
                 }
               }
             }
@@ -100,16 +106,17 @@
       "priority": 1
     },
     {
-      "id": "facing-down",
+      "id": "extra",
       "when": {
         "trigger": "run-end",
         "lastReason": "HIT_WALL",
+        "has": "cq_repeat",
         "runCount": {
           "gte": 3
         }
       },
-      "say": "Măng nhìn xuống. Tay trái của Măng ở phía nào?",
-      "point": "stage",
+      "say": "Măng đi mấy cạnh? Lặp thừa là đụng tường đó.",
+      "point": "block:cq_repeat",
       "priority": 2
     },
     {
@@ -119,7 +126,7 @@
         "lastReason": "NOT_AT_GOAL",
         "has": "cq_repeat"
       },
-      "say": "Măng mới đi mấy cạnh? Còn thiếu cạnh nào?",
+      "say": "Ngõ cụt rồi! Măng mới đi mấy cạnh?",
       "point": "stage"
     }
   ],

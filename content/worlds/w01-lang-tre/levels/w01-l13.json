@@ -2,32 +2,18 @@
   "id": "w01-l13",
   "worldId": "w01-lang-tre",
   "stage": "challenge",
-  "kind": "runner",
+  "kind": "maze",
   "mode": "build",
-  "title": "Đường dài nhiều thử thách",
-  "objective": "Đủ cả hố, cành, thùng! Dùng không quá 12 khối.",
-  "learningGoal": "Phối hợp đủ 4 khối theo đúng thứ tự trên một đường dài, trong giới hạn khối.",
-  "misconception": "Gặp chướng ngại nào cũng nhảy là qua.",
-  "toolbox": ["runner_walk", "runner_jump", "runner_crouch", "runner_kick"],
+  "title": "Hai lối về làng",
+  "objective": "Có 2 lối tới đích. Chọn lối ngắn nhé!",
+  "learningGoal": "Ở ngã ba có hai lối cùng tới đích: đếm khối của từng lối rồi chọn lối ngắn hơn. Lối dài vẫn tới nơi nhưng tốn khối hơn.",
+  "misconception": "Thấy lối nào trước thì đi lối đó, lối nào cũng như nhau.",
+  "toolbox": ["maze_forward", "maze_turn_left", "maze_turn_right"],
   "maxBlocks": 12,
   "par": 10,
   "config": {
-    "cells": [
-      "ground",
-      "ground",
-      "branch",
-      "ground",
-      "crate",
-      "hole",
-      "ground",
-      "branch",
-      "ground",
-      "hole",
-      "ground",
-      "flag"
-    ],
-    "start": 0,
-    "bamboo": [3, 7]
+    "map": ["#.G..#", "#.##.#", "#.#..#", "#.##.#", "#....#", "##S###"],
+    "startDir": "N"
   },
   "solution": {
     "blocks": {
@@ -41,44 +27,44 @@
           "deletable": false,
           "next": {
             "block": {
-              "type": "runner_walk",
-              "id": "walk1",
+              "type": "maze_forward",
+              "id": "fwd1",
               "next": {
                 "block": {
-                  "type": "runner_crouch",
-                  "id": "crouch1",
+                  "type": "maze_turn_left",
+                  "id": "left1",
                   "next": {
                     "block": {
-                      "type": "runner_walk",
-                      "id": "walk2",
+                      "type": "maze_forward",
+                      "id": "fwd2",
                       "next": {
                         "block": {
-                          "type": "runner_kick",
-                          "id": "kick1",
+                          "type": "maze_turn_right",
+                          "id": "right1",
                           "next": {
                             "block": {
-                              "type": "runner_walk",
-                              "id": "walk3",
+                              "type": "maze_forward",
+                              "id": "fwd3",
                               "next": {
                                 "block": {
-                                  "type": "runner_jump",
-                                  "id": "jump1",
+                                  "type": "maze_forward",
+                                  "id": "fwd4",
                                   "next": {
                                     "block": {
-                                      "type": "runner_crouch",
-                                      "id": "crouch2",
+                                      "type": "maze_forward",
+                                      "id": "fwd5",
                                       "next": {
                                         "block": {
-                                          "type": "runner_walk",
-                                          "id": "walk4",
+                                          "type": "maze_forward",
+                                          "id": "fwd6",
                                           "next": {
                                             "block": {
-                                              "type": "runner_jump",
-                                              "id": "jump2",
+                                              "type": "maze_turn_right",
+                                              "id": "right2",
                                               "next": {
                                                 "block": {
-                                                  "type": "runner_walk",
-                                                  "id": "walk5"
+                                                  "type": "maze_forward",
+                                                  "id": "fwd7"
                                                 }
                                               }
                                             }
@@ -109,8 +95,26 @@
       "when": {
         "capacityFull": true
       },
-      "say": "Hết chỗ rồi. Có khối nào thừa không?",
+      "say": "Hết chỗ rồi. Đếm số ô của từng lối nhé!",
       "point": "capacity"
+    },
+    {
+      "id": "fork",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "HIT_WALL"
+      },
+      "say": "Tới ngã ba, Măng rẽ phía nào? Rẽ rồi mới tiến.",
+      "point": "stage"
+    },
+    {
+      "id": "dead-end",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "NOT_AT_GOAL"
+      },
+      "say": "Măng dừng giữa đường. Đếm lại số ô nhé!",
+      "point": "stage"
     },
     {
       "id": "fix-there",
@@ -120,9 +124,10 @@
           "gte": 2
         }
       },
-      "say": "Xem Măng vấp ở ô nào, sửa đúng chỗ đó.",
-      "point": "stage"
+      "say": "Xem Măng đụng ở đâu, sửa đúng chỗ đó.",
+      "point": "stage",
+      "priority": 1
     }
   ],
-  "thinkingHint": "Đi lần lượt từng ô: ô này có gì, cần khối nào?"
+  "thinkingHint": "Lối bên trái và lối bên phải, lối nào ít khối hơn?"
 }

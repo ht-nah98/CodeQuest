@@ -19,14 +19,14 @@ const BUILD_PARS: ReadonlyArray<[string, number]> = [
   ['w01-boss', 9],
   ['w02-l01', 2],
   ['w02-l03', 2],
-  ['w02-l05', 3],
-  ['w02-l06', 4],
+  ['w02-l05', 4],
+  ['w02-l06', 5],
   ['w02-l08', 5],
-  ['w02-l12', 4],
-  ['w02-l13', 4],
+  ['w02-l12', 5],
+  ['w02-l13', 5],
   ['w02-l14', 5],
-  ['w02-l16', 5],
-  ['w02-l17', 7],
+  ['w02-l16', 9],
+  ['w02-l17', 6],
   ['w02-l19', 6],
   ['w02-boss', 6],
 ];
@@ -45,11 +45,13 @@ describe('findShortestPrograms', () => {
   });
 
   it('counts every shortest program and is deterministic', async () => {
-    const level = await loadLevel('w02-l16');
+    const level = await loadLevel('w02-boss');
     const first = findShortestPrograms(level);
-    expect(first.count).toBe(3);
-    // One example per merged search state: the three differ only inside the loop.
-    expect(first.examples.map(formatProgram)).toEqual(['repeat 4 [walk, crouch, jump], jump']);
+    expect(first.count).toBe(4);
+    // One example per merged search state: the four differ only inside the loop.
+    expect(first.examples.map(formatProgram)).toEqual([
+      'repeat 6 [kick, walk, crouch, jump], jump',
+    ]);
     expect(findShortestPrograms(level)).toEqual(first);
   });
 
@@ -63,10 +65,10 @@ describe('findShortestPrograms', () => {
   it('tries nested loops, and no loop at all with maxDepth 0', async () => {
     const level = await loadLevel('w02-l06');
     expect(findShortestPrograms(level).examples.map(formatProgram)).toContain(
-      'repeat 2 [jump, repeat 5 [crouch]]',
+      'turn_right, repeat 2 [repeat 4 [forward], turn_left]',
     );
     const flat = findShortestPrograms(level, { maxDepth: 0 });
-    expect(flat).toMatchObject({ complete: true, minBlocks: null, searchedSize: 4 });
+    expect(flat).toMatchObject({ complete: true, minBlocks: null, searchedSize: 5 });
   });
 
   it('stops on the work budget or shouldStop and says so', async () => {
@@ -106,19 +108,23 @@ describe('findFixes', () => {
     expect(result.examples.map(formatProgram)).toEqual(['repeat 3 [crouch, jump], jump']);
   });
 
-  it('w02-l11: reports a fix with fewer edits than parEdits', async () => {
+  it('w02-l11: moving the turn into the loop is a single edit', async () => {
     const level = await loadLevel('w02-l11');
-    expect(level.parEdits).toBe(2);
+    expect(level.parEdits).toBe(1);
     const result = findFixes(level);
     expect(result.minEdits).toBe(1);
-    expect(result.examples.map(formatProgram)).toContain('kick, repeat 3 [kick, walk], jump');
+    expect(result.examples.map(formatProgram)).toContain(
+      'repeat 3 [forward, forward, turn_left, forward, turn_right], forward',
+    );
   });
 
   it('keeps or deletes blocks that are not in the toolbox, never adds them', async () => {
     const level = { ...(await loadLevel('w01-l09')), toolbox: ['runner_walk', 'runner_jump'] };
     const result = findFixes(level);
     expect(result).toMatchObject({ minEdits: 1, count: 1, complete: true, mismatches: [] });
-    expect(formatProgram(result.examples[0] ?? [])).toBe('walk, jump, crouch, walk, jump, walk');
+    expect(formatProgram(result.examples[0] ?? [])).toBe(
+      'walk, jump, walk, crouch, jump, crouch, walk, walk',
+    );
   });
 
   it('stops on the work budget', async () => {

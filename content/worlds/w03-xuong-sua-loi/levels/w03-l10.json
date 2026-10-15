@@ -10,21 +10,11 @@
   "misconception": "Khối nào cũng đúng thì chương trình đúng, thứ tự không quan trọng.",
   "mission": "Mang hộp đồ nghề về nhà bác Cú.",
   "goalSprite": "home",
-  "toolbox": [
-    "maze_forward",
-    "maze_turn_left",
-    "maze_turn_right"
-  ],
-  "par": 8,
+  "toolbox": ["maze_forward", "maze_turn_left", "maze_turn_right"],
+  "par": 9,
   "parEdits": 2,
   "config": {
-    "map": [
-      "#######",
-      "###..G#",
-      "###.###",
-      "#S..###",
-      "#######"
-    ],
+    "map": ["########", "####..G#", "##.#.###", "#S...###", "########"],
     "startDir": "E"
   },
   "initialWorkspace": {
@@ -59,16 +49,22 @@
                               "id": "fwd4",
                               "next": {
                                 "block": {
-                                  "type": "maze_turn_right",
-                                  "id": "right1",
+                                  "type": "maze_forward",
+                                  "id": "fwd5",
                                   "next": {
                                     "block": {
-                                      "type": "maze_forward",
-                                      "id": "fwd5",
+                                      "type": "maze_turn_right",
+                                      "id": "right1",
                                       "next": {
                                         "block": {
                                           "type": "maze_forward",
-                                          "id": "fwd6"
+                                          "id": "fwd6",
+                                          "next": {
+                                            "block": {
+                                              "type": "maze_forward",
+                                              "id": "fwd7"
+                                            }
+                                          }
                                         }
                                       }
                                     }
@@ -109,28 +105,34 @@
                   "id": "fwd2",
                   "next": {
                     "block": {
-                      "type": "maze_turn_left",
-                      "id": "left1",
+                      "type": "maze_forward",
+                      "id": "fwd3",
                       "next": {
                         "block": {
-                          "type": "maze_forward",
-                          "id": "fwd3",
+                          "type": "maze_turn_left",
+                          "id": "left1",
                           "next": {
                             "block": {
                               "type": "maze_forward",
                               "id": "fwd4",
                               "next": {
                                 "block": {
-                                  "type": "maze_turn_right",
-                                  "id": "right1",
+                                  "type": "maze_forward",
+                                  "id": "fwd5",
                                   "next": {
                                     "block": {
-                                      "type": "maze_forward",
-                                      "id": "fwd5",
+                                      "type": "maze_turn_right",
+                                      "id": "right1",
                                       "next": {
                                         "block": {
                                           "type": "maze_forward",
-                                          "id": "fwd6"
+                                          "id": "fwd6",
+                                          "next": {
+                                            "block": {
+                                              "type": "maze_forward",
+                                              "id": "fwd7"
+                                            }
+                                          }
                                         }
                                       }
                                     }
@@ -164,9 +166,12 @@
       "id": "order",
       "when": {
         "trigger": "run-end",
-        "lastReason": "HIT_WALL"
+        "lastReason": "HIT_WALL",
+        "runCount": {
+          "gte": 2
+        }
       },
-      "say": "Măng rẽ sớm quá. Rẽ ở ô nào mới đúng?",
+      "say": "Măng rẽ ở đâu? Rẽ ở đó đúng chưa?",
       "point": "block:maze_turn_left"
     }
   ],

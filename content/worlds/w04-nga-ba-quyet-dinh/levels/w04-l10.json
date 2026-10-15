@@ -6,7 +6,7 @@
   "mode": "predict",
   "title": "Đếm vòng",
   "objective": "Lặp 4 lần. Đoán xem Măng dừng ở đâu!",
-  "learningGoal": "Mỗi vòng chỉ chạy một nhánh: nhảy (2 ô) hoặc đi (1 ô). Đếm vòng chứ không đếm ô.",
+  "learningGoal": "Câu hỏi \"phía trước có ô trống\": ô trống (đất) thì đi, không thì nhảy. Mỗi vòng chỉ chạy một nhánh: nhảy (2 ô) hoặc đi (1 ô). Đếm vòng chứ không đếm ô.",
   "misconception": "Lặp 4 lần thì Măng đi 4 ô.",
   "mission": "Đoán chỗ Măng dừng trên đường tìm Bông.",
   "goalSprite": "footprints",
@@ -54,20 +54,20 @@
                           "type": "runner_is_ahead",
                           "id": "ask1",
                           "fields": {
-                            "KIND": "HOLE"
+                            "KIND": "CLEAR"
                           }
                         }
                       },
                       "DO": {
                         "block": {
-                          "type": "runner_jump",
-                          "id": "jump1"
+                          "type": "runner_walk",
+                          "id": "walk1"
                         }
                       },
                       "ELSE": {
                         "block": {
-                          "type": "runner_walk",
-                          "id": "walk1"
+                          "type": "runner_jump",
+                          "id": "jump1"
                         }
                       }
                     }
@@ -108,6 +108,14 @@
       },
       "say": "Chỉ tay theo từng vòng. Vòng này Măng nhảy hay đi?",
       "point": "block:cq_if_else"
+    },
+    {
+      "id": "clear",
+      "when": {
+        "trigger": "idle"
+      },
+      "say": "Ô trống: phía trước là đất, Măng đi được.",
+      "point": "block:runner_is_ahead"
     }
   ],
   "thinkingHint": "Mỗi vòng Măng nhảy hay đi? Nhảy thì xa mấy ô?"

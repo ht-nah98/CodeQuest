@@ -2,32 +2,20 @@
   "id": "w03-l05",
   "worldId": "w03-xuong-sua-loi",
   "stage": "practice",
-  "kind": "runner",
+  "kind": "maze",
   "mode": "bughunt",
-  "title": "Khối rơi ra",
-  "objective": "Nối khối đá vào đúng chỗ nhé!",
-  "learningGoal": "Khối rời (không nối vào khi bắt đầu) không bao giờ chạy. Nối khối đá vào ngay trước thùng là 1 lần sửa.",
+  "title": "Xe dò đường",
+  "objective": "Xe đi lạc. Tìm chỗ hỏng nhé!",
+  "learningGoal": "Khối rời (không nối vào khi bắt đầu) không bao giờ chạy: thiếu khối rẽ trái, xe đi thẳng vào ngõ cụt. Nối khối rẽ vào ngay ngã ba là 1 lần sửa.",
   "misconception": "Khối nằm trong vùng ghép là sẽ chạy, dù chưa nối.",
-  "mission": "Một khối rơi khỏi máy của Cáo. Nối lại!",
+  "mission": "Một khối rơi khỏi xe dò đường của Cáo. Nối lại!",
   "goalSprite": "machine",
-  "toolbox": [
-    "runner_walk",
-    "runner_jump",
-    "runner_kick"
-  ],
+  "toolbox": ["maze_forward", "maze_turn_left", "maze_turn_right"],
   "par": 6,
   "parEdits": 1,
   "config": {
-    "cells": [
-      "ground",
-      "ground",
-      "crate",
-      "ground",
-      "hole",
-      "ground",
-      "flag"
-    ],
-    "start": 0
+    "map": ["######", "###G##", "###.##", "###.##", "#S...#", "######"],
+    "startDir": "E"
   },
   "initialWorkspace": {
     "blocks": {
@@ -41,24 +29,24 @@
           "deletable": false,
           "next": {
             "block": {
-              "type": "runner_walk",
-              "id": "walk1",
+              "type": "maze_forward",
+              "id": "fwd1",
               "next": {
                 "block": {
-                  "type": "runner_walk",
-                  "id": "walk2",
+                  "type": "maze_forward",
+                  "id": "fwd2",
                   "next": {
                     "block": {
-                      "type": "runner_walk",
-                      "id": "walk3",
+                      "type": "maze_forward",
+                      "id": "fwd3",
                       "next": {
                         "block": {
-                          "type": "runner_jump",
-                          "id": "jump1",
+                          "type": "maze_forward",
+                          "id": "fwd4",
                           "next": {
                             "block": {
-                              "type": "runner_walk",
-                              "id": "walk4"
+                              "type": "maze_forward",
+                              "id": "fwd5"
                             }
                           }
                         }
@@ -71,9 +59,9 @@
           }
         },
         {
-          "type": "runner_kick",
-          "id": "kick1",
-          "x": 300,
+          "type": "maze_turn_left",
+          "id": "left1",
+          "x": 260,
           "y": 60
         }
       ]
@@ -91,28 +79,28 @@
           "deletable": false,
           "next": {
             "block": {
-              "type": "runner_walk",
-              "id": "walk1",
+              "type": "maze_forward",
+              "id": "fwd1",
               "next": {
                 "block": {
-                  "type": "runner_kick",
-                  "id": "kick1",
+                  "type": "maze_forward",
+                  "id": "fwd2",
                   "next": {
                     "block": {
-                      "type": "runner_walk",
-                      "id": "walk2",
+                      "type": "maze_turn_left",
+                      "id": "left1",
                       "next": {
                         "block": {
-                          "type": "runner_walk",
-                          "id": "walk3",
+                          "type": "maze_forward",
+                          "id": "fwd3",
                           "next": {
                             "block": {
-                              "type": "runner_jump",
-                              "id": "jump1",
+                              "type": "maze_forward",
+                              "id": "fwd4",
                               "next": {
                                 "block": {
-                                  "type": "runner_walk",
-                                  "id": "walk4"
+                                  "type": "maze_forward",
+                                  "id": "fwd5"
                                 }
                               }
                             }
@@ -135,7 +123,7 @@
       "when": {
         "trigger": "enter"
       },
-      "say": "Bấm Chạy trước, xem Măng vấp ở đâu nhé!",
+      "say": "Bấm Chạy trước, xem Măng đụng ở đâu nhé!",
       "point": "run"
     },
     {
@@ -145,19 +133,19 @@
         "orphans": true
       },
       "say": "Khối xám này chưa nối nên không chạy.",
-      "point": "block:runner_kick",
+      "point": "block:maze_turn_left",
       "priority": 1
     },
     {
       "id": "where",
       "when": {
         "trigger": "run-end",
-        "lastReason": "HIT_CRATE",
+        "lastReason": "HIT_WALL",
         "orphans": false
       },
-      "say": "Măng phải đá khi đứng sát thùng.",
-      "point": "block:runner_kick"
+      "say": "Tới ngã ba thì rẽ về phía đích.",
+      "point": "stage"
     }
   ],
-  "thinkingHint": "Măng đứng ở ô nào thì thùng ở ngay trước mặt?"
+  "thinkingHint": "Măng đứng ở đâu thì phải rẽ lên?"
 }

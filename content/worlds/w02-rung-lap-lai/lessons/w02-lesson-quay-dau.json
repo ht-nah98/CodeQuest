@@ -1,0 +1,126 @@
+{
+  "id": "w02-lesson-quay-dau",
+  "worldId": "w02-rung-lap-lai",
+  "title": "Quay đầu",
+  "beforeLevel": "w02-l13",
+  "cards": [
+    {
+      "type": "say",
+      "pose": "point",
+      "text": "Rẽ 2 lần là quay đầu: Măng nhìn ngược lại, chưa đi."
+    },
+    {
+      "type": "demo",
+      "text": "Rẽ phải 2 lần là quay đầu. Rồi tiến tới đích.",
+      "kind": "maze",
+      "config": {
+        "map": ["######", "#G..S#", "######"],
+        "startDir": "E"
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "maze_turn_right",
+                  "id": "right1",
+                  "next": {
+                    "block": {
+                      "type": "maze_turn_right",
+                      "id": "right2",
+                      "next": {
+                        "block": {
+                          "type": "maze_forward",
+                          "id": "fwd1",
+                          "next": {
+                            "block": {
+                              "type": "maze_forward",
+                              "id": "fwd2",
+                              "next": {
+                                "block": {
+                                  "type": "maze_forward",
+                                  "id": "fwd3"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "demo",
+      "text": "Rẽ trái 2 lần cũng quay đầu.",
+      "kind": "maze",
+      "config": {
+        "map": ["######", "#S..G#", "######"],
+        "startDir": "W"
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "maze_turn_left",
+                  "id": "left1",
+                  "next": {
+                    "block": {
+                      "type": "maze_turn_left",
+                      "id": "left2",
+                      "next": {
+                        "block": {
+                          "type": "maze_forward",
+                          "id": "fwd1",
+                          "next": {
+                            "block": {
+                              "type": "maze_forward",
+                              "id": "fwd2",
+                              "next": {
+                                "block": {
+                                  "type": "maze_forward",
+                                  "id": "fwd3"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "quiz",
+      "text": "Măng rẽ phải 2 lần. Măng đi mấy ô?",
+      "options": ["1 ô", "Không ô nào"],
+      "correct": 1,
+      "explain": "Rẽ chỉ quay tại chỗ, chưa đi."
+    }
+  ]
+}

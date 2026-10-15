@@ -1,0 +1,77 @@
+{
+  "id": "w01-l01",
+  "worldId": "w01-fixture",
+  "stage": "guided",
+  "kind": "runner",
+  "mode": "build",
+  "title": "Nhảy qua hố",
+  "objective": "Nhảy qua hố để tới lá cờ nhé!",
+  "learningGoal": "Dùng khối đi và khối nhảy theo đúng thứ tự.",
+  "misconception": "Măng tự biết né hố.",
+  "toolbox": ["runner_walk", "runner_jump"],
+  "par": 3,
+  "config": {
+    "cells": ["ground", "ground", "hole", "ground", "flag"],
+    "start": 0
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "runner_walk",
+              "id": "b1",
+              "next": {
+                "block": {
+                  "type": "runner_jump",
+                  "id": "b2",
+                  "next": {
+                    "block": {
+                      "type": "runner_walk",
+                      "id": "b3"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "walk-new",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Khối đi giúp Măng bước 1 ô.",
+      "point": "toolbox:runner_walk"
+    },
+    {
+      "id": "jump-new",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Khối nhảy giúp Măng bay qua hố.",
+      "point": "toolbox:runner_jump"
+    },
+    {
+      "id": "hole-why",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "FELL_IN_HOLE"
+      },
+      "say": "Măng chỉ bay qua hố khi đứng sát nó.",
+      "point": "stage"
+    }
+  ],
+  "thinkingHint": "Ngay trước hố, Măng phải làm gì?"
+}
