@@ -12,8 +12,9 @@ import {
 } from '@codequest/content-schema';
 import { runLevel } from '@codequest/engine';
 import { getGameKind } from '@codequest/games';
-import { countWords, findShortestPrograms } from '@codequest/validator';
+import { countWords, findParsonsArrangements, findShortestPrograms } from '@codequest/validator';
 import { describe, expect, it } from 'vitest';
+import { mazeJunctions } from './difficulty';
 
 const W04 = new URL('../../../content/worlds/w04-nga-ba-quyet-dinh/', import.meta.url);
 const read = (path: string): unknown => JSON.parse(readFileSync(new URL(path, W04), 'utf8'));
@@ -167,6 +168,10 @@ describe('World 4 lessons', () => {
     expect(demosOf('w04-lesson-co-duong')).toEqual(['stop@1,2', 'stop@1,2']);
   });
 
+  it('nếu trong nếu không: ahead open → forward; shut → left if open, else right', () => {
+    expect(demosOf('w04-lesson-neu-long')).toEqual(['stop@2,2', 'stop@2,1', 'stop@1,1']);
+  });
+
   it('chìa khóa: standing on the key picks it up, jumping over it does not', () => {
     expect(demosOf('w04-lesson-chia-khoa')).toEqual(['win', 'missed@3']);
   });
@@ -206,6 +211,38 @@ describe('World 4 parsons: the wrong arrangements fail as the hints say', () => 
     expect(keysOf('w04-l09', [{ r: 12, b: [hole, crate] }])).toEqual(['crash:HIT_CRATE@1']);
   });
 
+  it('l12: straight first, then the nested left question wins; asking left first does not', () => {
+    const nested: Item[] = [
+      {
+        r: 20,
+        b: [{ if: 'AHEAD', then: ['f'], else: [{ if: 'LEFT', then: ['L'], else: ['R'] }] }],
+      },
+    ];
+    expect(keysOf('w04-l12', nested)).toEqual(['win']);
+    const leftFirst: Item[] = [
+      {
+        r: 20,
+        b: [{ if: 'LEFT', then: ['L'], else: [{ if: 'AHEAD', then: ['f'], else: ['R'] }] }],
+      },
+    ];
+    expect(keysOf('w04-l12', leftFirst)).not.toEqual(['win']);
+    // Swapping the two turns spins on the spot at the first corner.
+    const swapped: Item[] = [
+      {
+        r: 20,
+        b: [{ if: 'AHEAD', then: ['f'], else: [{ if: 'LEFT', then: ['R'], else: ['L'] }] }],
+      },
+    ];
+    expect(keysOf('w04-l12', swapped)).not.toEqual(['win']);
+  });
+
+  it('l12: exactly one arrangement of the blocks wins (G22)', () => {
+    expect(findParsonsArrangements(levelById('w04-l12'))).toMatchObject({
+      wins: 1,
+      complete: true,
+    });
+  });
+
   it('l14: the two-question program wins; without the left question Măng ends at a dead end', () => {
     expect(keysOf('w04-l14', twoQuestions(20))).toEqual(['win']);
     expect(keysOf('w04-l14', IFE(20, 'AHEAD', ['f'], ['R']))).not.toEqual(['win']);
@@ -213,44 +250,38 @@ describe('World 4 parsons: the wrong arrangements fail as the hints say', () => 
 });
 
 describe('World 4 bughunts: each fix does what the curriculum says (§5.2)', () => {
-  it('l05: swapped branches fall in the first hole; asking "ô trống" wins', () => {
-    expect(keysOf('w04-l05', IFE(8, 'HOLE', ['w'], ['j']))).toEqual(['crash:FELL_IN_HOLE@2']);
-    expect(keysOf('w04-l05', IFE(8, 'CLEAR', ['w'], ['j']))).toEqual(['win']);
+  it('l05: swapped branches turn while the road is open; swapping them back wins both mazes', () => {
+    expect(keysOf('w04-l05', IFE(20, 'AHEAD', ['L'], ['f']))).toEqual([
+      'crash:HIT_WALL@4,1',
+      'crash:HIT_WALL@5,5',
+    ]);
+    expect(keysOf('w04-l05', IFE(20, 'AHEAD', ['f'], ['L']))).toEqual(['win', 'win']);
+    // Turning right at the wall walks into the dead end of the first corner and paces.
+    expect(keysOf('w04-l05', IFE(20, 'AHEAD', ['f'], ['R']))[0]).toMatch(/^stop@/);
   });
 
-  it('l11: asking the left side runs into the wall; asking the right side wins', () => {
+  it('l11: asking the left side turns at a dead end; asking the right side wins both', () => {
     const run = (ask: Ask): (string | undefined)[] =>
       keysOf('w04-l11', [{ r: 12, b: [{ if: ask, then: ['R'] }, 'f'] }]);
-    expect(run('LEFT')).toEqual(['crash:HIT_WALL@1,4']);
-    expect(run('RIGHT')).toEqual(['win']);
+    expect(run('LEFT')).toEqual(['crash:HIT_WALL@2,2', 'crash:HIT_WALL@4,6']);
+    expect(run('RIGHT')).toEqual(['win', 'win']);
   });
 
-  it('l15: the memorised first jump wins map 1 and falls on map 2; deleting it wins both', () => {
-    expect(keysOf('w04-l15', ['j', ...IFE(12, 'HOLE', ['j'], ['w'])])).toEqual([
-      'win',
-      'crash:FELL_IN_HOLE@2',
-    ]);
-    expect(keysOf('w04-l15', IFE(12, 'HOLE', ['j'], ['w']))).toEqual(['win', 'win']);
+  it('l15: the memorised first step wins map 1 and hits the wall on map 2; deleting it wins both', () => {
+    const loop: Item = {
+      r: 20,
+      b: [{ if: 'AHEAD', then: ['f'], else: [{ if: 'LEFT', then: ['L'], else: ['R'] }] }],
+    };
+    expect(keysOf('w04-l15', ['f', loop])).toEqual(['win', 'crash:HIT_WALL@5,1']);
+    expect(keysOf('w04-l15', [loop])).toEqual(['win', 'win']);
+    // Swapping the memorised step for a turn costs a round: map 1 needs all 20.
+    expect(keysOf('w04-l15', ['L', loop])[0]).toMatch(/^stop@/);
+    expect(keysOf('w04-l15', ['R', loop])[0]).toMatch(/^stop@/);
   });
 
   it('l18: turning left in the else branch paces back and forth; turning right wins', () => {
     expect(keysOf('w04-l18', twoQuestions(20, 'L'))).toEqual(['stop@1,1', 'stop@1,1']);
     expect(keysOf('w04-l18', twoQuestions(20, 'R'))).toEqual(['win', 'win']);
-  });
-
-  it('l19: two bugs; fixing only one still loses, fixing both wins', () => {
-    expect(keysOf('w04-l19', IFE(5, 'HOLE', ['w'], ['j']))).toEqual([
-      'crash:FELL_IN_HOLE@2',
-      'crash:FELL_IN_HOLE@1',
-    ]);
-    // Only the question fixed: map 2 runs out of rounds.
-    expect(keysOf('w04-l19', IFE(5, 'CLEAR', ['w'], ['j']))).toEqual(['win', 'stop@8']);
-    // Only the count fixed: still walks into the holes.
-    expect(keysOf('w04-l19', IFE(12, 'HOLE', ['w'], ['j']))).toEqual([
-      'crash:FELL_IN_HOLE@2',
-      'crash:FELL_IN_HOLE@1',
-    ]);
-    expect(keysOf('w04-l19', IFE(12, 'CLEAR', ['w'], ['j']))).toEqual(['win', 'win']);
   });
 });
 
@@ -258,6 +289,31 @@ describe('World 4 build levels', () => {
   it('l06: the toolbox repeat of 3 stops early; a big enough count wins both maps', () => {
     expect(keysOf('w04-l06', IFE(3, 'HOLE', ['j'], ['w']))).toEqual(['stop@5', 'stop@4']);
     expect(keysOf('w04-l06', IFE(12, 'HOLE', ['j'], ['w']))).toEqual(['win', 'win']);
+  });
+
+  it('l08: asking the left side walks into a dead end; asking the right side wins', () => {
+    const run = (ask: Ask, turn: string): (string | undefined)[] =>
+      keysOf('w04-l08', [{ r: 12, b: [{ if: ask, then: [turn] }, 'f'] }]);
+    expect(run('LEFT', 'L')).toEqual(['crash:HIT_WALL@1,3']);
+    expect(run('RIGHT', 'R')).toEqual(['win']);
+  });
+
+  it('l19: holding the right wall fits in 20 rounds; the left wall runs out in the deep dead ends', () => {
+    expect(keysOf('w04-l19', twoQuestions(20, 'L', 'RIGHT'))).toEqual(['win', 'win']);
+    for (const key of keysOf('w04-l19', twoQuestions(20))) expect(key).toMatch(/^stop@/);
+    // Straight first (l12's program) walks into the dead end ahead on map 1.
+    const nested: Item[] = [
+      {
+        r: 20,
+        b: [{ if: 'AHEAD', then: ['f'], else: [{ if: 'LEFT', then: ['L'], else: ['R'] }] }],
+      },
+    ];
+    expect(keysOf('w04-l19', nested)[0]).not.toBe('win');
+    // Left then right, then forward: turns into the side dead end on the right of map 1.
+    const leftThenRight: Item[] = [
+      { r: 20, b: [{ if: 'LEFT', then: ['L'] }, { if: 'RIGHT', then: ['R'] }, 'f'] },
+    ];
+    expect(keysOf('w04-l19', leftThenRight)[0]).toMatch(/^crash:HIT_WALL/);
   });
 
   it('l17: jumping all the way flies over the keys or into a hole on all 3 maps', () => {
@@ -283,7 +339,7 @@ describe('World 4 build levels', () => {
   });
 
   // R1 (curriculum.md §5.5): without a question no program fits in maxBlocks.
-  it.each(['w04-l02', 'w04-l04', 'w04-l06', 'w04-l08', 'w04-l12', 'w04-l17', 'w04-boss'])(
+  it.each(['w04-l02', 'w04-l04', 'w04-l06', 'w04-l08', 'w04-l17', 'w04-l19', 'w04-boss'])(
     '%s: nothing wins within maxBlocks without a question',
     { timeout: 60_000 },
     (id) => {
@@ -299,6 +355,39 @@ describe('World 4 build levels', () => {
       };
       const result = findShortestPrograms(noQuestions, { maxSize });
       expect(result).toMatchObject({ minBlocks: null, complete: true, mismatches: [] });
+    },
+  );
+
+  // Difficulty pass (roadmap/difficulty-pass.md §3.2): the bughunt mazes need the question too.
+  it.each(['w04-l05', 'w04-l11', 'w04-l15'])(
+    '%s: nothing wins within par blocks without a question',
+    { timeout: 60_000 },
+    (id) => {
+      const level = levelById(id);
+      if (level.par === undefined) throw new Error(`${id} has no par`);
+      const asks = new Set(['cq_if', 'cq_if_else', 'maze_is_path']);
+      const noQuestions: Level = {
+        ...level,
+        toolbox: level.toolbox.filter(
+          (entry) => !asks.has(typeof entry === 'string' ? entry : entry.type),
+        ),
+      };
+      expect(findShortestPrograms(noQuestions, { maxSize: level.par })).toMatchObject({
+        minBlocks: null,
+        complete: true,
+      });
+    },
+  );
+
+  // M1: the new mazes are real mazes (2 junctions and a dead end on some map).
+  it.each(['w04-l05', 'w04-l08', 'w04-l11', 'w04-l12', 'w04-l15', 'w04-l19'])(
+    '%s: some map has 2 junctions and a dead end (M1)',
+    (id) => {
+      const level = levelById(id);
+      const maps = [level.config, ...(level.variants ?? [])].map((config) =>
+        mazeJunctions((config as { map: string[] }).map),
+      );
+      expect(maps.some(({ junctions, deadEnds }) => junctions >= 2 && deadEnds >= 1)).toBe(true);
     },
   );
 

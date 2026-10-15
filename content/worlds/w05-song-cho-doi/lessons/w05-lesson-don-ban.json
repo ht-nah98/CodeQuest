@@ -7,20 +7,20 @@
     {
       "type": "say",
       "pose": "point",
-      "text": "Gà con lạc bên kia sông! Đứng ở ô em để đón."
+      "text": "Gà con lạc trong bãi lau! Đứng ở ô em để đón."
     },
     {
       "type": "demo",
-      "text": "Măng đi tới ô Gà con: đón được em!",
-      "kind": "runner",
+      "text": "Măng đi qua ô Gà con: đón được em!",
+      "kind": "maze",
       "config": {
-        "cells": ["ground", "ground", "ground", "ground", "flag"],
-        "start": 0,
+        "map": ["#######", "#S...G#", "#######"],
+        "startDir": "E",
         "goal": {
           "items": [
             {
               "kind": "friend",
-              "at": 2
+              "at": [1, 3]
             }
           ]
         }
@@ -42,14 +42,14 @@
                   "inputs": {
                     "COND": {
                       "block": {
-                        "type": "runner_at_goal",
-                        "id": "ask1"
+                        "type": "maze_at_goal",
+                        "id": "goal1"
                       }
                     },
                     "DO": {
                       "block": {
-                        "type": "runner_walk",
-                        "id": "walk1"
+                        "type": "maze_forward",
+                        "id": "fwd1"
                       }
                     }
                   }
@@ -62,16 +62,16 @@
     },
     {
       "type": "demo",
-      "text": "Nhảy qua Gà con thì không đón được em.",
-      "kind": "runner",
+      "text": "Gà con ở lối khác. Tới nhà mà chưa đón em!",
+      "kind": "maze",
       "config": {
-        "cells": ["ground", "ground", "ground", "ground", "flag"],
-        "start": 0,
+        "map": ["######", "#S..G#", "###.##", "######"],
+        "startDir": "E",
         "goal": {
           "items": [
             {
               "kind": "friend",
-              "at": 1
+              "at": [2, 3]
             }
           ]
         }
@@ -88,17 +88,19 @@
               "deletable": false,
               "next": {
                 "block": {
-                  "type": "runner_jump",
-                  "id": "jump1",
-                  "next": {
-                    "block": {
-                      "type": "runner_walk",
-                      "id": "walk1",
-                      "next": {
-                        "block": {
-                          "type": "runner_walk",
-                          "id": "walk2"
-                        }
+                  "type": "cq_repeat_until",
+                  "id": "until1",
+                  "inputs": {
+                    "COND": {
+                      "block": {
+                        "type": "maze_at_goal",
+                        "id": "goal1"
+                      }
+                    },
+                    "DO": {
+                      "block": {
+                        "type": "maze_forward",
+                        "id": "fwd1"
                       }
                     }
                   }
@@ -111,7 +113,7 @@
     },
     {
       "type": "quiz",
-      "text": "Măng nhảy qua ô Gà con. Đón được em không?",
+      "text": "Măng không đi qua ô Gà con. Đón được em không?",
       "options": ["Đón được", "Chưa đón được"],
       "correct": 1,
       "explain": "Phải đứng ở ô của em mới đón được."

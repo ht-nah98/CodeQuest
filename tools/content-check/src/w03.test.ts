@@ -13,6 +13,7 @@ import { runLevel } from '@codequest/engine';
 import { getGameKind } from '@codequest/games';
 import { countWords } from '@codequest/validator';
 import { describe, expect, it } from 'vitest';
+import { mazeJunctions } from './difficulty';
 
 const W03 = new URL('../../../content/worlds/w03-xuong-sua-loi/', import.meta.url);
 const read = (path: string): unknown => JSON.parse(readFileSync(new URL(path, W03), 'utf8'));
@@ -120,10 +121,10 @@ describe('World 3 levels: each fix reveals the next bug (curriculum.md §5.1)', 
     expect(keyOf('w03-l03', ['c', 'w', 'w', 'w', 'j', 'k', 'w', 'w', 'w'])).toBe('win');
   });
 
-  it('l08: rounds 1–2 of the walk loop are fine, round 3 falls; jumping wins', () => {
-    expect(keyOf('w03-l08', [{ r: 2, b: ['w'] }])).toBe('stop@2');
-    expect(keyOf('w03-l08', [{ r: 3, b: ['w'] }, 'c', 'w', 'w'])).toBe('crash:FELL_IN_HOLE@3');
-    expect(keyOf('w03-l08', [{ r: 3, b: ['j'] }, 'c', 'w', 'w'])).toBe('win');
+  it('l08: the extra forward goes down 2 a step; rounds 1–2 pass, round 3 hits the wall', () => {
+    expect(keyOf('w03-l08', [{ r: 2, b: ['f', 'R', 'f', 'f', 'L'] }])).toBe('stop@5,3');
+    expect(keyOf('w03-l08', [{ r: 3, b: ['f', 'R', 'f', 'f', 'L'] }])).toBe('crash:HIT_WALL@5,3');
+    expect(keyOf('w03-l08', [{ r: 3, b: ['f', 'R', 'f', 'L'] }])).toBe('win');
   });
 
   it('l11: the first chunk stops at cell 9; the 5-block jump win skips the shoot', () => {
@@ -140,35 +141,39 @@ describe('World 3 levels: each fix reveals the next bug (curriculum.md §5.1)', 
     expect(outcome.goals).toEqual([false]);
   });
 
-  it('l12: two bugs, one after the other', () => {
-    expect(keyOf('w03-l12', [{ r: 2, b: ['w', 'j'] }, 'w', 'w', 'w'])).toBe('crash:FELL_IN_HOLE@8');
-    expect(keyOf('w03-l12', [{ r: 3, b: ['w', 'j'] }, 'w', 'w', 'w'])).toBe('crash:HIT_BRANCH@10');
-    expect(keyOf('w03-l12', [{ r: 3, b: ['w', 'j'] }, 'c', 'w', 'w'])).toBe('win');
+  it('l12: loop count first, then a missing forward at the end (not a turn, unlike l13)', () => {
+    const run = (times: number, tail: string[]): string | undefined =>
+      keyOf('w03-l12', [{ r: times, b: ['f'] }, 'R', { r: 4, b: ['f'] }, 'L', ...tail]);
+    expect(run(2, ['f'])).toBe('crash:HIT_WALL@1,3');
+    expect(run(3, ['f'])).toBe('stop@5,5');
+    expect(run(3, ['f', 'f'])).toBe('win');
   });
 
   it('l13: loop count first, then the wrong turn', () => {
     const run = (times: number, turn: string): string | undefined =>
       keyOf('w03-l13', [{ r: times, b: ['f'] }, 'R', { r: 4, b: ['f'] }, turn, { r: 2, b: ['f'] }]);
-    expect(run(3, 'L')).toBe('crash:HIT_WALL@2,1');
+    expect(run(3, 'L')).toBe('crash:HIT_WALL@3,1');
+    // The wrong turn walks into the dead end above the corner.
     expect(run(4, 'L')).toBe('crash:HIT_WALL@1,5');
     expect(run(4, 'R')).toBe('win');
   });
 
-  it('l05: without the loose kick Măng hits the crate; joined after the first walk it wins', () => {
-    expect(keyOf('w03-l05', ['w', 'w', 'w', 'j', 'w'])).toBe('crash:HIT_CRATE@2');
-    expect(keyOf('w03-l05', ['w', 'k', 'w', 'w', 'j', 'w'])).toBe('win');
+  it('l05: without the loose left turn Măng drives into the dead end; joined it wins', () => {
+    expect(keyOf('w03-l05', ['f', 'f', 'f', 'f', 'f'])).toBe('crash:HIT_WALL@4,4');
+    expect(keyOf('w03-l05', ['f', 'f', 'L', 'f', 'f', 'f'])).toBe('win');
   });
 
-  it('l06: turning right while facing down hits the wall; turning left wins', () => {
+  it('l06: turning right while facing down enters the dead end; turning left wins', () => {
     expect(keyOf('w03-l06', [{ r: 3, b: ['f'] }, 'R', { r: 4, b: ['f'] }])).toBe(
-      'crash:HIT_WALL@4,2',
+      'crash:HIT_WALL@4,1',
     );
     expect(keyOf('w03-l06', [{ r: 3, b: ['f'] }, 'L', { r: 4, b: ['f'] }])).toBe('win');
   });
 
-  it('l10: the turn comes one block early; swapping blocks 2 and 3 wins', () => {
-    expect(keyOf('w03-l10', ['f', 'L', 'f', 'f', 'f', 'R', 'f', 'f'])).toBe('crash:HIT_WALL@3,2');
-    expect(keyOf('w03-l10', ['f', 'f', 'L', 'f', 'f', 'R', 'f', 'f'])).toBe('win');
+  it('l10: the turn comes two blocks early, into the dead end; swapping blocks 2 and 4 wins', () => {
+    const swapped = ['f', 'L', 'f', 'f', 'f', 'f', 'R', 'f', 'f'];
+    expect(keyOf('w03-l10', swapped)).toBe('crash:HIT_WALL@2,2');
+    expect(keyOf('w03-l10', ['f', 'f', 'f', 'L', 'f', 'f', 'R', 'f', 'f'])).toBe('win');
   });
 
   it('boss: four bugs, each fix shows the next one', () => {
@@ -186,5 +191,29 @@ describe('World 3 levels: each fix reveals the next bug (curriculum.md §5.1)', 
       'missed@17',
       'win',
     ]);
+  });
+});
+
+describe('World 3 mazes (difficulty pass, M1)', () => {
+  it('every graded maze bughunt has a junction and a dead end the bug walks into', () => {
+    const flat = [...levels.values()].filter(
+      (level) => level.kind === 'maze' && level.mode === 'bughunt' && level.stage !== 'guided',
+    );
+    expect(flat.map((level) => level.id)).toEqual([
+      'w03-l05',
+      'w03-l06',
+      'w03-l08',
+      'w03-l10',
+      'w03-l12',
+      'w03-l13',
+    ]);
+    for (const level of flat) {
+      const { junctions, deadEnds } = mazeJunctions((level.config as { map: string[] }).map);
+      expect({ id: level.id, junction: junctions >= 1, deadEnd: deadEnds >= 1 }).toEqual({
+        id: level.id,
+        junction: true,
+        deadEnd: true,
+      });
+    }
   });
 });

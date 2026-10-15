@@ -6,7 +6,7 @@
   "mode": "build",
   "title": "Hang tối",
   "objective": "Thấy lối bên phải thì rẽ. Không quá 5 khối!",
-  "learningGoal": "Khối nếu một nhánh trong mê cung: mỗi vòng hỏi \"có đường bên phải\", đúng (Có) thì rẽ phải; rồi tiến.",
+  "learningGoal": "Khối nếu một nhánh trong mê cung: mỗi vòng hỏi \"có đường bên phải\", đúng (Có) thì rẽ phải; rồi tiến. Lối cụt bên trái thì bỏ qua.",
   "misconception": "Rẽ ở đâu thì phải ghép riêng cho chỗ đó.",
   "mission": "Ra khỏi hang tối bên bờ suối.",
   "goalSprite": "exit",
@@ -31,7 +31,15 @@
   "maxLoopDepth": 1,
   "par": 5,
   "config": {
-    "map": ["#######", "#S....#", "#####.#", "##G...#", "#######"],
+    "map": [
+      "#########",
+      "###.#####",
+      "#S.....##",
+      "######..#",
+      "##G....##",
+      "####.####",
+      "#########"
+    ],
     "startDir": "E"
   },
   "solution": {
@@ -103,7 +111,7 @@
         "trigger": "run-end",
         "lastReason": "HIT_WALL"
       },
-      "say": "Ở góc, lối mở bên nào của Măng?",
+      "say": "Lối cửa ra luôn ở bên nào của Măng?",
       "point": "toolbox:cq_if"
     },
     {
@@ -116,5 +124,5 @@
       "point": "block:cq_repeat"
     }
   ],
-  "thinkingHint": "Ở góc hang, lối đi mở về phía nào của Măng?"
+  "thinkingHint": "Có lối bên trái và lối bên phải. Lối nào ra cửa?"
 }

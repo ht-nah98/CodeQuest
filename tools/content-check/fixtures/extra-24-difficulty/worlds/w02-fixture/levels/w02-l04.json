@@ -1,0 +1,123 @@
+{
+  "id": "w02-l04",
+  "worldId": "w02-fixture",
+  "stage": "practice",
+  "kind": "maze",
+  "mode": "parsons",
+  "title": "Ghép lại",
+  "objective": "Tới đích nhé!",
+  "learningGoal": "Mẫu cho luật 24.",
+  "misconception": "Mẫu.",
+  "toolbox": [],
+  "config": {
+    "map": ["#####", "#S.##", "##.##", "##G##", "#####"],
+    "startDir": "E"
+  },
+  "hints": [],
+  "thinkingHint": "Đích ở đâu?",
+  "par": 5,
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "rep1",
+              "fields": {
+                "TIMES": 12
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "cq_if",
+                    "id": "if1",
+                    "inputs": {
+                      "COND": {
+                        "block": {
+                          "type": "maze_is_path",
+                          "id": "ask1",
+                          "fields": {
+                            "DIR": "RIGHT"
+                          }
+                        }
+                      },
+                      "DO": {
+                        "block": {
+                          "type": "maze_turn_right",
+                          "id": "right1"
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "maze_forward",
+                        "id": "fwd1"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false
+        },
+        {
+          "type": "cq_repeat",
+          "id": "rep1",
+          "fields": {
+            "TIMES": 12
+          },
+          "x": 300,
+          "y": 40
+        },
+        {
+          "type": "cq_if",
+          "id": "if1",
+          "x": 440,
+          "y": 104
+        },
+        {
+          "type": "maze_is_path",
+          "id": "ask1",
+          "fields": {
+            "DIR": "RIGHT"
+          },
+          "x": 300,
+          "y": 168
+        },
+        {
+          "type": "maze_turn_right",
+          "id": "right1",
+          "x": 440,
+          "y": 232
+        },
+        {
+          "type": "maze_forward",
+          "id": "fwd1",
+          "x": 300,
+          "y": 296
+        }
+      ]
+    }
+  }
+}

@@ -1,5 +1,5 @@
 /**
- * Cross-file rules 3, 4, 7, 8 and 21 (story chapters, story.ts) of content-model.md §5: how worlds, lessons and levels fit
+ * Cross-file rules 3, 4, 7, 8, 21 (story chapters, story.ts) and 24 (difficulty, difficulty.ts) of content-model.md §5: how worlds, lessons and levels fit
  * together into one curriculum. Draft folders `worlds/_*` are outside the curriculum and
  * skipped (content-model.md §1).
  */
@@ -8,6 +8,7 @@ import type { Level, LevelMode, World } from '@codequest/content-schema';
 import { gameKinds } from '@codequest/games';
 import { blockTypesOf, toolboxTypes } from '@codequest/validator';
 import type { Issue } from './rules';
+import { checkDifficulty } from './difficulty';
 import { checkStory } from './story';
 
 /**
@@ -274,6 +275,14 @@ export function checkCurriculum(input: CurriculumInput): CurriculumReport {
       run = [];
     }
   }
+
+  // Rule 24 (warning only): difficulty-pass rules M1–M3 (difficulty.ts).
+  warnings.push(
+    ...checkDifficulty({
+      worlds: ordered.map(({ world }) => ({ world, levels: liveLevels(world) })),
+      pathOf: (id) => levelById.get(id)?.path ?? '',
+    }),
+  );
 
   return { errors, warnings };
 }

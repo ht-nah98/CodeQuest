@@ -1,0 +1,12 @@
+{
+  "id": "w02-lesson",
+  "worldId": "w02-fixture",
+  "title": "Mê cung",
+  "cards": [
+    {
+      "type": "say",
+      "pose": "talk",
+      "text": "Măng vào mê cung."
+    }
+  ]
+}

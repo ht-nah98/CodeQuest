@@ -2,26 +2,42 @@
   "id": "w05-l08",
   "worldId": "w05-song-cho-doi",
   "stage": "practice",
-  "kind": "runner",
+  "kind": "maze",
   "mode": "bughunt",
-  "title": "Chờ nhầm thứ",
-  "objective": "Măng chờ nhầm thứ. Sửa 1 chỗ thôi nhé!",
-  "learningGoal": "Điều kiện phải hỏi đúng thứ có trên đường: chờ cành mà đường không có cành thì Măng đi mãi, rơi xuống nước. Đổi \"cành\" thành \"hố\" là sửa xong.",
+  "title": "Chờ nhầm phía",
+  "objective": "Măng chờ nhầm phía. Sửa 1 chỗ thôi nhé!",
+  "learningGoal": "Điều kiện phải hỏi đúng phía: lối xuống bến ở bên phải, mà Măng chờ có đường bên trái, nên Măng rẽ ở lối cụt hoặc đi quá chỗ rẽ. Đổi \"bên trái\" thành \"bên phải\" là sửa xong.",
   "misconception": "Câu hỏi nào cũng được, miễn có vòng lặp.",
-  "mission": "Măng chờ nhầm thứ nên rơi xuống nước. Sửa nhé!",
-  "goalSprite": "flag",
-  "toolbox": ["runner_walk", "runner_jump", "cq_repeat_until", "runner_is_ahead"],
+  "mission": "Măng chờ nhầm lối rẽ xuống bến. Sửa nhé!",
+  "goalSprite": "dock",
+  "toolbox": [
+    "maze_forward",
+    "maze_turn_left",
+    "maze_turn_right",
+    "cq_repeat_until",
+    "maze_is_path",
+    "maze_at_goal"
+  ],
   "maxLoopDepth": 1,
-  "par": 5,
+  "par": 7,
   "parEdits": 1,
   "config": {
-    "cells": ["ground", "ground", "ground", "hole", "ground", "flag"],
-    "start": 0
+    "map": ["########", "###.####", "#S.....#", "#####.##", "#####.##", "#####G##", "########"],
+    "startDir": "E"
   },
   "variants": [
     {
-      "cells": ["ground", "ground", "ground", "ground", "ground", "hole", "ground", "flag"],
-      "start": 0
+      "map": [
+        "#########",
+        "######G##",
+        "######.##",
+        "######.##",
+        "######.##",
+        "##.....S#",
+        "####.####",
+        "#########"
+      ],
+      "startDir": "W"
     }
   ],
   "initialWorkspace": {
@@ -41,28 +57,42 @@
               "inputs": {
                 "COND": {
                   "block": {
-                    "type": "runner_is_ahead",
+                    "type": "maze_is_path",
                     "id": "ask1",
                     "fields": {
-                      "KIND": "BRANCH"
+                      "DIR": "LEFT"
                     }
                   }
                 },
                 "DO": {
                   "block": {
-                    "type": "runner_walk",
-                    "id": "walk1"
+                    "type": "maze_forward",
+                    "id": "fwd1"
                   }
                 }
               },
               "next": {
                 "block": {
-                  "type": "runner_jump",
-                  "id": "jump1",
+                  "type": "maze_turn_right",
+                  "id": "right1",
                   "next": {
                     "block": {
-                      "type": "runner_walk",
-                      "id": "walk2"
+                      "type": "cq_repeat_until",
+                      "id": "until2",
+                      "inputs": {
+                        "COND": {
+                          "block": {
+                            "type": "maze_at_goal",
+                            "id": "goal1"
+                          }
+                        },
+                        "DO": {
+                          "block": {
+                            "type": "maze_forward",
+                            "id": "fwd2"
+                          }
+                        }
+                      }
                     }
                   }
                 }
@@ -90,28 +120,42 @@
               "inputs": {
                 "COND": {
                   "block": {
-                    "type": "runner_is_ahead",
+                    "type": "maze_is_path",
                     "id": "ask1",
                     "fields": {
-                      "KIND": "HOLE"
+                      "DIR": "RIGHT"
                     }
                   }
                 },
                 "DO": {
                   "block": {
-                    "type": "runner_walk",
-                    "id": "walk1"
+                    "type": "maze_forward",
+                    "id": "fwd1"
                   }
                 }
               },
               "next": {
                 "block": {
-                  "type": "runner_jump",
-                  "id": "jump1",
+                  "type": "maze_turn_right",
+                  "id": "right1",
                   "next": {
                     "block": {
-                      "type": "runner_walk",
-                      "id": "walk2"
+                      "type": "cq_repeat_until",
+                      "id": "until2",
+                      "inputs": {
+                        "COND": {
+                          "block": {
+                            "type": "maze_at_goal",
+                            "id": "goal1"
+                          }
+                        },
+                        "DO": {
+                          "block": {
+                            "type": "maze_forward",
+                            "id": "fwd2"
+                          }
+                        }
+                      }
                     }
                   }
                 }
@@ -128,18 +172,21 @@
       "when": {
         "trigger": "enter"
       },
-      "say": "Đọc câu hỏi. Trên đường có thứ đó không?",
-      "point": "block:runner_is_ahead"
+      "say": "Đọc câu hỏi. Lối xuống bến ở bên nào?",
+      "point": "block:maze_is_path"
     },
     {
-      "id": "fell",
+      "id": "wall",
       "when": {
         "trigger": "run-end",
-        "lastReason": "FELL_IN_HOLE"
+        "lastReason": "HIT_WALL"
       },
-      "say": "Măng chờ thấy gì? Lúc rơi, trước mặt Măng là gì?",
-      "point": "block:runner_is_ahead"
+      "say": "Măng dừng ở lối nào? Lối đó bên nào của Măng?",
+      "point": "block:maze_is_path"
     }
   ],
-  "thinkingHint": "Bờ sông này có cành không? Có gì?"
+  "thinkingHint": "Măng chờ có đường bên nào? Măng rẽ bên nào?",
+  "maxInstances": {
+    "cq_repeat_until": 2
+  }
 }

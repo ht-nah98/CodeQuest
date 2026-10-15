@@ -6,16 +6,22 @@
   "mode": "bughunt",
   "title": "Măng đứng mãi",
   "objective": "Vòng lặp không dừng. Sửa 1 chỗ thôi nhé!",
-  "learningGoal": "Vòng lặp chỉ dừng khi điều kiện đúng. Trong vòng lặp không có khối nào nên Măng không đổi gì, câu hỏi không bao giờ đúng: vòng lặp không dừng. Kéo khối tiến vào trong vòng lặp là sửa xong.",
+  "learningGoal": "Vòng lặp chỉ dừng khi điều kiện đúng. Trong vòng lặp không có khối nào nên Măng không đổi gì, câu hỏi không bao giờ đúng: vòng lặp không dừng. Kéo khối tiến vào trong vòng lặp là sửa xong, đúng cho cả 2 bến đò.",
   "misconception": "Vòng lặp tự dừng; khối nằm dưới vòng lặp cũng được lặp.",
   "mission": "Măng đứng mãi không đi. Sửa giúp nhé!",
   "goalSprite": "dock",
-  "toolbox": ["maze_forward", "cq_repeat_until", "maze_at_goal"],
+  "toolbox": [
+    "maze_forward",
+    "maze_turn_left",
+    "maze_turn_right",
+    "cq_repeat_until",
+    "maze_at_goal"
+  ],
   "maxLoopDepth": 1,
   "par": 3,
   "parEdits": 1,
   "config": {
-    "map": ["#######", "#S...G#", "#######"],
+    "map": ["########", "###.####", "#S....G#", "#####.##", "########"],
     "startDir": "E"
   },
   "initialWorkspace": {
@@ -105,5 +111,22 @@
       "point": "block:cq_repeat_until"
     }
   ],
-  "thinkingHint": "Măng chưa đi bước nào. Câu hỏi có đổi không?"
+  "thinkingHint": "Măng chưa đi bước nào. Câu hỏi có đổi không?",
+  "variants": [
+    {
+      "map": [
+        "#####",
+        "##S##",
+        "##.##",
+        "#..##",
+        "##.##",
+        "##..#",
+        "##.##",
+        "##.##",
+        "#.G##",
+        "#####"
+      ],
+      "startDir": "S"
+    }
+  ]
 }

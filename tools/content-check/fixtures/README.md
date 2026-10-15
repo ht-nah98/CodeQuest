@@ -29,3 +29,8 @@ When you add a rule or change the baseline, keep each fixture a one-change copy 
 
 `rule-21-story-chapters/` (P2-24) gives the world three chapters whose last one opens after an
 earlier level than the chapter before it.
+
+`extra-24-difficulty/` (difficulty pass, rule 24, warnings only) is `baseline/` plus a second
+world `w02-fixture` (order 2, maze levels) that breaks each part once: `w02-l02` is a corridor
+with no junction (M1), `w02-l03` has two maps that differ only in length (M3), and `w02-l04` uses
+the solution shape of `w02-l01` and `w02-l03` a third time (M2). It still exits 0.

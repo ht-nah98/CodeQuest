@@ -1,0 +1,91 @@
+{
+  "id": "w02-l03",
+  "worldId": "w02-fixture",
+  "stage": "practice",
+  "kind": "maze",
+  "mode": "build",
+  "title": "Hai hành lang",
+  "objective": "Tới đích nhé!",
+  "learningGoal": "Mẫu cho luật 24.",
+  "misconception": "Mẫu.",
+  "toolbox": [
+    "maze_forward",
+    "maze_turn_left",
+    "maze_turn_right",
+    {
+      "type": "cq_repeat",
+      "fields": {
+        "TIMES": 12
+      }
+    },
+    "cq_if",
+    "maze_is_path"
+  ],
+  "config": {
+    "map": ["#######", "##.####", "#S...G#", "#######"],
+    "startDir": "E"
+  },
+  "hints": [],
+  "thinkingHint": "Đích ở đâu?",
+  "par": 5,
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "rep1",
+              "fields": {
+                "TIMES": 12
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "cq_if",
+                    "id": "if1",
+                    "inputs": {
+                      "COND": {
+                        "block": {
+                          "type": "maze_is_path",
+                          "id": "ask1",
+                          "fields": {
+                            "DIR": "RIGHT"
+                          }
+                        }
+                      },
+                      "DO": {
+                        "block": {
+                          "type": "maze_turn_right",
+                          "id": "right1"
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "maze_forward",
+                        "id": "fwd1"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "variants": [
+    {
+      "map": ["########", "##.#####", "#S....G#", "########"],
+      "startDir": "E"
+    }
+  ]
+}

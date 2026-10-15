@@ -1,0 +1,245 @@
+{
+  "id": "w04-lesson-neu-long",
+  "worldId": "w04-nga-ba-quyet-dinh",
+  "title": "Nếu trong nếu không",
+  "beforeLevel": "w04-l12",
+  "cards": [
+    {
+      "type": "say",
+      "pose": "point",
+      "text": "Nếu trong nếu không: hết đường phía trước mới hỏi tiếp."
+    },
+    {
+      "type": "demo",
+      "text": "Có đường phía trước. Măng tiến, không hỏi bên trái.",
+      "kind": "maze",
+      "config": {
+        "map": ["#####", "#..##", "#S.G#", "#####"],
+        "startDir": "E"
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "cq_if_else",
+                  "id": "ifelse1",
+                  "inputs": {
+                    "COND": {
+                      "block": {
+                        "type": "maze_is_path",
+                        "id": "ask2",
+                        "fields": {
+                          "DIR": "AHEAD"
+                        }
+                      }
+                    },
+                    "DO": {
+                      "block": {
+                        "type": "maze_forward",
+                        "id": "fwd1"
+                      }
+                    },
+                    "ELSE": {
+                      "block": {
+                        "type": "cq_if_else",
+                        "id": "ifelse2",
+                        "inputs": {
+                          "COND": {
+                            "block": {
+                              "type": "maze_is_path",
+                              "id": "ask1",
+                              "fields": {
+                                "DIR": "LEFT"
+                              }
+                            }
+                          },
+                          "DO": {
+                            "block": {
+                              "type": "maze_turn_left",
+                              "id": "left1"
+                            }
+                          },
+                          "ELSE": {
+                            "block": {
+                              "type": "maze_turn_right",
+                              "id": "right1"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "demo",
+      "text": "Hết đường phía trước. Măng hỏi bên trái: có, rẽ trái.",
+      "kind": "maze",
+      "config": {
+        "map": ["####", "#.##", "#S##", "#.G#", "####"],
+        "startDir": "E"
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "cq_if_else",
+                  "id": "ifelse1",
+                  "inputs": {
+                    "COND": {
+                      "block": {
+                        "type": "maze_is_path",
+                        "id": "ask2",
+                        "fields": {
+                          "DIR": "AHEAD"
+                        }
+                      }
+                    },
+                    "DO": {
+                      "block": {
+                        "type": "maze_forward",
+                        "id": "fwd1"
+                      }
+                    },
+                    "ELSE": {
+                      "block": {
+                        "type": "cq_if_else",
+                        "id": "ifelse2",
+                        "inputs": {
+                          "COND": {
+                            "block": {
+                              "type": "maze_is_path",
+                              "id": "ask1",
+                              "fields": {
+                                "DIR": "LEFT"
+                              }
+                            }
+                          },
+                          "DO": {
+                            "block": {
+                              "type": "maze_turn_left",
+                              "id": "left1"
+                            }
+                          },
+                          "ELSE": {
+                            "block": {
+                              "type": "maze_turn_right",
+                              "id": "right1"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "demo",
+      "text": "Hết đường, bên trái cũng không có. Măng rẽ phải.",
+      "kind": "maze",
+      "config": {
+        "map": ["####", "#S##", "#.G#", "####"],
+        "startDir": "E"
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "cq_if_else",
+                  "id": "ifelse1",
+                  "inputs": {
+                    "COND": {
+                      "block": {
+                        "type": "maze_is_path",
+                        "id": "ask2",
+                        "fields": {
+                          "DIR": "AHEAD"
+                        }
+                      }
+                    },
+                    "DO": {
+                      "block": {
+                        "type": "maze_forward",
+                        "id": "fwd1"
+                      }
+                    },
+                    "ELSE": {
+                      "block": {
+                        "type": "cq_if_else",
+                        "id": "ifelse2",
+                        "inputs": {
+                          "COND": {
+                            "block": {
+                              "type": "maze_is_path",
+                              "id": "ask1",
+                              "fields": {
+                                "DIR": "LEFT"
+                              }
+                            }
+                          },
+                          "DO": {
+                            "block": {
+                              "type": "maze_turn_left",
+                              "id": "left1"
+                            }
+                          },
+                          "ELSE": {
+                            "block": {
+                              "type": "maze_turn_right",
+                              "id": "right1"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "quiz",
+      "text": "Phía trước có đường. Măng có hỏi bên trái không?",
+      "options": ["Có", "Không"],
+      "correct": 1,
+      "explain": "Có đường phía trước thì Măng tiến luôn."
+    }
+  ]
+}

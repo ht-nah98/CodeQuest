@@ -179,7 +179,7 @@ Kiểm tay: ô 0 → đi 1 → nhảy 3 → đi 4 → nhảy 6 → đi 7 → nh�
 ## 5. Luật của `content:check` (`tools/content-check`)
 Chạy `npm run content:check`. Báo lỗi (exit 1) nếu vi phạm bất kỳ luật nào:
 
-> Luật **cấp màn** (1, 2 mẫu ID, 5–6, 9–16, 19–20, 22–23) cài trong `@codequest/validator` (`validateLevel`), dùng chung với level editor trong trình duyệt. `tools/content-check` đọc file, kiểm luật liên file (2 tên file/trùng ID, 3–4, 7–8, 17–18, 21) và in bảng (ADR-0015).
+> Luật **cấp màn** (1, 2 mẫu ID, 5–6, 9–16, 19–20, 22–23) cài trong `@codequest/validator` (`validateLevel`), dùng chung với level editor trong trình duyệt. `tools/content-check` đọc file, kiểm luật liên file (2 tên file/trùng ID, 3–4, 7–8, 17–18, 21, 24) và in bảng (ADR-0015).
 
 **Cấu trúc**
 1. Mọi file đúng schema zod. `level.config` đúng `configSchema` của `kind`.
@@ -232,6 +232,13 @@ Chạy `npm run content:check`. Báo lỗi (exit 1) nếu vi phạm bất kỳ l
     - (l) Măng trên ô `G`: không cần kiểm, một ô maze chỉ có một ký tự nên `b` không bao giờ trùng `G`.
     - (R4) `build` / `bughunt` có hộp: thanh khối có `lặp [hộp] lần` hoặc `so sánh` cần ≥ 2 bản đồ; màn chỉ đếm (`countGoal`, không khối lái) cần ≥ 2 bản đồ có `equals` khác nhau. Phần "bỏ khối biến thì không thắng tới `par`" là test của thế giới (`withoutVariables`, `conventions/content-authoring.md` §2.2).
     - Luật 7 (khối mới lần đầu) nhận khối biến như mọi khối. Luật 17: `WRONG_COUNT` và `BOX_FULL` có câu trong `feedback.json` của nội dung và mọi fixture.
+
+**Độ khó** (đợt tăng độ khó, `roadmap/difficulty-pass.md` §3.2)
+24. ⚠ **Chỉ cảnh báo.** Luật soạn M1–M3 của `conventions/content-authoring.md` §2.3, cài ở `tools/content-check/src/difficulty.ts` (luật liên file vì cần thứ tự trong thế giới), xét các màn đang dùng theo `levelIds`, từ thế giới `order` ≥ 2:
+    - (M1) màn `maze` `build` / `bughunt`, trừ `guided`: không bản đồ nào có ≥ 1 ngã ba (từ W4: ≥ 2) **và** ≥ 1 ngõ cụt mà Măng tới được → `rule 24: (M1) no map has 2 junctions and a dead end Măng can reach (best: 0 junctions, 0 dead ends); draw a real maze`. Ngã ba = ô mở có ≥ 3 ô mở kề, ngõ cụt = 1 ô mở kề, không tính `S`, `G` (`mazeJunctions`); chỉ đếm ô tới được (`reachableCells`: màn không có khối rẽ trong thanh khối / chương trình chỉ tới được đường thẳng trước `S`).
+    - (M2) hình lời giải (`levelShape`: chương trình của `predict`, lời giải của mode khác; bỏ số lần lặp và số ô, chuỗi khối giống nhau liền nhau viết một lần kèm `+`; ảnh gương trái ↔ phải là một hình, `mirrorShape`) đã dùng 2 lần trong thế giới → `(M2) solution shape "…" is already used 2 times in this world (…); max 2`; lần thứ hai cùng mode **và** cùng loại bản đồ (số bản đồ, vật phẩm, số bản đồ là mê cung thật có ngã ba và ngõ cụt) với lần đầu → `(M2) solution shape "…" repeats w04-l02 with the same mode (build) and the same kind of map (2 maps); …`. Màn trong `APPROVED_LADDERS` (thang D5 của W4) không bị cảnh báo.
+    - (M3) màn mê cung nhiều bản đồ có khối hỏi (`cq_if`, `cq_if_else`, `cq_repeat_until`) trong lời giải, trừ `guided`: hai bản đồ có cùng "hình đường" (`mazeRoadShape`: theo đường ngắn nhất `S` → `G`, mỗi chỗ rẽ `L`/`R`/`B` và nhánh hai bên `a`/`l`/`r`/`b` nhìn từ hướng Măng tới, bỏ độ dài) → `(M3) maps 1 and 2 differ only in length (same road "R:a"); move a turn or a dead end`.
+    - Fixture `extra-24-difficulty/` (mỗi mục một lần), test `tools/content-check/src/difficulty.test.ts`.
 
 **Tài sản**
 18. Asset được tham chiếu (`theme.tileset`, `image`, `shop.asset`) tồn tại trong `apps/web/public/`.
