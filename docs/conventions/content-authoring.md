@@ -87,6 +87,8 @@ Khối mới của Thế giới 3–5 (`nếu`, `nếu … nếu không`, `lặp
 | `nếu` nằm trong nhánh `nếu không` | W4 `l12` (ghép hình) | `w04-lesson-neu-long` | Nếu trong nếu không: hết đường phía trước mới hỏi tiếp. |
 | Thân `lặp đến khi` là khối rẽ (quay tìm đường) | W5 `l06` | `w05-lesson-xoay` | Rẽ đến khi có đường: Măng quay tại chỗ, chưa đi. |
 | Câu hỏi `phía trước có [ô trống]` (không phải khối mới, ô chọn của `phía trước có`) | W4 `l10` (đoán; trước đây `l05`, `l12`) | màn đoán `l10` (chạy chương trình thật) | Ô trống: phía trước là đất, Măng đi được. |
+| Hai hộp: một hộp là số vòng, hộp kia đếm (`lặp [số bước] lần { … tăng [số măng] … }`) | W7 `l16` | `w07-lesson-hai-hop` | Hộp số bước chỉ số vòng. Hộp số măng đếm măng. |
+| Thứ tự việc (robot Bíp): cùng các việc, đổi thứ tự thì đường và số giây đổi | W6 boss (`l19` đã nhắc khi quá số lệnh) | `w06-lesson-thu-tu` (2 demo: hai thứ tự, một kịp về phòng, một hết giờ) | Đổi thứ tự việc thì số giây cũng đổi. |
 
 
 ## 6. Review nội dung

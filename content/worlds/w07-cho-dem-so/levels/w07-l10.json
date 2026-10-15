@@ -6,14 +6,22 @@
   "mode": "bughunt",
   "title": "Đếm nhầm ô trống",
   "objective": "Hộp đếm cả ô trống. Sửa 1 chỗ nhé!",
-  "learningGoal": "Khối tăng nằm ngoài nếu nên chạy mọi vòng: hộp đếm ô chứ không đếm măng. Kéo khối tăng vào trong nếu.",
+  "learningGoal": "Khối tăng nằm ngoài nếu nên chạy mọi vòng, cả vòng rẽ: hộp đếm vòng chứ không đếm măng. Kéo khối tăng vào trong nếu. Phần tìm đường (có đường phía trước thì tiến, không thì rẽ phải) đã đúng.",
   "misconception": "Đếm số ô thay vì số măng.",
   "mission": "Đếm nhầm cả ô trống. Sửa nhé!",
   "goalSprite": "home",
   "toolbox": [
     "maze_forward",
+    "maze_turn_right",
     "cq_repeat",
     "cq_if",
+    "cq_if_else",
+    {
+      "type": "maze_is_path",
+      "fields": {
+        "DIR": "AHEAD"
+      }
+    },
     "maze_bamboo_ahead",
     {
       "type": "cq_var_add",
@@ -24,25 +32,34 @@
     }
   ],
   "maxLoopDepth": 1,
-  "par": 5,
+  "par": 8,
   "parEdits": 1,
   "variables": [
     {
       "id": "bamboo",
-      "name": "số măng"
+      "name": "số măng",
+      "max": 20
     }
   ],
   "countGoal": {
     "var": "bamboo",
-    "equals": [2, 4]
+    "equals": [5, 4]
   },
   "config": {
-    "map": ["#########", "#S.b..bG#", "#########"],
+    "map": [
+      "#########",
+      "#Sb.b.b.#",
+      "###.###.#",
+      "######..#",
+      "####.##b#",
+      "##G.b...#",
+      "#########"
+    ],
     "startDir": "E"
   },
   "variants": [
     {
-      "map": ["#########", "#Sbbb.bG#", "#########"],
+      "map": ["#########", "#Sbbb.###", "###.#b.##", "#####.#.#", "###G..b.#", "#########"],
       "startDir": "E"
     }
   ],
@@ -59,35 +76,58 @@
           "next": {
             "block": {
               "type": "cq_repeat",
-              "id": "loop1",
+              "id": "b1",
               "fields": {
-                "TIMES": 6
+                "TIMES": 20
               },
               "inputs": {
                 "DO": {
                   "block": {
                     "type": "cq_if",
-                    "id": "if1",
+                    "id": "b2",
                     "inputs": {
                       "COND": {
                         "block": {
                           "type": "maze_bamboo_ahead",
-                          "id": "ask1"
+                          "id": "b2c"
                         }
                       }
                     },
                     "next": {
                       "block": {
                         "type": "cq_var_add",
-                        "id": "add1",
+                        "id": "b3",
                         "fields": {
                           "VAR": "bamboo",
                           "NUM": 1
                         },
                         "next": {
                           "block": {
-                            "type": "maze_forward",
-                            "id": "fwd1"
+                            "type": "cq_if_else",
+                            "id": "b4",
+                            "inputs": {
+                              "COND": {
+                                "block": {
+                                  "type": "maze_is_path",
+                                  "id": "b4c",
+                                  "fields": {
+                                    "DIR": "AHEAD"
+                                  }
+                                }
+                              },
+                              "DO": {
+                                "block": {
+                                  "type": "maze_forward",
+                                  "id": "b5"
+                                }
+                              },
+                              "ELSE": {
+                                "block": {
+                                  "type": "maze_turn_right",
+                                  "id": "b6"
+                                }
+                              }
+                            }
                           }
                         }
                       }
@@ -114,26 +154,26 @@
           "next": {
             "block": {
               "type": "cq_repeat",
-              "id": "loop1",
+              "id": "b1",
               "fields": {
-                "TIMES": 6
+                "TIMES": 20
               },
               "inputs": {
                 "DO": {
                   "block": {
                     "type": "cq_if",
-                    "id": "if1",
+                    "id": "b2",
                     "inputs": {
                       "COND": {
                         "block": {
                           "type": "maze_bamboo_ahead",
-                          "id": "ask1"
+                          "id": "b2c"
                         }
                       },
                       "DO": {
                         "block": {
                           "type": "cq_var_add",
-                          "id": "add1",
+                          "id": "b3",
                           "fields": {
                             "VAR": "bamboo",
                             "NUM": 1
@@ -143,8 +183,31 @@
                     },
                     "next": {
                       "block": {
-                        "type": "maze_forward",
-                        "id": "fwd1"
+                        "type": "cq_if_else",
+                        "id": "b4",
+                        "inputs": {
+                          "COND": {
+                            "block": {
+                              "type": "maze_is_path",
+                              "id": "b4c",
+                              "fields": {
+                                "DIR": "AHEAD"
+                              }
+                            }
+                          },
+                          "DO": {
+                            "block": {
+                              "type": "maze_forward",
+                              "id": "b5"
+                            }
+                          },
+                          "ELSE": {
+                            "block": {
+                              "type": "maze_turn_right",
+                              "id": "b6"
+                            }
+                          }
+                        }
                       }
                     }
                   }
@@ -173,6 +236,14 @@
       },
       "say": "Hộp tăng cả khi không có măng. Khối tăng nằm đâu?",
       "point": "block:cq_var_add"
+    },
+    {
+      "id": "road",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "HIT_WALL"
+      },
+      "say": "Đừng sửa phần tìm đường. Chỉ sửa chỗ hộp nhé!"
     }
   ],
   "thinkingHint": "Ô trống có làm hộp tăng không?"

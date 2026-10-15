@@ -6,7 +6,7 @@
   "mode": "build",
   "title": "Giao măng cho 3 nhà",
   "objective": "Đếm măng, rồi giao tới đúng nhà.",
-  "learningGoal": "Đếm măng bằng nếu và tăng, rồi dùng lại chính hộp đó: lặp hộp lần để đi xuống đúng số bước tới nhà.",
+  "learningGoal": "Hộp số bước cho biết đếm tới đâu và rẽ xuống ở đâu. Đếm măng bằng nếu và tăng, rồi dùng lại hộp số măng: lặp số măng lần để đi xuống đúng nhà.",
   "misconception": "Hộp chỉ để xem, không dùng lại được trong chương trình.",
   "mission": "Giao măng cho 3 nhà! Đếm rồi đi đúng.",
   "goalSprite": "home",
@@ -27,6 +27,12 @@
     {
       "type": "cq_repeat_var",
       "fields": {
+        "VAR": "steps"
+      }
+    },
+    {
+      "type": "cq_repeat_var",
+      "fields": {
         "VAR": "bamboo"
       }
     }
@@ -38,42 +44,49 @@
     {
       "id": "bamboo",
       "name": "số măng"
+    },
+    {
+      "id": "steps",
+      "name": "số bước",
+      "start": [3, 5, 5]
     }
   ],
   "config": {
     "map": [
-      "#########",
-      "#Sb.b..##",
-      "######.##",
-      "######.G#",
-      "######.##",
-      "######.##",
-      "#########"
+      "##########",
+      "##########",
+      "#Sb.b.bb.#",
+      "####.#.###",
+      "###..G####",
+      "####.#####",
+      "##########"
     ],
     "startDir": "E"
   },
   "variants": [
     {
       "map": [
-        "#########",
-        "#Sbbb.b##",
-        "######.##",
-        "######.##",
-        "######.##",
-        "######.G#",
-        "#########"
+        "##########",
+        "##########",
+        "#Sbb.bb.b#",
+        "####.#.###",
+        "######.###",
+        "######.###",
+        "#####..G##",
+        "##########"
       ],
       "startDir": "E"
     },
     {
       "map": [
-        "#########",
-        "#S.bb.b##",
-        "######.##",
-        "######.##",
-        "######.G#",
-        "######.##",
-        "#########"
+        "##########",
+        "##########",
+        "#S.bb.bbb#",
+        "###.##.###",
+        "######.###",
+        "#####..G##",
+        "######.###",
+        "##########"
       ],
       "startDir": "E"
     }
@@ -90,27 +103,27 @@
           "deletable": false,
           "next": {
             "block": {
-              "type": "cq_repeat",
-              "id": "loop1",
+              "type": "cq_repeat_var",
+              "id": "b1",
               "fields": {
-                "TIMES": 5
+                "VAR": "steps"
               },
               "inputs": {
                 "DO": {
                   "block": {
                     "type": "cq_if",
-                    "id": "if1",
+                    "id": "b2",
                     "inputs": {
                       "COND": {
                         "block": {
                           "type": "maze_bamboo_ahead",
-                          "id": "ask1"
+                          "id": "b2c"
                         }
                       },
                       "DO": {
                         "block": {
                           "type": "cq_var_add",
-                          "id": "add1",
+                          "id": "b3",
                           "fields": {
                             "VAR": "bamboo",
                             "NUM": 1
@@ -121,7 +134,7 @@
                     "next": {
                       "block": {
                         "type": "maze_forward",
-                        "id": "fwd1"
+                        "id": "b4"
                       }
                     }
                   }
@@ -130,11 +143,11 @@
               "next": {
                 "block": {
                   "type": "maze_turn_right",
-                  "id": "right1",
+                  "id": "b5",
                   "next": {
                     "block": {
                       "type": "cq_repeat_var",
-                      "id": "boxloop1",
+                      "id": "b6",
                       "fields": {
                         "VAR": "bamboo"
                       },
@@ -142,18 +155,18 @@
                         "DO": {
                           "block": {
                             "type": "maze_forward",
-                            "id": "fwd2"
+                            "id": "b7"
                           }
                         }
                       },
                       "next": {
                         "block": {
                           "type": "maze_turn_left",
-                          "id": "left1",
+                          "id": "b8",
                           "next": {
                             "block": {
                               "type": "maze_forward",
-                              "id": "fwd3"
+                              "id": "b9"
                             }
                           }
                         }
@@ -184,6 +197,14 @@
         "lastReason": "HIT_WALL"
       },
       "say": "Rẽ sớm hay muộn? Hộp có đúng số măng không?"
+    },
+    {
+      "id": "deadend",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "NOT_AT_GOAL"
+      },
+      "say": "Chưa tới nhà. Nhà ở phía nào của Măng?"
     }
   ],
   "thinkingHint": "Số trong hộp còn dùng được vào việc khác không?"

@@ -5,10 +5,10 @@
   "kind": "robotlab",
   "mode": "build",
   "title": "Chọn việc",
-  "objective": "Đủ 200 điểm trong 20 giây. Không quá 9 lệnh!",
-  "learningGoal": "Không đủ giờ làm mọi việc: chọn việc nhiều điểm (trung hòa 160) và còn giờ về phòng (40).",
+  "objective": "Đủ 200 điểm trong 30 giây. Không quá 13 lệnh!",
+  "learningGoal": "Không đủ giờ làm cả hai việc. Thu hồi khối ô nhiễm ở gần chỉ được 100 + 40; trung hòa khối đỏ ở xa được 160, còn kịp về phòng thêm 40.",
   "misconception": "Việc nào gần thì làm trước, không cần đếm điểm.",
-  "mission": "Chỉ đủ giờ cho một việc. Chọn việc nào?",
+  "mission": "Đủ 200 điểm trong 30 giây. Làm việc nào?",
   "toolbox": [
     "robot_forward",
     "robot_turn_left",
@@ -17,21 +17,22 @@
     "robot_release",
     "cq_repeat"
   ],
-  "maxBlocks": 9,
+  "maxBlocks": 13,
   "maxLoopDepth": 1,
-  "par": 7,
+  "par": 11,
   "config": {
-    "map": ["##r##", "Z#.##", "..L##"],
+    "map": ["r.y..", ".#.#.", ".....", "##L##"],
     "startDir": "N",
     "blocks": [
       {
         "kind": "neutralizer",
         "color": "RED",
-        "at": [1, 2]
+        "at": [2, 0]
       },
       {
-        "kind": "fence",
-        "at": [2, 0]
+        "kind": "pollution",
+        "color": "RED",
+        "at": [2, 3]
       }
     ],
     "goal": {
@@ -39,7 +40,7 @@
       "target": 200
     },
     "rules": {
-      "timeLimit": 20
+      "timeLimit": 30
     }
   },
   "solution": {
@@ -61,18 +62,18 @@
               },
               "next": {
                 "block": {
-                  "type": "robot_grab",
+                  "type": "robot_turn_left",
                   "id": "b2",
                   "next": {
                     "block": {
                       "type": "robot_forward",
                       "id": "b3",
                       "fields": {
-                        "N": 1
+                        "N": 2
                       },
                       "next": {
                         "block": {
-                          "type": "robot_release",
+                          "type": "robot_grab",
                           "id": "b4",
                           "next": {
                             "block": {
@@ -80,14 +81,44 @@
                               "id": "b5",
                               "next": {
                                 "block": {
-                                  "type": "robot_turn_right",
+                                  "type": "robot_forward",
                                   "id": "b6",
+                                  "fields": {
+                                    "N": 2
+                                  },
                                   "next": {
                                     "block": {
-                                      "type": "robot_forward",
+                                      "type": "robot_release",
                                       "id": "b7",
-                                      "fields": {
-                                        "N": 2
+                                      "next": {
+                                        "block": {
+                                          "type": "robot_turn_right",
+                                          "id": "b8",
+                                          "next": {
+                                            "block": {
+                                              "type": "robot_forward",
+                                              "id": "b9",
+                                              "fields": {
+                                                "N": 2
+                                              },
+                                              "next": {
+                                                "block": {
+                                                  "type": "robot_turn_right",
+                                                  "id": "b10",
+                                                  "next": {
+                                                    "block": {
+                                                      "type": "robot_forward",
+                                                      "id": "b11",
+                                                      "fields": {
+                                                        "N": 3
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
                                       }
                                     }
                                   }
@@ -122,16 +153,26 @@
         "trigger": "run-end",
         "lastReason": "LOW_SCORE"
       },
-      "say": "Đếm giây từng việc. Bỏ bớt việc ít điểm nhé.",
+      "say": "Đếm giây từng việc. Việc nào nhiều điểm hơn?",
       "point": "stage"
     },
     {
-      "id": "loop-time",
+      "id": "wrong",
       "when": {
         "trigger": "run-end",
-        "lastReason": "OUT_OF_TIME"
+        "lastReason": "WRONG_COLOR"
       },
-      "say": "Hết giờ khi đang lặp. Vòng lặp có dừng không?"
+      "say": "Khối đỏ vào trạm đỏ. Trạm đỏ ở đâu?",
+      "point": "stage"
+    },
+    {
+      "id": "block",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "HIT_BLOCK"
+      },
+      "say": "Bíp không đi xuyên qua khối. Dừng đúng ô, hoặc đi vòng.",
+      "point": "stage"
     }
   ],
   "thinkingHint": "Mỗi việc được mấy điểm, tốn mấy giây?",

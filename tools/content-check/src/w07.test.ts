@@ -47,7 +47,14 @@ const levelById = (id: string): Level => {
  * `T` thả. Boxes: `{ set: 'bamboo', n: 0 }`, `{ add: 'bamboo' }`, loops `{ rep: 3, b }`,
  * `{ rv: 'steps', b }` (lặp [hộp] lần), `{ until: ask, b }`, and `{ if: ask, then, else }`.
  */
-type Ask = 'BAMBOO' | 'GOAL' | 'RED' | 'YELLOW' | 'AHEAD' | ['GT' | 'LT' | 'EQ', string, number];
+type Ask =
+  | 'BAMBOO'
+  | 'GOAL'
+  | 'RED'
+  | 'YELLOW'
+  | 'AHEAD'
+  | 'RIGHT_PATH'
+  | ['GT' | 'LT' | 'EQ', string, number];
 type Item =
   | string
   | { set: string; n: number }
@@ -66,6 +73,7 @@ const sensor = (ask: Ask, id: string): Record<string, unknown> => {
   if (ask === 'BAMBOO') return { type: 'maze_bamboo_ahead', id };
   if (ask === 'GOAL') return { type: 'maze_at_goal', id };
   if (ask === 'AHEAD') return { type: 'maze_is_path', id, fields: { DIR: 'AHEAD' } };
+  if (ask === 'RIGHT_PATH') return { type: 'maze_is_path', id, fields: { DIR: 'RIGHT' } };
   return { type: 'robot_block_color', id, fields: { COLOR: ask } };
 };
 
@@ -336,6 +344,13 @@ describe('World 7 lessons: what each demo leaves in the box', () => {
     expect(demoKeys('w07-lesson-lap-hop')).toEqual(['stop@1,4#steps=3', 'stop@1,2#steps=1']);
   });
 
+  it('hai hộp: the step box sets the rounds, the shoot box counts (2 → 2, 4 → 3)', () => {
+    expect(demoKeys('w07-lesson-hai-hop')).toEqual([
+      'stop@1,3#bamboo=2#steps=2',
+      'stop@1,5#bamboo=3#steps=4',
+    ]);
+  });
+
   it('so sánh: 4 > 2 turns left; 1 > 2 does not', () => {
     const [big, small] = demosOf('w07-lesson-so-sanh');
     expect([count(big, 'turn'), count(small, 'turn')]).toEqual([1, 0]);
@@ -404,23 +419,41 @@ describe('World 7 parsons', () => {
 
 describe('World 7 bughunts: one real fix each', () => {
   const add = { add: 'bamboo' };
-  const count = (times: number): Item => ({ rep: times, b: [{ if: 'BAMBOO', then: [add] }, 'F'] });
+  const ask: Item = { if: 'BAMBOO', then: [add] };
+  const count = (times: number): Item => ({ rep: times, b: [ask, 'F'] });
+  // The 2-D roads of l05 and l10 (difficulty pass E): the given program already finds the way.
+  const wallTurn: Item = { if: 'AHEAD', then: ['F'], else: ['R'] };
+  const rightTurn: Item = { if: 'RIGHT_PATH', then: ['R'] };
 
   it('l05: đặt 0 inside the loop empties the box; moving it out wins every map', () => {
     const level = levelById('w07-l05');
     if (level.initialWorkspace === undefined) throw new Error('l05 has no program');
+    const reset: Item = { set: 'bamboo', n: 0 };
     expect(result(play('w07-l05', level.initialWorkspace))).toBe('incomplete:WRONG_COUNT');
-    expect(result(play('w07-l05', [{ set: 'bamboo', n: 0 }, count(6)]))).toBe('success');
+    expect(result(play('w07-l05', [reset, { rep: 15, b: [rightTurn, ask, 'F'] }]))).toBe('success');
     // Deleting it instead keeps yesterday's shoots (every map starts with some).
     expect(level.variables?.[0]?.start?.every((start) => start > 0)).toBe(true);
-    expect(result(play('w07-l05', [count(6)]))).toBe('incomplete:WRONG_COUNT');
+    expect(result(play('w07-l05', [{ rep: 15, b: [rightTurn, ask, 'F'] }]))).toBe(
+      'incomplete:WRONG_COUNT',
+    );
+    // Emptying the box at each turn loses the shoots before the last turn.
+    const atTurns: Item = { if: 'RIGHT_PATH', then: ['R', reset] };
+    expect(result(play('w07-l05', [{ rep: 15, b: [atTurns, ask, 'F'] }]))).toBe(
+      'incomplete:WRONG_COUNT',
+    );
   });
 
-  it('l10: tăng outside nếu counts cells; inside nếu it counts shoots', () => {
+  it('l05: turning only at walls walks into a dead end ahead on every map', () => {
+    const reset: Item = { set: 'bamboo', n: 0 };
+    const maps = play('w07-l05', [reset, { rep: 20, b: [ask, wallTurn] }]).maps ?? [];
+    expect(maps.map((map) => map.result)).toEqual(['incomplete', 'incomplete', 'incomplete']);
+  });
+
+  it('l10: tăng outside nếu counts rounds (turns too); inside nếu it counts shoots', () => {
     const level = levelById('w07-l10');
     if (level.initialWorkspace === undefined) throw new Error('l10 has no program');
-    expect(keysOf('w07-l10', level.initialWorkspace)).toEqual(['win#bamboo=6', 'win#bamboo=6']);
-    expect(result(play('w07-l10', [count(6)]))).toBe('success');
+    expect(keysOf('w07-l10', level.initialWorkspace)).toEqual(['win#bamboo=17', 'win#bamboo=11']);
+    expect(result(play('w07-l10', [{ rep: 20, b: [ask, wallTurn] }]))).toBe('success');
   });
 
   it('l15: the yellow question adds to the red box; naming the yellow box fixes it', () => {
@@ -434,11 +467,15 @@ describe('World 7 bughunts: one real fix each', () => {
   it('l19: both bugs must go; fixing one leaves a map wrong', () => {
     const choose = (op: 'GT' | 'LT'): Item => ({ if: [op, 'bamboo', 2], then: ['L'], else: ['R'] });
     const reset: Item = { set: 'bamboo', n: 0 };
-    const inside: Item = { rep: 4, b: [reset, { if: 'BAMBOO', then: [add] }, 'F'] };
+    const inside: Item = { rv: 'steps', b: [reset, ask, 'F'] };
+    const counted: Item = { rv: 'steps', b: [ask, 'F'] };
     expect(result(play('w07-l19', [inside, choose('LT'), 'F']))).toBe('crash:HIT_WALL');
     expect(result(play('w07-l19', [inside, choose('GT'), 'F']))).toBe('crash:HIT_WALL');
-    expect(result(play('w07-l19', [reset, count(4), choose('LT'), 'F']))).toBe('crash:HIT_WALL');
-    expect(result(play('w07-l19', [reset, count(4), choose('GT'), 'F']))).toBe('success');
+    expect(result(play('w07-l19', [reset, counted, choose('LT'), 'F']))).toBe('crash:HIT_WALL');
+    expect(result(play('w07-l19', [reset, counted, choose('GT'), 'F']))).toBe('success');
+    // A fixed count stops at the wrong side road on some map.
+    for (const times of [2, 3, 4])
+      expect(result(play('w07-l19', [reset, count(times), choose('GT'), 'F']))).not.toBe('success');
   });
 });
 
@@ -476,10 +513,39 @@ describe('World 7 build levels', () => {
     expect(keysOf('w07-l17', solution)).toEqual(['win#steps=3', 'win#steps=5']);
   });
 
-  it('boss: the counted shoots are the steps down to each of the 3 houses', () => {
+  it('boss: the step box picks the column, the counted shoots are the steps to each house', () => {
     const solution = levelById('w07-boss').solution;
     if (solution === undefined) throw new Error('boss has no solution');
-    expect(keysOf('w07-boss', solution)).toEqual(['win#bamboo=2', 'win#bamboo=4', 'win#bamboo=3']);
+    expect(keysOf('w07-boss', solution)).toEqual([
+      'win#bamboo=2#steps=3',
+      'win#bamboo=4#steps=5',
+      'win#bamboo=3#steps=5',
+    ]);
+  });
+
+  // Two boxes (w07-lesson-hai-hop): the step box says how far to count; the side roads are
+  // the real road on one map and a dead end on another, so no fixed count wins.
+  const add = { add: 'bamboo' };
+  const ask: Item = { if: 'BAMBOO', then: [add] };
+  it('l16: the step box stops the count at the right side road; fixed counts fail', () => {
+    const choose: Item = { if: ['GT', 'bamboo', 2], then: ['L'], else: ['R'] };
+    expect(result(play('w07-l16', [{ rv: 'steps', b: [ask, 'F'] }, choose, 'F']))).toBe('success');
+    for (const times of [3, 4, 5, 6])
+      expect(result(play('w07-l16', [{ rep: times, b: [ask, 'F'] }, choose, 'F']))).not.toBe(
+        'success',
+      );
+  });
+
+  it('boss: turning the wrong way at the house walks into a dead end', () => {
+    const deliver = (turn: string): Item[] => [
+      { rv: 'steps', b: [ask, 'F'] },
+      'R',
+      { rv: 'bamboo', b: ['F'] },
+      turn,
+      'F',
+    ];
+    expect(result(play('w07-boss', deliver('L')))).toBe('success');
+    expect(result(play('w07-boss', deliver('R')))).toBe('incomplete:NOT_AT_GOAL');
   });
 
   it('counting levels have maps that need different counts (R4, counting only)', () => {
@@ -492,38 +558,40 @@ describe('World 7 build levels', () => {
 });
 
 describe('World 7 R4: where the box steers the program, nothing wins without it', () => {
-  // A box-free program can look at one corridor cell and pick the turn. On l16 and l19 no cell
-  // holds a shoot on every "up" map and on no "down" map (or the reverse).
+  // A box-free (or count-free) program can look at one cell and pick the turn: the step box
+  // alone finds the side road. On l16 and l19 no cell (road or dead end) holds a shoot on every
+  // "up" map and on no "down" map (or the reverse).
   it.each(['w07-l16', 'w07-l19'])('%s: no single cell tells "up" maps from "down" maps', (id) => {
     const level = levelById(id);
     const maps = [level.config, ...(level.variants ?? [])].map(
       (config) => (config as { map: string[] }).map,
     );
     const up = (map: string[]): boolean => map[1]?.includes('G') === true;
-    const corridor = (map: string[]): string => map[2] ?? '';
-    const width = corridor(maps[0] ?? []).length;
-    for (let col = 2; col < width - 1; col++) {
-      const shoot = (map: string[]): boolean => corridor(map)[col] === 'b';
-      const ups = new Set(maps.filter(up).map(shoot));
-      const downs = new Set(maps.filter((map) => !up(map)).map(shoot));
-      const separates = ups.size === 1 && downs.size === 1 && [...ups][0] !== [...downs][0];
-      expect(separates, `${id} column ${String(col)}`).toBe(false);
+    const rows = Math.max(...maps.map((map) => map.length));
+    const width = Math.max(...maps.map((map) => map[0]?.length ?? 0));
+    for (let row = 0; row < rows; row++) {
+      for (let col = 0; col < width; col++) {
+        const shoot = (map: string[]): boolean => map[row]?.[col] === 'b';
+        const ups = new Set(maps.filter(up).map(shoot));
+        const downs = new Set(maps.filter((map) => !up(map)).map(shoot));
+        const separates = ups.size === 1 && downs.size === 1 && [...ups][0] !== [...downs][0];
+        expect(separates, `${id} cell ${String(row)},${String(col)}`).toBe(false);
+      }
     }
   });
 
-  // Up to maxBlocks; l16 (maxBlocks 12) and l19 (none) to 10: past it the search hits its cap or 2 GB; the
-  // one-cell bypass is ruled out below). Repeat counts 2–6 for the par-10+
-  // maze levels: their corridors are at most 5 cells, and with every count 2–20 the search hits
-  // its catalogue cap before size 10 (curriculum.md §6.2).
+  // Up to maxBlocks (l19 has none: to par 11). Repeat counts 2–6 for the par-10+ maze levels:
+  // their corridors are at most 7 cells, and with every count 2–20 the search hits its
+  // catalogue cap before size 10 (curriculum.md §6.2).
   const SHORT = [2, 3, 4, 5, 6];
   it.each([
     ['w07-l04', undefined, undefined],
     ['w07-l08', undefined, undefined],
     ['w07-l11', undefined, undefined],
     ['w07-l17', undefined, undefined],
-    ['w07-l16', SHORT, 10],
+    ['w07-l16', SHORT, undefined],
     ['w07-boss', SHORT, undefined],
-    ['w07-l19', SHORT, 10],
+    ['w07-l19', SHORT, 11],
   ] as const)('%s', { timeout: 120_000 }, (id, repeatTimes, maxSize) => {
     const level = levelById(id);
     const steering = toolboxTypes(level);

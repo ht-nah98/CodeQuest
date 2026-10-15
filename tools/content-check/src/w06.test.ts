@@ -1,7 +1,9 @@
 // World 6 "Thành Phố Robot" (curriculum.md §6.1): robot Bíp on a grid of line crossings. These
 // tests pin what the levels teach: where Bíp stops in each lesson demo, the predict answers,
 // each wrong parsons arrangement and bughunt fix, the questions needed on the multi-map levels,
-// and that only the right jobs reach the target score on l12, l19 and the boss.
+// and that only the right jobs (and, on the boss, the right order) reach the target score on
+// l12, l19 and the boss. Batch D of the difficulty pass (roadmap/difficulty-pass.md) moved l08,
+// l09, l12, l13, l18 and the boss onto two-way boards (curriculum.md §6.1).
 import { readFileSync } from 'node:fs';
 import {
   LessonSchema,
@@ -164,18 +166,24 @@ const HANDS = [
 ];
 
 /**
- * Whether any loop-free program can reach `target` with these points in the level's time limit.
- * Every action costs at least 1 s, so 30 blocks cover every action sequence of l12, the boss
- * and l19, and the search merges states, so it stays small.
+ * Whether any loop-free program of at most `maxSize` blocks can reach `target` with these points
+ * in the level's time limit. The search merges states, so it stays small; 30 blocks cover every
+ * useful action sequence of l12 and l19 (every action costs at least 1 s), and the boss board
+ * saturates its states well before 24 blocks (326 269 states at 24 and 334 448 at 30).
  */
 function canScore(
   id: string,
   mapIndex: number,
   points: Record<string, number>,
   target: number,
+  maxSize = 30,
+  override: Record<string, unknown> = {},
 ): ReturnType<typeof findShortestPrograms> {
   const level = levelById(id);
-  const map = [level.config, ...(level.variants ?? [])][mapIndex] as Record<string, unknown>;
+  const map = {
+    ...([level.config, ...(level.variants ?? [])][mapIndex] as Record<string, unknown>),
+    ...override,
+  };
   const rules = (map['rules'] ?? {}) as Record<string, unknown>;
   const probe: Level = {
     id: `${id}-jobs`,
@@ -187,11 +195,11 @@ function canScore(
     objective: 'probe',
     learningGoal: 'probe',
     toolbox: HANDS,
-    maxBlocks: 30,
+    maxBlocks: maxSize,
     config: { ...map, goal: { type: 'score', target }, rules: { ...rules, points } },
     hints: [],
   };
-  return findShortestPrograms(resolveLevelConfigs(probe, shared), { maxSize: 30 });
+  return findShortestPrograms(resolveLevelConfigs(probe, shared), { maxSize });
 }
 const NONE = { contain: 0, neutralize: 0, retrieve: 0, return: 0 };
 
@@ -358,6 +366,15 @@ describe('World 6 lessons', () => {
     );
   });
 
+  it('thứ tự: contain then retrieve gets home in time; retrieving first runs out away', () => {
+    expect(demoKeys('w06-lesson-thu-tu')).toEqual(['score:185', 'score:145']);
+    const [, late] = demosOf('w06-lesson-thu-tu');
+    expect(late?.events.filter((event) => event.type !== 'highlight').at(-1)).toMatchObject({
+      type: 'timeUp',
+      at: [0, 0],
+    });
+  });
+
   it('đã về phòng?: walks a long road home, and runs 0 rounds when already in the lab', () => {
     expect(demoKeys('w06-lesson-ve-phong-chua')).toEqual(['win', 'win']);
     expect(moves(demosOf('w06-lesson-ve-phong-chua')[1])).toBe(0);
@@ -377,7 +394,7 @@ describe('World 6 predict levels: the engine agrees with the right card', () => 
   it.each([
     ['w06-l02', 'stop@1,1'], // the crossing Bíp stands on is not counted
     ['w06-l11', 'score:160'], // time is up at the station; the neutralized block still counts
-    ['w06-l18', 'score:160'], // doing every job runs out of time away from the lab
+    ['w06-l18', 'score:160'], // going for the 2nd job runs out of time before the grab, away
   ])('%s → %s', (id, key) => {
     const level = levelById(id);
     if (level.initialWorkspace === undefined) throw new Error(`${id} has no program`);
@@ -428,18 +445,24 @@ describe('World 6 parsons: the wrong arrangements fail as the hints say', () => 
 });
 
 describe('World 6 bughunts: each fix does what the curriculum says (§6.1)', () => {
-  const fenceTrip = ['f3', 'G', 'R', 'R', 'f2', 'T'];
-  it('l08: the fence is placed but Bíp is not home; one more tiến wins', () => {
-    expect(keysOf('w06-l08', fenceTrip)).toEqual(['stop@1,1']);
-    expect(keysOf('w06-l08', [...fenceTrip, 'f1'])).toEqual(['win']);
+  const fenceTrip = ['f1', 'G', 'R', 'R', 'f1', 'R', 'f2'];
+  it('l08: on the comb street, the fence is placed beside the lab but Bíp is not home', () => {
+    expect(keysOf('w06-l08', [...fenceTrip, 'T'])).toEqual(['stop@1,1']);
+    expect(keysOf('w06-l08', [...fenceTrip, 'T', 'f1'])).toEqual(['win']);
     // Carrying the fence into the lab instead is the wrong fix.
-    expect(keysOf('w06-l08', ['f3', 'G', 'R', 'R', 'f3', 'T'])).toEqual(['crash:WRONG_PLACE@1,0']);
+    expect(keysOf('w06-l08', [...fenceTrip.slice(0, -1), 'f3', 'T'])).toEqual([
+      'crash:WRONG_PLACE@1,0',
+    ]);
   });
 
-  it('l13: 160 points away from the lab; going home adds the missing 40', () => {
-    const neutralize = ['f3', 'G', 'R', 'R', 'f1', 'T'];
+  it('l13: 160 at the yellow station; only the short way home fits the 9 s left', () => {
+    const neutralize = ['f3', 'R', 'f2', 'G', 'R', 'R', 'f2', 'T'];
     expect(keysOf('w06-l13', neutralize)).toEqual(['score:160']);
-    expect(keysOf('w06-l13', [...neutralize, 'f2'])).toEqual(['score:200']);
+    expect(keysOf('w06-l13', [...neutralize, 'L', 'f3'])).toEqual(['score:200']);
+    // On round the left block, time is up before the lab: still 160.
+    const roundabout = ['f2', 'L', 'f2', 'L', 'f2', 'R', 'f1'];
+    expect(keysOf('w06-l13', [...neutralize, ...roundabout])).toEqual(['score:160']);
+    expect(levelById('w06-l13').parEdits).toBe(2);
   });
 
   it('l17: the colour question does not match its branch; asking yellow wins both maps', () => {
@@ -468,8 +491,9 @@ describe('World 6 build levels', () => {
     expect(keysOf('w06-l07', ['f2', 'G', 'f1', 'T'])).toEqual(['stop@1,3']);
   });
 
-  it('l09: the nearer yellow station is the wrong colour', () => {
-    expect(keysOf('w06-l09', ['f3', 'G', 'f1', 'T'])).toEqual(['crash:WRONG_COLOR@1,4']);
+  it('l09: the nearer yellow station at the junction is the wrong colour', () => {
+    expect(keysOf('w06-l09', ['f1', 'G', 'f1', 'L', 'f1', 'T'])).toEqual(['crash:WRONG_COLOR@0,2']);
+    expect(keysOf('w06-l09', ['f1', 'G', 'f2', 'T', 'R', 'R', 'f3'])).toEqual(['win']);
   });
 
   it('l14: tiến 6 wins the long road and overshoots the short one', () => {
@@ -516,12 +540,20 @@ describe('World 6 build levels', () => {
 });
 
 describe('World 6 score levels: only the right jobs reach the target', () => {
-  it('l12: neutralize + contain never fit in 20 s, so 200 needs neutralize + return', () => {
-    const both = canScore('w06-l12', 0, { ...NONE, contain: 1000, neutralize: 1000 }, 2000);
+  it('l12: neutralize + retrieve never fit in 30 s, so 200 needs neutralize + return', () => {
+    const both = canScore('w06-l12', 0, { ...NONE, retrieve: 1000, neutralize: 1000 }, 2000);
     expect(both).toMatchObject({ minBlocks: null, complete: true });
-    expect(keysOf('w06-l12', ['L', 'f2', 'G', 'R', 'f1', 'T', 'R', 'R', 'f1', 'L', 'f1'])).toEqual([
-      'score:45',
+    // The near job first ("việc gần làm trước"): the pollution block, 100 + 40.
+    expect(keysOf('w06-l12', ['f1', 'R', 'f1', 'G', 'R', 'R', 'f1', 'L', 'f1', 'T'])).toEqual([
+      'score:140',
     ]);
+    expect(keysOf('w06-l12', ['f1', 'L', 'f2', 'G', 'R', 'f2', 'T', 'R', 'f2', 'R', 'f3'])).toEqual(
+      ['score:200'],
+    );
+  });
+
+  it('l18 is the l12 board, so the child reads a program on the board just played', () => {
+    expect(levelById('w06-l18').config).toEqual(levelById('w06-l12').config);
   });
 
   it.each([0, 1])(
@@ -538,31 +570,85 @@ describe('World 6 score levels: only the right jobs reach the target', () => {
     },
   );
 
-  it('boss: neutralize + retrieve + contain never fit in 30 s', { timeout: 60_000 }, () => {
+  it('boss: neutralize + retrieve + contain never fit in 50 s', { timeout: 240_000 }, () => {
     const all = canScore(
       'w06-boss',
       0,
       { ...NONE, contain: 1000, neutralize: 1000, retrieve: 1000 },
       3000,
+      24,
     );
     expect(all).toMatchObject({ minBlocks: null, complete: true });
   });
 
-  it('boss: neutralizing first is par 12; retrieving first scores 300 but is over the limit', () => {
+  it('boss: retrieving first needs at least 21 + 38 s, more than 50', { timeout: 60_000 }, () => {
+    // Lower bounds per leg, with the other blocks and the zone taken away (fewer obstacles, so
+    // never slower): the lab and back with the pollution block, then the red block to its
+    // station and home, from the lab facing any way.
+    const map = ['r......', '.#.#.#.', '...L...', '.#.#.#.', '.......'];
+    const pollution = { kind: 'pollution', color: 'RED', at: [0, 4] };
+    const red = { kind: 'neutralizer', color: 'RED', at: [4, 1] };
+    const leg = (
+      blocks: unknown[],
+      startDir: string,
+      points: object,
+      target: number,
+      time: number,
+    ) =>
+      canScore('w06-boss', 0, { ...NONE, ...points }, target, 30, {
+        map,
+        startDir,
+        blocks,
+        rules: { timeLimit: time },
+      });
+    expect(leg([pollution], 'N', { retrieve: 1 }, 1, 20)).toMatchObject({
+      minBlocks: null,
+      complete: true,
+    });
+    expect(leg([pollution], 'N', { retrieve: 1 }, 1, 21).minBlocks).not.toBeNull();
+    for (const dir of ['N', 'E', 'S', 'W']) {
+      expect(leg([red], dir, { neutralize: 1, return: 1 }, 2, 37)).toMatchObject({
+        minBlocks: null,
+        complete: true,
+      });
+    }
+  });
+
+  it('boss: neutralize first, retrieve on the way home is 300 in 47 s; the other order runs out', () => {
     const solution = levelById('w06-boss').solution;
     if (solution === undefined) throw new Error('boss has no solution');
     expect(keysOf('w06-boss', solution)).toEqual(['score:300']);
-    expect(levelById('w06-boss').par).toBe(12);
+    expect(levelById('w06-boss').par).toBe(19);
     const retrieveFirst = program([
-      ...['R', 'R', 'f2', 'G', 'R', 'R', 'f2', 'T'],
-      ...['f1', 'G', 'f1', 'T', 'R', 'R', 'f2'],
+      ...['R', 'f1', 'L', 'f2', 'G', 'R', 'R', 'f2', 'R', 'f1', 'T'],
+      ...['f1', 'L', 'f2', 'R', 'f1', 'G', 'f1', 'R', 'f4', 'T'],
+      ...['R', 'f2', 'R', 'f2', 'L', 'f1'],
     ]);
-    expect(keysOf('w06-boss', retrieveFirst)).toEqual(['score:300']);
-    expect(playReal('w06-boss', retrieveFirst)).toMatchObject({
-      result: 'error',
-      reasonCode: 'TOO_MANY_BLOCKS',
-    });
-    expect(levelById('w06-boss').feedback?.['TOO_MANY_BLOCKS']).toMatch(/thứ tự/);
+    // Both jobs are done (260), but the clock stops Bíp before the lab.
+    expect(keysOf('w06-boss', retrieveFirst)).toEqual(['score:260']);
+    // The nearest job first (the fence onto the zone) leaves no time for both big jobs.
+    const containFirst = program([
+      'R',
+      'f2',
+      'G',
+      'f1',
+      'L',
+      'f2',
+      'T',
+      'L',
+      'f2',
+      'L',
+      'f2',
+      'R',
+      'f1',
+    ]);
+    expect(keysOf('w06-boss', containFirst)).toEqual(['score:85']);
+    // The left street down to the red block is 6 s longer: time is up beside the lab.
+    const leftStreet = program([
+      ...['L', 'f3', 'L', 'f2', 'L', 'f1', 'G', 'R', 'R', 'f1', 'R', 'f4', 'T'],
+      ...['R', 'f4', 'G', 'R', 'f2', 'R', 'f1', 'T'],
+    ]);
+    expect(keysOf('w06-boss', leftStreet)).toEqual(['score:160']);
   });
 
   it('l19: neutralizing first wins both maps but is over the limit of 22', () => {

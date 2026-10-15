@@ -5,9 +5,9 @@
   "kind": "maze",
   "mode": "build",
   "title": "Đếm rồi chọn nhà",
-  "objective": "Đếm măng, rồi chọn đúng lối ở cuối đường.",
-  "learningGoal": "Đếm trước, so sánh sau: hơn 2 măng thì rẽ trái, không thì rẽ phải. Lúc so sánh, hộp đã có số vừa đếm.",
-  "misconception": "So sánh trước khi đếm; hộp chưa đếm đã biết số.",
+  "objective": "Đếm măng đủ số bước, rồi chọn đúng lối.",
+  "learningGoal": "Hai hộp: hộp số bước cho số vòng đếm (mỗi bản đồ một khác), hộp số măng đếm măng. Đếm xong mới so sánh: hơn 2 măng thì rẽ trái, không thì rẽ phải. Lối rẽ của bản đồ này là ngõ cụt ở bản đồ khác.",
+  "misconception": "Đếm hết hành lang; hộp nào cũng như nhau.",
   "mission": "Giao nhà nào? Đếm rồi quyết định.",
   "goalSprite": "home",
   "toolbox": [
@@ -32,28 +32,39 @@
         "OP": "GT",
         "NUM": 2
       }
+    },
+    {
+      "type": "cq_repeat_var",
+      "fields": {
+        "VAR": "steps"
+      }
     }
   ],
-  "maxBlocks": 12,
+  "maxBlocks": 10,
   "maxLoopDepth": 1,
   "par": 10,
   "variables": [
     {
       "id": "bamboo",
       "name": "số măng"
+    },
+    {
+      "id": "steps",
+      "name": "số bước",
+      "start": [3, 5, 5]
     }
   ],
   "config": {
-    "map": ["#######", "#####G#", "#Sbbb.#", "#######"],
+    "map": ["#########", "####G####", "#Sbbb.b.#", "######.##", "#########"],
     "startDir": "E"
   },
   "variants": [
     {
-      "map": ["#######", "#######", "#S.bb.#", "#####G#"],
+      "map": ["#########", "####.####", "#S.bb..b#", "######G##", "#########"],
       "startDir": "E"
     },
     {
-      "map": ["#######", "#####G#", "#S.bbb#", "#######"],
+      "map": ["#########", "######G##", "#S.bbb.b#", "####.####", "#########"],
       "startDir": "E"
     }
   ],
@@ -69,27 +80,27 @@
           "deletable": false,
           "next": {
             "block": {
-              "type": "cq_repeat",
-              "id": "loop1",
+              "type": "cq_repeat_var",
+              "id": "b1",
               "fields": {
-                "TIMES": 4
+                "VAR": "steps"
               },
               "inputs": {
                 "DO": {
                   "block": {
                     "type": "cq_if",
-                    "id": "if1",
+                    "id": "b2",
                     "inputs": {
                       "COND": {
                         "block": {
                           "type": "maze_bamboo_ahead",
-                          "id": "ask1"
+                          "id": "b2c"
                         }
                       },
                       "DO": {
                         "block": {
                           "type": "cq_var_add",
-                          "id": "add1",
+                          "id": "b3",
                           "fields": {
                             "VAR": "bamboo",
                             "NUM": 1
@@ -100,7 +111,7 @@
                     "next": {
                       "block": {
                         "type": "maze_forward",
-                        "id": "fwd1"
+                        "id": "b4"
                       }
                     }
                   }
@@ -109,12 +120,12 @@
               "next": {
                 "block": {
                   "type": "cq_if_else",
-                  "id": "if2",
+                  "id": "b5",
                   "inputs": {
                     "COND": {
                       "block": {
                         "type": "cq_var_compare",
-                        "id": "ask2",
+                        "id": "b5c",
                         "fields": {
                           "VAR": "bamboo",
                           "OP": "GT",
@@ -125,20 +136,20 @@
                     "DO": {
                       "block": {
                         "type": "maze_turn_left",
-                        "id": "left1"
+                        "id": "b6"
                       }
                     },
                     "ELSE": {
                       "block": {
                         "type": "maze_turn_right",
-                        "id": "right1"
+                        "id": "b7"
                       }
                     }
                   },
                   "next": {
                     "block": {
                       "type": "maze_forward",
-                      "id": "fwd2"
+                      "id": "b8"
                     }
                   }
                 }
@@ -151,13 +162,29 @@
   },
   "hints": [
     {
+      "id": "two",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Hộp số bước chỉ số vòng. Hộp số măng đếm măng.",
+      "point": "toolbox:cq_repeat_var"
+    },
+    {
       "id": "wall",
       "when": {
         "trigger": "run-end",
         "lastReason": "HIT_WALL"
       },
-      "say": "Lúc so sánh, hộp đã đếm đủ măng chưa?",
+      "say": "Đi quá một ô? Lúc so sánh, hộp đủ măng chưa?",
       "point": "toolbox:cq_var_compare"
+    },
+    {
+      "id": "deadend",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "NOT_AT_GOAL"
+      },
+      "say": "Vào ngõ cụt rồi! Đếm đủ số bước chưa?"
     },
     {
       "id": "done",
@@ -168,5 +195,5 @@
       "point": "stage"
     }
   ],
-  "thinkingHint": "Đếm xong mới hỏi, hay hỏi trước khi đếm?"
+  "thinkingHint": "Đếm mấy vòng thì dừng đúng chỗ rẽ?"
 }

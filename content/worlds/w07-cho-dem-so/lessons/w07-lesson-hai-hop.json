@@ -1,0 +1,172 @@
+{
+  "id": "w07-lesson-hai-hop",
+  "worldId": "w07-cho-dem-so",
+  "title": "Hai hộp cùng làm",
+  "beforeLevel": "w07-l16",
+  "cards": [
+    {
+      "type": "say",
+      "pose": "point",
+      "text": "Hộp số bước chỉ số vòng. Hộp số măng đếm măng."
+    },
+    {
+      "type": "demo",
+      "text": "Số bước 2: đếm 2 ô, hộp số măng có 2.",
+      "kind": "maze",
+      "config": {
+        "map": ["#########", "#Sbb.bbG#", "#########"],
+        "startDir": "E"
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "cq_repeat_var",
+                  "id": "b1",
+                  "fields": {
+                    "VAR": "steps"
+                  },
+                  "inputs": {
+                    "DO": {
+                      "block": {
+                        "type": "cq_if",
+                        "id": "b2",
+                        "inputs": {
+                          "COND": {
+                            "block": {
+                              "type": "maze_bamboo_ahead",
+                              "id": "b2c"
+                            }
+                          },
+                          "DO": {
+                            "block": {
+                              "type": "cq_var_add",
+                              "id": "b3",
+                              "fields": {
+                                "VAR": "bamboo",
+                                "NUM": 1
+                              }
+                            }
+                          }
+                        },
+                        "next": {
+                          "block": {
+                            "type": "maze_forward",
+                            "id": "b4"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "variables": [
+        {
+          "id": "bamboo",
+          "name": "số măng",
+          "start": [0]
+        },
+        {
+          "id": "steps",
+          "name": "số bước",
+          "start": [2]
+        }
+      ]
+    },
+    {
+      "type": "demo",
+      "text": "Số bước 4: đếm 4 ô, hộp số măng có 3.",
+      "kind": "maze",
+      "config": {
+        "map": ["#########", "#Sbb.bbG#", "#########"],
+        "startDir": "E"
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "cq_repeat_var",
+                  "id": "b1",
+                  "fields": {
+                    "VAR": "steps"
+                  },
+                  "inputs": {
+                    "DO": {
+                      "block": {
+                        "type": "cq_if",
+                        "id": "b2",
+                        "inputs": {
+                          "COND": {
+                            "block": {
+                              "type": "maze_bamboo_ahead",
+                              "id": "b2c"
+                            }
+                          },
+                          "DO": {
+                            "block": {
+                              "type": "cq_var_add",
+                              "id": "b3",
+                              "fields": {
+                                "VAR": "bamboo",
+                                "NUM": 1
+                              }
+                            }
+                          }
+                        },
+                        "next": {
+                          "block": {
+                            "type": "maze_forward",
+                            "id": "b4"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "variables": [
+        {
+          "id": "bamboo",
+          "name": "số măng",
+          "start": [0]
+        },
+        {
+          "id": "steps",
+          "name": "số bước",
+          "start": [4]
+        }
+      ]
+    },
+    {
+      "type": "quiz",
+      "text": "Hộp nào cho biết lặp mấy vòng?",
+      "options": ["Hộp số bước", "Hộp số măng"],
+      "correct": 0,
+      "explain": "Khối lặp đọc hộp số bước. Hộp số măng chỉ đếm."
+    }
+  ]
+}

@@ -311,7 +311,7 @@ Giữ runner: `l01` (lặp đến khi, bài `beforeLevel`), `l02`, `l03` (0 vòn
 | `l19` predict | [khó hơn] | Giữ ý (vòng lặp có dừng không), chương trình dài hơn: thùng + hố + `nếu` trong thân | | D hiện 8, thấp nhất nửa sau W5 |
 | boss | [khó hơn] | Giữ escort 3 bản đồ và truyện Gà con; đặt Gà con ở ô mà nhảy cóc bay qua (R1) trên **cả 3** bản, thêm một bản có hố liền nhau cách 1 ô đất để `nhảy` thừa rơi hố | như cũ (par 6) | Boss D 16 = `l09`; ít nhất phải bằng `l16` |
 
-#### W6 Thành Phố Robot — robotlab, sa bàn 2 chiều (đợt D, **sau 18/10**)
+#### W6 Thành Phố Robot — robotlab, sa bàn 2 chiều (đợt D; kế hoạch "sau 18/10", HLV xin làm sớm, đã làm 15/10, xem mục 4)
 Không đụng W6 trước chung kết AIROC 17–18/10 (`phase-3.md`: W6 ưu tiên cho cuộc thi; các bé đang luyện). Sau đó:
 - `l09` build (trung hòa) [khó hơn]: sa bàn 5×5 có 2 ngã tư, trạm nhử ở nhánh kia; phải chọn đường tới trạm đúng màu.
 - `l12` build (chọn việc) [khó hơn]: 5×5, hai việc ở hai phía, đủ giờ cho một việc rồi về; bé so điểm/giây của hai đường.
@@ -342,8 +342,8 @@ Không đụng W6 trước chung kết AIROC 17–18/10 (`phase-3.md`: W6 ưu ti
 | **A** 🟨 nháp, chờ HLV chơi thử | W4 (`l05`, `l12`, `l15`, `l19` mê cung; `l08`, `l11` khó hơn) + W5 (`l06`, `l08`, `l13`, `l15`, `l18` mê cung; `l05`, `l19`, boss khó hơn): nơi có 17/29 màn "=" | 14 | 2–2,5 ngày (vét cạn 8 khối chậm) | Có, trừ chơi thử trước merge |
 | **B** 🟨 nháp, chờ HLV chơi thử | W2 (`l06`, `l11`, `l13`, `l16` mê cung; `l05`, `l12`, `l17`, `l19` khó hơn) + W3 (`l05`, `l08`, `l12` mê cung; `l06`, `l10`, `l13` khó hơn) | 14 | 2 ngày | Có, trừ chơi thử |
 | **C** 🟨 nháp, chờ HLV chơi thử | W1 (`l13` mê cung; `l06`, `l09`, `l11`, `l14` khó hơn) | 5 | 0,5 ngày | Có; câu K1 về boss |
-| **D** | W6 sa bàn 2 chiều (`l08`, `l09`, `l12`, `l13`, `l19`, boss) | 6 | 1 ngày | **Sau 18/10**; tốt nhất sau P3-07 (luật AIROC thật) |
-| **E** | W7 bản đồ 2 chiều (`l03`, `l05`, `l10`, `l14`, `l16`, `l19`) | 6 | 1–1,5 ngày (luật 23 vét cạn hai lần mỗi màn) | Có, trừ chơi thử |
+| **D** 🟨 nháp, chờ HLV chơi thử | W6 sa bàn 2 chiều (`l08`, `l09`, `l12`, `l13`, `l18`, boss; `l19` giữ) | 6 | 1 ngày | Có, trừ chơi thử (HLV xin làm trước 18/10) |
+| **E** 🟨 nháp, chờ HLV chơi thử | W7 bản đồ 2 chiều, hai hộp (`l05`, `l10`, `l16`, `l19`, boss; `l03`, `l14` giữ) | 6 | 1–1,5 ngày (luật 23 vét cạn hai lần mỗi màn) | Có, trừ chơi thử |
 
 **Đã làm (14/10/2026), đợt 0 và A — 🟨 nháp, chờ HLV chơi thử:**
 - Đợt 0: `content:check` **luật 24** (chỉ cảnh báo, `tools/content-check/src/difficulty.ts`): M1, M2 (hình lời giải = cột "Lặp công thức", chỉ "=", không tính "≈"), M3 (so "hình đường" ngắn nhất S → G). Fixture `extra-24-difficulty/`, test `difficulty.test.ts`. Luật soạn ở `conventions/content-authoring.md` §2.3, luật kiểm ở `architecture/content-model.md` §5. Chỉ số D **chưa** thành cảnh báo (chỉ số thô, mục R6). Lệch: M1, M2 bỏ qua Thế giới 1 và M1, M3 bỏ qua màn `guided` (màn giới thiệu khối giữ bản đồ đơn giản; W1 là chuỗi tuần tự, fixture `baseline/` là W1).
@@ -355,6 +355,16 @@ Không đụng W6 trước chung kết AIROC 17–18/10 (`phase-3.md`: W6 ưu ti
 - Đợt B: W2 `l06`, `l11`, `l13`, `l16` thành mê cung, `l05`, `l12`, `l17`, `l19` khó hơn; W3 `l05`, `l08`, `l12` thành mê cung, `l06`, `l10`, `l13` khó hơn. Mê cung W2 7 → 11/20, W3 4 → 7/15. Ý mới "quay đầu" (W2 `l13`) có bài `w02-lesson-quay-dau` (demo rẽ phải ×2 và rẽ trái ×2) và câu chuẩn ở `content-authoring.md` §5.1. Chi tiết, số vét cạn và lệch kế hoạch: `product/curriculum.md` §4 (ghi chú cuối bảng) và §5.1. Lệch chính: luật A1 (thắng ngay ở đích) làm đuôi "…, đi" / "…, tiến" sau vòng lặp không bắt được lặp thừa, nên W2 `l05` đổi đuôi thành `nhảy` và `l12` đổi thân thành `{rẽ phải, tiến, tiến}`; W2 `l11` `parEdits` 1 (kéo khối vào vòng lặp là 1 thao tác) trên đường răng cưa; W2 `l13` chỉ một vòng lặp (`par` 5), hai vòng nối tiếp để cho `l14`; W2 `l17` thành hành lang + khóm tre (`par` 6), bậc thang W2 còn 3; W2 `l16` thêm `maxLoopDepth: 1`; W3 `l10` đổi chỗ khối 2–4, `par` 9; W3 `l12` lỗi 2 là thiếu một khối tiến (khác `l13`). Sau review (critic): e2e `apps/web/e2e/difficulty-bc.spec.ts`.
 - Đợt C: W1 `l13` thành mê cung "Hai lối về làng" (6×6, `par` 10, lối dài = `maxBlocks` 12); `l06` (7 khối), `l09` (lỗi giữa, 8 khối), `l11` (đổi chỗ xa nhau, 8 khối), `l14` (ngõ cụt cạnh chỗ rẽ sai) khó hơn. Boss giữ runner (K1 mặc định). Mê cung W1 2 → 3/15. Chi tiết ở `product/curriculum.md` §3.
 - `content:check` sau đợt B, C: W1 0 ⚠ (miễn luật 24), W2 2 ⚠ (M1 `l08`, `l14`, màn kế hoạch giữ), W3 0 ⚠. Test: `tools/content-check/src/w01.test.ts`, `w02.test.ts` (mới), `w03.test.ts`. Hình lời giải trái/phải đối xứng đã coi như cùng hình khi soạn (không tránh lặp bằng cách đổi trái ↔ phải).
+
+**Đã làm (15/10/2026), đợt E — 🟨 nháp, chờ HLV chơi thử:**
+- W7 `l05`, `l10` (săn lỗi) thành đường 2 chiều có ngã ba, ngõ cụt; chương trình cho sẵn có phần tìm đường của W4–W5, phần dễ đọc hơn ở `l05` ("có đường bên phải thì rẽ phải"), phần `nếu … nếu không` ở `l10`. `l16`, `l19`, boss: **hai hộp** (hộp `số bước` cho sẵn là số vòng đếm, ý mới duy nhất, bài `w07-lesson-hai-hop`); hai lối rẽ, lối thật ở bản đồ này là ngõ cụt ở bản đồ khác. `l14` giữ bản cũ. Chi tiết, số vét cạn và lệch kế hoạch: `product/curriculum.md` §6.2 (mục "Đợt tăng độ khó E").
+- Ngõ cụt có việc ở `l05` (ngõ cụt thẳng trước chỗ rẽ), `l16`, `l19`, boss; trang trí chỉ ở `l10`.
+- Lệch chính: `l03`, `l14` giữ; `par` `l05` 6 → 9, `l10` 5 → 8; `l16` `maxBlocks` 12 → 10; `l16`, `l19`, boss `par` tính tay ⚠ (10 / 11 / 10).
+- `content:check` sau đợt E: W7 còn 1 ⚠ luật 24 (M1 `l08`), trước là 12. R4 (`w07.test.ts`): `l16` tới 10, `l19` tới 11, boss tới 11, vét cạn đủ. e2e `apps/web/e2e/difficulty-e.spec.ts` (`l05`, boss), chưa chạy.
+
+**Đã làm (15/10/2026), đợt D — 🟨 nháp, chờ HLV chơi thử:**
+- HLV xin làm W6 luôn, không chờ sau 18/10. Thay tại chỗ `l08` (phố răng lược có ngõ cụt, `par` 7 → 9), `l09` (3×4, trạm vàng nhử ngay ngã ba, gần hơn trạm đỏ; màn trung hòa đầu tiên giữ nhẹ, `par` 7), `l12` ("phố hai khu nhà" 4×5, việc gần là thu hồi 140 điểm, trung hòa ở xa 200, 30 s, 7 → 11), `l13` (sa bàn `l12`, thêm đường về ngắn `rẽ trái, tiến 3`; đường vòng hết giờ; 7 → 10, sửa 1 → **2**), `l18` (đoán trên sa bàn `l12` mới), boss (sa bàn 5×7, 8 ngã ba / ngã tư; trung hòa trước, thu hồi trên đường về; thu hồi trước hoặc đi phố dọc trái là hết giờ; khoanh vùng là bẫy; 50 s, 12 → 19). `l19` giữ (đã 6 ngã ba / ngã tư). Màn W6 có ≥ 2 ngã tư ≥ 3 lối: 1 → 6/20. Thêm bài `w06-lesson-thu-tu` trước boss (câu chuẩn "Đổi thứ tự việc thì số giây cũng đổi.", 2 demo hai thứ tự, `content-authoring.md` §5.1).
+- `npm run par` từng màn; boss vét cạn không lặp đủ (19), có `lặp` chỉ xong tới cỡ 12 (ngân sách 300 M). `content:check` W6: 0 ⚠ luật 24 (trước: 1, `l13` M2). Chi tiết, số vét cạn và **lệch kế hoạch** ở `product/curriculum.md` §6.1 (Ghi chú khi soạn, mục "Đợt tăng độ khó D"). Test `tools/content-check/src/w06.test.ts`; e2e `apps/web/e2e/difficulty-d.spec.ts` (`l09`, boss).
 
 Thứ tự đề xuất: 0 → A → B → C → E → D. Mỗi đợt là một nhánh / PR riêng, đủ "Định nghĩa xong" (lint, typecheck, test, content:check xanh; e2e có ảnh), rồi HLV chơi thử cả đợt một lần. AI không tự đánh dấu mục chơi thử là xong (`content-authoring.md` §6).
 
