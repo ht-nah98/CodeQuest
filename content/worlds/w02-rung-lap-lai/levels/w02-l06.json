@@ -2,40 +2,28 @@
   "id": "w02-l06",
   "worldId": "w02-rung-lap-lai",
   "stage": "practice",
-  "kind": "runner",
+  "kind": "maze",
   "mode": "build",
-  "title": "Nhảy, cúi rồi nhảy",
-  "objective": "Qua hố, chui đường hầm, rồi nhảy tới lá cờ!",
-  "learningGoal": "Khối đặt trước và sau khối lặp chỉ chạy 1 lần; chỉ khối bên trong mới được lặp.",
+  "title": "Lối vào rừng",
+  "objective": "Vào rừng tới đích, dùng không quá 6 khối nhé!",
+  "learningGoal": "Khối đặt trước và sau khối lặp chỉ chạy 1 lần; chỉ khối bên trong mới được lặp. Rẽ 1 lần, lặp tiến, rồi rẽ 1 lần nữa.",
   "misconception": "Khối đặt trước hoặc sau khối lặp cũng bị lặp theo.",
   "toolbox": [
     {
       "type": "cq_repeat",
       "fields": {
-        "TIMES": 3
+        "TIMES": 2
       }
     },
-    "runner_walk",
-    "runner_jump",
-    "runner_crouch"
+    "maze_forward",
+    "maze_turn_left",
+    "maze_turn_right"
   ],
-  "maxBlocks": 4,
-  "par": 4,
+  "maxBlocks": 6,
+  "par": 5,
   "config": {
-    "cells": [
-      "ground",
-      "hole",
-      "ground",
-      "branch",
-      "branch",
-      "branch",
-      "branch",
-      "ground",
-      "hole",
-      "flag"
-    ],
-    "start": 0,
-    "bamboo": [5]
+    "map": ["#######", "##.#.G#", "#S....#", "#####.#", "#######"],
+    "startDir": "N"
   },
   "solution": {
     "blocks": {
@@ -49,27 +37,33 @@
           "deletable": false,
           "next": {
             "block": {
-              "type": "runner_jump",
-              "id": "jump1",
+              "type": "maze_turn_right",
+              "id": "right1",
               "next": {
                 "block": {
                   "type": "cq_repeat",
                   "id": "rep1",
                   "fields": {
-                    "TIMES": 5
+                    "TIMES": 4
                   },
                   "inputs": {
                     "DO": {
                       "block": {
-                        "type": "runner_crouch",
-                        "id": "crouch1"
+                        "type": "maze_forward",
+                        "id": "fwd1"
                       }
                     }
                   },
                   "next": {
                     "block": {
-                      "type": "runner_jump",
-                      "id": "jump2"
+                      "type": "maze_turn_left",
+                      "id": "left1",
+                      "next": {
+                        "block": {
+                          "type": "maze_forward",
+                          "id": "fwd2"
+                        }
+                      }
                     }
                   }
                 }
@@ -91,47 +85,61 @@
       "point": "capacity"
     },
     {
-      "id": "tunnel-count",
+      "id": "first-turn",
       "when": {
         "trigger": "run-end",
-        "lastReason": "HIT_BRANCH",
-        "has": "runner_crouch"
-      },
-      "say": "Măng phải cúi tới hết đường hầm. Đếm số bước nhé!",
-      "point": "stage",
-      "priority": 1
-    },
-    {
-      "id": "tunnel-crouch",
-      "when": {
-        "trigger": "run-end",
-        "lastReason": "HIT_BRANCH"
-      },
-      "say": "Đường hầm toàn cành thấp. Khối nào chui qua được?",
-      "point": "stage"
-    },
-    {
-      "id": "edge",
-      "when": {
-        "trigger": "run-end",
-        "lastReason": "FELL_IN_HOLE",
-        "has": "runner_crouch",
+        "lastReason": "HIT_WALL",
         "blockCount": {
-          "eq": 4
+          "lte": 2
         }
       },
-      "say": "Đứng sát hố mới nhảy. Đếm lại số lần cúi!",
+      "say": "Măng nhìn lên. Đường ở phía tay nào của Măng?",
       "point": "stage"
     },
     {
-      "id": "last-hole",
+      "id": "dead-end",
       "when": {
         "trigger": "run-end",
         "lastReason": "NOT_AT_GOAL",
         "has": "cq_repeat"
       },
-      "say": "Măng dừng giữa đường. Còn đoạn nào chưa đi?",
+      "say": "Ngõ cụt rồi! Hành lang dài mấy ô? Đếm nhé!",
       "point": "stage"
+    },
+    {
+      "id": "count",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "HIT_WALL",
+        "has": "cq_repeat"
+      },
+      "say": "Hết hành lang thì rẽ. Lặp có thừa không?",
+      "point": "block:cq_repeat"
+    },
+    {
+      "id": "turn-stay",
+      "when": {
+        "all": [
+          {
+            "trigger": "run-end",
+            "lastReason": "NOT_AT_GOAL",
+            "missing": "maze_forward"
+          },
+          {
+            "any": [
+              {
+                "has": "maze_turn_left"
+              },
+              {
+                "has": "maze_turn_right"
+              }
+            ]
+          }
+        ]
+      },
+      "say": "Rẽ chỉ quay tại chỗ. Muốn đi thì thêm tiến!",
+      "point": "toolbox:maze_forward",
+      "priority": 1
     }
   ],
   "thinkingHint": "Việc nào Măng chỉ làm 1 lần, việc nào làm nhiều lần?"

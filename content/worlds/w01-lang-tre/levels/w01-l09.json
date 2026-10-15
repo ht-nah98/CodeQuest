@@ -6,13 +6,25 @@
   "mode": "bughunt",
   "title": "Thiếu một khối",
   "objective": "Chương trình thiếu 1 khối. Con thêm giúp Măng nhé!",
-  "learningGoal": "Chạy thử, nhìn chỗ Măng gặp nạn để tìm và thêm đúng khối còn thiếu.",
+  "learningGoal": "Chạy thử, nhìn chỗ Măng gặp nạn để tìm và thêm đúng khối còn thiếu. Lỗi nằm giữa chương trình, không phải ở đầu.",
   "misconception": "Chương trình có lỗi thì phải xóa hết, làm lại từ đầu.",
   "toolbox": ["runner_walk", "runner_jump", "runner_crouch"],
-  "par": 6,
+  "par": 8,
   "parEdits": 1,
   "config": {
-    "cells": ["ground", "ground", "hole", "ground", "branch", "ground", "hole", "ground", "flag"],
+    "cells": [
+      "ground",
+      "ground",
+      "hole",
+      "ground",
+      "ground",
+      "branch",
+      "hole",
+      "ground",
+      "branch",
+      "ground",
+      "flag"
+    ],
     "start": 0
   },
   "initialWorkspace": {
@@ -35,16 +47,28 @@
                   "id": "jump1",
                   "next": {
                     "block": {
-                      "type": "runner_crouch",
-                      "id": "crouch1",
+                      "type": "runner_walk",
+                      "id": "walk2",
                       "next": {
                         "block": {
-                          "type": "runner_walk",
-                          "id": "walk2",
+                          "type": "runner_crouch",
+                          "id": "crouch1",
                           "next": {
                             "block": {
-                              "type": "runner_walk",
-                              "id": "walk3"
+                              "type": "runner_crouch",
+                              "id": "crouch2",
+                              "next": {
+                                "block": {
+                                  "type": "runner_walk",
+                                  "id": "walk3",
+                                  "next": {
+                                    "block": {
+                                      "type": "runner_walk",
+                                      "id": "walk4"
+                                    }
+                                  }
+                                }
+                              }
                             }
                           }
                         }
@@ -79,20 +103,32 @@
                   "id": "jump1",
                   "next": {
                     "block": {
-                      "type": "runner_crouch",
-                      "id": "crouch1",
+                      "type": "runner_walk",
+                      "id": "walk2",
                       "next": {
                         "block": {
-                          "type": "runner_walk",
-                          "id": "walk2",
+                          "type": "runner_crouch",
+                          "id": "crouch1",
                           "next": {
                             "block": {
                               "type": "runner_jump",
                               "id": "jump2",
                               "next": {
                                 "block": {
-                                  "type": "runner_walk",
-                                  "id": "walk3"
+                                  "type": "runner_crouch",
+                                  "id": "crouch2",
+                                  "next": {
+                                    "block": {
+                                      "type": "runner_walk",
+                                      "id": "walk3",
+                                      "next": {
+                                        "block": {
+                                          "type": "runner_walk",
+                                          "id": "walk4"
+                                        }
+                                      }
+                                    }
+                                  }
                                 }
                               }
                             }
@@ -125,6 +161,15 @@
         "lastReason": "FELL_IN_HOLE"
       },
       "say": "Nhìn ô Măng rơi. Ngay trước đó cần khối gì?",
+      "point": "stage"
+    },
+    {
+      "id": "branch",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "HIT_BRANCH"
+      },
+      "say": "Tới cành thì Măng phải cúi nhé!",
       "point": "stage"
     }
   ],

@@ -2,12 +2,12 @@
   "id": "w02-l13",
   "worldId": "w02-rung-lap-lai",
   "stage": "practice",
-  "kind": "runner",
+  "kind": "maze",
   "mode": "build",
-  "title": "Hai khối lặp",
-  "objective": "Chui đường hầm rồi nhảy qua 3 hố tới cờ!",
-  "learningGoal": "Đường có hai đoạn khác nhau thì dùng hai khối lặp nối tiếp nhau.",
-  "misconception": "Một chương trình chỉ dùng được một khối lặp.",
+  "title": "Quay đầu nhặt măng",
+  "objective": "Nhặt măng ngay trước mặt, rồi quay đầu về đích!",
+  "learningGoal": "Rẽ 2 lần là quay đầu: Măng nhìn ngược lại, chưa đi. Nhặt măng, quay đầu, rồi lặp tiến về đích.",
+  "misconception": "Muốn đi ngược lại thì phải có khối lùi.",
   "toolbox": [
     {
       "type": "cq_repeat",
@@ -15,28 +15,18 @@
         "TIMES": 2
       }
     },
-    "runner_walk",
-    "runner_jump",
-    "runner_crouch"
+    "maze_forward",
+    "maze_turn_left",
+    "maze_turn_right"
   ],
-  "maxBlocks": 4,
-  "par": 4,
+  "maxBlocks": 5,
+  "par": 5,
   "config": {
-    "cells": [
-      "ground",
-      "branch",
-      "branch",
-      "branch",
-      "ground",
-      "hole",
-      "ground",
-      "hole",
-      "ground",
-      "hole",
-      "flag"
-    ],
-    "start": 0,
-    "bamboo": [2, 6]
+    "map": ["#########", "#G....Sb#", "###.#####", "#########"],
+    "startDir": "E",
+    "goal": {
+      "collectAll": true
+    }
   },
   "solution": {
     "blocks": {
@@ -50,31 +40,32 @@
           "deletable": false,
           "next": {
             "block": {
-              "type": "cq_repeat",
-              "id": "rep1",
-              "fields": {
-                "TIMES": 4
-              },
-              "inputs": {
-                "DO": {
-                  "block": {
-                    "type": "runner_crouch",
-                    "id": "crouch1"
-                  }
-                }
-              },
+              "type": "maze_forward",
+              "id": "fwd1",
               "next": {
                 "block": {
-                  "type": "cq_repeat",
-                  "id": "rep2",
-                  "fields": {
-                    "TIMES": 3
-                  },
-                  "inputs": {
-                    "DO": {
-                      "block": {
-                        "type": "runner_jump",
-                        "id": "jump1"
+                  "type": "maze_turn_right",
+                  "id": "right1",
+                  "next": {
+                    "block": {
+                      "type": "maze_turn_right",
+                      "id": "right2",
+                      "next": {
+                        "block": {
+                          "type": "cq_repeat",
+                          "id": "rep1",
+                          "fields": {
+                            "TIMES": 6
+                          },
+                          "inputs": {
+                            "DO": {
+                              "block": {
+                                "type": "maze_forward",
+                                "id": "fwd2"
+                              }
+                            }
+                          }
+                        }
                       }
                     }
                   }
@@ -97,48 +88,66 @@
       "point": "capacity"
     },
     {
-      "id": "second-loop",
+      "id": "u-turn",
       "when": {
-        "trigger": "run-end",
-        "lastReason": "NOT_AT_GOAL",
-        "has": "cq_repeat",
-        "blockCount": {
-          "lte": 2
-        }
+        "trigger": "enter"
       },
-      "say": "Đoạn hố cũng lặp lại. Thêm một khối lặp nữa?",
-      "point": "toolbox:cq_repeat",
-      "priority": 1
+      "say": "Rẽ 2 lần là quay đầu: Măng nhìn ngược lại, chưa đi.",
+      "point": "toolbox:maze_turn_right"
     },
     {
-      "id": "which-part",
+      "id": "missed",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "MISSED_ITEMS"
+      },
+      "say": "Còn măng chưa nhặt kìa! Măng phải tới ô có măng.",
+      "point": "stage"
+    },
+    {
+      "id": "wall",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "HIT_WALL"
+      },
+      "say": "Măng nhìn về đâu? Rẽ mấy lần thì quay đầu?",
+      "point": "stage"
+    },
+    {
+      "id": "count",
       "when": {
         "trigger": "run-end",
         "lastReason": "NOT_AT_GOAL",
         "has": "cq_repeat"
       },
-      "say": "Măng dừng giữa đường. Đoạn nào chưa đi hết?",
+      "say": "Từ chỗ măng về đích dài mấy ô? Đếm nhé!",
       "point": "stage"
     },
     {
-      "id": "early",
+      "id": "turn-stay",
       "when": {
-        "trigger": "run-end",
-        "lastReason": "FELL_IN_HOLE",
-        "has": "runner_crouch"
+        "all": [
+          {
+            "trigger": "run-end",
+            "lastReason": "NOT_AT_GOAL",
+            "missing": "maze_forward"
+          },
+          {
+            "any": [
+              {
+                "has": "maze_turn_left"
+              },
+              {
+                "has": "maze_turn_right"
+              }
+            ]
+          }
+        ]
       },
-      "say": "Măng nhảy đúng lúc chưa? Đếm số bước chui hầm nhé!",
-      "point": "stage"
-    },
-    {
-      "id": "tunnel",
-      "when": {
-        "trigger": "run-end",
-        "lastReason": "HIT_BRANCH"
-      },
-      "say": "Còn trong đường hầm thì phải cúi. Thử đổi số!",
-      "point": "stage"
+      "say": "Rẽ chỉ quay tại chỗ. Muốn đi thì thêm tiến!",
+      "point": "toolbox:maze_forward",
+      "priority": 1
     }
   ],
-  "thinkingHint": "Đoạn đầu Măng làm gì? Đoạn sau làm gì?"
+  "thinkingHint": "Măng nhìn về phía măng. Muốn về đích, Măng phải nhìn về đâu?"
 }

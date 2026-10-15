@@ -4,9 +4,9 @@
   "stage": "challenge",
   "kind": "maze",
   "mode": "build",
-  "title": "Bậc thang và hành lang",
-  "objective": "Leo bậc thang rồi đi hành lang tới đích!",
-  "learningGoal": "Hai đoạn có mẫu khác nhau (bậc thang, hành lang thẳng) thì dùng hai khối lặp, mỗi khối lặp vừa đủ.",
+  "title": "Hành lang và khóm tre",
+  "objective": "Đi hết hành lang, vòng qua khóm tre tới đích!",
+  "learningGoal": "Hai đoạn có mẫu khác nhau (hành lang thẳng, cạnh khóm tre) thì dùng hai khối lặp, mỗi khối lặp vừa đủ.",
   "misconception": "Lặp thêm vòng cho chắc, thừa cũng không sao.",
   "toolbox": [
     {
@@ -19,17 +19,10 @@
     "maze_turn_left",
     "maze_turn_right"
   ],
-  "maxBlocks": 8,
-  "par": 7,
+  "maxBlocks": 7,
+  "par": 6,
   "config": {
-    "map": [
-      "###########",
-      "####....G.#",
-      "###..######",
-      "##..#######",
-      ".S.########",
-      "###########"
-    ],
+    "map": ["########", "#S.....#", "#####.##", "#..G..##", "#####.##", "########"],
     "startDir": "E"
   },
   "solution": {
@@ -47,31 +40,13 @@
               "type": "cq_repeat",
               "id": "rep1",
               "fields": {
-                "TIMES": 3
+                "TIMES": 4
               },
               "inputs": {
                 "DO": {
                   "block": {
                     "type": "maze_forward",
-                    "id": "fwd1",
-                    "next": {
-                      "block": {
-                        "type": "maze_turn_left",
-                        "id": "left1",
-                        "next": {
-                          "block": {
-                            "type": "maze_forward",
-                            "id": "fwd2",
-                            "next": {
-                              "block": {
-                                "type": "maze_turn_right",
-                                "id": "right1"
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
+                    "id": "fwd1"
                   }
                 }
               },
@@ -80,13 +55,25 @@
                   "type": "cq_repeat",
                   "id": "rep2",
                   "fields": {
-                    "TIMES": 4
+                    "TIMES": 2
                   },
                   "inputs": {
                     "DO": {
                       "block": {
-                        "type": "maze_forward",
-                        "id": "fwd3"
+                        "type": "maze_turn_right",
+                        "id": "right1",
+                        "next": {
+                          "block": {
+                            "type": "maze_forward",
+                            "id": "fwd2",
+                            "next": {
+                              "block": {
+                                "type": "maze_forward",
+                                "id": "fwd3"
+                              }
+                            }
+                          }
+                        }
                       }
                     }
                   }
@@ -115,33 +102,33 @@
         "lastReason": "HIT_WALL",
         "has": "cq_repeat"
       },
-      "say": "Măng đụng tường ở đâu? Ở bậc thang hay hành lang?",
+      "say": "Măng đụng tường ở đâu? Ở hành lang hay khóm tre?",
       "point": "stage"
     },
     {
-      "id": "extra-step",
-      "when": {
-        "trigger": "run-end",
-        "lastReason": "HIT_WALL",
-        "has": "cq_repeat",
-        "runCount": {
-          "gte": 2
-        }
-      },
-      "say": "Bậc thang có mấy bậc? Lặp thừa là đụng tường.",
-      "point": "stage",
-      "priority": 1
-    },
-    {
-      "id": "corridor",
+      "id": "dead-end",
       "when": {
         "trigger": "run-end",
         "lastReason": "NOT_AT_GOAL",
         "has": "cq_repeat"
       },
-      "say": "Hết bậc thang rồi. Hành lang cần thêm khối lặp nữa?",
+      "say": "Ngõ cụt rồi! Hành lang dài mấy ô?",
       "point": "stage"
+    },
+    {
+      "id": "second",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "NOT_AT_GOAL",
+        "has": "cq_repeat",
+        "blockCount": {
+          "lte": 3
+        }
+      },
+      "say": "Hết hành lang rồi. Thêm khối lặp cho khóm tre?",
+      "point": "toolbox:cq_repeat",
+      "priority": 1
     }
   ],
-  "thinkingHint": "Bậc thang có mấy bậc? Hành lang dài mấy ô?"
+  "thinkingHint": "Hành lang dài mấy ô? Mỗi cạnh khóm tre Măng làm gì?"
 }

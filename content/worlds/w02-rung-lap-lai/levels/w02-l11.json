@@ -2,11 +2,11 @@
   "id": "w02-l11",
   "worldId": "w02-rung-lap-lai",
   "stage": "practice",
-  "kind": "runner",
+  "kind": "maze",
   "mode": "bughunt",
-  "title": "Khối đá ở ngoài",
-  "objective": "Măng đụng thùng thứ hai. Sửa giúp Măng nhé!",
-  "learningGoal": "Khối đặt trước khối lặp chỉ chạy 1 lần; việc phải làm ở mỗi bước phải nằm trong khối lặp.",
+  "title": "Khối rẽ ở ngoài",
+  "objective": "Măng đụng tường ở vòng thứ hai. Sửa giúp Măng nhé!",
+  "learningGoal": "Khối đặt sau khối lặp chỉ chạy 1 lần; rẽ phải phải làm ở mỗi vòng nên phải nằm trong khối lặp.",
   "misconception": "Khối đặt ngoài vòng lặp cũng bị lặp.",
   "toolbox": [
     {
@@ -15,15 +15,15 @@
         "TIMES": 3
       }
     },
-    "runner_walk",
-    "runner_jump",
-    "runner_kick"
+    "maze_forward",
+    "maze_turn_left",
+    "maze_turn_right"
   ],
-  "par": 4,
-  "parEdits": 2,
+  "par": 7,
+  "parEdits": 1,
   "config": {
-    "cells": ["ground", "crate", "crate", "crate", "hole", "flag"],
-    "start": 0
+    "map": ["##########", "#######.G#", "###.#...##", "###...####", "#S..######", "##########"],
+    "startDir": "E"
   },
   "initialWorkspace": {
     "blocks": {
@@ -37,27 +37,45 @@
           "deletable": false,
           "next": {
             "block": {
-              "type": "runner_kick",
-              "id": "kick1",
-              "next": {
-                "block": {
-                  "type": "cq_repeat",
-                  "id": "rep1",
-                  "fields": {
-                    "TIMES": 3
-                  },
-                  "inputs": {
-                    "DO": {
+              "type": "cq_repeat",
+              "id": "rep1",
+              "fields": {
+                "TIMES": 3
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "maze_forward",
+                    "id": "fwd1",
+                    "next": {
                       "block": {
-                        "type": "runner_walk",
-                        "id": "walk1"
+                        "type": "maze_forward",
+                        "id": "fwd2",
+                        "next": {
+                          "block": {
+                            "type": "maze_turn_left",
+                            "id": "left1",
+                            "next": {
+                              "block": {
+                                "type": "maze_forward",
+                                "id": "fwd3"
+                              }
+                            }
+                          }
+                        }
                       }
                     }
-                  },
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "type": "maze_turn_right",
+                  "id": "right1",
                   "next": {
                     "block": {
-                      "type": "runner_jump",
-                      "id": "jump1"
+                      "type": "maze_forward",
+                      "id": "fwd4"
                     }
                   }
                 }
@@ -88,12 +106,30 @@
               "inputs": {
                 "DO": {
                   "block": {
-                    "type": "runner_kick",
-                    "id": "kick1",
+                    "type": "maze_forward",
+                    "id": "fwd1",
                     "next": {
                       "block": {
-                        "type": "runner_walk",
-                        "id": "walk1"
+                        "type": "maze_forward",
+                        "id": "fwd2",
+                        "next": {
+                          "block": {
+                            "type": "maze_turn_left",
+                            "id": "left1",
+                            "next": {
+                              "block": {
+                                "type": "maze_forward",
+                                "id": "fwd3",
+                                "next": {
+                                  "block": {
+                                    "type": "maze_turn_right",
+                                    "id": "right1"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
                       }
                     }
                   }
@@ -101,8 +137,8 @@
               },
               "next": {
                 "block": {
-                  "type": "runner_jump",
-                  "id": "jump1"
+                  "type": "maze_forward",
+                  "id": "fwd4"
                 }
               }
             }
@@ -117,39 +153,30 @@
       "when": {
         "trigger": "enter"
       },
-      "say": "Bấm Chạy trước, xem Măng vấp ở đâu nhé!",
+      "say": "Bấm Chạy trước, xem Măng đụng ở đâu nhé!",
       "point": "run"
     },
     {
-      "id": "kick-once",
+      "id": "turn-once",
       "when": {
         "trigger": "run-end",
-        "lastReason": "HIT_CRATE"
+        "lastReason": "HIT_WALL"
       },
-      "say": "Măng đá được mấy thùng? Khối đá chạy mấy lần?",
-      "point": "block:runner_kick"
+      "say": "Măng rẽ phải được mấy lần? Khối rẽ phải chạy mấy lần?",
+      "point": "block:maze_turn_right"
     },
     {
-      "id": "kick-explain",
+      "id": "turn-explain",
       "when": {
         "trigger": "run-end",
-        "lastReason": "HIT_CRATE",
+        "lastReason": "HIT_WALL",
         "runCount": {
-          "gte": 2
+          "gte": 3
         }
       },
-      "say": "Khối đá ở ngoài khối lặp nên chỉ đá 1 lần.",
-      "point": "block:runner_kick",
+      "say": "Khối rẽ phải ở ngoài khối lặp nên chỉ chạy 1 lần.",
+      "point": "block:maze_turn_right",
       "priority": 1
-    },
-    {
-      "id": "extra",
-      "when": {
-        "trigger": "run-end",
-        "lastReason": "FELL_IN_HOLE"
-      },
-      "say": "Hết thùng rồi thì nhảy. Vòng lặp có thừa không?",
-      "point": "block:cq_repeat"
     }
   ],
   "thinkingHint": "Khối nào chạy 1 lần, khối nào chạy nhiều lần?"

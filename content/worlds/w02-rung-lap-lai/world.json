@@ -74,7 +74,7 @@
     "palette": "day",
     "scene": "rung-lap-lai"
   },
-  "lessonIds": ["w02-lesson"],
+  "lessonIds": ["w02-lesson", "w02-lesson-quay-dau"],
   "levelIds": [
     "w02-l01",
     "w02-l02",

@@ -61,8 +61,8 @@ describe('judgeLevel', () => {
   it('passes a level whose par is the true minimum', () => {
     const verdict = judgeLevel(load('w02-rung-lap-lai', 'w02-l05'), {});
     expect(verdict.mark).toBe('✔');
-    expect(verdict.head).toBe('w02-l05 runner/build  par 3  min 3 (18 shortest)');
-    expect(verdict.lines[0]).toBe('shortest: repeat 3 [walk, jump]');
+    expect(verdict.head).toBe('w02-l05 runner/build  par 4  min 4 (1 shortest)');
+    expect(verdict.lines[0]).toBe('shortest: repeat 4 [walk, jump], jump');
   });
 
   it('fails a par that is too high', () => {
@@ -79,7 +79,7 @@ describe('judgeLevel', () => {
   });
 
   it('warns when a bughunt level needs fewer edits than parEdits', () => {
-    const verdict = judgeLevel(load('w02-rung-lap-lai', 'w02-l11'), {});
+    const verdict = judgeLevel({ ...load('w02-rung-lap-lai', 'w02-l11'), parEdits: 2 }, {});
     expect(verdict.mark).toBe('⚠');
     expect(verdict.head).toContain('parEdits 2  fix 1');
     expect(verdict.lines).toContain('fixable with 1 edits < parEdits 2');

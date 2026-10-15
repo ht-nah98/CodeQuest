@@ -5,8 +5,8 @@
   "kind": "runner",
   "mode": "build",
   "title": "Đi và nhảy",
-  "objective": "Đến lá cờ, dùng không quá 3 khối nhé!",
-  "learningGoal": "Đặt nhiều khối bên trong một khối lặp để lặp cả một mẫu.",
+  "objective": "Đến lá cờ, dùng không quá 4 khối nhé!",
+  "learningGoal": "Đặt nhiều khối bên trong một khối lặp để lặp cả một mẫu, đếm đúng số vòng, rồi thêm khối cho đoạn cuối khác mẫu.",
   "misconception": "Khối lặp chỉ chứa được một khối.",
   "toolbox": [
     {
@@ -18,8 +18,8 @@
     "runner_walk",
     "runner_jump"
   ],
-  "maxBlocks": 3,
-  "par": 3,
+  "maxBlocks": 4,
+  "par": 4,
   "config": {
     "cells": [
       "ground",
@@ -31,10 +31,15 @@
       "ground",
       "ground",
       "hole",
+      "ground",
+      "ground",
+      "hole",
+      "ground",
+      "hole",
       "flag"
     ],
     "start": 0,
-    "bamboo": [4, 7]
+    "bamboo": [4, 7, 10]
   },
   "solution": {
     "blocks": {
@@ -51,7 +56,7 @@
               "type": "cq_repeat",
               "id": "rep1",
               "fields": {
-                "TIMES": 3
+                "TIMES": 4
               },
               "inputs": {
                 "DO": {
@@ -65,6 +70,12 @@
                       }
                     }
                   }
+                }
+              },
+              "next": {
+                "block": {
+                  "type": "runner_jump",
+                  "id": "jump2"
                 }
               }
             }
@@ -97,17 +108,17 @@
       "point": "block:cq_repeat"
     },
     {
-      "id": "jump-place",
+      "id": "extra",
       "when": {
         "trigger": "run-end",
         "lastReason": "FELL_IN_HOLE",
         "has": "cq_repeat",
         "blockCount": {
-          "eq": 3
+          "gte": 3
         }
       },
-      "say": "Khối nhảy nằm đâu? Trong vòng lặp, khối nào trước?",
-      "point": "block:runner_jump"
+      "say": "Vòng lặp chạy mấy lần? Đếm lại số hố nhé!",
+      "point": "block:cq_repeat"
     },
     {
       "id": "more",
@@ -116,9 +127,9 @@
         "lastReason": "NOT_AT_GOAL",
         "has": "cq_repeat"
       },
-      "say": "Mỗi vòng qua 1 hố. Đường có mấy hố?",
+      "say": "Măng dừng giữa đường. Đếm lại số vòng nhé!",
       "point": "stage"
     }
   ],
-  "thinkingHint": "Con thấy mẫu nào lặp đi lặp lại trên đường?"
+  "thinkingHint": "Mẫu nào lặp lại? Đoạn cuối có giống mẫu không?"
 }

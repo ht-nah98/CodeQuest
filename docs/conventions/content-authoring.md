@@ -26,6 +26,14 @@
 - Mục thanh khối của khối biến **ghim** `VAR` và `NUM` (`so sánh` cả `OP`; `lặp [hộp] lần` ghim `VAR`), vì vét cạn chỉ thử số ghim (luật 23 (a)). Màn cần cả `=` và `>` thì đặt hai mục.
 - Không dùng bẫy "đổi hộp trong thân `lặp [hộp] lần`" ở màn thử thách (luật 23 (i) cảnh báo). Màn dạy `đặt` cần `start` ≠ 0, hoặc dạy bằng `parsons` / `bughunt`.
 
+### 2.3 Mê cung thật, không lặp công thức (đợt tăng độ khó 14/10/2026; `roadmap/difficulty-pass.md` §3.2)
+HLV chơi thử thấy màn không phải mê cung quá dễ và lặp một công thức. Ba luật soạn, ⚙ `content:check` **luật 24** chỉ cảnh báo (không chặn), người soạn ghi lý do khi giữ một cảnh báo:
+- **M1. Mê cung thật.** Từ Thế giới 2, mỗi màn mê cung `build` / `bughunt` có **≥ 1 ngã ba** (ô có ≥ 3 lối) và **≥ 1 ngõ cụt** (ô 1 lối), không tính `S`, `G`. Từ Thế giới 4: **≥ 2 ngã ba**. Đặt ngõ cụt ở chỗ mà một chương trình sai hợp lý (rẽ nhầm phía, lặp thừa, hỏi sai phía) đi vào, để lỗi **nhìn thấy được**. Luật kiểm bản đồ tốt nhất của màn và chỉ đếm ô **Măng tới được** (màn không có khối rẽ chỉ tới được đường thẳng trước `S`); phần "chương trình sai đi vào" do người review kiểm.
+- **M2. Ngân sách công thức.** Trong một thế giới, một **hình lời giải** (chương trình bỏ số: `lặp 3 {đi, đi}` = `lặp 5 {đi, đi, đi}`; màn `predict` lấy `initialWorkspace`, `bughunt` lấy lời giải đã sửa) dùng **tối đa 2 lần**, và lần thứ hai phải khác mode **hoặc** khác loại bản đồ (số bản đồ, có vật phẩm, số bản đồ là mê cung thật; thêm một ngõ cụt không tính). **Ảnh gương là cùng công thức**: "hỏi phải, rẽ phải" = "hỏi trái, rẽ trái". Thang PRIMM đã duyệt được miễn: W4 `l13 → l14 → l16 → boss` (D5, `APPROVED_LADDERS` trong `tools/content-check/src/difficulty.ts`); màn khác cùng hình vẫn bị đếm cả các màn của thang.
+- **M3. Nhiều bản đồ khác hình.** Màn mê cung nhiều bản đồ có câu hỏi: các bản đồ phải khác **hình đường** (rẽ ở chỗ khác, ngõ cụt ở phía khác), không chỉ khác độ dài. Luật so "hình đường" của đường ngắn nhất từ `S` tới `G`: các chỗ rẽ và các nhánh hai bên theo hướng Măng, bỏ độ dài.
+- Miễn: Thế giới 1 (chuỗi tuần tự là ý dạy), màn `guided` (màn giới thiệu khối giữ bản đồ đơn giản) với M1 và M3, màn `creative`.
+- Khi đổi một màn chạy thanh khối có `lặp n lần` (W4): đường của chương trình đúng ≤ 20 vòng; ngõ cụt sâu làm cách sai **hết 20 vòng** là có chủ đích (W4 `l19`).
+
 ## 3. Gợi ý
 - Mỗi màn `guided` có ≥ 2 luật gợi ý tầng 0; `practice` ≥ 1.
 - `thinkingHint` là **câu hỏi**, không chứa tên khối cần dùng.
@@ -70,6 +78,16 @@ Góp ý HLV 03/10/2026: bé hay đoán sai một khối làm Măng đi bao xa. *
 Robot Bíp (W6, `game-kinds.md` §3.3): gợi ý `enter` của lệnh mới là "Lệnh mới! " + đúng tooltip, **đúng từng chữ** ("Lệnh mới! Tiến 3 ô: dừng ở ngã tư thứ 3."), không đổi số theo lời giải của màn; luật 7 coi "tiến 4 ô" là đã nhắc tên lệnh `tiến … ô`. Thanh khối ghi `"robot_forward"` (không ghi `fields`): bé tự đổi số, và `npm run par` thử mọi số 1–9; ghi `fields` là ghim số đó cho vét cạn.
 
 Khối mới của Thế giới 3–5 (`nếu`, `nếu … nếu không`, `lặp đến khi`, `đã tới nơi?`, chìa khóa / đón bạn) cần đúng 3 thứ trên khi xây (`product/curriculum.md` §5.4 T20).
+
+**Ý mới không phải khối** (HLV nhắc lại 14/10/2026, luật cố định): mọi **ý mới**, kể cả khi không có khối mới, cũng cần đủ 3 thứ: câu cho bé (gợi ý `enter` của màn đầu tiên), ví dụ chạy được (thẻ `demo` của một bài `beforeLevel` ngắn) và **câu chuẩn đúng từng chữ** (thay cho tooltip, vì không có khối để rê chuột). Chữ trên giao diện gọi là "khối"; tooltip và câu tả lệnh nói "lệnh" khi cần (W6). Câu chuẩn hiện có:
+
+| Ý mới | Màn đầu tiên | Bài có ví dụ | Câu chuẩn (đúng từng chữ) |
+|---|---|---|---|
+| Quay đầu = rẽ 2 lần (rẽ phải ×2 hoặc rẽ trái ×2) | W2 `l13` | `w02-lesson-quay-dau` | Rẽ 2 lần là quay đầu: Măng nhìn ngược lại, chưa đi. |
+| `nếu` nằm trong nhánh `nếu không` | W4 `l12` (ghép hình) | `w04-lesson-neu-long` | Nếu trong nếu không: hết đường phía trước mới hỏi tiếp. |
+| Thân `lặp đến khi` là khối rẽ (quay tìm đường) | W5 `l06` | `w05-lesson-xoay` | Rẽ đến khi có đường: Măng quay tại chỗ, chưa đi. |
+| Câu hỏi `phía trước có [ô trống]` (không phải khối mới, ô chọn của `phía trước có`) | W4 `l10` (đoán; trước đây `l05`, `l12`) | màn đoán `l10` (chạy chương trình thật) | Ô trống: phía trước là đất, Măng đi được. |
+
 
 ## 6. Review nội dung
 Màn mới phải được huấn luyện viên **chơi thử một lần trên trình duyệt** trước khi merge, ngoài việc qua `content:check`. Màn do AI soạn nháp phải ghi `Co-authored` trong PR và được huấn luyện viên duyệt.
