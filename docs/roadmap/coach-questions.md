@@ -122,3 +122,24 @@ Thiết kế: `product/game-kinds.md` §3.3 (luật robot), `product/curriculum.
 > - **H17:** không cần ảnh, không cần giống Blockly Leanbot hay sa bàn thật, vì mỗi năm một đề. AI tự thiết kế sa bàn, linh hoạt và sáng tạo.
 > - **H19:** giao diện chung giữ chữ "khối"; tooltip và lời W6 gọi là "lệnh", để bé hiểu cả hai.
 > - **H20:** có dùng cảm biến (màu, line), giữ `l14`–`l19`.
+
+## I. Thế giới 8–9 (Xưởng Phép Thuật, Tháp Họa Sĩ, GĐ 4)
+
+Thiết kế: `product/curriculum.md` §6.3 (W8), §6.4 (W9), ADR-0023 (phép thuật), ADR-0024 (`turtle`), lịch ở `roadmap/phase-4.md`. HLV giao làm tự động (15/10/2026): mỗi câu có **mặc định**, AI làm theo mặc định nếu anh chưa trả lời, việc không bị chặn.
+
+1. **Gọi hàm là gì với bé.** *Mặc định:* "phép thuật"; định nghĩa = "dạy phép", gọi = "làm phép", tham số = "hộp của phép" (nối với hộp W7). Bài mở đầu nói một lần "Phép thuật là một nhóm lệnh có tên". Giao diện "khối", tooltip "lệnh".
+2. **Phép gọi phép khác** (lồng nhau) ở W8? *Mặc định:* **không**; trong thân phép không có `làm phép` (lỗi "Trong phép không làm phép khác nhé!"). Để W10.
+3. **Tham số chỉ dùng làm số vòng lặp** (`lặp [số bậc] lần` trong phép), không cắm vào `tiến [n] ô`. *Mặc định:* như vậy (không cần ô cắm, không cần capacity guard).
+4. **Bé tự đặt tên phép?** *Mặc định:* không; tên do màn đặt sẵn (dropdown), như hộp W7. Màn sáng tạo có 3 tên sẵn "phép 1", "phép 2", "phép 3".
+5. **W8 bỏ Họa sĩ và Nhạc công** (bảng cũ ghi turtle, music, robotlab). *Mặc định:* W8 chỉ mê cung (14 màn) + robot (6 màn); Họa sĩ là của W9, Nhạc công để sau.
+6. **Góc ở W9 chỉ là bội số 30°** (30, 60, 90, 120, 150, 180): vẽ được tam giác đều, hình vuông, lục giác, bông tuyết; **không** có ngũ giác, bát giác. *Mặc định:* như vậy (chấm chính xác tuyệt đối, ADR-0024).
+7. **Bé đã học "độ" chưa?** *Mặc định:* dùng số độ trên khối ("rẽ phải 90 độ"); bài mở đầu giải thích "90 độ là góc vuông, quay đủ một vòng là 360 độ"; mỗi màn chỉ ghim 1–2 góc. Nếu bé chưa học, anh báo để đổi nhãn thành hình góc.
+8. **Vẽ nét không có trong hình mẫu thì dừng ngay** (như đâm tường), Măng chỉ nét đỏ. *Mặc định:* dừng ngay. Cách khác: vẽ hết rồi mới chấm (khó tìm lỗi hơn).
+9. **Vẽ thứ tự nào cũng được**, vẽ lại nét cũ không sao, chỉ cần đủ nét của hình mẫu. *Mặc định:* như vậy.
+10. **Màu bút** ở W9? *Mặc định:* không (một màu mực); màu chỉ là trang trí ở màn sáng tạo sau.
+11. **Ai cầm bút ở W9?** *Mặc định:* Măng cầm bút lông (không thêm nhân vật rùa); cô Thỏ là chủ Tháp Họa Sĩ.
+12. **Câu chuyện W8:** sách phép của bác Cú bị gió (phù thủy W6) thổi bay chữ, Măng viết lại từng phép. *Mặc định:* như vậy, không thêm nhân vật mới (chỉ thêm hình `spellbook`, `wand`).
+13. **Mở khóa W8, W9 khi các bé chưa xong W7.** *Mặc định:* anh mở bằng tay ở Góc huấn luyện viên (như H18), không đổi luật mở khóa chung.
+14. **Boss có `par` tính tay** (vét cạn không chứng minh được, cờ `parUnproven`): ⭐⭐⭐ vẫn tính theo `par` tay. *Mặc định:* như vậy (giống W6 boss, W7 `l16`, `l19`, boss).
+15. **Xu cho bài W8, W9:** W8 có 6 bài, W9 có 9 bài. *Mặc định:* +5 xu mỗi bài lần đầu như W1–W7.
+16. **Thế giới 10** chỉ có khung (sắp xếp, tìm kiếm, đường ngắn nhất). *Mặc định:* chi tiết hóa sau khi anh chơi thử W8–W9.

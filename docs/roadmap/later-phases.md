@@ -8,13 +8,12 @@ Chi tiết hóa thành task có nghiệm thu khi giai đoạn trước sắp xon
 ## GĐ 3 · Thành Phố Robot (07/10/2026 → sau chung kết AIROC)
 Đã chi tiết hóa và làm sớm hơn vì cuộc thi (chung kết miền Bắc 17–18/10/2026): xem [`phase-3.md`](phase-3.md) (P3-01a…P3-13: `robotlab`, Thế giới 6, biến trong engine, Thế giới 7). Khung cũ (20/11–10/12, đồng hồ 120/180 s, cảm biến vật cản) được thay bằng file đó.
 
-## GĐ 4 · Mở rộng (4 tuần)
-- Kiểu game `turtle`, `farm`, `sorter` (đầy đủ), `music`. (Thế giới 7 dời sang GĐ 3, dạy biến trên `maze` + `robotlab`; `farm` để sau, `curriculum.md` §6.2.)
-- **Capacity guard** cho khối có shadow (`blockly-integration.md` §5) trước khi dùng phép toán/biến trong màn có giới hạn.
-- Thế giới 7–9; cửa hàng & tủ đồ; huy hiệu; màn bonus; giọng đọc đầy đủ. (Chuỗi ngày và thưởng ngày đã có từ GĐ 1.)
+## GĐ 4 · Xưởng Phép Thuật, Tháp Họa Sĩ (16/10 → ~07/11/2026)
+Đã chi tiết hóa: xem [`phase-4.md`](phase-4.md) (P4-01…P4-17: phép thuật trong engine, kiểu game `turtle`, Thế giới 8–9, capacity guard chuẩn bị cho W10). Thế giới 7 đã làm ở GĐ 3.
+- Còn lại của khung GĐ 4 cũ, **chưa xếp lịch**: kiểu game `farm`, `sorter` (đầy đủ), `music`; cửa hàng & tủ đồ; huy hiệu; màn bonus; giọng đọc đầy đủ. (Chuỗi ngày và thưởng ngày đã có từ GĐ 1.)
 
 ## GĐ 5 · Thuật toán & code chữ (2 tuần)
-- Thế giới 10.
+- Thế giới 10 (khung ở `curriculum.md` §6.5: sắp xếp, tìm kiếm, đường ngắn nhất; ứng viên từ W8–W9: phép gọi phép, tham số cắm ô cần capacity guard, `biến + biến`).
 - Chế độ xem code: hiển thị JavaScript/Python tương ứng (generator `blockly/python`) song song với khối, tô sáng dòng đang chạy.
 - (Tùy chọn) Xuất chương trình robotlab sang C++ cho Leanbot.
 
