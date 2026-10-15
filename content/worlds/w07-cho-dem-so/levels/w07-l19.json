@@ -6,7 +6,7 @@
   "mode": "bughunt",
   "title": "Hai lỗi máy đếm",
   "objective": "Hơn 2 măng thì lên. Máy sai hai chỗ, sửa nhé!",
-  "learningGoal": "Đặt 0 phải ở trước vòng lặp, và câu so sánh phải là lớn hơn 2. Sửa một chỗ thì vẫn sai một bản đồ.",
+  "learningGoal": "Đặt 0 phải ở trước vòng lặp «số bước», và câu so sánh phải là lớn hơn 2. Sửa một chỗ thì vẫn sai một bản đồ.",
   "mission": "Hai lỗi trong máy đếm. Sửa nhé!",
   "goalSprite": "home",
   "toolbox": [
@@ -38,10 +38,17 @@
         "OP": "GT",
         "NUM": 2
       }
+    },
+    {
+      "type": "cq_repeat_var",
+      "fields": {
+        "VAR": "steps"
+      }
     }
   ],
   "maxInstances": {
-    "cq_repeat": 1
+    "cq_repeat": 1,
+    "cq_repeat_var": 1
   },
   "maxLoopDepth": 1,
   "par": 11,
@@ -51,19 +58,24 @@
       "id": "bamboo",
       "name": "số măng",
       "start": [5, 4, 6]
+    },
+    {
+      "id": "steps",
+      "name": "số bước",
+      "start": [4, 6, 6]
     }
   ],
   "config": {
-    "map": ["#######", "#####G#", "#Sbb.b#", "#######"],
+    "map": ["##########", "#####G####", "#Sbb.b.b.#", "#######.##", "##########"],
     "startDir": "E"
   },
   "variants": [
     {
-      "map": ["#######", "#######", "#Sb..b#", "#####G#"],
+      "map": ["##########", "#####.####", "#Sb...b..#", "#######G##", "##########"],
       "startDir": "E"
     },
     {
-      "map": ["#######", "#######", "#S.b..#", "#####G#"],
+      "map": ["##########", "#######G##", "#Sb.b.b..#", "#####.####", "##########"],
       "startDir": "E"
     }
   ],
@@ -79,16 +91,16 @@
           "deletable": false,
           "next": {
             "block": {
-              "type": "cq_repeat",
-              "id": "loop1",
+              "type": "cq_repeat_var",
+              "id": "b1",
               "fields": {
-                "TIMES": 4
+                "VAR": "steps"
               },
               "inputs": {
                 "DO": {
                   "block": {
                     "type": "cq_var_set",
-                    "id": "set1",
+                    "id": "b2",
                     "fields": {
                       "VAR": "bamboo",
                       "NUM": 0
@@ -96,18 +108,18 @@
                     "next": {
                       "block": {
                         "type": "cq_if",
-                        "id": "if1",
+                        "id": "b3",
                         "inputs": {
                           "COND": {
                             "block": {
                               "type": "maze_bamboo_ahead",
-                              "id": "ask1"
+                              "id": "b3c"
                             }
                           },
                           "DO": {
                             "block": {
                               "type": "cq_var_add",
-                              "id": "add1",
+                              "id": "b4",
                               "fields": {
                                 "VAR": "bamboo",
                                 "NUM": 1
@@ -118,7 +130,7 @@
                         "next": {
                           "block": {
                             "type": "maze_forward",
-                            "id": "fwd1"
+                            "id": "b5"
                           }
                         }
                       }
@@ -129,12 +141,12 @@
               "next": {
                 "block": {
                   "type": "cq_if_else",
-                  "id": "if2",
+                  "id": "b6",
                   "inputs": {
                     "COND": {
                       "block": {
                         "type": "cq_var_compare",
-                        "id": "ask2",
+                        "id": "b6c",
                         "fields": {
                           "VAR": "bamboo",
                           "OP": "LT",
@@ -145,20 +157,20 @@
                     "DO": {
                       "block": {
                         "type": "maze_turn_left",
-                        "id": "left1"
+                        "id": "b7"
                       }
                     },
                     "ELSE": {
                       "block": {
                         "type": "maze_turn_right",
-                        "id": "right1"
+                        "id": "b8"
                       }
                     }
                   },
                   "next": {
                     "block": {
                       "type": "maze_forward",
-                      "id": "fwd2"
+                      "id": "b9"
                     }
                   }
                 }
@@ -182,34 +194,34 @@
           "next": {
             "block": {
               "type": "cq_var_set",
-              "id": "set1",
+              "id": "b1",
               "fields": {
                 "VAR": "bamboo",
                 "NUM": 0
               },
               "next": {
                 "block": {
-                  "type": "cq_repeat",
-                  "id": "loop1",
+                  "type": "cq_repeat_var",
+                  "id": "b2",
                   "fields": {
-                    "TIMES": 4
+                    "VAR": "steps"
                   },
                   "inputs": {
                     "DO": {
                       "block": {
                         "type": "cq_if",
-                        "id": "if1",
+                        "id": "b3",
                         "inputs": {
                           "COND": {
                             "block": {
                               "type": "maze_bamboo_ahead",
-                              "id": "ask1"
+                              "id": "b3c"
                             }
                           },
                           "DO": {
                             "block": {
                               "type": "cq_var_add",
-                              "id": "add1",
+                              "id": "b4",
                               "fields": {
                                 "VAR": "bamboo",
                                 "NUM": 1
@@ -220,7 +232,7 @@
                         "next": {
                           "block": {
                             "type": "maze_forward",
-                            "id": "fwd1"
+                            "id": "b5"
                           }
                         }
                       }
@@ -229,12 +241,12 @@
                   "next": {
                     "block": {
                       "type": "cq_if_else",
-                      "id": "if2",
+                      "id": "b6",
                       "inputs": {
                         "COND": {
                           "block": {
                             "type": "cq_var_compare",
-                            "id": "ask2",
+                            "id": "b6c",
                             "fields": {
                               "VAR": "bamboo",
                               "OP": "GT",
@@ -245,20 +257,20 @@
                         "DO": {
                           "block": {
                             "type": "maze_turn_left",
-                            "id": "left1"
+                            "id": "b7"
                           }
                         },
                         "ELSE": {
                           "block": {
                             "type": "maze_turn_right",
-                            "id": "right1"
+                            "id": "b8"
                           }
                         }
                       },
                       "next": {
                         "block": {
                           "type": "maze_forward",
-                          "id": "fwd2"
+                          "id": "b9"
                         }
                       }
                     }

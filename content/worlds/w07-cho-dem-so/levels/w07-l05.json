@@ -6,14 +6,21 @@
   "mode": "bughunt",
   "title": "Hộp cứ về 0",
   "objective": "Đếm đúng măng ở cả 3 bản đồ. Sửa nhé!",
-  "learningGoal": "Khối đặt 0 nằm trong vòng lặp nên mỗi vòng hộp bị đổ về 0. Đặt 0 một lần, ở trước vòng lặp.",
+  "learningGoal": "Khối đặt 0 nằm trong vòng lặp nên mỗi vòng hộp bị đổ về 0. Đặt 0 một lần, ở trước vòng lặp. Phần tìm đường (có đường bên phải thì rẽ phải) đã đúng.",
   "misconception": "Đặt 0 trong vòng lặp vẫn đếm được.",
   "mission": "Hộp cứ về 0. Sửa giúp bác Heo!",
   "goalSprite": "home",
   "toolbox": [
     "maze_forward",
+    "maze_turn_right",
     "cq_repeat",
     "cq_if",
+    {
+      "type": "maze_is_path",
+      "fields": {
+        "DIR": "RIGHT"
+      }
+    },
     "maze_bamboo_ahead",
     {
       "type": "cq_var_set",
@@ -34,30 +41,38 @@
     "cq_repeat": 1
   },
   "maxLoopDepth": 1,
-  "par": 6,
+  "par": 9,
   "parEdits": 2,
   "variables": [
     {
       "id": "bamboo",
       "name": "số măng",
-      "start": [5, 4, 3]
+      "start": [3, 2, 1]
     }
   ],
   "countGoal": {
     "var": "bamboo",
-    "equals": [3, 2, 4]
+    "equals": [5, 4, 6]
   },
   "config": {
-    "map": ["#########", "#Sb.bb.G#", "#########"],
+    "map": ["#########", "##.#.####", "#Sbb.b..#", "######b##", "###G.b..#", "#########"],
     "startDir": "E"
   },
   "variants": [
     {
-      "map": ["#########", "#S.b..bG#", "#########"],
+      "map": [
+        "#########",
+        "#Sb..b..#",
+        "######b##",
+        "######.##",
+        "#G..b..##",
+        "###.##.##",
+        "#########"
+      ],
       "startDir": "E"
     },
     {
-      "map": ["#########", "#Sbbb.bG#", "#########"],
+      "map": ["#########", "###.#####", "#Sbb.b.b#", "#####b###", "##Gbb.###", "#########"],
       "startDir": "E"
     }
   ],
@@ -74,15 +89,15 @@
           "next": {
             "block": {
               "type": "cq_repeat",
-              "id": "loop1",
+              "id": "b1",
               "fields": {
-                "TIMES": 6
+                "TIMES": 15
               },
               "inputs": {
                 "DO": {
                   "block": {
                     "type": "cq_var_set",
-                    "id": "set1",
+                    "id": "b2",
                     "fields": {
                       "VAR": "bamboo",
                       "NUM": 0
@@ -90,29 +105,52 @@
                     "next": {
                       "block": {
                         "type": "cq_if",
-                        "id": "if1",
+                        "id": "b3",
                         "inputs": {
                           "COND": {
                             "block": {
-                              "type": "maze_bamboo_ahead",
-                              "id": "ask1"
+                              "type": "maze_is_path",
+                              "id": "b3c",
+                              "fields": {
+                                "DIR": "RIGHT"
+                              }
                             }
                           },
                           "DO": {
                             "block": {
-                              "type": "cq_var_add",
-                              "id": "add1",
-                              "fields": {
-                                "VAR": "bamboo",
-                                "NUM": 1
-                              }
+                              "type": "maze_turn_right",
+                              "id": "b4"
                             }
                           }
                         },
                         "next": {
                           "block": {
-                            "type": "maze_forward",
-                            "id": "fwd1"
+                            "type": "cq_if",
+                            "id": "b5",
+                            "inputs": {
+                              "COND": {
+                                "block": {
+                                  "type": "maze_bamboo_ahead",
+                                  "id": "b5c"
+                                }
+                              },
+                              "DO": {
+                                "block": {
+                                  "type": "cq_var_add",
+                                  "id": "b6",
+                                  "fields": {
+                                    "VAR": "bamboo",
+                                    "NUM": 1
+                                  }
+                                }
+                              }
+                            },
+                            "next": {
+                              "block": {
+                                "type": "maze_forward",
+                                "id": "b7"
+                              }
+                            }
                           }
                         }
                       }
@@ -139,7 +177,7 @@
           "next": {
             "block": {
               "type": "cq_var_set",
-              "id": "set1",
+              "id": "b1",
               "fields": {
                 "VAR": "bamboo",
                 "NUM": 0
@@ -147,37 +185,60 @@
               "next": {
                 "block": {
                   "type": "cq_repeat",
-                  "id": "loop1",
+                  "id": "b2",
                   "fields": {
-                    "TIMES": 6
+                    "TIMES": 15
                   },
                   "inputs": {
                     "DO": {
                       "block": {
                         "type": "cq_if",
-                        "id": "if1",
+                        "id": "b3",
                         "inputs": {
                           "COND": {
                             "block": {
-                              "type": "maze_bamboo_ahead",
-                              "id": "ask1"
+                              "type": "maze_is_path",
+                              "id": "b3c",
+                              "fields": {
+                                "DIR": "RIGHT"
+                              }
                             }
                           },
                           "DO": {
                             "block": {
-                              "type": "cq_var_add",
-                              "id": "add1",
-                              "fields": {
-                                "VAR": "bamboo",
-                                "NUM": 1
-                              }
+                              "type": "maze_turn_right",
+                              "id": "b4"
                             }
                           }
                         },
                         "next": {
                           "block": {
-                            "type": "maze_forward",
-                            "id": "fwd1"
+                            "type": "cq_if",
+                            "id": "b5",
+                            "inputs": {
+                              "COND": {
+                                "block": {
+                                  "type": "maze_bamboo_ahead",
+                                  "id": "b5c"
+                                }
+                              },
+                              "DO": {
+                                "block": {
+                                  "type": "cq_var_add",
+                                  "id": "b6",
+                                  "fields": {
+                                    "VAR": "bamboo",
+                                    "NUM": 1
+                                  }
+                                }
+                              }
+                            },
+                            "next": {
+                              "block": {
+                                "type": "maze_forward",
+                                "id": "b7"
+                              }
+                            }
                           }
                         }
                       }
@@ -208,6 +269,14 @@
       },
       "say": "Mỗi vòng hộp về 0. Khối đặt nên ở đâu?",
       "point": "block:cq_var_set"
+    },
+    {
+      "id": "road",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "HIT_WALL"
+      },
+      "say": "Đừng sửa phần tìm đường. Chỉ sửa chỗ hộp nhé!"
     }
   ],
   "thinkingHint": "Khối đặt chạy mấy lần?"
