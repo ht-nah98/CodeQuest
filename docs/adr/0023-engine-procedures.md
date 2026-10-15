@@ -1,7 +1,7 @@
 # ADR-0023: Phép thuật (hàm) của engine: tên do màn khai báo, gọi là chạy thân phép tại chỗ, tham số là hộp của phép, vét cạn theo tập phép với thân cố định
 
-- **Trạng thái:** Đề xuất
-- **Ngày:** 15/10/2026 (bản nháp của P4-01, sửa cùng ngày theo review độc lập; chuyển "Chấp nhận" sau spike đo vét cạn)
+- **Trạng thái:** Chấp nhận (sau spike P4-01, xem "Kết quả spike")
+- **Ngày:** 15/10/2026 (bản nháp của P4-01, sửa cùng ngày theo review độc lập); chấp nhận 15/10/2026 sau spike đo vét cạn
 
 ## Bối cảnh
 Thế giới 8 "🪄 Xưởng Phép Thuật" dạy **hàm** (thủ tục không trả giá trị), sau đó **một tham số số** (`product/curriculum.md` §6.3). Điều phối quyết định ngày 15/10/2026: W8 chạy trên `maze` và `robotlab` có sẵn (W8 không dùng `turtle` / `music`); boss là nhiệm vụ robot dùng 2–3 phép. Những gì đã có:
@@ -91,7 +91,10 @@ Thế giới 8 "🪄 Xưởng Phép Thuật" dạy **hàm** (thủ tục không 
   - catalogue = khối của thanh khối ∪ { `làm phép p` với p ∈ S, với các số ghim };
   - cỡ của một chương trình = khối chính + **hằng số** `Σ_{p∈S} (1 + |thân p|)`;
   - **không** bắt chương trình phải gọi mọi p ∈ S: chương trình gọi ít phép hơn bị tính thừa chi phí của S, nên không bao giờ nhỏ hơn kết quả của tập con đúng của nó; lấy nhỏ nhất qua mọi S vẫn đúng. Điều kiện "gọi đủ S" còn mâu thuẫn với cắt tiền tố theo (trạng thái, usage), có thể báo `par` cao hơn thật. Chỉ khi cần **đếm đúng số cách thắng** mới thêm mặt nạ bit "phép đã gọi" vào khóa gộp trạng thái (và chỉ đếm cách thắng gọi đủ S).
-- `par` = nhỏ nhất qua mọi S. Khi đã có kết quả tốt nhất B, bỏ qua mọi S có hằng số + |S| ≥ B.
+- `par` = nhỏ nhất qua mọi S. Khi đã có kết quả tốt nhất B, bỏ qua mọi S có hằng số + 2·|S| > B (ở `par`, mỗi phép được gọi ≥ 2 lần: gọi 1 lần thì chép thẳng thân nhỏ hơn 2 khối; `>` để còn đếm các cách bằng B).
+- Thứ tự thử: S lớn trước (thường là tập của lời giải), để có B sớm.
+- Ở cỡ nhỏ nhất, mọi cách thắng tìm được trong lượt S đều gọi đủ S (cách gọi thiếu thì lượt của tập con cho tổng nhỏ hơn), nên số cách thắng ở `par` cộng qua các S là đúng; spike không cần mặt nạ bit.
+- `maxInstances`: trần của mỗi type trừ đi số khối type đó trong các thân của S (thân đếm một lần); trần âm thì bỏ S. `làm phép` tính theo type `cq_proc_call`.
 - Không cần sửa `InstanceLimits`: phép không thuộc S thì không có trong catalogue; phép thuộc S thì đã trả chi phí thân.
 - Kết quả in "✔ par (thân phép theo lời giải)". Chứng minh không có chương trình chính nào nhỏ hơn **với các thân đó**, chưa chứng minh thân khác không ngắn hơn.
 
@@ -137,6 +140,35 @@ Luật 24 (M2): hình lời giải của màn có phép = chương trình chính
   - event `var` của hộp của phép hiện trên bảng hộp (`VarBoxes`) trong lúc làm phép.
 - **Bộ chặn thả khối** dùng độ sâu hiệu dụng.
 - **Level editor:** màn có `procedures` → "chưa hỗ trợ phép thuật" (như biến).
+
+## Kết quả spike (P4-01, 15/10/2026)
+**Cách đo.** Chép `packages/validator/src/search/*` ra `.omc/spike-p401/` (không vào git). Thêm `Statement { call }` và `CallCode` vào `FastSim` (thân chạy tại chỗ trong `MapSim.run`, có nhớ theo trạng thái như mọi khối ghép), mục `làm phép p` cỡ 1 trong catalogue và ở tầng ngoài cùng, chỉ ở chỗ còn đủ tầng (độ sâu hiệu dụng). Chế độ 1 và 2 như §4. Lời giải chép thẳng của mỗi màn chạy thắng trên `runLevel` thật. Node 22 / WSL2, `--max-old-space-size=3072`, một việc nặng một lần. "Trạng thái" = số trạng thái mô phỏng; "work" = đơn vị ngân sách; heap = `heapUsed` lớn nhất; ngân sách mỗi lần 120 s và 300 M work.
+
+**4 màn phác** (theo §6.3; bản đồ của spike, chưa phải bản đồ thật của P4-10):
+- `l03` maze, thân cố định `bậc thang` = tiến, rẽ trái, tiến, rẽ phải; chính `P, tiến, P, rẽ trái, P`; `maxBlocks` 10.
+- `l08` maze, `lặp 2 {A}, rẽ trái, A`, A = tiến, rẽ trái, tiến, tiến, rẽ phải; `maxLoopDepth` 1; `maxBlocks` 10.
+- `l11` maze, 3 bản đồ, A = tiến, `lặp đến khi có đường bên trái {tiến}`, rẽ trái; chính `A, A, A`; `maxBlocks` 9.
+- `l06` robotlab 5×7, 3 rào, A = gắp, rẽ phải, rẽ phải, tiến 1, thả; chính có 3 lần gọi; `maxBlocks` 14.
+
+| Màn | Chế độ 1 | Chế độ 2, k = 3 | Chế độ 2, k = 4 | R5 `maxBlocks` | R5 `maxInstances` |
+|---|---|---|---|---|---|
+| `l03` | par 10, 2 cách · 44 tt · 229 work · 0,1 s | **par 9** (thân `tiến, rẽ trái, tiến`) · 39 thân · 7,8 k work · 0,1 s | par 9 · 120 thân · 20 k work · 0,1 s | không thắng tới 10 ✔ · 117 work · 0,1 s | `maze_forward: 3` ✔ · 96 work |
+| `l08` | par 10 · 55 tt · 1,7 M work · 0,2 s (`maze_forward: 3`: par 10, 40 cách, 2,0 M work) | hết 300 M work sau 6–11 s (609 thân) | hết 300 M work sau 6–11 s (7 017 thân) | **thắng không cần phép**: `lặp 2 [9 khối]` = 10 khối ✖ | `maze_forward: 3` ✔ · 52 tt · 2,0 M work · 0,1 s |
+| `l11` | par 9, 1 cách · 445 tt · 27 k work · 0,2 s | par 9 · 51 thân · 1,5 M work · 0,6 s | par 9 · 240 thân · 6,7 M work · 2,0 s | không thắng tới 9 ✔ · 27 k work · 0,2 s | `maze_forward: 2` ✔ · 183 tt · 24 k work |
+| `l06` | par 14, 1 cách · 3 270 tt · 38 k work · 1,1 s | par 14 · 2 379 thân · 87–94 M work · 14–20 s | hết 300 M work sau 46–62 s (30 940 thân) | không thắng tới 14 ✔ · 2 860 tt · 0,9 s | `robot_release: 1` ✔ · 2 560 tt · 0,8 s |
+
+Heap lớn nhất 287 MB (chế độ 2 `l06`); mọi lượt chế độ 1 và R5 ≤ 120 MB.
+
+**Nhận xét.**
+- Chế độ 1 rẻ: ≤ 1,1 s, ≤ 3,3 k trạng thái, ≤ 2 M work trên cả 4 màn, kể cả robotlab. Dùng làm mặc định.
+- Chế độ 2 bắt được thân ngắn hơn thân của lời giải (`l03`: thân 3 khối cho `par` 9, lời giải dùng thân 4 khối). Nhưng số thân tăng rất nhanh: robotlab có 9 số cho `tiến [N] ô` nên k = 4 có 30 940 thân; màn có `lặp [N]` thì mỗi lượt chế độ 1 tốn vài trăm k work (`l08` hết 300 M ở k = 3).
+- R5 bằng `maxBlocks` có thể **sai**: `l08` có cách thắng 10 khối không cần phép (một `lặp 2` bọc 9 khối), vì chuỗi `A, A, rẽ, A` gần đều. Ép bằng `maxInstances` trên khối hành động chứng minh cả 4 màn trong < 1 s.
+- Phát hiện cho §6.3 (P4-10): thân `l11` "`lặp đến khi có đường bên trái {tiến}`, rẽ trái" dừng ngay ở lần làm phép thứ hai, vì ngay sau khi rẽ trái, ô vừa đi qua nằm bên trái. Thân phải bắt đầu bằng `tiến` (5 khối, `par` 9 với 3 lần gọi).
+
+**Quyết định.**
+- **k mặc định của chế độ 2: tắt.** `--proc-bodies 3` dùng được cho màn maze ≤ 1 phép (≤ 20 s); không dùng k = 4 cho màn có `lặp [N]` hay cho robotlab (hết ngân sách). Khi chế độ 2 tìm ra `par` nhỏ hơn chế độ 1, người soạn sửa lời giải (thân ngắn hơn) hoặc sửa bản đồ.
+- **Ngưỡng `parUnproven`:** chỉ đặt khi **chế độ 1** không xong trong 120 s / 300 M work (`--timeout 120`). Chế độ 2 hết ngân sách thì không đặt cờ; `npm run par` vẫn in "✔ par (thân phép theo lời giải)" như mặc định.
+- **Cách ép R5 khuyên dùng:** `maxInstances` trên một khối hành động của thân (trần = số khối đó trong thân + số khối đó chương trình chính cần), cộng `maxBlocks` = `par`. Chỉ dùng `maxBlocks` một mình khi R5 chạy xong và không thắng (`l08` cho thấy có thể sai).
 
 ## Hệ quả
 - Kiểu game không cần sửa gì (`maze`, `robotlab`, sau này `turtle`). W1–W7: màn không có `procedures` → `npm run par` cho ra kết quả như cũ (điều kiện nghiệm thu, đo theo `phase-4.md` P4-03).

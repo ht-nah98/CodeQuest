@@ -1,10 +1,10 @@
 import type { ReasonCode, RunResult } from '@codequest/content-schema';
-import type { GameEvent, HighlightEvent, SenseEvent, VarEvent } from './events';
+import type { EngineEvent, GameEvent } from './events';
 
 export interface RunStats {
   /** Interpreter steps executed. */
   steps: number;
-  /** Game events, `sense` and `var` events emitted, highlights excluded. */
+  /** Game events, `sense`, `var`, `call` and `ret` events emitted, highlights excluded. */
   actions: number;
   /** Blocks in the program, without `cq_start` and shadow blocks. */
   blocksUsed: number;
@@ -15,7 +15,7 @@ export interface RunOutcome<E extends GameEvent = GameEvent> {
   result: RunResult;
   /** `null` exactly when `result` is `success`. */
   reasonCode: ReasonCode | null;
-  events: ReadonlyArray<E | HighlightEvent | SenseEvent | VarEvent>;
+  events: ReadonlyArray<E | EngineEvent>;
   stats: RunStats;
   /**
    * Mode `predict` only: `kind.predictAnswer` of the final state, plus `#<id>=<n>` for every box

@@ -169,6 +169,22 @@ Type: `RobotLabEvent` export từ `@codequest/games` (`packages/games/src/robotl
 
 `predictAnswer`: `missions` → `win` · `stop@r,c` · `crash:<REASON>@r,c` · `outOfTime@r,c` · `timeout`; `score` → `score:<điểm>` · `crash:…` · `timeout`.
 
+### 1.4 Event của `turtle` (P4-08, ADR-0024)
+Type: `TurtleEvent` export từ `@codequest/games`. Điểm `TurtlePoint` = `[a, b, c, d]` nguyên, với `x = (a + b√3) / 2`, `y = (c + d√3) / 2`; gốc ở góc dưới trái, `y` hướng lên. Hướng 0–11, ngược chiều kim đồng hồ từ hướng đông (bước 30°).
+
+| Event | Trường | Ý nghĩa cho sân chơi |
+|---|---|---|
+| `move` | `from`, `to` | Bút nhấc: đi **một** bước đơn vị, không vẽ |
+| `line` | `from`, `to` | Bút hạ: đi một bước đơn vị và thêm nét đó |
+| `turn` | `from`, `to`, `side`, `deg` | Quay tại chỗ |
+| `pen` | `down` | Nhấc / hạ bút |
+| `extraLine` | `from`, `to` | Nét không có trong hình mẫu: Măng đứng yên ở `from`; crash `EXTRA_LINE` |
+| `offPaper` | `from`, `to` | Bước ra ngoài giấy: đứng yên ở `from`; crash `OFF_PAPER` |
+
+Mỗi bước tiến kiểm giấy trước, rồi mới kiểm nét lạ. **Không có event `win`**: chấm khi hết chương trình bằng `evaluate(state, config)` (hình mẫu `target` đọc từ `config`, không từ state); còn nét chưa vẽ thì `MISSING_LINES`. API: `forward(n, id)`, `turn('LEFT' | 'RIGHT', deg, id)`, `pen(down, id)`.
+
+`predictAnswer`: `draw:<khóa các nét đã sắp, nối bằng ;>` · `crash:<REASON>@a,b,c,d` · `timeout`.
+
 ## 2. Nửa hiển thị: `StageRenderer`
 Interface định nghĩa trong `apps/web/src/stages/types.ts`:
 

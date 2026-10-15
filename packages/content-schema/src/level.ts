@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { HintRuleSchema } from './hint';
 import { GameKindIdSchema, LevelModeSchema } from './runtime';
+import { LevelProceduresSchema, checkProcedures } from './procedures';
 import { CountGoalSchema, LevelVariablesSchema, checkVariables } from './variables';
 import { ContentWorkspaceJsonSchema } from './workspace';
 
@@ -72,10 +73,24 @@ export type GoalSprite = z.infer<typeof GoalSpriteSchema>;
 /** Game kinds whose map has one goal cell that `goalSprite` can dress up. */
 const GOAL_SPRITE_KINDS: ReadonlySet<string> = new Set(['runner', 'maze']);
 
-const PredictOptionSchema = z.strictObject({
-  key: z.string().min(1),
-  label: z.string().min(1),
-});
+/** Game kinds whose predict options may be authored as a program (ADR-0024 §5). */
+const DRAW_PROGRAM_KINDS: ReadonlySet<string> = new Set(['turtle']);
+
+/**
+ * One answer card of a predict level: exactly one of `key` (the outcome key, written by hand)
+ * or `drawProgram` (turtle only, ADR-0024 §5: a small workspace whose run gives the key). Every
+ * reader of the key goes through the derived key, never `key` alone.
+ */
+export const PredictOptionSchema = z
+  .strictObject({
+    key: z.string().min(1).optional(),
+    drawProgram: ContentWorkspaceJsonSchema.optional(),
+    label: z.string().min(1),
+  })
+  .refine((option) => (option.key === undefined) !== (option.drawProgram === undefined), {
+    message: 'a predict option needs exactly one of "key" and "drawProgram"',
+  });
+export type PredictOption = z.infer<typeof PredictOptionSchema>;
 
 /**
  * One level (content-model.md §3). Cross-field requirements that the engine relies on are
@@ -107,6 +122,11 @@ export const LevelSchema = z
      */
     maxLoopDepth: positiveInt.optional(),
     par: positiveInt.optional(),
+    /**
+     * `par` is counted by hand, the search cannot prove it in budget (ADR-0023 §4 mode 3).
+     * `npm run par` reports ⚠ instead of failing; the reason goes in "Ghi chú khi soạn".
+     */
+    parUnproven: z.literal(true).optional(),
     parEdits: positiveInt.optional(),
     config: z.unknown(),
     /**
@@ -131,6 +151,11 @@ export const LevelSchema = z
      * parsons only.
      */
     countGoal: CountGoalSchema.optional(),
+    /**
+     * Spells ("phép thuật", ADR-0023): 1–3 named procedures the `cq_proc_*` blocks name. A
+     * spell's `param` is its own box, readable only in its body.
+     */
+    procedures: LevelProceduresSchema.optional(),
     initialWorkspace: ContentWorkspaceJsonSchema.optional(),
     solution: ContentWorkspaceJsonSchema.optional(),
     predict: z
@@ -140,7 +165,13 @@ export const LevelSchema = z
           .min(3)
           .max(4)
           .refine(
-            (options) => new Set(options.map((option) => option.key)).size === options.length,
+            (options) => {
+              // Derived keys (drawProgram) are checked by content:check rule 26.
+              const keys = options.flatMap((option) =>
+                option.key === undefined ? [] : [option.key],
+              );
+              return new Set(keys).size === keys.length;
+            },
             {
               message: 'predict option keys must be unique',
             },
@@ -253,6 +284,20 @@ export const LevelSchema = z
         ctx.addIssue({ code: 'custom', path, message });
       },
     );
+    checkProcedures(level.procedures, level.variables, (path, message) => {
+      ctx.addIssue({ code: 'custom', path, message });
+    });
+    if (!DRAW_PROGRAM_KINDS.has(level.kind)) {
+      level.predict?.options.forEach((option, index) => {
+        if (option.drawProgram !== undefined) {
+          ctx.addIssue({
+            code: 'custom',
+            path: ['predict', 'options', index, 'drawProgram'],
+            message: '"drawProgram" only fits kind turtle',
+          });
+        }
+      });
+    }
     if (
       level.countGoal !== undefined &&
       level.mode !== 'build' &&

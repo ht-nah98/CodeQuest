@@ -4,11 +4,12 @@ import type { Level, LessonCard, SceneTheme } from '@codequest/content-schema';
 import { getGameKind } from '@codequest/games';
 import { BlocklyWorkspace } from '../../blockly/BlocklyWorkspace';
 import { markSense } from '../../blockly/senseMark';
+import { markSpell } from '../../blockly/spellMark';
 import { useWithSharedRules } from '../../features/content/sharedRules';
 import { runProgram } from '../../features/play/run';
 import { vi } from '../../i18n/vi';
 import { getStageKind } from '../../stages/registry';
-import { type SenseMark, StageController } from '../../stages/StageController';
+import { type SenseMark, type SpellEvent, StageController } from '../../stages/StageController';
 import { Button, PixelIcon } from '../../ui';
 import { boxBlockInfo, useVarBoxes } from '../play/useVarBoxes';
 import { VarBoxes } from '../play/VarBoxes';
@@ -63,6 +64,8 @@ export function LessonDemo({
       hints: [],
       // A demo with boxes (ADR-0022 §2b) runs them like a level, and its blocks show their names.
       ...(card.variables !== undefined && { variables: card.variables }),
+      // A demo with spells (ADR-0023): its spell blocks show their names, its `dạy phép` lights.
+      ...(card.procedures !== undefined && { procedures: card.procedures }),
     }),
     [card, config, id, worldId],
   );
@@ -109,6 +112,16 @@ export function LessonDemo({
     [onAsked],
   );
 
+  /** The `dạy phép` block lit while its spell runs in the demo (ADR-0023 §6). */
+  const spellRef = useRef<(() => void) | null>(null);
+  const spell = useCallback((event: SpellEvent | null) => {
+    spellRef.current?.();
+    spellRef.current = null;
+    const workspace = workspaceRef.current;
+    if (event?.type !== 'call' || !workspace) return;
+    spellRef.current = markSpell(workspace, event.id);
+  }, []);
+
   const run = useCallback(() => {
     const stage = stageRef.current;
     if (!stage) return;
@@ -141,6 +154,7 @@ export function LessonDemo({
       onHighlight: highlight,
       onSense: sense,
       onVar,
+      onSpell: spell,
       // A demo has one map: its boxes go back to their start with the stage.
       onReset: () => {
         resetBoxes(0);
@@ -166,7 +180,19 @@ export function LessonDemo({
       stageRef.current = null;
       setReady(false);
     };
-  }, [playable, card.kind, config, card.autoplay, theme, highlight, sense, onVar, resetBoxes, run]);
+  }, [
+    playable,
+    card.kind,
+    config,
+    card.autoplay,
+    theme,
+    highlight,
+    sense,
+    onVar,
+    spell,
+    resetBoxes,
+    run,
+  ]);
 
   return (
     <div

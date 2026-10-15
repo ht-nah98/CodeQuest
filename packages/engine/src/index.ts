@@ -2,9 +2,12 @@
 export type { BlockCategory, BlocklyBlockJson, BlockSpec } from './sdk/blockSpec';
 export type { SimContext } from './sdk/context';
 export type {
+  CallEvent,
   DistributiveOmit,
+  EngineEvent,
   GameEvent,
   HighlightEvent,
+  RetEvent,
   SenseEvent,
   VarEvent,
 } from './sdk/events';
@@ -63,6 +66,27 @@ export {
 } from './run/variables';
 export type { VarCallResult, VarOp, VarValues } from './run/variables';
 
+// Spells ("phép thuật", ADR-0023): blocks, the spell dropdown and the effective loop depth.
+export {
+  CQ_PROC_CALL,
+  CQ_PROC_DEF,
+  PROC_API_NAMES,
+  PROC_BODY_INPUT,
+  PROC_CALL_FN,
+  PROC_CALL_TYPES,
+  PROC_DEF_TYPES,
+  PROC_RET_FN,
+  PROCEDURE_BLOCKS,
+} from './blocks/procedures';
+export {
+  FIELD_CQ_PROC,
+  FieldCqProc,
+  NO_PROCEDURE,
+  registerProcedureField,
+  setWorkspaceProcedures,
+  workspaceProceduresOf,
+} from './blocks/procedureField';
+
 // Running a program (runtime-engine.md).
 export { analyzeWorkspace } from './run/analyzeWorkspace';
 export { withHeadlessWorkspace } from './run/headlessWorkspace';
@@ -88,10 +112,5 @@ export { GLOBAL_HINT_IDS, globalRules } from './hints/globalRules';
 export type { GlobalHintId, GlobalHintRule, HintLevel } from './hints/globalRules';
 export { selectHint } from './hints/selectHint';
 export type { HintSelection } from './hints/selectHint';
-export {
-  correctPrefix,
-  NEXT_STEP_BLOCK_ID,
-  nextStep,
-  structuralDistance,
-} from './hints/nextStep';
+export { correctPrefix, NEXT_STEP_BLOCK_ID, nextStep, structuralDistance } from './hints/nextStep';
 export type { NextStep, NextStepOptions, StepAnchor } from './hints/nextStep';

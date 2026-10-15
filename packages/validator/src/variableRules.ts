@@ -217,18 +217,20 @@ export function variableIssues(
 
   // (j) Predict keys carry every box once, in declaration order, each within its 0…max.
   if (level.mode === 'predict' && level.variables !== undefined) {
-    for (const option of level.predict?.options ?? []) {
-      const { base, vars } = splitVarSuffix(option.key);
-      const ids = option.key.slice(base.length).match(/#[a-z][a-z0-9_]*=/g) ?? [];
+    // Only hand-written keys: a drawProgram key comes from a run, so its suffix is the engine's.
+    for (const { key } of level.predict?.options ?? []) {
+      if (key === undefined) continue;
+      const { base, vars } = splitVarSuffix(key);
+      const ids = key.slice(base.length).match(/#[a-z][a-z0-9_]*=/g) ?? [];
       const rebuilt = base + varSuffix(declared, vars);
       const overMax = declared.find((variable) => (vars[variable.id] ?? 0) > variableMax(variable));
       if (overMax !== undefined) {
         error(
-          `(j) predict key "${option.key}" gives box "${overMax.id}" ${String(vars[overMax.id])} > max ${String(variableMax(overMax))}`,
+          `(j) predict key "${key}" gives box "${overMax.id}" ${String(vars[overMax.id])} > max ${String(variableMax(overMax))}`,
         );
-      } else if (rebuilt !== option.key || ids.length !== declared.length) {
+      } else if (rebuilt !== key || ids.length !== declared.length) {
         error(
-          `(j) predict key "${option.key}" must end with #<id>=<n> for ${declared.map((variable) => variable.id).join(', ')}, in that order`,
+          `(j) predict key "${key}" must end with #<id>=<n> for ${declared.map((variable) => variable.id).join(', ')}, in that order`,
         );
       }
     }

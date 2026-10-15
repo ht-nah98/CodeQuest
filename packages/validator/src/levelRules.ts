@@ -18,6 +18,7 @@ import {
 } from '@codequest/engine';
 import { boardOfMap, generateExam, robotlabResolvedSchema } from '@codequest/games';
 import type { RuleIssue } from './issue';
+import { predictOptionKey } from './predictKeys';
 import { blockSignatures, blockTypesOf, countBlocksOfType, countShadows } from './workspace';
 import { countWords } from './words';
 
@@ -155,7 +156,11 @@ export function modeIssues(level: Level, kind: AnyGameKindDefinition): RuleIssue
         message: `initialWorkspace must lose, but it ends ${describeRun(outcome)}`,
       });
     }
-    const edits = editDistance(initial, level.solution);
+    const edits = editDistance(
+      initial,
+      level.solution,
+      level.procedures?.map((procedure) => procedure.id),
+    );
     const parEdits = level.parEdits ?? 1;
     if (edits > parEdits) {
       issues.push({
@@ -168,17 +173,19 @@ export function modeIssues(level: Level, kind: AnyGameKindDefinition): RuleIssue
   if (level.mode === 'predict' && level.predict !== undefined) {
     const outcome = runLevel({ kind, level, workspace: initial });
     const key = outcome.answerKey;
-    const matches = level.predict.options.filter((option) => option.key === key).length;
+    const optionKeys = level.predict.options.map((option) => predictOptionKey(kind, level, option));
+    const matches = optionKeys.filter((optionKey) => optionKey === key).length;
     if (key === undefined || outcome.reasonCode === 'INTERNAL_ERROR') {
       issues.push({ rule: 15, message: `initialWorkspace ends ${describeRun(outcome)}` });
     } else if (matches !== 1) {
-      const keys = level.predict.options.map((option) => option.key).join(', ');
+      const keys = optionKeys.map((optionKey) => optionKey ?? '?').join(', ');
       issues.push({
         rule: 15,
         message: `answerKey "${key}" matches ${String(matches)} options (${keys}); expected exactly 1`,
       });
     }
-    // 3–4 options with unique keys is already enforced by LevelSchema (rule 1).
+    // 3–4 options with unique hand-written keys is enforced by LevelSchema (rule 1); derived
+    // (drawProgram) keys by content:check rule 26.
   }
 
   return issues;
@@ -400,7 +407,8 @@ function isRecord(value: unknown): value is Record<string, unknown> {
  * action costs `min(costs)` s, so a loop of it asking one question per pass emits up to
  * `timeLimit / min × 2 + 2` actions before the clock stops it (each pass a question and an
  * action, then the last question and the `timeUp` event). A body asking two questions per action
- * (a `nếu` inside the loop) emits more; with the shared 120 s that stays far under 1000. Over `maxActions` the engine's
+ * (a `nếu` inside the loop) emits more; with the shared 120 s that stays far under 1000. On a
+ * level with spells a pass may also call one (`call` + `ret`: 4 actions per pass). Over `maxActions` the engine's
  * TIMEOUT would end the run first and the child would never see OUT_OF_TIME. Needs the level
  * with its shared rules merged in (`resolveLevelConfigs`); maps that do not parse are skipped.
  */
@@ -412,7 +420,12 @@ export function robotlabTimeIssues(level: Level): RuleIssue[] {
     const config = robotlabResolvedSchema.safeParse(raw);
     if (!config.success) return;
     const { timeLimit, costs } = config.data.rules;
-    const actions = Math.floor(timeLimit / Math.min(costs.forward, costs.turn, costs.grab, costs.release)) * 2 + 2;
+    // A spell called once per pass adds its `call` and `ret` events (ADR-0023 §3).
+    const perPass = level.procedures === undefined ? 2 : 4;
+    const actions =
+      Math.floor(timeLimit / Math.min(costs.forward, costs.turn, costs.grab, costs.release)) *
+        perPass +
+      2;
     if (actions > maxActions) {
       issues.push({
         rule: 1,

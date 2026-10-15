@@ -83,6 +83,14 @@ export function newDraft(kind: EditorKind): Level {
 const LEVEL_MODES: readonly LevelMode[] = ['build', 'parsons', 'predict', 'bughunt', 'creative'];
 
 /**
+ * Whether the editor cannot edit this level at all (P4-06): spells (`procedures`, ADR-0023) have
+ * no editor UI yet, and editing such a level would silently drop its `dạy phép` blocks.
+ */
+export function hasSpells(json: unknown): boolean {
+  return isRecord(json) && json['procedures'] !== undefined;
+}
+
+/**
  * A draft from a level file, a saved draft or a content level: any object with an editor
  * `kind` and a known `mode`; missing fields come from a new draft. Null when it is not one.
  */
@@ -321,9 +329,7 @@ function toggleRunnerItem(config: RunnerConfig, index: number, kind: GoalItemKin
   const here = items.find((item) => item.at === index);
   const others = items.filter((item) => item.at !== index);
   const next =
-    here?.kind === kind
-      ? others
-      : [...others, { kind, at: index }].sort((a, b) => a.at - b.at);
+    here?.kind === kind ? others : [...others, { kind, at: index }].sort((a, b) => a.at - b.at);
   return runnerItems(
     withBamboo(
       config,
@@ -409,10 +415,7 @@ export function toggleMazeItem(
   const at = (item: { at: readonly [number, number] }) => item.at[0] === row && item.at[1] === col;
   const here = items.find(at);
   const others = items.filter((item) => !at(item));
-  return mazeItems(
-    config,
-    here?.kind === kind ? others : [...others, { kind, at: [row, col] }],
-  );
+  return mazeItems(config, here?.kind === kind ? others : [...others, { kind, at: [row, col] }]);
 }
 
 // ---- Maze grid ------------------------------------------------------------------------------

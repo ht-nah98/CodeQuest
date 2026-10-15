@@ -174,7 +174,7 @@ function controlTypes(program: Program, out = new Set<string>()): Set<string> {
  */
 function hasEmptyBody(code: Code): boolean {
   return code.some((item) => {
-    if (typeof item === 'number') return false;
+    if (typeof item === 'number' || 'call' in item) return false;
     if ('times' in item || 'timesVar' in item || 'until' in item)
       return item.body.length === 0 || hasEmptyBody(item.body);
     const otherwise = item.else ?? [];
@@ -291,6 +291,8 @@ export function findFixes(original: Level, options: FixOptions = {}): FixResult 
         }
         toTokens(isIf ? statement.then : statement.body, depth + 1, DO, out);
         if (isIf) toTokens(statement.else ?? [], depth + 1, ELSE, out);
+      } else if ('call' in statement) {
+        throw new UnsearchableLevel('unsearchable: spells in a bughunt level (P4-03)');
       } else {
         const atom = sim.atomIndex(statement);
         if (atom === -1)
@@ -435,6 +437,7 @@ export function findFixes(original: Level, options: FixOptions = {}): FixResult 
     code.map((item): Statement => {
       if (typeof item === 'number') return sim.atoms[item]?.statement ?? { block: '?' };
       if ('times' in item) return { repeat: item.times, body: toProgram(item.body) };
+      if ('call' in item) return { call: sim.procIds[item.call] ?? '?' };
       if ('timesVar' in item) {
         return { repeatVar: sim.variables[item.timesVar]?.id ?? '?', body: toProgram(item.body) };
       }
@@ -527,7 +530,11 @@ export function findFixes(original: Level, options: FixOptions = {}): FixResult 
   for (const program of examples) {
     const workspace = programToWorkspace(program);
     const outcome = runLevel({ kind, level, workspace });
-    const edits = editDistance(level.initialWorkspace, workspace);
+    const edits = editDistance(
+      level.initialWorkspace,
+      workspace,
+      level.procedures?.map((procedure) => procedure.id),
+    );
     if (!countedWin(outcome) || edits !== minEdits) {
       const missed = outcome.result === 'success' && !countedWin(outcome) ? ' misses a goal' : '';
       mismatches.push(

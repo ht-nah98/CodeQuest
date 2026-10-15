@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { LessonSchema } from './lesson';
+import { LessonCardSchema, LessonSchema } from './lesson';
 
 describe('LessonSchema.beforeLevel (block lessons)', () => {
   const lesson = {
@@ -21,5 +21,27 @@ describe('LessonSchema.beforeLevel (block lessons)', () => {
   it('rejects an empty or non-string level id', () => {
     expect(LessonSchema.safeParse({ ...lesson, beforeLevel: '' }).success).toBe(false);
     expect(LessonSchema.safeParse({ ...lesson, beforeLevel: 3 }).success).toBe(false);
+  });
+});
+
+describe('LessonCardSchema demo procedures (ADR-0023)', () => {
+  const demo = {
+    type: 'demo',
+    text: 'Làm phép 2 lần.',
+    kind: 'maze',
+    config: {},
+    workspace: { blocks: { languageVersion: 0, blocks: [] } },
+  };
+  it('accepts spells', () => {
+    const card = { ...demo, procedures: [{ id: 'stair', name: 'bậc thang' }] };
+    expect(LessonCardSchema.safeParse(card).success).toBe(true);
+  });
+  it('rejects a spell id equal to a box id', () => {
+    const card = {
+      ...demo,
+      variables: [{ id: 'stair', name: 'số bậc' }],
+      procedures: [{ id: 'stair', name: 'bậc thang' }],
+    };
+    expect(LessonCardSchema.safeParse(card).success).toBe(false);
   });
 });

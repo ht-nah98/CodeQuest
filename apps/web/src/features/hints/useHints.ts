@@ -146,6 +146,10 @@ export function useHints({
       step = nextStep(level.solution, program.json, {
         toolbox: toolboxTypes(level),
         capacityLeft: program.capacityLeft,
+        // Spells (ADR-0023 §3): the `dạy phép` stacks are compared in the level's order.
+        ...(level.procedures !== undefined && {
+          procedureOrder: level.procedures.map((procedure) => procedure.id),
+        }),
       });
       if (step === null) return { status: 'solved', tier };
       if (step.kind === 'reset') return { status: 'reset', tier };

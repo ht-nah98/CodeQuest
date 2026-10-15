@@ -74,8 +74,19 @@ Góp ý HLV 03/10/2026: bé hay đoán sai một khối làm Măng đi bao xa. *
 | rẽ trái / rẽ phải (robot Bíp) | **không đi**, chỉ quay 90° (khối riêng `robot_turn_*`, câu giống mê cung) | Quay sang trái (phải) tại chỗ, chưa đi |
 | gắp (robot Bíp) | **đứng yên**, gắp khối ở ngã tư Bíp đứng | Gắp khối ở chỗ Bíp đứng |
 | thả (robot Bíp) | **đứng yên**, thả khối xuống ngã tư Bíp đứng | Thả khối xuống chỗ Bíp đứng |
+| dạy phép [▾] (W8, ADR-0023) | **không đi**: chỉ nhớ các lệnh bên trong | Dạy phép: nhớ các lệnh bên trong, chưa làm ngay |
+| làm phép [▾] (W8) | làm hết lệnh trong thân phép, rồi làm khối tiếp theo | Làm phép: làm hết lệnh trong phép, rồi làm tiếp |
+| tiến [n] bước (bút, W9, ADR-0024) | đi n bước; bút hạ thì để lại nét dài n. Demo `tiến 3` → 1 nét dài 3 | Tiến 3 bước: bút hạ thì có nét dài 3 |
+| rẽ phải [d] độ (bút) | **không đi**, quay d độ. Demo `tiến 2, rẽ phải 90, tiến 2` → hình chữ L | Rẽ phải 90 độ: quay tại chỗ, chưa đi |
+| rẽ trái [d] độ (bút) | **không đi**, quay d độ. Demo cầu thang đi lên | Rẽ trái 90 độ: quay tại chỗ, chưa đi |
+| nhấc bút (bút) | đứng yên; đi tiếp thì không vẽ. Demo `tiến 1, nhấc bút, tiến 1, hạ bút, tiến 1` → nét đứt | Nhấc bút: đi tiếp thì không có nét |
+| hạ bút (bút) | đứng yên; đi tiếp thì vẽ (cùng thẻ demo trên) | Hạ bút: đi tiếp thì có nét |
 
 Robot Bíp (W6, `game-kinds.md` §3.3): gợi ý `enter` của lệnh mới là "Lệnh mới! " + đúng tooltip, **đúng từng chữ** ("Lệnh mới! Tiến 3 ô: dừng ở ngã tư thứ 3."), không đổi số theo lời giải của màn; luật 7 coi "tiến 4 ô" là đã nhắc tên lệnh `tiến … ô`. Thanh khối ghi `"robot_forward"` (không ghi `fields`): bé tự đổi số, và `npm run par` thử mọi số 1–9; ghi `fields` là ghim số đó cho vét cạn.
+
+Bút vẽ (`turtle`, W9, ADR-0024): khi màn ghim góc khác 90 độ cho khối rẽ, hoặc số bước khác 3 cho `tiến`, gợi ý `enter` "Khối mới! …" nhắc lại câu tooltip với **đúng số của màn đó** ("Rẽ trái 60 độ: quay tại chỗ, chưa đi"), không dùng số của câu chuẩn. Luật 26 bắt ghim `DEG` trong mọi mục thanh khối, kể cả `l01`–`l03`.
+
+Phép thuật (W8, ADR-0023): gợi ý `enter` của khối phép là "Khối mới! " + đúng tooltip. Tooltip không nêu tên nhân vật (cùng khối chạy cho Măng và Bíp).
 
 Khối mới của Thế giới 3–5 (`nếu`, `nếu … nếu không`, `lặp đến khi`, `đã tới nơi?`, chìa khóa / đón bạn) cần đúng 3 thứ trên khi xây (`product/curriculum.md` §5.4 T20).
 

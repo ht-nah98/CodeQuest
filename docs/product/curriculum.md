@@ -912,7 +912,7 @@ Ghi chú khi soạn (P3-10 + P3-11, 09/10/2026; **🟨 nháp, chờ HLV chơi th
 > Viết theo quyết định của điều phối ngày 15/10/2026 (`roadmap/phase-4.md`), sửa cùng ngày theo review độc lập.
 > - W8 dạy **hàm** ("phép thuật"), sau đó **một tham số số**. Chạy trên `maze` và `robotlab` có sẵn; W8 **không** dùng `turtle` và `music`.
 > - Engine: ADR-0023 (Đề xuất).
-> - Bảng dưới là **bản nháp lần một**. Bản đồ, sa bàn và `par` thật làm ở P4-10 (chi tiết hóa lần hai) và P4-11 (soạn), sau khi engine có phép (P4-02…P4-05).
+> - Bảng dưới là **bản nháp lần một**. Bản đồ, sa bàn và `par` tay của P4-10 ở §6.3.1 "Chi tiết từng màn" (thắng bảng này khi khác). Số vét cạn có ở P4-11.
 > - Câu hỏi còn mở: `roadmap/coach-questions.md` mục I. Câu nào cũng có mặc định, không chặn việc.
 
 **Gọi tên với bé** (mặc định I1):
@@ -1045,6 +1045,155 @@ Tổng kết bảng:
 3. `bip-hoc-phep` "Bíp học phép" (sau `l05`, trước `l06`)
 4. `phep-co-hop` "Phép có hộp" (sau `l12`, trước bài `w08-lesson-hop-cua-phep`)
 5. `ngay-hoi` "Ngày hội phép thuật" (sau boss): "Cô Thỏ gọi: lên Tháp Họa Sĩ vẽ nhé!"
+
+#### 6.3.1 Chi tiết từng màn (chi tiết hóa lần hai, P4-10, 15/10/2026) · 🟨 nháp, chờ HLV chơi thử
+
+> Bản đồ, sa bàn, chương trình và kết quả dưới đây đã chạy trên engine thật (P4-02).
+> - Phép không hộp: chạy bằng khối `dạy phép` / `làm phép`.
+> - Phép có hộp (`l13`–`l19`, boss): khối `cq_proc_*_n` chờ P4-04, nên lời giải được chạy ở dạng **mở phép ra** (thân chép vào chỗ gọi, `lặp [hộp] lần` thành `lặp n lần`). Chạy lại bằng khối thật khi có P4-04.
+> - `par` ở đây **tính tay** (cỡ lời giải, tính cả khối `dạy phép` và thân). Vét cạn có phép chờ P4-03; A chạy rồi gửi số, C ghi vào file ở P4-11.
+> - **R5 đã kiểm** bằng vét cạn **không có khối phép** (bỏ `cq_proc_*` và `lặp [hộp của phép]` khỏi thanh khối), tới `maxBlocks`, ngân sách 120 s / 300 M work. Kết quả ghi ở từng màn.
+> - Ký hiệu: bản đồ ghi theo hàng, nối bằng `/`. Mê cung: `S` chỗ Măng đứng, `G` cờ. Sa bàn: `L` phòng thí nghiệm, `r` `y` `g` trạm đỏ / vàng / xanh lá. `F` tiến, `L` / `R` rẽ trái / phải; robot `f1`, `f3` là `tiến 1 ô`, `tiến 3 ô`, `G` gắp, `T` thả. `A(2)` = `làm phép A với 2`.
+
+**Luật soạn rút ra khi chi tiết hóa** (ghi vào `content-authoring.md` ở P4-05 / P4-11):
+- **Ép R5 bằng `maxInstances` của khối hành động** khi `maxBlocks` không đủ. Spike của A cho thấy `l08` bản nháp (`A, A, rẽ, A`) không qua R5 nếu chỉ dùng `maxBlocks`.
+  - Robot: `robot_grab: 1`, `robot_release: 1`, mỗi khối nằm một lần trong thân phép. Thanh khối không có `lặp` cố định, nên bỏ phép đi thì không đủ khối gắp. Chứng minh bằng đếm, vét cạn xác nhận.
+  - Mê cung có `lặp`: `maze_forward` = số `tiến` của lời giải.
+- **Phép có câu hỏi phải tiến sau khi rẽ.** Ngay sau khi rẽ trái, ô vừa đi qua nằm bên trái, nên "lặp đến khi có đường bên trái" dừng ngay. Thân `tới ngã ba` là `lặp đến khi có đường bên trái {tiến}, rẽ trái, tiến` (5 khối). A đề xuất để `tiến` lên đầu; hai cách đều đúng, chọn cách này để cả 3 lần làm phép giống nhau.
+- **Phép robot không có `lặp` cố định trong thanh khối.** Nếu có, một vòng lặp quanh `gắp` sẽ lách được trần `robot_grab` (vét cạn `l16` bản đầu hết ngân sách).
+- **Thân phép không được đi ngược lại ô vừa qua.** Ví dụ: `bậc thang` (kết thúc bằng bước lên) rồi `rẽ phải` + `bậc thang` thì bước đầu đi lùi xuống. Mọi bản đồ dưới đây được khắc từ đường của lời giải, không có ô đi hai lần.
+- Phép robot: mọi câu cho bé gọi khối thi đấu kèm **loại và màu** ("khối trung hòa đỏ", "khối ô nhiễm đỏ").
+
+**Bảng tóm tắt** (`par` tay · `maxBlocks` · cách ép R5 · kết quả R5):
+
+| Màn | par | maxBlocks | Ép R5 | R5 (không phép) |
+|---|---:|---:|---|---|
+| `l01` parsons | 8 | — | — (guided) | — |
+| `l03` build | 9 | — | — (guided) | — |
+| `l04` build | 8 | — | — (guided) | — |
+| `l05` bughunt | 11 / sửa 1 | 12 | `maxBlocks` (không có `lặp`) | ✔ không thắng tới 12, đủ (41 trạng thái) |
+| `l06` build | 14 | 15 | `maxBlocks` | ✔ tới 15, đủ (49 126 trạng thái, 8 s) |
+| `l08` build | 10 | 10 | `maxBlocks` + `maze_forward: 3`, `cq_repeat: 1` | ✔ tới 10, đủ |
+| `l09` parsons | 18 | — | — | — |
+| `l10` bughunt | 16 / sửa 1 | 17 | `robot_grab: 1`, `robot_release: 1` | ✔ tới 17, đủ |
+| `l11` build | 9 | 10 | `maxBlocks` | ✔ tới 10, đủ, 3 bản đồ |
+| `l12` build | 17 | 17 | `maxBlocks` (= par) + `robot_grab: 1`, `robot_release: 1` | ✔ tới 17, đủ (14 s). Với `maxBlocks` 18 hết ngân sách ở cỡ 18, nên giữ 17 |
+| `l13` parsons | 9 | — | — | — |
+| `l15` build | 11 | 12 | `maxBlocks` | ✔ tới 12, đủ |
+| `l16` bughunt | 14 / sửa 1 | 15 | `robot_grab: 1`, `robot_release: 1` (không có `lặp` cố định) | ✔ tới 15, đủ |
+| `l17` build | 16 | 16 | `maxBlocks` = par | ✔ tới 16, đủ |
+| `l18` bughunt | 15 / sửa 2 | 16 | `robot_grab: 1`, `robot_release: 1` | ✔ tới 16, đủ (8 s) |
+| boss | 22 ⚠ | 23 | `robot_grab: 2`, `robot_release: 2` | ⚠ R5 hết ngân sách ở cỡ 19 (120 s). Chứng minh bằng đếm: 4 việc cần 4 lần gắp; thanh khối không có vòng lặp nên mỗi khối `gắp` chạy nhiều nhất 1 lần; trần là 2 |
+
+Mọi màn có phép: `maxInstances` của `cq_proc_def` / `cq_proc_def_n` = số phép của màn (luật bảng §6.3). `maxLoopDepth: 1`.
+
+Mọi phép tiết kiệm khối (`(c − 1)(b − 1) ≥ 3`). Riêng `l17` bản đầu có `rẽ lên` 3 khối gọi 2 lần (không tiết kiệm), nên đổi thành 4 khối (`rẽ trái, tiến ×3`).
+
+**Từng màn:**
+1. `l01` (guided · parsons) `######/###.G#/##..##/#S.###/######`, nhìn `E`.
+   - Phép `bậc thang` = `F, L, F, R`; chương trình `bậc thang, bậc thang, F` (8 khối) → thắng.
+   - Gợi ý `block:cq_proc_def` và `block:cq_proc_call`, câu "Khối mới! " + tooltip.
+   - Số cách ghép thắng: chờ `parsons` hai chồng (P4-03).
+2. `l02` (guided · predict) `########/########/#####.G#/####..##/#S...###/########`, nhìn `E`.
+   - Có `dạy phép bậc thang` (`F, L, F, R`); chương trình chính chỉ có `F, F`.
+   - Thẻ: **Đi 2 ô, đứng dưới dốc** `stop@4,3` ✔ · Leo hết dốc, tới cờ `win` (phép chạy ngay khi dạy) · Leo 1 bậc `stop@3,4`.
+3. `l03` (guided · build) `########/########/#####G##/###...##/##..####/#S.#####/########`, nhìn `E`.
+   - Khối `dạy phép bậc thang` đặt sẵn. Thanh khối có `làm phép`, `tiến`, rẽ, không có `dạy phép`.
+   - Lời giải `A, A, F, A` (9 khối, tính cả 5 khối phép cho sẵn).
+   - Sai: `A, A, A, F` (làm phép 3 lần liền) → `HIT_WALL`; quên `F` giữa → `HIT_WALL`.
+4. `l04` (guided · build) `######/#S.###/#..###/##..##/###.G#/######`, nhìn `E`.
+   - Chương trình chính `xuống bậc` ×3 cho sẵn; bé viết thân `R, F, L, F` (8 khối).
+   - Thân `F, R, F, L` (đi trước rồi xuống) vào được ô `1,2` rồi đâm ở lần làm phép thứ 2. Thân thiếu một `tiến` → `HIT_WALL`.
+   - **Lệch:** 1 bản đồ, không phải 2. Không có câu hỏi thì cùng một chương trình đi đúng một đường, nên bản đồ thứ hai không thêm gì.
+5. `l05` (practice · bughunt) `############/############/############/############/########G###/######...###/###....#.###/#S..##.#####/###.########/############`, nhìn `E`, 3 ngã ba, 3 ngõ cụt.
+   - Phép `góc tường` = `F, F, L, F`; chương trình `A, R, F, A, R, A` (11 khối).
+   - Ban đầu thân có `R` thay cho `L`: ngay lần làm phép đầu, Măng rẽ vào ngõ cụt `8,3` rồi đâm tường. Mỗi chỗ làm phép có một ngõ cụt như vậy (`8,3`, `7,6`, `6,8`).
+   - Sửa 1: đổi `R` → `L` trong phép. Vá ở chỗ gọi (thêm rẽ ở chương trình chính) vẫn đâm ở lần làm phép sau (test).
+6. `l06` (practice · robotlab · build) `......./.#.#g#./......./...ry../###L###`, Bíp ở `L` nhìn `N`.
+   - Khối trung hòa đỏ ở `2,3`, vàng ở `3,5`, xanh lá ở `0,4`, mỗi khối nằm ngay sau trạm cùng màu.
+   - Phép `giao khối` = `G, R, R, f1, T`. Lời giải `f2, A, L, f2, A, R, f3, A` (14 khối, 40 giây / 120).
+   - Đường giữa các trạm khác nhau: `f2` · `L, f2` · `R, f3`.
+   - Sai: làm phép trước khi tới khối → `NOTHING_TO_GRAB`; thân chỉ rẽ một lần → `OFF_LINE`.
+7. `l07` (practice · predict) `######/#S..##/##.###/#...##/#G####/######`, nhìn `E`.
+   - Phép `xuống dốc` = `F, R, F, L`; chương trình `A, R, A, F`.
+   - Thẻ: **Tới lá cờ** `win` ✔ · Dừng sau phép đầu `stop@2,2` (ngộ nhận "làm phép xong thì dừng") · Dừng sau phép thứ hai `stop@3,1` (bỏ quên khối sau phép).
+8. `l08` (practice · build) `##########/##########/#####.####/###....###/#...##.###/#S#.##G###/##########/##########`, nhìn `E`, 2 ngã ba, 2 ngõ cụt.
+   - Phép `lên dốc` = `L, F, R, F, F` (không có vòng lặp). Lời giải `lặp 2 {A}, R, A` (10 khối).
+   - `lặp 3 {A}` vào ngõ cụt `2,5` rồi đâm; `lặp 2 {A, R}, A` đâm.
+   - R5: `maxBlocks` 10 = par, `maze_forward: 3`.
+9. `l09` (practice · parsons) `#########/#####...#/##....#G#/##.#..###/#S.######/#########/#########`, nhìn `E`.
+   - Phép `bậc thang` (4) và `vòng cột` = `L, F, R, F, F, R, F, L` (đi vòng lên trên cột rồi về hàng cũ, 8 khối). Cột ở `3,3` và `2,6`.
+   - Chương trình `bậc thang, vòng cột, bậc thang, vòng cột` (18 khối). Đổi tên hai phép → `HIT_WALL`.
+   - **Lệch:** `vòng cột` vòng **lên trên** cột, không vòng xuống như bảng. Sau `bậc thang` (bước cuối đi lên), vòng xuống sẽ đi lùi vào ô cũ.
+10. `l10` (practice · robotlab · bughunt) `...#/.L../#...`, Bíp ở `L` nhìn `N`.
+    - Khối ô nhiễm đỏ ở `0,0`, khối ô nhiễm vàng ở `2,2`; `mustReturn`.
+    - Phép `đi gắp` = `f1, L, f1, G`; phép `về thả` = `R, R, f1, R, f1, T`. Lời giải `đi gắp, về thả, đi gắp, về thả` (16 khối, 32 giây).
+    - Ban đầu khối thứ ba là `về thả` → `HANDS_EMPTY`. Sửa 1: đổi tên trên khối.
+    - **Lệch:** 1 sa bàn (robot không có câu hỏi, cùng lý do `l04`). `par` 11 → 16, vì mỗi phép phải tiết kiệm khối.
+11. `l11` (practice · build) 3 bản đồ khác hình, mỗi bản 4 ngã ba, 4 ngõ cụt:
+    - Bản đồ: `#########/#########/####.####/#....####/##G#.####/####.####/##S...###/###.#####/#########` (nhìn `E`) · `##########/##########/##########/####.#####/#....#####/#G##.#####/####..####/####.#####/#S....####/##.#######` (nhìn `E`) · `##########/##########/#####.#.##/###.....##/####.##S##/####.#####/####.#####/####.G####/####.#####/##########` (nhìn `N`).
+    - Hình đường (luật 24 M3): `r L:a L:a L:a` · `r L:a r L:a L` · `L:a r L:a L:a`.
+    - Phép `tới ngã ba` = `lặp đến khi có đường bên trái {tiến}, rẽ trái, tiến` (5 khối). Lời giải `A, A, A` (9 khối).
+    - Thân không hỏi (`F, F, L, F`) → đâm ở bản đồ khác. Thân thiếu `tiến` sau rẽ → dừng ngay (`NOT_AT_GOAL`). Làm phép 2 lần → `NOT_AT_GOAL`.
+    - Ngõ cụt thẳng trước mỗi chỗ rẽ: phép "đi tới hết đường" đi vào đó.
+12. `l12` (practice · robotlab · build) sa bàn `......./#.#.#.#/...L.../#.#.#.#/.......`, `mustReturn`, 2 bản đồ:
+    - Bản 1: nhìn `N`, khối ô nhiễm đỏ ở `0,3` và `2,6`.
+    - Bản 2: nhìn `E`, khối ô nhiễm đỏ ở `2,5` và `4,3`.
+    - Thanh khối: `tiến 1 ô` ghim, `khối ở chỗ Bíp màu đỏ?`, `đã về phòng thí nghiệm?`.
+    - Phép `đi gắp` = `lặp đến khi khối ở chỗ Bíp màu đỏ? {f1}, G`; phép `về thả` = `R, R, lặp đến khi đã về phòng thí nghiệm? {f1}, T`.
+    - Lời giải `đi gắp, về thả, L, đi gắp, về thả` (17 khối, 29 giây).
+    - `đi gắp` đi số ô cố định → `NOTHING_TO_GRAB` ở một bản.
+13. `l13` (practice · parsons) `##########/#######G##/######..##/#####..###/###...####/##..######/#S.#######/##########`, nhìn `E`.
+    - Phép `cầu thang` với hộp `số bậc` = `lặp [số bậc] lần {F, L, F, R}`.
+    - Chương trình `cầu thang với 2, F, cầu thang với 3` (9 khối).
+    - Gợi ý `block:` cho `cq_proc_def_n`, `cq_proc_call_n`.
+14. `l14` (practice · predict) cầu thang 6 bậc `##########/#######G##/######..##/#####..###/####..####/###..#####/##..######/#S.#######/##########`, nhìn `E`.
+    - Chương trình `cầu thang với 3, cầu thang với 1`.
+    - Thẻ: **Leo 4 bậc** `stop@3,5` ✔ · Leo 6 bậc, tới cờ `win` (hộp giữ số của lần đầu) · Leo 3 bậc `stop@4,4`.
+15. `l15` (practice · build) `#########/#########/####.####/###...###/##..#..##/##G#..###/###..####/##S.#####/#########`, nhìn `E`, 2 ngã ba, 2 ngõ cụt.
+    - Bé tự viết `cầu thang` (`lặp [số bậc] lần {F, L, F, R}`). Lời giải `cầu thang với 3, L, cầu thang với 1, L, cầu thang với 2` (11 khối).
+    - Ba dốc theo ba hướng: lên phải, lên trái, xuống trái.
+    - Ngõ cụt ở bậc thừa sau dốc 1 (`4,6`) và dốc 2 (`2,4`): `cầu thang với 4` ở lần đầu → `HIT_WALL`. Thân `lặp 3 lần` cố định → `HIT_WALL`.
+    - Ô số của `làm phép … với` ghim 1, 2, 3 trong thanh khối (luật 25 (e)).
+    - **Lệch:** không đặt dốc liền nhau (hai lần làm phép liền nhau cùng hướng gộp được thành một). Dốc đổi hướng bằng `rẽ trái`, nên `cầu thang` không đi lùi.
+16. `l16` (practice · robotlab · bughunt) `......../#.#.#.#./...L..../#.#.#.#./........`, Bíp ở `L` nhìn `N`, `mustReturn`.
+    - Khối ô nhiễm đỏ ở `0,3`, `2,6`, `3,3`.
+    - Phép `thu hồi` với hộp `số ô` = `lặp [số ô] lần {f1}, G, R, R, lặp [số ô] lần {f1}, T` (8 khối thân).
+    - Lời giải `thu hồi với 2, L, thu hồi với 3, L, thu hồi với 1` (14 khối, 44 giây).
+    - Ban đầu vòng đi ra là `lặp 2 lần` cố định: đúng ở lần làm phép đầu (với 2), lần sau (với 3) → `NOTHING_TO_GRAB`. Sửa 1.
+    - Thanh khối không có `lặp` cố định (khối đó chỉ nằm trong chương trình cho sẵn).
+    - **Lệch:** 1 sa bàn, cùng lý do `l04`.
+17. `l17` (challenge · build) `##########/##.#######/##......##/#..####..#/#G#####.##/#######.##/#######..#/######..##/#####S.###/##########`, nhìn `E`, 3 ngã ba, 3 ngõ cụt.
+    - Phép `cầu thang` (có hộp) và `rẽ lên` = `L, F, F, F`.
+    - Lời giải `cầu thang với 2, rẽ lên, cầu thang với 1, rẽ lên, cầu thang với 2` (16 khối = `maxBlocks`). Chép thẳng thì 26 khối.
+    - Ngõ cụt ở bậc thừa và cạnh mỗi đoạn `rẽ lên`. `cầu thang với 3` ở lần đầu → `HIT_WALL`; `rẽ lên` rẽ phải → `HIT_WALL`.
+    - **Lệch:** `par` 12 → 16.
+18. `l18` (challenge · robotlab · bughunt) `......./.#.#.#./....g../...ry../###L###`, Bíp ở `L` nhìn `N`.
+    - Khối trung hòa đỏ ở `2,3` (1 ô sau trạm đỏ), vàng ở `3,6` (2 ô sau trạm vàng), xanh lá ở `0,4` (2 ô sau trạm xanh lá).
+    - Phép `về trạm` với hộp `số ô` = `G, R, R, lặp [số ô] lần {f1}, T`. Lời giải `f2, về trạm với 1, L, f3, về trạm với 2, R, f3, về trạm với 2` (15 khối, 46 giây).
+    - Ban đầu có 2 lỗi: trong thân thiếu một `R`, và lần làm phép thứ 2 mang số 1.
+    - Sửa 2. Chỉ sửa thân → `OFF_LINE`. Chỉ sửa số → `WRONG_COLOR` (test).
+19. `l19` (challenge · predict) `#########/G#..#####/###..####/####.####/####.####/####.####/####..###/###...###/##S.#####/#########`, nhìn `E`. Cờ ở `1,0` không tới được: chỉ để trang trí.
+    - Chương trình `cầu thang với 2, rẽ lên, cầu thang với 1`.
+    - Thẻ: **Dừng ở `2,3`** ✔ · `stop@1,2` (hộp vẫn giữ 2) · `crash:HIT_WALL@6,5` (bỏ qua phép `rẽ lên`).
+20. `boss` (robotlab · build) sa bàn `......./#.#.#.#/..rLy../#.#.#.#/.......`, Bíp ở `L` nhìn `N`, `mustReturn`, `timeLimit` 70.
+    - Khối ô nhiễm đỏ ở `0,3`, `4,3`; khối trung hòa đỏ ở `2,0`, khối trung hòa vàng ở `2,5`.
+    - Phép `thu hồi` = `f2, G, R, R, f2, T`; phép `trung hòa` với hộp `số ô` = `G, R, R, lặp [số ô] lần {f1}, T`.
+    - Lời giải `thu hồi, thu hồi, L, f3, trung hòa với 2, f3, trung hòa với 1, f1` (22 khối, 61 giây). Cờ `parUnproven`.
+    - **Lệch:**
+      - 2 phép, không phải 3: `đi [số ô]` không có ích khi `tiến … ô` đã có ô số.
+      - Thứ tự việc **chưa thành bẫy**: làm trung hòa trước tốn 62 giây, chỉ hơn 1 giây.
+      - Bẫy thứ tự (như boss W6) làm ở P4-11, khi A vét cạn được màn có phép.
+- `w08-creative`: sa bàn Thành Phố Măng của `w06-creative`, 3 phép tên sẵn `phép 1`, `phép 2`, `phép 3` (`phép 3` có hộp `số ô`, `max` 9). Thanh khối có mọi khối robot, `lặp`, câu hỏi robot.
+
+**Hình lời giải (luật 24 M2):** mỗi màn một hình (chương trình chính + thân phép). `bậc thang` nằm trong `l01`, `l02`, `l03`, `l09`, nhưng chương trình chính mỗi màn khác nhau. Luật 24 hiểu phép từ P4-05; đếm lại khi có.
+
+**Còn chờ:**
+- `par` vét cạn (P4-03, chế độ 1).
+- Số cách ghép của `l01`, `l09`, `l13` (parsons hai chồng).
+- Chạy lại `l13`–`l19`, boss bằng khối có hộp (P4-04).
+- Chữ cho bé (P4-11).
+- Review sư phạm độc lập.
 
 -------
 ### 6.4 Thế giới 9 — 🎨 Tháp Họa Sĩ (bản nháp lần một, P4, 15/10/2026)

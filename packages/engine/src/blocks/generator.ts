@@ -1,6 +1,7 @@
 import type { Block, Workspace } from 'blockly';
 import { JavascriptGenerator, javascriptGenerator } from 'blockly/javascript';
 import { VAR_API_NAMES } from '../run/variables';
+import { PROC_API_NAMES } from './procedures';
 
 /** Sandbox function that records a highlight event; injected before every statement. */
 export const HIGHLIGHT_FN = '__hl';
@@ -24,6 +25,8 @@ export const BASE_RESERVED_WORDS = [
   HIGHLIGHT_FN,
   // The engine's variable functions (ADR-0022), installed by runLevel for every kind.
   ...VAR_API_NAMES,
+  // The engine's spell call hooks (ADR-0023 §3).
+  ...PROC_API_NAMES,
 ].join(',');
 
 class EngineGenerator extends JavascriptGenerator {

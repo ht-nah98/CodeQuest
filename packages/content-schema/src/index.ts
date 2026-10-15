@@ -21,11 +21,32 @@ export {
   LevelSchema,
   LevelStageSchema,
   MAX_VARIANTS,
+  PredictOptionSchema,
   STAR_GOAL_KINDS,
   StarGoalSchema,
   ToolboxEntrySchema,
 } from './level';
-export type { GoalSprite, Level, LevelStage, StarGoal, StarGoalKind, ToolboxEntry } from './level';
+export type {
+  GoalSprite,
+  Level,
+  LevelStage,
+  PredictOption,
+  StarGoal,
+  StarGoalKind,
+  ToolboxEntry,
+} from './level';
+
+export {
+  checkProcedures,
+  LevelProcedureSchema,
+  LevelProceduresSchema,
+  MAX_PROCEDURES,
+  PROCEDURE_ID,
+  ProcedureParamSchema,
+  procedureBox,
+  procedureBoxes,
+} from './procedures';
+export type { LevelProcedure, ProcedureParam } from './procedures';
 
 export { LessonCardSchema, LessonSchema, MASCOT_POSES, MascotPoseSchema } from './lesson';
 export type { Lesson, LessonCard, MascotPose } from './lesson';

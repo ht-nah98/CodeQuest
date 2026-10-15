@@ -106,3 +106,40 @@ export type {
   RobotBoardKit,
   RobotScenery,
 } from './robotlab';
+// Turtle ("Họa sĩ", ADR-0024): exact lattice, schema, keys and the predict-key helper.
+export {
+  drawingKey,
+  expandPath,
+  gridPoint,
+  HEADING_DEGREES,
+  HEADINGS,
+  onPaper,
+  parsePointKey,
+  parseSegmentKey,
+  pointKey,
+  segmentKey,
+  targetSegments,
+  toXY,
+  TURTLE_ANGLES,
+  TURTLE_DEFAULT_ANGLES,
+  TURTLE_FORWARD_MAX,
+  TURTLE_FORWARD_MIN,
+  TURTLE_GRIDS,
+  TURTLE_MAX_SIZE,
+  TURTLE_MIN_SIZE,
+  TURTLE_REASONS,
+  turtleAngles,
+  turtleConfigSchema,
+} from './turtle';
+export type {
+  TurtleAngle,
+  TurtleConfig,
+  TurtleEvent,
+  TurtleEventType,
+  TurtlePath,
+  TurtlePoint,
+  TurtleReason,
+  TurtleState,
+} from './turtle';
+export { turtleDrawKey } from './turtle/drawKey';
+export type { DrawKeyLevel } from './turtle/drawKey';

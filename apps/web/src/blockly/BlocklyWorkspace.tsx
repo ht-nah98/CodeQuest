@@ -15,6 +15,8 @@ import {
   analyzeWorkspace,
   CQ_START,
   type BlockSpec,
+  PROC_DEF_TYPES,
+  setWorkspaceProcedures,
   setWorkspaceVariables,
   type WorkspaceAnalysis,
 } from '@codequest/engine';
@@ -32,7 +34,7 @@ export type BlocklyLevel = Pick<
   Level,
   'id' | 'mode' | 'toolbox' | 'maxBlocks' | 'maxInstances' | 'maxLoopDepth' | 'initialWorkspace'
 > &
-  Partial<Pick<Level, 'variables'>>;
+  Partial<Pick<Level, 'variables' | 'procedures'>>;
 
 /** A snapshot of the workspace: reported after every change (debounced) or read on demand. */
 export interface WorkspaceState {
@@ -200,6 +202,17 @@ export function fitProgramWidth(workspace: WorkspaceSvg): void {
   workspace.scrollBoundsIntoView(box, FIT_PAD_PX);
 }
 
+/** Spell ids with a `dạy phép` block on the workspace (ADR-0023). */
+export function taughtSpells(workspace: WorkspaceSvg): Set<string> {
+  const ids = new Set<string>();
+  for (const block of workspace.getTopBlocks(false)) {
+    if (!PROC_DEF_TYPES.includes(block.type)) continue;
+    const id = block.getFieldValue('PROC') as unknown;
+    if (typeof id === 'string') ids.add(id);
+  }
+  return ids;
+}
+
 /** CSS class of a loose block (and the stack under it) in a parsons workspace (blockly.css). */
 export const LOOSE_BLOCK_CLASS = 'cq-loose';
 
@@ -269,15 +282,28 @@ function mountWorkspace(
     grid: { spacing: 24, length: 2, colour: UI_COLORS.brandSoft, snap: true },
     readOnly: level.mode === 'predict',
   });
-  // The level's boxes (ADR-0022): box fields here and in the flyout list them by name. `inject`
-  // already drew the flyout with placeholder labels, so it is drawn again once they are known
-  // (an empty toolbox, e.g. predict, has no flyout to redraw).
-  if (level.variables !== undefined) {
-    setWorkspaceVariables(workspace, level.variables);
-    if (toolbox.contents.length > 0 && workspace.getFlyout() !== null) {
-      workspace.updateToolbox(toolbox);
-    }
+  // The level's boxes (ADR-0022) and spells (ADR-0023): box and spell fields here and in the
+  // flyout list them by name. `inject` already drew the flyout with placeholder labels, so it is
+  // drawn again once they are known (an empty toolbox, e.g. predict, has no flyout to redraw).
+  if (level.variables !== undefined) setWorkspaceVariables(workspace, level.variables);
+  if (level.procedures !== undefined) setWorkspaceProcedures(workspace, level.procedures);
+  const hasFlyout = toolbox.contents.length > 0 && workspace.getFlyout() !== null;
+  if (hasFlyout && (level.variables !== undefined || level.procedures !== undefined)) {
+    workspace.updateToolbox(toolbox);
   }
+  // One `dạy phép` per spell (ADR-0023 §6): the flyout drops the entry of a spell already taught
+  // on the workspace, and gives it back when that block is deleted.
+  let taught = '';
+  let disposed = false;
+  const refreshTaught = () => {
+    if (disposed || !hasFlyout || level.procedures === undefined) return;
+    const ids = taughtSpells(workspace);
+    const key = [...ids].sort().join(',');
+    if (key === taught) return;
+    taught = key;
+    workspace.updateToolbox(buildToolbox(level, specs, ids));
+    fitFlyoutScale(workspace);
+  };
 
   fitFlyoutScale(workspace);
   const unforwardWheel = forwardScrollbarWheel(workspace);
@@ -319,18 +345,19 @@ function mountWorkspace(
         audio.playSfx(blocklySfx(sfxEvent(event)));
       }
       if (parsons) markLooseBlocks(workspace);
+      // Not while a block is being dragged out of the flyout: redrawing it would drop the drag.
+      if (!workspace.isDragging()) refreshTaught();
       schedule();
-    } else if (
-      event instanceof Events.BlockDrag &&
-      !event.isStart &&
+    } else if (event instanceof Events.BlockDrag && !event.isStart) {
+      // A `dạy phép` dragged out of the flyout: its entry goes once the drag is over.
+      setTimeout(refreshTaught, 0);
       // A keyboard move keeps keyboard navigation on and must keep its focus.
-      !keyboardNavigationController.getIsActive()
-    ) {
-      callbacks.current.onMouseDragEnd?.();
+      if (!keyboardNavigationController.getIsActive()) callbacks.current.onMouseDragEnd?.();
     }
   });
 
   loadInitialWorkspace(workspace, level);
+  refreshTaught();
   // Limits Blockly cannot hold by itself (§5); only where the child adds or moves blocks.
   const unguard =
     level.mode === 'predict'
@@ -375,6 +402,7 @@ function mountWorkspace(
   resizeObserver.observe(container);
 
   return () => {
+    disposed = true;
     resizeObserver.disconnect();
     unforwardWheel();
     unguard();

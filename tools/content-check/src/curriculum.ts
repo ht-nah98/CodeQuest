@@ -15,7 +15,12 @@ import { checkStory } from './story';
  * Worlds whose world.json is still a temporary stub (content-model.md §7), with the roadmap
  * task that completes them. Rules 4 and 7 only warn for them; remove the entry in that task.
  */
-export const PROVISIONAL_WORLDS: ReadonlyMap<string, string> = new Map<string, string>();
+export const PROVISIONAL_WORLDS: ReadonlyMap<string, string> = new Map<string, string>([
+  // Phase 4 (phase-4.md): removed after the coach's play test, once the world's rule 4 / 7
+  // warnings are 0 or each has a reason.
+  ['w08-xuong-phep-thuat', 'P4-15'],
+  ['w09-thap-hoa-si', 'P4-16'],
+]);
 
 /** A file under `worlds/<dir>/`; `id` and `worldId` are read loosely so broken files still count. */
 export interface WorldFile {

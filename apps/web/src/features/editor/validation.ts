@@ -72,8 +72,18 @@ function runnableLevel(json: Record<string, unknown>): Level | null {
   const predict = filled['predict'] as { options?: unknown } | undefined;
   if (Array.isArray(predict?.options)) {
     filled['predict'] = {
-      options: (predict.options as Array<{ key?: unknown; label?: unknown }>).map((option, i) => ({
-        key: typeof option.key === 'string' && option.key !== '' ? option.key : `?${String(i + 1)}`,
+      options: (
+        predict.options as Array<{ key?: unknown; label?: unknown; drawProgram?: unknown }>
+      ).map((option, i) => ({
+        // A card written as a program (turtle, ADR-0024 §5) keeps it: its key is derived.
+        ...(option.drawProgram !== undefined && option.key === undefined
+          ? { drawProgram: option.drawProgram }
+          : {
+              key:
+                typeof option.key === 'string' && option.key !== ''
+                  ? option.key
+                  : `?${String(i + 1)}`,
+            }),
         label: typeof option.label === 'string' && option.label !== '' ? option.label : PLACEHOLDER,
       })),
     };

@@ -1,0 +1,131 @@
+{
+  "id": "turtle-squares",
+  "worldId": "_sandbox",
+  "stage": "practice",
+  "kind": "turtle",
+  "mode": "build",
+  "title": "Ba hình vuông",
+  "objective": "Vẽ 3 hình vuông liền nhau nhé!",
+  "learningGoal": "Vòng trong vẽ 1 hình vuông, vòng ngoài dời sang bên.",
+  "misconception": "Vòng trong chạy 1 lần.",
+  "toolbox": [
+    {
+      "type": "turtle_forward",
+      "fields": {
+        "N": 2
+      }
+    },
+    {
+      "type": "turtle_turn_right",
+      "fields": {
+        "DEG": "90"
+      }
+    },
+    "cq_repeat"
+  ],
+  "par": 5,
+  "maxLoopDepth": 2,
+  "config": {
+    "size": {
+      "w": 8,
+      "h": 6
+    },
+    "start": {
+      "x": 1,
+      "y": 5,
+      "heading": 0
+    },
+    "target": [
+      {
+        "from": [1, 5],
+        "heading": 0,
+        "path": "F2 R90 F2 R90 F2 R90 F2"
+      },
+      {
+        "from": [3, 5],
+        "heading": 0,
+        "path": "F2 R90 F2 R90 F2 R90 F2"
+      },
+      {
+        "from": [5, 5],
+        "heading": 0,
+        "path": "F2 R90 F2 R90 F2 R90 F2"
+      }
+    ],
+    "angles": [90],
+    "grid": "square"
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "loop8",
+              "fields": {
+                "TIMES": 3
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "cq_repeat",
+                    "id": "loop6",
+                    "fields": {
+                      "TIMES": 4
+                    },
+                    "inputs": {
+                      "DO": {
+                        "block": {
+                          "type": "turtle_forward",
+                          "id": "fwd4",
+                          "fields": {
+                            "N": 2
+                          },
+                          "next": {
+                            "block": {
+                              "type": "turtle_turn_right",
+                              "id": "right5",
+                              "fields": {
+                                "DEG": "90"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "turtle_forward",
+                        "id": "fwd7",
+                        "fields": {
+                          "N": 2
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "inner",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Vẽ xong 1 hình vuông thì đi đâu?"
+    }
+  ],
+  "thinkingHint": "Vòng trong chạy hết, vòng ngoài mới đi tiếp."
+}

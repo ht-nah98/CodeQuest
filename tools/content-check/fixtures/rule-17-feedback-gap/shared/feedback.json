@@ -6,6 +6,11 @@
   "UNUSED_BLOCKS": "Còn chỗ trống, hoặc khối chưa chạy. Ghép lại nhé!",
   "WRONG_COUNT": "Đếm chưa đúng. Đếm lại nhé!",
   "BOX_FULL": "Hộp đầy rồi!",
+  "NO_SPELL": "Phép này chưa được dạy.",
+  "TWO_SPELLS": "Có 2 khối dạy phép cùng tên. Bỏ bớt 1 nhé!",
+  "EMPTY_SPELL": "Phép này chưa có khối nào bên trong.",
+  "SPELL_IN_SPELL": "Trong phép không làm phép khác nhé!",
+  "BOX_OUTSIDE_SPELL": "Hộp này chỉ dùng trong phép của nó.",
   "TIMEOUT": "Măng chóng mặt rồi, vòng lặp không dừng!",
   "INTERNAL_ERROR": "Ối, game bị vấp. Con bấm Làm lại nhé!",
   "FELL_IN_HOLE": "Ối, hố! Thử khối nhảy nhé.",
@@ -26,5 +31,8 @@
   "OUT_OF_TIME": "Hết giờ rồi! Tìm đường ngắn hơn nhé.",
   "MISSIONS_LEFT": "Còn việc chưa xong kìa!",
   "NOT_HOME": "Xong việc rồi, nhưng Bíp chưa về phòng.",
-  "LOW_SCORE": "Chưa đủ điểm. Chọn việc nhiều điểm hơn nhé!"
+  "LOW_SCORE": "Chưa đủ điểm. Chọn việc nhiều điểm hơn nhé!",
+  "EXTRA_LINE": "Nét này không có trong hình mẫu.",
+  "MISSING_LINES": "Còn nét chưa vẽ.",
+  "OFF_PAPER": "Ối, Măng vẽ ra ngoài giấy rồi!"
 }

@@ -53,6 +53,8 @@ import {
   CQ_REPEAT_VAR,
   DEFAULT_MAX_ACTIONS,
   FIELD_CQ_VAR,
+  PROC_CALL_TYPES,
+  PROC_DEF_TYPES,
   fnv1a,
   initialVars,
   isVarCall,
@@ -94,7 +96,7 @@ export const EMPTY_SLOT = -1;
 
 /** A program with atoms and sensors as indices into `FastSim.atoms` / `FastSim.conds`. */
 export type Code = readonly CodeItem[];
-export type CodeItem = number | RepeatCode | RepeatVarCode | IfCode | UntilCode;
+export type CodeItem = number | RepeatCode | RepeatVarCode | IfCode | UntilCode | CallCode;
 export interface RepeatCode {
   times: number;
   body: Code;
@@ -113,6 +115,10 @@ export interface IfCode {
 export interface UntilCode {
   until: number;
   body: Code;
+}
+/** `làm phép` (ADR-0023 §4): runs `FastSim.procCodes[call]` in place. */
+export interface CallCode {
+  call: number;
 }
 
 /** Control blocks the search builds programs from (when the toolbox offers them). */
@@ -245,16 +251,27 @@ function dropdownChoices(
 export function hasEmptySlot(code: Code): boolean {
   return code.some((item) => {
     if (typeof item === 'number') return false;
+    if ('call' in item) return false;
     if ('times' in item || 'timesVar' in item) return hasEmptySlot(item.body);
     if ('until' in item) return item.until === EMPTY_SLOT || hasEmptySlot(item.body);
     return item.cond === EMPTY_SLOT || hasEmptySlot(item.then) || hasEmptySlot(item.else ?? []);
   });
 }
 
+/** Whether compiled code calls a spell anywhere (a body must not: SPELL_IN_SPELL). */
+export function hasCall(code: Code): boolean {
+  return code.some((item) => {
+    if (typeof item === 'number') return false;
+    if ('call' in item) return true;
+    if ('then' in item) return hasCall(item.then) || hasCall(item.else ?? []);
+    return hasCall(item.body);
+  });
+}
+
 /** Whether a compiled statement is a control block (not a plain atom). */
 export function isCompound(
   item: CodeItem,
-): item is RepeatCode | RepeatVarCode | IfCode | UntilCode {
+): item is RepeatCode | RepeatVarCode | IfCode | UntilCode | CallCode {
   return typeof item !== 'number';
 }
 
@@ -282,6 +299,14 @@ export class FastSim {
   steps = 0;
   /** Passes after which a `cq_repeat_until` counts as never stopping (its questions alone time out). */
   readonly untilCap: number;
+  /** Whether the toolbox offers `làm phép` (ADR-0023). */
+  readonly offersCall: boolean;
+  /** Whether the toolbox offers `dạy phép`. */
+  readonly offersDef: boolean;
+  /** Spell ids a `CallCode` indexes (`level.procedures` order). */
+  readonly procIds: readonly string[];
+  /** Compiled body of each spell of `procIds` for the current search (`setBodies`). */
+  procCodes: Code[] = [];
 
   /** One per map: `config`, then each variant. */
   private readonly maps: MapSim[];
@@ -305,6 +330,12 @@ export class FastSim {
     this.specs = [...kind.blocks, ...VARIABLE_BLOCKS];
     this.variables = level.variables ?? [];
     this.untilCap = level.limits?.maxActions ?? DEFAULT_MAX_ACTIONS;
+    this.procIds = (level.procedures ?? []).map((procedure) => procedure.id);
+    const toolboxTypes = level.toolbox.map((entry) =>
+      typeof entry === 'string' ? entry : entry.type,
+    );
+    this.offersCall = toolboxTypes.some((type) => PROC_CALL_TYPES.includes(type));
+    this.offersDef = toolboxTypes.some((type) => PROC_DEF_TYPES.includes(type));
     this.maps = [level.config, ...(level.variants ?? [])].map(
       (config, index) =>
         new MapSim(this, { ...level, config }, kind.configSchema.parse(config), index),
@@ -325,11 +356,17 @@ export class FastSim {
     for (const [entry, inToolbox, asCondition] of entries) {
       if (
         typeof entry !== 'string' &&
-        ('repeat' in entry || 'repeatVar' in entry || 'if' in entry || 'until' in entry)
+        ('repeat' in entry ||
+          'repeatVar' in entry ||
+          'if' in entry ||
+          'until' in entry ||
+          'call' in entry)
       ) {
         continue;
       }
       const type = typeof entry === 'string' ? entry : 'type' in entry ? entry.type : entry.block;
+      // Spell blocks are the search's own (ADR-0023 §4), not atoms.
+      if (PROC_DEF_TYPES.includes(type) || PROC_CALL_TYPES.includes(type)) continue;
       const given = typeof entry === 'string' ? undefined : entry.fields;
       if (type === CQ_REPEAT_VAR) {
         // One loop per box the entry allows (its pinned VAR, or every box of the level).
@@ -550,6 +587,10 @@ export class FastSim {
         const otherwise = statement.else === undefined ? null : this.compile(statement.else);
         if (statement.else !== undefined && otherwise === null) return null;
         out.push({ cond, then: body, else: otherwise });
+      } else if ('call' in statement) {
+        const call = this.procIds.indexOf(statement.call);
+        if (call === -1) return null;
+        out.push({ call });
       } else {
         const atom = this.atomIndex(statement);
         if (atom === -1) return null;
@@ -557,6 +598,24 @@ export class FastSim {
       }
     }
     return out;
+  }
+
+  /**
+   * Sets the spell bodies calls run (ADR-0023 §4); a spell without a body runs nothing. Returns
+   * false when a body is not searchable (a block outside the toolbox, a nested call).
+   */
+  setBodies(defs: Readonly<Record<string, Program>>): boolean {
+    const codes: Code[] = [];
+    for (const id of this.procIds) {
+      const body = defs[id] ?? [];
+      const code = this.compile(body);
+      if (code === null || hasCall(code)) {
+        return false;
+      }
+      codes.push(code);
+    }
+    this.procCodes = codes;
+    return true;
   }
 
   /**
@@ -945,6 +1004,8 @@ class MapSim {
         current = this.step(current, item);
       } else if ('times' in item) {
         for (let i = 0; i < item.times && current >= 0; i++) current = this.run(current, item.body);
+      } else if ('call' in item) {
+        current = this.run(current, this.owner.procCodes[item.call] ?? []);
       } else if ('timesVar' in item) {
         // Read once, when the loop begins (ADR-0022): the body may change the box.
         const times = this.varValue(current, this.owner.variables[item.timesVar]?.id ?? '');

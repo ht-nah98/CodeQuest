@@ -8,7 +8,13 @@ import {
 } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router';
 import * as Blockly from 'blockly';
-import { examConfig, planExam, planWorkspace, robotlabResolvedSchema } from '@codequest/games';
+import {
+  examConfig,
+  getGameKind,
+  planExam,
+  planWorkspace,
+  robotlabResolvedSchema,
+} from '@codequest/games';
 import {
   type FeedbackFile,
   type Level,
@@ -25,6 +31,7 @@ import {
   type VarEvent,
 } from '@codequest/engine';
 import { DEFAULT_PAR_EDITS } from '@codequest/rewards';
+import { predictOptionKey } from '@codequest/validator';
 import {
   audio,
   feedbackVoiceId,
@@ -40,6 +47,7 @@ import {
   type WorkspaceState,
 } from '../../blockly/BlocklyWorkspace';
 import { markSense } from '../../blockly/senseMark';
+import { markSpell } from '../../blockly/spellMark';
 import { shouldHandleAppShortcut } from '../../blockly/shortcuts';
 import {
   feedbackLine,
@@ -75,6 +83,7 @@ import { parseSceneTheme } from '../../stages/sceneThemes';
 import {
   type PlayResult,
   type SenseMark,
+  type SpellEvent,
   type Speed,
   StageController,
 } from '../../stages/StageController';
@@ -114,6 +123,8 @@ declare global {
        * trailing `!` when the box went over its max (BOX_FULL).
        */
       vars: string[];
+      /** Spells started / ended during replays (ADR-0023), as `call:<id>` / `ret:<id>`. */
+      spells: string[];
       /** Mode predict: the engine's answer for the level's program. */
       answerKey?: string | undefined;
       /** `reasonCode` of the last run (null for a win), e.g. WRONG_COUNT. */
@@ -311,6 +322,14 @@ function PlaySession({
   const theme =
     (import.meta.env.DEV ? parseSceneTheme(search.get('theme')) : null) ?? sceneThemeOf(world);
   const predict = mode === 'predict' ? level.predict : undefined;
+  // Each card's outcome key: `key`, or the run of its `drawProgram` (turtle, ADR-0024 §5).
+  const predictOptions = useMemo(() => {
+    const kind = getGameKind(level.kind);
+    return (predict?.options ?? []).flatMap((option) => {
+      const key = kind === undefined ? option.key : predictOptionKey(kind, level, option);
+      return key === undefined ? [] : [{ key, label: option.label }];
+    });
+  }, [level, predict]);
   // Mock exam (P3-08): the đề on the board (`?de=` replays one) and its scoreboard. `playLevel`
   // is what runs and what the stage draws; the session, rewards and hints keep `level`.
   const exam = level.exam;
@@ -527,6 +546,30 @@ function PlaySession({
     [boxAsked],
   );
 
+  /** Cleanup of the lit `dạy phép` block while its spell runs in the replay (ADR-0023 §6). */
+  const spellRef = useRef<(() => void) | null>(null);
+  const spell = useCallback(
+    (event: SpellEvent | null) => {
+      spellRef.current?.();
+      spellRef.current = null;
+      const workspace = workspaceRef.current;
+      if (event === null || !workspace) return;
+      window.__cqPlay?.spells.push(`${event.type}:${event.id}`);
+      if (event.type === 'call') {
+        spellRef.current = markSpell(workspace, event.id);
+        const name = level.procedures?.find((procedure) => procedure.id === event.id)?.name;
+        say({ text: t.spells.casting(name ?? event.id) });
+      } else {
+        say(
+          steppingRef.current
+            ? uiLine('play.stepping', t.stepping)
+            : uiLine('play.running', t.running),
+        );
+      }
+    },
+    [level.procedures, say],
+  );
+
   const onVar = useCallback(
     (event: VarEvent) => {
       boxChanged(event);
@@ -569,6 +612,7 @@ function PlaySession({
       onHighlight: highlight,
       onSense: sense,
       onVar,
+      onSpell: spell,
       onAnimation: (animation: PandaAnimation) => {
         container.dataset.panda = animation;
       },
@@ -625,7 +669,7 @@ function PlaySession({
       stageRef.current = null;
       setStageReady(false);
     };
-  }, [level, maps, planSources, theme, highlight, sense, onVar, resetBoxes, readyLine, say]);
+  }, [level, maps, planSources, theme, highlight, sense, onVar, spell, resetBoxes, readyLine, say]);
 
   /** Puts map `map` on the stage (a fresh scene at its start) and selects its tab. */
   const showMap = useCallback(
@@ -1045,7 +1089,15 @@ function PlaySession({
         if (level.mode === 'predict' && level.initialWorkspace !== undefined) {
           answerKey = runProgram(level, level.initialWorkspace).answerKey;
         }
-        window.__cqPlay = { Blockly, workspace, highlights: [], senses: [], vars: [], answerKey };
+        window.__cqPlay = {
+          Blockly,
+          workspace,
+          highlights: [],
+          senses: [],
+          vars: [],
+          spells: [],
+          answerKey,
+        };
       }
     },
     [setWorkspaceFlush, level],
@@ -1085,7 +1137,13 @@ function PlaySession({
       setCapacity(state.remainingCapacity);
       if (mode === 'predict') return; // read-only: nothing to save or compare
       if (mode === 'bughunt' && level.initialWorkspace !== undefined) {
-        setEdits(editDistance(level.initialWorkspace, state.json));
+        setEdits(
+          editDistance(
+            level.initialWorkspace,
+            state.json,
+            level.procedures?.map((procedure) => procedure.id),
+          ),
+        );
       }
       saveDraft(state.json);
       const key = programKey(state.json);
@@ -1419,9 +1477,11 @@ function PlaySession({
                 say(
                   breach === 'instances'
                     ? uiLine('play.blockLimit.instances', t.blockLimit.instances)
-                    : depth <= 1
-                      ? uiLine('play.blockLimit.loopDepth', t.blockLimit.loopDepth)
-                      : { text: t.blockLimit.loopDepthMax(depth) },
+                    : breach === 'spellLoopDepth'
+                      ? uiLine('play.blockLimit.spellLoopDepth', t.blockLimit.spellLoopDepth)
+                      : depth <= 1
+                        ? uiLine('play.blockLimit.loopDepth', t.blockLimit.loopDepth)
+                        : { text: t.blockLimit.loopDepthMax(depth) },
                 );
               }}
               className="min-h-0 rounded-t-[15px]"
@@ -1436,7 +1496,7 @@ function PlaySession({
                 config={level.config}
                 {...(level.goalSprite !== undefined && { goalSprite: level.goalSprite })}
                 theme={theme}
-                options={predict.options}
+                options={predictOptions}
                 {...(level.variables !== undefined && { variables: level.variables })}
                 marks={allMarks}
                 disabled={
@@ -1555,6 +1615,7 @@ function PlaySession({
         <SolutionViewer
           solution={solution ?? level.solution}
           variables={level.variables}
+          procedures={level.procedures}
           onClose={playHints.closeSolution}
         />
       )}

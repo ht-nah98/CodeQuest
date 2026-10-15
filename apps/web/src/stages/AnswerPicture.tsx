@@ -18,6 +18,7 @@ import { vi } from '../i18n/vi';
 import { UI_COLORS } from '../ui/tokens';
 import { RobotAnswerPicture } from './robotlab/RobotAnswer';
 import { sceneArt } from './sceneThemes';
+import { TurtleAnswerPicture } from './turtle/TurtleAnswer';
 import {
   MAZE_CELL,
   MazeBoard,
@@ -372,6 +373,8 @@ function KindPicture({
 }) {
   // Robotlab keys have their own forms (outOfTime, score:<n>, timeout) and a resolved config.
   if (kind === 'robotlab') return <RobotAnswerPicture config={config} answerKey={answerKey} />;
+  // Turtle keys are drawings (`draw:<segments>`) or a crash point (ADR-0024 §5).
+  if (kind === 'turtle') return <TurtleAnswerPicture config={config} answerKey={answerKey} />;
   const answer = parseAnswerKey(answerKey);
   if (answer === null) return null;
   if (kind === 'runner') {

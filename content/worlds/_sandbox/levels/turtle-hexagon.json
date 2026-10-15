@@ -1,0 +1,158 @@
+{
+  "id": "turtle-hexagon",
+  "worldId": "_sandbox",
+  "stage": "practice",
+  "kind": "turtle",
+  "mode": "bughunt",
+  "title": "Lục giác bị lệch",
+  "objective": "Có 1 khối sai. Con sửa giúp Măng nhé!",
+  "learningGoal": "Lục giác rẽ 60 độ, đủ 1 vòng 360 độ.",
+  "misconception": "Rẽ theo góc trong của hình.",
+  "toolbox": [
+    {
+      "type": "turtle_forward",
+      "fields": {
+        "N": 2
+      }
+    },
+    {
+      "type": "turtle_turn_left",
+      "fields": {
+        "DEG": "60"
+      }
+    },
+    {
+      "type": "turtle_turn_left",
+      "fields": {
+        "DEG": "120"
+      }
+    },
+    "cq_repeat"
+  ],
+  "par": 3,
+  "parEdits": 1,
+  "maxLoopDepth": 1,
+  "config": {
+    "size": {
+      "w": 5,
+      "h": 5
+    },
+    "start": {
+      "x": 1,
+      "y": 1,
+      "heading": 0
+    },
+    "target": [
+      {
+        "from": [
+          1,
+          1
+        ],
+        "heading": 0,
+        "path": "F2 L60 F2 L60 F2 L60 F2 L60 F2 L60 F2"
+      }
+    ],
+    "angles": [
+      60,
+      120
+    ],
+    "grid": "tri"
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "loop1",
+              "fields": {
+                "TIMES": 6
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "turtle_forward",
+                    "id": "fwd1",
+                    "fields": {
+                      "N": 2
+                    },
+                    "next": {
+                      "block": {
+                        "type": "turtle_turn_left",
+                        "id": "turn1",
+                        "fields": {
+                          "DEG": "120"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "loop1",
+              "fields": {
+                "TIMES": 6
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "turtle_forward",
+                    "id": "fwd1",
+                    "fields": {
+                      "N": 2
+                    },
+                    "next": {
+                      "block": {
+                        "type": "turtle_turn_left",
+                        "id": "turn1",
+                        "fields": {
+                          "DEG": "60"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "turn",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Rẽ trái 60 độ: quay tại chỗ, chưa đi",
+      "point": "toolbox:turtle_turn_left"
+    }
+  ],
+  "thinkingHint": "6 lần rẽ cộng lại là 360 độ."
+}

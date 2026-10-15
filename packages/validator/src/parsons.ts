@@ -2,9 +2,11 @@
 // have exactly one way to join every given block that wins, otherwise the child can "win" without
 // the idea of the level. Enumerates every arrangement of the solution's blocks under
 // "khi bắt đầu" (every block joined, no empty loop body or if branch, every condition slot
-// filled) and runs each one with the real engine in mode `parsons`.
+// filled) and runs each one with the real engine in mode `parsons`. With spells (ADR-0023 §4)
+// the `dạy phép` blocks stay where they are and the given blocks are shared out between the main
+// program and every spell's body (none left empty), so both stacks are arranged.
 import type { Level, WorkspaceJson } from '@codequest/content-schema';
-import { COND_INPUT, runLevel } from '@codequest/engine';
+import { COND_INPUT, PROC_BODY_INPUT, PROC_DEF_TYPES, runLevel } from '@codequest/engine';
 import { getGameKind } from '@codequest/games';
 import type { GameKindLookup } from './issue';
 
@@ -73,10 +75,24 @@ function pieceOf(block: Raw): Piece {
   };
 }
 
-/** The statement and condition blocks of a solution (start block excluded). */
-function piecesOf(solution: WorkspaceJson): { statements: Piece[]; conditions: Piece[] } {
+/** A `dạy phép` block of the solution, without its body. */
+interface Spell {
+  json: Raw;
+  label: string;
+}
+
+/**
+ * The statement and condition blocks of a solution (start block excluded), the main program's
+ * first, then those of each `dạy phép` body; and the `dạy phép` blocks themselves.
+ */
+function piecesOf(solution: WorkspaceJson): {
+  statements: Piece[];
+  conditions: Piece[];
+  spells: Spell[];
+} {
   const statements: Piece[] = [];
   const conditions: Piece[] = [];
+  const spells: Spell[] = [];
   const visit = (block: Raw | undefined): void => {
     for (let current = block; current !== undefined; current = childOf(current['next'])) {
       statements.push(pieceOf(current));
@@ -91,7 +107,14 @@ function piecesOf(solution: WorkspaceJson): { statements: Piece[]; conditions: P
   };
   const [start] = solution.blocks.blocks as Raw[];
   visit(start === undefined ? undefined : childOf(start['next']));
-  return { statements, conditions };
+  for (const block of solution.blocks.blocks as Raw[]) {
+    if (!PROC_DEF_TYPES.includes(String(block['type']))) continue;
+    const { json, label } = pieceOf({ type: block['type'], fields: block['fields'] });
+    spells.push({ json, label });
+    const inputs = (block['inputs'] ?? {}) as Record<string, unknown>;
+    visit(childOf(inputs[PROC_BODY_INPUT]));
+  }
+  return { statements, conditions, spells };
 }
 
 /** Distinct orderings of a multiset (pieces with the same signature are interchangeable). */
@@ -172,8 +195,29 @@ const countConds = (nodes: Node[]): number =>
     0,
   );
 
-/** The workspace of an arrangement (conditions filled in order) and a short text for it. */
-function build(nodes: Node[], conditions: Piece[]): { workspace: WorkspaceJson; text: string } {
+/**
+ * Every way to share `pieces` out between the main program and each spell body (none empty),
+ * then arrange each part: `[main, body 1, body 2, …]`.
+ */
+function* stacks(pieces: Piece[], spellCount: number): Generator<Node[][]> {
+  if (spellCount === 0) {
+    for (const forest of forests(pieces)) yield [forest];
+    return;
+  }
+  for (const groups of splits(pieces, spellCount + 1, spellCount + 1)) {
+    yield* bodyLists(groups);
+  }
+}
+
+/**
+ * The workspace of an arrangement (conditions filled in order: main program, then each spell
+ * body) and a short text for it.
+ */
+function build(
+  nodes: Node[],
+  conditions: Piece[],
+  spells: ReadonlyArray<{ spell: Spell; body: Node[] }> = [],
+): { workspace: WorkspaceJson; text: string } {
   let n = 0;
   let c = 0;
   const chain = (list: Node[]): { block: Raw | undefined; text: string } => {
@@ -210,9 +254,18 @@ function build(nodes: Node[], conditions: Piece[]): { workspace: WorkspaceJson; 
   const body = chain(nodes);
   const start: Raw = { type: 'cq_start', id: 'start', x: 40, y: 40, deletable: false };
   if (body.block !== undefined) start['next'] = { block: body.block };
+  const tops: Raw[] = [start];
+  const texts = [body.text];
+  spells.forEach(({ spell, body: statements }, index) => {
+    const inner = chain(statements);
+    const def: Raw = { ...spell.json, id: `d${String(index + 1)}` };
+    if (inner.block !== undefined) def['inputs'] = { [PROC_BODY_INPUT]: { block: inner.block } };
+    tops.push(def);
+    texts.push(`${spell.label} [${inner.text}]`);
+  });
   return {
-    workspace: { blocks: { languageVersion: 0, blocks: [start] } } as WorkspaceJson,
-    text: body.text,
+    workspace: { blocks: { languageVersion: 0, blocks: tops } } as WorkspaceJson,
+    text: texts.join(' | '),
   };
 }
 
@@ -226,17 +279,19 @@ export function findParsonsArrangements(level: Level, options: ParsonsOptions = 
   if (level.solution === undefined) throw new Error('level has no solution');
   const maxRuns = options.maxRuns ?? DEFAULT_MAX_PARSONS_RUNS;
   const maxExamples = options.maxExamples ?? 3;
-  const { statements, conditions } = piecesOf(level.solution);
+  const { statements, conditions, spells } = piecesOf(level.solution);
   const parsons: Level = { ...level, mode: 'parsons' };
   const result: ParsonsResult = { runs: 0, wins: 0, examples: [], complete: true };
-  for (const forest of forests(statements)) {
-    if (countConds(forest) !== conditions.length) continue;
+  for (const [forest = [], ...bodies] of stacks(statements, spells.length)) {
+    const conds = countConds(forest) + bodies.reduce((sum, body) => sum + countConds(body), 0);
+    if (conds !== conditions.length) continue;
+    const spellBodies = spells.map((spell, index) => ({ spell, body: bodies[index] ?? [] }));
     for (const order of distinctOrders(conditions)) {
       if (result.runs >= maxRuns || options.shouldStop?.() === true) {
         result.complete = false;
         return result;
       }
-      const { workspace, text } = build(forest, order);
+      const { workspace, text } = build(forest, order, spellBodies);
       result.runs += 1;
       if (runLevel({ kind, level: parsons, workspace }).result === 'success') {
         result.wins += 1;

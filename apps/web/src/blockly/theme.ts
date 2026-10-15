@@ -56,8 +56,11 @@ const blockStyles: Record<string, Theme.BlockStyle> = {};
 const categoryStyles: Record<string, Theme.CategoryStyle> = {};
 for (const [category, styleName] of Object.entries(BLOCK_STYLE_BY_CATEGORY)) {
   const colour = BLOCK_COLOR_BY_CATEGORY[category as BlockCategory];
-  // `cq_start` is a cap-shaped hat block (zelos draws it rounded on top).
-  blockStyles[styleName] = blockStyle(colour, category === 'event' ? 'cap' : '');
+  // `cq_start` and `dạy phép` (ADR-0023, a program root) are cap-shaped hat blocks (zelos draws
+  // them rounded on top). Blockly draws a hat only on blocks without a previous connection, so
+  // `làm phép` in the same style keeps its notch.
+  const hat = category === 'event' || category === 'function' ? 'cap' : '';
+  blockStyles[styleName] = blockStyle(colour, hat);
   categoryStyles[`${category}_category`] = { colour };
 }
 // Blockly's built-in math blocks ask for `math_blocks`; they share the variable colour (§3).

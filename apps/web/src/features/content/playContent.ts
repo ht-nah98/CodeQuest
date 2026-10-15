@@ -1,6 +1,7 @@
 import { LevelSchema, type FeedbackFile, type Level, type World } from '@codequest/content-schema';
 import { getGameKind } from '@codequest/games';
 import { findFile, levelFiles, levelNumberOf, loadFeedback, loadWorld } from './files';
+import { withDrawKeys } from './drawKeys';
 import { isModeSupported } from './modes';
 import { withSharedRules } from './sharedRules';
 
@@ -54,7 +55,8 @@ export async function loadPlayContent(levelId: string): Promise<PlayContent | nu
   assertPlayable(written);
   // Robotlab: the shared clock, costs and points merged into every map (game-kinds.md §3.3), so
   // the run, the stage, the predict answer and its pictures all see the same resolved rules.
-  const level = await withSharedRules(written);
+  // Turtle (ADR-0024 §5): predict cards authored as programs get their keys written out.
+  const level = withDrawKeys(await withSharedRules(written));
 
   const [world, feedback] = await Promise.all([loadWorld(level.worldId), loadFeedback()]);
   return { level, world, levelNumber: levelNumberOf(level.id), feedback };
