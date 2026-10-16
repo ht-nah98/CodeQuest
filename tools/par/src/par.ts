@@ -6,6 +6,8 @@ import {
   findParsonsArrangements,
   findShortestPrograms,
   formatProgram,
+  formatProgramWithDefs,
+  type Definitions,
   type Program,
   type ShortestOptions,
   UnsearchableLevel,
@@ -112,8 +114,16 @@ export interface Verdict {
 
 const SHOWN_EXAMPLES = 3;
 
-function examples(label: string, programs: readonly Program[]): string[] {
-  return programs.slice(0, SHOWN_EXAMPLES).map((program) => `${label}: ${formatProgram(program)}`);
+function examples(
+  label: string,
+  programs: readonly Program[],
+  definitions?: readonly Definitions[],
+): string[] {
+  return programs.slice(0, SHOWN_EXAMPLES).map((program, index) => {
+    const defs = definitions?.[index];
+    const text = defs === undefined ? formatProgram(program) : formatProgramWithDefs(program, defs);
+    return `${label}: ${text}`;
+  });
 }
 
 function describeError(error: unknown): string {
@@ -129,6 +139,9 @@ function describeError(error: unknown): string {
  * kind cannot be replayed. A bughunt level fixable with fewer edits than `parEdits` is ⚠.
  * With `starGoals` (P2-21) par / parEdits count only programs that meet every goal ("min
  * (goals)"), and the head adds the cheapest plain win (" · plain win M") for the trade-off.
+ * Spells (ADR-0023 §4): the head says what par is proven for ("spells: solution bodies" or
+ * "spells: bodies ≤ k"). A level with `parUnproven` (par counted by hand) is never ✖ for want of
+ * a win, only ⚠; when the search proves its par anyway, ⚠ says the flag can go.
  */
 export function judgeLevel(level: Level, options: ShortestOptions): Verdict {
   // A multi-map level (P2-12): the search only counts programs that win every map.
@@ -138,7 +151,11 @@ export function judgeLevel(level: Level, options: ShortestOptions): Verdict {
     level.variables === undefined
       ? ''
       : `  boxes ${level.variables.map((variable) => variable.id).join(',')}`;
-  const name = `${level.id} ${level.kind}/${level.mode}${maps}${boxes}`;
+  const spells =
+    level.procedures === undefined
+      ? ''
+      : `  spells ${level.procedures.map((procedure) => procedure.id).join(',')}`;
+  const name = `${level.id} ${level.kind}/${level.mode}${maps}${boxes}${spells}`;
   if (level.mode === 'parsons') return judgeParsons(level, name, options);
   if (level.mode !== 'build' && level.mode !== 'bughunt') {
     return { mark: '–', head: `${name}  skipped (blocks are given)`, lines: [] };
@@ -156,16 +173,26 @@ export function judgeLevel(level: Level, options: ShortestOptions): Verdict {
     if (!shortest.complete) lines.push('search stopped (budget or --timeout)');
     const par = level.par === undefined ? 'no par' : `par ${String(level.par)}`;
     let head = `${name}  ${par}`;
+    if (shortest.spellMode !== undefined) {
+      head +=
+        shortest.spellMode === 'small-bodies'
+          ? `  spells: bodies ≤ ${String(shortest.procBodies)}`
+          : '  spells: solution bodies';
+    }
+    const byHand = level.parUnproven === true;
     // With star goals (P2-21) par counts only wins that meet every goal: "min (goals)".
     const goals = level.starGoals === undefined ? '' : ' (goals)';
     if (shortest.minBlocks === null) {
       head += `  no win${goals} ≤ ${String(shortest.complete ? shortest.maxSize : shortest.searchedSize)} blocks`;
       // A bughunt level is judged by its fixes; for build there must be a win within par.
-      if (level.mode === 'build') marks.push(shortest.complete && !partial ? '✖' : '⚠');
+      if (level.mode === 'build') {
+        // Even a hand-counted par needs a win: a complete search without one contradicts it.
+        marks.push(shortest.complete && !partial ? '✖' : '⚠');
+      }
     } else {
       const count = `${shortest.complete ? '' : '≥'}${String(shortest.count)}`;
       head += `  min${goals} ${String(shortest.minBlocks)} (${count} shortest)`;
-      lines.push(...examples('shortest', shortest.examples));
+      lines.push(...examples('shortest', shortest.examples, shortest.definitions));
       if (level.mode === 'build' && level.par !== undefined && shortest.minBlocks < level.par) {
         marks.push('✖');
         lines.push(
@@ -173,6 +200,19 @@ export function judgeLevel(level: Level, options: ShortestOptions): Verdict {
         );
       }
       if (level.mode === 'build' && level.par === undefined) marks.push('⚠');
+    }
+    if (byHand) {
+      marks.push('⚠');
+      const proven =
+        shortest.complete &&
+        !partial &&
+        shortest.minBlocks !== null &&
+        shortest.minBlocks === level.par;
+      lines.push(
+        proven
+          ? 'parUnproven can be dropped: the search proves par'
+          : 'par counted by hand (parUnproven)',
+      );
     }
     if (level.starGoals !== undefined) {
       // The trade-off the child sees: the cheapest plain win (⭐ only) next to par.
@@ -201,7 +241,7 @@ export function judgeLevel(level: Level, options: ShortestOptions): Verdict {
       } else {
         const count = `${fixes.complete ? '' : '≥'}${String(fixes.count)}`;
         head += `  parEdits ${String(parEdits)}  fix${goals} ${String(fixes.minEdits)} (${count} fixes)`;
-        lines.push(...examples('fix', fixes.examples));
+        lines.push(...examples('fix', fixes.examples, fixes.definitions));
         if (fixes.minEdits < parEdits) {
           marks.push('⚠');
           lines.push(`fixable with ${String(fixes.minEdits)} edits < parEdits ${String(parEdits)}`);

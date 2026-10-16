@@ -4,10 +4,12 @@ import {
   fieldRegistry,
   registry,
   type FieldDropdownFromJsonConfig,
+  type Block,
   type MenuOption,
   type Workspace,
 } from 'blockly';
-import { VARIABLE_ID, type LevelVariable } from '@codequest/content-schema';
+import { procedureBox, VARIABLE_ID, type LevelVariable } from '@codequest/content-schema';
+import { workspaceProceduresOf } from './procedureField';
 
 /** Blockly JSON field type of the box dropdown (ADR-0022 §2). */
 export const FIELD_CQ_VAR = 'field_cq_var';
@@ -58,11 +60,18 @@ export class FieldCqVar extends FieldDropdown {
     return new this(typeof value === 'string' ? value : undefined);
   }
 
-  /** `[[name, id], …]` of the declared boxes, or a single placeholder option. */
+  /**
+   * `[[name, id], …]` of the declared boxes, or a single placeholder option. Inside the body of
+   * `dạy phép X với hộp` the box of X comes first (ADR-0023 §2); read again each time the menu
+   * opens, from the block's root at that moment.
+   */
   private variableOptions(): MenuOption[] {
     const block = this.getSourceBlock();
-    const variables = block === null ? undefined : workspaceVariablesOf(block.workspace);
-    if (variables !== undefined && variables.length > 0) {
+    const variables = [
+      ...(block === null ? [] : spellBoxesAround(block)),
+      ...((block === null ? undefined : workspaceVariablesOf(block.workspace)) ?? []),
+    ];
+    if (variables.length > 0) {
       return variables.map((variable): MenuOption => [variable.name, variable.id]);
     }
     const value = this.getValue();
@@ -101,6 +110,18 @@ export class FieldCqVar extends FieldDropdown {
   override getText(): string {
     return this.getText_() ?? '';
   }
+}
+
+/** Root type of `dạy phép … với hộp` (kept here so the field does not import the blocks). */
+const PROC_DEF_N = 'cq_proc_def_n';
+
+/** The box of the spell whose `dạy phép … với hộp` body holds `block`, if any. */
+function spellBoxesAround(block: Block): LevelVariable[] {
+  const root = block.getRootBlock();
+  if (root.type !== PROC_DEF_N) return [];
+  const id = root.getFieldValue('PROC') as unknown;
+  const spell = workspaceProceduresOf(block.workspace)?.find((candidate) => candidate.id === id);
+  return spell?.param === undefined ? [] : [procedureBox(spell.param)];
 }
 
 /** Registers `field_cq_var` with Blockly once (again after a hot reload replaced the class). */

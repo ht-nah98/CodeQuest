@@ -16,12 +16,19 @@
  * a top-level `cq_repeat_until` that asks ✔ at once everywhere (it does nothing), a top-level
  * `cq_repeat_var` whose box is 0 on every map still running (likewise), a branch or
  * loop body that is empty. Deterministic for the same level and options.
+ *
+ * Spells (ADR-0023 §4): on a level whose toolbox offers `làm phép`, the bodies are fixed (mode 1:
+ * the solution's; mode 2, `procBodies` k: every body of ≤ k blocks too). For each set S of
+ * spells, the main program is searched with `làm phép p ∈ S` as one more statement (it runs the
+ * body in place) and a constant size `Σ (1 + |body p|)`; `par` is the minimum over every S.
  */
-import type { Level } from '@codequest/content-schema';
+import { variableMax, type Level } from '@codequest/content-schema';
 import {
   analyzeWorkspace,
   CQ_IF,
   CQ_IF_ELSE,
+  CQ_PROC_CALL,
+  CQ_PROC_CALL_N,
   CQ_REPEAT,
   CQ_REPEAT_UNTIL,
   CQ_REPEAT_VAR,
@@ -40,7 +47,18 @@ import {
   type SearchOptions,
 } from './budget';
 import { InstanceLimits, type Usage } from './limits';
-import { formatProgram, programToWorkspace, type Program, type Statement } from './program';
+import {
+  definitionsFromWorkspace,
+  formatProgram,
+  formatProgramWithDefs,
+  programBlockTypes,
+  programLoopDepth,
+  programSize,
+  programToWorkspace,
+  type Definitions,
+  type Program,
+  type Statement,
+} from './program';
 import { FastSim, LOSS, WIN, type CodeItem } from './sim';
 
 export interface ShortestOptions extends SearchOptions {
@@ -51,7 +69,15 @@ export interface ShortestOptions extends SearchOptions {
    * Past it the search stops like a spent budget.
    */
   maxCatalogEntries?: number;
+  /**
+   * Spells, mode 2 (ADR-0023 §4): also try every spell body of ≤ k blocks (k ≤ 4, levels with
+   * ≤ 2 spells). Default off: the solution's bodies only (mode 1).
+   */
+  procBodies?: number;
 }
+
+/** How a level with spells was searched (ADR-0023 §4). */
+export type SpellSearchMode = 'solution-bodies' | 'small-bodies';
 
 export interface ShortestResult {
   /** Fewest blocks of a winning program, or null when none was found. */
@@ -74,6 +100,12 @@ export interface ShortestResult {
   mismatches: string[];
   /** Toolbox entries the search could not use, with the reason. */
   unsupported: string[];
+  /** Levels with spells only: the spell bodies of each example, in `examples` order. */
+  definitions?: Definitions[];
+  /** Levels with spells only: what `minBlocks` is proven for. */
+  spellMode?: SpellSearchMode;
+  /** With `spellMode` 'small-bodies': the k of `procBodies`. */
+  procBodies?: number;
 }
 
 /** A statement of the inner catalog with its outcome memoized per start state. */
@@ -128,6 +160,8 @@ class ShortestSearch {
     times: readonly number[],
     readonly limits: InstanceLimits,
     private readonly maxCatalogEntries = MAX_CATALOG_ENTRIES,
+    /** Spells callable in this search, with the loop depth of their bodies. */
+    private readonly calls: readonly SpellCall[] = [],
   ) {
     this.times = [...new Set(times)]
       .filter((t) => Number.isInteger(t) && t > 0)
@@ -204,6 +238,8 @@ class ShortestSearch {
           usage: limits.of(atom.statement.block),
         });
       });
+      // `làm phép` only where its body's loops still fit (effective loop depth).
+      for (const call of this.calls) if (call.depth <= depth) out.push(this.callEntry(call));
     } else {
       if (depth > 0 && this.loops) {
         for (const body of this.sequence(depth - 1, size - 1)) {
@@ -246,6 +282,25 @@ class ShortestSearch {
     }
     this.catalogs.set(key, out);
     return out;
+  }
+
+  private readonly callEntries = new Map<string, Entry>();
+
+  /** The one catalog entry of a `làm phép` (memoized like any compound block). */
+  callEntry(call: SpellCall): Entry {
+    const key = `${String(call.index)}:${String(call.arg)}`;
+    const known = this.callEntries.get(key);
+    if (known !== undefined) return known;
+    const { arg } = call;
+    const entry: Entry = {
+      size: 1,
+      statement: arg === undefined ? { call: call.id } : { call: call.id, arg },
+      code: arg === undefined ? { call: call.index } : { call: call.index, arg },
+      memo: null,
+      usage: this.limits.of(arg === undefined ? CQ_PROC_CALL : CQ_PROC_CALL_N),
+    };
+    this.callEntries.set(key, entry);
+    return entry;
   }
 
   /** The `cq_repeat_until`, `cq_if` and `cq_if_else` statements of `catalog(depth, size)`. */
@@ -383,6 +438,13 @@ class ShortestSearch {
         if (usage === null) return;
         emit(() => atom.statement, sim.step(state, index), usage);
       });
+      for (const call of this.calls) {
+        if (call.depth > this.maxDepth) continue;
+        const entry = this.callEntry(call);
+        const usage = limits.add(used, entry.usage);
+        if (usage === null) continue;
+        emit(() => entry.statement, this.apply(entry, state), usage);
+      }
       return;
     }
     if (this.loops) this.repeats(state, size, used, emit);
@@ -515,29 +577,45 @@ class ShortestSearch {
 }
 
 /**
- * Finds the fewest blocks that win `level` with its toolbox (modes build, parsons, bughunt),
- * how many programs of that size win, and a few examples verified with `runLevel`. On a level
- * with `starGoals` a win must also meet every goal, unless `options.ignoreStarGoals`.
- * Throws for modes without a program (predict, creative) and unknown kinds.
+ * A `làm phép` callable in one search: the spell id, its index in `FastSim.procIds`, its body's
+ * loop depth and, for `làm phép … với`, the number.
  */
-export function findShortestPrograms(
-  original: Level,
-  options: ShortestOptions = {},
-): ShortestResult {
-  const level = searchedLevel(original, options);
-  const kind = searchableKind(level, options);
-  const sim = new FastSim(kind, level);
-  const budget = new Budget(options);
+interface SpellCall {
+  id: string;
+  index: number;
+  depth: number;
+  arg?: number;
+}
+
+/** What one search of the main program found (sizes count the main program only). */
+interface MainResult {
+  minBlocks: number | null;
+  count: number;
+  examples: Program[];
+  complete: boolean;
+  searchedSize: number;
+}
+
+/** The layered shortest-path search of the main program, up to `maxSize` blocks. */
+function searchMain(
+  level: Level,
+  sim: FastSim,
+  budget: Budget,
+  options: ShortestOptions,
+  maxSize: number,
+  calls: readonly SpellCall[],
+): MainResult {
   const maxExamples = options.maxExamples ?? DEFAULT_MAX_EXAMPLES;
-  const maxSize = Math.min(
-    options.maxSize ?? level.par ?? level.maxBlocks ?? DEFAULT_MAX_SIZE,
-    level.maxBlocks ?? Infinity,
-  );
   const maxDepth = Math.min(
     options.maxDepth ?? DEFAULT_MAX_DEPTH,
     level.maxLoopDepth ?? Number.POSITIVE_INFINITY,
   );
-  const limits = new InstanceLimits(level.maxInstances, searchedTypes(sim));
+  const relevant = searchedTypes(sim);
+  if (calls.length > 0) {
+    relevant.add(CQ_PROC_CALL);
+    relevant.add(CQ_PROC_CALL_N);
+  }
+  const limits = new InstanceLimits(level.maxInstances, relevant);
   const search = new ShortestSearch(
     sim,
     budget,
@@ -545,6 +623,7 @@ export function findShortestPrograms(
     options.repeatTimes ?? DEFAULT_REPEAT_TIMES,
     limits,
     options.maxCatalogEntries,
+    calls,
   );
   // Search nodes: a state and the maxInstances usage of the program that reached it.
   const radix = limits.radix;
@@ -612,31 +691,370 @@ export function findShortestPrograms(
     complete = false;
   }
 
-  registerBlockSpecs(kind.blocks);
-  const mismatches: string[] = [];
-  for (const program of examples) {
-    const workspace = programToWorkspace(program);
-    const outcome = runLevel({ kind, level, workspace });
-    const blocks = analyzeWorkspace(workspace).blocksUsed;
-    if (!countedWin(outcome) || blocks !== minBlocks) {
-      const missed = outcome.result === 'success' && !countedWin(outcome) ? ' misses a goal' : '';
-      mismatches.push(
-        `${formatProgram(program)}: runLevel ${outcome.result} ${outcome.reasonCode ?? ''}${missed}, ${String(blocks)} blocks`.trim(),
-      );
-    }
+  return { minBlocks, count, examples, complete, searchedSize };
+}
+
+/** `MainResult` of a level with spells: sizes count the spells, examples have bodies. */
+interface SpellResult extends MainResult {
+  definitions: Definitions[] | undefined;
+  unsupported?: string[];
+}
+
+/** Most spells mode 2 enumerates bodies for (ADR-0023 §4). */
+const MAX_ENUMERATED_SPELLS = 2;
+/** Largest `procBodies` k. */
+export const MAX_PROC_BODIES = 4;
+
+/**
+ * Mode 1 (and 2) of ADR-0023 §4: every set S of spells with fixed bodies, the main program
+ * searched with `làm phép p ∈ S`, sizes `main + Σ_{p∈S} (1 + |body p|)`, the minimum over S.
+ * Each spell is called at least twice at the minimum (once: its body inlined is 2 blocks smaller),
+ * so a set with `Σ(1 + |body|) + 2·|S|` over the best size so far is skipped. Larger sets go first.
+ */
+function searchWithSpells(
+  level: Level,
+  sim: FastSim,
+  budget: Budget,
+  options: ShortestOptions,
+  maxSize: number,
+): SpellResult {
+  const maxExamples = options.maxExamples ?? DEFAULT_MAX_EXAMPLES;
+  const maxDepth = Math.min(
+    options.maxDepth ?? DEFAULT_MAX_DEPTH,
+    level.maxLoopDepth ?? Number.POSITIVE_INFINITY,
+  );
+  const unsupported: string[] = [];
+  const boxed = boxedSpells(level);
+  const choices = callChoices(level);
+  const fromSolution = level.solution === undefined ? {} : definitionsFromWorkspace(level.solution);
+  if (fromSolution === null) {
+    unsupported.push('solution: a spell body cannot be read (searched without its bodies)');
+  }
+  const k = options.procBodies;
+  if (k !== undefined && (k < 1 || k > MAX_PROC_BODIES)) {
+    throw new Error(`procBodies must be 1–${String(MAX_PROC_BODIES)}, got ${String(k)}`);
   }
 
+  let best = null as number | null;
+  let count = 0;
+  let examples: Program[] = [];
+  let definitions: Definitions[] = [];
+  let complete = true;
+  let searchedSize = maxSize;
+  const tried = new Set<string>();
+
+  /**
+   * One set of spells with fixed bodies (`chosen`: spell id → index into its candidates).
+   * Throws `SearchAborted` once a search runs out of budget: nothing after it is proven.
+   */
+  const runSet = (chosen: ReadonlyMap<string, number>, bodies: ReadonlyMap<string, Program[]>) => {
+    budget.spend();
+    const ids = [...chosen.keys()];
+    const key = ids.map((id) => `${id}:${String(chosen.get(id))}`).join(';');
+    if (tried.has(key)) return;
+    tried.add(key);
+    const defs: Record<string, Program> = {};
+    for (const id of ids) defs[id] = bodies.get(id)?.[chosen.get(id) ?? 0] ?? [];
+    const offset = ids.reduce((sum, id) => sum + 1 + programSize(defs[id] ?? []), 0);
+    const limit = Math.min(maxSize, best ?? Number.POSITIVE_INFINITY);
+    if (offset + 2 * ids.length > limit || limit - offset < 1) return;
+    if (ids.some((id) => programLoopDepth(defs[id] ?? []) > maxDepth)) return;
+    // The bodies are counted once: what they use comes off every maxInstances cap.
+    const used = programBlockTypes([], new Map(), defs, boxed);
+    let maxInstances = level.maxInstances;
+    if (maxInstances !== undefined) {
+      const left: Record<string, number> = {};
+      for (const [type, max] of Object.entries(maxInstances)) {
+        left[type] = max - (used.get(type) ?? 0);
+      }
+      if (Object.values(left).some((max) => max < 0)) return;
+      maxInstances = left;
+    }
+    if (!sim.setBodies(defs)) {
+      unsupported.push(`spell bodies ${formatProgramWithDefs([], defs)}: not searchable`);
+      return;
+    }
+    const calls = choices
+      .filter((choice) => ids.includes(choice.id))
+      .map((choice) => ({
+        ...choice,
+        index: sim.procIds.indexOf(choice.id),
+        depth: programLoopDepth(defs[choice.id] ?? []),
+      }));
+    const searched: Level = {
+      ...level,
+      ...(level.maxBlocks !== undefined && { maxBlocks: level.maxBlocks - offset }),
+      ...(maxInstances !== undefined && { maxInstances }),
+    };
+    const found = searchMain(searched, sim, budget, options, limit - offset, calls);
+    if (!found.complete) {
+      complete = false;
+      searchedSize = Math.min(searchedSize, offset + found.searchedSize);
+    }
+    if (found.minBlocks !== null) {
+      const total = found.minBlocks + offset;
+      if (best === null || total < best) {
+        best = total;
+        count = 0;
+        examples = [];
+        definitions = [];
+      }
+      if (total === best) {
+        count += found.count;
+        for (const example of found.examples) {
+          if (examples.length >= maxExamples) break;
+          examples.push(example);
+          definitions.push(defs);
+        }
+      }
+    }
+    if (!found.complete) throw new SearchAborted('budget spent in a spell search');
+  };
+
+  /** Every subset of the chosen spells, larger sets first (the solution's set first of all). */
+  const subsets = (chosen: ReadonlyMap<string, number>): Array<Map<string, number>> => {
+    const ids = [...chosen.keys()];
+    const masks = Array.from({ length: 2 ** ids.length }, (_, mask) => mask);
+    const size = (mask: number): number => ids.filter((_, i) => (mask & (1 << i)) !== 0).length;
+    masks.sort((a, b) => size(b) - size(a) || b - a);
+    return masks.map(
+      (mask) =>
+        new Map(
+          ids
+            .filter((_, i) => (mask & (1 << i)) !== 0)
+            .map((id): [string, number] => [id, chosen.get(id) ?? 0]),
+        ),
+    );
+  };
+
+  try {
+    // Candidate bodies per spell: the solution's first, then (mode 2) every body of ≤ k blocks.
+    const bodies = new Map<string, Program[]>();
+    for (const id of sim.procIds) {
+      const own = fromSolution?.[id];
+      bodies.set(id, own !== undefined && own.length > 0 ? [own] : []);
+    }
+    if (k !== undefined) {
+      if (sim.procIds.length > MAX_ENUMERATED_SPELLS) {
+        unsupported.push(
+          `spell bodies ≤ ${String(k)}: only for levels with ≤ ${String(MAX_ENUMERATED_SPELLS)} spells (solution bodies used)`,
+        );
+      } else {
+        const times = options.repeatTimes ?? DEFAULT_REPEAT_TIMES;
+        sim.procIds.forEach((id, index) => {
+          const box = sim.procBoxes[index] ?? -1;
+          const small = enumerateBodies(sim, k, maxDepth, times, budget, box);
+          bodies.set(id, [...(bodies.get(id) ?? []), ...small]);
+        });
+      }
+    }
+    // Tuples of one candidate body per spell (or none), the solution's bodies first.
+    const tuple = (index: number, chosen: Map<string, number>): void => {
+      const id = sim.procIds[index];
+      if (id === undefined) {
+        for (const set of subsets(chosen)) runSet(set, bodies);
+        return;
+      }
+      const candidates = bodies.get(id)?.length ?? 0;
+      if (candidates === 0) tuple(index + 1, chosen);
+      for (let body = 0; body < candidates; body++) {
+        tuple(index + 1, new Map([...chosen, [id, body]]));
+      }
+    };
+    tuple(0, new Map());
+  } catch (error) {
+    if (!(error instanceof SearchAborted)) throw error;
+    complete = false;
+  }
   return {
-    minBlocks,
+    minBlocks: best,
     count,
     examples,
     complete,
-    searchedSize,
+    // Complete: every size up to the minimum (or the limit) was tried for every set.
+    searchedSize: complete ? (best ?? maxSize) : Math.min(searchedSize, best ?? searchedSize),
+    definitions,
+    unsupported,
+  };
+}
+
+/** Spells whose `dạy phép` block is `dạy phép … với hộp` (they have a `param`). */
+export function boxedSpells(level: Level): Set<string> {
+  return new Set(
+    (level.procedures ?? []).flatMap((procedure) =>
+      procedure.param === undefined ? [] : [procedure.id],
+    ),
+  );
+}
+
+/** Most numbers tried for an unpinned `làm phép … với [n]` (like a `field_number`). */
+const MAX_CALL_NUMBERS = 9;
+
+/**
+ * The `làm phép` statements the toolbox offers (ADR-0023 §4): `cq_proc_call` for each spell
+ * without a box, `cq_proc_call_n` with each pinned number (unpinned: 1…max, at most 9) for each
+ * spell with one; a pinned `PROC` keeps its spell only.
+ */
+export function callChoices(level: Level): Array<{ id: string; arg?: number }> {
+  const out: Array<{ id: string; arg?: number }> = [];
+  const seen = new Set<string>();
+  const add = (id: string, arg?: number): void => {
+    const key = `${id}:${String(arg)}`;
+    if (seen.has(key)) return;
+    seen.add(key);
+    out.push(arg === undefined ? { id } : { id, arg });
+  };
+  for (const entry of level.toolbox) {
+    const type = typeof entry === 'string' ? entry : entry.type;
+    const fields = typeof entry === 'string' ? {} : (entry.fields ?? {});
+    const pinned = fields['PROC'];
+    for (const procedure of level.procedures ?? []) {
+      if (typeof pinned === 'string' && pinned !== procedure.id) continue;
+      if (type === CQ_PROC_CALL && procedure.param === undefined) add(procedure.id);
+      if (type !== CQ_PROC_CALL_N || procedure.param === undefined) continue;
+      const number = Number(fields['NUM']);
+      if (fields['NUM'] !== undefined && Number.isInteger(number)) {
+        add(procedure.id, number);
+        continue;
+      }
+      const top = Math.min(variableMax(procedure.param), MAX_CALL_NUMBERS);
+      for (let n = 1; n <= top; n++) add(procedure.id, n);
+    }
+  }
+  return out;
+}
+
+/**
+ * Every spell body of 1…`maxSize` blocks (mode 2, ADR-0023 §4): toolbox statements, and the
+ * toolbox's `cq_repeat` (each count), `cq_repeat_until`, `cq_if`, `cq_if_else` with its sensors,
+ * loops nested at most `maxDepth` deep, and `lặp [hộp] lần` over the spell's own box. Calls are
+ * never in a body.
+ */
+function enumerateBodies(
+  sim: FastSim,
+  maxSize: number,
+  maxDepth: number,
+  times: readonly number[],
+  budget: Budget,
+  /** Index in `sim.variables` of the spell's own box (-1: none), for `lặp [hộp] lần`. */
+  box: number,
+): Program[] {
+  const memo = new Map<string, Program[]>();
+  const boxId = sim.variables[box]?.id;
+  const statements = (size: number, depth: number): Statement[] => {
+    const out: Statement[] = [];
+    if (size === 1) for (const atom of sim.atoms) out.push(atom.statement);
+    if (size >= 2 && depth > 0 && sim.hasRepeat) {
+      for (const body of sequences(size - 1, depth - 1)) {
+        for (const count of times) out.push({ repeat: count, body });
+      }
+    }
+    if (size >= 2 && depth > 0 && boxId !== undefined && sim.controls.has(CQ_REPEAT_VAR)) {
+      for (const body of sequences(size - 1, depth - 1)) out.push({ repeatVar: boxId, body });
+    }
+    if (size >= 3) {
+      for (const cond of sim.conds) {
+        if (depth > 0 && sim.controls.has(CQ_REPEAT_UNTIL)) {
+          for (const body of sequences(size - 2, depth - 1)) {
+            out.push({ until: cond.condition, body });
+          }
+        }
+        if (sim.controls.has(CQ_IF)) {
+          for (const body of sequences(size - 2, depth))
+            out.push({ if: cond.condition, then: body });
+        }
+        if (sim.controls.has(CQ_IF_ELSE)) {
+          for (let thenSize = 0; thenSize <= size - 2; thenSize++) {
+            for (const then of sequences(thenSize, depth)) {
+              for (const otherwise of sequences(size - 2 - thenSize, depth)) {
+                if (then.length + otherwise.length === 0) continue;
+                out.push({ if: cond.condition, then, else: otherwise });
+              }
+            }
+          }
+        }
+      }
+    }
+    return out;
+  };
+  const sequences = (size: number, depth: number): Program[] => {
+    if (size === 0) return [[]];
+    const key = `${String(size)}:${String(depth)}`;
+    const known = memo.get(key);
+    if (known !== undefined) return known;
+    const out: Program[] = [];
+    for (let first = 1; first <= size; first++) {
+      for (const head of statements(first, depth)) {
+        for (const rest of sequences(size - first, depth)) {
+          budget.spend();
+          out.push([head, ...rest]);
+        }
+      }
+    }
+    memo.set(key, out);
+    return out;
+  };
+  const out: Program[] = [];
+  for (let size = 1; size <= maxSize; size++) out.push(...sequences(size, maxDepth));
+  return out;
+}
+
+/**
+ * Finds the fewest blocks that win `level` with its toolbox (modes build, parsons, bughunt),
+ * how many programs of that size win, and a few examples verified with `runLevel`. On a level
+ * with `starGoals` a win must also meet every goal, unless `options.ignoreStarGoals`. On a level
+ * with spells, the sizes count the `dạy phép` blocks and bodies too (ADR-0023 §4).
+ * Throws for modes without a program (predict, creative) and unknown kinds.
+ */
+export function findShortestPrograms(
+  original: Level,
+  options: ShortestOptions = {},
+): ShortestResult {
+  const level = searchedLevel(original, options);
+  const kind = searchableKind(level, options);
+  const sim = new FastSim(kind, level);
+  const budget = new Budget(options);
+  const maxSize = Math.min(
+    options.maxSize ?? level.par ?? level.maxBlocks ?? DEFAULT_MAX_SIZE,
+    level.maxBlocks ?? Infinity,
+  );
+  const spells = sim.offersCall && sim.procIds.length > 0;
+  const found: SpellResult = spells
+    ? searchWithSpells(level, sim, budget, options, maxSize)
+    : { ...searchMain(level, sim, budget, options, maxSize, []), definitions: undefined };
+
+  registerBlockSpecs(kind.blocks);
+  const mismatches: string[] = [];
+  found.examples.forEach((program, index) => {
+    const defs = found.definitions?.[index] ?? {};
+    const workspace = programToWorkspace(program, defs, boxedSpells(level));
+    const outcome = runLevel({ kind, level, workspace });
+    const blocks = analyzeWorkspace(workspace).blocksUsed;
+    if (!countedWin(outcome) || blocks !== found.minBlocks) {
+      const missed = outcome.result === 'success' && !countedWin(outcome) ? ' misses a goal' : '';
+      const text = spells ? formatProgramWithDefs(program, defs) : formatProgram(program);
+      mismatches.push(
+        `${text}: runLevel ${outcome.result} ${outcome.reasonCode ?? ''}${missed}, ${String(blocks)} blocks`.trim(),
+      );
+    }
+  });
+
+  return {
+    minBlocks: found.minBlocks,
+    count: found.count,
+    examples: found.examples,
+    complete: found.complete,
+    searchedSize: found.searchedSize,
     maxSize,
     work: budget.work,
     states: sim.stateCount,
     mismatches,
-    unsupported: sim.unsupported,
+    unsupported: [...sim.unsupported, ...(spells ? (found.unsupported ?? []) : [])],
+    ...(spells && {
+      definitions: found.definitions ?? [],
+      spellMode: options.procBodies === undefined ? 'solution-bodies' : 'small-bodies',
+      ...(options.procBodies !== undefined && { procBodies: options.procBodies }),
+    }),
   };
 }
 

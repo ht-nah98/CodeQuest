@@ -48,8 +48,10 @@ export function spellsNeeded(level: Level, options: ShortestOptions = {}): Spell
     ...options,
     ...(maxSize !== undefined && { maxSize }),
   });
-  const verdict =
-    result.minBlocks !== null ? 'wins' : result.complete ? 'proven' : 'unproven';
+  // Proven only by a complete search of every toolbox block that agrees with runLevel.
+  const sound =
+    result.complete && result.unsupported.length === 0 && result.mismatches.length === 0;
+  const verdict = result.minBlocks !== null ? 'wins' : sound ? 'proven' : 'unproven';
   return {
     verdict,
     win: result.examples[0] ?? null,

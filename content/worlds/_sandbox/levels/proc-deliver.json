@@ -1,0 +1,182 @@
+{
+  "id": "proc-deliver",
+  "worldId": "_sandbox",
+  "stage": "practice",
+  "mode": "build",
+  "kind": "robotlab",
+  "title": "Phép giao rào",
+  "objective": "Dạy Bíp phép giao rào, rồi làm phép 3 lần!",
+  "learningGoal": "Gói gắp, quay đầu, tiến, thả thành một phép, làm ở 3 chỗ rào.",
+  "misconception": "Mỗi rào cần viết lại đủ các khối.",
+  "procedures": [
+    {
+      "id": "deliver",
+      "name": "giao rào"
+    }
+  ],
+  "toolbox": [
+    "robot_forward",
+    "robot_turn_left",
+    "robot_turn_right",
+    "robot_grab",
+    "robot_release",
+    "cq_proc_def",
+    "cq_proc_call"
+  ],
+  "par": 14,
+  "maxBlocks": 14,
+  "maxInstances": {
+    "robot_release": 1,
+    "cq_proc_def": 1
+  },
+  "config": {
+    "map": ["#######", "L.Z.###", "##Z.Z.#", "##.####", "#######"],
+    "startDir": "E",
+    "blocks": [
+      {
+        "kind": "fence",
+        "at": [1, 3]
+      },
+      {
+        "kind": "fence",
+        "at": [3, 2]
+      },
+      {
+        "kind": "fence",
+        "at": [2, 5]
+      }
+    ],
+    "goal": {
+      "type": "missions"
+    }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "next": {
+            "block": {
+              "type": "robot_forward",
+              "id": "b1",
+              "fields": {
+                "N": 3
+              },
+              "next": {
+                "block": {
+                  "type": "cq_proc_call",
+                  "id": "b2",
+                  "fields": {
+                    "PROC": "deliver"
+                  },
+                  "next": {
+                    "block": {
+                      "type": "robot_turn_left",
+                      "id": "b3",
+                      "next": {
+                        "block": {
+                          "type": "robot_forward",
+                          "id": "b4",
+                          "fields": {
+                            "N": 2
+                          },
+                          "next": {
+                            "block": {
+                              "type": "cq_proc_call",
+                              "id": "b5",
+                              "fields": {
+                                "PROC": "deliver"
+                              },
+                              "next": {
+                                "block": {
+                                  "type": "robot_turn_right",
+                                  "id": "b6",
+                                  "next": {
+                                    "block": {
+                                      "type": "robot_forward",
+                                      "id": "b7",
+                                      "fields": {
+                                        "N": 3
+                                      },
+                                      "next": {
+                                        "block": {
+                                          "type": "cq_proc_call",
+                                          "id": "b8",
+                                          "fields": {
+                                            "PROC": "deliver"
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "cq_proc_def",
+          "id": "b9",
+          "fields": {
+            "PROC": "deliver"
+          },
+          "inputs": {
+            "BODY": {
+              "block": {
+                "type": "robot_grab",
+                "id": "b10",
+                "next": {
+                  "block": {
+                    "type": "robot_turn_right",
+                    "id": "b11",
+                    "next": {
+                      "block": {
+                        "type": "robot_turn_right",
+                        "id": "b12",
+                        "next": {
+                          "block": {
+                            "type": "robot_forward",
+                            "id": "b13",
+                            "fields": {
+                              "N": 1
+                            },
+                            "next": {
+                              "block": {
+                                "type": "robot_release",
+                                "id": "b14"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "cap",
+      "when": {
+        "capacityFull": true
+      },
+      "say": "Đoạn nào lặp lại? Dạy thành phép nhé!",
+      "point": "toolbox:cq_proc_def"
+    }
+  ]
+}

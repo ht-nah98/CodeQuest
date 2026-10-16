@@ -1,6 +1,7 @@
 import {
   Field,
   FieldDropdown,
+  FieldLabel,
   fieldRegistry,
   registry,
   type FieldDropdownFromJsonConfig,
@@ -101,12 +102,51 @@ export class FieldCqProc extends FieldDropdown {
   }
 }
 
-/** Registers `field_cq_proc` with Blockly once (again after a hot reload replaced the class). */
-export function registerProcedureField(): void {
-  const known = registry.hasItem(registry.Type.FIELD, FIELD_CQ_PROC)
-    ? registry.getClass(registry.Type.FIELD, FIELD_CQ_PROC, false)
+/** Blockly JSON field type of the box name on `dạy phép … với hộp [số bậc]` (ADR-0023 §2). */
+export const FIELD_CQ_PROC_BOX = 'field_cq_proc_box';
+
+/**
+ * The name of the box of the spell its block's `PROC` field names (`param.name`), read from the
+ * workspace's spells each time it is drawn: the child cannot change it, and it is not saved.
+ */
+export class FieldCqProcBox extends FieldLabel {
+  override SERIALIZABLE = false;
+
+  constructor() {
+    super(PLACEHOLDER_BOX);
+  }
+
+  static override fromJson(): FieldCqProcBox {
+    return new this();
+  }
+
+  protected override getText_(): string | null {
+    const block = this.getSourceBlock();
+    if (block === null) return PLACEHOLDER_BOX;
+    const id = block.getFieldValue('PROC') as unknown;
+    const spell = workspaceProceduresOf(block.workspace)?.find((candidate) => candidate.id === id);
+    return spell?.param?.name ?? PLACEHOLDER_BOX;
+  }
+
+  override getText(): string {
+    return this.getText_() ?? PLACEHOLDER_BOX;
+  }
+}
+
+/** Label of a spell box whose spell (or level) is unknown. */
+const PLACEHOLDER_BOX = 'hộp';
+
+function registerField(type: string, field: unknown): void {
+  const known = registry.hasItem(registry.Type.FIELD, type)
+    ? registry.getClass(registry.Type.FIELD, type, false)
     : null;
-  if (known === (FieldCqProc as unknown)) return;
-  if (known !== null) fieldRegistry.unregister(FIELD_CQ_PROC);
-  fieldRegistry.register(FIELD_CQ_PROC, FieldCqProc);
+  if (known === field) return;
+  if (known !== null) fieldRegistry.unregister(type);
+  fieldRegistry.register(type, field as typeof FieldCqProc);
+}
+
+/** Registers `field_cq_proc` and `field_cq_proc_box` once (again after a hot reload). */
+export function registerProcedureField(): void {
+  registerField(FIELD_CQ_PROC, FieldCqProc);
+  registerField(FIELD_CQ_PROC_BOX, FieldCqProcBox);
 }

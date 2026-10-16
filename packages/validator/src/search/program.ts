@@ -4,7 +4,10 @@ import {
   CQ_IF,
   CQ_IF_ELSE,
   CQ_PROC_CALL,
+  CQ_PROC_CALL_N,
   CQ_PROC_DEF,
+  CQ_PROC_DEF_N,
+  PROC_DEF_TYPES,
   CQ_REPEAT,
   CQ_REPEAT_UNTIL,
   CQ_REPEAT_VAR,
@@ -43,6 +46,7 @@ export type Program = readonly Statement[];
 export type Definitions = Readonly<Record<string, Program>>;
 
 const NO_DEFS: Definitions = {};
+const NO_BOXES: ReadonlySet<string> = new Set();
 
 type JsonRecord = Record<string, unknown>;
 
@@ -69,17 +73,21 @@ export function programSize(program: Program, defs: Definitions = NO_DEFS): numb
   return size;
 }
 
-/** Blocks of each type a program uses (what `maxInstances` limits), spells included. */
+/**
+ * Blocks of each type a program uses (what `maxInstances` limits), spells included: the spells
+ * of `boxed` (those with a `param`) are taught with `cq_proc_def_n`.
+ */
 export function programBlockTypes(
   program: Program,
   out = new Map<string, number>(),
   defs: Definitions = NO_DEFS,
+  boxed: ReadonlySet<string> = NO_BOXES,
 ): Map<string, number> {
   const add = (type: string): void => {
     out.set(type, (out.get(type) ?? 0) + 1);
   };
-  for (const body of Object.values(defs)) {
-    add(CQ_PROC_DEF);
+  for (const [spell, body] of Object.entries(defs)) {
+    add(boxed.has(spell) ? CQ_PROC_DEF_N : CQ_PROC_DEF);
     programBlockTypes(body, out);
   }
   for (const statement of program) {
@@ -98,7 +106,8 @@ export function programBlockTypes(
       add(CQ_REPEAT_UNTIL);
       if (statement.until !== null) add(statement.until.block);
       programBlockTypes(statement.body, out);
-    } else if ('call' in statement) add(CQ_PROC_CALL);
+    } else if ('call' in statement)
+      add(statement.arg === undefined ? CQ_PROC_CALL : CQ_PROC_CALL_N);
     else add(statement.block);
   }
   return out;
@@ -136,9 +145,13 @@ function stackDepth(program: Program, defs: Definitions): number {
 
 /**
  * Workspace JSON with `cq_start` and the program under it, then one `dạy phép` block per spell
- * of `defs` (in key order); block ids are `b1`, `b2`…
+ * of `defs` (in key order; spells of `boxed` as `dạy phép … với hộp`); block ids are `b1`, `b2`…
  */
-export function programToWorkspace(program: Program, defs: Definitions = NO_DEFS): WorkspaceJson {
+export function programToWorkspace(
+  program: Program,
+  defs: Definitions = NO_DEFS,
+  boxed: ReadonlySet<string> = NO_BOXES,
+): WorkspaceJson {
   let next = 0;
   const id = (): string => {
     next++;
@@ -174,7 +187,14 @@ export function programToWorkspace(program: Program, defs: Definitions = NO_DEFS
         if (otherwise !== undefined) inputs['ELSE'] = { block: otherwise };
         if (Object.keys(inputs).length > 0) block['inputs'] = inputs;
       } else if ('call' in statement) {
-        block = { type: CQ_PROC_CALL, id: id(), fields: { PROC: statement.call } };
+        block =
+          statement.arg === undefined
+            ? { type: CQ_PROC_CALL, id: id(), fields: { PROC: statement.call } }
+            : {
+                type: CQ_PROC_CALL_N,
+                id: id(),
+                fields: { PROC: statement.call, NUM: statement.arg },
+              };
       } else {
         block = { type: statement.block, id: id() };
         if (statement.fields !== undefined) block['fields'] = { ...statement.fields };
@@ -189,7 +209,8 @@ export function programToWorkspace(program: Program, defs: Definitions = NO_DEFS
   const start: JsonRecord = { type: CQ_START, id: 'start' };
   if (body !== undefined) start['next'] = { block: body };
   const spells = Object.entries(defs).map(([spell, statements]): JsonRecord => {
-    const def: JsonRecord = { type: CQ_PROC_DEF, id: id(), fields: { PROC: spell } };
+    const type = boxed.has(spell) ? CQ_PROC_DEF_N : CQ_PROC_DEF;
+    const def: JsonRecord = { type, id: id(), fields: { PROC: spell } };
     const inner = chain(statements);
     if (inner !== undefined) def['inputs'] = { [PROC_BODY_INPUT]: { block: inner } };
     return def;
@@ -239,10 +260,15 @@ export function programFromWorkspace(workspace: WorkspaceJson): Program | null {
       const fields = isRecord(block['fields']) ? block['fields'] : undefined;
       const inputs = isRecord(block['inputs']) ? block['inputs'] : {};
       const allowed = CONTROL_INPUTS[type];
-      if (type === CQ_PROC_CALL) {
+      if (type === CQ_PROC_CALL || type === CQ_PROC_CALL_N) {
         const spell = fields?.['PROC'];
         if (typeof spell !== 'string' || Object.keys(inputs).length > 0) return null;
-        out.push({ call: spell });
+        if (type === CQ_PROC_CALL) out.push({ call: spell });
+        else {
+          const arg = Number(fields?.['NUM']);
+          if (!Number.isInteger(arg) || arg < 0) return null;
+          out.push({ call: spell, arg });
+        }
         continue;
       }
       if (allowed === undefined) {
@@ -290,7 +316,7 @@ export function programFromWorkspace(workspace: WorkspaceJson): Program | null {
 export function definitionsFromWorkspace(workspace: WorkspaceJson): Definitions | null {
   const defs: Record<string, Program> = {};
   for (const block of workspace.blocks.blocks) {
-    if (block.type !== CQ_PROC_DEF) continue;
+    if (!PROC_DEF_TYPES.includes(block.type)) continue;
     const fields = isRecord(block['fields']) ? block['fields'] : {};
     const spell = fields['PROC'];
     if (typeof spell !== 'string' || spell in defs) return null;

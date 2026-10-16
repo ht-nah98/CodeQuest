@@ -101,7 +101,7 @@ Thế giới 8 "🪄 Xưởng Phép Thuật" dạy **hàm** (thủ tục không 
 **Chế độ 2 · liệt kê thân nhỏ (`--proc-bodies k`, mặc định tắt; k ≤ 4, ≤ 2 phép).**
 - Liệt kê mọi thân cỡ ≤ k từ khối lệnh của thanh khối, kể cả `lặp`, `nếu` nếu thanh khối có, trong giới hạn độ sâu hiệu dụng.
 - Mỗi bộ thân chạy chế độ 1.
-- Cắt tỉa bằng cận dưới: một phép chỉ có ích khi được gọi ≥ 2 lần. Bộ thân nào có `Σ(1 + |thân|) + 2·|S| ≥ B` thì bỏ.
+- Cắt tỉa bằng cận dưới: một phép chỉ có ích khi được gọi ≥ 2 lần. Bộ thân nào có `Σ(1 + |thân|) + 2·|S| > B` thì bỏ (`>` để còn đếm các cách bằng B).
 - Chứng minh `par` cho mọi chương trình có thân ≤ k. Hết ngân sách → ⚠.
 
 **Chế độ 3 · `par` tính tay.**
@@ -169,6 +169,17 @@ Heap lớn nhất 287 MB (chế độ 2 `l06`); mọi lượt chế độ 1 và 
 - **k mặc định của chế độ 2: tắt.** `--proc-bodies 3` dùng được cho màn maze ≤ 1 phép (≤ 20 s); không dùng k = 4 cho màn có `lặp [N]` hay cho robotlab (hết ngân sách). Khi chế độ 2 tìm ra `par` nhỏ hơn chế độ 1, người soạn sửa lời giải (thân ngắn hơn) hoặc sửa bản đồ.
 - **Ngưỡng `parUnproven`:** chỉ đặt khi **chế độ 1** không xong trong 120 s / 300 M work (`--timeout 120`). Chế độ 2 hết ngân sách thì không đặt cờ; `npm run par` vẫn in "✔ par (thân phép theo lời giải)" như mặc định.
 - **Cách ép R5 khuyên dùng:** `maxInstances` trên một khối hành động của thân (trần = số khối đó trong thân + số khối đó chương trình chính cần), cộng `maxBlocks` = `par`. Chỉ dùng `maxBlocks` một mình khi R5 chạy xong và không thắng (`l08` cho thấy có thể sai).
+
+## Thực hiện (P4-03, vét cạn có phép)
+- `Statement { call; arg? }`, kiểu `Definitions` (thân theo id phép). `programToWorkspace(main, defs)`, `programSize` / `programBlockTypes` / `programLoopDepth` nhận `defs`; `definitionsFromWorkspace`; `formatProgramWithDefs` in `cast stair, forward | stair = [forward, turn_left]`.
+- `FastSim`: `CallCode`, `setBodies(defs)`; khối `cq_proc_*` của thanh khối không phải atom (không bị báo "not searched").
+- `findShortestPrograms`: màn có phép và thanh khối có `làm phép` → chế độ 1 (mặc định) hoặc 2 (`procBodies`, `npm run par -- --proc-bodies k`). Kết quả có `spellMode`, `definitions` (thân của từng ví dụ). Màn không phép đi đúng đường cũ.
+- `findFixes`: token của khối `dạy phép` đứng sau chương trình chính, theo thứ tự `level.procedures`, thân của nó có input riêng `BODY` (như `editDistance`); sửa được trong thân, đổi phép của `làm phép`, dạy phép còn thiếu. Lời gọi không hợp lệ (chưa dạy, thân trống, gọi trong thân) không bao giờ là cách sửa. Trần `maxInstances` của `cq_proc_*` được tính. Màn `bughunt` có hai khối `dạy phép` cùng tên trong `initialWorkspace` thì không vét cạn được (⚠ "unsearchable").
+- `findParsonsArrangements`: khối `dạy phép` giữ chỗ; các khối cho sẵn chia cho chương trình chính và từng thân (không thân nào trống).
+- `npm run par`: đầu dòng ghi `spells …` và `spells: solution bodies` / `spells: bodies ≤ k`; màn có `parUnproven` là ⚠ ("par counted by hand (parUnproven)", hoặc "parUnproven can be dropped: the search proves par"); riêng khi vét cạn xong mà không có cách thắng nào ≤ `par` thì vẫn ✖ (mâu thuẫn với `par`).
+- Chế độ 2 tiêu 1 đơn vị ngân sách mỗi bộ thân và dừng hẳn khi một lượt tìm hết ngân sách (không chạy tiếp các bộ sau).
+- R5: `spellsNeeded(level, options)` / `withoutProcedures(level)` của `@codequest/validator` (ngân sách mặc định 300 M work; người gọi truyền `shouldStop` cho 120 s).
+- Test tái lập số spike: `packages/validator/src/search/spells.test.ts` (cùng bản đồ, `spellLevels.ts`): `l03` 10 / 2 cách, chế độ 2 k = 3 → 9; `l11` 9 / 1; `l06` 14 / 1; `l08` với `maze_forward: 3` 10 / 40; R5 khớp cả 4 màn. **Khớp đúng số của spike.**
 
 ## Hệ quả
 - Kiểu game không cần sửa gì (`maze`, `robotlab`, sau này `turtle`). W1–W7: màn không có `procedures` → `npm run par` cho ra kết quả như cũ (điều kiện nghiệm thu, đo theo `phase-4.md` P4-03).

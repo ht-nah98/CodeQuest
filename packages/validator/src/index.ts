@@ -32,12 +32,7 @@ export {
 export type { ShortestOptions, ShortestResult, SpellSearchMode } from './search/shortest';
 export { MAX_KEPT_FIXES, findFixes } from './search/fixes';
 // Spells (ADR-0023 §4): authoring rule R5 as a test helper.
-export {
-  R5_MAX_WORK,
-  R5_TIMEOUT_MS,
-  spellsNeeded,
-  withoutProcedures,
-} from './search/spellsNeeded';
+export { R5_MAX_WORK, R5_TIMEOUT_MS, spellsNeeded, withoutProcedures } from './search/spellsNeeded';
 export type { SpellsNeededResult } from './search/spellsNeeded';
 export type { FixOptions, FixResult } from './search/fixes';
 export { DEFAULT_MAX_WORK, WORKER_MAX_WORK } from './search/budget';

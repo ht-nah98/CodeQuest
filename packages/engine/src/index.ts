@@ -69,7 +69,9 @@ export type { VarCallResult, VarOp, VarValues } from './run/variables';
 // Spells ("phép thuật", ADR-0023): blocks, the spell dropdown and the effective loop depth.
 export {
   CQ_PROC_CALL,
+  CQ_PROC_CALL_N,
   CQ_PROC_DEF,
+  CQ_PROC_DEF_N,
   PROC_API_NAMES,
   PROC_BODY_INPUT,
   PROC_CALL_FN,
@@ -80,7 +82,9 @@ export {
 } from './blocks/procedures';
 export {
   FIELD_CQ_PROC,
+  FIELD_CQ_PROC_BOX,
   FieldCqProc,
+  FieldCqProcBox,
   NO_PROCEDURE,
   registerProcedureField,
   setWorkspaceProcedures,

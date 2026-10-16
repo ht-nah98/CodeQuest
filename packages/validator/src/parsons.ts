@@ -283,6 +283,11 @@ export function findParsonsArrangements(level: Level, options: ParsonsOptions = 
   const parsons: Level = { ...level, mode: 'parsons' };
   const result: ParsonsResult = { runs: 0, wins: 0, examples: [], complete: true };
   for (const [forest = [], ...bodies] of stacks(statements, spells.length)) {
+    // Splitting the blocks between stacks can take long before a run: check the limits here too.
+    if (result.runs >= maxRuns || options.shouldStop?.() === true) {
+      result.complete = false;
+      return result;
+    }
     const conds = countConds(forest) + bodies.reduce((sum, body) => sum + countConds(body), 0);
     if (conds !== conditions.length) continue;
     const spellBodies = spells.map((spell, index) => ({ spell, body: bodies[index] ?? [] }));

@@ -1,6 +1,6 @@
 // Spells ("phép thuật", ADR-0023 §1–§3): compile, run, events, reasons, effective loop depth,
 // block counts, bughunt edits and the tier-2 next step, on the fake `line` kind.
-import { Events, Options, Workspace, serialization } from 'blockly';
+import { Events, FieldDropdown, Options, Workspace, serialization } from 'blockly';
 import type { Level, LevelProcedure, WorkspaceJson } from '@codequest/content-schema';
 import { describe, expect, it } from 'vitest';
 import {
@@ -311,5 +311,115 @@ describe('field_cq_proc', () => {
     expect(taught.previousConnection).toBeNull();
     expect(taught.nextConnection).toBeNull();
     ws.dispose();
+  });
+});
+
+describe('spells with a box (ADR-0023 §2)', () => {
+  const STAIRS: LevelProcedure[] = [
+    { id: 'stairs', name: 'cầu thang', param: { id: 'steps', name: 'số bậc', max: 4 } },
+  ];
+  const callN = (id: string, n: number): object => ({
+    type: 'cq_proc_call_n',
+    id,
+    fields: { PROC: 'stairs', NUM: n },
+  });
+  const loopBox = (id: string, body: object[]): object => ({
+    type: 'cq_repeat_var',
+    id,
+    fields: { VAR: 'steps' },
+    inputs: { DO: { block: chain(body) } },
+  });
+  const stairs = {
+    type: 'cq_proc_def_n',
+    id: 'defn',
+    fields: { PROC: 'stairs' },
+    inputs: { BODY: { block: loopBox('rv', [step('s')]) } },
+  };
+  const boxed = (workspace: WorkspaceJson, overrides: Partial<Level> = {}) =>
+    run(workspace, { procedures: STAIRS, config: { length: 10, goal: 4 }, ...overrides });
+
+  it('call with 1 then 3 walks 1 then 3, and the box is back to 0 after each', () => {
+    const outcome = boxed(program([callN('c1', 1), callN('c2', 3)], [stairs]));
+    expect(outcome.result).toBe('success');
+    expect(outcome.vars).toEqual({ steps: 0 });
+    const trace = outcome.events
+      .filter((event) => ['call', 'ret', 'var', 'step'].includes(event.type))
+      .map((event) =>
+        event.type === 'var' ? `var ${String((event as { value: number }).value)}` : event.type,
+      );
+    expect(trace).toEqual([
+      'call',
+      'var 1',
+      'step',
+      'var 0',
+      'ret',
+      'call',
+      'var 3',
+      'step',
+      'step',
+      'step',
+      'var 0',
+      'ret',
+    ]);
+  });
+
+  it('a number over the box’s max is BOX_FULL', () => {
+    expect(boxed(program([callN('c1', 5)], [stairs]))).toMatchObject({
+      result: 'crash',
+      reasonCode: 'BOX_FULL',
+    });
+  });
+
+  it('the spell’s box outside its body is BOX_OUTSIDE_SPELL, before any event', () => {
+    const outside = program([callN('c1', 1), loopBox('rv2', [step('x')])], [stairs]);
+    expect(boxed(outside)).toMatchObject({
+      result: 'error',
+      reasonCode: 'BOX_OUTSIDE_SPELL',
+      events: [],
+    });
+    const otherSpell = program(
+      [call('c1')],
+      [stairs, def('def1', 'hop', [loopBox('rv3', [step('y')])])],
+    );
+    const both = [...STAIRS, { id: 'hop', name: 'nhảy cóc' }];
+    expect(boxed(otherSpell, { procedures: both }).reasonCode).toBe('BOX_OUTSIDE_SPELL');
+  });
+
+  it('the box dropdown shows the spell’s box only inside its body', () => {
+    registerBlockSpecs(lineBlocks);
+    const ws = new Workspace(new Options({}));
+    setWorkspaceProcedures(ws, STAIRS);
+    Events.disable();
+    try {
+      serialization.workspaces.load(program([loopBox('out', [step('o')])], [stairs]), ws, {
+        recordUndo: false,
+      });
+    } finally {
+      Events.enable();
+    }
+    const options = (id: string): unknown =>
+      (ws.getBlockById(id)?.getField('VAR') as FieldDropdown | null)?.getOptions(false);
+    expect(options('rv')).toEqual([['số bậc', 'steps']]);
+    expect(options('out')).toEqual([['steps', 'steps']]);
+    expect(ws.getBlockById('defn')?.getField('BOX')?.getText()).toBe('số bậc');
+    ws.dispose();
+  });
+
+  it('labels and tooltips of the box blocks are the curriculum’s', () => {
+    registerBlockSpecs([]);
+    const ws = new Workspace(new Options({}));
+    expect(ws.newBlock('cq_proc_def_n').getTooltip()).toBe(
+      'Dạy phép với hộp: làm phép thì hộp nhận số',
+    );
+    expect(ws.newBlock('cq_proc_call_n').getTooltip()).toBe(
+      'Làm phép với số: hộp của phép nhận số này',
+    );
+    ws.dispose();
+  });
+
+  it('a level with only spell boxes keeps predict keys without a box suffix', () => {
+    const workspace = program([callN('c1', 2)], [stairs]);
+    const outcome = boxed(workspace, { mode: 'predict', initialWorkspace: workspace });
+    expect(outcome.answerKey).toBe('NOT_AT_GOAL@2');
   });
 });

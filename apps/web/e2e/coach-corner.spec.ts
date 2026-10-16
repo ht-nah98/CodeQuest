@@ -278,6 +278,9 @@ test('shows a child of this laptop, its level detail, and unlocks a world for it
   await page.goto('/coach');
   await page.locator('[data-testid="coach-row"][data-child="Na"]').getByRole('button').click();
   await page.getByTestId(`relock-${W02}`).click();
+  // Wait for the relock to be saved before leaving the page.
+  await expect(page.getByTestId(`detail-world-${W02}`)).not.toContainText('Đã mở tay');
+  await expect(page.getByTestId(`relock-${W02}`)).toHaveCount(0);
   await page.goto(`/w/${W02}`);
   await expect(page.getByText('Thế giới này chưa mở. Qua thế giới trước nhé!')).toBeVisible({
     timeout: 15_000,

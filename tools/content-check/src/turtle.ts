@@ -256,3 +256,146 @@ export function checkTurtleLevel(path: string, level: Level): Issue[] {
 export function turtleLevelWarnings(path: string, level: Level): Issue[] {
   return rule26(path, level).warnings;
 }
+
+// ---- Authoring rule T1 (content-authoring.md §2.3, ADR-0024): stray-line traps -----------------
+
+/**
+ * A program written short, as in curriculum.md §6.4: `F<n>` tiến, `R<d>` / `L<d>` rẽ, `U` nhấc
+ * bút, `D` hạ bút, `REP<n>[ … ]` lặp, `P` làm phép (the level's first spell, whose body is
+ * `spell`).
+ */
+export interface ShortProgram {
+  main: string;
+  spell?: string;
+}
+
+/**
+ * T1: every turtle `build` / `bughunt` level of a world declares at least one likely wrong program
+ * that draws a stray line before it is done (`EXTRA_LINE`), so the stop-at-once rule is felt.
+ * Declared here, by level id; `turtleT1Warnings` checks them and the W9 tests run them.
+ */
+export const TURTLE_T1: ReadonlyMap<string, readonly ShortProgram[]> = new Map(
+  Object.entries({
+    'w09-l01': [{ main: 'F6' }],
+    'w09-l03': [{ main: 'REP2[F1 R90 F3 R90]' }],
+    'w09-l05': [{ main: 'REP3[F1 R90 F1 L90]' }],
+    'w09-l06': [{ main: 'REP6[F2 R120]' }],
+    'w09-l07': [{ main: 'REP4[F2 R90] L60 F2 R90 F2' }],
+    'w09-l08': [{ main: 'REP3[F1 F1]' }],
+    'w09-l10': [{ main: 'REP3[REP4[F2 R90 F2]]' }],
+    'w09-l12': [{ main: 'REP3[REP3[F1 L120] F2 D]' }],
+    'w09-l13': [{ main: 'REP6[REP4[F2 R90 R60]]' }],
+    'w09-l15': [{ main: 'REP4[REP2[F1 U F1 D R90]]' }],
+    'w09-l16': [{ main: 'REP3[P R60] R90 F3 P', spell: 'REP2[F2 R60 F2 R120]' }],
+    'w09-l17': [{ main: 'REP3[F2 REP2[L60 F1 R120 F1] L60 F2 L60]' }],
+    'w09-l18': [{ main: 'REP3[REP4[F1 L90] F1 L90 F1]' }],
+    'w09-boss': [{ main: 'REP6[F1 F1 REP3[F1 L120] R180 F2 R120]' }],
+  }),
+);
+
+type ShortBlock = Record<string, unknown>;
+
+/** Serialized blocks of a short program; `spellId` names the spell `P` calls. */
+function shortBlocks(source: string, spellId: string): ShortBlock[] {
+  const tokens = source.match(/REP\d+\[|\]|[FRL]\d+|[UDP]/g) ?? [];
+  let at = 0;
+  let next = 0;
+  const id = (prefix: string): string => `${prefix}${String(++next)}`;
+  const sequence = (): ShortBlock[] => {
+    const blocks: ShortBlock[] = [];
+    while (at < tokens.length && tokens[at] !== ']') {
+      const token = tokens[at++] ?? '';
+      const n = Number(token.replace(/\D/g, ''));
+      if (token.startsWith('REP')) {
+        const body = sequence();
+        at++; // ']'
+        const first = chained(body);
+        blocks.push({
+          type: 'cq_repeat',
+          id: id('loop'),
+          fields: { TIMES: n },
+          ...(first !== undefined && { inputs: { DO: { block: first } } }),
+        });
+      } else if (token.startsWith('F')) {
+        blocks.push({ type: 'turtle_forward', id: id('f'), fields: { N: n } });
+      } else if (token.startsWith('R') || token.startsWith('L')) {
+        const type = token.startsWith('R') ? 'turtle_turn_right' : 'turtle_turn_left';
+        blocks.push({ type, id: id('t'), fields: { DEG: String(n) } });
+      } else if (token === 'P') {
+        blocks.push({ type: 'cq_proc_call', id: id('call'), fields: { PROC: spellId } });
+      } else {
+        blocks.push({ type: token === 'U' ? 'turtle_pen_up' : 'turtle_pen_down', id: id('p') });
+      }
+    }
+    return blocks;
+  };
+  return sequence();
+}
+
+/** Blocks chained through `next`; undefined for none. */
+function chained(blocks: readonly ShortBlock[]): ShortBlock | undefined {
+  let first: ShortBlock | undefined;
+  for (const block of [...blocks].reverse()) {
+    first = first === undefined ? block : { ...block, next: { block: first } };
+  }
+  return first;
+}
+
+/** The workspace of a short program on `level` (its first spell, if `program.spell`). */
+export function shortProgramWorkspace(level: Level, program: ShortProgram): WorkspaceJson {
+  const spellId = level.procedures?.[0]?.id ?? 'spell';
+  const main = chained(shortBlocks(program.main, spellId));
+  const start = {
+    type: 'cq_start',
+    id: 'start',
+    ...(main !== undefined && { next: { block: main } }),
+  };
+  const blocks: ShortBlock[] = [start];
+  if (program.spell !== undefined) {
+    const body = chained(
+      shortBlocks(program.spell, spellId).map((block) => ({
+        ...block,
+        id: `s${String(block['id'])}`,
+      })),
+    );
+    blocks.push({
+      type: 'cq_proc_def',
+      id: 'def',
+      fields: { PROC: spellId },
+      ...(body !== undefined && { inputs: { BODY: { block: body } } }),
+    });
+  }
+  return { blocks: { languageVersion: 0, blocks: blocks as WorkspaceJson['blocks']['blocks'] } };
+}
+
+const T1_MODES: ReadonlySet<string> = new Set(['build', 'bughunt']);
+
+/**
+ * T1 warnings (rule 24, never errors) of one schema-valid level in a world (not a draft): a
+ * turtle build / bughunt level needs a `TURTLE_T1` entry, and each of its programs must stop on
+ * a stray line (`EXTRA_LINE`).
+ */
+export function turtleT1Warnings(path: string, level: Level): Issue[] {
+  if (level.kind !== 'turtle' || !T1_MODES.has(level.mode) || level.retired === true) return [];
+  const kind = getGameKind('turtle');
+  const programs = TURTLE_T1.get(level.id);
+  const warn = (message: string): Issue => ({ path, rule: 24, message: `(T1) ${message}` });
+  if (kind === undefined) return [];
+  if (programs === undefined || programs.length === 0) {
+    return [warn('declare a likely wrong program that draws a stray line (TURTLE_T1)')];
+  }
+  return programs.flatMap((program) => {
+    const outcome = runLevel({
+      kind,
+      level: { ...level, mode: 'build' },
+      workspace: shortProgramWorkspace(level, program),
+    });
+    return outcome.reasonCode === 'EXTRA_LINE'
+      ? []
+      : [
+          warn(
+            `"${program.main}" ends ${outcome.result} ${outcome.reasonCode ?? ''}, not EXTRA_LINE`,
+          ),
+        ];
+  });
+}

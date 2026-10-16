@@ -42,7 +42,13 @@
  * - the state is plain data (objects, arrays, Set, Map, primitives) that `structuredClone`
  *   copies and `stateKey` compares.
  */
-import type { Level, LevelVariable, ToolboxEntry } from '@codequest/content-schema';
+import {
+  procedureBoxes,
+  variableMax,
+  type Level,
+  type LevelVariable,
+  type ToolboxEntry,
+} from '@codequest/content-schema';
 import {
   applyVarCall,
   COND_INPUT,
@@ -116,9 +122,13 @@ export interface UntilCode {
   until: number;
   body: Code;
 }
-/** `làm phép` (ADR-0023 §4): runs `FastSim.procCodes[call]` in place. */
+/**
+ * `làm phép` (ADR-0023 §4): runs `FastSim.procCodes[call]` in place; `arg` is the number of
+ * `làm phép … với`, put in the spell's box for the body (§2).
+ */
 export interface CallCode {
   call: number;
+  arg?: number;
 }
 
 /** Control blocks the search builds programs from (when the toolbox offers them). */
@@ -305,6 +315,10 @@ export class FastSim {
   readonly offersDef: boolean;
   /** Spell ids a `CallCode` indexes (`level.procedures` order). */
   readonly procIds: readonly string[];
+  /** Index in `variables` of each spell's box (-1: no box), in `procIds` order. */
+  readonly procBoxes: readonly number[];
+  /** `level.variables` only: the boxes the main program's blocks may name. */
+  readonly levelVariables: readonly LevelVariable[];
   /** Compiled body of each spell of `procIds` for the current search (`setBodies`). */
   procCodes: Code[] = [];
 
@@ -328,9 +342,14 @@ export class FastSim {
     this.kind = kind;
     this.level = level;
     this.specs = [...kind.blocks, ...VARIABLE_BLOCKS];
-    this.variables = level.variables ?? [];
+    // A spell's box (ADR-0023 §2) is a box too, after the level's own.
+    this.variables = [...(level.variables ?? []), ...procedureBoxes(level.procedures)];
+    this.levelVariables = level.variables ?? [];
     this.untilCap = level.limits?.maxActions ?? DEFAULT_MAX_ACTIONS;
     this.procIds = (level.procedures ?? []).map((procedure) => procedure.id);
+    this.procBoxes = (level.procedures ?? []).map((procedure) =>
+      this.variables.findIndex((variable) => variable.id === procedure.param?.id),
+    );
     const toolboxTypes = level.toolbox.map((entry) =>
       typeof entry === 'string' ? entry : entry.type,
     );
@@ -371,7 +390,7 @@ export class FastSim {
       if (type === CQ_REPEAT_VAR) {
         // One loop per box the entry allows (its pinned VAR, or every box of the level).
         if (!inToolbox) continue;
-        for (const fields of dropdownChoices(this.specs, this.variables, type, given)) {
+        for (const fields of dropdownChoices(this.specs, this.levelVariables, type, given)) {
           const index = this.variables.findIndex((variable) => variable.id === fields?.['VAR']);
           if (index !== -1) repeatVars.add(index);
         }
@@ -393,7 +412,7 @@ export class FastSim {
         this.unsupported.push(`${type}: ${reason}`);
         continue;
       }
-      for (const fields of dropdownChoices(this.specs, this.variables, type, given)) {
+      for (const fields of dropdownChoices(this.specs, this.levelVariables, type, given)) {
         const statement = fields === undefined ? { block: type } : { block: type, fields };
         const key = stateKey(statement);
         if (seen.has(key)) continue;
@@ -431,7 +450,7 @@ export class FastSim {
       this.unsupported.push(`${type}: ${why}`);
       return;
     }
-    for (const fields of dropdownChoices(this.specs, this.variables, type, given)) {
+    for (const fields of dropdownChoices(this.specs, this.levelVariables, type, given)) {
       const condition = fields === undefined ? { block: type } : { block: type, fields };
       if (this.condIndex(condition) !== -1) continue;
       const box = this.undeclaredBox(type, fields);
@@ -590,7 +609,7 @@ export class FastSim {
       } else if ('call' in statement) {
         const call = this.procIds.indexOf(statement.call);
         if (call === -1) return null;
-        out.push({ call });
+        out.push(statement.arg === undefined ? { call } : { call, arg: statement.arg });
       } else {
         const atom = this.atomIndex(statement);
         if (atom === -1) return null;
@@ -718,12 +737,12 @@ export class FastSim {
 
   /** The search state of a map: the kind's state, wrapped with the boxes on a level with them. */
   wrap(game: unknown, vars: VarValues): unknown {
-    return this.level.variables === undefined ? game : ({ game, vars } satisfies Boxed);
+    return this.variables.length === 0 ? game : ({ game, vars } satisfies Boxed);
   }
 
   /** The kind's state and the boxes of a search state (the one place that reads the wrapping). */
   unwrap(state: unknown): Boxed {
-    return this.level.variables === undefined ? { game: state, vars: {} } : (state as Boxed);
+    return this.variables.length === 0 ? { game: state, vars: {} } : (state as Boxed);
   }
 
   /** Runs atom `atom`'s calls from a state of one map (used by `MapSim`). */
@@ -738,7 +757,7 @@ export class FastSim {
       for (const call of calls) {
         if (isVarCall(call.name)) {
           // The engine's own box rules (an unknown box throws: INTERNAL_ERROR, a loss here).
-          const applied = applyVarCall(vars, this.level.variables, call.name, call.args);
+          const applied = applyVarCall(vars, this.variables, call.name, call.args);
           if (applied.overflow === true) return LOSS_STATE;
           vars = applied.vars;
           continue;
@@ -771,7 +790,7 @@ export class FastSim {
     if (call.name === VAR_CMP_FN) {
       // A box question reads `vars` only and never changes the state (assumption 1b holds).
       try {
-        return applyVarCall(vars, this.level.variables, call.name, call.args).value === true;
+        return applyVarCall(vars, this.variables, call.name, call.args).value === true;
       } catch (error) {
         throw new UnsearchableLevel(`unsearchable: ${String(error)}`);
       }
@@ -930,6 +949,7 @@ class MapSim {
   private readonly transitions: Int32Array[] = [];
   private readonly answers: Int8Array[] = [];
   private readonly finals: Array<boolean | undefined> = [];
+  private readonly boxSets = new Map<string, number>();
 
   constructor(
     private readonly owner: FastSim,
@@ -941,7 +961,7 @@ class MapSim {
   ) {
     const rng = mulberry32(fnv1a(level.id));
     const game = owner.kind.createState(config, rng);
-    this.initial = this.intern(owner.wrap(game, initialVars(level.variables, index)));
+    this.initial = this.intern(owner.wrap(game, initialVars(owner.variables, index)));
   }
 
   /** The number in box `id` in a state (0 on a level without boxes). */
@@ -1005,7 +1025,11 @@ class MapSim {
       } else if ('times' in item) {
         for (let i = 0; i < item.times && current >= 0; i++) current = this.run(current, item.body);
       } else if ('call' in item) {
-        current = this.run(current, this.owner.procCodes[item.call] ?? []);
+        // A spell's box holds the number while its body runs, then 0 (ADR-0023 §2).
+        const box = this.owner.procBoxes[item.call] ?? -1;
+        if (box >= 0) current = this.setBox(current, box, item.arg ?? 0);
+        if (current >= 0) current = this.run(current, this.owner.procCodes[item.call] ?? []);
+        if (current >= 0 && box >= 0) current = this.setBox(current, box, 0);
       } else if ('timesVar' in item) {
         // Read once, when the loop begins (ADR-0022): the body may change the box.
         const times = this.varValue(current, this.owner.variables[item.timesVar]?.id ?? '');
@@ -1026,6 +1050,22 @@ class MapSim {
       if (current < 0) return current;
     }
     return current;
+  }
+
+  /** The state with box `box` (index into `variables`) set to `value`; LOSS over its max. */
+  setBox(state: number, box: number, value: number): number {
+    const key = `${String(state)}:${String(box)}:${String(value)}`;
+    const known = this.boxSets.get(key);
+    if (known !== undefined) return known;
+    const variable = this.owner.variables[box];
+    let result: number;
+    if (variable === undefined || value > variableMax(variable)) result = LOSS;
+    else {
+      const { game, vars } = this.owner.unwrap(this.snapshots[state]);
+      result = this.intern(this.owner.wrap(game, { ...vars, [variable.id]: value }));
+    }
+    this.boxSets.set(key, result);
+    return result;
   }
 
   finish(state: number): boolean {

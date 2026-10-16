@@ -16,7 +16,7 @@ import { compileLoaded } from './compileProgram';
 import { editDistance } from './editDistance';
 import { withHeadlessWorkspace } from './headlessWorkspace';
 import { DEFAULT_MAX_ACTIONS, DEFAULT_MAX_STEPS } from './limits';
-import { spellDefinitions, spellIssue, type SpellIssue } from './spells';
+import { levelBoxes, spellDefinitions, spellIssue, type SpellIssue } from './spells';
 import { StopSignal } from './stopSignal';
 import {
   applyVarCall,
@@ -24,6 +24,8 @@ import {
   VAR_API_NAMES,
   VAR_CMP_FN,
   VAR_GET_FN,
+  VAR_SET_FN,
+  type VarCallResult,
   varSuffix,
 } from './variables';
 
@@ -144,7 +146,7 @@ export function runLevel<C, S, E extends GameEvent>(input: RunLevelInput<C, S, E
         if (emptyCondition)
           return { analysis, emptyStatementInput, spells, code: { kind: 'empty-condition' } };
         // Spells (ADR-0023 §3): refused before anything runs, like an empty condition.
-        const spell = spellIssue(ws, start);
+        const spell = spellIssue(ws, start, level.procedures);
         if (spell !== null) {
           return { analysis, emptyStatementInput, spells, code: { kind: 'spell', reason: spell } };
         }
@@ -330,8 +332,10 @@ function runMap<C, S, E extends GameEvent>(
   };
   const stats = (): RunOutcome['stats'] => ({ steps, actions, blocksUsed });
 
-  // Boxes (ADR-0022): engine state next to the kind's state, never seen by the kind.
-  let vars: Readonly<Record<string, number>> = initialVars(level.variables, mapIndex);
+  // Boxes (ADR-0022): engine state next to the kind's state, never seen by the kind. The boxes of
+  // the spells (ADR-0023 §2) are boxes too, 0 except while their spell runs.
+  const boxes = levelBoxes(level);
+  let vars: Readonly<Record<string, number>> = initialVars(boxes, mapIndex);
   const varApi: GameKindApi = Object.fromEntries(
     VAR_API_NAMES.map((name) => [
       name,
@@ -339,38 +343,51 @@ function runMap<C, S, E extends GameEvent>(
         if (engineCalls !== undefined) return engineCalls(name, args);
         const blockId = args[args.length - 1];
         const owner = blockId === undefined ? null : String(blockId);
-        const applied = applyVarCall(vars, level.variables, name, args);
+        const applied = applyVarCall(vars, boxes, name, args);
         if (name === VAR_CMP_FN) return sense(applied.value === true, owner);
         if (name === VAR_GET_FN) return applied.value;
-        if (actions >= maxActions) throw new ActionLimitSignal();
-        actions++;
-        const id = String(args[0]);
-        if (applied.overflow === true) {
-          events.push({ type: 'var', blockId: owner, id, value: vars[id] ?? 0, overflow: true });
-          stop('crash', 'BOX_FULL');
-        }
-        vars = applied.vars;
-        events.push({ type: 'var', blockId: owner, id, value: vars[id] ?? 0 });
+        setBox(String(args[0]), applied, owner);
         return undefined;
       },
     ]),
   );
   // Spell hooks (ADR-0023 §3): `call` / `ret` events around a spell's body, counted as actions.
+  // A spell with a box (§2): its box gets the call's number after `call` (over `max`: BOX_FULL)
+  // and goes back to 0 before `ret`, each with a `var` event.
   const procApi: GameKindApi = Object.fromEntries(
     PROC_API_NAMES.map((name) => [
       name,
       (...args: Primitive[]): Primitive | undefined => {
         if (engineCalls !== undefined) return engineCalls(name, args);
-        if (actions >= maxActions) throw new ActionLimitSignal();
-        actions++;
         const blockId = args[args.length - 1];
         const owner = blockId === undefined ? null : String(blockId);
-        const type = name === PROC_CALL_FN ? 'call' : 'ret';
-        events.push({ type, blockId: owner, id: String(args[0]) });
+        const spell = String(args[0]);
+        const box = level.procedures?.find((procedure) => procedure.id === spell)?.param?.id;
+        const isCall = name === PROC_CALL_FN;
+        if (!isCall && box !== undefined) {
+          setBox(box, applyVarCall(vars, boxes, VAR_SET_FN, [box, 0]), owner);
+        }
+        if (actions >= maxActions) throw new ActionLimitSignal();
+        actions++;
+        events.push({ type: isCall ? 'call' : 'ret', blockId: owner, id: spell });
+        if (isCall && box !== undefined) {
+          setBox(box, applyVarCall(vars, boxes, VAR_SET_FN, [box, args[1] ?? 0]), owner);
+        }
         return undefined;
       },
     ]),
   );
+  /** Applies a box change with its `var` event (an overflow ends the run: BOX_FULL). */
+  function setBox(id: string, applied: VarCallResult, owner: string | null): void {
+    if (actions >= maxActions) throw new ActionLimitSignal();
+    actions++;
+    if (applied.overflow === true) {
+      events.push({ type: 'var', blockId: owner, id, value: vars[id] ?? 0, overflow: true });
+      stop('crash', 'BOX_FULL');
+    }
+    vars = applied.vars;
+    events.push({ type: 'var', blockId: owner, id, value: vars[id] ?? 0 });
+  }
   /** "Đếm đúng": the countGoal box holds this map's number (true without countGoal). */
   const countMet = (): boolean => {
     const goal = level.countGoal;
@@ -451,7 +468,7 @@ function runMap<C, S, E extends GameEvent>(
     reasonCode = 'WRONG_COUNT';
   }
   const outcome: MapOutcome<E> = { result, reasonCode, events, stats: stats() };
-  if (level.variables !== undefined) outcome.vars = { ...vars };
+  if (boxes.length > 0) outcome.vars = { ...vars };
   if (level.starGoals !== undefined && state !== undefined) {
     // A kind without `checkStarGoal` meets no goal; content:check rule 19 reports the level.
     const finalState = state;
