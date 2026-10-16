@@ -1,0 +1,78 @@
+{
+  "id": "w09-creative",
+  "worldId": "w09-thap-hoa-si",
+  "stage": "creative",
+  "kind": "turtle",
+  "mode": "creative",
+  "title": "Bức tường trống",
+  "objective": "Vẽ gì cũng được. Tự do nhé!",
+  "learningGoal": "Tự vẽ hình của mình bằng lặp lồng nhau, góc và bút.",
+  "toolbox": [
+    {
+      "type": "turtle_forward",
+      "fields": {
+        "N": 1
+      }
+    },
+    {
+      "type": "turtle_forward",
+      "fields": {
+        "N": 2
+      }
+    },
+    {
+      "type": "turtle_turn_right",
+      "fields": {
+        "DEG": "60"
+      }
+    },
+    {
+      "type": "turtle_turn_right",
+      "fields": {
+        "DEG": "90"
+      }
+    },
+    {
+      "type": "turtle_turn_right",
+      "fields": {
+        "DEG": "120"
+      }
+    },
+    {
+      "type": "turtle_turn_left",
+      "fields": {
+        "DEG": "60"
+      }
+    },
+    {
+      "type": "turtle_turn_left",
+      "fields": {
+        "DEG": "90"
+      }
+    },
+    {
+      "type": "turtle_turn_left",
+      "fields": {
+        "DEG": "120"
+      }
+    },
+    "turtle_pen_up",
+    "turtle_pen_down",
+    "cq_repeat"
+  ],
+  "maxLoopDepth": 2,
+  "config": {
+    "size": {
+      "w": 12,
+      "h": 12
+    },
+    "start": {
+      "x": 6,
+      "y": 6,
+      "heading": 0
+    },
+    "angles": [30, 60, 90, 120, 150, 180],
+    "grid": "tri"
+  },
+  "hints": []
+}

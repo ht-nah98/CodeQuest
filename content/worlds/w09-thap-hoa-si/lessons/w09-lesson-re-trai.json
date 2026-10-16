@@ -1,0 +1,79 @@
+{
+  "id": "w09-lesson-re-trai",
+  "worldId": "w09-thap-hoa-si",
+  "title": "Khối rẽ trái",
+  "beforeLevel": "w09-l05",
+  "cards": [
+    {
+      "type": "say",
+      "pose": "point",
+      "text": "Khối mới! Rẽ trái 90 độ: quay tại chỗ, chưa đi"
+    },
+    {
+      "type": "demo",
+      "text": "Tiến, rẽ trái, tiến: nét đi lên.",
+      "kind": "turtle",
+      "config": {
+        "size": {
+          "w": 4,
+          "h": 4
+        },
+        "start": {
+          "x": 1,
+          "y": 1,
+          "heading": 0
+        },
+        "angles": [90],
+        "grid": "square"
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "turtle_forward",
+                  "id": "fwd1",
+                  "fields": {
+                    "N": 2
+                  },
+                  "next": {
+                    "block": {
+                      "type": "turtle_turn_left",
+                      "id": "left1",
+                      "fields": {
+                        "DEG": "90"
+                      },
+                      "next": {
+                        "block": {
+                          "type": "turtle_forward",
+                          "id": "fwd2",
+                          "fields": {
+                            "N": 2
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "quiz",
+      "text": "Măng nhìn sang phải, rẽ trái 90 độ. Giờ nhìn đâu?",
+      "options": ["Lên trên", "Xuống dưới"],
+      "correct": 0,
+      "explain": "Rẽ trái từ hướng phải là quay lên trên."
+    }
+  ]
+}

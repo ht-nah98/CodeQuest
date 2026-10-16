@@ -1,13 +1,19 @@
 // @vitest-environment node
 import { Ticker } from 'pixi.js';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import type { GameEvent, RunOutcome, VarEvent } from '@codequest/engine';
+import type { Level, WorkspaceJson } from '@codequest/content-schema';
+import { type GameEvent, type RunOutcome, runLevel, type VarEvent } from '@codequest/engine';
+import { getGameKind } from '@codequest/games';
 import {
   HIGHLIGHT_MS,
   LOSE_TEMPO,
   Replay,
   SENSE_MS,
   type SenseMark,
+  SPELL_MS,
+  type SpellEvent,
+  TIMEOUT_NO_LAP_MS,
+  TIMEOUT_REPLAY_MAX_MS,
   TIMEOUT_REPLAY_MS,
   timeoutReplayEvents,
   VAR_MS,
@@ -291,30 +297,162 @@ describe('Replay', () => {
     expect(ticker.count).toBe(0);
   });
 
-  it('a timed-out run replays about TIMEOUT_REPLAY_MS of its start, then finishes once', async () => {
-    const long = outcome('timeout', 30); // 60 events, far more than 3 s
+  it('a timed-out run that never comes back to a place replays about TIMEOUT_NO_LAP_MS, then finishes once', async () => {
+    const long = outcome('timeout', 200); // every block different: no lap to see
     const kept = timeoutReplayEvents(long.events, () => ACTION_MS);
-    // highlight + walk = 320 ms per block: 10 blocks reach 3 200 ms ≥ 3 000 ms.
-    expect(kept).toHaveLength(20);
+    // highlight + walk = 320 ms per block: the 17th highlight starts at 5 120 ms ≥ 5 000 ms.
+    expect(kept).toHaveLength(2 * Math.ceil(TIMEOUT_NO_LAP_MS / (HIGHLIGHT_MS + ACTION_MS)));
     const done = replay.play(long);
-    await advance(30 * (HIGHLIGHT_MS + ACTION_MS) * 2);
+    await advance(TIMEOUT_NO_LAP_MS * 2);
     await expect(done).resolves.toBe('finished');
-    expect(renderer.played).toHaveLength(10);
+    expect(renderer.played).toHaveLength(kept.length / 2);
     expect(renderer.calls.filter((call) => call === 'finish')).toHaveLength(1);
     // Without a dizzy cue the renderer just rests.
     expect(renderer.calls.slice(-2)).toEqual(['rest', 'finish']);
   });
 
-  it('timeoutReplayEvents keeps at least one event and counts senses as SENSE_MS', () => {
+  it('a timed-out run plays at the chosen speed, not capped at 1× like a lost run', () => {
+    const speeds: number[] = [];
+    replay = new Replay(ticker, renderer, {
+      onHighlight: () => undefined,
+      onClockSpeed: (speed) => speeds.push(speed),
+    });
+    replay.setSpeed(2);
+    void replay.play(outcome('timeout', 3));
+    expect(speeds.at(-1)).toBe(2);
+    replay.stop();
+  });
+
+  it('timeoutReplayEvents keeps at least one event; a loop asking on the spot ends on a lap after TIMEOUT_REPLAY_MS', () => {
     expect(timeoutReplayEvents([{ type: 'walk', blockId: null }], () => 99_999)).toHaveLength(1);
-    const asks = Array.from({ length: 40 }, (_, i) => ({
-      type: 'sense',
-      blockId: `s${String(i)}`,
-      value: false,
-    }));
-    expect(timeoutReplayEvents(asks, () => 0)).toHaveLength(
-      Math.ceil(TIMEOUT_REPLAY_MS / SENSE_MS),
+    // lặp đến khi … {} with nothing inside: the same block asks again and again on the spot.
+    const asks = Array.from({ length: 200 }, (_, i) =>
+      i % 2 === 0
+        ? ({ type: 'highlight', blockId: 'until' })
+        : ({ type: 'sense', blockId: 'ask', value: false } as GameEvent),
     );
+    const kept = timeoutReplayEvents(asks, () => 0);
+    expect(kept.length).toBe(2 * Math.ceil(TIMEOUT_REPLAY_MS / (HIGHLIGHT_MS + SENSE_MS)));
+    expect(asks[kept.length]?.type).toBe('highlight');
+  });
+
+  it('a turtle spinning 30° at a time shows the whole spin: its heading is a number (W9)', () => {
+    const spin: GameEvent[] = Array.from({ length: 60 }, (_, i) => [
+      { type: 'highlight', blockId: 'right' },
+      {
+        type: 'turn',
+        blockId: 'right',
+        from: i % 12,
+        to: (i + 1) % 12,
+        side: 'RIGHT',
+        deg: 30,
+      } as GameEvent,
+    ]).flat();
+    const kept = timeoutReplayEvents(spin, () => ACTION_MS);
+    // The start heading is only known after the first turn, so the lap is seen from heading 1:
+    // 13 turns, a full spin and one more step, ≥ 3 s.
+    expect(kept).toHaveLength(26);
+    expect(kept.filter((event) => event.type === 'turn')).toHaveLength(13);
+  });
+
+  it('a runner walking on for ever (numeric cells) has no lap: about TIMEOUT_NO_LAP_MS', () => {
+    const walk: GameEvent[] = Array.from({ length: 100 }, (_, i) => [
+      { type: 'highlight', blockId: 'w' },
+      { type: 'walk', blockId: 'w', from: i, to: i + 1 } as GameEvent,
+    ]).flat();
+    expect(timeoutReplayEvents(walk, () => ACTION_MS)).toHaveLength(
+      2 * Math.ceil(TIMEOUT_NO_LAP_MS / (HIGHLIGHT_MS + ACTION_MS)),
+    );
+  });
+
+  it('a timed-out walk round a ring replays one full lap, past TIMEOUT_REPLAY_MS (coach bug, w05-boss)', () => {
+    // w05-boss "Đón Gà con" and the program the coach saw: lặp đến khi đã tới đích {
+    // nếu có đường phía trước thì tiến, nếu không thì rẽ phải } goes round the ring for ever.
+    const map = [
+      '#########',
+      '#S......#',
+      '####.##.#',
+      '####....#',
+      '####.####',
+      '###..####',
+      '####..G##',
+      '#########',
+    ];
+    const level = {
+      id: 'ring',
+      worldId: 'w05-song-cho-doi',
+      stage: 'boss',
+      kind: 'maze',
+      mode: 'build',
+      title: 'ring',
+      objective: 'ring',
+      learningGoal: 'ring',
+      toolbox: [],
+      hints: [],
+      config: { map, startDir: 'E', goal: { items: [{ kind: 'friend', at: [1, 6] }] } },
+    } as unknown as Level;
+    const ask = (dir: string) => ({ type: 'maze_is_path', id: `ask${dir}`, fields: { DIR: dir } });
+    const workspace = {
+      blocks: {
+        languageVersion: 0,
+        blocks: [
+          {
+            type: 'cq_start',
+            id: 'start',
+            next: {
+              block: {
+                type: 'cq_repeat_until',
+                id: 'until',
+                inputs: {
+                  COND: { block: { type: 'maze_at_goal', id: 'goal' } },
+                  DO: {
+                    block: {
+                      type: 'cq_if_else',
+                      id: 'if',
+                      inputs: {
+                        COND: { block: ask('AHEAD') },
+                        DO: { block: { type: 'maze_forward', id: 'fwd' } },
+                        ELSE: { block: { type: 'maze_turn_right', id: 'right' } },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        ],
+      },
+    } as WorkspaceJson;
+    const kind = getGameKind('maze');
+    if (kind === undefined) throw new Error('no maze');
+    const run = runLevel({ kind, level, workspace });
+    expect(run.result).toBe('timeout');
+    const estimate = (event: GameEvent) =>
+      event.type === 'move' ? 460 : event.type === 'turn' ? 420 : 0;
+    const kept = timeoutReplayEvents(run.events, estimate);
+    const cells = kept
+      .filter((event) => event.type === 'move')
+      .map((event) => (event as GameEvent & { to: [number, number] }).to.join(','));
+    // Round the ring: to the right-hand corner (col 7), down to row 3, back up col 4 to row 1.
+    const corner = cells.indexOf('1,7');
+    expect(corner).toBeGreaterThan(-1);
+    expect(cells.slice(corner)).toContain('3,7');
+    expect(cells.slice(cells.indexOf('3,7'))).toContain('3,4');
+    expect(cells.slice(cells.lastIndexOf('3,4'))).toContain('1,4');
+    const ms = kept.reduce(
+      (sum, event) =>
+        sum +
+        (event.type === 'highlight'
+          ? HIGHLIGHT_MS
+          : event.type === 'sense'
+            ? SENSE_MS
+            : estimate(event)),
+      0,
+    );
+    expect(ms).toBeGreaterThan(TIMEOUT_REPLAY_MS);
+    expect(ms).toBeLessThan(TIMEOUT_REPLAY_MAX_MS);
+    // It ends on a lap boundary: the next event is the highlight that starts the next lap.
+    expect(run.events[kept.length]?.type).toBe('highlight');
   });
 
   it('a timed-out run ends with the dizzy cue instead of rest, then finish', async () => {
@@ -402,6 +540,101 @@ describe('Replay', () => {
     await advance(SENSE_MS + 50);
     await expect(done).resolves.toBe('finished');
     expect(marks.at(-2)).toEqual({ blockId: 'ask', value: true });
+  });
+
+  it('spell events (call / ret) go to onSpell for SPELL_MS, never reach the renderer', async () => {
+    const spells: Array<string | null> = [];
+    replay = new Replay(ticker, renderer, {
+      onHighlight: (id) => highlights.push(id),
+      onSpell: (event: SpellEvent | null) =>
+        spells.push(event === null ? null : `${event.type}:${event.id}`),
+    });
+    const run: RunOutcome = {
+      result: 'success',
+      reasonCode: null,
+      events: [
+        { type: 'highlight', blockId: 'c1' },
+        { type: 'call', blockId: 'c1', id: 'stair' },
+        { type: 'highlight', blockId: 'b1' },
+        { type: 'walk', blockId: 'b1' },
+        { type: 'ret', blockId: 'c1', id: 'stair' },
+        { type: 'highlight', blockId: 'w2' },
+        { type: 'walk', blockId: 'w2' },
+      ] as RunOutcome['events'],
+      stats: { steps: 2, actions: 4, blocksUsed: 3 },
+    };
+    const done = replay.play(run);
+    await advance((HIGHLIGHT_MS + SPELL_MS / 2) / WIN_TEMPO);
+    expect(spells).toEqual([null, 'call:stair']);
+    await advance(3000);
+    await expect(done).resolves.toBe('finished');
+    expect(renderer.played).toEqual(['walk', 'walk']);
+    // The walk inside the spell is played without a lookahead into `ret`.
+    expect(renderer.nexts).toEqual([null, null]);
+    expect(spells).toEqual([null, 'call:stair', 'ret:stair', null]);
+  });
+
+  it('step mode stops at a spell call and at its return', async () => {
+    replay = new Replay(ticker, renderer, {
+      onHighlight: () => undefined,
+      onSpell: () => undefined,
+    });
+    const run: RunOutcome = {
+      result: 'success',
+      reasonCode: null,
+      events: [
+        { type: 'highlight', blockId: 'c1' },
+        { type: 'call', blockId: 'c1', id: 'stair' },
+        { type: 'highlight', blockId: 'b1' },
+        { type: 'walk', blockId: 'b1' },
+        { type: 'ret', blockId: 'c1', id: 'stair' },
+      ] as RunOutcome['events'],
+      stats: { steps: 1, actions: 3, blocksUsed: 2 },
+    };
+    const done = replay.play(run, { step: true });
+    await advance(HIGHLIGHT_MS + 50);
+    expect(replay.waitingForStep).toBe(true); // before the call
+    replay.step();
+    await advance(SPELL_MS + HIGHLIGHT_MS + 50);
+    expect(replay.waitingForStep).toBe(true); // before the walk in the body
+    replay.step();
+    await advance(ACTION_MS + 50);
+    expect(replay.waitingForStep).toBe(true); // before the return
+    replay.step();
+    await advance(SPELL_MS + 50);
+    await expect(done).resolves.toBe('finished');
+  });
+
+  it('stop() turns a lit spell off (the stage is torn down mid-spell)', async () => {
+    const spells: Array<string | null> = [];
+    replay = new Replay(ticker, renderer, {
+      onHighlight: () => undefined,
+      onSpell: (event: SpellEvent | null) =>
+        spells.push(event === null ? null : `${event.type}:${event.id}`),
+    });
+    const run: RunOutcome = {
+      result: 'success',
+      reasonCode: null,
+      events: [
+        { type: 'call', blockId: 'c1', id: 'stair' },
+        { type: 'walk', blockId: 'b1' },
+      ] as RunOutcome['events'],
+      stats: { steps: 1, actions: 2, blocksUsed: 2 },
+    };
+    const done = replay.play(run);
+    await advance(SPELL_MS / 2);
+    expect(spells.at(-1)).toBe('call:stair');
+    replay.stop();
+    expect(spells.at(-1)).toBeNull();
+    await expect(done).resolves.toBe('aborted');
+  });
+
+  it('timeoutReplayEvents counts spell events as SPELL_MS', () => {
+    const events = [
+      { type: 'call', blockId: 'c', id: 's' },
+      { type: 'walk', blockId: 'w' },
+    ] as GameEvent[];
+    expect(timeoutReplayEvents(events, () => ACTION_MS)).toHaveLength(2);
   });
 
   it('reset clears a shown answer', async () => {
@@ -585,7 +818,8 @@ describe('Replay onVar (box panel, ADR-0022)', () => {
       { type: 'walk', blockId: 'w' },
     ];
     expect(timeoutReplayEvents(events, () => 0)).toHaveLength(3);
-    const long = Array.from({ length: 20 }, () => events[1] as GameEvent);
-    expect(timeoutReplayEvents(long, () => 0)).toHaveLength(Math.ceil(TIMEOUT_REPLAY_MS / VAR_MS));
+    // No highlight, so no lap to see: cut at TIMEOUT_NO_LAP_MS.
+    const long = Array.from({ length: 200 }, () => events[1] as GameEvent);
+    expect(timeoutReplayEvents(long, () => 0)).toHaveLength(Math.ceil(TIMEOUT_NO_LAP_MS / VAR_MS));
   });
 });

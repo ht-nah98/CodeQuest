@@ -1,0 +1,143 @@
+{
+  "id": "w09-l03",
+  "worldId": "w09-thap-hoa-si",
+  "stage": "guided",
+  "kind": "turtle",
+  "mode": "build",
+  "title": "Ô cửa sổ",
+  "objective": "Vẽ ô cửa sổ hình chữ nhật nhé!",
+  "learningGoal": "Vòng lặp vẽ lại một nửa hình chữ nhật 2 lần.",
+  "misconception": "Hình chữ nhật phải lặp 4 lần như hình vuông.",
+  "mission": "Tầng 1 cần một ô cửa sổ.",
+  "toolbox": [
+    {
+      "type": "turtle_forward",
+      "fields": {
+        "N": 3
+      }
+    },
+    {
+      "type": "turtle_forward",
+      "fields": {
+        "N": 1
+      }
+    },
+    {
+      "type": "turtle_turn_right",
+      "fields": {
+        "DEG": "90"
+      }
+    },
+    "cq_repeat"
+  ],
+  "maxLoopDepth": 1,
+  "par": 5,
+  "config": {
+    "size": {
+      "w": 5,
+      "h": 3
+    },
+    "start": {
+      "x": 1,
+      "y": 2,
+      "heading": 0
+    },
+    "target": [
+      {
+        "from": [1, 2],
+        "heading": 0,
+        "path": "F3 R90 F1 R90 F3 R90 F1 R90"
+      }
+    ],
+    "angles": [90],
+    "grid": "square"
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "loop1",
+              "fields": {
+                "TIMES": 2
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "turtle_forward",
+                    "id": "fwd1",
+                    "fields": {
+                      "N": 3
+                    },
+                    "next": {
+                      "block": {
+                        "type": "turtle_turn_right",
+                        "id": "right1",
+                        "fields": {
+                          "DEG": "90"
+                        },
+                        "next": {
+                          "block": {
+                            "type": "turtle_forward",
+                            "id": "fwd2",
+                            "fields": {
+                              "N": 1
+                            },
+                            "next": {
+                              "block": {
+                                "type": "turtle_turn_right",
+                                "id": "right2",
+                                "fields": {
+                                  "DEG": "90"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "half",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Nửa hình chữ nhật gồm những khối nào?",
+      "point": "toolbox:cq_repeat"
+    },
+    {
+      "id": "twice",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Nửa hình đó lặp mấy lần?",
+      "point": "stage"
+    },
+    {
+      "id": "stray",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "EXTRA_LINE"
+      },
+      "say": "Cạnh dài đi trước hay cạnh ngắn đi trước?"
+    }
+  ],
+  "thinkingHint": "Hình chữ nhật có mấy cạnh dài?"
+}

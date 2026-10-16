@@ -1,0 +1,101 @@
+{
+  "id": "lesson-spells",
+  "worldId": "_sandbox",
+  "title": "Phép thuật",
+  "cards": [
+    {
+      "type": "say",
+      "pose": "talk",
+      "text": "Phép thuật là một nhóm lệnh có tên."
+    },
+    {
+      "type": "demo",
+      "text": "Làm phép 2 lần, Măng leo 2 bậc.",
+      "kind": "maze",
+      "config": {
+        "map": ["######", "###.G#", "##..##", "#S.###", "######"],
+        "startDir": "E"
+      },
+      "procedures": [
+        {
+          "id": "stair",
+          "name": "bậc thang"
+        }
+      ],
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "cq_proc_call",
+                  "id": "c1",
+                  "fields": {
+                    "PROC": "stair"
+                  },
+                  "next": {
+                    "block": {
+                      "type": "cq_proc_call",
+                      "id": "c2",
+                      "fields": {
+                        "PROC": "stair"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "type": "cq_proc_def",
+              "id": "def_stair",
+              "x": 300,
+              "y": 40,
+              "fields": {
+                "PROC": "stair"
+              },
+              "inputs": {
+                "BODY": {
+                  "block": {
+                    "type": "maze_forward",
+                    "id": "s1",
+                    "next": {
+                      "block": {
+                        "type": "maze_turn_left",
+                        "id": "s2",
+                        "next": {
+                          "block": {
+                            "type": "maze_forward",
+                            "id": "s3",
+                            "next": {
+                              "block": {
+                                "type": "maze_turn_right",
+                                "id": "s4"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "quiz",
+      "text": "Dạy phép xong, Măng có làm ngay không?",
+      "options": ["Chưa, phải làm phép", "Có, làm ngay"],
+      "correct": 0,
+      "explain": "Dạy phép chỉ nhớ lệnh. Làm phép thì Măng mới làm."
+    }
+  ]
+}

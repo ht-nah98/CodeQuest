@@ -1,0 +1,101 @@
+{
+  "id": "w09-lesson-xoay-hinh",
+  "worldId": "w09-thap-hoa-si",
+  "title": "Xoay hình",
+  "beforeLevel": "w09-l13",
+  "cards": [
+    {
+      "type": "say",
+      "pose": "point",
+      "text": "Rẽ ở vòng ngoài: hình xoay sau mỗi lần vẽ."
+    },
+    {
+      "type": "demo",
+      "text": "3 ô vuông, mỗi lần xoay 120 độ.",
+      "kind": "turtle",
+      "config": {
+        "size": {
+          "w": 5,
+          "h": 5
+        },
+        "start": {
+          "x": 3,
+          "y": 2,
+          "heading": 0
+        },
+        "angles": [90, 120],
+        "grid": "tri"
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "cq_repeat",
+                  "id": "loop1",
+                  "fields": {
+                    "TIMES": 3
+                  },
+                  "inputs": {
+                    "DO": {
+                      "block": {
+                        "type": "cq_repeat",
+                        "id": "loop2",
+                        "fields": {
+                          "TIMES": 4
+                        },
+                        "inputs": {
+                          "DO": {
+                            "block": {
+                              "type": "turtle_forward",
+                              "id": "fwd1",
+                              "fields": {
+                                "N": 1
+                              },
+                              "next": {
+                                "block": {
+                                  "type": "turtle_turn_right",
+                                  "id": "right1",
+                                  "fields": {
+                                    "DEG": "90"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "next": {
+                          "block": {
+                            "type": "turtle_turn_right",
+                            "id": "right2",
+                            "fields": {
+                              "DEG": "120"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "quiz",
+      "text": "Muốn xoay cả hình, khối rẽ đặt ở đâu?",
+      "options": ["Vòng ngoài", "Vòng trong"],
+      "correct": 0,
+      "explain": "Vòng ngoài chạy sau mỗi hình: hình xoay."
+    }
+  ]
+}

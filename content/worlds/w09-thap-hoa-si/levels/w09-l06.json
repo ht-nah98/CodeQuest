@@ -1,0 +1,177 @@
+{
+  "id": "w09-l06",
+  "worldId": "w09-thap-hoa-si",
+  "stage": "practice",
+  "kind": "turtle",
+  "mode": "bughunt",
+  "title": "Lục giác lệch",
+  "objective": "Có 1 khối sai. Sửa giúp Măng nhé!",
+  "learningGoal": "Lục giác rẽ 60 độ: 6 lần rẽ đủ 1 vòng 360 độ.",
+  "misconception": "Rẽ theo góc trong của hình (lục giác rẽ 120).",
+  "mission": "Cửa sổ tròn của tầng 2 bị lệch.",
+  "toolbox": [
+    {
+      "type": "turtle_forward",
+      "fields": {
+        "N": 2
+      }
+    },
+    {
+      "type": "turtle_turn_right",
+      "fields": {
+        "DEG": "60"
+      }
+    },
+    {
+      "type": "turtle_turn_right",
+      "fields": {
+        "DEG": "120"
+      }
+    },
+    "cq_repeat"
+  ],
+  "maxLoopDepth": 1,
+  "par": 3,
+  "parEdits": 1,
+  "config": {
+    "size": {
+      "w": 6,
+      "h": 6
+    },
+    "start": {
+      "x": 2,
+      "y": 5,
+      "heading": 0
+    },
+    "target": [
+      {
+        "from": [2, 5],
+        "heading": 0,
+        "path": "F2 R60 F2 R60 F2 R60 F2 R60 F2 R60 F2 R60"
+      }
+    ],
+    "angles": [60, 120],
+    "grid": "tri"
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "loop1",
+              "fields": {
+                "TIMES": 6
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "turtle_forward",
+                    "id": "fwd1",
+                    "fields": {
+                      "N": 2
+                    },
+                    "next": {
+                      "block": {
+                        "type": "turtle_turn_right",
+                        "id": "right1",
+                        "fields": {
+                          "DEG": "120"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "loop1",
+              "fields": {
+                "TIMES": 6
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "turtle_forward",
+                    "id": "fwd1",
+                    "fields": {
+                      "N": 2
+                    },
+                    "next": {
+                      "block": {
+                        "type": "turtle_turn_right",
+                        "id": "right1",
+                        "fields": {
+                          "DEG": "60"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "circle",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Bấm Từng bước. 6 lần rẽ có đủ 1 vòng không?",
+      "point": "step"
+    },
+    {
+      "id": "stray",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "EXTRA_LINE"
+      },
+      "say": "Rẽ 120 độ 3 lần ra hình gì?"
+    },
+    {
+      "id": "add",
+      "when": {
+        "all": [
+          {
+            "trigger": "run-end"
+          },
+          {
+            "failStreak": {
+              "gte": 2
+            }
+          }
+        ]
+      },
+      "say": "60+60+60+60+60+60 bằng mấy?"
+    }
+  ],
+  "thinkingHint": "6 lần rẽ cộng lại là mấy độ?"
+}

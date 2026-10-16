@@ -6,6 +6,8 @@ export interface HintContext {
   analysis: WorkspaceAnalysis;
   /** `workspace.remainingCapacity()`; `Infinity` for a level without `maxBlocks`. */
   capacityLeft: number;
+  /** `level.maxInstances`, for `instancesFull` (absent: no type is capped). */
+  maxInstances?: Readonly<Record<string, number>> | undefined;
   lastOutcome: { result: RunResult; reasonCode: string | null } | null;
   /** Runs in this level session. */
   runCount: number;

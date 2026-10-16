@@ -1,0 +1,142 @@
+{
+  "id": "w09-lesson-goc",
+  "worldId": "w09-thap-hoa-si",
+  "title": "Góc rẽ đổi hình",
+  "beforeLevel": "w09-l04",
+  "cards": [
+    {
+      "type": "say",
+      "pose": "point",
+      "text": "Góc rẽ đổi hình."
+    },
+    {
+      "type": "demo",
+      "text": "Rẽ 90 độ 4 lần: hình vuông.",
+      "kind": "turtle",
+      "config": {
+        "size": {
+          "w": 4,
+          "h": 4
+        },
+        "start": {
+          "x": 1,
+          "y": 3,
+          "heading": 0
+        },
+        "angles": [90],
+        "grid": "square"
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "cq_repeat",
+                  "id": "loop1",
+                  "fields": {
+                    "TIMES": 4
+                  },
+                  "inputs": {
+                    "DO": {
+                      "block": {
+                        "type": "turtle_forward",
+                        "id": "fwd1",
+                        "fields": {
+                          "N": 2
+                        },
+                        "next": {
+                          "block": {
+                            "type": "turtle_turn_right",
+                            "id": "right1",
+                            "fields": {
+                              "DEG": "90"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "demo",
+      "text": "Rẽ 90 độ 3 lần: thiếu 1 cạnh.",
+      "kind": "turtle",
+      "config": {
+        "size": {
+          "w": 4,
+          "h": 4
+        },
+        "start": {
+          "x": 1,
+          "y": 3,
+          "heading": 0
+        },
+        "angles": [90],
+        "grid": "square"
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "cq_repeat",
+                  "id": "loop1",
+                  "fields": {
+                    "TIMES": 3
+                  },
+                  "inputs": {
+                    "DO": {
+                      "block": {
+                        "type": "turtle_forward",
+                        "id": "fwd1",
+                        "fields": {
+                          "N": 2
+                        },
+                        "next": {
+                          "block": {
+                            "type": "turtle_turn_right",
+                            "id": "right1",
+                            "fields": {
+                              "DEG": "90"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "quiz",
+      "text": "Đổi số độ của khối rẽ. Hình có đổi không?",
+      "options": ["Có", "Không"],
+      "correct": 0,
+      "explain": "Góc rẽ khác thì cạnh sau đi hướng khác."
+    }
+  ]
+}

@@ -52,6 +52,39 @@ describe('blockLimitBreach (P2-11, T16b)', () => {
   });
 });
 
+describe('blockLimitBreach: spells (ADR-0023 §3, effective depth)', () => {
+  const def = (inner: Block): Block => ({
+    type: 'cq_proc_def',
+    fields: { PROC: 'run' },
+    inputs: { BODY: { block: inner } },
+  });
+  const call: Block = { type: 'cq_proc_call', fields: { PROC: 'run' } };
+
+  it('a spell that loops, called inside a loop, breaks maxLoopDepth 1 as "spellLoopDepth"', () => {
+    const json = program(loop(call), def(loop(walk)));
+    expect(blockLimitBreach(json, { maxLoopDepth: 1 })).toBe('spellLoopDepth');
+  });
+
+  it('a loop put into the body of a spell called in a loop is "spellLoopDepth" too', () => {
+    expect(
+      blockLimitBreach(program(loop(call), def({ ...walk, next: { block: loop() } })), {
+        maxLoopDepth: 1,
+      }),
+    ).toBe('spellLoopDepth');
+  });
+
+  it('the same call outside the loop, or a spell without a loop, is fine', () => {
+    expect(blockLimitBreach(program(call, def(loop(walk))), { maxLoopDepth: 1 })).toBeNull();
+    expect(blockLimitBreach(program(loop(call), def(walk)), { maxLoopDepth: 1 })).toBeNull();
+  });
+
+  it('a loop in a loop written inside the spell is plain "loopDepth"', () => {
+    expect(blockLimitBreach(program(call, def(loop(loop(walk)))), { maxLoopDepth: 1 })).toBe(
+      'loopDepth',
+    );
+  });
+});
+
 describe('guardBlockLimits (headless Blockly)', () => {
   registerAllBlocks();
 
@@ -140,6 +173,55 @@ describe('guardBlockLimits (headless Blockly)', () => {
     await settle();
     expect(blocked).toEqual(['loopDepth']);
     expect(workspace.getBlocksByType('runner_jump', false)).toHaveLength(1);
+    stop();
+    workspace.dispose();
+  });
+
+  it('undoes a "làm phép" dropped into a loop when its spell loops (W8, maxLoopDepth 1)', async () => {
+    const workspace = workspaceWith(
+      program(
+        { ...loop(), id: 'outer' },
+        { type: 'cq_proc_def', fields: { PROC: 'run' }, inputs: { BODY: { block: loop(walk) } } },
+      ),
+    );
+    const blocked: string[] = [];
+    const stop = guardBlockLimits(workspace, { maxLoopDepth: 1 }, (breach) => blocked.push(breach));
+    Events.setGroup(true);
+    const block = workspace.newBlock('cq_proc_call');
+    block.setFieldValue('run', 'PROC');
+    const slot = workspace.getBlockById('outer')?.getInput('DO')?.connection;
+    if (!slot || !block.previousConnection) throw new Error('no connection');
+    slot.connect(block.previousConnection);
+    Events.setGroup(false);
+    await settle();
+    expect(blocked).toEqual(['spellLoopDepth']);
+    expect(workspace.getBlockById(block.id)).toBeNull();
+    stop();
+    workspace.dispose();
+  });
+
+  it('a loop dropped into the body of a spell cast inside a loop says so ("spellBodyLoopDepth")', async () => {
+    const workspace = workspaceWith(
+      program(
+        { ...loop({ type: 'cq_proc_call', fields: { PROC: 'run' } }), id: 'outer' },
+        {
+          type: 'cq_proc_def',
+          fields: { PROC: 'run' },
+          inputs: { BODY: { block: { ...walk, id: 'bodyWalk' } } },
+        },
+      ),
+    );
+    const blocked: string[] = [];
+    const stop = guardBlockLimits(workspace, { maxLoopDepth: 1 }, (breach) => blocked.push(breach));
+    Events.setGroup(true);
+    const block = workspace.newBlock('cq_repeat');
+    const slot = workspace.getBlockById('bodyWalk')?.nextConnection;
+    if (!slot || !block.previousConnection) throw new Error('no connection');
+    slot.connect(block.previousConnection);
+    Events.setGroup(false);
+    await settle();
+    expect(blocked).toEqual(['spellBodyLoopDepth']);
+    expect(workspace.getBlockById(block.id)).toBeNull();
     stop();
     workspace.dispose();
   });

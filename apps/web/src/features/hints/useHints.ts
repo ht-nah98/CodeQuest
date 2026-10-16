@@ -201,6 +201,7 @@ export function useHints({
       const last = current.runs.at(-1);
       const selection = selectHint(level, {
         ...facts,
+        maxInstances: level.maxInstances,
         trigger,
         runCount: current.runs.length,
         failStreak: failStreak(current),

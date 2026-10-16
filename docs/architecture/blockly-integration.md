@@ -95,6 +95,12 @@ Vì vậy:
 - Nhóm `sensor` có nhãn "CÂU HỎI" (với bé gọi khối hỏi là câu hỏi, không nói cảm biến: `glossary.md` "Điều kiện"); `logic` là "ĐIỀU KIỆN" (`cq_if`, `cq_if_else`), `cq_repeat_until` ở nhóm "LẶP".
 - Cỡ khối trong flyout tự co cho cả thanh khối vừa chiều cao khung (`fitFlyoutScale` trong `BlocklyWorkspace.tsx`): trong khoảng `FLYOUT_SCALE_MIN = 0.62` … `FLYOUT_SCALE_MAX = 0.8`, chừa 16 px ở đáy, tính lại khi mount và mỗi lần đổi kích thước (ResizeObserver). Không phụ thuộc nút phóng to/thu nhỏ vùng ghép. Thanh khối quá dài so với cỡ nhỏ nhất thì vẫn cuộn được bằng con lăn.
 - Cuộn flyout: bánh xe trên khối/nền, kéo nền, kéo thanh trượt. Bánh xe đặt trên **thanh trượt** (hoặc thanh trượt rỗng của flyout thùng rác nằm ở mép trái) bị SVG thanh trượt nuốt mất; `forwardScrollbarWheel` chuyển nó sang flyout. Test: `e2e/flyout-scroll.spec.ts`.
+- **Phép thuật** (ADR-0023, P4-06):
+  - Nhóm `function` có nhãn "PHÉP THUẬT"; nhóm `pen` (turtle) là "BÚT". Khối `cq_proc_*` nằm trong `knownBlockSpecs()` (`PROCEDURE_BLOCKS`).
+  - Mục `cq_proc_def` / `cq_proc_call` **không ghim** `PROC` thì thành **một mục mỗi phép** của màn, theo thứ tự `level.procedures` (khối `…_n` chỉ cho phép có `param`). Mục đã ghim `PROC` giữ nguyên.
+  - Mỗi phép chỉ một khối `dạy phép`: flyout bỏ mục `dạy phép X` khi vùng ghép đã có (`taughtSpells` trong `BlocklyWorkspace.tsx`), trả lại khi khối đó bị xóa. Cập nhật sau mỗi event không phải UI và sau khi kéo xong, không khi đang kéo (vẽ lại flyout làm rơi khối đang kéo).
+  - `setWorkspaceProcedures(workspace, level.procedures)` trước khi vẽ lại flyout, nên ô phép (`field_cq_proc`) hiện tên phép cả trong flyout, khung xem lời giải, ô xem trước của gợi ý tầng 2 và thẻ `demo`.
+  - Khối `dạy phép` là gốc của chương trình, hình "mũ" (`procedure_blocks` có `hat: 'cap'`; `làm phép` cùng style vẫn có khấc vì Blockly chỉ vẽ mũ cho khối không có `previous`). Không bị `disableOrphans` làm xám vì không có `previous` / `output` (test `blockly/spells.test.ts`).
 - Nhãn nhóm là `{ kind: 'label', 'web-class': 'cq-flyout-label' }`, kiểu chữ VT323 22px trong `blockly.css`. Blockly đo nhãn bằng style đã tính, nên phải chờ font (§2).
 
 ## 7. Highlight khi phát lại
@@ -102,6 +108,9 @@ Vì vậy:
 - CSS bổ sung viền vàng (`--coin`) quanh khối được highlight cho dễ thấy.
 - Khi thua: khối gây lỗi (blockId của event thất bại) rung 2 lần (class CSS `cq-shake` gắn vào `block.getSvgRoot()`).
 - **Câu hỏi sáng ✔/✘** (P2-11, T7): event `sense` → hook `onSense` của `Replay` → `markSense(workspace, blockId, value)` (`blockly/senseMark.ts`): class `cq-sense-yes` (viền xanh `go`) / `cq-sense-no` (viền đỏ `oops`) trên khối hỏi, huy hiệu tròn ✔/✘ vẽ bằng path (không dùng ký tự: Baloo 2 không có ✔/✘) ở góc phải trên, `data-sense="yes|no"` cho e2e, và khối hỏi nó (`getParent()`: nếu / lặp đến khi) được `highlightBlock` (vòng `lặp đến khi` hỏi lại mà không có event `highlight`). Dấu mất khi hành động kế tiếp bắt đầu, hết lượt hoặc Làm lại. Dùng ở màn chơi và thẻ `demo` của bài giảng (`LessonDemo`). Bản dev ghi `window.__cqPlay.senses` (`<blockId>:yes|no`).
+
+- **Phép đang chạy** (ADR-0023 §6): event `call` / `ret` → hook `onSpell` của `Replay` (giữ `SPELL_MS` = 240 ms, Măng đứng yên; "Từng bước" dừng ở cả hai) → `markSpell(workspace, id)` (`blockly/spellMark.ts`): class `cq-spell-active` (viền vàng đậm) và `data-spell-active` trên khối `dạy phép` của phép đó; highlight vẫn đi vào từng khối trong thân. Màn chơi đổi bong bóng thành "Đang làm phép «tên phép»" (`vi.play.spells.casting`, không nêu tên nhân vật), `ret` đưa về câu "đang chạy". Bản dev ghi `window.__cqPlay.spells` (`call:<id>` / `ret:<id>`).
+- **Bộ chặn độ sâu** (`blockLimits.ts`) dùng `loopDepth` hiệu dụng của engine: kéo `làm phép` (phép có khối lặp) vào khối lặp, hoặc kéo khối lặp vào thân một phép đang được làm trong khối lặp, ở màn `maxLoopDepth: 1` bị hoàn tác, Măng nói "Phép có khối lặp rồi. Đừng đặt nó trong khối lặp nhé!" (breach `spellLoopDepth`); khối lặp vừa thả nằm trong thân `dạy phép` (khối được thả có gốc là khối `dạy phép`) thì nói "Phép này đang ở trong khối lặp. Đừng thêm lặp nhé!" (breach `spellBodyLoopDepth`). Khác `loopDepth` khi lặp lồng viết thẳng; không nói "vòng", vì "vòng" là một lần chạy, `glossary.md`).
 
 ## 8. Gợi ý "chỉ bước tiếp" (tầng 2)
 - Lấy lời giải (`level.solution`), so với chương trình hiện tại theo thứ tự trước (như `editDistance`, kể cả thân lặp / nếu), giữ **đoạn đầu bé đã ghép đúng**, tìm **khối đầu tiên sau đoạn đó** và **chỗ nối** của nó (khối cha + tên input, hoặc khối đứng trước). Bé làm đúng bước vừa chỉ thì lần mua sau chỉ khối kế tiếp, không bao giờ quay lại bước 1 (góp ý HLV 10/2026).
@@ -129,7 +138,8 @@ Vì vậy:
     - `null`: chương trình đã giống lời giải (hoặc một bên thiếu `cq_start`).
   - `toolbox`: các loại khối bé kéo được; `add`/`replace` chỉ dùng chúng. Màn `parsons` truyền `[]`: chỉ có `move`/`edit`/`remove`, và không bao giờ xóa một khối lời giải cần mà thanh khối không cho lại.
   - `capacityLeft ≤ 0`: không đề nghị khối mới; nếu bước đầu cần khối mới thì bỏ chồng khối rời trước, hoặc một khối thừa / dùng lại khối đã có.
-  - `block` là khối của lời giải đứng một mình (bỏ `next` và khối con, giữ shadow), id `NEXT_STEP_BLOCK_ID`. Hàm định nghĩa ("để làm…") chưa được so (chỉ có từ Thế giới 8).
+  - `block` là khối của lời giải đứng một mình (bỏ `next` và khối con, giữ shadow), id `NEXT_STEP_BLOCK_ID`.
+  - **Phép thuật** (ADR-0023 §3, P4-06): màn có `procedures` truyền `procedureOrder` (id các phép theo `level.procedures`) cho `nextStep` (`features/hints/useHints.ts`) và `editDistance` (số khối đã sửa của màn săn lỗi, `PlayScreen.tsx`). Thiếu cả khối `dạy phép` thì bước là `add` với `anchor.blockId === ''` (khối gốc mới, đặt đâu cũng được): popover đứng cạnh mép phải chương trình, không tô chỗ nối, câu "Kéo khối này ra vùng ghép khối nhé!" (`vi.hints.nextStep.addTop`). Bước `move` tới chỗ trống (`anchor.blockId === ''`) nói "Kéo khối sáng ra chỗ trống nhé!" (`moveTop`). Khối sáng trong flyout so cả `type` lẫn ô `PROC`, nên với 2 phép chỉ khối `làm phép` của đúng phép nhấp nháy.
 - **Phần hiển thị**: `showNextStepPopover(workspace, step, { onClose })` trong `apps/web/src/blockly/nextStepPopover.ts` (+ `.css`), trả `{ element, close() }`. Câu của Măng: `nextStepMessage(step)` (`vi.hints.nextStep`).
   - Popover (`role="dialog"`, không modal) gắn vào div `.cq-blockly` (cha của `injectionDiv`), đặt **bên phải cả chồng khối** (không che chương trình; không đủ chỗ thì sang **trái mép trái** của chồng khối), ngang hàng với chỗ nối của `anchor` (`nextConnection` / `getInput(name).connection`) hoặc với khối cần sửa/bỏ, đổi sang pixel bằng `utils.svgMath.wsToScreenCoordinates`. Mép trên kẹp trong chiều cao vùng `.cq-blockly` (không tràn xuống dưới). Đặt lại khi workspace cuộn/zoom (`VIEWPORT_CHANGE`) và khi `.cq-blockly` đổi cỡ (`ResizeObserver`).
   - Xem trước (`add`, `replace`, `edit`): `mountReadOnlyWorkspace` (`blockly/readOnlyWorkspace.ts`, dùng chung với lời giải tầng 3), khối mờ, viền nét đứt. `inject` biến workspace mới thành "main workspace" của Blockly; hàm trả vai đó về workspace chính ngay và khi gỡ.
@@ -138,6 +148,8 @@ Vì vậy:
   - Màn chơi đọc chương trình bằng `handle.getState().json` (đồng bộ, §2) và đưa cho `useHints().buy(2, …)`, hàm này tính bước **trước** khi trừ xu.
 - Lời giải tầng 3: `screens/play/SolutionViewer.tsx` (lớp phủ `aria-modal`, workspace chỉ đọc, `zoomToFit` tối đa 1,2×). Đã nối vào màn chơi: `hint-engine.md` §7.
 - Mũi tên của gợi ý tầng 0: `blockly/hintPointer.ts` (`hintTargetBlock`, `pointAtBlock`, `pointAtElement`), xem `hint-engine.md` §7 mục 4.
+
+- **Soạn màn** (level editor): màn có `procedures` không mở được, báo "Chưa hỗ trợ phép thuật. Màn này có phép." (`hasSpells`, `features/editor/draft.ts`), vì editor chưa có giao diện cho phép và sẽ làm mất khối `dạy phép`.
 
 ## 9. Tiếng Việt
 - `Blockly.setLocale(vi)` từ `blockly/msg/vi` (đã có sẵn tiếng Việt cho khối có sẵn).

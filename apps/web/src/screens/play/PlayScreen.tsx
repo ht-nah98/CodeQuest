@@ -125,6 +125,8 @@ declare global {
       vars: string[];
       /** Spells started / ended during replays (ADR-0023), as `call:<id>` / `ret:<id>`. */
       spells: string[];
+      /** Cells stepped onto as the replay plays them (events with a `to` cell), as `row,col`. */
+      moves: string[];
       /** Mode predict: the engine's answer for the level's program. */
       answerKey?: string | undefined;
       /** `reasonCode` of the last run (null for a win), e.g. WRONG_COUNT. */
@@ -625,6 +627,10 @@ function PlaySession({
         lastEventSfxRef.current = sfx;
         audio.playSfx(sfx);
         feedOf()?.event(event);
+        if (import.meta.env.DEV) {
+          const to = (event as { to?: unknown }).to;
+          if (Array.isArray(to)) window.__cqPlay?.moves.push(to.join(','));
+        }
       },
       onReset: () => {
         feedOf()?.reset();
@@ -664,6 +670,7 @@ function PlaySession({
       controller.abort();
       // A mark or highlight left by the replay belongs to this stage's run.
       sense(null);
+      spell(null);
       highlight(null);
       stageRef.current?.destroy();
       stageRef.current = null;
@@ -852,6 +859,12 @@ function PlaySession({
       // Every run counts as soon as it ran, even if the replay is stopped or the child leaves
       // before it ends (rewards-engine.md §3 "Quy ước gọi").
       runTokenRef.current += 1;
+      // Dev hook: the cells and spells of this run only (highlights keep their history: e2e
+      // specs count them across runs).
+      if (window.__cqPlay) {
+        window.__cqPlay.moves = [];
+        window.__cqPlay.spells = [];
+      }
       setReward(null);
       lastEventSfxRef.current = null;
       // One sound per start, by click, Space or S (the button itself is data-sfx="none").
@@ -1096,6 +1109,7 @@ function PlaySession({
           senses: [],
           vars: [],
           spells: [],
+          moves: [],
           answerKey,
         };
       }
@@ -1159,7 +1173,16 @@ function PlaySession({
         hintChanged();
       }
     },
-    [level.id, level.initialWorkspace, mode, phase, reset, saveDraft, hintChanged],
+    [
+      level.id,
+      level.initialWorkspace,
+      level.procedures,
+      mode,
+      phase,
+      reset,
+      saveDraft,
+      hintChanged,
+    ],
   );
 
   const chooseSpeed = (next: Speed) => {
@@ -1479,9 +1502,14 @@ function PlaySession({
                     ? uiLine('play.blockLimit.instances', t.blockLimit.instances)
                     : breach === 'spellLoopDepth'
                       ? uiLine('play.blockLimit.spellLoopDepth', t.blockLimit.spellLoopDepth)
-                      : depth <= 1
-                        ? uiLine('play.blockLimit.loopDepth', t.blockLimit.loopDepth)
-                        : { text: t.blockLimit.loopDepthMax(depth) },
+                      : breach === 'spellBodyLoopDepth'
+                        ? uiLine(
+                            'play.blockLimit.spellBodyLoopDepth',
+                            t.blockLimit.spellBodyLoopDepth,
+                          )
+                        : depth <= 1
+                          ? uiLine('play.blockLimit.loopDepth', t.blockLimit.loopDepth)
+                          : { text: t.blockLimit.loopDepthMax(depth) },
                 );
               }}
               className="min-h-0 rounded-t-[15px]"

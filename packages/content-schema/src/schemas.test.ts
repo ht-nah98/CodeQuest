@@ -155,7 +155,15 @@ describe('HintRuleSchema', () => {
   it('accepts the "Từng bước" button as a target (P2-11 T10)', () => {
     expectValid(HintRuleSchema, { id: 'h', when: {}, say: 'Bấm Từng bước', point: 'step' });
   });
+  it('accepts instancesFull with a block type (W8: a capped block used up)', () => {
+    expectValid(HintRuleSchema, {
+      id: 'h',
+      when: { trigger: 'change', instancesFull: 'robot_grab' },
+      say: 'Chỉ 1 khối gắp. Gắp 2 lần bằng cách nào?',
+    });
+  });
   it.each([
+    ['empty instancesFull', { id: 'h', when: { instancesFull: '' }, say: 'x' }],
     ['unknown condition key', { id: 'h', when: { hasBlock: 'x' }, say: 'x' }],
     ['bad target', { id: 'h', when: {}, say: 'x', point: 'workspace' }],
     ['bad trigger', { id: 'h', when: { trigger: 'click' }, say: 'x' }],

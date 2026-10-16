@@ -1,0 +1,228 @@
+{
+  "id": "w09-l12",
+  "worldId": "w09-thap-hoa-si",
+  "stage": "practice",
+  "kind": "turtle",
+  "mode": "bughunt",
+  "title": "Bút hạ mấy lần",
+  "objective": "Có 1 khối nằm sai chỗ. Sửa nhé!",
+  "learningGoal": "Khối ở ngoài vòng lặp chạy 1 lần; ở trong thì chạy mỗi vòng.",
+  "misconception": "Khối nằm ngay sau vòng lặp cũng chạy mỗi vòng.",
+  "mission": "Hàng cờ tam giác tầng 3 chỉ có 1 cờ.",
+  "toolbox": [
+    {
+      "type": "turtle_forward",
+      "fields": {
+        "N": 1
+      }
+    },
+    {
+      "type": "turtle_forward",
+      "fields": {
+        "N": 2
+      }
+    },
+    {
+      "type": "turtle_turn_left",
+      "fields": {
+        "DEG": "120"
+      }
+    },
+    "turtle_pen_up",
+    "turtle_pen_down",
+    "cq_repeat"
+  ],
+  "maxLoopDepth": 2,
+  "par": 7,
+  "parEdits": 1,
+  "config": {
+    "size": {
+      "w": 8,
+      "h": 3
+    },
+    "start": {
+      "x": 1,
+      "y": 1,
+      "heading": 0
+    },
+    "target": [
+      {
+        "from": [1, 1],
+        "heading": 0,
+        "path": "F1 L120 F1 L120 F1 L120 U F2 D F1 L120 F1 L120 F1 L120 U F2 D F1 L120 F1 L120 F1 L120 U F2 D"
+      }
+    ],
+    "angles": [120],
+    "grid": "tri"
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "loop1",
+              "fields": {
+                "TIMES": 3
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "cq_repeat",
+                    "id": "loop2",
+                    "fields": {
+                      "TIMES": 3
+                    },
+                    "inputs": {
+                      "DO": {
+                        "block": {
+                          "type": "turtle_forward",
+                          "id": "fwd1",
+                          "fields": {
+                            "N": 1
+                          },
+                          "next": {
+                            "block": {
+                              "type": "turtle_turn_left",
+                              "id": "left1",
+                              "fields": {
+                                "DEG": "120"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "turtle_pen_up",
+                        "id": "up1",
+                        "next": {
+                          "block": {
+                            "type": "turtle_forward",
+                            "id": "fwd2",
+                            "fields": {
+                              "N": 2
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "type": "turtle_pen_down",
+                  "id": "down1"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "loop1",
+              "fields": {
+                "TIMES": 3
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "cq_repeat",
+                    "id": "loop2",
+                    "fields": {
+                      "TIMES": 3
+                    },
+                    "inputs": {
+                      "DO": {
+                        "block": {
+                          "type": "turtle_forward",
+                          "id": "fwd1",
+                          "fields": {
+                            "N": 1
+                          },
+                          "next": {
+                            "block": {
+                              "type": "turtle_turn_left",
+                              "id": "left1",
+                              "fields": {
+                                "DEG": "120"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "turtle_pen_up",
+                        "id": "up1",
+                        "next": {
+                          "block": {
+                            "type": "turtle_forward",
+                            "id": "fwd2",
+                            "fields": {
+                              "N": 2
+                            },
+                            "next": {
+                              "block": {
+                                "type": "turtle_pen_down",
+                                "id": "down1"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "where",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Bấm Từng bước. Bút hạ xuống mấy lần?",
+      "point": "step"
+    },
+    {
+      "id": "missing",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "MISSING_LINES"
+      },
+      "say": "Khối hạ bút chạy mấy lần?",
+      "point": "block:turtle_pen_down"
+    }
+  ],
+  "thinkingHint": "Sau cờ thứ nhất, bút đang lên hay xuống?"
+}

@@ -297,6 +297,9 @@ function mountWorkspace(
   let disposed = false;
   const refreshTaught = () => {
     if (disposed || !hasFlyout || level.procedures === undefined) return;
+    // Never mid-move (mouse drag or keyboard move out of the flyout): redrawing the flyout then
+    // would drop the block being moved.
+    if (workspace.isDragging() || KeyboardMover.mover.isMoving()) return;
     const ids = taughtSpells(workspace);
     const key = [...ids].sort().join(',');
     if (key === taught) return;
@@ -345,8 +348,8 @@ function mountWorkspace(
         audio.playSfx(blocklySfx(sfxEvent(event)));
       }
       if (parsons) markLooseBlocks(workspace);
-      // Not while a block is being dragged out of the flyout: redrawing it would drop the drag.
-      if (!workspace.isDragging()) refreshTaught();
+      // Skipped while a block is dragged or keyboard-moved: the move's end refreshes it.
+      refreshTaught();
       schedule();
     } else if (event instanceof Events.BlockDrag && !event.isStart) {
       // A `dạy phép` dragged out of the flyout: its entry goes once the drag is over.

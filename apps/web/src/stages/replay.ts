@@ -14,7 +14,10 @@ export type Speed = 0.5 | 1 | 2;
 
 /** Pause after each highlight before the action, at speed 1 (stage-rendering.md §1). */
 export const HIGHLIGHT_MS = 120;
-/** A won run plays a little faster, a lost one slower and never above 1× (overview.md §4). */
+/**
+ * A won run plays a little faster, a lost one slower and never above 1× (overview.md §4). A
+ * timed-out run plays at the chosen speed (tempo 1): its lap can be long.
+ */
 export const WIN_TEMPO = 1.25;
 export const LOSE_TEMPO = 0.85;
 /**
@@ -44,10 +47,17 @@ const isReplayBoundary = (event: GameEvent): boolean =>
   isSpellEvent(event);
 
 /**
- * A timed-out run can hold thousands of events: replay only about its first 3 s of stage clock
- * at speed 1 (coach question G13, "tạm dùng 3 giây"), then Măng gets dizzy (T8).
+ * A timed-out run can hold thousands of events (TIMEOUT, coach question G13). When the run goes
+ * round in a cycle, its replay shows at least TIMEOUT_REPLAY_MS of stage clock (speed 1) and
+ * ends on a lap boundary after at least one full lap, so the child sees Măng come round again
+ * before she gets dizzy (T8). Coach bug 16/10/2026: cutting at 3 s stopped w05-boss mid-ring,
+ * which looked like a bug.
  */
 export const TIMEOUT_REPLAY_MS = 3000;
+/** How far (stage clock at speed 1) a timed-out run is searched for a lap. */
+export const TIMEOUT_REPLAY_MAX_MS = 30_000;
+/** Replay of a timed-out run without a lap in TIMEOUT_REPLAY_MAX_MS (at speed 1). */
+export const TIMEOUT_NO_LAP_MS = 5000;
 
 /** A question block was asked (`sense` event): the block and its answer. */
 export interface SenseMark {
@@ -55,32 +65,105 @@ export interface SenseMark {
   value: boolean;
 }
 
+/** Replay time of one event at speed 1, by the replay's own holds or the renderer's estimate. */
+function eventMs(event: GameEvent, estimate: (event: GameEvent) => number): number {
+  if (event.type === 'highlight') return HIGHLIGHT_MS;
+  if (event.type === 'sense') return SENSE_MS;
+  if (event.type === 'var') return VAR_MS;
+  if (isSpellEvent(event)) return SPELL_MS;
+  return estimate(event);
+}
+
+/** Where the actor stands, read from events only (any game kind), plus the boxes. */
+interface Pose {
+  cell: string;
+  dir: string;
+  pen: string;
+  vars: Map<string, number>;
+}
+
 /**
- * The start of a timed-out run's events that fits TIMEOUT_REPLAY_MS at speed 1, by the renderer's
- * own estimates. Cuts only before a highlight or a question, so a block is never left half done;
- * keeps at least one event. Pure, so the cap is the same on every replay.
+ * Updates the pose after an event, from its fields alone: a `turn` sets the heading from `to`
+ * (maze / robot `'N'`…, turtle 0…11); any other `to` / `at` (a cell array, a runner index, a
+ * turtle point) sets the place; `dir` sets the heading; `pen` the turtle's pen; `var` a box.
+ * Limitation (L1): what a robot holds and which jobs are done are not in the pose, so a robot
+ * going round the same crossings while its gripper changes counts as a lap one lap early. That
+ * only shortens a replay, never stops one mid-move.
+ */
+function trackPose(event: GameEvent, pose: Pose): void {
+  const fields = event as GameEvent & { to?: unknown; at?: unknown; dir?: unknown; down?: unknown };
+  if (event.type === 'var') {
+    const { id, value } = event as VarEvent;
+    pose.vars.set(id, value);
+    return;
+  }
+  if (event.type === 'turn') {
+    if (fields.to !== undefined) pose.dir = JSON.stringify(fields.to);
+    return;
+  }
+  if (event.type === 'pen' && typeof fields.down === 'boolean') pose.pen = String(fields.down);
+  const place = fields.to ?? fields.at;
+  if (place !== undefined) pose.cell = JSON.stringify(place);
+  if (typeof fields.dir === 'string') pose.dir = JSON.stringify(fields.dir);
+}
+
+const poseKey = (pose: Pose, blockId: string | null): string =>
+  [
+    pose.cell,
+    pose.dir,
+    pose.pen,
+    [...pose.vars].map(([id, value]) => `${id}=${String(value)}`).join(';'),
+    String(blockId),
+  ].join('|');
+
+/**
+ * The start of a timed-out run's events to replay. Two passes, both pure (the cut is the same on
+ * every replay), timed at speed 1 by the replay's holds and `estimate`:
+ * 1. Up to TIMEOUT_REPLAY_MAX_MS, find the first highlight whose key (place, heading, pen, boxes,
+ *    block) was seen before: that key starts a lap.
+ * 2. With a lap: cut just before the first highlight with that key, not before the lap closed
+ *    once, at or after TIMEOUT_REPLAY_MS, so the replay ends on a lap boundary. Without one: cut
+ *    at the first highlight, question or other boundary at or after TIMEOUT_NO_LAP_MS.
+ * Keeps at least one event; a block is never left half done.
  */
 export function timeoutReplayEvents(
   events: readonly GameEvent[],
   estimate: (event: GameEvent) => number,
 ): GameEvent[] {
-  const kept: GameEvent[] = [];
+  // Pass 1: the key and index of the first repeat, and each highlight's key and clock.
+  const pose: Pose = { cell: '', dir: '', pen: '', vars: new Map() };
+  const keys = new Map<number, string>();
+  const seen = new Set<string>();
+  const startMs: number[] = [];
+  let lap: { key: string; at: number } | null = null;
   let ms = 0;
-  for (const event of events) {
-    if (kept.length > 0 && isReplayBoundary(event) && ms >= TIMEOUT_REPLAY_MS) break;
-    kept.push(event);
-    ms +=
-      event.type === 'highlight'
-        ? HIGHLIGHT_MS
-        : event.type === 'sense'
-          ? SENSE_MS
-          : event.type === 'var'
-            ? VAR_MS
-            : isSpellEvent(event)
-              ? SPELL_MS
-              : estimate(event);
+  for (const [index, event] of events.entries()) {
+    startMs.push(ms);
+    if (event.type === 'highlight') {
+      const key = poseKey(pose, event.blockId);
+      keys.set(index, key);
+      if (lap === null && ms <= TIMEOUT_REPLAY_MAX_MS && seen.has(key)) lap = { key, at: index };
+      seen.add(key);
+    }
+    trackPose(event, pose);
+    ms += eventMs(event, estimate);
   }
-  return kept;
+  // Pass 2: where to cut.
+  let cut = events.length;
+  for (let index = 1; index < events.length; index++) {
+    const event = events[index] as GameEvent;
+    const at = startMs[index] ?? 0;
+    if (lap !== null) {
+      if (index >= lap.at && keys.get(index) === lap.key && at >= TIMEOUT_REPLAY_MS) {
+        cut = index;
+        break;
+      }
+    } else if (isReplayBoundary(event) && at >= TIMEOUT_NO_LAP_MS) {
+      cut = index;
+      break;
+    }
+  }
+  return events.slice(0, cut);
 }
 
 export type PlayResult = 'finished' | 'aborted';
@@ -154,8 +237,9 @@ export class Replay {
   /**
    * Replays a run from the start: highlight events light up their block for HIGHLIGHT_MS, sense
    * events show the question's answer for SENSE_MS, var events go to `onVar` for VAR_MS (the box
-   * panel), call / ret events go to `onSpell` for SPELL_MS, action events go to the renderer. A timed-out
-   * run plays only its start, then Măng gets dizzy. Resolves 'aborted' if reset / destroyed /
+   * panel), call / ret events go to `onSpell` for SPELL_MS, action events go to the renderer. A
+   * timed-out run plays up to one full lap of its cycle (or TIMEOUT_NO_LAP_MS without one), at
+   * the child's own speed, then Măng gets dizzy (`timeoutReplayEvents`). Resolves 'aborted' if reset / destroyed /
    * replayed meanwhile.
    */
   async play(outcome: RunOutcome, options: { step?: boolean } = {}): Promise<PlayResult> {
@@ -164,7 +248,10 @@ export class Replay {
     this.playback = playback;
     const { signal } = playback;
     this.stepping = options.step ?? false;
-    this.tempo = outcome.result === 'success' ? WIN_TEMPO : LOSE_TEMPO;
+    // A timed-out run plays at the child's own speed (tempo 1, no 1× cap): its lap can be long,
+    // and "Nhanh" must help.
+    this.tempo =
+      outcome.result === 'success' ? WIN_TEMPO : outcome.result === 'timeout' ? 1 : LOSE_TEMPO;
     this.applySpeed();
 
     const timedOut = outcome.result === 'timeout';
@@ -320,10 +407,14 @@ export class Replay {
     this.hooks.onHighlight(null);
   }
 
-  /** Stops any replay without touching the scene (the stage is being torn down). */
+  /**
+   * Stops any replay without touching the scene (the stage is being torn down). A lit spell is
+   * workspace state, not scene state: it is turned off.
+   */
   stop(): void {
     this.playback?.abort();
     this.playback = null;
+    this.hooks.onSpell?.(null);
   }
 
   private clearSense(): void {

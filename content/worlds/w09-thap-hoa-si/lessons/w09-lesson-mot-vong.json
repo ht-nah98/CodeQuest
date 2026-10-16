@@ -1,0 +1,86 @@
+{
+  "id": "w09-lesson-mot-vong",
+  "worldId": "w09-thap-hoa-si",
+  "title": "Đủ một vòng",
+  "beforeLevel": "w09-l06",
+  "cards": [
+    {
+      "type": "say",
+      "pose": "point",
+      "text": "Đi đủ 1 vòng là quay 360 độ."
+    },
+    {
+      "type": "say",
+      "pose": "think",
+      "text": "Góc rẽ là chỗ Măng quay thêm, không phải góc hình."
+    },
+    {
+      "type": "demo",
+      "text": "12 lần rẽ 30 độ: đủ 1 vòng.",
+      "kind": "turtle",
+      "config": {
+        "size": {
+          "w": 7,
+          "h": 6
+        },
+        "start": {
+          "x": 3,
+          "y": 5,
+          "heading": 0
+        },
+        "angles": [30],
+        "grid": "tri"
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "cq_repeat",
+                  "id": "loop1",
+                  "fields": {
+                    "TIMES": 12
+                  },
+                  "inputs": {
+                    "DO": {
+                      "block": {
+                        "type": "turtle_forward",
+                        "id": "fwd1",
+                        "fields": {
+                          "N": 1
+                        },
+                        "next": {
+                          "block": {
+                            "type": "turtle_turn_right",
+                            "id": "right1",
+                            "fields": {
+                              "DEG": "30"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "quiz",
+      "text": "Hình vuông rẽ 4 lần. Mỗi lần mấy độ?",
+      "options": ["90", "60"],
+      "correct": 0,
+      "explain": "90+90+90+90 = 360: đủ 1 vòng."
+    }
+  ]
+}

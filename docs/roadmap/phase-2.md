@@ -240,7 +240,7 @@ Theo bảng ở `curriculum.md` (mục Thế giới 3 do P2-10 viết). `world.j
 
 **Tiến độ phần web P2-11a + P2-11c (05/10/2026)**, chưa commit:
 - Blockly: `cq_if`, `cq_if_else`, `cq_repeat_until`, `runner_at_goal` trong thanh khối màn chơi (nhóm "ĐIỀU KIỆN", "LẶP", "CÂU HỎI"); ô câu hỏi trống nền sáng viền nét đứt; bộ chặn thả khối `maxLoopDepth` / `maxInstances` (`blockly/blockLimits.ts`: hoàn tác cả thao tác + câu của Măng); `EMPTY_CONDITION` rung khối có ô trống (`blockly-integration.md` §5–§7).
-- Phát lại: `sense` → khối hỏi sáng ✔/✘ (`blockly/senseMark.ts`), theo tốc độ, từng bước dừng trước mỗi câu hỏi; `TIMEOUT` phát ~3 s (G13) rồi Măng chóng mặt (`dizzy`), cả trong thẻ `demo` (`stage-rendering.md` §1).
+- Phát lại: `sense` → khối hỏi sáng ✔/✘ (`blockly/senseMark.ts`), theo tốc độ, từng bước dừng trước mỗi câu hỏi; `TIMEOUT` phát ~3 s (G13; từ 16/10/2026: ít nhất 3 s và trọn một vòng, không có vòng thì ~5 s, `stage-rendering.md` §1) rồi Măng chóng mặt (`dizzy`), cả trong thẻ `demo` (`stage-rendering.md` §1).
 - Mũi tên gợi ý `step` (nút Từng bước); `w03-l02` đổi sang `point: "step"`.
 - Vật phẩm: chìa khóa, bạn (Gà con), lồng đóng/mở, đích khóa, bảng vật phẩm, bạn đi theo, `NEED_*` nhấp nháy trên runner, maze, dải cả đường, "Xem cả đường", thẻ đáp án (`stage-rendering.md` §4 "Vật phẩm nhiệm vụ").
 - Level editor: thanh khối có `cq_repeat_until`, `cq_if`, `cq_if_else`; ô `maxLoopDepth`, ô "tối đa" (`maxInstances`) cạnh mỗi khối được tick; công cụ "Đặt chìa khóa / Đặt bạn" (runner) và cọ "Chìa khóa / Bạn" (maze); bật/tắt "nhặt hết măng" giữ vật phẩm; `maxLoopDepth` không còn bị coi là khóa lạ khi mở file; khóa cache vét cạn tính `maxInstances`/`maxLoopDepth`, worker dùng `WORKER_MAX_CATALOG_ENTRIES`.

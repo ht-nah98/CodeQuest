@@ -6,10 +6,12 @@ import { blockTypeCounts, loopDepth, PROC_DEF_TYPES } from '@codequest/engine';
 export type BlockLimits = Pick<Level, 'maxLoopDepth' | 'maxInstances'>;
 
 /**
- * Which limit a workspace breaks: loops nested too deep, too deep only because a `làm phép`
- * whose spell loops sits in a loop (ADR-0023 §3, effective depth), or too many blocks of one type.
+ * Which limit a workspace breaks: loops nested too deep as written; too deep only because a
+ * `làm phép` whose spell has a loop sits in a loop (ADR-0023 §3, effective depth), told apart by
+ * what the child just moved (`spellLoopDepth`: the call or a loop around it; `spellBodyLoopDepth`:
+ * a loop put into the body of a spell cast inside a loop); or too many blocks of one type.
  */
-export type BlockLimitBreach = 'loopDepth' | 'spellLoopDepth' | 'instances';
+export type BlockLimitBreach = 'loopDepth' | 'spellLoopDepth' | 'spellBodyLoopDepth' | 'instances';
 
 /** The workspace with its `dạy phép` blocks made plain stacks: loop depth as written. */
 function writtenOnly(workspace: WorkspaceJson): WorkspaceJson {
@@ -70,7 +72,20 @@ export function guardBlockLimits(
   if (limits.maxLoopDepth === undefined && limits.maxInstances === undefined) return () => {};
   return guardWorkspaceChanges(
     workspace,
-    () => blockLimitBreach(serialization.workspaces.save(workspace) as WorkspaceJson, limits),
+    (movedId) => {
+      const breach = blockLimitBreach(
+        serialization.workspaces.save(workspace) as WorkspaceJson,
+        limits,
+      );
+      // Which side of the spell the child touched: a block that landed inside a `dạy phép`.
+      const root = movedId === null ? null : workspace.getBlockById(movedId)?.getRootBlock();
+      return breach === 'spellLoopDepth' &&
+        root !== undefined &&
+        root !== null &&
+        PROC_DEF_TYPES.includes(root.type)
+        ? 'spellBodyLoopDepth'
+        : breach;
+    },
     onBlocked,
   );
 }
@@ -82,20 +97,23 @@ export function guardBlockLimits(
  */
 export function guardWorkspaceChanges<B>(
   workspace: Workspace,
-  breachNow: () => B | null,
+  /** The breach now; `movedId` is the block of the last recorded move / create, if any. */
+  breachNow: (movedId: string | null) => B | null,
   onBlocked: (breach: B) => void,
 ): () => void {
-  let wasBreaching = breachNow() !== null;
+  let wasBreaching = breachNow(null) !== null;
   let pending: ReturnType<typeof setTimeout> | undefined;
   /** Event group of the last recorded move / create the guard saw. */
   let lastGroup: string | null = null;
+  /** Block of the last recorded move / create the guard saw. */
+  let lastBlockId: string | null = null;
   // `isDragging` exists on rendered workspaces only (headless tests may stub it).
   const dragging = () =>
     (workspace as Workspace & { isDragging?: () => boolean }).isDragging?.() === true;
   const check = () => {
     pending = undefined;
     if (dragging()) return;
-    const breach = breachNow();
+    const breach = breachNow(lastBlockId);
     if (breach !== null && !wasBreaching) {
       // Undo only a change we saw end: the last undo entry must be of the group we last saw.
       if (workspace.getUndoStack().at(-1)?.group !== lastGroup) return;
@@ -104,7 +122,7 @@ export function guardWorkspaceChanges<B>(
       const redo = workspace.getRedoStack();
       const group = redo.at(-1)?.group;
       while (redo.length > 0 && redo.at(-1)?.group === group) redo.pop();
-      wasBreaching = breachNow() !== null;
+      wasBreaching = breachNow(null) !== null;
     } else {
       wasBreaching = breach !== null;
     }
@@ -114,6 +132,7 @@ export function guardWorkspaceChanges<B>(
     if (event.isUiEvent || !event.recordUndo) return;
     if (!(event instanceof Events.BlockMove) && !(event instanceof Events.BlockCreate)) return;
     lastGroup = event.group;
+    lastBlockId = (event as Events.BlockBase).blockId ?? null;
     if (pending === undefined) pending = setTimeout(check, 0);
   };
   workspace.addChangeListener(listener);

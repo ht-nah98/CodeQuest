@@ -1,0 +1,79 @@
+{
+  "id": "w09-lesson-re-phai",
+  "worldId": "w09-thap-hoa-si",
+  "title": "Khối rẽ phải",
+  "beforeLevel": "w09-l02",
+  "cards": [
+    {
+      "type": "say",
+      "pose": "point",
+      "text": "Khối mới! Rẽ phải 90 độ: quay tại chỗ, chưa đi"
+    },
+    {
+      "type": "demo",
+      "text": "Tiến, rẽ phải, tiến: chữ L.",
+      "kind": "turtle",
+      "config": {
+        "size": {
+          "w": 4,
+          "h": 4
+        },
+        "start": {
+          "x": 1,
+          "y": 3,
+          "heading": 0
+        },
+        "angles": [90],
+        "grid": "square"
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "turtle_forward",
+                  "id": "fwd1",
+                  "fields": {
+                    "N": 2
+                  },
+                  "next": {
+                    "block": {
+                      "type": "turtle_turn_right",
+                      "id": "right1",
+                      "fields": {
+                        "DEG": "90"
+                      },
+                      "next": {
+                        "block": {
+                          "type": "turtle_forward",
+                          "id": "fwd2",
+                          "fields": {
+                            "N": 2
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "quiz",
+      "text": "Măng nhìn lên, rẽ phải 90 độ. Giờ nhìn đâu?",
+      "options": ["Sang phải", "Sang trái"],
+      "correct": 0,
+      "explain": "90 độ là góc vuông. Nhìn lên, rẽ phải: nhìn sang phải."
+    }
+  ]
+}

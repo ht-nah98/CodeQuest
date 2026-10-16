@@ -1,0 +1,113 @@
+{
+  "id": "w09-lesson-lap-long",
+  "worldId": "w09-thap-hoa-si",
+  "title": "Lặp trong lặp",
+  "beforeLevel": "w09-l10",
+  "cards": [
+    {
+      "type": "say",
+      "pose": "point",
+      "text": "Vòng trong chạy hết, vòng ngoài mới đi tiếp."
+    },
+    {
+      "type": "demo",
+      "text": "Vòng trong vẽ ô vuông. Vòng ngoài chạy 2 lần.",
+      "kind": "turtle",
+      "config": {
+        "size": {
+          "w": 6,
+          "h": 3
+        },
+        "start": {
+          "x": 1,
+          "y": 2,
+          "heading": 0
+        },
+        "angles": [90],
+        "grid": "square"
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "cq_repeat",
+                  "id": "loop1",
+                  "fields": {
+                    "TIMES": 2
+                  },
+                  "inputs": {
+                    "DO": {
+                      "block": {
+                        "type": "cq_repeat",
+                        "id": "loop2",
+                        "fields": {
+                          "TIMES": 4
+                        },
+                        "inputs": {
+                          "DO": {
+                            "block": {
+                              "type": "turtle_forward",
+                              "id": "fwd1",
+                              "fields": {
+                                "N": 1
+                              },
+                              "next": {
+                                "block": {
+                                  "type": "turtle_turn_right",
+                                  "id": "right1",
+                                  "fields": {
+                                    "DEG": "90"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "next": {
+                          "block": {
+                            "type": "turtle_pen_up",
+                            "id": "up1",
+                            "next": {
+                              "block": {
+                                "type": "turtle_forward",
+                                "id": "fwd2",
+                                "fields": {
+                                  "N": 2
+                                },
+                                "next": {
+                                  "block": {
+                                    "type": "turtle_pen_down",
+                                    "id": "down1"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "quiz",
+      "text": "Lặp 2 lần { lặp 4 lần { tiến } }. Tiến mấy lần?",
+      "options": ["8 lần", "4 lần"],
+      "correct": 0,
+      "explain": "2 × 4 = 8: vòng trong chạy hết mỗi lần."
+    }
+  ]
+}

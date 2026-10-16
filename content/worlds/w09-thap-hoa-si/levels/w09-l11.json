@@ -1,0 +1,286 @@
+{
+  "id": "w09-l11",
+  "worldId": "w09-thap-hoa-si",
+  "stage": "practice",
+  "kind": "turtle",
+  "mode": "predict",
+  "title": "Vòng trong chạy hết",
+  "objective": "Măng vẽ mấy tam giác? Đoán xem!",
+  "learningGoal": "Vòng trong chạy hết mỗi lần vòng ngoài chạy.",
+  "misconception": "Vòng trong chỉ chạy 1 lần.",
+  "toolbox": [],
+  "config": {
+    "size": {
+      "w": 7,
+      "h": 5
+    },
+    "start": {
+      "x": 1,
+      "y": 1,
+      "heading": 0
+    },
+    "angles": [120],
+    "grid": "tri"
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "loop1",
+              "fields": {
+                "TIMES": 2
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "turtle_forward",
+                    "id": "fwd1",
+                    "fields": {
+                      "N": 2
+                    },
+                    "next": {
+                      "block": {
+                        "type": "cq_repeat",
+                        "id": "loop2",
+                        "fields": {
+                          "TIMES": 3
+                        },
+                        "inputs": {
+                          "DO": {
+                            "block": {
+                              "type": "turtle_forward",
+                              "id": "fwd2",
+                              "fields": {
+                                "N": 1
+                              },
+                              "next": {
+                                "block": {
+                                  "type": "turtle_turn_left",
+                                  "id": "left1",
+                                  "fields": {
+                                    "DEG": "120"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "predict": {
+    "options": [
+      {
+        "drawProgram": {
+          "blocks": {
+            "languageVersion": 0,
+            "blocks": [
+              {
+                "type": "cq_start",
+                "id": "start",
+                "x": 40,
+                "y": 40,
+                "deletable": false,
+                "next": {
+                  "block": {
+                    "type": "cq_repeat",
+                    "id": "loop1",
+                    "fields": {
+                      "TIMES": 2
+                    },
+                    "inputs": {
+                      "DO": {
+                        "block": {
+                          "type": "turtle_forward",
+                          "id": "fwd1",
+                          "fields": {
+                            "N": 2
+                          },
+                          "next": {
+                            "block": {
+                              "type": "cq_repeat",
+                              "id": "loop2",
+                              "fields": {
+                                "TIMES": 3
+                              },
+                              "inputs": {
+                                "DO": {
+                                  "block": {
+                                    "type": "turtle_forward",
+                                    "id": "fwd2",
+                                    "fields": {
+                                      "N": 1
+                                    },
+                                    "next": {
+                                      "block": {
+                                        "type": "turtle_turn_left",
+                                        "id": "left1",
+                                        "fields": {
+                                          "DEG": "120"
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "label": "2 tam giác"
+      },
+      {
+        "drawProgram": {
+          "blocks": {
+            "languageVersion": 0,
+            "blocks": [
+              {
+                "type": "cq_start",
+                "id": "start",
+                "x": 40,
+                "y": 40,
+                "deletable": false,
+                "next": {
+                  "block": {
+                    "type": "turtle_forward",
+                    "id": "fwd1",
+                    "fields": {
+                      "N": 4
+                    },
+                    "next": {
+                      "block": {
+                        "type": "cq_repeat",
+                        "id": "loop1",
+                        "fields": {
+                          "TIMES": 3
+                        },
+                        "inputs": {
+                          "DO": {
+                            "block": {
+                              "type": "turtle_forward",
+                              "id": "fwd2",
+                              "fields": {
+                                "N": 1
+                              },
+                              "next": {
+                                "block": {
+                                  "type": "turtle_turn_left",
+                                  "id": "left1",
+                                  "fields": {
+                                    "DEG": "120"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "label": "1 tam giác ở cuối"
+      },
+      {
+        "drawProgram": {
+          "blocks": {
+            "languageVersion": 0,
+            "blocks": [
+              {
+                "type": "cq_start",
+                "id": "start",
+                "x": 40,
+                "y": 40,
+                "deletable": false,
+                "next": {
+                  "block": {
+                    "type": "cq_repeat",
+                    "id": "loop1",
+                    "fields": {
+                      "TIMES": 2
+                    },
+                    "inputs": {
+                      "DO": {
+                        "block": {
+                          "type": "turtle_forward",
+                          "id": "fwd1",
+                          "fields": {
+                            "N": 2
+                          },
+                          "next": {
+                            "block": {
+                              "type": "turtle_forward",
+                              "id": "fwd2",
+                              "fields": {
+                                "N": 1
+                              },
+                              "next": {
+                                "block": {
+                                  "type": "turtle_turn_left",
+                                  "id": "left1",
+                                  "fields": {
+                                    "DEG": "120"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "label": "Đường gấp khúc"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "step",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Bấm Từng bước. Vòng trong chạy mấy lần?",
+      "point": "step"
+    },
+    {
+      "id": "count",
+      "when": {
+        "trigger": "idle"
+      },
+      "say": "Mỗi lần vòng ngoài chạy, vòng trong vẽ gì?"
+    }
+  ],
+  "thinkingHint": "Vòng ngoài chạy 2 lần. Mỗi lần có gì?"
+}

@@ -1,0 +1,135 @@
+{
+  "id": "w09-l05",
+  "worldId": "w09-thap-hoa-si",
+  "stage": "practice",
+  "kind": "turtle",
+  "mode": "build",
+  "title": "Bậc thang",
+  "objective": "Vẽ bậc thang đi lên nhé!",
+  "learningGoal": "Rẽ trái và rẽ phải quay hai phía khác nhau.",
+  "misconception": "Rẽ trái hay rẽ phải cũng như nhau.",
+  "mission": "Tầng 2 có cầu thang lên mái.",
+  "toolbox": [
+    {
+      "type": "turtle_forward",
+      "fields": {
+        "N": 1
+      }
+    },
+    {
+      "type": "turtle_turn_left",
+      "fields": {
+        "DEG": "90"
+      }
+    },
+    {
+      "type": "turtle_turn_right",
+      "fields": {
+        "DEG": "90"
+      }
+    },
+    "cq_repeat"
+  ],
+  "maxLoopDepth": 1,
+  "par": 5,
+  "config": {
+    "size": {
+      "w": 5,
+      "h": 5
+    },
+    "start": {
+      "x": 1,
+      "y": 1,
+      "heading": 0
+    },
+    "target": [
+      {
+        "from": [1, 1],
+        "heading": 0,
+        "path": "F1 L90 F1 R90 F1 L90 F1 R90 F1 L90 F1 R90"
+      }
+    ],
+    "angles": [90],
+    "grid": "square"
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "loop1",
+              "fields": {
+                "TIMES": 3
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "turtle_forward",
+                    "id": "fwd1",
+                    "fields": {
+                      "N": 1
+                    },
+                    "next": {
+                      "block": {
+                        "type": "turtle_turn_left",
+                        "id": "left1",
+                        "fields": {
+                          "DEG": "90"
+                        },
+                        "next": {
+                          "block": {
+                            "type": "turtle_forward",
+                            "id": "fwd2",
+                            "fields": {
+                              "N": 1
+                            },
+                            "next": {
+                              "block": {
+                                "type": "turtle_turn_right",
+                                "id": "right1",
+                                "fields": {
+                                  "DEG": "90"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "new",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Khối mới! Rẽ trái 90 độ: quay tại chỗ, chưa đi",
+      "point": "toolbox:turtle_turn_left"
+    },
+    {
+      "id": "stray",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "EXTRA_LINE"
+      },
+      "say": "Bậc này đi xuống. Rẽ phía nào để đi lên?"
+    }
+  ],
+  "thinkingHint": "Lên một bậc: rẽ trái hay rẽ phải?"
+}
