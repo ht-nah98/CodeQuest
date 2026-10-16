@@ -33,6 +33,7 @@ import {
 } from '@codequest/validator';
 import type { z } from 'zod';
 import { checkCurriculum, type CurriculumInput, type WorldFile } from './curriculum';
+import { checkTurtleLevel, turtleLevelWarnings, turtleT1Warnings } from './turtle';
 
 export type { GameKindLookup } from '@codequest/validator';
 
@@ -332,6 +333,13 @@ export function checkContent(
       // Rule 23 (variables) warnings: (d), (f), (h), (i).
       levelWarnings.push(...withPath(file.path, checked.warnings));
       if (checked.level !== null) entry.detail = levelDetail(checked.level, checked.solutionBlocks);
+      // Rule 26 (turtle, ADR-0024).
+      if (checked.level !== null) issues.push(...checkTurtleLevel(file.path, checked.level));
+      if (checked.level !== null)
+        levelWarnings.push(...turtleLevelWarnings(file.path, checked.level));
+      if (checked.level !== null && !location.isDraft) {
+        levelWarnings.push(...turtleT1Warnings(file.path, checked.level));
+      }
       if (!location.isDraft) curriculum.levels.push({ ...worldFile, level: checked.level });
       claimFileId(location, id, file.path);
       continue;

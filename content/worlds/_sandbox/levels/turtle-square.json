@@ -1,0 +1,102 @@
+{
+  "id": "turtle-square",
+  "worldId": "_sandbox",
+  "stage": "practice",
+  "kind": "turtle",
+  "mode": "build",
+  "title": "Hình vuông",
+  "objective": "Vẽ hình vuông giống hình mẫu nhé!",
+  "learningGoal": "Lặp 4 lần tiến và rẽ phải 90 độ.",
+  "misconception": "Rẽ cũng vẽ nét.",
+  "toolbox": [
+    {
+      "type": "turtle_forward",
+      "fields": {
+        "N": 2
+      }
+    },
+    {
+      "type": "turtle_turn_right",
+      "fields": {
+        "DEG": "90"
+      }
+    },
+    "cq_repeat"
+  ],
+  "par": 3,
+  "maxLoopDepth": 1,
+  "config": {
+    "size": {
+      "w": 4,
+      "h": 4
+    },
+    "start": {
+      "x": 1,
+      "y": 3,
+      "heading": 0
+    },
+    "target": [
+      {
+        "from": [1, 3],
+        "heading": 0,
+        "path": "F2 R90 F2 R90 F2 R90 F2"
+      }
+    ],
+    "angles": [90],
+    "grid": "square"
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "loop3",
+              "fields": {
+                "TIMES": 4
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "turtle_forward",
+                    "id": "fwd1",
+                    "fields": {
+                      "N": 2
+                    },
+                    "next": {
+                      "block": {
+                        "type": "turtle_turn_right",
+                        "id": "right2",
+                        "fields": {
+                          "DEG": "90"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "side",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Hình vuông có mấy cạnh?",
+      "point": "toolbox:cq_repeat"
+    }
+  ],
+  "thinkingHint": "Mỗi cạnh: tiến rồi rẽ."
+}

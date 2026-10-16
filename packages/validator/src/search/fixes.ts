@@ -4,11 +4,20 @@
  * as `editDistance` (insert, delete or change one block; a `cq_repeat` count change, a sensor's
  * dropdown, a block moved into another input are one change each, P2-11). The first distance
  * with a win is the minimum; all fixes at it are counted.
+ *
+ * Spells (ADR-0023 §4): after the main program's tokens come the `dạy phép` blocks (one token
+ * each, at the top, in `level.procedures` order) with their bodies, as in `editDistance`; so a
+ * fix may change a block inside a spell, a `làm phép`'s spell, or teach a missing spell.
  */
 import type { Level } from '@codequest/content-schema';
 import {
   COND_INPUT,
   CQ_IF,
+  CQ_PROC_CALL,
+  CQ_PROC_CALL_N,
+  CQ_PROC_DEF,
+  CQ_PROC_DEF_N,
+  PROC_BODY_INPUT,
   CQ_IF_ELSE,
   CQ_REPEAT_UNTIL,
   CQ_REPEAT_VAR,
@@ -29,17 +38,20 @@ import {
 } from './budget';
 import { InstanceLimits } from './limits';
 import {
+  definitionsFromWorkspace,
   formatProgram,
+  formatProgramWithDefs,
   programBlockTypes,
   programFromWorkspace,
   programLoopDepth,
   programToWorkspace,
   type Condition,
+  type Definitions,
   type Program,
   type Statement,
 } from './program';
-import { searchedTypes } from './shortest';
-import { EMPTY_SLOT, FastSim, UnsearchableLevel, type Code } from './sim';
+import { boxedSpells, callChoices, searchedTypes } from './shortest';
+import { EMPTY_SLOT, FastSim, hasCall, UnsearchableLevel, type Code } from './sim';
 
 export interface FixOptions extends SearchOptions {
   /** Largest number of edits tried. Default `parEdits` (1 when missing). */
@@ -75,6 +87,8 @@ export interface FixResult {
   /** Examples where `runLevel` disagrees with the fast replay (should stay empty). */
   mismatches: string[];
   unsupported: string[];
+  /** Levels with spells only: each example's spell bodies, in `examples` order. */
+  definitions?: Definitions[];
 }
 
 /**
@@ -86,16 +100,22 @@ type TokenSymbol =
   | { repeatVar: number }
   | { atom: number }
   | { cond: number }
-  | { control: string };
+  | { control: string }
+  /** `làm phép` of spell `call` (index into `FastSim.procIds`), `arg`: `làm phép … với`. */
+  | { call: number; arg?: number }
+  /** The `dạy phép` block of spell `spell`, at the top after the main program. */
+  | { spell: number };
 
 /** Input names of tokens, as in `editDistance`: '' under `cq_start`, then the inputs. */
-const INPUTS = ['', 'DO', 'ELSE', COND_INPUT] as const;
+const INPUTS = ['', 'DO', 'ELSE', COND_INPUT, PROC_BODY_INPUT] as const;
 const TOP = 0;
 const DO = 1;
 const ELSE = 2;
 const COND = 3;
+/** The body of a `dạy phép` token (its own input, as in `editDistance`). */
+const BODY = 4;
 /** Order of a block's inputs in a pre-order token list (sorted by name: COND, DO, ELSE). */
-const INPUT_ORDER: readonly number[] = [-1, 1, 2, 0];
+const INPUT_ORDER: readonly number[] = [-1, 1, 2, 0, 3];
 
 function blockStatements(program: Program): Statement[] {
   return program.flatMap((statement): Statement[] => {
@@ -105,7 +125,7 @@ function blockStatements(program: Program): Statement[] {
     if ('if' in statement) {
       return [...blockStatements(statement.then), ...blockStatements(statement.else ?? [])];
     }
-    return [statement];
+    return 'call' in statement ? [] : [statement];
   });
 }
 
@@ -174,7 +194,7 @@ function controlTypes(program: Program, out = new Set<string>()): Set<string> {
  */
 function hasEmptyBody(code: Code): boolean {
   return code.some((item) => {
-    if (typeof item === 'number') return false;
+    if (typeof item === 'number' || 'call' in item) return false;
     if ('times' in item || 'timesVar' in item || 'until' in item)
       return item.body.length === 0 || hasEmptyBody(item.body);
     const otherwise = item.else ?? [];
@@ -191,7 +211,20 @@ type MutableItem =
   | { times: number; body: MutableItem[] }
   | { timesVar: number; body: MutableItem[] }
   | { cond: number; then: MutableItem[]; else: MutableItem[] | null }
-  | { until: number; body: MutableItem[] };
+  | { until: number; body: MutableItem[] }
+  | { call: number; arg?: number };
+
+/** A `dạy phép` block of a token list and its body. */
+interface SpellItem {
+  spell: number;
+  body: MutableItem[];
+}
+
+/** A parsed token list: the main program, then each spell's body (null: not taught). */
+interface Parsed {
+  main: Code;
+  bodies: Array<Code | null>;
+}
 
 /**
  * Finds the fewest edits that fix a `bughunt` level's `initialWorkspace` with its toolbox, how
@@ -208,7 +241,28 @@ export function findFixes(original: Level, options: FixOptions = {}): FixResult 
   }
   const initial = programFromWorkspace(level.initialWorkspace);
   if (initial === null) throw new Error('initialWorkspace is not a program the search can read');
-  const sim = new FastSim(kind, level, blockStatements(initial), undefined, conditionsOf(initial));
+  const initialDefs = definitionsFromWorkspace(level.initialWorkspace);
+  if (initialDefs === null) {
+    throw new UnsearchableLevel('unsearchable: a spell of initialWorkspace cannot be read');
+  }
+  const procIds = (level.procedures ?? []).map((procedure) => procedure.id);
+  const boxed = boxedSpells(level);
+  const unknownSpell = Object.keys(initialDefs).find((id) => !procIds.includes(id));
+  if (unknownSpell !== undefined) {
+    throw new UnsearchableLevel(
+      `unsearchable: initialWorkspace teaches undeclared spell "${unknownSpell}"`,
+    );
+  }
+  const bodyStatements = Object.values(initialDefs).flatMap(blockStatements);
+  const bodyConditions = Object.values(initialDefs).flatMap(conditionsOf);
+  const sim = new FastSim(
+    kind,
+    level,
+    [...blockStatements(initial), ...bodyStatements],
+    undefined,
+    [...conditionsOf(initial), ...bodyConditions],
+  );
+  const initialPrograms = [initial, ...Object.values(initialDefs)];
   const budget = new Budget(options);
   const maxEdits = options.maxEdits ?? level.parEdits ?? 1;
   const maxExamples = options.maxExamples ?? DEFAULT_MAX_EXAMPLES;
@@ -219,26 +273,52 @@ export function findFixes(original: Level, options: FixOptions = {}): FixResult 
   const maxKept = options.maxKept ?? MAX_KEPT_FIXES;
 
   // Controls a token can be: the toolbox's, and those of initialWorkspace (keep or delete only).
-  const initialControls = controlTypes(initial);
+  const initialControls = new Set(initialPrograms.flatMap((program) => [...controlTypes(program)]));
   const controls = [CQ_IF, CQ_IF_ELSE, CQ_REPEAT_UNTIL].filter(
     (type) => sim.controls.has(type) || initialControls.has(type),
   );
   const conditional = controls.length > 0 || sim.conds.length > 0;
 
   const symbols: TokenSymbol[] = sim.atoms.map((_, atom) => ({ atom }));
-  const counts = new Set(repeatCounts(initial));
+  const counts = new Set(initialPrograms.flatMap(repeatCounts));
   if (sim.hasRepeat)
     for (const times of options.repeatTimes ?? DEFAULT_REPEAT_TIMES) counts.add(times);
   for (const times of [...counts].sort((a, b) => a - b)) symbols.push({ repeat: times });
   // Box loops (ADR-0022): the toolbox's, and those of initialWorkspace (keep or delete only).
   const boxLoops = new Set(sim.repeatVars);
-  for (const id of repeatVarsOf(initial)) {
+  for (const id of initialPrograms.flatMap(repeatVarsOf)) {
     const index = sim.variables.findIndex((variable) => variable.id === id);
     if (index !== -1) boxLoops.add(index);
   }
   for (const repeatVar of [...boxLoops].sort((a, b) => a - b)) symbols.push({ repeatVar });
   for (const control of controls) symbols.push({ control });
   sim.conds.forEach((_, cond) => symbols.push({ cond }));
+  // Spells (ADR-0023): calls if the toolbox or initialWorkspace has them, one token per spell.
+  const initialCalls = initialPrograms.some((program) => callsOf(program).length > 0);
+  const callable = sim.offersCall || initialCalls;
+  const spells = procIds.length > 0 && (callable || Object.keys(initialDefs).length > 0);
+  // One call symbol per toolbox choice (`làm phép … với` per number), and per call of
+  // initialWorkspace (keep or delete only when the toolbox does not offer it).
+  const offered = new Set<string>();
+  if (spells) {
+    const callKey = (call: number, arg: number | undefined): string =>
+      `${String(call)}:${String(arg)}`;
+    const add = (call: number, arg: number | undefined): void => {
+      if (symbols.some((x) => 'call' in x && callKey(x.call, x.arg) === callKey(call, arg))) return;
+      symbols.push(arg === undefined ? { call } : { call, arg });
+    };
+    for (const choice of callChoices(level)) {
+      const call = procIds.indexOf(choice.id);
+      offered.add(callKey(call, choice.arg));
+      add(call, choice.arg);
+    }
+    for (const statement of initialPrograms.flatMap(callStatements)) {
+      add(procIds.indexOf(statement.call), statement.arg);
+    }
+    procIds.forEach((_, spell) => symbols.push({ spell }));
+  }
+  const isOffered = (symbol: { call: number; arg?: number }): boolean =>
+    sim.offersCall && offered.has(`${String(symbol.call)}:${String(symbol.arg)}`);
   const base = symbols.length;
   const token = (depth: number, input: number, symbol: number): number =>
     (depth * INPUTS.length + input) * base + symbol;
@@ -291,6 +371,15 @@ export function findFixes(original: Level, options: FixOptions = {}): FixResult 
         }
         toTokens(isIf ? statement.then : statement.body, depth + 1, DO, out);
         if (isIf) toTokens(statement.else ?? [], depth + 1, ELSE, out);
+      } else if ('call' in statement) {
+        const call = procIds.indexOf(statement.call);
+        const symbol = find((s) => 'call' in s && s.call === call && s.arg === statement.arg);
+        if (call === -1 || symbol === -1) {
+          throw new UnsearchableLevel(
+            `unsearchable: initialWorkspace calls undeclared spell "${statement.call}"`,
+          );
+        }
+        out.push(token(depth, input, symbol));
       } else {
         const atom = sim.atomIndex(statement);
         if (atom === -1)
@@ -301,20 +390,38 @@ export function findFixes(original: Level, options: FixOptions = {}): FixResult 
   };
   const start: number[] = [];
   toTokens(initial, 0, TOP, start);
-  const initialCode = sim.compile(initial);
-  const allowEmptyBodies = initialCode !== null && hasEmptyBody(initialCode);
+  procIds.forEach((id, spell) => {
+    const body = initialDefs[id];
+    if (body === undefined) return;
+    start.push(
+      token(
+        0,
+        TOP,
+        symbols.findIndex((s) => 'spell' in s && s.spell === spell),
+      ),
+    );
+    toTokens(body, 1, BODY, start);
+  });
+  const allowEmptyBodies = initialPrograms.some((program) => {
+    const code = sim.compile(program);
+    return code !== null && hasEmptyBody(code);
+  });
 
   // Tokens an edit may write. Without conditions: toolbox blocks at every depth up to the loop
   // depth, loops above it (as before P2-11). With them: any depth an edit can reach (the initial
   // nesting plus one per edit), in every input; loop nesting is checked on each fix instead.
   // Blocks only found in initialWorkspace can be kept or deleted, never added.
-  const maxTokenDepth = conditional
+  // With spells, bodies sit one level down and loop depth is checked on each fix (effective).
+  const deep = conditional || spells;
+  const maxTokenDepth = deep
     ? start.reduce((deepest, value) => Math.max(deepest, depthOf(value)), 0) + maxEdits
     : loopDepth;
   const writableAt: number[][] = [];
   for (let depth = 0; depth <= maxTokenDepth; depth++) {
     const here: number[] = [];
     const inputs = depth === 0 ? [TOP] : conditional ? [DO, ELSE, COND] : [DO];
+    // A spell's body is only right under its `dạy phép` token.
+    if (spells && depth === 1) inputs.push(BODY);
     for (const input of inputs) {
       if (input === ELSE && !controls.includes(CQ_IF_ELSE)) continue;
       symbols.forEach((symbol, index) => {
@@ -326,9 +433,11 @@ export function findFixes(original: Level, options: FixOptions = {}): FixResult 
         else if ('repeat' in symbol) allowed = sim.hasRepeat && depth < maxTokenDepth;
         else if ('repeatVar' in symbol) {
           allowed = sim.repeatVars.includes(symbol.repeatVar) && depth < maxTokenDepth;
-        } else allowed = sim.controls.has(symbol.control) && depth < maxTokenDepth;
-        if (!conditional && 'repeat' in symbol) allowed = depth < loopDepth;
-        if (!conditional && 'repeatVar' in symbol) {
+        } else if ('call' in symbol) allowed = isOffered(symbol);
+        else if ('spell' in symbol) allowed = sim.offersDef && depth === 0;
+        else allowed = sim.controls.has(symbol.control) && depth < maxTokenDepth;
+        if (!deep && 'repeat' in symbol) allowed = depth < loopDepth;
+        if (!deep && 'repeatVar' in symbol) {
           allowed = sim.repeatVars.includes(symbol.repeatVar) && depth < loopDepth;
         }
         if (allowed) here.push(token(depth, input, index));
@@ -350,18 +459,26 @@ export function findFixes(original: Level, options: FixOptions = {}): FixResult 
     after: number | undefined,
     last: boolean,
   ): number[] => {
-    if (!conditional || !last || options.unfilteredEdits === true) return writable;
+    if (!deep || !last || options.unfilteredEdits === true) return writable;
     const deepest = before === undefined ? 0 : depthOf(before) + 1;
     const shallowest = after === undefined ? 0 : Math.max(0, depthOf(after) - 1);
     return writableAt.slice(shallowest, deepest + 1).flat();
   };
 
-  /** Code of a well-formed token list, or null (pre-order of blocks and their inputs). */
-  const parse = (tokens: readonly number[]): Code | null => {
+  /**
+   * Code of a well-formed token list, or null (pre-order of blocks and their inputs; the
+   * `dạy phép` tokens after the main program, each spell at most once, in `procIds` order).
+   */
+  const parse = (tokens: readonly number[]): Parsed | null => {
     const root: MutableItem[] = [];
+    const taught: SpellItem[] = [];
     // The last block placed at each depth, and the open input chain at each depth > 0.
-    const last: Array<MutableItem | undefined> = [];
-    const chains: Array<{ owner: MutableItem; input: number; list: MutableItem[] | null }> = [];
+    const last: Array<MutableItem | SpellItem | undefined> = [];
+    const chains: Array<{
+      owner: MutableItem | SpellItem;
+      input: number;
+      list: MutableItem[] | null;
+    }> = [];
     let previousDepth = -1;
     for (const value of tokens) {
       const depth = depthOf(value);
@@ -371,6 +488,17 @@ export function findFixes(original: Level, options: FixOptions = {}): FixResult 
       previousDepth = depth;
       if (depth === 0) {
         if (input !== TOP || 'cond' in symbol) return null;
+        if ('spell' in symbol) {
+          const previous = taught[taught.length - 1];
+          if (previous !== undefined && previous.spell >= symbol.spell) return null;
+          const spell: SpellItem = { spell: symbol.spell, body: [] };
+          taught.push(spell);
+          last.length = 0;
+          last.push(spell);
+          chains.length = 0;
+          continue;
+        }
+        if (taught.length > 0) return null;
         const item = make(symbol);
         root.push(item);
         last.length = 0;
@@ -404,17 +532,24 @@ export function findFixes(original: Level, options: FixOptions = {}): FixResult 
         last.length = depth + 1;
         continue;
       }
-      if ('cond' in symbol || chain.list === null) return null;
+      if ('cond' in symbol || 'spell' in symbol || chain.list === null) return null;
       const item = make(symbol);
       chain.list.push(item);
       last[depth] = item;
       last.length = depth + 1;
     }
-    return root;
+    const bodies: Array<Code | null> = procIds.map(() => null);
+    for (const spell of taught) bodies[spell.spell] = spell.body;
+    return { main: root, bodies };
   };
   /** A fresh code item for a statement symbol. */
   function make(symbol: TokenSymbol): MutableItem {
     if ('atom' in symbol) return symbol.atom;
+    if ('call' in symbol) {
+      return symbol.arg === undefined
+        ? { call: symbol.call }
+        : { call: symbol.call, arg: symbol.arg };
+    }
     if ('repeat' in symbol) return { times: symbol.repeat, body: [] };
     if ('repeatVar' in symbol) return { timesVar: symbol.repeatVar, body: [] };
     if ('control' in symbol) {
@@ -424,8 +559,13 @@ export function findFixes(original: Level, options: FixOptions = {}): FixResult 
     return -1;
   }
   /** The list an input of `owner` holds (null for the condition slot), or undefined if none. */
-  function openInput(owner: MutableItem, input: number): MutableItem[] | null | undefined {
-    if (typeof owner === 'number') return undefined;
+  function openInput(
+    owner: MutableItem | SpellItem,
+    input: number,
+  ): MutableItem[] | null | undefined {
+    if (typeof owner === 'number' || 'call' in owner) return undefined;
+    if ('spell' in owner) return input === BODY ? owner.body : undefined;
+    if (input === BODY) return undefined;
     if (input === COND) return 'times' in owner || 'timesVar' in owner ? undefined : null;
     if (input === DO) return 'then' in owner ? owner.then : owner.body;
     if (input === ELSE && 'then' in owner && owner.else !== null) return owner.else;
@@ -435,6 +575,10 @@ export function findFixes(original: Level, options: FixOptions = {}): FixResult 
     code.map((item): Statement => {
       if (typeof item === 'number') return sim.atoms[item]?.statement ?? { block: '?' };
       if ('times' in item) return { repeat: item.times, body: toProgram(item.body) };
+      if ('call' in item) {
+        const call = sim.procIds[item.call] ?? '?';
+        return item.arg === undefined ? { call } : { call, arg: item.arg };
+      }
       if ('timesVar' in item) {
         return { repeatVar: sim.variables[item.timesVar]?.id ?? '?', body: toProgram(item.body) };
       }
@@ -447,13 +591,56 @@ export function findFixes(original: Level, options: FixOptions = {}): FixResult 
     });
   const limits = new InstanceLimits(
     level.maxInstances,
-    new Set([...searchedTypes(sim), ...initialControls]),
+    new Set([
+      ...searchedTypes(sim),
+      ...initialControls,
+      // Spells (ADR-0023 §4): their caps count too.
+      ...(spells ? [CQ_PROC_CALL, CQ_PROC_CALL_N, CQ_PROC_DEF, CQ_PROC_DEF_N] : []),
+    ]),
   );
+  /** The spell bodies of a parsed list, by spell id (spells not taught are left out). */
+  const definitionsOf = (parsed: Parsed): Definitions =>
+    Object.fromEntries(
+      procIds.flatMap((id, index) => {
+        const body = parsed.bodies[index];
+        return body === null || body === undefined ? [] : [[id, toProgram(body)]];
+      }),
+    );
   /** maxInstances and maxLoopDepth on a fix (maxBlocks is checked by `sim.wins`). */
-  const withinLimits = (code: Code): boolean => {
-    if (limits.types.length === 0 && level.maxLoopDepth === undefined && !conditional) return true;
-    const program = toProgram(code);
-    return limits.allows(programBlockTypes(program)) && programLoopDepth(program) <= loopDepth;
+  const withinLimits = (parsed: Parsed): boolean => {
+    if (limits.types.length === 0 && level.maxLoopDepth === undefined && !deep) return true;
+    const program = toProgram(parsed.main);
+    const defs = definitionsOf(parsed);
+    return (
+      limits.allows(programBlockTypes(program, new Map(), defs, boxed)) &&
+      programLoopDepth(program, defs) <= loopDepth
+    );
+  };
+  /**
+   * The engine's static spell checks (ADR-0023 §3): no call inside a body, and every call of the
+   * main program names a taught spell with a body. Sets the bodies calls run.
+   */
+  const spellsRun = (parsed: Parsed): boolean => {
+    if (!spells) return true;
+    if (parsed.bodies.some((body) => body !== null && hasCall(body))) return false;
+    const called = new Set<number>();
+    const collect = (code: Code): void => {
+      for (const item of code) {
+        if (typeof item === 'number') continue;
+        if ('call' in item) called.add(item.call);
+        else if ('then' in item) {
+          collect(item.then);
+          collect(item.else ?? []);
+        } else collect(item.body);
+      }
+    };
+    collect(parsed.main);
+    for (const call of called) {
+      const body = parsed.bodies[call];
+      if (body === null || body === undefined || body.length === 0) return false;
+    }
+    sim.procCodes = parsed.bodies.map((body) => body ?? []);
+    return true;
   };
 
   // Every list of the earlier distances (needed to expand them); the last distance is never
@@ -464,6 +651,7 @@ export function findFixes(original: Level, options: FixOptions = {}): FixResult 
   let minEdits: number | null = null;
   let count = 0;
   const examples: Program[] = [];
+  const exampleDefs: Definitions[] = [];
   let searchedEdits = 0;
   let complete = true;
 
@@ -476,17 +664,23 @@ export function findFixes(original: Level, options: FixOptions = {}): FixResult 
       seen.add(key);
       keep.push(tokens);
     }
-    const code = parse(tokens);
+    const parsed = parse(tokens);
     if (
-      code !== null &&
-      (allowEmptyBodies || !hasEmptyBody(code)) &&
-      sim.wins(code, tokens.length) &&
-      withinLimits(code)
+      parsed !== null &&
+      (allowEmptyBodies ||
+        (!hasEmptyBody(parsed.main) &&
+          parsed.bodies.every((body) => body === null || !hasEmptyBody(body)))) &&
+      spellsRun(parsed) &&
+      sim.wins(parsed.main, tokens.length) &&
+      withinLimits(parsed)
     ) {
       if (winners.has(key)) return;
       winners.add(key);
       count++;
-      if (examples.length < maxExamples) examples.push(toProgram(code));
+      if (examples.length < maxExamples) {
+        examples.push(toProgram(parsed.main));
+        exampleDefs.push(definitionsOf(parsed));
+      }
     }
   };
 
@@ -524,17 +718,24 @@ export function findFixes(original: Level, options: FixOptions = {}): FixResult 
 
   registerBlockSpecs(kind.blocks);
   const mismatches: string[] = [];
-  for (const program of examples) {
-    const workspace = programToWorkspace(program);
+  const initialWorkspace = level.initialWorkspace;
+  examples.forEach((program, index) => {
+    const defs = exampleDefs[index] ?? {};
+    const workspace = programToWorkspace(program, defs, boxed);
     const outcome = runLevel({ kind, level, workspace });
-    const edits = editDistance(level.initialWorkspace, workspace);
+    const edits = editDistance(
+      initialWorkspace,
+      workspace,
+      level.procedures?.map((procedure) => procedure.id),
+    );
     if (!countedWin(outcome) || edits !== minEdits) {
       const missed = outcome.result === 'success' && !countedWin(outcome) ? ' misses a goal' : '';
+      const text = spells ? formatProgramWithDefs(program, defs) : formatProgram(program);
       mismatches.push(
-        `${formatProgram(program)}: runLevel ${outcome.result} ${outcome.reasonCode ?? ''}${missed}, ${String(edits)} edits`,
+        `${text}: runLevel ${outcome.result} ${outcome.reasonCode ?? ''}${missed}, ${String(edits)} edits`,
       );
     }
-  }
+  });
 
   return {
     minEdits,
@@ -546,5 +747,25 @@ export function findFixes(original: Level, options: FixOptions = {}): FixResult 
     work: budget.work,
     mismatches,
     unsupported: sim.unsupported,
+    ...(spells && { definitions: exampleDefs }),
   };
+}
+
+/** The spells a program calls (anywhere). */
+function callsOf(program: Program): string[] {
+  return callStatements(program).map((statement) => statement.call);
+}
+
+/** The `làm phép` statements of a program (anywhere). */
+function callStatements(program: Program): Array<{ call: string; arg?: number }> {
+  return program.flatMap((statement): Array<{ call: string; arg?: number }> => {
+    if ('call' in statement) return [statement];
+    if ('repeat' in statement || 'repeatVar' in statement || 'until' in statement) {
+      return callStatements(statement.body);
+    }
+    if ('if' in statement) {
+      return [...callStatements(statement.then), ...callStatements(statement.else ?? [])];
+    }
+    return [];
+  });
 }

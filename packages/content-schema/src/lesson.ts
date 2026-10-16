@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { GameKindIdSchema } from './runtime';
+import { LevelProceduresSchema, checkProcedures } from './procedures';
 import { LevelVariablesSchema, checkVariables } from './variables';
 import { ContentWorkspaceJsonSchema } from './workspace';
 
@@ -28,11 +29,15 @@ export const LessonCardSchema = z.discriminatedUnion('type', [
        * demo has one map, so each box's `start` (if any) holds exactly one number.
        */
       variables: LevelVariablesSchema.optional(),
+      /** Spells the demo's `cq_proc_*` blocks name (ADR-0023), same declaration as a level's. */
+      procedures: LevelProceduresSchema.optional(),
     })
     .superRefine((card, ctx) => {
-      checkVariables(card.variables, undefined, 1, (path, message) => {
+      const report = (path: Array<string | number>, message: string): void => {
         ctx.addIssue({ code: 'custom', path, message });
-      });
+      };
+      checkVariables(card.variables, undefined, 1, report);
+      checkProcedures(card.procedures, card.variables, report);
     }),
   z
     .strictObject({

@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { LevelSchema, type Level } from '@codequest/content-schema';
 import { describe, expect, it } from 'vitest';
 import { resolveLevelConfigs } from '@codequest/games';
+import { programToWorkspace } from '@codequest/validator';
 import { findLevelFiles, judgeLevel, readSharedRules, type ContentReader } from './par';
 
 const contentDir = fileURLToPath(new URL('../../../content', import.meta.url));
@@ -247,5 +248,48 @@ describe('variables (P3-09, ADR-0022)', () => {
     expect(verdict.lines[0]).toBe(
       'shortest: repeat 6 [if bamboo_ahead [var_add(VAR=bamboo NUM=1)], forward]',
     );
+  });
+});
+
+describe('judgeLevel with spells and parUnproven (ADR-0023 §4)', () => {
+  const solution = programToWorkspace([{ call: 'two' }, { call: 'two' }], {
+    two: [{ block: 'maze_forward' }, { block: 'maze_forward' }],
+  });
+  const corridor = LevelSchema.parse({
+    id: 'spell-corridor',
+    worldId: '_sandbox',
+    stage: 'practice',
+    kind: 'maze',
+    mode: 'build',
+    title: 'Phép',
+    objective: 'Tới đích',
+    learningGoal: 'Dạy phép',
+    toolbox: ['maze_forward', 'cq_proc_def', 'cq_proc_call'],
+    par: 4,
+    procedures: [{ id: 'two', name: 'đi hai' }],
+    config: { map: ['#######', '#S...G#', '#######'], startDir: 'E' },
+    solution,
+    hints: [],
+  });
+
+  it('says par is proven for the solution bodies and shows spells', () => {
+    const verdict = judgeLevel(corridor, {});
+    expect(verdict.mark).toBe('✔');
+    expect(verdict.head).toBe(
+      'spell-corridor maze/build  spells two  par 4  spells: solution bodies  min 4 (1 shortest)',
+    );
+    expect(judgeLevel(corridor, { procBodies: 2 }).head).toContain('spells: bodies ≤ 2');
+  });
+
+  it('only warns on a parUnproven level, and says when the flag can go', () => {
+    const proven = judgeLevel({ ...corridor, parUnproven: true }, {});
+    expect(proven.mark).toBe('⚠');
+    expect(proven.lines).toContain('parUnproven can be dropped: the search proves par');
+    const stopped = judgeLevel({ ...corridor, parUnproven: true }, { maxWork: 3 });
+    expect(stopped.mark).toBe('⚠');
+    expect(stopped.lines).toContain('par counted by hand (parUnproven)');
+    // A complete search with no win within par contradicts even a hand-counted par.
+    const tooSmall = judgeLevel({ ...corridor, par: 3, maxBlocks: 3, parUnproven: true }, {});
+    expect(tooSmall.mark).toBe('✖');
   });
 });

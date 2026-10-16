@@ -63,7 +63,12 @@ const placedBlockSchema = z.discriminatedUnion('kind', [
 const movingSeconds = z.number().int().min(1);
 const points = z.number().int().nonnegative();
 
-const costsShape = { forward: movingSeconds, turn: movingSeconds, grab: movingSeconds, release: movingSeconds };
+const costsShape = {
+  forward: movingSeconds,
+  turn: movingSeconds,
+  grab: movingSeconds,
+  release: movingSeconds,
+};
 const pointsShape = { contain: points, neutralize: points, retrieve: points, return: points };
 const timeLimit = z.number().int().min(1).max(600);
 

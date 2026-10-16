@@ -61,7 +61,8 @@ export function programShape(program: Program): string {
     else if ('if' in statement) {
       part = `if ${conditionName(statement.if)} [${programShape(statement.then)}]`;
       if (statement.else !== undefined) part += ` else [${programShape(statement.else)}]`;
-    } else part = blockName(statement.block, statement.fields);
+    } else if ('call' in statement) part = `cast ${statement.call}`;
+    else part = blockName(statement.block, statement.fields);
     const last = parts.length - 1;
     if (!part.includes('[') && (parts[last] === part || parts[last] === `${part}+`)) {
       parts[last] = `${part}+`;

@@ -3,8 +3,14 @@
  * number): the variable blocks and `variables` / `countGoal` of one level, plus the map counts of
  * authoring rule R4 (content-authoring.md §2.2). Sub-rules (a)–(k) and R4 lead the message.
  * Errors break content:check; (d), (f), (h) and (i) are warnings.
+ *
+ * Spell boxes (ADR-0023 §2, P4-04): a spell's `param` is a declared box for (b), (c), (e), (k);
+ * `làm phép … với [n]` must stay within its `max`; predict keys (j) carry the level's own boxes
+ * only; and R4 for a level with spell boxes only asks for ≥ 2 `làm phép … với` of different
+ * numbers in the solution (the "no box blocks" test is R5's `spellsNeeded`).
  */
 import {
+  procedureBoxes,
   variableMax,
   type Level,
   type LevelVariable,
@@ -12,6 +18,7 @@ import {
   type WorkspaceJson,
 } from '@codequest/content-schema';
 import {
+  CQ_PROC_CALL_N,
   CQ_REPEAT_VAR,
   CQ_VAR_ADD,
   CQ_VAR_COMPARE,
@@ -127,10 +134,12 @@ export function variableIssues(
   ];
   const used = [...fromToolbox, ...fromPrograms];
   const declared = level.variables ?? [];
-  const byId = new Map<string, LevelVariable>(declared.map((variable) => [variable.id, variable]));
+  const spellBoxes = procedureBoxes(level.procedures);
+  const allBoxes = [...declared, ...spellBoxes];
+  const byId = new Map<string, LevelVariable>(allBoxes.map((variable) => [variable.id, variable]));
 
-  // (c) Variable blocks need declared boxes.
-  if (used.length > 0 && level.variables === undefined) {
+  // (c) Variable blocks need declared boxes (a spell's box counts).
+  if (used.length > 0 && allBoxes.length === 0) {
     const types = [...new Set(used.map((block) => block.type))].join(', ');
     error(`(c) uses variable blocks (${types}) but declares no "variables"`);
   }
@@ -171,7 +180,7 @@ export function variableIssues(
     const raw = block.fields['VAR'];
     const box = typeof raw === 'string' ? raw : raw === undefined ? undefined : JSON.stringify(raw);
     // (b) Every named box is declared.
-    if (box !== undefined && level.variables !== undefined && !byId.has(box)) {
+    if (box !== undefined && allBoxes.length > 0 && !byId.has(box)) {
       error(`(b) ${block.where} "${block.type}" names box "${box}", which is not declared`);
     }
     // (e) / (k) Numbers within the box's 0…max.
@@ -203,6 +212,29 @@ export function variableIssues(
     }
   }
 
+  // (e) / (k) for `làm phép … với [n]`: a whole number within the spell box's 0…max.
+  const calls = [
+    ...toolboxCalls(level.toolbox),
+    ...workspaceCalls(level.solution, 'solution'),
+    ...workspaceCalls(level.initialWorkspace, 'initialWorkspace'),
+  ];
+  for (const call of calls) {
+    const number = call.fields['NUM'];
+    if (number === undefined) continue;
+    const value = Number(number);
+    const spell = level.procedures?.find((procedure) => procedure.id === call.fields['PROC']);
+    const max = spell?.param === undefined ? null : variableMax(spell.param);
+    if (!Number.isInteger(value) || value < 0) {
+      error(
+        `(e) ${call.where} "${CQ_PROC_CALL_N}" NUM ${JSON.stringify(number)} is not a whole number ≥ 0`,
+      );
+    } else if (max !== null && value > max) {
+      error(
+        `(k) ${call.where} "${CQ_PROC_CALL_N}" NUM ${String(value)} > max ${String(max)} of spell box "${spell?.param?.id ?? ''}"`,
+      );
+    }
+  }
+
   // (f) A countGoal box the solution never changes.
   const goal = level.countGoal;
   if (goal !== undefined && level.solution !== undefined) {
@@ -217,18 +249,20 @@ export function variableIssues(
 
   // (j) Predict keys carry every box once, in declaration order, each within its 0…max.
   if (level.mode === 'predict' && level.variables !== undefined) {
-    for (const option of level.predict?.options ?? []) {
-      const { base, vars } = splitVarSuffix(option.key);
-      const ids = option.key.slice(base.length).match(/#[a-z][a-z0-9_]*=/g) ?? [];
+    // Only hand-written keys: a drawProgram key comes from a run, so its suffix is the engine's.
+    for (const { key } of level.predict?.options ?? []) {
+      if (key === undefined) continue;
+      const { base, vars } = splitVarSuffix(key);
+      const ids = key.slice(base.length).match(/#[a-z][a-z0-9_]*=/g) ?? [];
       const rebuilt = base + varSuffix(declared, vars);
       const overMax = declared.find((variable) => (vars[variable.id] ?? 0) > variableMax(variable));
       if (overMax !== undefined) {
         error(
-          `(j) predict key "${option.key}" gives box "${overMax.id}" ${String(vars[overMax.id])} > max ${String(variableMax(overMax))}`,
+          `(j) predict key "${key}" gives box "${overMax.id}" ${String(vars[overMax.id])} > max ${String(variableMax(overMax))}`,
         );
-      } else if (rebuilt !== option.key || ids.length !== declared.length) {
+      } else if (rebuilt !== key || ids.length !== declared.length) {
         error(
-          `(j) predict key "${option.key}" must end with #<id>=<n> for ${declared.map((variable) => variable.id).join(', ')}, in that order`,
+          `(j) predict key "${key}" must end with #<id>=<n> for ${declared.map((variable) => variable.id).join(', ')}, in that order`,
         );
       }
     }
@@ -244,7 +278,55 @@ export function variableIssues(
       error('(R4) a counting level needs at least 2 maps with different countGoal.equals');
     }
   }
+  // R4 with spell boxes only (ADR-0023 §2): the box drives the program when the solution calls
+  // the spell with at least 2 different numbers.
+  if (
+    (level.mode === 'build' || level.mode === 'bughunt') &&
+    level.variables === undefined &&
+    spellBoxes.length > 0 &&
+    level.solution !== undefined
+  ) {
+    const numbers = new Set(
+      calls.filter((call) => call.where === 'solution').map((call) => String(call.fields['NUM'])),
+    );
+    if (numbers.size < 2) {
+      error(
+        '(R4) a spell box needs at least 2 "làm phép … với" with different numbers in the solution',
+      );
+    }
+  }
   return { errors, warnings };
+}
+
+/** A `làm phép … với [n]` block of a toolbox entry or a workspace, with its fields. */
+interface CallBlock {
+  fields: JsonRecord;
+  where: string;
+}
+
+function toolboxCalls(toolbox: readonly ToolboxEntry[]): CallBlock[] {
+  return toolbox.flatMap((entry): CallBlock[] =>
+    typeof entry !== 'string' && entry.type === CQ_PROC_CALL_N
+      ? [{ fields: fieldsOf(entry.fields), where: 'toolbox' }]
+      : [],
+  );
+}
+
+/** Every `làm phép … với` block of a workspace JSON (loose stacks and spell bodies included). */
+function workspaceCalls(workspace: WorkspaceJson | undefined, where: string): CallBlock[] {
+  const out: CallBlock[] = [];
+  const walk = (block: unknown): void => {
+    if (!isRecord(block)) return;
+    if (block['type'] === CQ_PROC_CALL_N) out.push({ fields: fieldsOf(block['fields']), where });
+    if (isRecord(block['inputs'])) {
+      for (const input of Object.values(block['inputs'])) {
+        if (isRecord(input)) walk(input['block']);
+      }
+    }
+    if (isRecord(block['next'])) walk(block['next']['block']);
+  };
+  for (const top of workspace?.blocks.blocks ?? []) walk(top);
+  return out;
 }
 
 /**

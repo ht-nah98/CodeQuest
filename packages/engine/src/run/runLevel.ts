@@ -5,13 +5,8 @@ import { COND_INPUT, CONDITION_BLOCK_TYPES } from '../blocks/common';
 import { HIGHLIGHT_FN } from '../blocks/generator';
 import { registerBlockSpecs } from '../blocks/registerBlockSpecs';
 import type { SimContext } from '../sdk/context';
-import type {
-  DistributiveOmit,
-  GameEvent,
-  HighlightEvent,
-  SenseEvent,
-  VarEvent,
-} from '../sdk/events';
+import { PROC_API_NAMES, PROC_CALL_FN } from '../blocks/procedures';
+import type { DistributiveOmit, EngineEvent, GameEvent } from '../sdk/events';
 import type { GameKindApi, GameKindDefinition, Primitive } from '../sdk/gameKind';
 import type { MapOutcome, RunOutcome } from '../sdk/outcome';
 import { fnv1a } from '../rng/fnv1a';
@@ -21,6 +16,7 @@ import { compileLoaded } from './compileProgram';
 import { editDistance } from './editDistance';
 import { withHeadlessWorkspace } from './headlessWorkspace';
 import { DEFAULT_MAX_ACTIONS, DEFAULT_MAX_STEPS } from './limits';
+import { levelBoxes, spellDefinitions, spellIssue, type SpellIssue } from './spells';
 import { StopSignal } from './stopSignal';
 import {
   applyVarCall,
@@ -28,10 +24,12 @@ import {
   VAR_API_NAMES,
   VAR_CMP_FN,
   VAR_GET_FN,
+  VAR_SET_FN,
+  type VarCallResult,
   varSuffix,
 } from './variables';
 
-/** Replaces the engine's variable functions (see `RunLevelInput.engineCalls`). */
+/** Replaces the engine's variable and spell functions (see `RunLevelInput.engineCalls`). */
 export type EngineCalls = (name: string, args: Primitive[]) => Primitive | undefined;
 
 export interface RunLevelInput<C, S, E extends GameEvent> {
@@ -45,7 +43,8 @@ export interface RunLevelInput<C, S, E extends GameEvent> {
    * Internal, for the par search only (`@codequest/validator`, ADR-0022 §4): called instead of
    * the engine's variable functions (`__varSet`, `__varAdd`, `__varGet`, `__varCmp`) with their
    * name and arguments, and its result goes back to the sandbox. No `var` event, `sense` event
-   * or box rule applies then. The search uses it to record what each block calls.
+   * or box rule applies then. The search uses it to record what each block calls. The spell hooks
+   * `__call` / `__ret` (ADR-0023) go through it too.
    */
   engineCalls?: EngineCalls;
 }
@@ -57,7 +56,14 @@ interface Compiled {
   analysis: WorkspaceAnalysis;
   /** A program block has an empty statement input (a loop body or an if branch). */
   emptyStatementInput: boolean;
-  code: string | { kind: 'empty' } | { kind: 'too-many' } | { kind: 'empty-condition' };
+  /** Each `dạy phép` block and its spell (parsons: it ran when its spell was called). */
+  spells: Array<{ blockId: string; id: string }>;
+  code:
+    | string
+    | { kind: 'empty' }
+    | { kind: 'too-many' }
+    | { kind: 'empty-condition' }
+    | { kind: 'spell'; reason: SpellIssue };
 }
 
 /** Arguments must be string, number or boolean; `undefined` (a missing value) is rejected too. */
@@ -122,10 +128,11 @@ export function runLevel<C, S, E extends GameEvent>(input: RunLevelInput<C, S, E
               input.connection.targetBlock() === null,
           ),
         );
+        const spells = spellDefinitions(ws);
         if (start === null || start.getNextBlock() === null)
-          return { analysis, emptyStatementInput, code: { kind: 'empty' } };
+          return { analysis, emptyStatementInput, spells, code: { kind: 'empty' } };
         if (level.maxBlocks !== undefined && analysis.blocksUsed > level.maxBlocks) {
-          return { analysis, emptyStatementInput, code: { kind: 'too-many' } };
+          return { analysis, emptyStatementInput, spells, code: { kind: 'too-many' } };
         }
         // A question slot left empty (P2-11): refuse to guess (Blockly would read it as false).
         const emptyCondition = analysis.programBlockIds.some((id) => {
@@ -137,23 +144,32 @@ export function runLevel<C, S, E extends GameEvent>(input: RunLevelInput<C, S, E
           );
         });
         if (emptyCondition)
-          return { analysis, emptyStatementInput, code: { kind: 'empty-condition' } };
-        return { analysis, emptyStatementInput, code: compileLoaded(ws, start.id) };
+          return { analysis, emptyStatementInput, spells, code: { kind: 'empty-condition' } };
+        // Spells (ADR-0023 §3): refused before anything runs, like an empty condition.
+        const spell = spellIssue(ws, start, level.procedures);
+        if (spell !== null) {
+          return { analysis, emptyStatementInput, spells, code: { kind: 'spell', reason: spell } };
+        }
+        return { analysis, emptyStatementInput, spells, code: compileLoaded(ws, start.id) };
       },
       level.variables,
+      level.procedures,
     );
   } catch (error) {
     return errorOutcome('INTERNAL_ERROR', 0, `workspace: ${describe(error)}`);
   }
 
-  const { analysis, emptyStatementInput, code } = compiled;
+  const { analysis, emptyStatementInput, spells, code } = compiled;
   if (typeof code !== 'string') {
     const reasons = {
       empty: 'EMPTY_PROGRAM',
       'too-many': 'TOO_MANY_BLOCKS',
       'empty-condition': 'EMPTY_CONDITION',
     } as const;
-    return errorOutcome(reasons[code.kind], analysis.blocksUsed);
+    return errorOutcome(
+      code.kind === 'spell' ? code.reason : reasons[code.kind],
+      analysis.blocksUsed,
+    );
   }
 
   // One map per config: `config`, then each variant (P2-12, ADR-0016).
@@ -205,7 +221,7 @@ export function runLevel<C, S, E extends GameEvent>(input: RunLevelInput<C, S, E
     if (analysis.orphanBlockIds.length > 0) {
       outcome.result = 'incomplete';
       outcome.reasonCode = 'LOOSE_BLOCKS';
-    } else if (emptyStatementInput || !everyBlockRan(analysis, maps)) {
+    } else if (emptyStatementInput || !everyBlockRan(analysis, spells, maps)) {
       // Joined but not where it goes: a block that never ran (asked or executed) on any map,
       // or an empty loop body / if branch, means another arrangement is meant.
       outcome.result = 'incomplete';
@@ -233,7 +249,11 @@ export function runLevel<C, S, E extends GameEvent>(input: RunLevelInput<C, S, E
       }
     }
     if (level.mode === 'bughunt' && level.initialWorkspace !== undefined) {
-      outcome.edits = editDistance(level.initialWorkspace, workspace);
+      outcome.edits = editDistance(
+        level.initialWorkspace,
+        workspace,
+        level.procedures?.map((procedure) => procedure.id),
+      );
     }
   } catch (error) {
     return {
@@ -245,19 +265,26 @@ export function runLevel<C, S, E extends GameEvent>(input: RunLevelInput<C, S, E
   return outcome;
 }
 
-/** Every program block was highlighted (statements) or asked (sensors) on at least one map. */
+/**
+ * Every program block was highlighted (statements) or asked (sensors) on at least one map; a
+ * `dạy phép` block counts as run when its spell was called (ADR-0023 §3).
+ */
 function everyBlockRan<S, E extends GameEvent>(
   analysis: WorkspaceAnalysis,
+  spells: ReadonlyArray<{ blockId: string; id: string }>,
   maps: ReadonlyArray<MapRun<S, E>>,
 ): boolean {
   const ran = new Set<string>();
+  const called = new Set<string>();
   for (const run of maps) {
     for (const event of run.outcome.events) {
       if ((event.type === 'highlight' || event.type === 'sense') && event.blockId !== null) {
         ran.add(event.blockId);
       }
+      if (event.type === 'call') called.add((event as { id: string }).id);
     }
   }
+  for (const spell of spells) if (called.has(spell.id)) ran.add(spell.blockId);
   return analysis.programBlockIds.every((id) => id === analysis.startBlockId || ran.has(id));
 }
 
@@ -284,7 +311,7 @@ function runMap<C, S, E extends GameEvent>(
   const rng = mulberry32(seed ?? fnv1a(level.id));
   const maxSteps = level.limits?.maxSteps ?? DEFAULT_MAX_STEPS;
   const maxActions = level.limits?.maxActions ?? DEFAULT_MAX_ACTIONS;
-  const events: Array<E | HighlightEvent | SenseEvent | VarEvent> = [];
+  const events: Array<E | EngineEvent> = [];
   let actions = 0;
   let steps = 0;
 
@@ -305,8 +332,10 @@ function runMap<C, S, E extends GameEvent>(
   };
   const stats = (): RunOutcome['stats'] => ({ steps, actions, blocksUsed });
 
-  // Boxes (ADR-0022): engine state next to the kind's state, never seen by the kind.
-  let vars: Readonly<Record<string, number>> = initialVars(level.variables, mapIndex);
+  // Boxes (ADR-0022): engine state next to the kind's state, never seen by the kind. The boxes of
+  // the spells (ADR-0023 §2) are boxes too, 0 except while their spell runs.
+  const boxes = levelBoxes(level);
+  let vars: Readonly<Record<string, number>> = initialVars(boxes, mapIndex);
   const varApi: GameKindApi = Object.fromEntries(
     VAR_API_NAMES.map((name) => [
       name,
@@ -314,22 +343,51 @@ function runMap<C, S, E extends GameEvent>(
         if (engineCalls !== undefined) return engineCalls(name, args);
         const blockId = args[args.length - 1];
         const owner = blockId === undefined ? null : String(blockId);
-        const applied = applyVarCall(vars, level.variables, name, args);
+        const applied = applyVarCall(vars, boxes, name, args);
         if (name === VAR_CMP_FN) return sense(applied.value === true, owner);
         if (name === VAR_GET_FN) return applied.value;
-        if (actions >= maxActions) throw new ActionLimitSignal();
-        actions++;
-        const id = String(args[0]);
-        if (applied.overflow === true) {
-          events.push({ type: 'var', blockId: owner, id, value: vars[id] ?? 0, overflow: true });
-          stop('crash', 'BOX_FULL');
-        }
-        vars = applied.vars;
-        events.push({ type: 'var', blockId: owner, id, value: vars[id] ?? 0 });
+        setBox(String(args[0]), applied, owner);
         return undefined;
       },
     ]),
   );
+  // Spell hooks (ADR-0023 §3): `call` / `ret` events around a spell's body, counted as actions.
+  // A spell with a box (§2): its box gets the call's number after `call` (over `max`: BOX_FULL)
+  // and goes back to 0 before `ret`, each with a `var` event.
+  const procApi: GameKindApi = Object.fromEntries(
+    PROC_API_NAMES.map((name) => [
+      name,
+      (...args: Primitive[]): Primitive | undefined => {
+        if (engineCalls !== undefined) return engineCalls(name, args);
+        const blockId = args[args.length - 1];
+        const owner = blockId === undefined ? null : String(blockId);
+        const spell = String(args[0]);
+        const box = level.procedures?.find((procedure) => procedure.id === spell)?.param?.id;
+        const isCall = name === PROC_CALL_FN;
+        if (!isCall && box !== undefined) {
+          setBox(box, applyVarCall(vars, boxes, VAR_SET_FN, [box, 0]), owner);
+        }
+        if (actions >= maxActions) throw new ActionLimitSignal();
+        actions++;
+        events.push({ type: isCall ? 'call' : 'ret', blockId: owner, id: spell });
+        if (isCall && box !== undefined) {
+          setBox(box, applyVarCall(vars, boxes, VAR_SET_FN, [box, args[1] ?? 0]), owner);
+        }
+        return undefined;
+      },
+    ]),
+  );
+  /** Applies a box change with its `var` event (an overflow ends the run: BOX_FULL). */
+  function setBox(id: string, applied: VarCallResult, owner: string | null): void {
+    if (actions >= maxActions) throw new ActionLimitSignal();
+    actions++;
+    if (applied.overflow === true) {
+      events.push({ type: 'var', blockId: owner, id, value: vars[id] ?? 0, overflow: true });
+      stop('crash', 'BOX_FULL');
+    }
+    vars = applied.vars;
+    events.push({ type: 'var', blockId: owner, id, value: vars[id] ?? 0 });
+  }
   /** "Đếm đúng": the countGoal box holds this map's number (true without countGoal). */
   const countMet = (): boolean => {
     const goal = level.countGoal;
@@ -352,9 +410,14 @@ function runMap<C, S, E extends GameEvent>(
     const api = kind.createApi(ctx);
     const missing = kind.blocks.flatMap((spec) => spec.apiNames).filter((name) => !(name in api));
     if (missing.length > 0) throw new Error(`createApi lacks ${missing.join(', ')}`);
-    const interpreter = createInterpreter(code, { ...api, ...varApi }, rng, (blockId) => {
-      events.push({ type: 'highlight', blockId });
-    });
+    const interpreter = createInterpreter(
+      code,
+      { ...api, ...varApi, ...procApi },
+      rng,
+      (blockId) => {
+        events.push({ type: 'highlight', blockId });
+      },
+    );
     let finished = false;
     while (steps < maxSteps) {
       if (!interpreter.step()) {
@@ -405,7 +468,7 @@ function runMap<C, S, E extends GameEvent>(
     reasonCode = 'WRONG_COUNT';
   }
   const outcome: MapOutcome<E> = { result, reasonCode, events, stats: stats() };
-  if (level.variables !== undefined) outcome.vars = { ...vars };
+  if (boxes.length > 0) outcome.vars = { ...vars };
   if (level.starGoals !== undefined && state !== undefined) {
     // A kind without `checkStarGoal` meets no goal; content:check rule 19 reports the level.
     const finalState = state;

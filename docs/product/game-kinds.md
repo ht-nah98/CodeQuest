@@ -333,8 +333,58 @@ Hình đáp án (`AnswerPicture`, dùng config đã gộp): sa bàn thu nhỏ, B
 
 **Sprite:** robot Bíp nhìn từ trên xuống 4 hướng (đi 2 khung, tay gắp mở/đóng, lắc đầu khi lỗi, vui), khối rào (xám, sọc) / trung hòa (tròn) / ô nhiễm (chấm) theo màu, trạm 3 màu, ô vùng ô nhiễm, phòng thí nghiệm, nhà. Bản tạm vẽ bằng `PIXI.Graphics` theo lưới pixel (P3-03) để không chặn nội dung; bản đẹp theo `playbooks/add-asset.md` (P3-02).
 
-### 3.4 `turtle` — Họa sĩ · GĐ 4 (Thế giới 8–9)
-Bút vẽ trên canvas. Khối: `turtle_move(n)`, `turtle_turn(deg)`, `turtle_pen(up|down)`, `turtle_color`. Chấm bằng so sánh ảnh với ảnh mẫu (kênh alpha, ngưỡng sai khác như Blockly Games Turtle).
+### 3.4 `turtle` — Họa sĩ · **GĐ 4** (Thế giới 9)
+Nguồn quyết định: ADR-0024. Code: `packages/games/src/turtle/`.
+
+**Góc nhìn:** tờ giấy kẻ chấm (lưới vuông hoặc tam giác), nhìn từ trên xuống. Măng cầm bút lông, quay được 12 hướng (bội số 30°).
+
+**Tọa độ chính xác:** mọi điểm là `x = (a + b√3) / 2`, `y = (c + d√3) / 2` với `a, b, c, d` nguyên (`TurtlePoint = [a, b, c, d]`, khóa `a,b,c,d`). Gốc ở **góc dưới trái** của giấy, `x` sang phải, `y` **lên trên** (sân chơi tự lật trục y). Hướng là số 0…11: 0 = sang phải, tăng ngược chiều kim đồng hồ (3 = lên trên). Không có số thực trong state, event hay khóa; chỉ `layout.ts` của sân chơi đổi sang pixel.
+
+**Config:**
+```ts
+interface TurtleConfig {
+  size: { w: number; h: number };            // giấy, đơn vị bước, 1–12
+  start: { x: number; y: number; heading: number };   // điểm lưới nguyên; heading theo độ (0 = phải, 90 = lên), bội số 30
+  target?: {                                  // hình mẫu; không có ở màn predict / creative
+    from: [number, number];                   // điểm nguyên bắt đầu đường
+    heading: number;                          // độ, bội số 30
+    path: string;                             // lệnh rùa: F<n> R<độ> L<độ> U D, vd "F2 R90 F2 R90 F2 R90 F2"
+  }[];                                        // 1–12 đường; nở thành tập nét đơn vị khi chạy
+  angles?: (30 | 60 | 90 | 120 | 150 | 180)[];   // góc màn được ghim, mặc định [60, 90, 120]
+  penDown?: boolean;                          // bút hạ lúc bắt đầu, mặc định true
+  grid: 'square' | 'tri';                     // chỉ để vẽ chấm lưới
+}
+```
+Schema từ chối: lệnh lạ trong `path`, góc không phải bội số 30, đường ra khỏi giấy hoặc không vẽ nét nào, `start` ngoài giấy, góc lạ hoặc trùng trong `angles`.
+
+**Khối** (nhãn và tooltip đúng từng chữ `curriculum.md` §6.4)
+| Khối | Nhãn | API | Tooltip |
+|---|---|---|---|
+| `turtle_forward` (`move`) | tiến [3] bước | `forward(n, id)`, `n` 1…9 | Tiến 3 bước: bút hạ thì có nét dài 3 |
+| `turtle_turn_right` (`move`) | rẽ phải [90 ▾] độ | `turn('RIGHT', deg, id)` | Rẽ phải 90 độ: quay tại chỗ, chưa đi |
+| `turtle_turn_left` (`move`) | rẽ trái [90 ▾] độ | `turn('LEFT', deg, id)` | Rẽ trái 90 độ: quay tại chỗ, chưa đi |
+| `turtle_pen_up` (`pen`) | nhấc bút | `pen(false, id)` | Nhấc bút: đi tiếp thì không có nét |
+| `turtle_pen_down` (`pen`) | hạ bút | `pen(true, id)` | Hạ bút: đi tiếp thì có nét |
+
+Ô `DEG` là dropdown tĩnh `30, 60, 90, 120, 150, 180`; mỗi màn ghim `DEG` trong thanh khối (luật 26). Không có cảm biến, không có màu bút (v1).
+
+**Luật**
+| Hành động | Kết quả |
+|---|---|
+| tiến n bước | n bước đơn vị, mỗi bước một event. Trước mỗi bước: bước ra ngoài giấy → `offPaper`, crash `OFF_PAPER` (kể cả bút nhấc), Măng đứng lại |
+| bước khi bút hạ | Thêm nét `{from, to}` vào **tập** nét đã vẽ (vẽ lại nét cũ không sao) → `line`. Màn có `target` mà nét không có trong hình mẫu → `extraLine`, crash `EXTRA_LINE` **ngay**, Măng đứng ở đầu nét đó |
+| bước khi bút nhấc | `move`, không có nét |
+| rẽ | Quay tại chỗ, không vẽ → `turn` |
+| nhấc / hạ bút | `pen{down}` |
+| Hết chương trình | Có `target`: vẽ đủ mọi nét → `success`; thiếu → `incomplete` / `MISSING_LINES`. Không có `target`: `success` |
+
+Không thắng giữa chương trình. Chấm theo **tập** nét: thứ tự và chiều vẽ không quan trọng, `tiến 2` = `tiến 1, tiến 1`.
+
+**Event:** `move{from,to}` · `line{from,to}` · `turn{from,to,side,deg}` (hướng 0…11) · `pen{down}` · `extraLine{from,to}` · `offPaper{from,to}`. Điểm là `TurtlePoint`.
+**reasonCodes:** `EXTRA_LINE`, `MISSING_LINES`, `OFF_PAPER`.
+**`predictAnswer`:** `draw:<các khóa nét đã sắp, nối bằng ;>` (hết chương trình, thắng hay thiếu; `draw:` là chưa vẽ gì) · `crash:<REASON>@a,b,c,d` (điểm Măng đứng) · `timeout`. Lựa chọn của màn `predict` soạn bằng `drawProgram` (chương trình nhỏ); khóa suy bằng hàm thuần `turtleDrawKey(config, workspace)` của `@codequest/games`.
+**Vét cạn:** không cần cơ chế riêng; state là vị trí + hướng + bút + tập nét. Ô `N` mở thử 1…9, `DEG` ghim. Số đo ở ADR-0024.
+**Sân chơi:** `apps/web/src/stages/turtle/` (P4-09): hình mẫu nét đứt nhạt, nét đã vẽ màu mực, nét lạ đỏ và rung.
 
 ### 3.5 `farm` — Nông trại · GĐ 4 (Thế giới 7)
 Lưới ô có cây trồng mang số quả. Khối: đi/rẽ, `farm_harvest`, `farm_fruit_count`, biến. Chấm: trạng thái cuối + giá trị biến (vd "đếm đúng tổng số quả").

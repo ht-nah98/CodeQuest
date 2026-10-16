@@ -13,6 +13,7 @@ import { findFile, levelFiles, worldFiles } from '../../features/content/files';
 import { SANDBOX_WORLD_ID } from '../../features/content/sandbox';
 import {
   draftFromJson,
+  hasSpells,
   type EditorKind,
   levelFileText,
   newDraft,
@@ -120,14 +121,16 @@ function LevelEditor() {
     const load = findFile(levelFiles, `/levels/${id}.json`);
     const json = load === undefined ? null : await load();
     const level = draftFromJson(json);
-    if (level === null) setNotice(t.openFailed);
+    if (hasSpells(json)) setNotice(t.spellsUnsupported);
+    else if (level === null) setNotice(t.openFailed);
     else start(level, crypto.randomUUID(), id, json);
   };
 
   const openDraft = async (key: string) => {
     const json = await loadLevelDraft(key);
     const level = draftFromJson(json);
-    if (level === null) setNotice(t.openFailed);
+    if (hasSpells(json)) setNotice(t.spellsUnsupported);
+    else if (level === null) setNotice(t.openFailed);
     else start(level, key, null, json);
   };
 
@@ -142,7 +145,8 @@ function LevelEditor() {
       json = null;
     }
     const level = draftFromJson(json);
-    if (level === null) setNotice(t.openFailed);
+    if (hasSpells(json)) setNotice(t.spellsUnsupported);
+    else if (level === null) setNotice(t.openFailed);
     else start(level, crypto.randomUUID(), null, json);
   };
   const fileInputRef = useRef<HTMLInputElement>(null);

@@ -67,6 +67,16 @@ export const vi = {
       /** Predict card badge (screen readers): "hộp số măng: 3". */
       badge: (name: string, n: number) => `hộp ${name}: ${String(n)}`,
     },
+    // Spells (ADR-0023 §6): replay bubble while a spell body runs. Never names the character,
+    // because the same block runs for Măng (maze) and Bíp (robotlab).
+    spells: {
+      casting: (name: string) => `Đang làm phép «${name}»`,
+    },
+    // Turtle stage HUD (ADR-0024, W9): unit strokes of the target still to draw.
+    turtle: {
+      linesLeft: (n: number) => `Còn ${String(n)} nét`,
+      linesLeftLabel: 'Nét còn lại',
+    },
     controlsLabel: 'Điều khiển',
     run: 'Chạy',
     stop: 'Dừng',
@@ -90,6 +100,8 @@ export const vi = {
       loopDepthMax: (depth: number) =>
         `Màn này chỉ cho ${String(depth)} khối lặp chồng vào nhau nhé!`,
       instances: 'Khối này đủ rồi. Dùng lại khối đã có nhé!',
+      // A `làm phép` whose spell loops, dropped into a loop (ADR-0023 §3, effective depth).
+      spellLoopDepth: 'Phép này có vòng lặp rồi. Bỏ ra ngoài nhé?',
     },
     winPar: (blocks: number) => `Chỉ ${String(blocks)} khối, đúng bằng số chuẩn!`,
     winUnderPar: (blocks: number) => `Chỉ ${String(blocks)} khối, ít hơn cả số chuẩn!`,
@@ -247,6 +259,8 @@ export const vi = {
     nextStep: {
       title: 'Khối tiếp theo',
       add: 'Ghép khối này vào chỗ sáng nhé!',
+      // A missing top block (a `dạy phép`, ADR-0023): no anchor to light, it goes anywhere.
+      addTop: 'Kéo khối này ra vùng ghép khối nhé!',
       move: 'Kéo khối sáng tới chỗ có mũi tên nhé!',
       moveWithTail: 'Kéo khối sáng, cả các khối dưới nó, tới mũi tên nhé!',
       edit: 'Sửa khối sáng cho giống khối này nhé!',
@@ -448,6 +462,21 @@ export const vi = {
       'streak-7': 'Chuỗi 7 ngày',
       replay: 'Chơi lại 3 sao',
     } as Partial<Record<string, string>>,
+    /**
+     * Result-card lines of the phase 4 reason codes (spells ADR-0023 §3, turtle ADR-0024 §4).
+     * content/shared/feedback.json is the source the play screen reads; these must match it
+     * word for word (vi.test.ts checks each code once feedback.json has it).
+     */
+    phase4Reasons: {
+      NO_SPELL: 'Phép này chưa được dạy.',
+      TWO_SPELLS: 'Có 2 khối dạy phép cùng tên. Bỏ bớt 1 nhé!',
+      EMPTY_SPELL: 'Phép này chưa có khối nào bên trong.',
+      SPELL_IN_SPELL: 'Trong phép không làm phép khác nhé!',
+      BOX_OUTSIDE_SPELL: 'Hộp này chỉ dùng trong phép của nó.',
+      EXTRA_LINE: 'Nét này không có trong hình mẫu.',
+      MISSING_LINES: 'Còn nét chưa vẽ.',
+      OFF_PAPER: 'Ối, Măng vẽ ra ngoài giấy rồi!',
+    },
     newWorld: 'Mở thế giới mới!',
     next: 'Màn tiếp',
     replay: 'Chơi lại',
@@ -664,6 +693,8 @@ export const vi = {
     deleteDraft: 'Xóa bản nháp',
     openFile: 'Chọn file .json',
     openFailed: 'File này không phải màn đường chạy hay mê cung.',
+    // ADR-0023: no editor UI for spells yet (P4-06).
+    spellsUnsupported: 'Chưa hỗ trợ phép thuật: màn này có phép, chưa sửa được ở đây.',
     droppedKeys: (keys: string) => `Bỏ các trường không phải của màn: ${keys}.`,
     download: 'Tải .json',
     copy: 'Sao chép JSON',
@@ -954,8 +985,10 @@ export const vi = {
       robot: 'ROBOT',
       // The engine's box blocks (ADR-0022): children say "hộp", never "biến", on screen.
       variable: 'HỘP',
-      function: 'HÀM',
-      pen: 'BÚT VẼ',
+      // Procedures (ADR-0023): children say "phép", never "hàm".
+      function: 'PHÉP THUẬT',
+      // Turtle pen blocks (ADR-0024, W9).
+      pen: 'BÚT',
       event: 'SỰ KIỆN',
     } satisfies Record<BlockCategory, string>,
     workspaceLabel: 'Vùng ghép khối',

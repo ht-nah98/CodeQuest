@@ -1,8 +1,19 @@
 import type { WorkspaceJson } from '@codequest/content-schema';
 import { CQ_START } from '../blocks/common';
-import { isRecord, type JsonRecord, stableStringify } from '../run/editDistance';
+import { PROC_DEF_TYPES } from '../blocks/procedures';
+import {
+  isRecord,
+  type JsonRecord,
+  SPELL_STACK,
+  spellStacks,
+  stableStringify,
+} from '../run/editDistance';
 
-/** Where a block plugs in: an input of `blockId`, or its next connection when `input` is null. */
+/**
+ * Where a block plugs in: an input of `blockId`, or its next connection when `input` is null.
+ * `blockId` '' (with `input` null): anywhere on the workspace, as a new top block (a `dạy phép`
+ * block, ADR-0023 §3).
+ */
 export interface StepAnchor {
   blockId: string;
   input: string | null;
@@ -38,7 +49,15 @@ export interface NextStepOptions {
   toolbox?: readonly string[];
   /** `workspace.remainingCapacity()`; at 0 a new block cannot be dragged, so a block goes first. */
   capacityLeft?: number;
+  /**
+   * The level's `procedures` ids (ADR-0023 §3): the `dạy phép` stacks are compared after the
+   * main stack in this order. Default: by spell id.
+   */
+  procedureOrder?: readonly string[];
 }
+
+/** Anchor of a new top block (`StepAnchor` with `blockId` ''). */
+const TOP_LEVEL: StepAnchor = { blockId: '', input: null };
 
 /** A block of the program model: shadows are left out (a shadow-only difference is no step). */
 interface Node {
@@ -54,6 +73,10 @@ interface Program {
   startId: string;
   chain: Node[];
   loose: Node[][];
+  /** The `dạy phép` blocks (with their bodies), in `procedureOrder`. */
+  spells: Node[];
+  /** `NextStepOptions.procedureOrder`: kept to put an added `dạy phép` block in its place. */
+  order: readonly string[];
 }
 
 interface Token {
@@ -99,11 +122,16 @@ function toChain(first: JsonRecord | null): Node[] {
   return chain;
 }
 
-function isDefinition(block: JsonRecord): boolean {
-  return block['type'] === 'procedures_defnoreturn' || block['type'] === 'procedures_defreturn';
+function isSpell(type: string): boolean {
+  return PROC_DEF_TYPES.includes(type);
 }
 
-function toProgram(workspace: WorkspaceJson): Program | null {
+function isDefinition(block: JsonRecord): boolean {
+  const type = String(block['type']);
+  return isSpell(type) || type === 'procedures_defnoreturn' || type === 'procedures_defreturn';
+}
+
+function toProgram(workspace: WorkspaceJson, order?: readonly string[]): Program | null {
   const start = workspace.blocks.blocks.find((block) => block.type === CQ_START);
   if (start === undefined) return null;
   return {
@@ -112,7 +140,45 @@ function toProgram(workspace: WorkspaceJson): Program | null {
     loose: workspace.blocks.blocks
       .filter((block) => block.type !== CQ_START && !isDefinition(block))
       .map((block) => toChain(block)),
+    spells: spellStacks(workspace, order).flatMap((block) => toChain(block)),
+    order: order ?? [],
   };
+}
+
+/** The spell a `dạy phép` node teaches. */
+function spellOf(node: Node): string {
+  const fields = isRecord(node.json['fields']) ? node.json['fields'] : {};
+  const id = fields['PROC'];
+  return typeof id === 'string' ? id : '';
+}
+
+/**
+ * True when `after` still teaches every spell the solution teaches and `program` already did: a
+ * step must never rename or delete a `dạy phép` block the child got right (ADR-0023 §3).
+ */
+function keepsSpells(solProgram: Program, program: Program, after: Program): boolean {
+  const taught = (target: Program): Set<string> => new Set(target.spells.map(spellOf));
+  const before = taught(program);
+  const now = taught(after);
+  return [...taught(solProgram)].every((id) => !before.has(id) || now.has(id));
+}
+
+/**
+ * Puts the `dạy phép` blocks back in `spellStacks` order (`procedureOrder`, then spell id), as
+ * the tokens of a fresh `toProgram` would be, so an added one lands at its rank.
+ */
+function sortSpells(program: Program): Program {
+  const rank = (node: Node): number => {
+    const index = program.order.indexOf(spellOf(node));
+    return index === -1 ? program.order.length : index;
+  };
+  program.spells.sort((a, b) => {
+    const byRank = rank(a) - rank(b);
+    if (byRank !== 0) return byRank;
+    const [x, y] = [spellOf(a), spellOf(b)];
+    return x < y ? -1 : x > y ? 1 : 0;
+  });
+  return program;
 }
 
 function tokensOf(chain: Node[], depth = 0, input = '', parent: Node | null = null): Token[] {
@@ -122,6 +188,17 @@ function tokensOf(chain: Node[], depth = 0, input = '', parent: Node | null = nu
       .sort()
       .flatMap((name) => tokensOf(node.inputs.get(name) ?? [], depth + 1, name, node)),
   ]);
+}
+
+/**
+ * Tokens of the whole program: the main stack, then each `dạy phép` block (input `SPELL_STACK`,
+ * alone in its list) with its body (ADR-0023 §3).
+ */
+function allTokens(program: Program): Token[] {
+  return [
+    ...tokensOf(program.chain),
+    ...program.spells.flatMap((spell) => tokensOf([spell], 0, SPELL_STACK)),
+  ];
 }
 
 /** Same position and same block; the program-order tokens of `editDistance`, minus shadows. */
@@ -162,8 +239,8 @@ function suffixTable(sol: Token[], cur: Token[], moveCost: number): number[][] {
 }
 
 function distance(solution: Program, current: Program): number {
-  const sol = tokensOf(solution.chain);
-  const cur = tokensOf(current.chain);
+  const sol = allTokens(solution);
+  const cur = allTokens(current);
   return suffixTable(sol, cur, 2)[0]?.[0] ?? 0;
 }
 
@@ -172,9 +249,13 @@ function distance(solution: Program, current: Program): number {
  * shadows are ignored and a block can only change in place (a change to another depth or input
  * counts as delete + insert). Every `nextStep` lowers it. 0 when the programs match.
  */
-export function structuralDistance(solution: WorkspaceJson, current: WorkspaceJson): number {
-  const solProgram = toProgram(solution);
-  const program = toProgram(current);
+export function structuralDistance(
+  solution: WorkspaceJson,
+  current: WorkspaceJson,
+  procedureOrder?: readonly string[],
+): number {
+  const solProgram = toProgram(solution, procedureOrder);
+  const program = toProgram(current, procedureOrder);
   return solProgram && program ? distance(solProgram, program) : 0;
 }
 
@@ -182,12 +263,14 @@ export function structuralDistance(solution: WorkspaceJson, current: WorkspaceJs
  * How many blocks, in program order (loop and `nếu` bodies included, shadows ignored), the
  * child's program has right from the first one under `cq_start`, compared with `solution`.
  */
-export function correctPrefix(solution: WorkspaceJson, current: WorkspaceJson): number {
-  const solProgram = toProgram(solution);
-  const program = toProgram(current);
-  return solProgram && program
-    ? prefixLength(tokensOf(solProgram.chain), tokensOf(program.chain))
-    : 0;
+export function correctPrefix(
+  solution: WorkspaceJson,
+  current: WorkspaceJson,
+  procedureOrder?: readonly string[],
+): number {
+  const solProgram = toProgram(solution, procedureOrder);
+  const program = toProgram(current, procedureOrder);
+  return solProgram && program ? prefixLength(allTokens(solProgram), allTokens(program)) : 0;
 }
 
 // ---- Applying a step to a copy of the program (what the child's drag does in Blockly) ----
@@ -200,7 +283,12 @@ function cloneChain(chain: Node[]): Node[] {
 }
 
 function clone(program: Program): Program {
-  return { ...program, chain: cloneChain(program.chain), loose: program.loose.map(cloneChain) };
+  return {
+    ...program,
+    chain: cloneChain(program.chain),
+    loose: program.loose.map(cloneChain),
+    spells: cloneChain(program.spells),
+  };
 }
 
 /** The chain holding block `id` and its index there. */
@@ -215,11 +303,17 @@ function locate(program: Program, id: string): { list: Node[]; index: number } |
     }
     return null;
   };
-  return search(program.chain) ?? program.loose.map(search).find((found) => found) ?? null;
+  return (
+    search(program.chain) ??
+    search(program.spells) ??
+    program.loose.map(search).find((found) => found) ??
+    null
+  );
 }
 
 /** The chain and index where a block plugged at `anchor` lands (before what is there now). */
 function slot(program: Program, anchor: StepAnchor): { list: Node[]; index: number } | null {
+  if (anchor.blockId === '') return { list: program.spells, index: program.spells.length };
   if (anchor.input === null) {
     if (anchor.blockId === program.startId) return { list: program.chain, index: 0 };
     const found = locate(program, anchor.blockId);
@@ -249,8 +343,27 @@ function contains(stack: Node[], id: string): boolean {
   );
 }
 
+/** The type of the block a step puts somewhere (add, replace, move), or null. */
+function placedType(program: Program, step: NextStep): string | null {
+  if (step.kind === 'add' || step.kind === 'replace') return String(step.block['type']);
+  if (step.kind !== 'move') return null;
+  const found = locate(program, step.blockId);
+  return found?.list[found.index]?.type ?? null;
+}
+
 /** The program after the child does `step`; null when the step cannot be done. */
 function apply(program: Program, step: NextStep): Program | null {
+  const next = applyInPlace(program, step);
+  return next === null ? null : sortSpells(next);
+}
+
+/** `apply` before the `dạy phép` blocks are put back in order. */
+function applyInPlace(program: Program, step: NextStep): Program | null {
+  // A `dạy phép` block only stands alone on the workspace, and nothing else goes there.
+  const placed = placedType(program, step);
+  if (placed !== null && 'anchor' in step && isSpell(placed) !== (step.anchor.blockId === '')) {
+    return null;
+  }
   const next = clone(program);
   next.loose = next.loose.filter((stack) => stack.length > 0);
   switch (step.kind) {
@@ -261,6 +374,8 @@ function apply(program: Program, step: NextStep): Program | null {
       const node = found?.list[found.index];
       if (!node) return null;
       node.key = blockKey(step.block);
+      // A `dạy phép` block's spell decides its place among the spell stacks.
+      if (isSpell(node.type)) node.json = { ...node.json, fields: step.block['fields'] };
       return next;
     }
     case 'remove': {
@@ -369,6 +484,7 @@ function anchorFor(
 ): StepAnchor | null {
   const token = sol[i];
   if (token === undefined) return null;
+  if (token.input === SPELL_STACK) return TOP_LEVEL;
   const previous = token.list[token.index - 1];
   if (previous !== undefined) {
     const node = aligned.get(previous);
@@ -383,6 +499,7 @@ function anchorFor(
 
 /** Where a block of the child's program is plugged in now. */
 function currentAnchor(token: Token, startId: string): StepAnchor {
+  if (token.input === SPELL_STACK) return TOP_LEVEL;
   const previous = token.list[token.index - 1];
   if (previous !== undefined) return { blockId: previous.id, input: null };
   if (token.parent !== null) return { blockId: token.parent.id, input: token.input };
@@ -403,8 +520,8 @@ function candidatesFor(
   program: Program,
   options: NextStepOptions,
 ): Candidates {
-  const sol = tokensOf(solProgram.chain);
-  const cur = tokensOf(program.chain);
+  const sol = allTokens(solProgram);
+  const cur = allTokens(program);
   const { ops, aligned } = alignmentPath(sol, cur);
   const allowed = (type: string): boolean =>
     options.toolbox === undefined || options.toolbox.includes(type);
@@ -488,8 +605,8 @@ function broadCandidates(
   program: Program,
   options: NextStepOptions,
 ): NextStep[] {
-  const sol = tokensOf(solProgram.chain);
-  const cur = tokensOf(program.chain);
+  const sol = allTokens(solProgram);
+  const cur = allTokens(program);
   const { aligned } = alignmentPath(sol, cur);
   const looseTokens = program.loose.flatMap((stack) => tokensOf(stack));
   const anchors = new Map<string, StepAnchor>();
@@ -545,7 +662,7 @@ function broadCandidates(
 
 /** The whole program with ids, to tell a step that changes nothing. */
 function shape(program: Program): string {
-  return [program.chain, ...program.loose]
+  return [program.chain, ...program.loose, program.spells]
     .map((stack) =>
       tokensOf(stack)
         .map((t) => `${String(t.depth)}${t.input}:${t.node.id}=${t.node.key}`)
@@ -556,7 +673,7 @@ function shape(program: Program): string {
 
 function keyCounts(program: Program): Map<string, number> {
   const counts = new Map<string, number>();
-  for (const stack of [program.chain, ...program.loose]) {
+  for (const stack of [program.chain, ...program.loose, program.spells]) {
     for (const token of tokensOf(stack)) {
       counts.set(token.node.key, (counts.get(token.node.key) ?? 0) + 1);
     }
@@ -575,7 +692,7 @@ function keepsNeededBlocks(
   const need = keyCounts(solProgram);
   const had = keyCounts(program);
   const has = keyCounts(after);
-  for (const token of tokensOf(solProgram.chain)) {
+  for (const token of allTokens(solProgram)) {
     if (options.toolbox.includes(token.node.type)) continue;
     const key = token.node.key;
     const wanted = Math.min(need.get(key) ?? 0, had.get(key) ?? 0);
@@ -635,8 +752,8 @@ function prefixStep(
   options: NextStepOptions,
   before: number,
 ): NextStep | null {
-  const sol = tokensOf(solProgram.chain);
-  const cur = tokensOf(program.chain);
+  const sol = allTokens(solProgram);
+  const cur = allTokens(program);
   const k = prefixLength(sol, cur);
   const want = sol[k];
   const have = cur[k];
@@ -701,8 +818,9 @@ function prefixStep(
   for (const step of steps) {
     const after = apply(program, step);
     if (after === null || shape(after) === shape(program)) continue;
+    if (!keepsSpells(solProgram, program, after)) continue;
     if (!keepsNeededBlocks(solProgram, program, after, options)) continue;
-    const prefix = prefixLength(sol, tokensOf(after.chain));
+    const prefix = prefixLength(sol, allTokens(after));
     const now = distance(solProgram, after);
     if (prefix < k || (prefix === k && now >= before)) continue;
     const rank = rankOf(step, prefix, now);
@@ -713,10 +831,10 @@ function prefixStep(
 
 /** The solution the child is closest to: longest correct prefix, then fewest edits left. */
 function closestSolution(solutions: Program[], program: Program): Program | null {
-  const cur = tokensOf(program.chain);
+  const cur = allTokens(program);
   let best: { sol: Program; prefix: number; left: number } | null = null;
   for (const sol of solutions) {
-    const prefix = prefixLength(tokensOf(sol.chain), cur);
+    const prefix = prefixLength(allTokens(sol), cur);
     const left = distance(sol, program);
     if (best === null || prefix > best.prefix || (prefix === best.prefix && left < best.left)) {
       best = { sol, prefix, left };
@@ -755,10 +873,11 @@ export function nextStep(
   current: WorkspaceJson,
   options: NextStepOptions = {},
 ): NextStep | null {
-  const program = toProgram(current);
+  const order = options.procedureOrder;
+  const program = toProgram(current, order);
   if (program === null) return null;
   const solutions = (isSolutionList(solution) ? solution : [solution])
-    .map(toProgram)
+    .map((workspace) => toProgram(workspace, order))
     .filter((sol): sol is Program => sol !== null);
   const solProgram = closestSolution(solutions, program);
   if (solProgram === null) return null;
@@ -780,17 +899,18 @@ export function nextStep(
 
   // The search below never shortens the child's correct start while another step exists, so a
   // prefix-first step and a search step cannot undo each other.
-  const solTokens = tokensOf(solProgram.chain);
-  const startNow = prefixLength(solTokens, tokensOf(program.chain));
+  const solTokens = allTokens(solProgram);
+  const startNow = prefixLength(solTokens, allTokens(program));
   let minPrefix = startNow;
   const keepsStart = (after: Program): boolean =>
-    prefixLength(solTokens, tokensOf(after.chain)) >= minPrefix;
+    prefixLength(solTokens, allTokens(after)) >= minPrefix;
   const outcomesOf = (list: NextStep[]) =>
     list.flatMap((step) => {
       const after = apply(program, step);
       return after === null ||
         shape(after) === shape(program) ||
         !keepsNeededBlocks(solProgram, program, after, options) ||
+        !keepsSpells(solProgram, program, after) ||
         !keepsStart(after)
         ? []
         : [{ step, after, now: distance(solProgram, after) }];

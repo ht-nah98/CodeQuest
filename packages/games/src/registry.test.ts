@@ -50,6 +50,9 @@ describe('action block tooltips', () => {
       robot_turn_right: 'Quay sang phải tại chỗ, chưa đi',
       robot_grab: 'Gắp khối ở chỗ Bíp đứng',
       robot_release: 'Thả khối xuống chỗ Bíp đứng',
+      turtle_forward: 'Tiến 3 bước: bút hạ thì có nét dài 3',
+      turtle_turn_right: 'Rẽ phải 90 độ: quay tại chỗ, chưa đi',
+      turtle_turn_left: 'Rẽ trái 90 độ: quay tại chỗ, chưa đi',
     });
   });
 });

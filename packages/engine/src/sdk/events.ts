@@ -35,5 +35,25 @@ export interface VarEvent {
   overflow?: true;
 }
 
+/**
+ * A spell starts (`call`) or ends (`ret`) (ADR-0023 §3): `blockId` is the `làm phép` block, `id`
+ * the spell. Logged by the engine around the spell's body and counted towards `maxActions` like
+ * `var`; not part of any game kind's event union. The web lights the `dạy phép` block of `id`
+ * between the two.
+ */
+export interface CallEvent {
+  type: 'call';
+  blockId: string | null;
+  id: string;
+}
+export interface RetEvent {
+  type: 'ret';
+  blockId: string | null;
+  id: string;
+}
+
+/** Events the engine itself logs, next to a game kind's own. */
+export type EngineEvent = HighlightEvent | SenseEvent | VarEvent | CallEvent | RetEvent;
+
 /** `Omit` that distributes over a union; plain `Omit<Union, K>` loses variant-only fields. */
 export type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K> : never;

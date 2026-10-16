@@ -1,12 +1,28 @@
 import { Events, serialization, type Workspace } from 'blockly';
 import type { Level, WorkspaceJson } from '@codequest/content-schema';
-import { blockTypeCounts, loopDepth } from '@codequest/engine';
+import { blockTypeCounts, loopDepth, PROC_DEF_TYPES } from '@codequest/engine';
 
 /** The per-level block limits Blockly cannot enforce at drop time by itself. */
 export type BlockLimits = Pick<Level, 'maxLoopDepth' | 'maxInstances'>;
 
-/** Which limit a workspace breaks: loops nested too deep, or too many blocks of one type. */
-export type BlockLimitBreach = 'loopDepth' | 'instances';
+/**
+ * Which limit a workspace breaks: loops nested too deep, too deep only because a `làm phép`
+ * whose spell loops sits in a loop (ADR-0023 §3, effective depth), or too many blocks of one type.
+ */
+export type BlockLimitBreach = 'loopDepth' | 'spellLoopDepth' | 'instances';
+
+/** The workspace with its `dạy phép` blocks made plain stacks: loop depth as written. */
+function writtenOnly(workspace: WorkspaceJson): WorkspaceJson {
+  return {
+    ...workspace,
+    blocks: {
+      ...workspace.blocks,
+      blocks: workspace.blocks.blocks.map((top) =>
+        PROC_DEF_TYPES.includes(top.type) ? { ...top, type: `${top.type}:written` } : top,
+      ),
+    },
+  };
+}
 
 /**
  * Whether a workspace breaks the level's `maxLoopDepth` (P2-11, curriculum.md §5.4 T16b) or
@@ -17,7 +33,9 @@ export function blockLimitBreach(
   workspace: WorkspaceJson,
   { maxLoopDepth, maxInstances }: BlockLimits,
 ): BlockLimitBreach | null {
-  if (maxLoopDepth !== undefined && loopDepth(workspace) > maxLoopDepth) return 'loopDepth';
+  if (maxLoopDepth !== undefined && loopDepth(workspace) > maxLoopDepth) {
+    return loopDepth(writtenOnly(workspace)) > maxLoopDepth ? 'loopDepth' : 'spellLoopDepth';
+  }
   if (maxInstances !== undefined) {
     for (const [type, count] of blockTypeCounts(workspace)) {
       const max = maxInstances[type];
@@ -50,8 +68,23 @@ export function guardBlockLimits(
   onBlocked: (breach: BlockLimitBreach) => void,
 ): () => void {
   if (limits.maxLoopDepth === undefined && limits.maxInstances === undefined) return () => {};
-  const breachNow = () =>
-    blockLimitBreach(serialization.workspaces.save(workspace) as WorkspaceJson, limits);
+  return guardWorkspaceChanges(
+    workspace,
+    () => blockLimitBreach(serialization.workspaces.save(workspace) as WorkspaceJson, limits),
+    onBlocked,
+  );
+}
+
+/**
+ * The undo machinery of `guardBlockLimits`, for any rule `breachNow` reads off the live
+ * workspace (also the capacity guard, capacity.ts): a child's move or new block that starts a
+ * breach is undone as one group, its redo entry dropped; an old breach is only reported.
+ */
+export function guardWorkspaceChanges<B>(
+  workspace: Workspace,
+  breachNow: () => B | null,
+  onBlocked: (breach: B) => void,
+): () => void {
   let wasBreaching = breachNow() !== null;
   let pending: ReturnType<typeof setTimeout> | undefined;
   /** Event group of the last recorded move / create the guard saw. */

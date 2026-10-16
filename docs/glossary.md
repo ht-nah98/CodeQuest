@@ -37,6 +37,10 @@ Dùng **đúng** các từ này. Cột "Trong code" là tên dùng cho type, bi�
 | Điều kiện | input `COND` (`COND_INPUT`); trong vét cạn `Condition` | Ô hình lục giác của "nếu" / "lặp đến khi", nơi cắm một khối hỏi (cảm biến). Với bé gọi là "câu hỏi", không nói "cảm biến". Ô để trống thì không chạy (`EMPTY_CONDITION`) |
 | Lặp đến khi | `cq_repeat_until` (P2-11) | Khối "lặp đến khi ◇": **trước mỗi vòng** hỏi điều kiện; ✔ thì dừng và chạy khối nằm dưới, ✘ thì chạy thêm một vòng. Có thể chạy 0 vòng. Tooltip: "Hỏi trước mỗi vòng: ✘ thì làm thêm một vòng, ✔ thì dừng và chạy khối bên dưới". Thế giới 5 |
 | Biến / hộp | `variable` / `var`; `level.variables`, khối `cq_var_*`, `cq_repeat_var`, event `var` (P3-09, ADR-0022) | Bài giảng nói một lần "biến là chiếc hộp có tên"; khối, bảng cạnh sân chơi và lời Măng chỉ nói **"hộp"** và tên hộp (vd "số măng"). Hộp giữ một số nguyên `0…max`; vượt trần thì thua `BOX_FULL` ("Hộp đầy rồi!"). "Đếm đúng" = `countGoal` (sai số: `WRONG_COUNT`). Thế giới 7 |
+| Phép thuật (phép) | `level.procedures` (≤ 3, `id`, `name` ≤ 3 chữ); nhóm thanh khối `function` "PHÉP THUẬT" (ADR-0023) | Hàm (thủ tục không trả giá trị). Bài mở đầu W8 nói một lần "Phép thuật là một nhóm lệnh có tên"; mọi chỗ khác chỉ nói "phép" và tên phép (vd "bậc thang"). Bé không tự đặt tên. Không nói "hàm" với bé. Thế giới 8 |
+| Dạy phép | `cq_proc_def` (khối gốc hình mũ, ô `BODY`), `cq_proc_def_n` (có hộp) | Định nghĩa phép: nhớ các lệnh bên trong, **chưa làm ngay**. Tooltip: "Dạy phép: nhớ các lệnh bên trong, chưa làm ngay". Hai khối dạy cùng tên: `TWO_SPELLS`; thân trống: `EMPTY_SPELL` |
+| Làm phép | `cq_proc_call`, `cq_proc_call_n` (`làm phép … với [3]`); event `call` / `ret` | Gọi phép: làm hết lệnh trong phép, rồi làm khối ngay sau. Tooltip: "Làm phép: làm hết lệnh trong phép, rồi làm tiếp". Chưa dạy: `NO_SPELL`; làm phép trong phép: `SPELL_IN_SPELL`. Phát lại hiện "Đang làm phép «…»", không nêu tên nhân vật |
+| Hộp của phép | `procedures[].param` (`id`, `name`, `max?`), gộp vào `vars` | Tham số số của phép: mỗi lần làm phép, hộp nhận số mới; hết phép thì về 0. Chỉ dùng trong thân phép của nó (ngoài thân: `BOX_OUTSIDE_SPELL`) |
 | Vòng lặp không dừng | `TIMEOUT` (khóa đoán `timeout`) | Vòng lặp mà điều kiện không bao giờ đúng; Măng "chóng mặt". Không gọi là "lặp vô hạn" với bé |
 | Từng bước | nút `step` (`vi.play.step`, đã có); điểm gợi ý `point: "step"` (`HintTargetSchema`, P2-11; nút nhấp nháy như nút Chạy) | Nút chạy từng khối một, dùng để tìm khối gây lỗi (Thế giới 3) |
 | Lỗi (đề xuất) | `bug` | Khối làm chương trình chạy khác ý. "Sửa lỗi", "Săn lỗi" (mode `bughunt`) |
@@ -63,6 +67,12 @@ Dùng **đúng** các từ này. Cột "Trong code" là tên dùng cho type, bi�
 | Hố | `hole` | Ô runner phải **nhảy** qua |
 | Cờ (lá cờ) | `flag` | Ô đích của runner, luôn là ô cuối |
 | Măng (vật phẩm) | `bamboo` | Măng tre để nhặt; `goal.collectAll` bắt nhặt hết. Khác với Măng (mascot) |
+| Bút | `turtle_pen_up` / `turtle_pen_down`, `config.penDown` (ADR-0024) | Bút của Măng ở `turtle`: hạ bút thì đi là vẽ, nhấc bút thì đi không vẽ. Nhóm thanh khối `pen` "BÚT". Thế giới 9 |
+| Nét | unit line segment; `segmentKey`, event `line` | Một đoạn thẳng đơn vị trên lưới. HUD "Còn 5 nét" (`vi.play.turtle.linesLeft`). Thiếu nét khi hết chương trình: `MISSING_LINES` |
+| Nét lạ | stray line; `EXTRA_LINE`, event `extraLine` | Nét không có trong hình mẫu: Măng dừng ngay, nét tô đỏ |
+| Hình mẫu | target picture; `config.target` | Hình bé phải vẽ, nét đứt nhạt trên giấy |
+| Giấy | paper; `config.size` | Vùng vẽ. Ra ngoài giấy: `OFF_PAPER` |
+| Độ | degrees; field `DEG` (bội của 30) | Góc quay của Măng ở `turtle` (dropdown 30…180) |
 | Đi | `runner_walk` / `walk` | Sang ô kế bên. Câu cho bé: "Đi 1 ô về phía trước" |
 | Nhảy | `runner_jump` / `jump` | Bay qua ô kế bên (p+1), đáp xuống ô p+2: đi xa **2 ô**, cả trên đất bằng. Câu cho bé: "Nhảy: bay qua 1 ô, đáp xuống ô thứ 2" (tooltip "Bay qua 1 ô, đáp xuống ô thứ 2"). Không nói "nhảy 1 ô" hay "đáp ô sau đó" (bé hiểu là đi 1 ô / "rồi sau đó") |
 | Cúi | `runner_crouch` / `crouch` | Cúi người **và đi 1 ô** (không phải cúi tại chỗ), chui qua cành. Câu cho bé: "Cúi xuống và đi 1 ô" |

@@ -28,8 +28,8 @@ Trạng thái: **Đề xuất** → **Chấp nhận** → (**Đã bị thay th�
 | [0020](0020-pwa-workbox-prompt-update.md) | PWA offline bằng `vite-plugin-pwa` (Workbox), cập nhật kiểu hỏi trước | Chấp nhận |
 | [0021](0021-robotlab-rules.md) | `robotlab`: chấm khi hết chương trình, đồng hồ ảo trong state, luật chung là dữ liệu, gắp / thả tại ô | Chấp nhận |
 | [0022](0022-engine-variables.md) | Biến của engine ("hộp"): khối chỉ có ô số, biến trong trạng thái vét cạn, `countGoal`, `lặp [hộp] lần` | Chấp nhận |
-| [0023](0023-engine-procedures.md) | Phép thuật (hàm) của engine: tên do màn khai báo, tham số là hộp của phép, vét cạn với thân phép cố định, `parUnproven` | **Đề xuất** |
-| [0024](0024-turtle-game-kind.md) | Kiểu game `turtle`: lưới chính xác bội số 30°, chấm bằng tập nét, nét lạ là dừng | **Đề xuất** |
+| [0023](0023-engine-procedures.md) | Phép thuật (hàm) của engine: tên do màn khai báo, tham số là hộp của phép, vét cạn với thân phép cố định, `parUnproven` | **Chấp nhận** |
+| [0024](0024-turtle-game-kind.md) | Kiểu game `turtle`: lưới chính xác bội số 30°, chấm bằng tập nét, nét lạ là dừng | **Chấp nhận** |
 
 ## Mẫu
 ```markdown

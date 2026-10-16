@@ -1,0 +1,211 @@
+{
+  "id": "turtle-predict",
+  "worldId": "_sandbox",
+  "stage": "practice",
+  "kind": "turtle",
+  "mode": "predict",
+  "title": "Góc rẽ đổi hình",
+  "objective": "Măng vẽ hình gì? Đoán xem!",
+  "learningGoal": "Góc rẽ quyết định hình.",
+  "misconception": "Rẽ góc nào cũng ra tam giác.",
+  "toolbox": [],
+  "config": {
+    "size": {
+      "w": 5,
+      "h": 6
+    },
+    "start": {
+      "x": 0,
+      "y": 0,
+      "heading": 0
+    },
+    "angles": [60, 90, 120],
+    "grid": "tri"
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "loop1",
+              "fields": {
+                "TIMES": 3
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "turtle_forward",
+                    "id": "fwd1",
+                    "fields": {
+                      "N": 3
+                    },
+                    "next": {
+                      "block": {
+                        "type": "turtle_turn_left",
+                        "id": "turn1",
+                        "fields": {
+                          "DEG": "120"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "predict": {
+    "options": [
+      {
+        "drawProgram": {
+          "blocks": {
+            "languageVersion": 0,
+            "blocks": [
+              {
+                "type": "cq_start",
+                "id": "start",
+                "x": 40,
+                "y": 40,
+                "deletable": false,
+                "next": {
+                  "block": {
+                    "type": "cq_repeat",
+                    "id": "loop1",
+                    "fields": {
+                      "TIMES": 3
+                    },
+                    "inputs": {
+                      "DO": {
+                        "block": {
+                          "type": "turtle_forward",
+                          "id": "fwd1",
+                          "fields": {
+                            "N": 3
+                          },
+                          "next": {
+                            "block": {
+                              "type": "turtle_turn_left",
+                              "id": "turn1",
+                              "fields": {
+                                "DEG": "120"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "label": "Tam giác"
+      },
+      {
+        "drawProgram": {
+          "blocks": {
+            "languageVersion": 0,
+            "blocks": [
+              {
+                "type": "cq_start",
+                "id": "start",
+                "x": 40,
+                "y": 40,
+                "deletable": false,
+                "next": {
+                  "block": {
+                    "type": "cq_repeat",
+                    "id": "loop1",
+                    "fields": {
+                      "TIMES": 3
+                    },
+                    "inputs": {
+                      "DO": {
+                        "block": {
+                          "type": "turtle_forward",
+                          "id": "fwd1",
+                          "fields": {
+                            "N": 3
+                          },
+                          "next": {
+                            "block": {
+                              "type": "turtle_turn_left",
+                              "id": "turn1",
+                              "fields": {
+                                "DEG": "90"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "label": "Hình vuông thiếu 1 cạnh"
+      },
+      {
+        "drawProgram": {
+          "blocks": {
+            "languageVersion": 0,
+            "blocks": [
+              {
+                "type": "cq_start",
+                "id": "start",
+                "x": 40,
+                "y": 40,
+                "deletable": false,
+                "next": {
+                  "block": {
+                    "type": "cq_repeat",
+                    "id": "loop1",
+                    "fields": {
+                      "TIMES": 3
+                    },
+                    "inputs": {
+                      "DO": {
+                        "block": {
+                          "type": "turtle_forward",
+                          "id": "fwd1",
+                          "fields": {
+                            "N": 3
+                          },
+                          "next": {
+                            "block": {
+                              "type": "turtle_turn_left",
+                              "id": "turn1",
+                              "fields": {
+                                "DEG": "60"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "label": "Nửa lục giác"
+      }
+    ]
+  },
+  "hints": []
+}

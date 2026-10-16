@@ -10,6 +10,9 @@ export type { GameKindLookup, RuleIssue } from './issue';
 // Rule 23 (variables, ADR-0022) and authoring rule R4 as a test helper.
 export { VARIABLE_RULE, variableIssues, withoutVariables } from './variableRules';
 
+// Derived key of a predict card (hand-written `key` or the run of its `drawProgram`).
+export { predictOptionKey } from './predictKeys';
+
 // Helpers the cross-file rules of content:check share.
 export { toolboxTypes } from './levelRules';
 export { blockTypesOf } from './workspace';
@@ -23,20 +26,26 @@ export type { ParsonsOptions, ParsonsResult } from './parsons';
 export {
   findShortestPrograms,
   MAX_CATALOG_ENTRIES,
+  MAX_PROC_BODIES,
   WORKER_MAX_CATALOG_ENTRIES,
 } from './search/shortest';
-export type { ShortestOptions, ShortestResult } from './search/shortest';
+export type { ShortestOptions, ShortestResult, SpellSearchMode } from './search/shortest';
 export { MAX_KEPT_FIXES, findFixes } from './search/fixes';
+// Spells (ADR-0023 §4): authoring rule R5 as a test helper.
+export { R5_MAX_WORK, R5_TIMEOUT_MS, spellsNeeded, withoutProcedures } from './search/spellsNeeded';
+export type { SpellsNeededResult } from './search/spellsNeeded';
 export type { FixOptions, FixResult } from './search/fixes';
 export { DEFAULT_MAX_WORK, WORKER_MAX_WORK } from './search/budget';
 export type { SearchOptions } from './search/budget';
 export { UnsearchableLevel } from './search/sim';
 export {
+  definitionsFromWorkspace,
   formatProgram,
+  formatProgramWithDefs,
   programBlockTypes,
   programFromWorkspace,
   programLoopDepth,
   programSize,
   programToWorkspace,
 } from './search/program';
-export type { Condition, Program, Statement } from './search/program';
+export type { Condition, Definitions, Program, Statement } from './search/program';

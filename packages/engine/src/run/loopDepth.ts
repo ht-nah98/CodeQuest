@@ -1,5 +1,7 @@
 import type { WorkspaceJson } from '@codequest/content-schema';
 import { LOOP_BLOCK_TYPES } from '../blocks/common';
+import { NO_PROCEDURE } from '../blocks/procedureField';
+import { PROC_CALL_TYPES, PROC_DEF_TYPES } from '../blocks/procedures';
 import { isRecord, type JsonRecord } from './editDistance';
 
 const LOOPS: ReadonlySet<string> = new Set(LOOP_BLOCK_TYPES);
@@ -26,16 +28,45 @@ function visit(
   for (const top of workspace.blocks.blocks) walk(top, 0);
 }
 
+/** The spell id a serialized `cq_proc_*` block names. */
+function spellOf(block: JsonRecord): string {
+  const fields = isRecord(block['fields']) ? block['fields'] : {};
+  const id = fields['PROC'];
+  return typeof id === 'string' && id !== '' ? id : NO_PROCEDURE;
+}
+
+/** Deepest loop nesting written inside one block's inputs and the stack below it (itself too). */
+function literalDepth(top: JsonRecord): number {
+  let deepest = 0;
+  visit({ blocks: { languageVersion: 0, blocks: [top as { type: string }] } }, (block, around) => {
+    if (LOOPS.has(String(block['type']))) deepest = Math.max(deepest, around + 1);
+  });
+  return deepest;
+}
+
 /**
- * Deepest nesting of loop blocks (`cq_repeat`, `cq_repeat_until` and Blockly's loops) in a
- * workspace JSON, loose stacks included: 0 without loops, 1 when no loop sits inside another.
- * `level.maxLoopDepth` caps it (P2-11, curriculum.md §5.4 T16b); pure JSON, no Blockly, so the
- * validator, the par search and the web drop guard share it.
+ * Deepest **effective** nesting of loop blocks (`cq_repeat`, `cq_repeat_until`, `cq_repeat_var`
+ * and Blockly's loops) in a workspace JSON, loose stacks included: 0 without loops, 1 when no loop
+ * sits inside another. A `làm phép` counts as the loops around it plus the deepest nesting inside
+ * its spell's body (ADR-0023 §3), so calling a spell that loops from inside a loop is depth 2.
+ * Without spells it is the plain nesting, as before. `level.maxLoopDepth` caps it (P2-11,
+ * curriculum.md §5.4 T16b); pure JSON, no Blockly, so the validator, the par search and the web
+ * drop guard share it.
  */
 export function loopDepth(workspace: WorkspaceJson): number {
+  const bodyDepth = new Map<string, number>();
+  for (const top of workspace.blocks.blocks) {
+    if (!PROC_DEF_TYPES.includes(top.type)) continue;
+    const id = spellOf(top);
+    bodyDepth.set(id, Math.max(bodyDepth.get(id) ?? 0, literalDepth(top)));
+  }
   let deepest = 0;
   visit(workspace, (block, loopsAround) => {
-    if (LOOPS.has(String(block['type']))) deepest = Math.max(deepest, loopsAround + 1);
+    const type = String(block['type']);
+    if (LOOPS.has(type)) deepest = Math.max(deepest, loopsAround + 1);
+    if (PROC_CALL_TYPES.includes(type)) {
+      deepest = Math.max(deepest, loopsAround + (bodyDepth.get(spellOf(block)) ?? 0));
+    }
   });
   return deepest;
 }

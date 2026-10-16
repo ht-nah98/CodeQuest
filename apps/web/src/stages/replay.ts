@@ -1,5 +1,12 @@
 import type { Ticker } from 'pixi.js';
-import type { GameEvent, RunOutcome, SenseEvent, VarEvent } from '@codequest/engine';
+import type {
+  CallEvent,
+  GameEvent,
+  RetEvent,
+  RunOutcome,
+  SenseEvent,
+  VarEvent,
+} from '@codequest/engine';
 import { isAborted, type StageRenderer, tween } from './types';
 
 /** Playback speed chosen by the child (Chậm / Vừa / Nhanh). */
@@ -20,6 +27,22 @@ export const SENSE_MS = 380;
  * pop / count-up is seen before the next block runs. Măng stands still meanwhile.
  */
 export const VAR_MS = 320;
+/**
+ * How long a spell's start or end (`call` / `ret`, ADR-0023 §3) holds the replay at speed 1, so
+ * the lit `dạy phép` block and the bubble "Đang làm phép «…»" are seen. Măng stands still.
+ */
+export const SPELL_MS = 240;
+/** A spell starts (`call`) or ends (`ret`). */
+export type SpellEvent = CallEvent | RetEvent;
+const isSpellEvent = (event: GameEvent): event is SpellEvent =>
+  event.type === 'call' || event.type === 'ret';
+/** Events the replay holds on by itself; the renderer never sees them. */
+const isReplayBoundary = (event: GameEvent): boolean =>
+  event.type === 'highlight' ||
+  event.type === 'sense' ||
+  event.type === 'var' ||
+  isSpellEvent(event);
+
 /**
  * A timed-out run can hold thousands of events: replay only about its first 3 s of stage clock
  * at speed 1 (coach question G13, "tạm dùng 3 giây"), then Măng gets dizzy (T8).
@@ -44,8 +67,7 @@ export function timeoutReplayEvents(
   const kept: GameEvent[] = [];
   let ms = 0;
   for (const event of events) {
-    const boundary = event.type === 'highlight' || event.type === 'sense' || event.type === 'var';
-    if (kept.length > 0 && boundary && ms >= TIMEOUT_REPLAY_MS) break;
+    if (kept.length > 0 && isReplayBoundary(event) && ms >= TIMEOUT_REPLAY_MS) break;
     kept.push(event);
     ms +=
       event.type === 'highlight'
@@ -54,7 +76,9 @@ export function timeoutReplayEvents(
           ? SENSE_MS
           : event.type === 'var'
             ? VAR_MS
-            : estimate(event);
+            : isSpellEvent(event)
+              ? SPELL_MS
+              : estimate(event);
   }
   return kept;
 }
@@ -74,6 +98,12 @@ export interface ReplayHooks {
    * `overflow`, that the box is full). Never handed to the renderer, which knows no boxes.
    */
   onVar?: (event: VarEvent) => void;
+  /**
+   * A spell starts or ends (`call` / `ret`, ADR-0023 §6): light the `dạy phép` block of
+   * `event.id` and say "Đang làm phép «…»", or (`ret`) turn it off; `null` clears it (reset, end).
+   * Never handed to the renderer.
+   */
+  onSpell?: (event: SpellEvent | null) => void;
   /** Step mode: true while the replay waits for `step()` (e2e reads it as data-waiting-step). */
   onWaitingStep?: (waiting: boolean) => void;
   /** The clock's speed after every change (tempo, speed, pause); e2e reads it as data-stage-speed. */
@@ -124,7 +154,7 @@ export class Replay {
   /**
    * Replays a run from the start: highlight events light up their block for HIGHLIGHT_MS, sense
    * events show the question's answer for SENSE_MS, var events go to `onVar` for VAR_MS (the box
-   * panel), action events go to the renderer. A timed-out
+   * panel), call / ret events go to `onSpell` for SPELL_MS, action events go to the renderer. A timed-out
    * run plays only its start, then Măng gets dizzy. Resolves 'aborted' if reset / destroyed /
    * replayed meanwhile.
    */
@@ -160,7 +190,8 @@ export class Replay {
         blockStarted = false;
         const isSense = event.type === 'sense';
         const isVar = event.type === 'var';
-        if (this.stepping && (firstOfBlock || isSense || isVar)) {
+        const isSpell = isSpellEvent(event);
+        if (this.stepping && (firstOfBlock || isSense || isVar || isSpell)) {
           this.renderer.rest();
           await this.waitForStep(signal);
           if (isAborted(signal)) return 'aborted';
@@ -182,21 +213,23 @@ export class Replay {
           await tween(this.ticker, VAR_MS, signal);
           continue;
         }
+        if (isSpell) {
+          this.hooks.onSpell?.(event);
+          this.renderer.hold();
+          await tween(this.ticker, SPELL_MS, signal);
+          continue;
+        }
         const next = events[index + 1];
         this.hooks.onEvent?.(event);
         await this.renderer.play(
           event,
           signal,
-          next === undefined ||
-            next.type === 'highlight' ||
-            next.type === 'sense' ||
-            next.type === 'var'
-            ? undefined
-            : next,
+          next === undefined || isReplayBoundary(next) ? undefined : next,
         );
       }
       if (isAborted(signal)) return 'aborted';
       this.clearSense();
+      this.hooks.onSpell?.(null);
       this.hooks.onHighlight(null);
       if (timedOut && this.renderer.dizzy) {
         // The loop never stops: Măng spins and sees stars, then stays dizzy (T8, T18).
@@ -283,6 +316,7 @@ export class Replay {
     this.renderer.reset();
     this.hooks.onReset?.();
     this.clearSense();
+    this.hooks.onSpell?.(null);
     this.hooks.onHighlight(null);
   }
 

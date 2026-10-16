@@ -3,6 +3,7 @@ import type { AnyGameKindDefinition } from '@codequest/engine';
 import { maze } from './maze';
 import { robotlab } from './robotlab';
 import { runner } from './runner';
+import { turtle } from './turtle';
 
 /**
  * Every implemented game kind, by id. Partial until all kinds exist; look kinds up with
@@ -12,6 +13,7 @@ export const gameKinds: Readonly<Partial<Record<GameKindId, AnyGameKindDefinitio
   runner,
   maze,
   robotlab,
+  turtle,
 };
 
 /** The game kind for `level.kind`, or undefined if it is not implemented yet. */

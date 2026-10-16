@@ -53,6 +53,14 @@
   opacity: 0.88;
 }
 
+/* The `dạy phép` block whose spell runs now in the replay (ADR-0023 §6; spellMark.ts): a gold
+   glow on the hat block's own outline; the running block inside keeps Blockly's highlight. */
+.cq-blockly .cq-spell-active > .blocklyPath {
+  stroke: var(--color-coin-deep);
+  stroke-width: 6px;
+  filter: drop-shadow(0 0 8px var(--color-coin));
+}
+
 /* A question block while the replay asks it (P2-11, T7; senseMark.ts): green outline and ✔
    badge for yes, red and ✘ for no. Only the block's own outline (not nested blocks). */
 .cq-blockly .cq-sense-yes > .blocklyPath {

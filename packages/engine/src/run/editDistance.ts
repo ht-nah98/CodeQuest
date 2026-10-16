@@ -1,5 +1,6 @@
 import type { WorkspaceJson } from '@codequest/content-schema';
 import { CQ_START } from '../blocks/common';
+import { PROC_DEF_TYPES } from '../blocks/procedures';
 
 export type JsonRecord = Record<string, unknown>;
 
@@ -42,10 +43,46 @@ function pushTokens(first: JsonRecord | null, depth: number, input: string, out:
   }
 }
 
-function programTokens(workspace: WorkspaceJson): string[] {
+/** Input name of the `dạy phép` stacks in tokens: never equal to a block of the main stack. */
+export const SPELL_STACK = '#spell';
+
+/**
+ * The `dạy phép` blocks of a workspace (ADR-0023 §3) in a fixed order: `procedureOrder` (the
+ * level's `procedures` ids) first, then by spell id, then as written.
+ */
+export function spellStacks(
+  workspace: WorkspaceJson,
+  procedureOrder: readonly string[] = [],
+): JsonRecord[] {
+  const spellOf = (block: JsonRecord): string => {
+    const fields = isRecord(block['fields']) ? block['fields'] : {};
+    const id = fields['PROC'];
+    return typeof id === 'string' ? id : '';
+  };
+  const rank = (id: string): number => {
+    const index = procedureOrder.indexOf(id);
+    return index === -1 ? procedureOrder.length : index;
+  };
+  return workspace.blocks.blocks
+    .filter((block) => PROC_DEF_TYPES.includes(block.type))
+    .map((block, index) => ({ block, index }))
+    .sort((a, b) => {
+      const byRank = rank(spellOf(a.block)) - rank(spellOf(b.block));
+      if (byRank !== 0) return byRank;
+      const [x, y] = [spellOf(a.block), spellOf(b.block)];
+      return x < y ? -1 : x > y ? 1 : a.index - b.index;
+    })
+    .map(({ block }) => block);
+}
+
+function programTokens(workspace: WorkspaceJson, procedureOrder?: readonly string[]): string[] {
   const start = workspace.blocks.blocks.find((block) => block.type === CQ_START);
   const tokens: string[] = [];
   if (start !== undefined) pushTokens(connectedBlock(start['next']), 0, '', tokens);
+  // Spells after the main stack, each `dạy phép` block then its body (ADR-0023 §3).
+  for (const spell of spellStacks(workspace, procedureOrder)) {
+    pushTokens(spell, 0, SPELL_STACK, tokens);
+  }
   return tokens;
 }
 
@@ -64,8 +101,13 @@ function levenshtein(a: readonly string[], b: readonly string[]): number {
 
 /**
  * Number of block edits (insert, delete, change = 1 each) between two programs, comparing
- * only blocks under `cq_start`. Used to grade `bughunt` levels.
+ * only blocks under `cq_start` and the `dạy phép` stacks (ADR-0023 §3: after the main stack, in
+ * `procedureOrder`, the level's `procedures` ids). Used to grade `bughunt` levels.
  */
-export function editDistance(from: WorkspaceJson, to: WorkspaceJson): number {
-  return levenshtein(programTokens(from), programTokens(to));
+export function editDistance(
+  from: WorkspaceJson,
+  to: WorkspaceJson,
+  procedureOrder?: readonly string[],
+): number {
+  return levenshtein(programTokens(from, procedureOrder), programTokens(to, procedureOrder));
 }

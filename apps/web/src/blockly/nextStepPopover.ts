@@ -1,5 +1,10 @@
 import { type BlockSvg, DropDownDiv, Events, utils, WidgetDiv, type WorkspaceSvg } from 'blockly';
-import { type NextStep, type StepAnchor, workspaceVariablesOf } from '@codequest/engine';
+import {
+  type NextStep,
+  type StepAnchor,
+  workspaceProceduresOf,
+  workspaceVariablesOf,
+} from '@codequest/engine';
 import { vi } from '../i18n/vi';
 import './nextStepPopover.css';
 import { mountReadOnlyWorkspace, type ReadOnlyWorkspace } from './readOnlyWorkspace';
@@ -26,7 +31,7 @@ export function nextStepMessage(step: NextStep | null): string {
   if (step === null) return t.done;
   switch (step.kind) {
     case 'add':
-      return t.add;
+      return step.anchor.blockId === '' ? t.addTop : t.add;
     case 'move':
       return step.withTail ? t.moveWithTail : t.move;
     case 'edit':
@@ -57,11 +62,21 @@ function besideStack(block: BlockSvg, y: number): AnchorSpot {
 }
 
 function connectionPoint(workspace: WorkspaceSvg, anchor: StepAnchor): AnchorSpot | null {
+  // A new top block (a missing `dạy phép`, ADR-0023): it may go anywhere, so the popover sits
+  // beside the program's right edge, at the top.
+  if (anchor.blockId === '') return besideProgram(workspace);
   const block = workspace.getBlockById(anchor.blockId);
   if (!block) return null;
   const connection =
     anchor.input === null ? block.nextConnection : block.getInput(anchor.input)?.connection;
   return besideStack(block, connection ? connection.y : block.getRelativeToSurfaceXY().y);
+}
+
+/** Right of every block, at the top of the program: where a new top block may be dropped. */
+function besideProgram(workspace: WorkspaceSvg): AnchorSpot | null {
+  if (workspace.getTopBlocks(false).length === 0) return null;
+  const box = workspace.getBlocksBoundingBox();
+  return { left: box.left, right: box.right, y: box.top + 16 };
 }
 
 function blockPoint(workspace: WorkspaceSvg, id: string): AnchorSpot | null {
@@ -169,7 +184,12 @@ export function showNextStepPopover(
     preview = mountReadOnlyWorkspace(
       previewBox,
       { blocks: { languageVersion: 0, blocks: [block] } },
-      { scale: 0.9, scrollable: false, variables: workspaceVariablesOf(workspace) },
+      {
+        scale: 0.9,
+        scrollable: false,
+        variables: workspaceVariablesOf(workspace),
+        procedures: workspaceProceduresOf(workspace),
+      },
     );
   }
 

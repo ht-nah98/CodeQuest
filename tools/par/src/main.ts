@@ -1,5 +1,6 @@
 // Usage: npm run par -- <levelId | path/to/level.json>... [--world <wNN | folder>]
 //          [--dir <content dir>] [--max-size N] [--depth N] [--budget N] [--timeout <seconds>]
+//          [--proc-bodies k]  (spells, ADR-0023 §4: also try every spell body of ≤ k blocks)
 // Exhaustive search for the fewest blocks that win each build/bughunt level (and, for bughunt,
 // the fewest edits that fix initialWorkspace). Exit 1 if a level's par or parEdits is wrong.
 import { readdirSync, readFileSync } from 'node:fs';
@@ -19,6 +20,7 @@ const { values, positionals } = parseArgs({
     depth: { type: 'string' },
     budget: { type: 'string' },
     timeout: { type: 'string' },
+    'proc-bodies': { type: 'string' },
   },
 });
 
@@ -42,6 +44,7 @@ const maxSize = wholeNumber('max-size');
 const depth = wholeNumber('depth', 0);
 const budget = wholeNumber('budget');
 const timeout = wholeNumber('timeout');
+const procBodies = wholeNumber('proc-bodies');
 
 const listDir = (dir: string): string[] => {
   try {
@@ -89,6 +92,7 @@ for (const file of files) {
           ...(maxSize !== undefined && { maxSize }),
           ...(depth !== undefined && { maxDepth: depth }),
           ...(budget !== undefined && { maxWork: budget }),
+          ...(procBodies !== undefined && { procBodies }),
           shouldStop: () => performance.now() > deadline,
         })
       : {

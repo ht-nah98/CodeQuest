@@ -14,6 +14,14 @@ export const ENGINE_REASONS = [
   // over its max.
   'WRONG_COUNT',
   'BOX_FULL',
+  // Spells (ADR-0023 §3), checked before anything runs: a call to a spell with no `dạy phép`,
+  // two `dạy phép` of one spell, a call to a spell with an empty body, a call inside a body.
+  'NO_SPELL',
+  'TWO_SPELLS',
+  'EMPTY_SPELL',
+  'SPELL_IN_SPELL',
+  // A spell's box read outside the spell's body (ADR-0023 §2; checked from P4-04).
+  'BOX_OUTSIDE_SPELL',
   'TIMEOUT',
   'INTERNAL_ERROR',
 ] as const;

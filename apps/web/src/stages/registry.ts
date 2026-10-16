@@ -7,6 +7,7 @@ import { mazeStage } from './maze';
 import { robotlabStage } from './robotlab';
 import { RunnerStage } from './runner/RunnerStage';
 import { sceneArt } from './sceneThemes';
+import { turtleStage } from './turtle';
 import type { PandaAnimationListener, StageRenderer } from './types';
 
 /** Callbacks a renderer may report through (e2e / debug). */
@@ -72,6 +73,7 @@ export const stageKinds: Partial<Record<GameKindId, StageKind>> = {
   runner: runnerStage,
   maze: mazeStage,
   robotlab: robotlabStage,
+  turtle: turtleStage,
 };
 
 /** The stage of a game kind, or `undefined` when it has no renderer yet. */

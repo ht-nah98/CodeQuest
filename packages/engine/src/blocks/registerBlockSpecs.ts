@@ -1,6 +1,8 @@
 import { Blocks, common } from 'blockly';
 import { engineGenerator } from './generator';
 import { COMMON_BLOCKS } from './common';
+import { registerProcedureField } from './procedureField';
+import { PROCEDURE_BLOCKS } from './procedures';
 import { registerVariableField } from './variableField';
 import { VARIABLE_BLOCKS } from './variables';
 import type { BlockSpec } from '../sdk/blockSpec';
@@ -27,12 +29,15 @@ function register(spec: BlockSpec): void {
 
 /**
  * Defines Blockly blocks and generators for `specs` (plus the common blocks `cq_start`,
- * `cq_repeat`… and the engine's variable blocks with their `field_cq_var`, ADR-0022).
+ * `cq_repeat`… the engine's variable blocks with their `field_cq_var`, ADR-0022, and its spell
+ * blocks with their `field_cq_proc`, ADR-0023).
  * Idempotent: registering the same spec again is a no-op.
  */
 export function registerBlockSpecs(specs: readonly BlockSpec[]): void {
   registerVariableField();
+  registerProcedureField();
   for (const spec of COMMON_BLOCKS) register(spec);
   for (const spec of VARIABLE_BLOCKS) register(spec);
+  for (const spec of PROCEDURE_BLOCKS) register(spec);
   for (const spec of specs) register(spec);
 }
