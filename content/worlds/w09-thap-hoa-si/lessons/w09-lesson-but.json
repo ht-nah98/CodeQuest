@@ -1,0 +1,111 @@
+{
+  "id": "w09-lesson-but",
+  "worldId": "w09-thap-hoa-si",
+  "title": "Khối tiến bước",
+  "beforeLevel": "w09-l01",
+  "cards": [
+    {
+      "type": "say",
+      "pose": "point",
+      "text": "Khối mới! Tiến 3 bước: bút hạ thì có nét dài 3"
+    },
+    {
+      "type": "demo",
+      "text": "Tiến 3: một nét dài 3.",
+      "kind": "turtle",
+      "config": {
+        "size": {
+          "w": 5,
+          "h": 2
+        },
+        "start": {
+          "x": 1,
+          "y": 1,
+          "heading": 0
+        },
+        "angles": [90],
+        "grid": "square"
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "turtle_forward",
+                  "id": "fwd1",
+                  "fields": {
+                    "N": 3
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "demo",
+      "text": "Tiến 1 rồi tiến 2: cũng nét dài 3.",
+      "kind": "turtle",
+      "config": {
+        "size": {
+          "w": 5,
+          "h": 2
+        },
+        "start": {
+          "x": 1,
+          "y": 1,
+          "heading": 0
+        },
+        "angles": [90],
+        "grid": "square"
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "turtle_forward",
+                  "id": "fwd1",
+                  "fields": {
+                    "N": 1
+                  },
+                  "next": {
+                    "block": {
+                      "type": "turtle_forward",
+                      "id": "fwd2",
+                      "fields": {
+                        "N": 2
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "quiz",
+      "text": "Măng tiến 4 bước. Nét dài mấy?",
+      "options": ["4", "1"],
+      "correct": 0,
+      "explain": "Mỗi bước thêm 1 đoạn: 4 bước, nét dài 4."
+    }
+  ]
+}

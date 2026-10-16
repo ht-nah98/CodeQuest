@@ -1,0 +1,145 @@
+{
+  "id": "w09-l15",
+  "worldId": "w09-thap-hoa-si",
+  "stage": "practice",
+  "kind": "turtle",
+  "mode": "build",
+  "title": "Khung tranh",
+  "objective": "Vẽ khung tranh nét đứt nhé!",
+  "learningGoal": "Bút lên xuống ở vòng trong, rẽ ở vòng ngoài.",
+  "misconception": "Khối rẽ đặt ở vòng nào cũng được.",
+  "mission": "Tầng 4 treo một bức tranh.",
+  "toolbox": [
+    {
+      "type": "turtle_forward",
+      "fields": {
+        "N": 1
+      }
+    },
+    "turtle_pen_up",
+    "turtle_pen_down",
+    {
+      "type": "turtle_turn_right",
+      "fields": {
+        "DEG": "90"
+      }
+    },
+    "cq_repeat"
+  ],
+  "maxLoopDepth": 2,
+  "par": 7,
+  "config": {
+    "size": {
+      "w": 6,
+      "h": 6
+    },
+    "start": {
+      "x": 1,
+      "y": 5,
+      "heading": 0
+    },
+    "target": [
+      {
+        "from": [1, 5],
+        "heading": 0,
+        "path": "F1 U F1 D F1 U F1 D R90 F1 U F1 D F1 U F1 D R90 F1 U F1 D F1 U F1 D R90 F1 U F1 D F1 U F1 D R90"
+      }
+    ],
+    "angles": [90],
+    "grid": "square"
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "loop1",
+              "fields": {
+                "TIMES": 4
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "cq_repeat",
+                    "id": "loop2",
+                    "fields": {
+                      "TIMES": 2
+                    },
+                    "inputs": {
+                      "DO": {
+                        "block": {
+                          "type": "turtle_forward",
+                          "id": "fwd1",
+                          "fields": {
+                            "N": 1
+                          },
+                          "next": {
+                            "block": {
+                              "type": "turtle_pen_up",
+                              "id": "up1",
+                              "next": {
+                                "block": {
+                                  "type": "turtle_forward",
+                                  "id": "fwd2",
+                                  "fields": {
+                                    "N": 1
+                                  },
+                                  "next": {
+                                    "block": {
+                                      "type": "turtle_pen_down",
+                                      "id": "down1"
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "turtle_turn_right",
+                        "id": "right1",
+                        "fields": {
+                          "DEG": "90"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "side",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Vòng trong vẽ mấy nét đứt?",
+      "point": "toolbox:cq_repeat"
+    },
+    {
+      "id": "stray",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "EXTRA_LINE"
+      },
+      "say": "Rẽ sau mỗi nét hay sau mỗi cạnh?"
+    }
+  ],
+  "thinkingHint": "Một cạnh có mấy nét?"
+}

@@ -1,0 +1,116 @@
+{
+  "id": "w09-thap-hoa-si",
+  "order": 9,
+  "title": "Tháp Họa Sĩ",
+  "emoji": "🎨",
+  "concept": "Lặp lồng nhau và góc: vẽ hình bằng bút",
+  "story": "Gió thổi bay màu vẽ của Tháp Họa Sĩ. Măng cầm bút vẽ lại từng tầng.",
+  "chapters": [
+    {
+      "id": "thap-trong",
+      "title": "Tháp trống trơn",
+      "lines": [
+        "Tháp Họa Sĩ của cô Thỏ có 5 tầng.",
+        "Gió thổi bay hết màu vẽ trên tường.",
+        "Măng cầm bút lông, vẽ lại từng tầng."
+      ],
+      "art": {
+        "cast": ["bunny"],
+        "prop": "tower"
+      }
+    },
+    {
+      "id": "mai-nha",
+      "title": "Mái nhà",
+      "unlockAfter": "w09-l07",
+      "lines": ["Tầng 2 có ngôi nhà và cửa sổ lục giác.", "Cô Thỏ khen: góc rẽ đẹp quá!"],
+      "art": {
+        "cast": ["bunny"],
+        "prop": "easel"
+      }
+    },
+    {
+      "id": "but-nhay",
+      "title": "Bút biết nhảy",
+      "unlockAfter": "w09-l09",
+      "lines": ["Bút nhấc lên, bút hạ xuống.", "Tầng 3 có lối đi nét đứt và hai ô cửa."],
+      "art": {
+        "cast": ["bunny"],
+        "prop": "easel"
+      }
+    },
+    {
+      "id": "vong-trong-vong",
+      "title": "Vòng trong vòng",
+      "unlockAfter": "w09-l15",
+      "lines": ["Lặp trong lặp vẽ hoa và chong chóng.", "Chỉ còn tầng 5 trên đỉnh tháp."],
+      "art": {
+        "cast": ["bunny"],
+        "prop": "tower"
+      }
+    },
+    {
+      "id": "hoa-tuyet",
+      "title": "Hoa tuyết trên đỉnh tháp",
+      "unlockAfter": "w09-boss",
+      "lines": ["Bông tuyết lấp lánh cho lễ hội mùa đông.", "Học Viện Thuật Toán đang chờ Măng!"],
+      "art": {
+        "cast": ["bunny", "owl"],
+        "prop": "tower"
+      }
+    }
+  ],
+  "theme": {
+    "tileset": "/tiles/ground.png",
+    "palette": "day",
+    "scene": "thap-hoa-si"
+  },
+  "lessonIds": [
+    "w09-lesson",
+    "w09-lesson-but",
+    "w09-lesson-re-phai",
+    "w09-lesson-goc",
+    "w09-lesson-re-trai",
+    "w09-lesson-mot-vong",
+    "w09-lesson-nhac-but",
+    "w09-lesson-lap-long",
+    "w09-lesson-xoay-hinh",
+    "w09-lesson-quay-nguoc"
+  ],
+  "levelIds": [
+    "w09-l01",
+    "w09-l02",
+    "w09-l03",
+    "w09-l04",
+    "w09-l05",
+    "w09-l06",
+    "w09-l07",
+    "w09-l08",
+    "w09-l09",
+    "w09-l10",
+    "w09-l11",
+    "w09-l12",
+    "w09-l13",
+    "w09-l14",
+    "w09-l15",
+    "w09-l16",
+    "w09-l17",
+    "w09-l18",
+    "w09-l19",
+    "w09-boss",
+    "w09-creative"
+  ],
+  "unlock": {
+    "minStarRatio": 0.6
+  },
+  "unplugged": {
+    "title": "Rùa băng keo",
+    "steps": [
+      "Dán lưới băng keo trên sàn. Một bé làm rùa, cầm phấn.",
+      "Bạn đọc thẻ \"tiến 2 bước\", \"rẽ phải 90 độ\". Rùa xoay người, tay chỉ hướng.",
+      "Vòng 1: vẽ hình vuông. Đếm số lần rẽ: 4 lần, đủ 1 vòng.",
+      "Vòng 2: vẽ tam giác. Thử rẽ 60 (sai), rồi rẽ 120.",
+      "Vòng 3: thẻ \"lặp 3 lần { lặp 4 lần {…}, tiến 2 }\". Cả nhóm đếm số cạnh trước khi vẽ."
+    ]
+  }
+}

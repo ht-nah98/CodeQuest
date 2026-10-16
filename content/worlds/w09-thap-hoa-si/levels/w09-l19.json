@@ -1,0 +1,304 @@
+{
+  "id": "w09-l19",
+  "worldId": "w09-thap-hoa-si",
+  "stage": "challenge",
+  "kind": "turtle",
+  "mode": "predict",
+  "title": "Cờ chong chóng",
+  "objective": "Măng vẽ hình gì? Đoán xem!",
+  "learningGoal": "Đọc vòng lặp lồng nhau và đoán hình.",
+  "toolbox": [],
+  "config": {
+    "size": {
+      "w": 5,
+      "h": 6
+    },
+    "start": {
+      "x": 2,
+      "y": 3,
+      "heading": 0
+    },
+    "angles": [90, 120],
+    "grid": "tri"
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "loop1",
+              "fields": {
+                "TIMES": 4
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "turtle_forward",
+                    "id": "fwd1",
+                    "fields": {
+                      "N": 1
+                    },
+                    "next": {
+                      "block": {
+                        "type": "cq_repeat",
+                        "id": "loop2",
+                        "fields": {
+                          "TIMES": 3
+                        },
+                        "inputs": {
+                          "DO": {
+                            "block": {
+                              "type": "turtle_forward",
+                              "id": "fwd2",
+                              "fields": {
+                                "N": 1
+                              },
+                              "next": {
+                                "block": {
+                                  "type": "turtle_turn_right",
+                                  "id": "right1",
+                                  "fields": {
+                                    "DEG": "120"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "next": {
+                          "block": {
+                            "type": "turtle_turn_right",
+                            "id": "right2",
+                            "fields": {
+                              "DEG": "90"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "predict": {
+    "options": [
+      {
+        "drawProgram": {
+          "blocks": {
+            "languageVersion": 0,
+            "blocks": [
+              {
+                "type": "cq_start",
+                "id": "start",
+                "x": 40,
+                "y": 40,
+                "deletable": false,
+                "next": {
+                  "block": {
+                    "type": "cq_repeat",
+                    "id": "loop1",
+                    "fields": {
+                      "TIMES": 4
+                    },
+                    "inputs": {
+                      "DO": {
+                        "block": {
+                          "type": "turtle_forward",
+                          "id": "fwd1",
+                          "fields": {
+                            "N": 1
+                          },
+                          "next": {
+                            "block": {
+                              "type": "cq_repeat",
+                              "id": "loop2",
+                              "fields": {
+                                "TIMES": 3
+                              },
+                              "inputs": {
+                                "DO": {
+                                  "block": {
+                                    "type": "turtle_forward",
+                                    "id": "fwd2",
+                                    "fields": {
+                                      "N": 1
+                                    },
+                                    "next": {
+                                      "block": {
+                                        "type": "turtle_turn_right",
+                                        "id": "right1",
+                                        "fields": {
+                                          "DEG": "120"
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              },
+                              "next": {
+                                "block": {
+                                  "type": "turtle_turn_right",
+                                  "id": "right2",
+                                  "fields": {
+                                    "DEG": "90"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "label": "4 lá cờ quanh tâm"
+      },
+      {
+        "drawProgram": {
+          "blocks": {
+            "languageVersion": 0,
+            "blocks": [
+              {
+                "type": "cq_start",
+                "id": "start",
+                "x": 40,
+                "y": 40,
+                "deletable": false,
+                "next": {
+                  "block": {
+                    "type": "turtle_forward",
+                    "id": "fwd1",
+                    "fields": {
+                      "N": 1
+                    },
+                    "next": {
+                      "block": {
+                        "type": "cq_repeat",
+                        "id": "loop1",
+                        "fields": {
+                          "TIMES": 3
+                        },
+                        "inputs": {
+                          "DO": {
+                            "block": {
+                              "type": "turtle_forward",
+                              "id": "fwd2",
+                              "fields": {
+                                "N": 1
+                              },
+                              "next": {
+                                "block": {
+                                  "type": "turtle_turn_right",
+                                  "id": "right1",
+                                  "fields": {
+                                    "DEG": "120"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "label": "1 lá cờ"
+      },
+      {
+        "drawProgram": {
+          "blocks": {
+            "languageVersion": 0,
+            "blocks": [
+              {
+                "type": "cq_start",
+                "id": "start",
+                "x": 40,
+                "y": 40,
+                "deletable": false,
+                "next": {
+                  "block": {
+                    "type": "cq_repeat",
+                    "id": "loop1",
+                    "fields": {
+                      "TIMES": 4
+                    },
+                    "inputs": {
+                      "DO": {
+                        "block": {
+                          "type": "turtle_forward",
+                          "id": "fwd1",
+                          "fields": {
+                            "N": 1
+                          },
+                          "next": {
+                            "block": {
+                              "type": "turtle_forward",
+                              "id": "fwd2",
+                              "fields": {
+                                "N": 1
+                              },
+                              "next": {
+                                "block": {
+                                  "type": "turtle_turn_right",
+                                  "id": "right1",
+                                  "fields": {
+                                    "DEG": "120"
+                                  },
+                                  "next": {
+                                    "block": {
+                                      "type": "turtle_turn_right",
+                                      "id": "right2",
+                                      "fields": {
+                                        "DEG": "90"
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "label": "Đường gấp khúc"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "one",
+      "when": {
+        "trigger": "idle"
+      },
+      "say": "Một vòng ngoài vẽ gì?"
+    }
+  ],
+  "thinkingHint": "Vòng ngoài chạy mấy lần? Mỗi lần vẽ gì?"
+}

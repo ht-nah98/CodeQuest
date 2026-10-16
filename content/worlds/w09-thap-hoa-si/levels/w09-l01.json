@@ -1,0 +1,93 @@
+{
+  "id": "w09-l01",
+  "worldId": "w09-thap-hoa-si",
+  "stage": "guided",
+  "kind": "turtle",
+  "mode": "build",
+  "title": "Hàng rào thẳng",
+  "objective": "Vẽ hàng rào giống hình mẫu nhé!",
+  "learningGoal": "Khối tiến … bước vẽ một nét thẳng dài đúng số bước.",
+  "misconception": "Tiến bao nhiêu cũng được, miễn qua hết hình mẫu.",
+  "mission": "Cô Thỏ nhờ Măng vẽ hàng rào ở tầng 1.",
+  "toolbox": ["turtle_forward"],
+  "maxLoopDepth": 1,
+  "par": 1,
+  "config": {
+    "size": {
+      "w": 7,
+      "h": 2
+    },
+    "start": {
+      "x": 1,
+      "y": 1,
+      "heading": 0
+    },
+    "target": [
+      {
+        "from": [1, 1],
+        "heading": 0,
+        "path": "F5"
+      }
+    ],
+    "angles": [90],
+    "grid": "square"
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "turtle_forward",
+              "id": "fwd1",
+              "fields": {
+                "N": 5
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "new",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Khối mới! Tiến 3 bước: bút hạ thì có nét dài 3",
+      "point": "toolbox:turtle_forward"
+    },
+    {
+      "id": "count",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Hàng rào dài mấy bước? Đếm chấm nhé.",
+      "point": "stage"
+    },
+    {
+      "id": "stray",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "EXTRA_LINE"
+      },
+      "say": "Nét đỏ thừa ra. Hàng rào dài mấy bước?"
+    },
+    {
+      "id": "missing",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "MISSING_LINES"
+      },
+      "say": "Còn nét chưa vẽ. Hàng rào dài mấy bước?"
+    }
+  ],
+  "thinkingHint": "Hình mẫu dài mấy bước?"
+}

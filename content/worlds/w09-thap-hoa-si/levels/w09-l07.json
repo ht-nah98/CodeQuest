@@ -1,0 +1,167 @@
+{
+  "id": "w09-l07",
+  "worldId": "w09-thap-hoa-si",
+  "stage": "practice",
+  "kind": "turtle",
+  "mode": "build",
+  "title": "Ngôi nhà",
+  "objective": "Vẽ ngôi nhà có mái nhọn nhé!",
+  "learningGoal": "Ghép một hình vuông và một mái tam giác bằng góc 60 và 120.",
+  "misconception": "Mái nhà rẽ 90 độ như hình vuông.",
+  "mission": "Tầng 2 cần một ngôi nhà nhỏ.",
+  "toolbox": [
+    {
+      "type": "turtle_forward",
+      "fields": {
+        "N": 2
+      }
+    },
+    {
+      "type": "turtle_turn_right",
+      "fields": {
+        "DEG": "90"
+      }
+    },
+    {
+      "type": "turtle_turn_left",
+      "fields": {
+        "DEG": "60"
+      }
+    },
+    {
+      "type": "turtle_turn_right",
+      "fields": {
+        "DEG": "120"
+      }
+    },
+    "cq_repeat"
+  ],
+  "maxLoopDepth": 1,
+  "par": 7,
+  "config": {
+    "size": {
+      "w": 4,
+      "h": 6
+    },
+    "start": {
+      "x": 1,
+      "y": 3,
+      "heading": 0
+    },
+    "target": [
+      {
+        "from": [1, 3],
+        "heading": 0,
+        "path": "F2 R90 F2 R90 F2 R90 F2 R90 L60 F2 R120 F2"
+      }
+    ],
+    "angles": [60, 90, 120],
+    "grid": "tri"
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "loop1",
+              "fields": {
+                "TIMES": 4
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "turtle_forward",
+                    "id": "fwd1",
+                    "fields": {
+                      "N": 2
+                    },
+                    "next": {
+                      "block": {
+                        "type": "turtle_turn_right",
+                        "id": "right1",
+                        "fields": {
+                          "DEG": "90"
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "type": "turtle_turn_left",
+                  "id": "left1",
+                  "fields": {
+                    "DEG": "60"
+                  },
+                  "next": {
+                    "block": {
+                      "type": "turtle_forward",
+                      "id": "fwd2",
+                      "fields": {
+                        "N": 2
+                      },
+                      "next": {
+                        "block": {
+                          "type": "turtle_turn_right",
+                          "id": "right2",
+                          "fields": {
+                            "DEG": "120"
+                          },
+                          "next": {
+                            "block": {
+                              "type": "turtle_forward",
+                              "id": "fwd3",
+                              "fields": {
+                                "N": 2
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "roof",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Vẽ tường trước hay mái trước?",
+      "point": "stage"
+    },
+    {
+      "id": "up",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Măng đang nhìn sang phải. Mái đi lên mấy độ?",
+      "point": "toolbox:turtle_turn_left"
+    },
+    {
+      "id": "stray",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "EXTRA_LINE"
+      },
+      "say": "Mái nhà rẽ mấy độ?"
+    }
+  ],
+  "thinkingHint": "Vẽ xong hình vuông, Măng nhìn về đâu?"
+}

@@ -1,0 +1,137 @@
+{
+  "id": "w09-l13",
+  "worldId": "w09-thap-hoa-si",
+  "stage": "practice",
+  "kind": "turtle",
+  "mode": "build",
+  "title": "Bông 6 ô vuông",
+  "objective": "Vẽ bông hoa 6 ô vuông nhé!",
+  "learningGoal": "Rẽ ở vòng ngoài xoay cả hình sau mỗi lần vẽ.",
+  "misconception": "Muốn xoay hình phải rẽ ở trong vòng trong.",
+  "mission": "Tầng 4 cần một bông hoa.",
+  "toolbox": [
+    {
+      "type": "turtle_forward",
+      "fields": {
+        "N": 2
+      }
+    },
+    {
+      "type": "turtle_turn_right",
+      "fields": {
+        "DEG": "90"
+      }
+    },
+    {
+      "type": "turtle_turn_right",
+      "fields": {
+        "DEG": "60"
+      }
+    },
+    "cq_repeat"
+  ],
+  "maxLoopDepth": 2,
+  "par": 5,
+  "config": {
+    "size": {
+      "w": 8,
+      "h": 8
+    },
+    "start": {
+      "x": 4,
+      "y": 4,
+      "heading": 0
+    },
+    "target": [
+      {
+        "from": [4, 4],
+        "heading": 0,
+        "path": "F2 R90 F2 R90 F2 R90 F2 R90 R60 F2 R90 F2 R90 F2 R90 F2 R90 R60 F2 R90 F2 R90 F2 R90 F2 R90 R60 F2 R90 F2 R90 F2 R90 F2 R90 R60 F2 R90 F2 R90 F2 R90 F2 R90 R60 F2 R90 F2 R90 F2 R90 F2 R90 R60"
+      }
+    ],
+    "angles": [60, 90],
+    "grid": "tri"
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "loop1",
+              "fields": {
+                "TIMES": 6
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "cq_repeat",
+                    "id": "loop2",
+                    "fields": {
+                      "TIMES": 4
+                    },
+                    "inputs": {
+                      "DO": {
+                        "block": {
+                          "type": "turtle_forward",
+                          "id": "fwd1",
+                          "fields": {
+                            "N": 2
+                          },
+                          "next": {
+                            "block": {
+                              "type": "turtle_turn_right",
+                              "id": "right1",
+                              "fields": {
+                                "DEG": "90"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "turtle_turn_right",
+                        "id": "right2",
+                        "fields": {
+                          "DEG": "60"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "turn",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Vẽ xong 1 ô vuông thì xoay mấy độ?",
+      "point": "toolbox:cq_repeat"
+    },
+    {
+      "id": "stray",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "EXTRA_LINE"
+      },
+      "say": "Khối rẽ 60 độ nằm ở vòng nào?"
+    }
+  ],
+  "thinkingHint": "6 ô vuông, mỗi lần xoay bao nhiêu độ?"
+}

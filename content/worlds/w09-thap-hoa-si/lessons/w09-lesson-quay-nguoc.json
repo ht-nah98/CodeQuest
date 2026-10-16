@@ -1,0 +1,79 @@
+{
+  "id": "w09-lesson-quay-nguoc",
+  "worldId": "w09-thap-hoa-si",
+  "title": "Quay ngược lại",
+  "beforeLevel": "w09-l17",
+  "cards": [
+    {
+      "type": "say",
+      "pose": "point",
+      "text": "Rẽ 180 độ là quay ngược lại."
+    },
+    {
+      "type": "demo",
+      "text": "Tiến 2, rẽ 180, tiến 2: về chỗ cũ.",
+      "kind": "turtle",
+      "config": {
+        "size": {
+          "w": 4,
+          "h": 2
+        },
+        "start": {
+          "x": 1,
+          "y": 1,
+          "heading": 0
+        },
+        "angles": [180],
+        "grid": "square"
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "turtle_forward",
+                  "id": "fwd1",
+                  "fields": {
+                    "N": 2
+                  },
+                  "next": {
+                    "block": {
+                      "type": "turtle_turn_right",
+                      "id": "right1",
+                      "fields": {
+                        "DEG": "180"
+                      },
+                      "next": {
+                        "block": {
+                          "type": "turtle_forward",
+                          "id": "fwd2",
+                          "fields": {
+                            "N": 2
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "quiz",
+      "text": "Rẽ phải 180 độ rồi tiến 2. Măng đi đâu?",
+      "options": ["Đi ngược lại", "Đi tiếp như cũ"],
+      "correct": 0,
+      "explain": "Rẽ 180 độ: Măng quay mặt về phía sau."
+    }
+  ]
+}

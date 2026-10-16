@@ -1,0 +1,29 @@
+{
+  "id": "w09-lesson",
+  "worldId": "w09-thap-hoa-si",
+  "title": "Tháp Họa Sĩ",
+  "cards": [
+    {
+      "type": "say",
+      "pose": "happy",
+      "text": "Cô Thỏ nhờ Măng vẽ lại Tháp Họa Sĩ."
+    },
+    {
+      "type": "say",
+      "pose": "point",
+      "text": "Bút hạ thì Măng đi đâu cũng có nét."
+    },
+    {
+      "type": "say",
+      "pose": "think",
+      "text": "Vẽ thứ tự nào cũng được, miễn giống hình mẫu."
+    },
+    {
+      "type": "quiz",
+      "text": "Măng rẽ phải 90 độ. Có nét mới không?",
+      "options": ["Không", "Có"],
+      "correct": 0,
+      "explain": "Rẽ chỉ quay tại chỗ, Măng chưa đi."
+    }
+  ]
+}

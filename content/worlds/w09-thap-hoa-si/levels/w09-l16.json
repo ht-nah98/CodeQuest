@@ -1,0 +1,241 @@
+{
+  "id": "w09-l16",
+  "worldId": "w09-thap-hoa-si",
+  "stage": "practice",
+  "kind": "turtle",
+  "mode": "build",
+  "title": "Hoa ba cánh",
+  "objective": "Vẽ hoa ba cánh có cuống nhé!",
+  "learningGoal": "Ôn phép thuật: dạy phép vẽ 1 cánh, làm phép ở 2 chỗ.",
+  "misconception": "Phép chỉ dùng được một lần.",
+  "mission": "Bồn hoa tầng 4 cần một bông hoa.",
+  "toolbox": [
+    {
+      "type": "cq_proc_def",
+      "fields": {
+        "PROC": "canh"
+      }
+    },
+    {
+      "type": "cq_proc_call",
+      "fields": {
+        "PROC": "canh"
+      }
+    },
+    {
+      "type": "turtle_forward",
+      "fields": {
+        "N": 2
+      }
+    },
+    {
+      "type": "turtle_forward",
+      "fields": {
+        "N": 3
+      }
+    },
+    {
+      "type": "turtle_turn_right",
+      "fields": {
+        "DEG": "60"
+      }
+    },
+    {
+      "type": "turtle_turn_right",
+      "fields": {
+        "DEG": "90"
+      }
+    },
+    {
+      "type": "turtle_turn_right",
+      "fields": {
+        "DEG": "120"
+      }
+    },
+    "cq_repeat"
+  ],
+  "maxBlocks": 12,
+  "maxLoopDepth": 2,
+  "par": 12,
+  "procedures": [
+    {
+      "id": "canh",
+      "name": "cánh"
+    }
+  ],
+  "config": {
+    "size": {
+      "w": 8,
+      "h": 12
+    },
+    "start": {
+      "x": 4,
+      "y": 7,
+      "heading": 0
+    },
+    "target": [
+      {
+        "from": [4, 7],
+        "heading": 0,
+        "path": "F2 R60 F2 R120 F2 R60 F2 R120 R120 F2 R60 F2 R120 F2 R60 F2 R120 R120 F2 R60 F2 R120 F2 R60 F2 R120 R120 R90 F5 R60 F2 R120 F2 R60 F2 R120"
+      }
+    ],
+    "angles": [60, 90, 120],
+    "grid": "tri"
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "loop1",
+              "fields": {
+                "TIMES": 3
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "cq_proc_call",
+                    "id": "call1",
+                    "fields": {
+                      "PROC": "canh"
+                    },
+                    "next": {
+                      "block": {
+                        "type": "turtle_turn_right",
+                        "id": "right1",
+                        "fields": {
+                          "DEG": "120"
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "type": "turtle_turn_right",
+                  "id": "right2",
+                  "fields": {
+                    "DEG": "90"
+                  },
+                  "next": {
+                    "block": {
+                      "type": "turtle_forward",
+                      "id": "fwd1",
+                      "fields": {
+                        "N": 3
+                      },
+                      "next": {
+                        "block": {
+                          "type": "cq_proc_call",
+                          "id": "call2",
+                          "fields": {
+                            "PROC": "canh"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "cq_proc_def",
+          "id": "def1",
+          "x": 40,
+          "y": 320,
+          "fields": {
+            "PROC": "canh"
+          },
+          "inputs": {
+            "BODY": {
+              "block": {
+                "type": "cq_repeat",
+                "id": "loop2",
+                "fields": {
+                  "TIMES": 2
+                },
+                "inputs": {
+                  "DO": {
+                    "block": {
+                      "type": "turtle_forward",
+                      "id": "fwd2",
+                      "fields": {
+                        "N": 2
+                      },
+                      "next": {
+                        "block": {
+                          "type": "turtle_turn_right",
+                          "id": "right3",
+                          "fields": {
+                            "DEG": "60"
+                          },
+                          "next": {
+                            "block": {
+                              "type": "turtle_forward",
+                              "id": "fwd3",
+                              "fields": {
+                                "N": 2
+                              },
+                              "next": {
+                                "block": {
+                                  "type": "turtle_turn_right",
+                                  "id": "right4",
+                                  "fields": {
+                                    "DEG": "120"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "spell",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Hoa có mấy cánh giống nhau?",
+      "point": "toolbox:cq_proc_def"
+    },
+    {
+      "id": "call",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Làm phép mấy lần thì đủ hoa và lá?",
+      "point": "toolbox:cq_proc_call"
+    },
+    {
+      "id": "stray",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "EXTRA_LINE"
+      },
+      "say": "Vẽ xong 1 cánh, quay mấy độ để vẽ cánh sau?"
+    }
+  ],
+  "thinkingHint": "Cánh và lá giống nhau không?"
+}

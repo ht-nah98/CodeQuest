@@ -1,0 +1,227 @@
+{
+  "id": "w09-boss",
+  "worldId": "w09-thap-hoa-si",
+  "stage": "boss",
+  "kind": "turtle",
+  "mode": "build",
+  "title": "Bông hoa tuyết",
+  "objective": "Vẽ bông hoa tuyết 6 cánh nhé!",
+  "learningGoal": "Mọi khối của Tháp Họa Sĩ: lặp lồng nhau, góc, nhấc bút.",
+  "mission": "Lễ hội mùa đông cần một bông tuyết!",
+  "toolbox": [
+    {
+      "type": "turtle_forward",
+      "fields": {
+        "N": 1
+      }
+    },
+    {
+      "type": "turtle_forward",
+      "fields": {
+        "N": 2
+      }
+    },
+    {
+      "type": "turtle_turn_left",
+      "fields": {
+        "DEG": "120"
+      }
+    },
+    {
+      "type": "turtle_turn_right",
+      "fields": {
+        "DEG": "120"
+      }
+    },
+    {
+      "type": "turtle_turn_right",
+      "fields": {
+        "DEG": "180"
+      }
+    },
+    "turtle_pen_up",
+    "turtle_pen_down",
+    "cq_repeat"
+  ],
+  "maxLoopDepth": 2,
+  "par": 13,
+  "parUnproven": true,
+  "config": {
+    "size": {
+      "w": 8,
+      "h": 8
+    },
+    "start": {
+      "x": 4,
+      "y": 4,
+      "heading": 0
+    },
+    "target": [
+      {
+        "from": [4, 4],
+        "heading": 0,
+        "path": "F1 U F1 D F1 L120 F1 L120 F1 L120 U R180 F2 D R120 F1 U F1 D F1 L120 F1 L120 F1 L120 U R180 F2 D R120 F1 U F1 D F1 L120 F1 L120 F1 L120 U R180 F2 D R120 F1 U F1 D F1 L120 F1 L120 F1 L120 U R180 F2 D R120 F1 U F1 D F1 L120 F1 L120 F1 L120 U R180 F2 D R120 F1 U F1 D F1 L120 F1 L120 F1 L120 U R180 F2 D R120"
+      }
+    ],
+    "angles": [120, 180],
+    "grid": "tri"
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "loop1",
+              "fields": {
+                "TIMES": 6
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "turtle_forward",
+                    "id": "fwd1",
+                    "fields": {
+                      "N": 1
+                    },
+                    "next": {
+                      "block": {
+                        "type": "turtle_pen_up",
+                        "id": "up1",
+                        "next": {
+                          "block": {
+                            "type": "turtle_forward",
+                            "id": "fwd2",
+                            "fields": {
+                              "N": 1
+                            },
+                            "next": {
+                              "block": {
+                                "type": "turtle_pen_down",
+                                "id": "down1",
+                                "next": {
+                                  "block": {
+                                    "type": "cq_repeat",
+                                    "id": "loop2",
+                                    "fields": {
+                                      "TIMES": 3
+                                    },
+                                    "inputs": {
+                                      "DO": {
+                                        "block": {
+                                          "type": "turtle_forward",
+                                          "id": "fwd3",
+                                          "fields": {
+                                            "N": 1
+                                          },
+                                          "next": {
+                                            "block": {
+                                              "type": "turtle_turn_left",
+                                              "id": "left1",
+                                              "fields": {
+                                                "DEG": "120"
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    },
+                                    "next": {
+                                      "block": {
+                                        "type": "turtle_pen_up",
+                                        "id": "up2",
+                                        "next": {
+                                          "block": {
+                                            "type": "turtle_turn_right",
+                                            "id": "right1",
+                                            "fields": {
+                                              "DEG": "180"
+                                            },
+                                            "next": {
+                                              "block": {
+                                                "type": "turtle_forward",
+                                                "id": "fwd4",
+                                                "fields": {
+                                                  "N": 2
+                                                },
+                                                "next": {
+                                                  "block": {
+                                                    "type": "turtle_pen_down",
+                                                    "id": "down2",
+                                                    "next": {
+                                                      "block": {
+                                                        "type": "turtle_turn_right",
+                                                        "id": "right2",
+                                                        "fields": {
+                                                          "DEG": "120"
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "arm",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Cánh đầu tiên cần những khối nào?",
+      "point": "stage"
+    },
+    {
+      "id": "stray",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "EXTRA_LINE"
+      },
+      "say": "Chỗ hở và đường về: bút lên hay xuống?"
+    },
+    {
+      "id": "home",
+      "when": {
+        "all": [
+          {
+            "trigger": "run-end"
+          },
+          {
+            "failStreak": {
+              "gte": 2
+            }
+          }
+        ]
+      },
+      "say": "Vẽ xong tinh thể, về tâm bằng đường nào?"
+    }
+  ],
+  "thinkingHint": "Một cánh gồm những phần nào?"
+}

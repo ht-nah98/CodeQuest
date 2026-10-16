@@ -1,0 +1,127 @@
+{
+  "id": "w09-l08",
+  "worldId": "w09-thap-hoa-si",
+  "stage": "practice",
+  "kind": "turtle",
+  "mode": "build",
+  "title": "Nét đứt",
+  "objective": "Vẽ đường nét đứt nhé!",
+  "learningGoal": "Nhấc bút thì Măng vẫn đi nhưng không có nét.",
+  "misconception": "Nhấc bút là Măng đứng yên.",
+  "mission": "Lối đi tầng 3 kẻ nét đứt.",
+  "toolbox": [
+    {
+      "type": "turtle_forward",
+      "fields": {
+        "N": 1
+      }
+    },
+    "turtle_pen_up",
+    "turtle_pen_down",
+    "cq_repeat"
+  ],
+  "maxLoopDepth": 1,
+  "par": 5,
+  "config": {
+    "size": {
+      "w": 8,
+      "h": 2
+    },
+    "start": {
+      "x": 1,
+      "y": 1,
+      "heading": 0
+    },
+    "target": [
+      {
+        "from": [1, 1],
+        "heading": 0,
+        "path": "F1 U F1 D F1 U F1 D F1 U F1 D"
+      }
+    ],
+    "angles": [90],
+    "grid": "square"
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "loop1",
+              "fields": {
+                "TIMES": 3
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "turtle_forward",
+                    "id": "fwd1",
+                    "fields": {
+                      "N": 1
+                    },
+                    "next": {
+                      "block": {
+                        "type": "turtle_pen_up",
+                        "id": "up1",
+                        "next": {
+                          "block": {
+                            "type": "turtle_forward",
+                            "id": "fwd2",
+                            "fields": {
+                              "N": 1
+                            },
+                            "next": {
+                              "block": {
+                                "type": "turtle_pen_down",
+                                "id": "down1"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "up",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Khối mới! Nhấc bút: đi tiếp thì không có nét",
+      "point": "toolbox:turtle_pen_up"
+    },
+    {
+      "id": "down",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Khối mới! Hạ bút: đi tiếp thì có nét",
+      "point": "toolbox:turtle_pen_down"
+    },
+    {
+      "id": "stray",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "EXTRA_LINE"
+      },
+      "say": "Chỗ hở thì bút phải lên hay xuống?"
+    }
+  ],
+  "thinkingHint": "Chỗ hở, Măng có đi qua không?"
+}

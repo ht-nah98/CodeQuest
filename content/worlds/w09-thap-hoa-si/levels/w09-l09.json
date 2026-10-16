@@ -1,0 +1,240 @@
+{
+  "id": "w09-l09",
+  "worldId": "w09-thap-hoa-si",
+  "stage": "practice",
+  "kind": "turtle",
+  "mode": "parsons",
+  "title": "Hai ô cửa",
+  "objective": "Ghép khối để vẽ 2 ô cửa nhé!",
+  "learningGoal": "Nhấc bút để dời sang chỗ mới, rồi hạ bút vẽ tiếp.",
+  "misconception": "Muốn vẽ hai hình rời nhau phải vẽ cả đường nối.",
+  "mission": "Tầng 3 cần hai ô cửa sổ.",
+  "toolbox": [],
+  "maxLoopDepth": 1,
+  "par": 9,
+  "config": {
+    "size": {
+      "w": 7,
+      "h": 4
+    },
+    "start": {
+      "x": 1,
+      "y": 3,
+      "heading": 0
+    },
+    "target": [
+      {
+        "from": [1, 3],
+        "heading": 0,
+        "path": "F2 R90 F2 R90 F2 R90 F2 R90 U F3 D F2 R90 F2 R90 F2 R90 F2 R90"
+      }
+    ],
+    "angles": [90],
+    "grid": "square"
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "loop1",
+              "fields": {
+                "TIMES": 4
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "turtle_forward",
+                    "id": "fwd1",
+                    "fields": {
+                      "N": 2
+                    },
+                    "next": {
+                      "block": {
+                        "type": "turtle_turn_right",
+                        "id": "right1",
+                        "fields": {
+                          "DEG": "90"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "turtle_pen_up",
+          "id": "up1",
+          "x": 60,
+          "y": 140
+        },
+        {
+          "type": "turtle_forward",
+          "id": "fwd2",
+          "fields": {
+            "N": 3
+          },
+          "x": 300,
+          "y": 210
+        },
+        {
+          "type": "turtle_pen_down",
+          "id": "down1",
+          "x": 60,
+          "y": 280
+        },
+        {
+          "type": "cq_repeat",
+          "id": "loop2",
+          "fields": {
+            "TIMES": 4
+          },
+          "inputs": {
+            "DO": {
+              "block": {
+                "type": "turtle_forward",
+                "id": "fwd3",
+                "fields": {
+                  "N": 2
+                },
+                "next": {
+                  "block": {
+                    "type": "turtle_turn_right",
+                    "id": "right2",
+                    "fields": {
+                      "DEG": "90"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "x": 300,
+          "y": 350
+        }
+      ]
+    }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "loop1",
+              "fields": {
+                "TIMES": 4
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "turtle_forward",
+                    "id": "fwd1",
+                    "fields": {
+                      "N": 2
+                    },
+                    "next": {
+                      "block": {
+                        "type": "turtle_turn_right",
+                        "id": "right1",
+                        "fields": {
+                          "DEG": "90"
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "type": "turtle_pen_up",
+                  "id": "up1",
+                  "next": {
+                    "block": {
+                      "type": "turtle_forward",
+                      "id": "fwd2",
+                      "fields": {
+                        "N": 3
+                      },
+                      "next": {
+                        "block": {
+                          "type": "turtle_pen_down",
+                          "id": "down1",
+                          "next": {
+                            "block": {
+                              "type": "cq_repeat",
+                              "id": "loop2",
+                              "fields": {
+                                "TIMES": 4
+                              },
+                              "inputs": {
+                                "DO": {
+                                  "block": {
+                                    "type": "turtle_forward",
+                                    "id": "fwd3",
+                                    "fields": {
+                                      "N": 2
+                                    },
+                                    "next": {
+                                      "block": {
+                                        "type": "turtle_turn_right",
+                                        "id": "right2",
+                                        "fields": {
+                                          "DEG": "90"
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "gap",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Giữa hai ô cửa có nét không?",
+      "point": "block:turtle_pen_up"
+    },
+    {
+      "id": "order",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Bút lên lúc nào? Bút xuống lúc nào?",
+      "point": "stage"
+    }
+  ],
+  "thinkingHint": "Đi sang ô thứ 2, bút lên hay xuống?"
+}

@@ -1,0 +1,303 @@
+{
+  "id": "w09-l17",
+  "worldId": "w09-thap-hoa-si",
+  "stage": "practice",
+  "kind": "turtle",
+  "mode": "bughunt",
+  "title": "Cành tuyết",
+  "objective": "Có 1 khối sai. Sửa nhé!",
+  "learningGoal": "Rẽ 180 độ là quay ngược lại, đi về chỗ cũ.",
+  "misconception": "Đi vào nhánh rồi tự quay về được.",
+  "mission": "Cành tuyết trên tầng 5 bị gãy.",
+  "toolbox": [
+    {
+      "type": "turtle_forward",
+      "fields": {
+        "N": 1
+      }
+    },
+    {
+      "type": "turtle_forward",
+      "fields": {
+        "N": 2
+      }
+    },
+    {
+      "type": "turtle_turn_left",
+      "fields": {
+        "DEG": "60"
+      }
+    },
+    {
+      "type": "turtle_turn_right",
+      "fields": {
+        "DEG": "120"
+      }
+    },
+    {
+      "type": "turtle_turn_right",
+      "fields": {
+        "DEG": "180"
+      }
+    },
+    "cq_repeat"
+  ],
+  "maxLoopDepth": 2,
+  "par": 10,
+  "parEdits": 1,
+  "config": {
+    "size": {
+      "w": 7,
+      "h": 8
+    },
+    "start": {
+      "x": 3,
+      "y": 4,
+      "heading": 0
+    },
+    "target": [
+      {
+        "from": [3, 4],
+        "heading": 0,
+        "path": "F2 L60 F1 R180 F1 L60 F1 R180 F1 L60 F2 L60 F2 L60 F1 R180 F1 L60 F1 R180 F1 L60 F2 L60 F2 L60 F1 R180 F1 L60 F1 R180 F1 L60 F2 L60"
+      }
+    ],
+    "angles": [60, 120, 180],
+    "grid": "tri"
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "loop1",
+              "fields": {
+                "TIMES": 3
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "turtle_forward",
+                    "id": "fwd1",
+                    "fields": {
+                      "N": 2
+                    },
+                    "next": {
+                      "block": {
+                        "type": "cq_repeat",
+                        "id": "loop2",
+                        "fields": {
+                          "TIMES": 2
+                        },
+                        "inputs": {
+                          "DO": {
+                            "block": {
+                              "type": "turtle_turn_left",
+                              "id": "left1",
+                              "fields": {
+                                "DEG": "60"
+                              },
+                              "next": {
+                                "block": {
+                                  "type": "turtle_forward",
+                                  "id": "fwd2",
+                                  "fields": {
+                                    "N": 1
+                                  },
+                                  "next": {
+                                    "block": {
+                                      "type": "turtle_turn_right",
+                                      "id": "right1",
+                                      "fields": {
+                                        "DEG": "120"
+                                      },
+                                      "next": {
+                                        "block": {
+                                          "type": "turtle_forward",
+                                          "id": "fwd3",
+                                          "fields": {
+                                            "N": 1
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "next": {
+                          "block": {
+                            "type": "turtle_turn_left",
+                            "id": "left2",
+                            "fields": {
+                              "DEG": "60"
+                            },
+                            "next": {
+                              "block": {
+                                "type": "turtle_forward",
+                                "id": "fwd4",
+                                "fields": {
+                                  "N": 2
+                                },
+                                "next": {
+                                  "block": {
+                                    "type": "turtle_turn_left",
+                                    "id": "left3",
+                                    "fields": {
+                                      "DEG": "60"
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "loop1",
+              "fields": {
+                "TIMES": 3
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "turtle_forward",
+                    "id": "fwd1",
+                    "fields": {
+                      "N": 2
+                    },
+                    "next": {
+                      "block": {
+                        "type": "cq_repeat",
+                        "id": "loop2",
+                        "fields": {
+                          "TIMES": 2
+                        },
+                        "inputs": {
+                          "DO": {
+                            "block": {
+                              "type": "turtle_turn_left",
+                              "id": "left1",
+                              "fields": {
+                                "DEG": "60"
+                              },
+                              "next": {
+                                "block": {
+                                  "type": "turtle_forward",
+                                  "id": "fwd2",
+                                  "fields": {
+                                    "N": 1
+                                  },
+                                  "next": {
+                                    "block": {
+                                      "type": "turtle_turn_right",
+                                      "id": "right1",
+                                      "fields": {
+                                        "DEG": "180"
+                                      },
+                                      "next": {
+                                        "block": {
+                                          "type": "turtle_forward",
+                                          "id": "fwd3",
+                                          "fields": {
+                                            "N": 1
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "next": {
+                          "block": {
+                            "type": "turtle_turn_left",
+                            "id": "left2",
+                            "fields": {
+                              "DEG": "60"
+                            },
+                            "next": {
+                              "block": {
+                                "type": "turtle_forward",
+                                "id": "fwd4",
+                                "fields": {
+                                  "N": 2
+                                },
+                                "next": {
+                                  "block": {
+                                    "type": "turtle_turn_left",
+                                    "id": "left3",
+                                    "fields": {
+                                      "DEG": "60"
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "back",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Khối này quay mấy độ?",
+      "point": "block:turtle_turn_right"
+    },
+    {
+      "id": "stray",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "EXTRA_LINE"
+      },
+      "say": "Vào nhánh rồi, muốn quay về thì rẽ mấy độ?"
+    }
+  ],
+  "thinkingHint": "Đi vào nhánh rồi quay về: rẽ mấy độ?"
+}

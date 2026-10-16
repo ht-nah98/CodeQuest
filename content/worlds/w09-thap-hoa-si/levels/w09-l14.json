@@ -1,0 +1,178 @@
+{
+  "id": "w09-l14",
+  "worldId": "w09-thap-hoa-si",
+  "stage": "practice",
+  "kind": "turtle",
+  "mode": "parsons",
+  "title": "Quạt giấy",
+  "objective": "Ghép khối để vẽ quạt giấy nhé!",
+  "learningGoal": "Rẽ trước rồi vẽ, hay vẽ rồi mới rẽ: hình khác nhau.",
+  "misconception": "Thứ tự khối trong vòng ngoài không đổi hình.",
+  "mission": "Quạt giấy cho tầng 4.",
+  "toolbox": [],
+  "maxLoopDepth": 2,
+  "par": 5,
+  "config": {
+    "size": {
+      "w": 6,
+      "h": 6
+    },
+    "start": {
+      "x": 3,
+      "y": 3,
+      "heading": 0
+    },
+    "target": [
+      {
+        "from": [3, 3],
+        "heading": 0,
+        "path": "R90 F2 L120 F2 L120 F2 L120 R90 F2 L120 F2 L120 F2 L120 R90 F2 L120 F2 L120 F2 L120"
+      }
+    ],
+    "angles": [90, 120],
+    "grid": "tri"
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false
+        },
+        {
+          "type": "cq_repeat",
+          "id": "loop1",
+          "fields": {
+            "TIMES": 3
+          },
+          "x": 60,
+          "y": 140
+        },
+        {
+          "type": "turtle_turn_right",
+          "id": "right1",
+          "fields": {
+            "DEG": "90"
+          },
+          "x": 300,
+          "y": 230
+        },
+        {
+          "type": "cq_repeat",
+          "id": "loop2",
+          "fields": {
+            "TIMES": 3
+          },
+          "inputs": {
+            "DO": {
+              "block": {
+                "type": "turtle_forward",
+                "id": "fwd1",
+                "fields": {
+                  "N": 2
+                },
+                "next": {
+                  "block": {
+                    "type": "turtle_turn_left",
+                    "id": "left1",
+                    "fields": {
+                      "DEG": "120"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "x": 60,
+          "y": 320
+        }
+      ]
+    }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "loop1",
+              "fields": {
+                "TIMES": 3
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "turtle_turn_right",
+                    "id": "right1",
+                    "fields": {
+                      "DEG": "90"
+                    },
+                    "next": {
+                      "block": {
+                        "type": "cq_repeat",
+                        "id": "loop2",
+                        "fields": {
+                          "TIMES": 3
+                        },
+                        "inputs": {
+                          "DO": {
+                            "block": {
+                              "type": "turtle_forward",
+                              "id": "fwd1",
+                              "fields": {
+                                "N": 2
+                              },
+                              "next": {
+                                "block": {
+                                  "type": "turtle_turn_left",
+                                  "id": "left1",
+                                  "fields": {
+                                    "DEG": "120"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "wing",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Vòng trong vẽ gì?",
+      "point": "block:turtle_turn_left"
+    },
+    {
+      "id": "turn",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Cánh đầu tiên chỉ về đâu? Rẽ trước hay sau?",
+      "point": "stage"
+    }
+  ],
+  "thinkingHint": "Cánh đầu tiên chỉ về hướng nào?"
+}

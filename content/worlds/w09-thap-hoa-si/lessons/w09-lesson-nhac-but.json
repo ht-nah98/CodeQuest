@@ -1,0 +1,96 @@
+{
+  "id": "w09-lesson-nhac-but",
+  "worldId": "w09-thap-hoa-si",
+  "title": "Bút lên, bút xuống",
+  "beforeLevel": "w09-l08",
+  "cards": [
+    {
+      "type": "say",
+      "pose": "point",
+      "text": "Khối mới! Nhấc bút: đi tiếp thì không có nét"
+    },
+    {
+      "type": "say",
+      "pose": "point",
+      "text": "Khối mới! Hạ bút: đi tiếp thì có nét"
+    },
+    {
+      "type": "demo",
+      "text": "Nhấc bút ở giữa: nét đứt.",
+      "kind": "turtle",
+      "config": {
+        "size": {
+          "w": 5,
+          "h": 2
+        },
+        "start": {
+          "x": 1,
+          "y": 1,
+          "heading": 0
+        },
+        "angles": [90],
+        "grid": "square"
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "turtle_forward",
+                  "id": "fwd1",
+                  "fields": {
+                    "N": 1
+                  },
+                  "next": {
+                    "block": {
+                      "type": "turtle_pen_up",
+                      "id": "up1",
+                      "next": {
+                        "block": {
+                          "type": "turtle_forward",
+                          "id": "fwd2",
+                          "fields": {
+                            "N": 1
+                          },
+                          "next": {
+                            "block": {
+                              "type": "turtle_pen_down",
+                              "id": "down1",
+                              "next": {
+                                "block": {
+                                  "type": "turtle_forward",
+                                  "id": "fwd3",
+                                  "fields": {
+                                    "N": 1
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "quiz",
+      "text": "Nhấc bút rồi tiến 2. Măng có đi không?",
+      "options": ["Có, nhưng không có nét", "Không, đứng yên"],
+      "correct": 0,
+      "explain": "Nhấc bút: Măng vẫn đi, chỉ không có nét."
+    }
+  ]
+}

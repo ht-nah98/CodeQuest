@@ -1,0 +1,161 @@
+{
+  "id": "w09-l18",
+  "worldId": "w09-thap-hoa-si",
+  "stage": "challenge",
+  "kind": "turtle",
+  "mode": "build",
+  "title": "Bậc ô vuông",
+  "objective": "Vẽ bậc thang ô vuông, ít khối thôi!",
+  "learningGoal": "Vòng ngoài vẽ một ô rồi dời lên một bậc.",
+  "toolbox": [
+    {
+      "type": "turtle_forward",
+      "fields": {
+        "N": 1
+      }
+    },
+    {
+      "type": "turtle_turn_left",
+      "fields": {
+        "DEG": "90"
+      }
+    },
+    {
+      "type": "turtle_turn_right",
+      "fields": {
+        "DEG": "90"
+      }
+    },
+    "cq_repeat"
+  ],
+  "maxBlocks": 8,
+  "maxLoopDepth": 2,
+  "par": 6,
+  "config": {
+    "size": {
+      "w": 5,
+      "h": 5
+    },
+    "start": {
+      "x": 1,
+      "y": 1,
+      "heading": 0
+    },
+    "target": [
+      {
+        "from": [1, 1],
+        "heading": 0,
+        "path": "F1 L90 F1 L90 F1 L90 F1 L90 F1 L90 F1 R90 F1 L90 F1 L90 F1 L90 F1 L90 F1 L90 F1 R90 F1 L90 F1 L90 F1 L90 F1 L90 F1 L90 F1 R90"
+      }
+    ],
+    "angles": [90],
+    "grid": "square"
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "loop1",
+              "fields": {
+                "TIMES": 3
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "cq_repeat",
+                    "id": "loop2",
+                    "fields": {
+                      "TIMES": 5
+                    },
+                    "inputs": {
+                      "DO": {
+                        "block": {
+                          "type": "turtle_forward",
+                          "id": "fwd1",
+                          "fields": {
+                            "N": 1
+                          },
+                          "next": {
+                            "block": {
+                              "type": "turtle_turn_left",
+                              "id": "left1",
+                              "fields": {
+                                "DEG": "90"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "turtle_forward",
+                        "id": "fwd2",
+                        "fields": {
+                          "N": 1
+                        },
+                        "next": {
+                          "block": {
+                            "type": "turtle_turn_right",
+                            "id": "right1",
+                            "fields": {
+                              "DEG": "90"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "few",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Chỉ có 8 khối. Vòng nào lặp lại?",
+      "point": "capacity"
+    },
+    {
+      "id": "stray",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "EXTRA_LINE"
+      },
+      "say": "Lên bậc rồi, Măng có nhìn đúng hướng không?"
+    },
+    {
+      "id": "more",
+      "when": {
+        "all": [
+          {
+            "trigger": "run-end"
+          },
+          {
+            "failStreak": {
+              "gte": 2
+            }
+          }
+        ]
+      },
+      "say": "Đi thêm 1 cạnh nữa thì tới bậc sau?"
+    }
+  ],
+  "thinkingHint": "Sau mỗi ô, Măng đi đâu để lên bậc?"
+}

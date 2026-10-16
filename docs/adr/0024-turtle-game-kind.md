@@ -48,6 +48,7 @@ Chi tiết đã chốt khi cài:
 - Điểm gốc của giấy ở **góc dưới trái**, trục `y` hướng **lên** (sân chơi lật trục).
 - Event: `move{from,to}` (bút nhấc), `line{from,to}` (bút hạ), `turn{from,to,side,deg}`, `pen{down}`, `extraLine{from,to}`, `offPaper{from,to}`; mỗi bước đơn vị một event. Ra ngoài giấy được kiểm **trước** nét lạ, kể cả khi bút nhấc.
 - Màn không có `target` (predict, creative): mọi hình đều `success`.
+- Luật soạn T1 (P4-12): bẫy nét lạ của từng màn khai báo ở `TURTLE_T1` (`tools/content-check/src/turtle.ts`, chương trình viết gọn `F2 R90 U D REP3[…]`); `turtleT1Warnings` chạy từng bẫy và cảnh báo (luật 24) khi màn `build` / `bughunt` không có bẫy, hoặc bẫy không dừng ở `EXTRA_LINE`.
 - Luật soạn W9 (tooltip có số): tooltip của khối rẽ ghi "90 độ". Màn giới thiệu khối rẽ mà ghim góc khác 90 thì câu gợi ý `enter` viết lại câu luật với **góc của màn**, vd "Rẽ trái 60 độ: quay tại chỗ, chưa đi" (`turtle-hexagon`). Tương tự cho số bước của `tiến` khi ghim khác 3.
 - `turtleDrawKey(level, workspace)` nhận `config`, `procedures`, `variables` của màn, để khóa của thẻ có phép (W9 `l16`) và đuôi hộp `#id=n` khớp lần chạy thật.
 - Hình mẫu không nằm trong state (không đổi trong lượt chạy): API đọc từ `ctx.level.config` qua bộ nhớ đệm theo object, nên khóa trạng thái của vét cạn nhỏ.
