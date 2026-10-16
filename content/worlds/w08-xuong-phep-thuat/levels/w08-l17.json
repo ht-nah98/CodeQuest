@@ -1,0 +1,266 @@
+{
+  "id": "w08-l17",
+  "worldId": "w08-xuong-phep-thuat",
+  "stage": "challenge",
+  "kind": "maze",
+  "mode": "build",
+  "title": "Răng lược dài ngắn",
+  "objective": "2 phép, 1 phép có hộp. Không quá 20 khối!",
+  "learningGoal": "Phép đi rồi quay có hộp (đi số ô, rồi quay đầu xuống làn dưới), phép về trái cố định. Làm phép đi rồi quay với 3, 4, 1.",
+  "misconception": "Làn dài, ngắn khác nhau thì phải dạy phép khác nhau.",
+  "mission": "Kho phép có làn dài, làn ngắn. Đi tới cờ!",
+  "toolbox": [
+    "maze_forward",
+    "maze_turn_left",
+    "maze_turn_right",
+    "cq_proc_def",
+    "cq_proc_call",
+    "cq_proc_def_n",
+    "cq_proc_call_n",
+    {
+      "type": "cq_repeat_var",
+      "fields": {
+        "VAR": "cells"
+      }
+    }
+  ],
+  "maxBlocks": 20,
+  "maxInstances": {
+    "cq_proc_def": 1,
+    "cq_proc_def_n": 1
+  },
+  "maxLoopDepth": 1,
+  "par": 19,
+  "procedures": [
+    {
+      "id": "lane",
+      "name": "đi rồi quay",
+      "param": {
+        "id": "cells",
+        "name": "số ô",
+        "max": 9
+      }
+    },
+    {
+      "id": "back",
+      "name": "về trái"
+    }
+  ],
+  "config": {
+    "map": [
+      "#S....###",
+      "####.####",
+      "#....####",
+      "##.######",
+      "##......#",
+      "######.##",
+      "###....##",
+      "####.####",
+      "####...##",
+      "#####.###",
+      "#####G###"
+    ],
+    "startDir": "E"
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_proc_call_n",
+              "id": "cast1",
+              "fields": {
+                "PROC": "lane",
+                "NUM": 3
+              },
+              "next": {
+                "block": {
+                  "type": "cq_proc_call",
+                  "id": "cast2",
+                  "fields": {
+                    "PROC": "back"
+                  },
+                  "next": {
+                    "block": {
+                      "type": "cq_proc_call_n",
+                      "id": "cast3",
+                      "fields": {
+                        "PROC": "lane",
+                        "NUM": 4
+                      },
+                      "next": {
+                        "block": {
+                          "type": "cq_proc_call",
+                          "id": "cast4",
+                          "fields": {
+                            "PROC": "back"
+                          },
+                          "next": {
+                            "block": {
+                              "type": "cq_proc_call_n",
+                              "id": "cast5",
+                              "fields": {
+                                "PROC": "lane",
+                                "NUM": 1
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "cq_proc_def_n",
+          "id": "def_lane",
+          "x": 380,
+          "y": 40,
+          "fields": {
+            "PROC": "lane"
+          },
+          "inputs": {
+            "BODY": {
+              "block": {
+                "type": "cq_repeat_var",
+                "id": "boxloop1",
+                "fields": {
+                  "VAR": "cells"
+                },
+                "inputs": {
+                  "DO": {
+                    "block": {
+                      "type": "maze_forward",
+                      "id": "fwd1"
+                    }
+                  }
+                },
+                "next": {
+                  "block": {
+                    "type": "maze_turn_right",
+                    "id": "right1",
+                    "next": {
+                      "block": {
+                        "type": "maze_forward",
+                        "id": "fwd2",
+                        "next": {
+                          "block": {
+                            "type": "maze_forward",
+                            "id": "fwd3",
+                            "next": {
+                              "block": {
+                                "type": "maze_turn_right",
+                                "id": "right2"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "cq_proc_def",
+          "id": "def_back",
+          "x": 380,
+          "y": 260,
+          "fields": {
+            "PROC": "back"
+          },
+          "inputs": {
+            "BODY": {
+              "block": {
+                "type": "maze_forward",
+                "id": "fwd4",
+                "next": {
+                  "block": {
+                    "type": "maze_forward",
+                    "id": "fwd5",
+                    "next": {
+                      "block": {
+                        "type": "maze_turn_left",
+                        "id": "left1",
+                        "next": {
+                          "block": {
+                            "type": "maze_forward",
+                            "id": "fwd6",
+                            "next": {
+                              "block": {
+                                "type": "maze_forward",
+                                "id": "fwd7",
+                                "next": {
+                                  "block": {
+                                    "type": "maze_turn_left",
+                                    "id": "left2"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "lanes",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "HIT_WALL"
+      },
+      "say": "Làn này dài mấy ô?",
+      "point": "stage"
+    },
+    {
+      "id": "cap",
+      "when": {
+        "capacityFull": true
+      },
+      "say": "Đoạn nào lặp lại? Dạy thành phép được không?",
+      "point": "toolbox:cq_proc_def_n"
+    },
+    {
+      "id": "many",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "TOO_MANY_BLOCKS"
+      },
+      "say": "Đoạn nào lặp lại? Dạy thành phép được không?",
+      "point": "capacity"
+    },
+    {
+      "id": "loose",
+      "when": {
+        "trigger": "run-end",
+        "orphans": true
+      },
+      "say": "Còn khối rời. Nối hết vào khi bắt đầu nhé!"
+    }
+  ],
+  "thinkingHint": "Làn đi sang phải và làn về trái khác nhau ở đâu?",
+  "feedback": {
+    "TOO_MANY_BLOCKS": "Nhiều khối quá. Đoạn nào lặp lại? Dạy thành phép được không?"
+  }
+}

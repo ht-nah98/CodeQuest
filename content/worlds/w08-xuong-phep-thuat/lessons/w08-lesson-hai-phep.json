@@ -1,0 +1,310 @@
+{
+  "id": "w08-lesson-hai-phep",
+  "worldId": "w08-xuong-phep-thuat",
+  "title": "2 phép",
+  "beforeLevel": "w08-l09",
+  "cards": [
+    {
+      "type": "say",
+      "pose": "point",
+      "text": "Mỗi phép một tên. Gọi tên nào, làm phép đó."
+    },
+    {
+      "type": "demo",
+      "text": "Lên bậc 2 lần, xuống bậc 2 lần: Măng tới cờ.",
+      "kind": "maze",
+      "config": {
+        "map": ["########", "###...##", "##..#..#", "#S.###G#", "########"],
+        "startDir": "E"
+      },
+      "procedures": [
+        {
+          "id": "up",
+          "name": "lên bậc"
+        },
+        {
+          "id": "down",
+          "name": "xuống bậc"
+        }
+      ],
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "cq_proc_call",
+                  "id": "cast1",
+                  "fields": {
+                    "PROC": "up"
+                  },
+                  "next": {
+                    "block": {
+                      "type": "cq_proc_call",
+                      "id": "cast2",
+                      "fields": {
+                        "PROC": "up"
+                      },
+                      "next": {
+                        "block": {
+                          "type": "maze_forward",
+                          "id": "fwd1",
+                          "next": {
+                            "block": {
+                              "type": "cq_proc_call",
+                              "id": "cast3",
+                              "fields": {
+                                "PROC": "down"
+                              },
+                              "next": {
+                                "block": {
+                                  "type": "cq_proc_call",
+                                  "id": "cast4",
+                                  "fields": {
+                                    "PROC": "down"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "type": "cq_proc_def",
+              "id": "def_up",
+              "x": 380,
+              "y": 40,
+              "fields": {
+                "PROC": "up"
+              },
+              "inputs": {
+                "BODY": {
+                  "block": {
+                    "type": "maze_forward",
+                    "id": "fwd2",
+                    "next": {
+                      "block": {
+                        "type": "maze_turn_left",
+                        "id": "left1",
+                        "next": {
+                          "block": {
+                            "type": "maze_forward",
+                            "id": "fwd3",
+                            "next": {
+                              "block": {
+                                "type": "maze_turn_right",
+                                "id": "right1"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "type": "cq_proc_def",
+              "id": "def_down",
+              "x": 380,
+              "y": 260,
+              "fields": {
+                "PROC": "down"
+              },
+              "inputs": {
+                "BODY": {
+                  "block": {
+                    "type": "maze_forward",
+                    "id": "fwd4",
+                    "next": {
+                      "block": {
+                        "type": "maze_turn_right",
+                        "id": "right2",
+                        "next": {
+                          "block": {
+                            "type": "maze_forward",
+                            "id": "fwd5",
+                            "next": {
+                              "block": {
+                                "type": "maze_turn_left",
+                                "id": "left2"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "demo",
+      "text": "Đổi tên 1 khối làm phép: Măng đâm tường.",
+      "kind": "maze",
+      "config": {
+        "map": ["########", "###...##", "##..#..#", "#S.###G#", "########"],
+        "startDir": "E"
+      },
+      "procedures": [
+        {
+          "id": "up",
+          "name": "lên bậc"
+        },
+        {
+          "id": "down",
+          "name": "xuống bậc"
+        }
+      ],
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "cq_proc_call",
+                  "id": "cast1",
+                  "fields": {
+                    "PROC": "up"
+                  },
+                  "next": {
+                    "block": {
+                      "type": "cq_proc_call",
+                      "id": "cast2",
+                      "fields": {
+                        "PROC": "up"
+                      },
+                      "next": {
+                        "block": {
+                          "type": "maze_forward",
+                          "id": "fwd1",
+                          "next": {
+                            "block": {
+                              "type": "cq_proc_call",
+                              "id": "cast3",
+                              "fields": {
+                                "PROC": "up"
+                              },
+                              "next": {
+                                "block": {
+                                  "type": "cq_proc_call",
+                                  "id": "cast4",
+                                  "fields": {
+                                    "PROC": "down"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "type": "cq_proc_def",
+              "id": "def_up",
+              "x": 380,
+              "y": 40,
+              "fields": {
+                "PROC": "up"
+              },
+              "inputs": {
+                "BODY": {
+                  "block": {
+                    "type": "maze_forward",
+                    "id": "fwd2",
+                    "next": {
+                      "block": {
+                        "type": "maze_turn_left",
+                        "id": "left1",
+                        "next": {
+                          "block": {
+                            "type": "maze_forward",
+                            "id": "fwd3",
+                            "next": {
+                              "block": {
+                                "type": "maze_turn_right",
+                                "id": "right1"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "type": "cq_proc_def",
+              "id": "def_down",
+              "x": 380,
+              "y": 260,
+              "fields": {
+                "PROC": "down"
+              },
+              "inputs": {
+                "BODY": {
+                  "block": {
+                    "type": "maze_forward",
+                    "id": "fwd4",
+                    "next": {
+                      "block": {
+                        "type": "maze_turn_right",
+                        "id": "right2",
+                        "next": {
+                          "block": {
+                            "type": "maze_forward",
+                            "id": "fwd5",
+                            "next": {
+                              "block": {
+                                "type": "maze_turn_left",
+                                "id": "left2"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "quiz",
+      "text": "Đổi tên trên khối làm phép. Măng đi có khác không?",
+      "options": ["Khác", "Vẫn vậy"],
+      "correct": 0,
+      "explain": "Tên khác thì phép khác, Măng đi khác."
+    }
+  ]
+}

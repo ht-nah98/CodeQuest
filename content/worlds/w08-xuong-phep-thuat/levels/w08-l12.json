@@ -1,0 +1,303 @@
+{
+  "id": "w08-l12",
+  "worldId": "w08-xuong-phep-thuat",
+  "stage": "practice",
+  "kind": "robotlab",
+  "mode": "build",
+  "title": "Phép robot biết hỏi",
+  "objective": "2 phép có câu hỏi, đúng cho cả 2 bản đồ.",
+  "learningGoal": "Về thả: quay đầu, lặp đến khi về phòng thì tiến, rồi thả. Đi gắp: lặp đến khi có khối ô nhiễm đỏ thì tiến, rồi gắp. Về thả làm 3 lần, đi gắp 2 lần.",
+  "misconception": "Phép robot chỉ đúng cho 1 quãng đường.",
+  "mission": "Bíp đang cầm khối ô nhiễm đỏ. Thu hồi đủ 3 khối!",
+  "toolbox": [
+    {
+      "type": "robot_forward",
+      "fields": {
+        "N": 1
+      }
+    },
+    "robot_turn_left",
+    "robot_turn_right",
+    "robot_grab",
+    "robot_release",
+    "cq_repeat_until",
+    {
+      "type": "robot_block_color",
+      "fields": {
+        "COLOR": "RED"
+      }
+    },
+    "robot_at_lab",
+    "cq_proc_def",
+    "cq_proc_call"
+  ],
+  "maxBlocks": 18,
+  "maxInstances": {
+    "cq_proc_def": 2,
+    "robot_grab": 1,
+    "robot_release": 1
+  },
+  "maxLoopDepth": 1,
+  "par": 18,
+  "procedures": [
+    {
+      "id": "go",
+      "name": "đi gắp"
+    },
+    {
+      "id": "home",
+      "name": "về thả"
+    }
+  ],
+  "config": {
+    "map": [".......", "#.#.#.#", "...L...", "#.#.#.#", "......."],
+    "start": [0, 3],
+    "startDir": "N",
+    "startHolding": {
+      "kind": "pollution",
+      "color": "RED"
+    },
+    "blocks": [
+      {
+        "kind": "pollution",
+        "color": "RED",
+        "at": [4, 3]
+      },
+      {
+        "kind": "pollution",
+        "color": "RED",
+        "at": [2, 2]
+      }
+    ],
+    "goal": {
+      "type": "missions",
+      "mustReturn": true
+    }
+  },
+  "variants": [
+    {
+      "map": [".......", "#.#.#.#", "...L...", "#.#.#.#", "......."],
+      "start": [2, 5],
+      "startDir": "E",
+      "startHolding": {
+        "kind": "pollution",
+        "color": "RED"
+      },
+      "blocks": [
+        {
+          "kind": "pollution",
+          "color": "RED",
+          "at": [2, 0]
+        },
+        {
+          "kind": "pollution",
+          "color": "RED",
+          "at": [0, 3]
+        }
+      ],
+      "goal": {
+        "type": "missions",
+        "mustReturn": true
+      }
+    }
+  ],
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_proc_call",
+              "id": "cast1",
+              "fields": {
+                "PROC": "home"
+              },
+              "next": {
+                "block": {
+                  "type": "cq_proc_call",
+                  "id": "cast2",
+                  "fields": {
+                    "PROC": "go"
+                  },
+                  "next": {
+                    "block": {
+                      "type": "cq_proc_call",
+                      "id": "cast3",
+                      "fields": {
+                        "PROC": "home"
+                      },
+                      "next": {
+                        "block": {
+                          "type": "robot_turn_left",
+                          "id": "left1",
+                          "next": {
+                            "block": {
+                              "type": "cq_proc_call",
+                              "id": "cast4",
+                              "fields": {
+                                "PROC": "go"
+                              },
+                              "next": {
+                                "block": {
+                                  "type": "cq_proc_call",
+                                  "id": "cast5",
+                                  "fields": {
+                                    "PROC": "home"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "cq_proc_def",
+          "id": "def_go",
+          "x": 380,
+          "y": 40,
+          "fields": {
+            "PROC": "go"
+          },
+          "inputs": {
+            "BODY": {
+              "block": {
+                "type": "cq_repeat_until",
+                "id": "until1",
+                "inputs": {
+                  "COND": {
+                    "block": {
+                      "type": "robot_block_color",
+                      "id": "until1c",
+                      "fields": {
+                        "COLOR": "RED"
+                      }
+                    }
+                  },
+                  "DO": {
+                    "block": {
+                      "type": "robot_forward",
+                      "id": "go1",
+                      "fields": {
+                        "N": 1
+                      }
+                    }
+                  }
+                },
+                "next": {
+                  "block": {
+                    "type": "robot_grab",
+                    "id": "grab1"
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "cq_proc_def",
+          "id": "def_home",
+          "x": 380,
+          "y": 260,
+          "fields": {
+            "PROC": "home"
+          },
+          "inputs": {
+            "BODY": {
+              "block": {
+                "type": "robot_turn_right",
+                "id": "right1",
+                "next": {
+                  "block": {
+                    "type": "robot_turn_right",
+                    "id": "right2",
+                    "next": {
+                      "block": {
+                        "type": "cq_repeat_until",
+                        "id": "until2",
+                        "inputs": {
+                          "COND": {
+                            "block": {
+                              "type": "robot_at_lab",
+                              "id": "until2c"
+                            }
+                          },
+                          "DO": {
+                            "block": {
+                              "type": "robot_forward",
+                              "id": "go2",
+                              "fields": {
+                                "N": 1
+                              }
+                            }
+                          }
+                        },
+                        "next": {
+                          "block": {
+                            "type": "robot_release",
+                            "id": "drop1"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "grab",
+      "when": {
+        "all": [
+          {
+            "trigger": "run-end",
+            "lastReason": "MISSIONS_LEFT"
+          },
+          {
+            "instancesFull": "robot_grab"
+          }
+        ]
+      },
+      "say": "Chỉ 1 khối gắp. Gắp 2 lần bằng cách nào?",
+      "point": "toolbox:cq_proc_def"
+    },
+    {
+      "id": "far",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "NOTHING_TO_GRAB"
+      },
+      "say": "Khối ô nhiễm đỏ xa gần khác nhau. Phép nên hỏi gì?",
+      "point": "toolbox:robot_block_color"
+    },
+    {
+      "id": "loose",
+      "when": {
+        "trigger": "run-end",
+        "orphans": true
+      },
+      "say": "Còn khối rời. Nối hết vào khi bắt đầu nhé!"
+    }
+  ],
+  "thinkingHint": "2 bản đồ khác nhau ở đâu?",
+  "feedback": {
+    "TOO_MANY_BLOCKS": "Nhiều khối quá. Đoạn nào lặp lại? Dạy thành phép được không?"
+  }
+}

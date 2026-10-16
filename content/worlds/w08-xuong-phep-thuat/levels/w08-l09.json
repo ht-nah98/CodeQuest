@@ -1,0 +1,365 @@
+{
+  "id": "w08-l09",
+  "worldId": "w08-xuong-phep-thuat",
+  "stage": "practice",
+  "kind": "maze",
+  "mode": "parsons",
+  "title": "2 phép, 2 tên",
+  "objective": "Ghép 2 phép quay phải, quay trái cho đúng.",
+  "learningGoal": "Hai phép soi gương: quay phải rẽ phải 2 lần, quay trái rẽ trái 2 lần. Gọi tên nào, Măng làm phép đó.",
+  "misconception": "Hai phép khác tên mà làm giống nhau.",
+  "mission": "Hành lang răng lược của Cáo con. Đi tới cờ!",
+  "toolbox": [],
+  "maxLoopDepth": 1,
+  "par": 19,
+  "procedures": [
+    {
+      "id": "right",
+      "name": "quay phải"
+    },
+    {
+      "id": "left",
+      "name": "quay trái"
+    }
+  ],
+  "config": {
+    "map": [
+      "#######",
+      "####S.#",
+      "#####.#",
+      "##....#",
+      "##.####",
+      "##..###",
+      "###.###",
+      "#...###",
+      "#.#####",
+      "#G#####",
+      "#######"
+    ],
+    "startDir": "E"
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false
+        },
+        {
+          "type": "cq_proc_def",
+          "id": "def_right",
+          "x": 380,
+          "y": 40,
+          "fields": {
+            "PROC": "right"
+          }
+        },
+        {
+          "type": "cq_proc_def",
+          "id": "def_left",
+          "x": 380,
+          "y": 260,
+          "fields": {
+            "PROC": "left"
+          }
+        },
+        {
+          "type": "cq_proc_call",
+          "id": "cast1",
+          "fields": {
+            "PROC": "right"
+          },
+          "x": 40,
+          "y": 300
+        },
+        {
+          "type": "maze_forward",
+          "id": "fwd1",
+          "x": 340,
+          "y": 300
+        },
+        {
+          "type": "maze_forward",
+          "id": "fwd2",
+          "x": 40,
+          "y": 375
+        },
+        {
+          "type": "cq_proc_call",
+          "id": "cast2",
+          "fields": {
+            "PROC": "left"
+          },
+          "x": 340,
+          "y": 375
+        },
+        {
+          "type": "cq_proc_call",
+          "id": "cast3",
+          "fields": {
+            "PROC": "right"
+          },
+          "x": 40,
+          "y": 450
+        },
+        {
+          "type": "maze_forward",
+          "id": "fwd3",
+          "x": 340,
+          "y": 450
+        },
+        {
+          "type": "cq_proc_call",
+          "id": "cast4",
+          "fields": {
+            "PROC": "left"
+          },
+          "x": 40,
+          "y": 525
+        },
+        {
+          "type": "maze_forward",
+          "id": "fwd4",
+          "x": 340,
+          "y": 525
+        },
+        {
+          "type": "maze_turn_right",
+          "id": "right1",
+          "x": 40,
+          "y": 600
+        },
+        {
+          "type": "maze_forward",
+          "id": "fwd5",
+          "x": 340,
+          "y": 600
+        },
+        {
+          "type": "maze_forward",
+          "id": "fwd6",
+          "x": 40,
+          "y": 675
+        },
+        {
+          "type": "maze_turn_right",
+          "id": "right2",
+          "x": 340,
+          "y": 675
+        },
+        {
+          "type": "maze_forward",
+          "id": "fwd7",
+          "x": 40,
+          "y": 750
+        },
+        {
+          "type": "maze_turn_left",
+          "id": "left1",
+          "x": 340,
+          "y": 750
+        },
+        {
+          "type": "maze_forward",
+          "id": "fwd8",
+          "x": 40,
+          "y": 825
+        },
+        {
+          "type": "maze_forward",
+          "id": "fwd9",
+          "x": 340,
+          "y": 825
+        },
+        {
+          "type": "maze_turn_left",
+          "id": "left2",
+          "x": 40,
+          "y": 900
+        }
+      ]
+    }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_proc_call",
+              "id": "cast1",
+              "fields": {
+                "PROC": "right"
+              },
+              "next": {
+                "block": {
+                  "type": "maze_forward",
+                  "id": "fwd1",
+                  "next": {
+                    "block": {
+                      "type": "maze_forward",
+                      "id": "fwd2",
+                      "next": {
+                        "block": {
+                          "type": "cq_proc_call",
+                          "id": "cast2",
+                          "fields": {
+                            "PROC": "left"
+                          },
+                          "next": {
+                            "block": {
+                              "type": "cq_proc_call",
+                              "id": "cast3",
+                              "fields": {
+                                "PROC": "right"
+                              },
+                              "next": {
+                                "block": {
+                                  "type": "maze_forward",
+                                  "id": "fwd3",
+                                  "next": {
+                                    "block": {
+                                      "type": "cq_proc_call",
+                                      "id": "cast4",
+                                      "fields": {
+                                        "PROC": "left"
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "cq_proc_def",
+          "id": "def_right",
+          "x": 380,
+          "y": 40,
+          "fields": {
+            "PROC": "right"
+          },
+          "inputs": {
+            "BODY": {
+              "block": {
+                "type": "maze_forward",
+                "id": "fwd4",
+                "next": {
+                  "block": {
+                    "type": "maze_turn_right",
+                    "id": "right1",
+                    "next": {
+                      "block": {
+                        "type": "maze_forward",
+                        "id": "fwd5",
+                        "next": {
+                          "block": {
+                            "type": "maze_forward",
+                            "id": "fwd6",
+                            "next": {
+                              "block": {
+                                "type": "maze_turn_right",
+                                "id": "right2"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "cq_proc_def",
+          "id": "def_left",
+          "x": 380,
+          "y": 260,
+          "fields": {
+            "PROC": "left"
+          },
+          "inputs": {
+            "BODY": {
+              "block": {
+                "type": "maze_forward",
+                "id": "fwd7",
+                "next": {
+                  "block": {
+                    "type": "maze_turn_left",
+                    "id": "left1",
+                    "next": {
+                      "block": {
+                        "type": "maze_forward",
+                        "id": "fwd8",
+                        "next": {
+                          "block": {
+                            "type": "maze_forward",
+                            "id": "fwd9",
+                            "next": {
+                              "block": {
+                                "type": "maze_turn_left",
+                                "id": "left2"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "names",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Mỗi phép một tên. Gọi tên nào, làm phép đó.",
+      "point": "stage"
+    },
+    {
+      "id": "which",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "HIT_WALL"
+      },
+      "say": "Ở góc này, Măng quay bên phải hay bên trái?",
+      "point": "stage"
+    },
+    {
+      "id": "loose",
+      "when": {
+        "trigger": "run-end",
+        "orphans": true
+      },
+      "say": "Còn khối rời. Nối hết vào khi bắt đầu nhé!"
+    }
+  ],
+  "thinkingHint": "Ở mỗi đầu làn, Măng quay về phía nào?"
+}

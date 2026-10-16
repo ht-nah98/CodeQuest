@@ -143,3 +143,4 @@ Thiết kế: `product/curriculum.md` §6.3 (W8), §6.4 (W9), ADR-0023 (phép th
 14. **Boss có `par` tính tay** (vét cạn không chứng minh được, cờ `parUnproven`): ⭐⭐⭐ vẫn tính theo `par` tay. *Mặc định:* như vậy (giống W6 boss, W7 `l16`, `l19`, boss).
 15. **Xu cho bài W8, W9:** W8 có 6 bài, W9 có 9 bài. *Mặc định:* +5 xu mỗi bài lần đầu như W1–W7.
 16. **Thế giới 10** chỉ có khung (sắp xếp, tìm kiếm, đường ngắn nhất). *Mặc định:* chi tiết hóa sau khi anh chơi thử W8–W9.
+17. **W8 `l09` (hai phép soi gương "quay phải" / "quay trái" trên đường răng lược):** một chương trình chỉ dùng `lặp` (16 khối) ngắn hơn lời giải có phép (19 khối), vì "phải, trái" lặp lại đều. Màn là `parsons`: mảnh ghép cho sẵn, không có khối `lặp`, nên bé không gặp cách đó. Đã thử hơn 1 000 cách xếp khác, không cách nào qua (`curriculum.md` §6.3.1 màn 9). *Mặc định:* giữ như vậy; không đổi `l09` thành màn tự ghép (`build`) nếu chưa thiết kế lại.

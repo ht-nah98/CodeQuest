@@ -1,0 +1,348 @@
+{
+  "id": "w08-l16",
+  "worldId": "w08-xuong-phep-thuat",
+  "stage": "practice",
+  "kind": "robotlab",
+  "mode": "bughunt",
+  "title": "Hộp bị quên",
+  "objective": "Phép thu hồi sai ở lần thứ hai. Sửa 1 chỗ!",
+  "learningGoal": "Trong phép, đường đi ra dùng lặp 2 lần cố định. Lần đầu đúng (với 2), lần sau sai. Đổi thành lặp theo hộp số ô là đúng hết.",
+  "misconception": "Phép có hộp mà vẫn dùng số cố định thì vẫn đúng.",
+  "mission": "Thu hồi 3 khối ô nhiễm đỏ về phòng!",
+  "toolbox": [
+    {
+      "type": "robot_forward",
+      "fields": {
+        "N": 1
+      }
+    },
+    "robot_turn_left",
+    "robot_turn_right",
+    "robot_grab",
+    "robot_release",
+    "cq_proc_def_n",
+    "cq_proc_call_n",
+    {
+      "type": "cq_repeat_var",
+      "fields": {
+        "VAR": "cells"
+      }
+    }
+  ],
+  "maxBlocks": 15,
+  "maxInstances": {
+    "cq_proc_def_n": 1
+  },
+  "maxLoopDepth": 1,
+  "par": 13,
+  "parEdits": 1,
+  "procedures": [
+    {
+      "id": "fetch",
+      "name": "thu hồi",
+      "param": {
+        "id": "cells",
+        "name": "số ô",
+        "max": 9
+      }
+    }
+  ],
+  "config": {
+    "map": ["........", "#.#.#.#.", "...L....", "#.#.#.#.", "........"],
+    "startDir": "N",
+    "blocks": [
+      {
+        "kind": "pollution",
+        "color": "RED",
+        "at": [0, 3]
+      },
+      {
+        "kind": "pollution",
+        "color": "RED",
+        "at": [2, 6]
+      },
+      {
+        "kind": "pollution",
+        "color": "RED",
+        "at": [3, 3]
+      }
+    ],
+    "goal": {
+      "type": "missions",
+      "mustReturn": true
+    }
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_proc_call_n",
+              "id": "cast1",
+              "fields": {
+                "PROC": "fetch",
+                "NUM": 2
+              },
+              "next": {
+                "block": {
+                  "type": "cq_proc_call_n",
+                  "id": "cast2",
+                  "fields": {
+                    "PROC": "fetch",
+                    "NUM": 1
+                  },
+                  "next": {
+                    "block": {
+                      "type": "robot_turn_right",
+                      "id": "right1",
+                      "next": {
+                        "block": {
+                          "type": "cq_proc_call_n",
+                          "id": "cast3",
+                          "fields": {
+                            "PROC": "fetch",
+                            "NUM": 3
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "cq_proc_def_n",
+          "id": "def_fetch",
+          "x": 380,
+          "y": 40,
+          "fields": {
+            "PROC": "fetch"
+          },
+          "inputs": {
+            "BODY": {
+              "block": {
+                "type": "cq_repeat",
+                "id": "loop1",
+                "fields": {
+                  "TIMES": 2
+                },
+                "inputs": {
+                  "DO": {
+                    "block": {
+                      "type": "robot_forward",
+                      "id": "go1",
+                      "fields": {
+                        "N": 1
+                      }
+                    }
+                  }
+                },
+                "next": {
+                  "block": {
+                    "type": "robot_grab",
+                    "id": "grab1",
+                    "next": {
+                      "block": {
+                        "type": "robot_turn_right",
+                        "id": "right2",
+                        "next": {
+                          "block": {
+                            "type": "robot_turn_right",
+                            "id": "right3",
+                            "next": {
+                              "block": {
+                                "type": "cq_repeat_var",
+                                "id": "boxloop1",
+                                "fields": {
+                                  "VAR": "cells"
+                                },
+                                "inputs": {
+                                  "DO": {
+                                    "block": {
+                                      "type": "robot_forward",
+                                      "id": "go2",
+                                      "fields": {
+                                        "N": 1
+                                      }
+                                    }
+                                  }
+                                },
+                                "next": {
+                                  "block": {
+                                    "type": "robot_release",
+                                    "id": "drop1"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_proc_call_n",
+              "id": "cast1",
+              "fields": {
+                "PROC": "fetch",
+                "NUM": 2
+              },
+              "next": {
+                "block": {
+                  "type": "cq_proc_call_n",
+                  "id": "cast2",
+                  "fields": {
+                    "PROC": "fetch",
+                    "NUM": 1
+                  },
+                  "next": {
+                    "block": {
+                      "type": "robot_turn_right",
+                      "id": "right1",
+                      "next": {
+                        "block": {
+                          "type": "cq_proc_call_n",
+                          "id": "cast3",
+                          "fields": {
+                            "PROC": "fetch",
+                            "NUM": 3
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "cq_proc_def_n",
+          "id": "def_fetch",
+          "x": 380,
+          "y": 40,
+          "fields": {
+            "PROC": "fetch"
+          },
+          "inputs": {
+            "BODY": {
+              "block": {
+                "type": "cq_repeat_var",
+                "id": "boxloop1",
+                "fields": {
+                  "VAR": "cells"
+                },
+                "inputs": {
+                  "DO": {
+                    "block": {
+                      "type": "robot_forward",
+                      "id": "go1",
+                      "fields": {
+                        "N": 1
+                      }
+                    }
+                  }
+                },
+                "next": {
+                  "block": {
+                    "type": "robot_grab",
+                    "id": "grab1",
+                    "next": {
+                      "block": {
+                        "type": "robot_turn_right",
+                        "id": "right2",
+                        "next": {
+                          "block": {
+                            "type": "robot_turn_right",
+                            "id": "right3",
+                            "next": {
+                              "block": {
+                                "type": "cq_repeat_var",
+                                "id": "boxloop2",
+                                "fields": {
+                                  "VAR": "cells"
+                                },
+                                "inputs": {
+                                  "DO": {
+                                    "block": {
+                                      "type": "robot_forward",
+                                      "id": "go2",
+                                      "fields": {
+                                        "N": 1
+                                      }
+                                    }
+                                  }
+                                },
+                                "next": {
+                                  "block": {
+                                    "type": "robot_release",
+                                    "id": "drop1"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "first",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Lần đầu đúng, lần sau sai. Vì sao nhỉ?",
+      "point": "block:cq_proc_def_n"
+    },
+    {
+      "id": "box",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "NOTHING_TO_GRAB"
+      },
+      "say": "Đường đi ra có dùng hộp số ô không?",
+      "point": "block:cq_proc_def_n"
+    }
+  ],
+  "thinkingHint": "Lần làm phép thứ hai, hộp có số mấy?",
+  "feedback": {
+    "TOO_MANY_BLOCKS": "Nhiều khối quá. Đoạn nào lặp lại? Dạy thành phép được không?"
+  }
+}

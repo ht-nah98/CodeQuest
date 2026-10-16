@@ -1,0 +1,206 @@
+{
+  "id": "w08-l04",
+  "worldId": "w08-xuong-phep-thuat",
+  "stage": "guided",
+  "kind": "maze",
+  "mode": "build",
+  "title": "Tự dạy phép",
+  "objective": "Chương trình có sẵn. Dạy phép móc câu nhé!",
+  "learningGoal": "Chương trình chính làm phép móc câu 3 lần. Bé tự ghép thân phép: rẽ trái, tiến, rẽ phải, tiến, tiến, rẽ phải.",
+  "misconception": "Phép tự biết đi, không cần khối bên trong.",
+  "mission": "Măng tự dạy phép móc câu cho hành lang này.",
+  "toolbox": ["maze_forward", "maze_turn_left", "maze_turn_right", "cq_proc_def", "cq_proc_call"],
+  "maxInstances": {
+    "cq_proc_def": 1
+  },
+  "maxLoopDepth": 1,
+  "par": 11,
+  "procedures": [
+    {
+      "id": "hook",
+      "name": "móc câu"
+    }
+  ],
+  "config": {
+    "map": ["######", "#....#", "#S##.#", "###..#", "#G..##", "######"],
+    "startDir": "E"
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_proc_call",
+              "id": "cast1",
+              "fields": {
+                "PROC": "hook"
+              },
+              "next": {
+                "block": {
+                  "type": "cq_proc_call",
+                  "id": "cast2",
+                  "fields": {
+                    "PROC": "hook"
+                  },
+                  "next": {
+                    "block": {
+                      "type": "maze_forward",
+                      "id": "fwd1",
+                      "next": {
+                        "block": {
+                          "type": "cq_proc_call",
+                          "id": "cast3",
+                          "fields": {
+                            "PROC": "hook"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "cq_proc_def",
+          "id": "def_hook",
+          "x": 380,
+          "y": 40,
+          "fields": {
+            "PROC": "hook"
+          }
+        }
+      ]
+    }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_proc_call",
+              "id": "cast1",
+              "fields": {
+                "PROC": "hook"
+              },
+              "next": {
+                "block": {
+                  "type": "cq_proc_call",
+                  "id": "cast2",
+                  "fields": {
+                    "PROC": "hook"
+                  },
+                  "next": {
+                    "block": {
+                      "type": "maze_forward",
+                      "id": "fwd1",
+                      "next": {
+                        "block": {
+                          "type": "cq_proc_call",
+                          "id": "cast3",
+                          "fields": {
+                            "PROC": "hook"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "cq_proc_def",
+          "id": "def_hook",
+          "x": 380,
+          "y": 40,
+          "fields": {
+            "PROC": "hook"
+          },
+          "inputs": {
+            "BODY": {
+              "block": {
+                "type": "maze_turn_left",
+                "id": "left1",
+                "next": {
+                  "block": {
+                    "type": "maze_forward",
+                    "id": "fwd2",
+                    "next": {
+                      "block": {
+                        "type": "maze_turn_right",
+                        "id": "right1",
+                        "next": {
+                          "block": {
+                            "type": "maze_forward",
+                            "id": "fwd3",
+                            "next": {
+                              "block": {
+                                "type": "maze_forward",
+                                "id": "fwd4",
+                                "next": {
+                                  "block": {
+                                    "type": "maze_turn_right",
+                                    "id": "right2"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "empty",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Phép móc câu còn trống. Lần đầu Măng đi thế nào?",
+      "point": "block:cq_proc_def"
+    },
+    {
+      "id": "first",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "HIT_WALL"
+      },
+      "say": "Bấm Từng bước. Măng sai ở khối nào trong phép?",
+      "point": "step"
+    },
+    {
+      "id": "loose",
+      "when": {
+        "trigger": "run-end",
+        "orphans": true
+      },
+      "say": "Còn khối rời. Nối hết vào khi bắt đầu nhé!"
+    }
+  ],
+  "thinkingHint": "Lần làm phép đầu, Măng đi tới đâu?"
+}

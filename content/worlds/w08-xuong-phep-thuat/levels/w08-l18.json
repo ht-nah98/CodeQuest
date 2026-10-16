@@ -1,0 +1,338 @@
+{
+  "id": "w08-l18",
+  "worldId": "w08-xuong-phep-thuat",
+  "stage": "challenge",
+  "kind": "robotlab",
+  "mode": "bughunt",
+  "title": "Phép chở có 2 lỗi",
+  "objective": "Có 2 lỗi: 1 trong phép, 1 ở số. Sửa nhé!",
+  "learningGoal": "Phép chở phải tiến 1 ô lên khối rồi mới gắp. Vòng quanh xưởng có 4 việc, chở 2, 1, 3, 1 ô. Khối trung hòa vàng cách trạm vàng 1 ô, nên lần làm phép thứ hai mang số 1.",
+  "misconception": "Bíp gắp được khối ở ô phía trước.",
+  "mission": "Vòng quanh xưởng: chở khối trung hòa đỏ, vàng, xanh lá!",
+  "toolbox": [
+    "robot_forward",
+    "robot_turn_left",
+    "robot_turn_right",
+    "robot_grab",
+    "robot_release",
+    "cq_proc_def_n",
+    "cq_proc_call_n",
+    {
+      "type": "cq_repeat_var",
+      "fields": {
+        "VAR": "cells"
+      }
+    }
+  ],
+  "maxBlocks": 14,
+  "maxInstances": {
+    "cq_proc_def_n": 1
+  },
+  "maxLoopDepth": 1,
+  "par": 13,
+  "parEdits": 2,
+  "procedures": [
+    {
+      "id": "carry",
+      "name": "chở",
+      "param": {
+        "id": "cells",
+        "name": "số ô",
+        "max": 9
+      }
+    }
+  ],
+  "config": {
+    "map": ["L...r", ".###.", "g...y"],
+    "start": [0, 1],
+    "startDir": "E",
+    "blocks": [
+      {
+        "kind": "neutralizer",
+        "color": "RED",
+        "at": [0, 2]
+      },
+      {
+        "kind": "neutralizer",
+        "color": "YELLOW",
+        "at": [1, 4]
+      },
+      {
+        "kind": "neutralizer",
+        "color": "GREEN",
+        "at": [2, 3]
+      },
+      {
+        "kind": "pollution",
+        "color": "YELLOW",
+        "at": [1, 0]
+      }
+    ],
+    "goal": {
+      "type": "missions"
+    }
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_proc_call_n",
+              "id": "cast1",
+              "fields": {
+                "PROC": "carry",
+                "NUM": 2
+              },
+              "next": {
+                "block": {
+                  "type": "robot_turn_right",
+                  "id": "right1",
+                  "next": {
+                    "block": {
+                      "type": "cq_proc_call_n",
+                      "id": "cast2",
+                      "fields": {
+                        "PROC": "carry",
+                        "NUM": 2
+                      },
+                      "next": {
+                        "block": {
+                          "type": "robot_turn_right",
+                          "id": "right2",
+                          "next": {
+                            "block": {
+                              "type": "cq_proc_call_n",
+                              "id": "cast3",
+                              "fields": {
+                                "PROC": "carry",
+                                "NUM": 3
+                              },
+                              "next": {
+                                "block": {
+                                  "type": "robot_turn_right",
+                                  "id": "right3",
+                                  "next": {
+                                    "block": {
+                                      "type": "cq_proc_call_n",
+                                      "id": "cast4",
+                                      "fields": {
+                                        "PROC": "carry",
+                                        "NUM": 1
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "cq_proc_def_n",
+          "id": "def_carry",
+          "x": 380,
+          "y": 40,
+          "fields": {
+            "PROC": "carry"
+          },
+          "inputs": {
+            "BODY": {
+              "block": {
+                "type": "robot_grab",
+                "id": "grab1",
+                "next": {
+                  "block": {
+                    "type": "cq_repeat_var",
+                    "id": "boxloop1",
+                    "fields": {
+                      "VAR": "cells"
+                    },
+                    "inputs": {
+                      "DO": {
+                        "block": {
+                          "type": "robot_forward",
+                          "id": "go1",
+                          "fields": {
+                            "N": 1
+                          }
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "robot_release",
+                        "id": "drop1"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_proc_call_n",
+              "id": "cast1",
+              "fields": {
+                "PROC": "carry",
+                "NUM": 2
+              },
+              "next": {
+                "block": {
+                  "type": "robot_turn_right",
+                  "id": "right1",
+                  "next": {
+                    "block": {
+                      "type": "cq_proc_call_n",
+                      "id": "cast2",
+                      "fields": {
+                        "PROC": "carry",
+                        "NUM": 1
+                      },
+                      "next": {
+                        "block": {
+                          "type": "robot_turn_right",
+                          "id": "right2",
+                          "next": {
+                            "block": {
+                              "type": "cq_proc_call_n",
+                              "id": "cast3",
+                              "fields": {
+                                "PROC": "carry",
+                                "NUM": 3
+                              },
+                              "next": {
+                                "block": {
+                                  "type": "robot_turn_right",
+                                  "id": "right3",
+                                  "next": {
+                                    "block": {
+                                      "type": "cq_proc_call_n",
+                                      "id": "cast4",
+                                      "fields": {
+                                        "PROC": "carry",
+                                        "NUM": 1
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "cq_proc_def_n",
+          "id": "def_carry",
+          "x": 380,
+          "y": 40,
+          "fields": {
+            "PROC": "carry"
+          },
+          "inputs": {
+            "BODY": {
+              "block": {
+                "type": "robot_forward",
+                "id": "go1",
+                "fields": {
+                  "N": 1
+                },
+                "next": {
+                  "block": {
+                    "type": "robot_grab",
+                    "id": "grab1",
+                    "next": {
+                      "block": {
+                        "type": "cq_repeat_var",
+                        "id": "boxloop1",
+                        "fields": {
+                          "VAR": "cells"
+                        },
+                        "inputs": {
+                          "DO": {
+                            "block": {
+                              "type": "robot_forward",
+                              "id": "go2",
+                              "fields": {
+                                "N": 1
+                              }
+                            }
+                          }
+                        },
+                        "next": {
+                          "block": {
+                            "type": "robot_release",
+                            "id": "drop1"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "grab",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "NOTHING_TO_GRAB"
+      },
+      "say": "Bíp đã tới ô có khối chưa? Trong phép thiếu khối nào?",
+      "point": "block:cq_proc_def_n"
+    },
+    {
+      "id": "off",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "OFF_LINE"
+      },
+      "say": "Khối trung hòa vàng cách trạm vàng mấy ô?",
+      "point": "stage"
+    }
+  ],
+  "thinkingHint": "Sửa 1 lỗi, chạy thử. Lỗi còn lại ở đâu?",
+  "feedback": {
+    "TOO_MANY_BLOCKS": "Nhiều khối quá. Đoạn nào lặp lại? Dạy thành phép được không?"
+  }
+}

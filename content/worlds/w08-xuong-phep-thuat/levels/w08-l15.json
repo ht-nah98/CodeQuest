@@ -1,0 +1,191 @@
+{
+  "id": "w08-l15",
+  "worldId": "w08-xuong-phep-thuat",
+  "stage": "practice",
+  "kind": "maze",
+  "mode": "build",
+  "title": "Bậc cao, bậc thấp",
+  "objective": "Tự dạy phép leo bậc có hộp. Tới cờ nhé!",
+  "learningGoal": "Phép leo bậc: tiến, tiến, rẽ trái, lặp số ô lần tiến, rẽ phải. Làm phép với 3, 1, 2: mỗi bậc cao khác nhau.",
+  "misconception": "Phép có hộp mà dùng số cố định vẫn đúng.",
+  "mission": "3 bậc cao thấp lên kho phép. Leo nhé!",
+  "toolbox": [
+    "maze_forward",
+    "maze_turn_left",
+    "maze_turn_right",
+    "cq_proc_def_n",
+    "cq_proc_call_n",
+    {
+      "type": "cq_repeat_var",
+      "fields": {
+        "VAR": "cells"
+      }
+    }
+  ],
+  "maxBlocks": 11,
+  "maxInstances": {
+    "cq_proc_def_n": 1
+  },
+  "maxLoopDepth": 1,
+  "par": 10,
+  "procedures": [
+    {
+      "id": "climb",
+      "name": "leo bậc",
+      "param": {
+        "id": "cells",
+        "name": "số ô",
+        "max": 9
+      }
+    }
+  ],
+  "config": {
+    "map": [
+      "#########",
+      "#######G#",
+      "#####.#.#",
+      "###.#...#",
+      "###...###",
+      "###.#####",
+      "###.#####",
+      "#S...####",
+      "#########"
+    ],
+    "startDir": "E"
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_proc_call_n",
+              "id": "cast1",
+              "fields": {
+                "PROC": "climb",
+                "NUM": 3
+              },
+              "next": {
+                "block": {
+                  "type": "cq_proc_call_n",
+                  "id": "cast2",
+                  "fields": {
+                    "PROC": "climb",
+                    "NUM": 1
+                  },
+                  "next": {
+                    "block": {
+                      "type": "cq_proc_call_n",
+                      "id": "cast3",
+                      "fields": {
+                        "PROC": "climb",
+                        "NUM": 2
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "cq_proc_def_n",
+          "id": "def_climb",
+          "x": 380,
+          "y": 40,
+          "fields": {
+            "PROC": "climb"
+          },
+          "inputs": {
+            "BODY": {
+              "block": {
+                "type": "maze_forward",
+                "id": "fwd1",
+                "next": {
+                  "block": {
+                    "type": "maze_forward",
+                    "id": "fwd2",
+                    "next": {
+                      "block": {
+                        "type": "maze_turn_left",
+                        "id": "left1",
+                        "next": {
+                          "block": {
+                            "type": "cq_repeat_var",
+                            "id": "boxloop1",
+                            "fields": {
+                              "VAR": "cells"
+                            },
+                            "inputs": {
+                              "DO": {
+                                "block": {
+                                  "type": "maze_forward",
+                                  "id": "fwd3"
+                                }
+                              }
+                            },
+                            "next": {
+                              "block": {
+                                "type": "maze_turn_right",
+                                "id": "right1"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "high",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "HIT_WALL"
+      },
+      "say": "Lần đầu leo mấy ô? Lần sau mấy ô?",
+      "point": "stage"
+    },
+    {
+      "id": "use",
+      "when": {
+        "trigger": "idle"
+      },
+      "say": "Trong phép, lặp theo hộp thay cho số cố định được không?",
+      "point": "toolbox:cq_repeat_var"
+    },
+    {
+      "id": "cap",
+      "when": {
+        "capacityFull": true
+      },
+      "say": "Đoạn nào lặp lại? Dạy thành phép được không?",
+      "point": "toolbox:cq_proc_def_n"
+    },
+    {
+      "id": "loose",
+      "when": {
+        "trigger": "run-end",
+        "orphans": true
+      },
+      "say": "Còn khối rời. Nối hết vào khi bắt đầu nhé!"
+    }
+  ],
+  "thinkingHint": "3 bậc giống nhau ở đâu, khác nhau ở đâu?",
+  "feedback": {
+    "TOO_MANY_BLOCKS": "Nhiều khối quá. Đoạn nào lặp lại? Dạy thành phép được không?"
+  }
+}
