@@ -35,6 +35,7 @@ export const VOICED_UI_KEYS: readonly string[] = [
   'hints.global',
   'hints.nextStep.add',
   'hints.nextStep.addTop',
+  'hints.nextStep.moveTop',
   'hints.nextStep.move',
   'hints.nextStep.moveWithTail',
   'hints.nextStep.edit',

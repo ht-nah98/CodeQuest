@@ -1,0 +1,113 @@
+{
+  "id": "maze-spells",
+  "worldId": "_sandbox",
+  "stage": "practice",
+  "kind": "maze",
+  "mode": "build",
+  "title": "Thử phép thuật",
+  "objective": "Dạy phép bậc thang, rồi làm phép nhé!",
+  "learningGoal": "Dạy phép một lần, làm phép ở hai chỗ: Măng leo hai bậc.",
+  "misconception": "Phép chạy ngay khi dạy.",
+  "toolbox": ["maze_forward", "maze_turn_left", "maze_turn_right", "cq_proc_def", "cq_proc_call"],
+  "par": 8,
+  "maxBlocks": 9,
+  "maxLoopDepth": 1,
+  "maxInstances": {
+    "cq_proc_def": 1
+  },
+  "procedures": [
+    {
+      "id": "stair",
+      "name": "bậc thang"
+    }
+  ],
+  "config": {
+    "map": ["######", "###.G#", "##..##", "#S.###", "######"],
+    "startDir": "E"
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_proc_call",
+              "id": "c1",
+              "fields": {
+                "PROC": "stair"
+              },
+              "next": {
+                "block": {
+                  "type": "cq_proc_call",
+                  "id": "c2",
+                  "fields": {
+                    "PROC": "stair"
+                  },
+                  "next": {
+                    "block": {
+                      "type": "maze_forward",
+                      "id": "f1"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "cq_proc_def",
+          "id": "def_stair",
+          "x": 300,
+          "y": 40,
+          "fields": {
+            "PROC": "stair"
+          },
+          "inputs": {
+            "BODY": {
+              "block": {
+                "type": "maze_forward",
+                "id": "s1",
+                "next": {
+                  "block": {
+                    "type": "maze_turn_left",
+                    "id": "s2",
+                    "next": {
+                      "block": {
+                        "type": "maze_forward",
+                        "id": "s3",
+                        "next": {
+                          "block": {
+                            "type": "maze_turn_right",
+                            "id": "s4"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "no-spell",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "NO_SPELL"
+      },
+      "say": "Dạy phép trước, rồi mới làm phép nhé!",
+      "point": "toolbox:cq_proc_def"
+    }
+  ],
+  "thinkingHint": "Đoạn nào lặp lại?"
+}

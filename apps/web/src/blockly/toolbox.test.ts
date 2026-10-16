@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { COMMON_BLOCKS, type BlockSpec } from '@codequest/engine';
-import { BLOCK_STYLE_BY_CATEGORY } from './theme';
+import { BLOCK_STYLE_BY_CATEGORY, codequestTheme } from './theme';
 import { buildToolbox, FLYOUT_LABEL_CLASS, knownBlockSpecs } from './toolbox';
 
 const move = (type: string): BlockSpec => ({
@@ -78,6 +78,62 @@ describe('buildToolbox', () => {
       kind: 'flyoutToolbox',
       contents: [],
     });
+  });
+});
+
+describe('buildToolbox: spells (ADR-0023 §6)', () => {
+  const procedures = [
+    { id: 'stair', name: 'bậc thang' },
+    { id: 'around', name: 'vòng cột' },
+  ];
+  const level = {
+    mode: 'build' as const,
+    toolbox: ['maze_forward', 'cq_proc_def', 'cq_proc_call'],
+    procedures,
+  };
+
+  it('gives one "dạy phép" and one "làm phép" per spell, in a "PHÉP THUẬT" group', () => {
+    expect(buildToolbox(level).contents).toEqual([
+      label('DI CHUYỂN'),
+      { kind: 'block', type: 'maze_forward' },
+      label('PHÉP THUẬT'),
+      { kind: 'block', type: 'cq_proc_def', fields: { PROC: 'stair' } },
+      { kind: 'block', type: 'cq_proc_def', fields: { PROC: 'around' } },
+      { kind: 'block', type: 'cq_proc_call', fields: { PROC: 'stair' } },
+      { kind: 'block', type: 'cq_proc_call', fields: { PROC: 'around' } },
+    ]);
+  });
+
+  it('hides the "dạy phép" of a spell already taught on the workspace, never its "làm phép"', () => {
+    const types = buildToolbox(level, undefined, new Set(['stair'])).contents.map((item) =>
+      'type' in item
+        ? `${item.type}:${String((item.fields as { PROC?: string } | undefined)?.PROC)}`
+        : 'label',
+    );
+    expect(types).toEqual([
+      'label',
+      'maze_forward:undefined',
+      'label',
+      'cq_proc_def:around',
+      'cq_proc_call:stair',
+      'cq_proc_call:around',
+    ]);
+  });
+
+  it('keeps a pinned spell entry as it is', () => {
+    const pinned = { type: 'cq_proc_call', fields: { PROC: 'around' } };
+    expect(buildToolbox({ ...level, toolbox: [pinned] }).contents).toEqual([
+      label('PHÉP THUẬT'),
+      { kind: 'block', ...pinned },
+    ]);
+  });
+
+  it('draws "dạy phép" as a hat block, with its own style', () => {
+    expect(knownBlockSpecs().map((spec) => spec.type)).toEqual(
+      expect.arrayContaining(['cq_proc_def', 'cq_proc_call']),
+    );
+    expect(BLOCK_STYLE_BY_CATEGORY.function).toBe('procedure_blocks');
+    expect(codequestTheme.blockStyles['procedure_blocks']?.hat).toBe('cap');
   });
 });
 

@@ -23,6 +23,11 @@ const AtomicConditionSchema = z.strictObject({
   missing: z.string().min(1).optional(),
   orphans: z.boolean().optional(),
   capacityFull: z.boolean().optional(),
+  /**
+   * A block type whose `maxInstances` cap is used up in the program (W8: "Chỉ 1 khối gắp…").
+   * False when the level sets no cap for that type.
+   */
+  instancesFull: z.string().min(1).optional(),
   lastResult: RunResultSchema.optional(),
   lastReason: z.string().min(1).optional(),
   runCount: NumCmpSchema.optional(),

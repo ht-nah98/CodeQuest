@@ -95,6 +95,18 @@ describe('matches: each condition key (hint-engine.md §3)', () => {
       no: { capacityLeft: 0 },
     },
     {
+      key: 'instancesFull (cap used up)',
+      cond: { instancesFull: 'robot_grab' },
+      yes: { analysis: analysis(3, { robot_grab: 1 }), maxInstances: { robot_grab: 1 } },
+      no: { analysis: analysis(3, { robot_forward: 2 }), maxInstances: { robot_grab: 1 } },
+    },
+    {
+      key: 'instancesFull (no cap for the type)',
+      cond: { not: { instancesFull: 'robot_grab' } },
+      yes: { analysis: analysis(3, { robot_grab: 5 }), maxInstances: { cq_repeat: 1 } },
+      no: { analysis: analysis(3, { robot_grab: 2 }), maxInstances: { robot_grab: 2 } },
+    },
+    {
       key: 'lastResult',
       cond: { lastResult: 'timeout' },
       yes: { lastOutcome: { result: 'timeout', reasonCode: 'TIMEOUT' } },

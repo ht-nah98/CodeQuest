@@ -176,6 +176,8 @@ export function LessonDemo({
     );
     return () => {
       controller.abort();
+      // A lit "dạy phép" left by the replay belongs to this stage's run.
+      spell(null);
       stageRef.current?.destroy();
       stageRef.current = null;
       setReady(false);

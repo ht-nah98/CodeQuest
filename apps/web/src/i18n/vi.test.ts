@@ -31,6 +31,36 @@ describe('phase 4 strings (P4-06a)', () => {
     }
   });
 
+  it('keeps the other phase 4 lines short', () => {
+    for (const line of [
+      vi.play.blockLimit.spellLoopDepth,
+      vi.play.blockLimit.spellBodyLoopDepth,
+      vi.hints.nextStep.addTop,
+      vi.hints.nextStep.moveTop,
+      vi.editor.spellsUnsupported,
+    ]) {
+      expect(wordCount(line)).toBeLessThanOrEqual(12);
+    }
+  });
+
+  it('says "khối lặp", never "vòng" (one iteration), when a spell drop is refused', () => {
+    expect(vi.play.blockLimit.spellLoopDepth).toBe(
+      'Phép có khối lặp rồi. Đừng đặt nó trong khối lặp nhé!',
+    );
+    expect(vi.play.blockLimit.spellBodyLoopDepth).toBe(
+      'Phép này đang ở trong khối lặp. Đừng thêm lặp nhé!',
+    );
+    // Every spell line says "khối lặp" / "lặp", never "vòng" (one iteration, glossary.md).
+    for (const line of [
+      vi.play.blockLimit.spellLoopDepth,
+      vi.play.blockLimit.spellBodyLoopDepth,
+      vi.play.spells.casting('bậc thang'),
+      ...Object.values(vi.results.phase4Reasons),
+    ]) {
+      expect(line).not.toMatch(/vòng/u);
+    }
+  });
+
   it('builds the replay bubble and the turtle HUD with the number as digits', () => {
     expect(vi.play.spells.casting('bậc thang')).toBe('Đang làm phép «bậc thang»');
     expect(vi.play.turtle.linesLeft(5)).toBe('Còn 5 nét');

@@ -33,6 +33,8 @@ export function nextStepMessage(step: NextStep | null): string {
     case 'add':
       return step.anchor.blockId === '' ? t.addTop : t.add;
     case 'move':
+      // To no block (a new top stack): there is no arrow target to name.
+      if (step.anchor.blockId === '') return t.moveTop;
       return step.withTail ? t.moveWithTail : t.move;
     case 'edit':
       return t.edit;
@@ -103,15 +105,21 @@ function outlines(workspace: WorkspaceSvg, step: NextStep | null): Array<[BlockS
     const block = workspace.getBlockById(id);
     if (block) marks.push([block, className]);
   };
-  const markFlyout = (type: unknown) => {
+  // The flyout block that matches the step's block: same type and, for a spell block, the
+  // same spell (the flyout has one "làm phép" per spell, ADR-0023 §6).
+  const markFlyout = (wanted: Record<string, unknown>) => {
+    const fields = wanted['fields'] as { PROC?: unknown } | undefined;
+    const spell = fields?.PROC;
     for (const block of workspace.getFlyout()?.getWorkspace().getTopBlocks(false) ?? []) {
-      if (block.type === type) marks.push([block, 'cq-step-flyout']);
+      if (block.type !== wanted['type']) continue;
+      if (spell !== undefined && block.getFieldValue('PROC') !== spell) continue;
+      marks.push([block, 'cq-step-flyout']);
     }
   };
   switch (step?.kind) {
     case 'add':
       mark(step.anchor.blockId, 'cq-step-anchor');
-      markFlyout(step.block['type']);
+      markFlyout(step.block);
       break;
     case 'move':
       mark(step.anchor.blockId, 'cq-step-anchor');
@@ -122,7 +130,7 @@ function outlines(workspace: WorkspaceSvg, step: NextStep | null): Array<[BlockS
       break;
     case 'replace':
       mark(step.blockId, 'cq-step-wrong');
-      markFlyout(step.block['type']);
+      markFlyout(step.block);
       break;
     case 'remove':
       mark(step.blockId, 'cq-step-wrong');

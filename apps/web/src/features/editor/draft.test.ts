@@ -6,6 +6,7 @@ import {
   applyRunnerTool,
   draftFromJson,
   draftMaps,
+  hasSpells,
   issueField,
   levelFileText,
   levelJson,
@@ -384,5 +385,15 @@ describe('maps of a multi-map draft (P2-12)', () => {
     const mapIssues = (result.byField.get('config') ?? []).map((issue) => issue.message);
     expect(mapIssues.some((message) => message.startsWith('variants.0.'))).toBe(true);
     expect(result.playable).toBe(false);
+  });
+});
+
+describe('hasSpells (P4-06: the editor does not edit spell levels yet)', () => {
+  it('is true only for a level with procedures', () => {
+    expect(hasSpells({ kind: 'maze', procedures: [{ id: 'stair', name: 'bậc thang' }] })).toBe(
+      true,
+    );
+    expect(hasSpells({ kind: 'maze' })).toBe(false);
+    expect(hasSpells(null)).toBe(false);
   });
 });

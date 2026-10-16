@@ -52,6 +52,7 @@ interface AtomicCondition {          // các khóa trong một object được A
   missing?: string;                  // không có khối type này trong chương trình
   orphans?: boolean;                 // có khối rời
   capacityFull?: boolean;
+  instancesFull?: string;            // khối type này đã dùng hết `maxInstances` trong chương trình (W8: "Chỉ 1 khối gắp…"); màn không giới hạn type đó thì luôn sai
   lastResult?: RunResult;
   lastReason?: string;
   runCount?: NumCmp;

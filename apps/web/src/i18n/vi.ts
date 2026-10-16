@@ -100,8 +100,11 @@ export const vi = {
       loopDepthMax: (depth: number) =>
         `Màn này chỉ cho ${String(depth)} khối lặp chồng vào nhau nhé!`,
       instances: 'Khối này đủ rồi. Dùng lại khối đã có nhé!',
-      // A `làm phép` whose spell loops, dropped into a loop (ADR-0023 §3, effective depth).
-      spellLoopDepth: 'Phép này có vòng lặp rồi. Bỏ ra ngoài nhé?',
+      // A `làm phép` whose spell has a loop inside a loop, or a loop put into such a spell called
+      // in a loop (ADR-0023 §3, effective depth). "Vòng" is one iteration: say "khối lặp".
+      spellLoopDepth: 'Phép có khối lặp rồi. Đừng đặt nó trong khối lặp nhé!',
+      // A loop put into the body of a spell that is cast inside a loop.
+      spellBodyLoopDepth: 'Phép này đang ở trong khối lặp. Đừng thêm lặp nhé!',
     },
     winPar: (blocks: number) => `Chỉ ${String(blocks)} khối, đúng bằng số chuẩn!`,
     winUnderPar: (blocks: number) => `Chỉ ${String(blocks)} khối, ít hơn cả số chuẩn!`,
@@ -261,6 +264,7 @@ export const vi = {
       add: 'Ghép khối này vào chỗ sáng nhé!',
       // A missing top block (a `dạy phép`, ADR-0023): no anchor to light, it goes anywhere.
       addTop: 'Kéo khối này ra vùng ghép khối nhé!',
+      moveTop: 'Kéo khối sáng ra chỗ trống nhé!',
       move: 'Kéo khối sáng tới chỗ có mũi tên nhé!',
       moveWithTail: 'Kéo khối sáng, cả các khối dưới nó, tới mũi tên nhé!',
       edit: 'Sửa khối sáng cho giống khối này nhé!',
@@ -694,7 +698,7 @@ export const vi = {
     openFile: 'Chọn file .json',
     openFailed: 'File này không phải màn đường chạy hay mê cung.',
     // ADR-0023: no editor UI for spells yet (P4-06).
-    spellsUnsupported: 'Chưa hỗ trợ phép thuật: màn này có phép, chưa sửa được ở đây.',
+    spellsUnsupported: 'Chưa hỗ trợ phép thuật. Màn này có phép.',
     droppedKeys: (keys: string) => `Bỏ các trường không phải của màn: ${keys}.`,
     download: 'Tải .json',
     copy: 'Sao chép JSON',

@@ -27,6 +27,12 @@ function atomicChecks(cond: AtomicCondition): Check[] {
   add(cond.missing, (v, ctx) => (ctx.analysis.blockTypesUsed[v] ?? 0) === 0);
   add(cond.orphans, (v, ctx) => ctx.analysis.orphanBlockIds.length > 0 === v);
   add(cond.capacityFull, (v, ctx) => ctx.capacityLeft <= 0 === v);
+  // Counted in the program (`blockTypesUsed`), like `has`; Blockly's flyout cap also counts
+  // loose blocks, so a loose copy can grey the block out a little before this matches.
+  add(cond.instancesFull, (type, ctx) => {
+    const max = ctx.maxInstances?.[type];
+    return max !== undefined && (ctx.analysis.blockTypesUsed[type] ?? 0) >= max;
+  });
   add(cond.lastResult, (v, ctx) => ctx.lastOutcome?.result === v);
   add(cond.lastReason, (v, ctx) => ctx.lastOutcome?.reasonCode === v);
   add(cond.runCount, (v, ctx) => compare(ctx.runCount, v));
