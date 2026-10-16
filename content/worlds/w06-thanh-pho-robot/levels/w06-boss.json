@@ -19,6 +19,7 @@
   "maxBlocks": 21,
   "maxLoopDepth": 1,
   "par": 19,
+  "parUnproven": true,
   "config": {
     "map": ["r.....Z", ".#.#.#.", "...L...", ".#.#.#.", "......."],
     "startDir": "N",

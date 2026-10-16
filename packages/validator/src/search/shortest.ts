@@ -888,7 +888,7 @@ export function boxedSpells(level: Level): Set<string> {
 }
 
 /** Most numbers tried for an unpinned `làm phép … với [n]` (like a `field_number`). */
-const MAX_CALL_NUMBERS = 9;
+export const MAX_CALL_NUMBERS = 9;
 
 /**
  * The `làm phép` statements the toolbox offers (ADR-0023 §4): `cq_proc_call` for each spell

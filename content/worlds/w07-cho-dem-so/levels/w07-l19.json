@@ -52,6 +52,7 @@
   },
   "maxLoopDepth": 1,
   "par": 11,
+  "parUnproven": true,
   "parEdits": 3,
   "variables": [
     {

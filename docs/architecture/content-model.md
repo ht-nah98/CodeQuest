@@ -92,6 +92,7 @@ interface Level {
   maxInstances?: Record<string, number>;     // số khối tối đa mỗi type (Blockly chặn khi thả; luật 20)
   maxLoopDepth?: number;                     // số tầng vòng lặp lồng nhau tối đa (cq_repeat, cq_repeat_until), ≥ 1; 1 = không lặp lồng (P2-11, T16b; luật 20)
   par?: number;                             // bắt buộc với build/parsons
+  parUnproven?: true;                       // par tính tay, vét cạn không chứng minh được trong ngân sách (ADR-0023 §4 chế độ 3); `npm run par` chỉ ⚠; lý do ở "Ghi chú khi soạn"
   parEdits?: number;                        // bughunt, mặc định 1
   config: unknown;                          // kiểm bằng configSchema của kind; điều kiện thắng phụ (vd goal.collectAll, goal.items) nằm TRONG config
   variants?: unknown[];                     // 1–2 bản đồ thêm, cùng kind (P2-12, ADR-0016); chỉ build/bughunt; chương trình phải thắng MỌI bản đồ
@@ -99,9 +100,10 @@ interface Level {
   initialWorkspace?: WorkspaceJson;         // bắt buộc với parsons (khối xáo trộn), predict, bughunt
   solution?: WorkspaceJson;                 // bắt buộc trừ predict/creative
   variables?: Array<{ id: string; name: string; start?: number[]; max?: number }>;  // hộp (P3-09, ADR-0022): 1–2; id ^[a-z][a-z0-9_]*$; start một số mỗi bản đồ (mặc định 0); max 1–20 (mặc định 9)
+  procedures?: Array<{ id: string; name: string; param?: { id: string; name: string; max?: number } }>;  // phép thuật (P4-02, ADR-0023): 1–3; id ^[a-z][a-z0-9_]*$, không trùng nhau và không trùng id hộp; name ≤ 3 chữ (luật 25 (f)); param = hộp của phép (P4-04), max 1–20 (mặc định 9)
   countGoal?: { var: string; equals: number[] };  // "đếm đúng": hộp `var` (đã khai báo) bằng equals[i] ngay lúc thắng bản đồ i; chỉ build/bughunt/parsons
   exam?: { runs: number; seed: number };    // thi thử (P3-08): runs 1–3, seed 1–9999 = đề trong config; chỉ robotlab mode creative (luật 22)
-  predict?: { options: Array<{ key: string; label: string }>; };  // key theo predictAnswer; label ≤ 4 chữ; hình vẽ từ key + config (AnswerPicture, stage-rendering.md §4); đáp án đúng do engine tính
+  predict?: { options: Array<{ key?: string; drawProgram?: WorkspaceJson; label: string }>; };  // đúng một trong key / drawProgram (drawProgram chỉ turtle, ADR-0024 §5: khóa = answerKey của lần chạy chương trình đó, `predictOptionKey`); key theo predictAnswer; label ≤ 4 chữ; hình vẽ từ key + config (AnswerPicture, stage-rendering.md §4); đáp án đúng do engine tính
   hints: HintRule[];                        // gợi ý tầng 0 (xem hint-engine.md)
   thinkingHint?: string;                    // gợi ý tầng 1, bắt buộc trừ creative
   feedback?: Partial<Record<string, string>>;   // ghi đè câu theo reasonCode
@@ -116,7 +118,7 @@ interface Lesson {
 }
 type LessonCard =
   | { type: 'say'; pose: MascotPose; text: string; image?: string }
-  | { type: 'demo'; text: string; kind: GameKindId; config: unknown; workspace: WorkspaceJson; autoplay?: boolean; variables?: LevelVariable[] /* hộp của demo (ADR-0022 §2b); start dài 1 */ }
+  | { type: 'demo'; text: string; kind: GameKindId; config: unknown; workspace: WorkspaceJson; autoplay?: boolean; variables?: LevelVariable[] /* hộp của demo (ADR-0022 §2b); start dài 1 */; procedures?: LevelProcedure[] /* phép của demo (ADR-0023), như của màn */ }
   | { type: 'quiz'; text: string; options: string[]; correct: number; explain: string };
 type MascotPose = 'idle' | 'talk' | 'happy' | 'cheer' | 'think' | 'point' | 'oops';
 
@@ -201,14 +203,14 @@ Chạy `npm run content:check`. Báo lỗi (exit 1) nếu vi phạm bất kỳ l
 13. `parsons`: tập khối của `initialWorkspace` = tập khối của `solution` (chỉ khác thứ tự/vị trí), và `initialWorkspace` **không** tự thắng. Vì vậy màn ghép hình không có khối gây nhiễu: lúc chơi, bé phải ghép **mọi** khối được cho, thắng mà còn khối rời là `incomplete` / `LOOSE_BLOCKS` (câu G22, `runtime-engine.md` §2); luật 9 chạy `solution` đúng mode nên lời giải có khối rời sẽ đỏ. Từ review P2-14 (G22 mở rộng), thắng ở `parsons` còn cần mọi khối đã chạy và không có thân lặp / nhánh trống (`UNUSED_BLOCKS`), nên luật 9 cũng đỏ khi lời giải có khối không bao giờ chạy trên bản đồ của màn.
 14. `bughunt`: `initialWorkspace` **phải thua**; `editDistance(initial, solution) ≤ parEdits`.
 15. `predict`: chạy `initialWorkspace` lấy `answerKey`, phải trùng đúng 1 `options[].key`; số phương án 3–4.
-16. Hint: `point: "toolbox:<type>"` phải trỏ tới khối có trong toolbox; `point: "block:<type>"` phải trỏ tới khối có trong `initialWorkspace` hoặc `solution`, và ở mode `predict`/`bughunt` chương trình cho sẵn chỉ có **đúng một** khối loại đó (màn chơi chỉ vào khối đầu tiên: khối trong chương trình, hoặc khối rời khi điều kiện có `orphans: true`; `apps/web/src/blockly/hintPointer.ts`), nên câu gợi ý không chỉ nhầm khối; `when.lastReason` phải là reasonCode có thật của `kind` hoặc của engine.
+16. Hint: `point: "toolbox:<type>"` phải trỏ tới khối có trong toolbox; `point: "block:<type>"` phải trỏ tới khối có trong `initialWorkspace` hoặc `solution`, và ở mode `predict`/`bughunt` chương trình cho sẵn chỉ có **đúng một** khối loại đó (màn chơi chỉ vào khối đầu tiên: khối trong chương trình, hoặc khối rời khi điều kiện có `orphans: true`; `apps/web/src/blockly/hintPointer.ts`), nên câu gợi ý không chỉ nhầm khối; `when.lastReason` phải là reasonCode có thật của `kind` hoặc của engine. Một gợi ý có điều kiện `instancesFull: <type>` (W8) cần `maxInstances` của màn có trần cho type đó (P4-05).
 17. Mọi reasonCode của engine (`ENGINE_REASONS`) và của mọi kind có câu trong `content/shared/feedback.json` (nguồn duy nhất của câu phản hồi).
 
 **Mục tiêu sao** (P2-21)
 19. Màn có `starGoals`: kiểu game chấm được mục tiêu sao (`checkStarGoal`); không mục tiêu nào **đã đạt sẵn trên mọi bản đồ** trước khi Măng đi (vd `collectAll` mà không bản đồ nào có măng); `collectAll` không thừa (mọi bản đồ có măng đều đã đặt `config.goal.collectAll`, nên thắng là đạt); `solution` thắng thì phải đạt **mọi** mục tiêu trên **mọi** bản đồ. Chứng minh `par` đúng theo mục tiêu là việc của `npm run par` (§8).
 
 **Giới hạn khối** (P2-11)
-20. `solution` và `initialWorkspace` không vượt `maxLoopDepth` (số tầng vòng lặp `cq_repeat` / `cq_repeat_until` lồng nhau, hàm `loopDepth` của engine) và `maxInstances` (số khối mỗi type, tính cả khối rời, như Blockly đếm). Nếu vượt, bé không ghép lại được lời giải, hoặc nhận một chương trình mà vùng ghép không cho tạo.
+20. `solution` và `initialWorkspace` không vượt `maxLoopDepth` (số tầng vòng lặp `cq_repeat` / `cq_repeat_until` / `cq_repeat_var` lồng nhau **hiệu dụng**, hàm `loopDepth` của engine: một `làm phép` tính bằng số vòng lặp quanh nó + độ sâu trong thân phép, ADR-0023 §3; luật 25 (i)) và `maxInstances` (số khối mỗi type, tính cả khối rời, như Blockly đếm). Nếu vượt, bé không ghép lại được lời giải, hoặc nhận một chương trình mà vùng ghép không cho tạo.
 
 **Truyện** (P2-24)
 21. `world.chapters` (nếu có): `id` không trùng; `title` ≤ 5 chữ, mỗi dòng ≤ 12 chữ, không dùng ✔/✘ (font không có); chương 1 **không** có `unlockAfter`, mọi chương sau **phải** có; `unlockAfter` là màn trong `levelIds` của chính thế giới, đang dùng (không `retired`), chặng `guided`/`practice`/`boss` (bé nào cũng đi qua; `challenge`, `creative`, `bonus` là tùy chọn), và đứng **sau** màn mở chương trước (đúng thứ tự truyện). Số dòng 2–4 và `art` do schema (luật 1) kiểm. Lỗi ghi vd `rule 21: chapter "ket" unlockAfter "w01-l01" must come after the previous chapter's level`. Cài ở `tools/content-check/src/story.ts`; fixture `rule-21-story-chapters/`.
@@ -232,6 +234,7 @@ Chạy `npm run content:check`. Báo lỗi (exit 1) nếu vi phạm bất kỳ l
     - (l) Măng trên ô `G`: không cần kiểm, một ô maze chỉ có một ký tự nên `b` không bao giờ trùng `G`.
     - (R4) `build` / `bughunt` có hộp: thanh khối có `lặp [hộp] lần` hoặc `so sánh` cần ≥ 2 bản đồ; màn chỉ đếm (`countGoal`, không khối lái) cần ≥ 2 bản đồ có `equals` khác nhau. Phần "bỏ khối biến thì không thắng tới `par`" là test của thế giới (`withoutVariables`, `conventions/content-authoring.md` §2.2).
     - Luật 7 (khối mới lần đầu) nhận khối biến như mọi khối. Luật 17: `WRONG_COUNT` và `BOX_FULL` có câu trong `feedback.json` của nội dung và mọi fixture.
+    - **Hộp của phép** (P4-04, ADR-0023 §2): `procedures[].param` là hộp đã khai báo ở (b), (c), (e), (k); (e)/(k) xét cả `NUM` của `làm phép … với` so với `param.max`; (j) đuôi khóa đoán **chỉ** gồm hộp của màn; (R4) màn chỉ có hộp của phép cần lời giải có ≥ 2 lần `làm phép … với` mang số khác nhau (phép thử "bỏ khối phép" là R5, `spellsNeeded`). Test ở `packages/validator/src/spellBoxRules.test.ts`.
 
 **Độ khó** (đợt tăng độ khó, `roadmap/difficulty-pass.md` §3.2)
 24. ⚠ **Chỉ cảnh báo.** Luật soạn M1–M3 của `conventions/content-authoring.md` §2.3, cài ở `tools/content-check/src/difficulty.ts` (luật liên file vì cần thứ tự trong thế giới), xét các màn đang dùng theo `levelIds`, từ thế giới `order` ≥ 2:
@@ -273,6 +276,25 @@ Cách hiểu chi tiết (cài đặt ở P1-11):
 - **Từ P0-01:** bản tối thiểu, chỉ chạy luật 1–2 (schema, ID) trên những file đang có. Thư mục `content/` rỗng thì xanh. Vì zod schema có ở P0-02, luật 1 lúc này chỉ kiểm JSON hợp lệ và có `id` dạng chuỗi; P0-02 nối schema vào. Khu nháp `_*` được miễn mẫu ID nhưng vẫn phải có `id` trùng tên file và không trùng ID khác. Level/lesson phải có tiền tố `wNN-` trùng thư mục thế giới. Trong `shared/` chỉ chấp nhận `feedback.json`, `shop.json`, `badges.json`.
 - **Từ P0-02:** luật 1 kiểm mọi file bằng schema zod (lỗi kèm đường dẫn trường, vd `mode: Invalid option…`), và `level.config` bằng `configSchema` của `kind` lấy từ registry `@codequest/games`; kiểu game chưa cài → lỗi luật 1 `game kind "x" is not implemented yet`. Luật 2 kiểm thêm ID vật phẩm (`<loại>-<slug>`, tiền tố phải trùng `kind`) và huy hiệu (kebab-case), không trùng với mọi ID khác.
 - **P0-07:** thêm luật 9–11 cho `runner`. Luật 9 chạy `runLevel(solution)` đúng mode của màn; khi thua, chạy lại ở mode `predict` để in chỗ dừng, vd `rule 9: solution ends crash FELL_IN_HOLE (crash:FELL_IN_HOLE@2)`. Luật 11 đọc mọi khối (không tính shadow) trong JSON của `solution`, kể cả khối rời và khối lồng trong `inputs`. `world.json` của `w01-lang-tre` lúc này là **bản tạm**: chỉ liệt kê các màn đã có (`w01-l03`), `lessonIds` rỗng. Bổ sung dần khi soạn đủ Thế giới 1 (P1-12).
+**Phép thuật** (P4-05, ADR-0023 §5)
+25. Màn có `procedures` hoặc khối `cq_proc_*`; chỉ kiểm tĩnh, không vét cạn. Lỗi ghi `rule 25: (<mục>) …`, (f) và (g) là ⚠. Cài ở `tools/content-check/src/procedures.ts`; fixture `spells-samples/` và `extra-25<mục>-…/`, test ở `tools/content-check/src/procedures.test.ts`.
+    - (a) `PROC` trong thanh khối (khi ghim), `solution`, `initialWorkspace` là phép đã khai báo.
+    - (b) `cq_proc_def_n` / `cq_proc_call_n` chỉ cho phép có `param`; phép có `param` chỉ dùng hai khối đó.
+    - (c) `solution` và chương trình của màn `predict` qua được kiểm tĩnh của engine (`SPELL_IN_SPELL`, `TWO_SPELLS`, `NO_SPELL`, `EMPTY_SPELL`, `BOX_OUTSIDE_SPELL`). Chương trình cho sẵn của `bughunt` (có thể là lỗi), `build` / `parsons` (bé làm tiếp, vd `dạy phép` còn trống) được miễn.
+    - (d) Khối phép ở thế giới < 8 (khu nháp `_*` được miễn).
+    - (e) Mục thanh khối `cq_proc_call_n` không ghim `NUM` khi hộp có `max` > 9 (vét cạn chỉ thử 1…9 khi không ghim).
+    - (f) ⚠ Tên phép > 3 chữ.
+    - (g) ⚠ `solution` làm một phép < 2 lần (`làm phép` trong vòng lặp tính 2). Màn `predict` được miễn (ý "dạy mà không làm").
+    - (h) Id phép trùng id hộp: schema bắt (luật 1).
+    - (i) Độ sâu hiệu dụng của lời giải ≤ `maxLoopDepth`: luật 20 bắt.
+    - (j) `cq_var_set` / `cq_var_add` / `cq_var_compare` không dùng hộp của phép (v1 chỉ `lặp [hộp] lần` đọc nó).
+    - Luật 7 nhận `cq_proc_*` như mọi khối mới (lần đầu ở W8). Luật 17: `NO_SPELL`, `TWO_SPELLS`, `EMPTY_SPELL`, `SPELL_IN_SPELL`, `BOX_OUTSIDE_SPELL` có câu trong `feedback.json` của nội dung và mọi fixture.
+    - Luật 24 với phép: hình lời giải = chương trình chính rồi các thân phép (theo `procedures`); thêm (M2) cho **họ thân phép** (chuỗi khối của thân, coi như vòng tròn: xoay vòng và ảnh gương là cùng họ; `spellFamily`): một họ dùng ở ≤ 2 màn trong thế giới, lần thứ hai khác mode. Với `turtle`, hình bỏ cả số bước và số độ (`DEG`).
+
+**`turtle`** (P4-08, ADR-0024)
+26. Luật của kiểu game `turtle` (hình mẫu trên lưới, `start`, góc ghim, khóa `drawProgram`), cài ở `tools/content-check/src/turtle.ts` (xem ADR-0024).
+
+- **P4-02 … P4-05 (15–16/10/2026):** trường `procedures`, `parUnproven`, `predict.options[].drawProgram`; thẻ `demo` có `procedures`; mã engine của phép (luật 17); **luật 25** và **luật 26**; luật 20 dùng độ sâu hiệu dụng; luật 23 hiểu hộp của phép. Dòng tổng kết in `rules 1–26`; output của W1–W7 không đổi.
 - **P1-11:** đủ 18 luật, fixture cho từng luật (`tools/content-check/fixtures/`), tùy chọn `--dir`. **Thế giới tạm:** bảng `PROVISIONAL_WORLDS` trong `tools/content-check/src/curriculum.ts` ghi các thế giới mà `world.json` còn là bản tạm (từ P1-12 bảng đang rỗng; `w01-lang-tre` đã đủ bài giảng và boss). Với chúng, luật 4 và 7 chỉ **cảnh báo** (kèm chữ `provisional world until P1-12`) thay vì báo lỗi, vì thế giới còn thiếu bài giảng, boss và các màn đầu (vd `runner_walk` sẽ được giới thiệu ở `w01-l01`). Mọi luật khác vẫn là lỗi như thường. Không thêm trường mới vào schema cho việc này. Thế giới nào mới dựng dở có thể tạm thêm vào bảng, và phải xóa khi đủ bài giảng và boss.
 - **P2-12:** trường `variants` (màn nhiều bản đồ, ADR-0016); luật 1, 9, 14 xét mọi bản đồ; hai fixture `extra-02`, `extra-03`. Output của màn một bản đồ không đổi.
 - **P2-21 + P2-11c:** trường `starGoals`, `mission`, `goalSprite`; luật 5 đếm chữ `mission`; thêm **luật 19** (mục tiêu sao) và fixture `rule-19-star-goal-missed/`. Dòng tổng kết in `rules 1–19`; output của mọi màn không có `starGoals` không đổi.

@@ -6,11 +6,17 @@
  * world, and the second time needs another mode or another kind of map. M3: the maps of a
  * multi-map maze level with a question differ in shape, not only in length.
  * Guided levels (block intros) and World 1 are exempt; why: content-authoring.md §2.2.
+ *
+ * Spells (ADR-0023 §5): a shape is the main program then each spell body; and each family of
+ * spell bodies (the body's blocks as a cycle: a rotation or a mirror image is the same family)
+ * appears in at most 2 levels of a world, the second in another mode. Turtle (ADR-0024): step
+ * counts and degrees are dropped too, so "square of 2" and "triangle of 3" can share a shape.
  */
 import type { Level, World } from '@codequest/content-schema';
 import { CONDITION_BLOCK_TYPES } from '@codequest/engine';
 import {
   blockTypesOf,
+  definitionsFromWorkspace,
   programFromWorkspace,
   type Condition,
   type Program,
@@ -33,11 +39,14 @@ const FIRST_CHECKED_WORLD = 2;
 const TWO_JUNCTIONS_FROM_WORLD = 4;
 const MAX_SHAPE_USES = 2;
 
+/** Fields that are numbers in disguise: a turtle turn's degrees (a dropdown of '30'…'180'). */
+const NUMBER_FIELDS: ReadonlySet<string> = new Set(['DEG']);
+
 /** `name(FIELD=value)` without the `<kind>_` prefix; numbers (lặp N, tiến N ô) are dropped. */
 function blockName(type: string, fields: Readonly<Record<string, unknown>> | undefined): string {
   const name = type.replace(/^[a-z0-9]+_/, '');
   const kept = Object.entries(fields ?? {})
-    .filter(([, value]) => typeof value !== 'number')
+    .filter(([key, value]) => typeof value !== 'number' && !NUMBER_FIELDS.has(key))
     .map(([key, value]) => `${key}=${String(value)}`);
   return kept.length === 0 ? name : `${name}(${kept.join(' ')})`;
 }
@@ -81,10 +90,43 @@ export function levelShape(level: Level): string | null {
   if (workspace === undefined) return null;
   const program = programFromWorkspace(workspace);
   if (program === null || program.length === 0) return null;
+  // Spells: the main program, then each body in `procedures` order (ADR-0023 §5).
+  const defs = definitionsFromWorkspace(workspace) ?? {};
+  const bodies = (level.procedures ?? [])
+    .flatMap((procedure) => {
+      const body = defs[procedure.id];
+      return body === undefined ? [] : [` | spell [${programShape(body)}]`];
+    })
+    .join('');
   // A mirror image is the same recipe: "hỏi phải, rẽ phải" = "hỏi trái, rẽ trái" (M2).
-  const shape = programShape(program);
+  const shape = programShape(program) + bodies;
   const mirrored = mirrorShape(shape);
   return `${level.kind}: ${mirrored < shape ? mirrored : shape}`;
+}
+
+/**
+ * The family of a spell body (content-authoring.md §2.4): its statements as a cycle, so every
+ * rotation, and the mirror image of every rotation, gives the same family. Each rotation is
+ * shaped on its own (runs of a block merge after rotating), and the smallest text is the family.
+ */
+export function spellFamily(body: Program): string {
+  const variants: string[] = [];
+  for (let start = 0; start < Math.max(body.length, 1); start++) {
+    const shape = programShape([...body.slice(start), ...body.slice(0, start)]);
+    variants.push(shape, mirrorShape(shape));
+  }
+  return variants.sort()[0] ?? '';
+}
+
+/** The families of the spell bodies of a level's solution (or predict program). */
+function spellFamilies(level: Level): string[] {
+  if (level.mode === 'creative' || level.stage === 'creative') return [];
+  const workspace = level.mode === 'predict' ? level.initialWorkspace : level.solution;
+  if (workspace === undefined || level.procedures === undefined) return [];
+  const defs = definitionsFromWorkspace(workspace) ?? {};
+  return [...new Set(Object.values(defs).map(spellFamily))].map(
+    (family) => `${level.kind}: ${family}`,
+  );
 }
 
 /** Swaps left and right everywhere in a shape (`LEFT` ↔ `RIGHT`, `turn_left` ↔ `turn_right`). */
@@ -306,8 +348,29 @@ export function checkDifficulty({ worlds, pathOf }: DifficultyInput): Issue[] {
   for (const { world, levels } of worlds) {
     if (world.order < FIRST_CHECKED_WORLD) continue;
     const seen = new Map<string, Level[]>();
+    const families = new Map<string, Level[]>();
     for (const level of levels) {
       const graded = level.stage !== 'guided';
+
+      // M2 for spells: a body family in at most 2 levels, the second in another mode.
+      for (const family of spellFamilies(level)) {
+        const before = families.get(family) ?? [];
+        families.set(family, [...before, level]);
+        if (ladderOf(level.id) !== undefined) continue;
+        const [first] = before;
+        if (before.length >= MAX_SHAPE_USES) {
+          warn(
+            level,
+            `(M2) spell body "${family}" is already used in ${String(before.length)} levels of this world ` +
+              `(${before.map((other) => other.id).join(', ')}); max ${String(MAX_SHAPE_USES)}`,
+          );
+        } else if (first !== undefined && first.mode === level.mode) {
+          warn(
+            level,
+            `(M2) spell body "${family}" repeats ${first.id} in the same mode (${level.mode}); change the mode or the body`,
+          );
+        }
+      }
 
       // M1: a real maze has junctions and dead ends a wrong program can walk into.
       if (graded && level.kind === 'maze' && (level.mode === 'build' || level.mode === 'bughunt')) {

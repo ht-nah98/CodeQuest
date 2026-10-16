@@ -121,11 +121,11 @@ Thế giới 8 "🪄 Xưởng Phép Thuật" dạy **hàm** (thủ tục không 
 ### 5. `content:check` (luật 25; chỉ kiểm tĩnh, không vét cạn)
 - (a) `PROC` trong thanh khối, lời giải và chương trình cho sẵn là id đã khai báo.
 - (b) `cq_proc_def_n` / `cq_proc_call_n` chỉ dùng cho phép có `param`, và ngược lại.
-- (c) Lời giải và chương trình cho sẵn (trừ `bughunt`) không có `SPELL_IN_SPELL`, `TWO_SPELLS`, `NO_SPELL`, `EMPTY_SPELL`, `BOX_OUTSIDE_SPELL`.
+- (c) Lời giải và chương trình cho sẵn (trừ `bughunt`) không có `SPELL_IN_SPELL`, `TWO_SPELLS`, `NO_SPELL`, `EMPTY_SPELL`, `BOX_OUTSIDE_SPELL`. *(chỉnh ở P4-05, xem "Thực hiện (P4-05)")*
 - (d) Khối phép ở thế giới < 8 → lỗi (ngoài `_sandbox`).
-- (e) Ô `NUM` của `cq_proc_call_n` ghim trong thanh khối (như luật 23 (a)) và nằm trong `0…max`.
+- (e) Ô `NUM` của `cq_proc_call_n` ghim trong thanh khối (như luật 23 (a)) và nằm trong `0…max`. *(chỉnh ở P4-05, xem "Thực hiện (P4-05)")*
 - (f) `name` > 3 chữ → cảnh báo.
-- (g) Màn `build` có phép mà lời giải gọi mỗi phép < 2 lần → cảnh báo (phép không có ích).
+- (g) Màn `build` có phép mà lời giải gọi mỗi phép < 2 lần → cảnh báo (phép không có ích). *(chỉnh ở P4-05, xem "Thực hiện (P4-05)")*
 - (h) Id phép và id hộp không trùng nhau.
 - (i) Độ sâu vòng lặp hiệu dụng của lời giải ≤ `maxLoopDepth` (luật 20 dùng `loopDepth` mới).
 - (j) `cq_var_*` không dùng hộp của phép.
@@ -181,7 +181,22 @@ Heap lớn nhất 287 MB (chế độ 2 `l06`); mọi lượt chế độ 1 và 
 - R5: `spellsNeeded(level, options)` / `withoutProcedures(level)` của `@codequest/validator` (ngân sách mặc định 300 M work; người gọi truyền `shouldStop` cho 120 s).
 - Test tái lập số spike: `packages/validator/src/search/spells.test.ts` (cùng bản đồ, `spellLevels.ts`): `l03` 10 / 2 cách, chế độ 2 k = 3 → 9; `l11` 9 / 1; `l06` 14 / 1; `l08` với `maze_forward: 3` 10 / 40; R5 khớp cả 4 màn. **Khớp đúng số của spike.**
 
-## Hệ quả
+## Thực hiện (P4-04, hộp của phép)
+- Engine: `cq_proc_def_n`, `cq_proc_call_n`, `field_cq_proc_box`; `__call` đặt hộp = n (sau `call`), `__ret` đặt 0 (trước `ret`), mỗi lần một event `var`; `BOX_OUTSIDE_SPELL` kiểm tĩnh; `levelBoxes(level)` = hộp của màn rồi hộp của phép.
+- Vét cạn: hộp của phép nằm trong trạng thái (`FastSim.variables`), chương trình chính chỉ dùng hộp của màn; mỗi số của `làm phép … với` là một mục catalogue (số ghim, không ghim thì 1…`max`, tối đa 9); sửa số là 1 thao tác ở `findFixes`.
+- Luật 23: hộp của phép tính ở (b), (c), (e), (k); (j) chỉ hộp của màn; R4 của màn chỉ có hộp của phép: lời giải có ≥ 2 lần `làm phép … với` mang số khác nhau (`packages/validator/src/spellBoxRules.test.ts`).
+- Màn mẫu `_sandbox/proc-boxes`: `par` 9 (`cầu thang 1, tiến, cầu thang 3`), R5 chứng minh.
+
+## Thực hiện (P4-05, `content:check`)
+- Luật 25 ở `tools/content-check/src/procedures.ts` theo §5, với các chỗ chỉnh khi gặp nội dung W8 thật:
+  - (c) lời giải và chương trình của màn `predict` kiểm đủ; chương trình cho sẵn của `build` / `parsons` (bé làm tiếp) được có `EMPTY_SPELL`, `NO_SPELL` nhưng vẫn báo `TWO_SPELLS`, `SPELL_IN_SPELL`, `BOX_OUTSIDE_SPELL`; của `bughunt` không kiểm (có thể là lỗi).
+  - (e) chỉ bắt ghim `NUM` khi `max` của hộp > 9 (`MAX_CALL_NUMBERS`: vét cạn thử 1…9 khi không ghim).
+  - (a) mục thanh khối không ghim `PROC` cần ít nhất một phép khai báo hợp với nó (khối `_n` cần phép có hộp, khối thường cần phép không hộp).
+  - (g) miễn màn `predict`; `làm phép` trong `lặp N lần` (N ≥ 2) tính 2 lần, trong vòng lặp khác tính 1.
+  - (h) do schema, (i) do luật 20.
+- Luật 24: hình lời giải gồm thân phép; (M2) thêm họ thân phép (xoay vòng, soi gương); `turtle` bỏ số độ.
+- Màn mẫu `_sandbox`: `proc-stair` (thân cố định), `proc-two` (hai phép), `proc-boxes` (có hộp), `proc-deliver` (robotlab).
+
 - Kiểu game không cần sửa gì (`maze`, `robotlab`, sau này `turtle`). W1–W7: màn không có `procedures` → `npm run par` cho ra kết quả như cũ (điều kiện nghiệm thu, đo theo `phase-4.md` P4-03).
 - `par` của màn có phép mặc định là "tốt nhất với thân của lời giải". Người soạn chọn thân ngắn nhất hợp lý; review sư phạm kiểm; chế độ 2 kiểm thêm khi màn nhỏ.
 - Không có gọi lồng; tham số chỉ là số vòng lặp. Đủ cho W8, chưa đủ cho đệ quy hay `tiến [n] ô` (để W10, cần capacity guard và ADR mới).

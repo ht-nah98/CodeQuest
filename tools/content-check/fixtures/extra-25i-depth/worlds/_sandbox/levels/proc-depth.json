@@ -1,0 +1,95 @@
+{
+  "id": "proc-depth",
+  "worldId": "_sandbox",
+  "stage": "practice",
+  "kind": "maze",
+  "mode": "build",
+  "title": "Phép đi hai",
+  "objective": "Đi tới đích nhé!",
+  "learningGoal": "Gọi phép trong vòng lặp.",
+  "misconception": "Phép không có vòng lặp.",
+  "procedures": [
+    {
+      "id": "two",
+      "name": "đi hai"
+    }
+  ],
+  "toolbox": ["maze_forward", "cq_repeat", "cq_proc_def", "cq_proc_call"],
+  "maxLoopDepth": 1,
+  "par": 5,
+  "maxBlocks": 5,
+  "config": {
+    "map": ["#######", "#S...G#", "#######"],
+    "startDir": "E"
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "r1",
+              "fields": {
+                "TIMES": 2
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "cq_proc_call",
+                    "id": "c1",
+                    "fields": {
+                      "PROC": "two"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "cq_proc_def",
+          "id": "d1",
+          "fields": {
+            "PROC": "two"
+          },
+          "inputs": {
+            "BODY": {
+              "block": {
+                "type": "cq_repeat",
+                "id": "r2",
+                "fields": {
+                  "TIMES": 2
+                },
+                "inputs": {
+                  "DO": {
+                    "block": {
+                      "type": "maze_forward",
+                      "id": "f1"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "cap",
+      "when": {
+        "capacityFull": true
+      },
+      "say": "Đoạn nào lặp lại? Dạy thành phép nhé!",
+      "point": "toolbox:cq_proc_def"
+    }
+  ]
+}

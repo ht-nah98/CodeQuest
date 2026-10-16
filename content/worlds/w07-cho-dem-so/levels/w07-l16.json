@@ -43,6 +43,7 @@
   "maxBlocks": 10,
   "maxLoopDepth": 1,
   "par": 10,
+  "parUnproven": true,
   "variables": [
     {
       "id": "bamboo",

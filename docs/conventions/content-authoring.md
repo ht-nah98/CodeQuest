@@ -34,6 +34,27 @@ HLV chơi thử thấy màn không phải mê cung quá dễ và lặp một cô
 - Miễn: Thế giới 1 (chuỗi tuần tự là ý dạy), màn `guided` (màn giới thiệu khối giữ bản đồ đơn giản) với M1 và M3, màn `creative`.
 - Khi đổi một màn chạy thanh khối có `lặp n lần` (W4): đường của chương trình đúng ≤ 20 vòng; ngõ cụt sâu làm cách sai **hết 20 vòng** là có chủ đích (W4 `l19`).
 
+### 2.4 Màn có phép (Thế giới 8; ADR-0023, luật soạn R5)
+- **Phép phải tiết kiệm khối.** Thân b khối, làm phép c lần, tiết kiệm `c·b − (1 + b + c)` khối so với chép thẳng. Cần ≥ 1, tức là `(c − 1)(b − 1) ≥ 3`: thân 4 làm 2 lần; thân 3 làm 3 lần; thân 2 làm 4 lần. Thân 2 làm 2 lần không tiết kiệm gì.
+- **Mỗi phép làm ≥ 2 lần** trong lời giải (luật 25 (g) cảnh báo; `làm phép` trong vòng lặp tính 2). Màn `predict` được miễn: ý của nó có thể là "dạy mà không làm".
+- **R5 "phép phải có ích":** màn `practice` / `challenge` / boss `build` / `bughunt` có phép: bỏ khối phép (`cq_proc_*`, và `lặp [hộp]` của phép) khỏi thanh khối thì vét cạn **không** thắng được tới `maxBlocks`. Không áp dụng cho `guided`. Test của thế giới gọi `spellsNeeded(level)` (`@codequest/validator`), ngân sách 120 s / 300 M work mỗi màn; hết ngân sách thì ghi "⚠ R5" kèm lý do ở "Ghi chú khi soạn".
+  - **Ép bằng `maxBlocks` trước** (nhỏ hơn số khối của bản chép thẳng). Trần `maxInstances` trên khối hành động là chữ bé nhìn thấy, chỉ dùng khi `maxBlocks` không đủ; màn có trần phải có gợi ý **câu hỏi** giải thích trần ("Chỉ 1 khối gắp. Gắp 2 lần bằng cách nào?").
+  - Vét cạn thật, không chỉ đếm tay: vét cạn tìm được cả cách "thắng giữa một lần lặp" (Măng chạm cờ giữa thân `lặp`). Một đuôi không lặp lại (vd `tiến` sau lần làm phép cuối) chặn cách đó.
+- **Màn mở đầu và màn đọc:** phép phải rẻ hơn mọi chương trình dùng `lặp`: thêm `lặp` vào thanh khối, bỏ khối phép, vét cạn tới đúng `par`; không gì thắng.
+- **Chỗ làm phép không đều** (xen giữa là khúc khác nhau), ngay từ thẻ demo đầu tiên, để `lặp` không thay được phép.
+  - Màn "phép trong vòng lặp": làm phép 3 lần liền (2 lần thì `lặp 2` không rẻ hơn) và có một đuôi không lặp lại.
+  - Phép có vòng lặp bên trong: không làm quá 2 lần liền (`maxLoopDepth: 1`, độ sâu hiệu dụng; luật 20), nên bé không đụng bộ chặn vô cớ.
+- **Phép có câu hỏi phải tiến sau khi rẽ:** ngay sau khi rẽ trái, ô vừa đi qua nằm bên trái, nên "lặp đến khi có đường bên trái" dừng ngay.
+- **Họ hình thân phép** (dãy khối của thân; xoay vòng và soi gương là cùng họ): mỗi họ dùng ở ≤ 2 màn trong thế giới, lần hai khác mode (luật 24 M2 cảnh báo).
+- **Mê cung khắc từ đường của lời giải:** không ô nào đi hai lần, hai ô không liền nhau trên đường thì không kề nhau (không lối tắt); rồi mới mở ngõ cụt. Mỗi màn phép `build` có ≥ 1 ngõ cụt ở chỗ một chương trình sai hợp lý đi vào ("làm phép thừa một lần", "làm phép trước khi rẽ").
+- **Gợi ý theo `lastReason`:** mọi màn có phép có gợi ý cho `TOO_MANY_BLOCKS` và gợi ý tầng 0 `capacityFull`: "Đoạn nào lặp lại? Dạy thành phép được không?" (câu hỏi, không lộ tên khối).
+- **Hộp của phép:** lời giải làm phép ≥ 2 lần với số khác nhau (luật 23 R4). `làm phép … với [n]` ghim `NUM` khi `max` của hộp > 9 (luật 25 (e)).
+- **`par`:** mặc định vét cạn với thân của lời giải ("✔ par (thân phép theo lời giải)"); màn nhỏ chạy thêm `npm run par -- --proc-bodies 3`. Không chứng minh được trong ngân sách thì đặt `parUnproven: true` và ghi lý do.
+
+### 2.5 Màn `turtle` (Thế giới 9; ADR-0024, luật soạn T1)
+- **T1 (cảnh báo):** màn `turtle` `build` / `bughunt` khai báo ≥ 1 chương trình sai vẽ **nét lạ** (`EXTRA_LINE`), để lỗi nhìn thấy được; danh sách nằm ở test của thế giới (`w09.test.ts`), `content:check` kiểm là có.
+- Luật 24 M2 với `turtle` bỏ cả số bước và số độ: "hình vuông cạnh 2" và "tam giác cạnh 3" là cùng công thức `lặp [tiến, rẽ]`.
+
 ## 3. Gợi ý
 - Mỗi màn `guided` có ≥ 2 luật gợi ý tầng 0; `practice` ≥ 1.
 - `thinkingHint` là **câu hỏi**, không chứa tên khối cần dùng.
@@ -99,6 +120,11 @@ Khối mới của Thế giới 3–5 (`nếu`, `nếu … nếu không`, `lặp
 | Thân `lặp đến khi` là khối rẽ (quay tìm đường) | W5 `l06` | `w05-lesson-xoay` | Rẽ đến khi có đường: Măng quay tại chỗ, chưa đi. |
 | Câu hỏi `phía trước có [ô trống]` (không phải khối mới, ô chọn của `phía trước có`) | W4 `l10` (đoán; trước đây `l05`, `l12`) | màn đoán `l10` (chạy chương trình thật) | Ô trống: phía trước là đất, Măng đi được. |
 | Hai hộp: một hộp là số vòng, hộp kia đếm (`lặp [số bước] lần { … tăng [số măng] … }`) | W7 `l16` | `w07-lesson-hai-hop` | Hộp số bước chỉ số vòng. Hộp số măng đếm măng. |
+| Sửa trong phép (W8) | W8 `l05` | bài trước `l05` | Sửa trong phép một lần, đúng ở mọi chỗ. |
+| Làm phép trong vòng lặp (W8) | W8 `l08` | `w08-lesson-phep-trong-lap` | Làm phép trong vòng lặp: mỗi vòng làm phép 1 lần. |
+| Hai phép khác tên (W8) | W8 `l09` | `w08-lesson-hai-phep` | Mỗi phép một tên. Gọi tên nào, làm phép đó. |
+| Phép có câu hỏi (W8) | W8 `l11` | `w08-lesson-phep-hoi` | Phép có câu hỏi thì dùng được cho đường dài, ngắn. |
+| Hộp của phép nhận số mới mỗi lần (W8) | W8 `l14` | `w08-lesson-hop-cua-phep` | Mỗi lần làm phép, hộp nhận số mới. |
 | Rẽ 180 độ (bút, W9) | W9 `l17` | bài W9 trước `l17` | Rẽ 180 độ là quay ngược lại. |
 | Thứ tự việc (robot Bíp): cùng các việc, đổi thứ tự thì đường và số giây đổi | W6 boss (`l19` đã nhắc khi quá số lệnh) | `w06-lesson-thu-tu` (2 demo: hai thứ tự, một kịp về phòng, một hết giờ) | Đổi thứ tự việc thì số giây cũng đổi. |
 

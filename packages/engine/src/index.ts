@@ -102,6 +102,8 @@ export { normalizeIds } from './run/normalizeIds';
 export { DEFAULT_MAX_ACTIONS, DEFAULT_MAX_STEPS, ENGINE_REASONS } from './run/limits';
 export type { EngineReason } from './run/limits';
 export { runLevel } from './run/runLevel';
+export { levelBoxes, workspaceSpellIssue } from './run/spells';
+export type { SpellIssue } from './run/spells';
 export type { EngineCalls, RunLevelInput } from './run/runLevel';
 export { StopSignal } from './run/stopSignal';
 

@@ -8,7 +8,12 @@ import {
   type MenuOption,
   type Workspace,
 } from 'blockly';
-import { procedureBox, VARIABLE_ID, type LevelVariable } from '@codequest/content-schema';
+import {
+  procedureBox,
+  procedureBoxes,
+  VARIABLE_ID,
+  type LevelVariable,
+} from '@codequest/content-schema';
 import { workspaceProceduresOf } from './procedureField';
 
 /** Blockly JSON field type of the box dropdown (ADR-0022 §2). */
@@ -100,8 +105,15 @@ export class FieldCqVar extends FieldDropdown {
     const value = this.getValue();
     if (value === null) return null;
     const found = this.getOptions(false).find((candidate) => candidate[1] === value);
+    // Not in the menu (a loose block naming a spell's box): show that box's name, not its id.
+    const block = this.getSourceBlock();
+    const spellBox =
+      block === null
+        ? undefined
+        : procedureBoxes(workspaceProceduresOf(block.workspace)).find((box) => box.id === value);
+    const named = found !== undefined && typeof found[0] === 'string' && found[0] !== value;
     const option: [string, string] =
-      found !== undefined && typeof found[0] === 'string' ? [found[0], value] : [value, value];
+      named && typeof found[0] === 'string' ? [found[0], value] : [spellBox?.name ?? value, value];
     // `selectedOption` is private in FieldDropdown; it backs the base class's label and ARIA text.
     (this as unknown as { selectedOption: MenuOption }).selectedOption = option;
     return option;
@@ -115,8 +127,15 @@ export class FieldCqVar extends FieldDropdown {
 /** Root type of `dạy phép … với hộp` (kept here so the field does not import the blocks). */
 const PROC_DEF_N = 'cq_proc_def_n';
 
-/** The box of the spell whose `dạy phép … với hộp` body holds `block`, if any. */
+/** Only `lặp [hộp] lần` may read a spell's box (v1, content:check rule 25 (j)). */
+const REPEAT_VAR = 'cq_repeat_var';
+
+/**
+ * The box of the spell whose `dạy phép … với hộp` body holds `block`, if any, offered to
+ * `lặp [hộp] lần` only.
+ */
 function spellBoxesAround(block: Block): LevelVariable[] {
+  if (block.type !== REPEAT_VAR) return [];
   const root = block.getRootBlock();
   if (root.type !== PROC_DEF_N) return [];
   const id = root.getFieldValue('PROC') as unknown;

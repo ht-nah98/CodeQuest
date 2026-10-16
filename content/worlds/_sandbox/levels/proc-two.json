@@ -1,0 +1,168 @@
+{
+  "id": "proc-two",
+  "worldId": "_sandbox",
+  "stage": "practice",
+  "kind": "maze",
+  "mode": "build",
+  "title": "Hai phép",
+  "objective": "Dạy hai phép rồi làm phép nhé!",
+  "learningGoal": "Mỗi phép một tên: phép chạy đi thẳng, phép bước xuống đổi hàng.",
+  "misconception": "Hai phép khác tên mà làm giống nhau.",
+  "procedures": [
+    {
+      "id": "run",
+      "name": "chạy"
+    },
+    {
+      "id": "step",
+      "name": "bước xuống"
+    }
+  ],
+  "toolbox": ["maze_forward", "maze_turn_left", "maze_turn_right", "cq_proc_def", "cq_proc_call"],
+  "par": 14,
+  "maxBlocks": 14,
+  "maxInstances": {
+    "maze_forward": 4,
+    "cq_proc_def": 2
+  },
+  "config": {
+    "map": [
+      "############",
+      "#S...#######",
+      "####....####",
+      "#######....#",
+      "##########G#",
+      "############"
+    ],
+    "startDir": "E"
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "next": {
+            "block": {
+              "type": "cq_proc_call",
+              "id": "b1",
+              "fields": {
+                "PROC": "run"
+              },
+              "next": {
+                "block": {
+                  "type": "cq_proc_call",
+                  "id": "b2",
+                  "fields": {
+                    "PROC": "step"
+                  },
+                  "next": {
+                    "block": {
+                      "type": "cq_proc_call",
+                      "id": "b3",
+                      "fields": {
+                        "PROC": "run"
+                      },
+                      "next": {
+                        "block": {
+                          "type": "cq_proc_call",
+                          "id": "b4",
+                          "fields": {
+                            "PROC": "step"
+                          },
+                          "next": {
+                            "block": {
+                              "type": "cq_proc_call",
+                              "id": "b5",
+                              "fields": {
+                                "PROC": "run"
+                              },
+                              "next": {
+                                "block": {
+                                  "type": "cq_proc_call",
+                                  "id": "b6",
+                                  "fields": {
+                                    "PROC": "step"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "cq_proc_def",
+          "id": "b7",
+          "fields": {
+            "PROC": "run"
+          },
+          "inputs": {
+            "BODY": {
+              "block": {
+                "type": "maze_forward",
+                "id": "b8",
+                "next": {
+                  "block": {
+                    "type": "maze_forward",
+                    "id": "b9",
+                    "next": {
+                      "block": {
+                        "type": "maze_forward",
+                        "id": "b10"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "cq_proc_def",
+          "id": "b11",
+          "fields": {
+            "PROC": "step"
+          },
+          "inputs": {
+            "BODY": {
+              "block": {
+                "type": "maze_turn_right",
+                "id": "b12",
+                "next": {
+                  "block": {
+                    "type": "maze_forward",
+                    "id": "b13",
+                    "next": {
+                      "block": {
+                        "type": "maze_turn_left",
+                        "id": "b14"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "cap",
+      "when": {
+        "capacityFull": true
+      },
+      "say": "Đoạn nào lặp lại? Dạy thành phép nhé!",
+      "point": "toolbox:cq_proc_def"
+    }
+  ]
+}
