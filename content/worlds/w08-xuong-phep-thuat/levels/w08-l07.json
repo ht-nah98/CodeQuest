@@ -1,0 +1,192 @@
+{
+  "id": "w08-l07",
+  "worldId": "w08-xuong-phep-thuat",
+  "stage": "practice",
+  "kind": "maze",
+  "mode": "predict",
+  "title": "Làm xong phép thì sao?",
+  "objective": "Đọc chương trình. Măng dừng ở đâu?",
+  "learningGoal": "Làm phép xong, Măng quay lại làm khối ngay sau khối làm phép, tới hết chương trình. Màn ôn: ý này có ở bài mở đầu.",
+  "misconception": "Làm phép xong thì chương trình dừng.",
+  "mission": "Măng vòng 2 kệ sách. Rồi Măng đi đâu?",
+  "toolbox": [],
+  "maxLoopDepth": 1,
+  "procedures": [
+    {
+      "id": "shelf",
+      "name": "vòng kệ sách"
+    }
+  ],
+  "config": {
+    "map": ["##########", "#####...##", "#####.#.G#", "#...#.####", "#S#...####", "##########"],
+    "startDir": "E"
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_proc_call",
+              "id": "cast1",
+              "fields": {
+                "PROC": "shelf"
+              },
+              "next": {
+                "block": {
+                  "type": "maze_forward",
+                  "id": "fwd1",
+                  "next": {
+                    "block": {
+                      "type": "maze_forward",
+                      "id": "fwd2",
+                      "next": {
+                        "block": {
+                          "type": "maze_turn_left",
+                          "id": "left1",
+                          "next": {
+                            "block": {
+                              "type": "maze_forward",
+                              "id": "fwd3",
+                              "next": {
+                                "block": {
+                                  "type": "maze_forward",
+                                  "id": "fwd4",
+                                  "next": {
+                                    "block": {
+                                      "type": "maze_turn_right",
+                                      "id": "right1",
+                                      "next": {
+                                        "block": {
+                                          "type": "cq_proc_call",
+                                          "id": "cast2",
+                                          "fields": {
+                                            "PROC": "shelf"
+                                          },
+                                          "next": {
+                                            "block": {
+                                              "type": "maze_forward",
+                                              "id": "fwd5"
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "cq_proc_def",
+          "id": "def_shelf",
+          "x": 380,
+          "y": 40,
+          "fields": {
+            "PROC": "shelf"
+          },
+          "inputs": {
+            "BODY": {
+              "block": {
+                "type": "maze_turn_left",
+                "id": "left2",
+                "next": {
+                  "block": {
+                    "type": "maze_forward",
+                    "id": "fwd6",
+                    "next": {
+                      "block": {
+                        "type": "maze_turn_right",
+                        "id": "right2",
+                        "next": {
+                          "block": {
+                            "type": "maze_forward",
+                            "id": "fwd7",
+                            "next": {
+                              "block": {
+                                "type": "maze_forward",
+                                "id": "fwd8",
+                                "next": {
+                                  "block": {
+                                    "type": "maze_turn_right",
+                                    "id": "right3",
+                                    "next": {
+                                      "block": {
+                                        "type": "maze_forward",
+                                        "id": "fwd9",
+                                        "next": {
+                                          "block": {
+                                            "type": "maze_turn_left",
+                                            "id": "left3"
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "predict": {
+    "options": [
+      {
+        "key": "stop@4,3",
+        "label": "Dừng sau lần làm phép đầu"
+      },
+      {
+        "key": "stop@2,7",
+        "label": "Dừng sau lần làm phép thứ hai, cạnh cờ"
+      },
+      {
+        "key": "win",
+        "label": "Tới lá cờ"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "after",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Làm phép xong, Măng làm khối nào tiếp?",
+      "point": "stage"
+    },
+    {
+      "id": "count",
+      "when": {
+        "trigger": "idle"
+      },
+      "say": "Sau lần làm phép thứ hai còn khối nào không?",
+      "point": "stage"
+    }
+  ],
+  "thinkingHint": "Làm phép xong, Măng quay lại khối nào?"
+}

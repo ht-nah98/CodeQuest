@@ -1,0 +1,117 @@
+{
+  "id": "w08-creative",
+  "worldId": "w08-xuong-phep-thuat",
+  "stage": "creative",
+  "kind": "robotlab",
+  "mode": "creative",
+  "title": "Xưởng phép tự do",
+  "objective": "Tự dạy phép cho Bíp trên sa bàn lớn!",
+  "learningGoal": "Sa bàn Thành Phố Măng: tự đặt việc cho 3 phép (1 phép có hộp số ô).",
+  "mission": "Dạy Bíp 3 phép của riêng con!",
+  "toolbox": [
+    "robot_forward",
+    "robot_turn_left",
+    "robot_turn_right",
+    "robot_grab",
+    "robot_release",
+    "cq_repeat",
+    "cq_repeat_until",
+    "robot_block_color",
+    "robot_at_lab",
+    "cq_proc_def",
+    "cq_proc_call",
+    "cq_proc_def_n",
+    "cq_proc_call_n",
+    {
+      "type": "cq_repeat_var",
+      "fields": {
+        "VAR": "cells"
+      }
+    }
+  ],
+  "procedures": [
+    {
+      "id": "spell1",
+      "name": "phép 1"
+    },
+    {
+      "id": "spell2",
+      "name": "phép 2"
+    },
+    {
+      "id": "spell3",
+      "name": "phép 3",
+      "param": {
+        "id": "cells",
+        "name": "số ô",
+        "max": 9
+      }
+    }
+  ],
+  "config": {
+    "map": [
+      "y##.#...g",
+      "......##.",
+      ".##.#....",
+      ".##L#.##.",
+      "....#..ZZ",
+      "#.#...##r",
+      "....#...."
+    ],
+    "startDir": "N",
+    "blocks": [
+      {
+        "kind": "fence",
+        "at": [0, 5]
+      },
+      {
+        "kind": "fence",
+        "at": [3, 5]
+      },
+      {
+        "kind": "neutralizer",
+        "color": "RED",
+        "at": [2, 7]
+      },
+      {
+        "kind": "neutralizer",
+        "color": "YELLOW",
+        "at": [6, 7]
+      },
+      {
+        "kind": "neutralizer",
+        "color": "GREEN",
+        "at": [2, 0]
+      },
+      {
+        "kind": "pollution",
+        "color": "GREEN",
+        "at": [4, 2]
+      },
+      {
+        "kind": "pollution",
+        "color": "RED",
+        "at": [0, 7]
+      },
+      {
+        "kind": "pollution",
+        "color": "RED",
+        "at": [6, 3]
+      }
+    ],
+    "goal": {
+      "type": "score",
+      "target": 300
+    }
+  },
+  "hints": [
+    {
+      "id": "free",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Xưởng tự do! Dạy phép nào, làm phép nào cũng được.",
+      "point": "stage"
+    }
+  ]
+}

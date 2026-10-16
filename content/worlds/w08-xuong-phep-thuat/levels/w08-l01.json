@@ -1,0 +1,235 @@
+{
+  "id": "w08-l01",
+  "worldId": "w08-xuong-phep-thuat",
+  "stage": "guided",
+  "kind": "maze",
+  "mode": "parsons",
+  "title": "Phép đầu tiên",
+  "objective": "Ghép phép rẽ góc, rồi làm phép 3 lần.",
+  "learningGoal": "Dạy phép rẽ góc 1 lần (tiến, tiến, rẽ phải, tiến), rồi làm phép ở 3 góc. Giữa các góc là rẽ trái, rồi tiến.",
+  "misconception": "Phải chép lại các khối ở mỗi góc.",
+  "mission": "Gấu nâu nhờ Măng qua 3 góc hành lang xưởng.",
+  "toolbox": [],
+  "maxLoopDepth": 1,
+  "par": 10,
+  "procedures": [
+    {
+      "id": "corner",
+      "name": "rẽ góc"
+    }
+  ],
+  "config": {
+    "map": ["#######", "#S..###", "###...#", "#####.#", "#####.#", "#####.#", "####G.#", "#######"],
+    "startDir": "E"
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false
+        },
+        {
+          "type": "cq_proc_def",
+          "id": "def_corner",
+          "x": 380,
+          "y": 40,
+          "fields": {
+            "PROC": "corner"
+          }
+        },
+        {
+          "type": "cq_proc_call",
+          "id": "cast1",
+          "fields": {
+            "PROC": "corner"
+          },
+          "x": 40,
+          "y": 300
+        },
+        {
+          "type": "maze_turn_left",
+          "id": "left1",
+          "x": 340,
+          "y": 300
+        },
+        {
+          "type": "cq_proc_call",
+          "id": "cast2",
+          "fields": {
+            "PROC": "corner"
+          },
+          "x": 40,
+          "y": 375
+        },
+        {
+          "type": "maze_forward",
+          "id": "fwd1",
+          "x": 340,
+          "y": 375
+        },
+        {
+          "type": "cq_proc_call",
+          "id": "cast3",
+          "fields": {
+            "PROC": "corner"
+          },
+          "x": 40,
+          "y": 450
+        },
+        {
+          "type": "maze_forward",
+          "id": "fwd2",
+          "x": 340,
+          "y": 450
+        },
+        {
+          "type": "maze_forward",
+          "id": "fwd3",
+          "x": 40,
+          "y": 525
+        },
+        {
+          "type": "maze_turn_right",
+          "id": "right1",
+          "x": 340,
+          "y": 525
+        },
+        {
+          "type": "maze_forward",
+          "id": "fwd4",
+          "x": 40,
+          "y": 600
+        }
+      ]
+    }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_proc_call",
+              "id": "cast1",
+              "fields": {
+                "PROC": "corner"
+              },
+              "next": {
+                "block": {
+                  "type": "maze_turn_left",
+                  "id": "left1",
+                  "next": {
+                    "block": {
+                      "type": "cq_proc_call",
+                      "id": "cast2",
+                      "fields": {
+                        "PROC": "corner"
+                      },
+                      "next": {
+                        "block": {
+                          "type": "maze_forward",
+                          "id": "fwd1",
+                          "next": {
+                            "block": {
+                              "type": "cq_proc_call",
+                              "id": "cast3",
+                              "fields": {
+                                "PROC": "corner"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "cq_proc_def",
+          "id": "def_corner",
+          "x": 380,
+          "y": 40,
+          "fields": {
+            "PROC": "corner"
+          },
+          "inputs": {
+            "BODY": {
+              "block": {
+                "type": "maze_forward",
+                "id": "fwd2",
+                "next": {
+                  "block": {
+                    "type": "maze_forward",
+                    "id": "fwd3",
+                    "next": {
+                      "block": {
+                        "type": "maze_turn_right",
+                        "id": "right1",
+                        "next": {
+                          "block": {
+                            "type": "maze_forward",
+                            "id": "fwd4"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "def",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Khối mới! Dạy phép: nhớ các lệnh bên trong, chưa làm ngay",
+      "point": "block:cq_proc_def"
+    },
+    {
+      "id": "call",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Khối mới! Làm phép: làm hết lệnh trong phép, rồi làm tiếp",
+      "point": "block:cq_proc_call"
+    },
+    {
+      "id": "between",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "HIT_WALL"
+      },
+      "say": "Giữa 2 lần làm phép, Măng cần làm gì?",
+      "point": "stage"
+    },
+    {
+      "id": "loose",
+      "when": {
+        "trigger": "run-end",
+        "orphans": true
+      },
+      "say": "Còn khối rời. Nối hết vào khi bắt đầu nhé!"
+    }
+  ],
+  "thinkingHint": "Ở mỗi góc, Măng đi giống nhau không?"
+}

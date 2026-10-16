@@ -1,0 +1,142 @@
+{
+  "id": "w08-l14",
+  "worldId": "w08-xuong-phep-thuat",
+  "stage": "practice",
+  "kind": "maze",
+  "mode": "predict",
+  "title": "Hộp nhận số mới",
+  "objective": "Đọc chương trình. Măng dừng ở ô nào?",
+  "learningGoal": "Mỗi lần làm phép, hộp nhận số mới: 3, rồi 2, rồi 1. Măng đi 3 ô, 2 ô, 1 ô, dừng ở ô lõm, không tới cờ.",
+  "misconception": "Hộp của phép giữ số của lần làm đầu tiên.",
+  "mission": "Măng làm phép 3 lần. Hộp có số mấy?",
+  "toolbox": [],
+  "maxLoopDepth": 1,
+  "procedures": [
+    {
+      "id": "turn",
+      "name": "đi rồi rẽ",
+      "param": {
+        "id": "cells",
+        "name": "số ô",
+        "max": 9
+      }
+    }
+  ],
+  "config": {
+    "map": ["######", "#S...#", "####.#", "###..#", "#G...#", "######"],
+    "startDir": "E"
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_proc_call_n",
+              "id": "cast1",
+              "fields": {
+                "PROC": "turn",
+                "NUM": 3
+              },
+              "next": {
+                "block": {
+                  "type": "cq_proc_call_n",
+                  "id": "cast2",
+                  "fields": {
+                    "PROC": "turn",
+                    "NUM": 2
+                  },
+                  "next": {
+                    "block": {
+                      "type": "cq_proc_call_n",
+                      "id": "cast3",
+                      "fields": {
+                        "PROC": "turn",
+                        "NUM": 1
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "cq_proc_def_n",
+          "id": "def_turn",
+          "x": 380,
+          "y": 40,
+          "fields": {
+            "PROC": "turn"
+          },
+          "inputs": {
+            "BODY": {
+              "block": {
+                "type": "cq_repeat_var",
+                "id": "boxloop1",
+                "fields": {
+                  "VAR": "cells"
+                },
+                "inputs": {
+                  "DO": {
+                    "block": {
+                      "type": "maze_forward",
+                      "id": "fwd1"
+                    }
+                  }
+                },
+                "next": {
+                  "block": {
+                    "type": "maze_turn_right",
+                    "id": "right1"
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "predict": {
+    "options": [
+      {
+        "key": "stop@1,4",
+        "label": "Dừng ở góc trên, sau 3 ô đầu"
+      },
+      {
+        "key": "stop@3,3",
+        "label": "Dừng ở ô lõm bên trái, chưa tới cờ"
+      },
+      {
+        "key": "win",
+        "label": "Tới lá cờ ở góc dưới"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "box",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Lần làm phép thứ hai, hộp có số mấy?",
+      "point": "stage"
+    },
+    {
+      "id": "each",
+      "when": {
+        "trigger": "idle"
+      },
+      "say": "Lần làm phép thứ ba, hộp còn giữ số 3 không?",
+      "point": "stage"
+    }
+  ],
+  "thinkingHint": "Mỗi lần làm phép, Măng đi mấy ô?"
+}

@@ -1,0 +1,119 @@
+{
+  "id": "w08-lesson-phep-hoi",
+  "worldId": "w08-xuong-phep-thuat",
+  "title": "Phép biết hỏi",
+  "beforeLevel": "w08-l11",
+  "cards": [
+    {
+      "type": "say",
+      "pose": "point",
+      "text": "Phép có câu hỏi thì dùng được cho đường dài, ngắn."
+    },
+    {
+      "type": "demo",
+      "text": "Ngã rẽ đầu gần, ngã rẽ sau xa. Cùng 1 phép!",
+      "kind": "maze",
+      "config": {
+        "map": ["##########", "#S...#####", "###......#", "#######G##", "##########"],
+        "startDir": "E"
+      },
+      "procedures": [
+        {
+          "id": "fork",
+          "name": "tới ngã rẽ phải"
+        }
+      ],
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "cq_proc_call",
+                  "id": "cast1",
+                  "fields": {
+                    "PROC": "fork"
+                  },
+                  "next": {
+                    "block": {
+                      "type": "maze_turn_left",
+                      "id": "left1",
+                      "next": {
+                        "block": {
+                          "type": "cq_proc_call",
+                          "id": "cast2",
+                          "fields": {
+                            "PROC": "fork"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "type": "cq_proc_def",
+              "id": "def_fork",
+              "x": 380,
+              "y": 40,
+              "fields": {
+                "PROC": "fork"
+              },
+              "inputs": {
+                "BODY": {
+                  "block": {
+                    "type": "cq_repeat_until",
+                    "id": "until1",
+                    "inputs": {
+                      "COND": {
+                        "block": {
+                          "type": "maze_is_path",
+                          "id": "until1c",
+                          "fields": {
+                            "DIR": "RIGHT"
+                          }
+                        }
+                      },
+                      "DO": {
+                        "block": {
+                          "type": "maze_forward",
+                          "id": "fwd1"
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "maze_turn_right",
+                        "id": "right1",
+                        "next": {
+                          "block": {
+                            "type": "maze_forward",
+                            "id": "fwd2"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "quiz",
+      "text": "Phép có câu hỏi. Đường dài hơn thì sao?",
+      "options": ["Vẫn đúng", "Phải dạy phép mới"],
+      "correct": 0,
+      "explain": "Câu hỏi giúp Măng biết khi nào tới ngã rẽ."
+    }
+  ]
+}

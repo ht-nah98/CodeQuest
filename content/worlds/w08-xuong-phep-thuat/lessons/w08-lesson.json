@@ -1,0 +1,214 @@
+{
+  "id": "w08-lesson",
+  "worldId": "w08-xuong-phep-thuat",
+  "title": "Xưởng Phép Thuật",
+  "cards": [
+    {
+      "type": "say",
+      "pose": "happy",
+      "text": "Bác Cú mở Xưởng Phép Thuật. Vào xem nào!"
+    },
+    {
+      "type": "say",
+      "pose": "talk",
+      "text": "Phép thuật là một nhóm khối có tên."
+    },
+    {
+      "type": "say",
+      "pose": "point",
+      "text": "Khối mới! Dạy phép: nhớ các lệnh bên trong, chưa làm ngay"
+    },
+    {
+      "type": "demo",
+      "text": "Chỉ dạy phép thì Măng chưa làm.",
+      "kind": "maze",
+      "config": {
+        "map": ["########", "######G#", "#####..#", "##....##", "#S.#####", "########"],
+        "startDir": "E"
+      },
+      "procedures": [
+        {
+          "id": "stair",
+          "name": "bậc thang"
+        }
+      ],
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "maze_forward",
+                  "id": "fwd1"
+                }
+              }
+            },
+            {
+              "type": "cq_proc_def",
+              "id": "def_stair",
+              "x": 380,
+              "y": 40,
+              "fields": {
+                "PROC": "stair"
+              },
+              "inputs": {
+                "BODY": {
+                  "block": {
+                    "type": "maze_forward",
+                    "id": "fwd2",
+                    "next": {
+                      "block": {
+                        "type": "maze_turn_left",
+                        "id": "left1",
+                        "next": {
+                          "block": {
+                            "type": "maze_forward",
+                            "id": "fwd3",
+                            "next": {
+                              "block": {
+                                "type": "maze_turn_right",
+                                "id": "right1"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "say",
+      "pose": "point",
+      "text": "Khối mới! Làm phép: làm hết lệnh trong phép, rồi làm tiếp"
+    },
+    {
+      "type": "demo",
+      "text": "Làm phép xong, Măng làm tiếp khối sau.",
+      "kind": "maze",
+      "config": {
+        "map": ["########", "######G#", "#####..#", "##....##", "#S.#####", "########"],
+        "startDir": "E"
+      },
+      "procedures": [
+        {
+          "id": "stair",
+          "name": "bậc thang"
+        }
+      ],
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "cq_proc_call",
+                  "id": "cast1",
+                  "fields": {
+                    "PROC": "stair"
+                  },
+                  "next": {
+                    "block": {
+                      "type": "maze_forward",
+                      "id": "fwd1",
+                      "next": {
+                        "block": {
+                          "type": "maze_forward",
+                          "id": "fwd2",
+                          "next": {
+                            "block": {
+                              "type": "cq_proc_call",
+                              "id": "cast2",
+                              "fields": {
+                                "PROC": "stair"
+                              },
+                              "next": {
+                                "block": {
+                                  "type": "cq_proc_call",
+                                  "id": "cast3",
+                                  "fields": {
+                                    "PROC": "stair"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "type": "cq_proc_def",
+              "id": "def_stair",
+              "x": 380,
+              "y": 40,
+              "fields": {
+                "PROC": "stair"
+              },
+              "inputs": {
+                "BODY": {
+                  "block": {
+                    "type": "maze_forward",
+                    "id": "fwd3",
+                    "next": {
+                      "block": {
+                        "type": "maze_turn_left",
+                        "id": "left1",
+                        "next": {
+                          "block": {
+                            "type": "maze_forward",
+                            "id": "fwd4",
+                            "next": {
+                              "block": {
+                                "type": "maze_turn_right",
+                                "id": "right1"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "quiz",
+      "text": "Dạy phép xong, Măng có làm ngay không?",
+      "options": ["Chưa, phải làm phép", "Có, làm ngay"],
+      "correct": 0,
+      "explain": "Dạy phép chỉ nhớ các khối. Làm phép thì Măng mới làm."
+    },
+    {
+      "type": "quiz",
+      "text": "Làm phép xong thì sao?",
+      "options": ["Làm khối tiếp theo", "Dừng lại"],
+      "correct": 0,
+      "explain": "Làm hết phép, Măng quay lại làm khối ngay sau."
+    }
+  ]
+}

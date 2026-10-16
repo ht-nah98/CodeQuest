@@ -1,0 +1,229 @@
+{
+  "id": "w08-l06",
+  "worldId": "w08-xuong-phep-thuat",
+  "stage": "practice",
+  "kind": "robotlab",
+  "mode": "build",
+  "title": "Phép giao khối",
+  "objective": "Dạy Bíp phép giao khối. Giao đủ 3 khối trung hòa!",
+  "learningGoal": "Phép giao khối: gắp, quay đầu, tiến 1 ô, thả. Khối trung hòa nằm ngay sau trạm cùng màu, nên 1 phép giao được cả 3 khối.",
+  "misconception": "Phép chỉ dùng được cho Măng, không cho Bíp.",
+  "mission": "Giao khối trung hòa đỏ, vàng, xanh lá về trạm!",
+  "toolbox": [
+    "robot_forward",
+    "robot_turn_left",
+    "robot_turn_right",
+    "robot_grab",
+    "robot_release",
+    "cq_proc_def",
+    "cq_proc_call"
+  ],
+  "maxBlocks": 15,
+  "maxInstances": {
+    "cq_proc_def": 1
+  },
+  "maxLoopDepth": 1,
+  "par": 14,
+  "procedures": [
+    {
+      "id": "deliver",
+      "name": "giao khối"
+    }
+  ],
+  "config": {
+    "map": [".......", ".#.#g#.", ".......", "...ry..", "###L###"],
+    "startDir": "N",
+    "blocks": [
+      {
+        "kind": "neutralizer",
+        "color": "RED",
+        "at": [2, 3]
+      },
+      {
+        "kind": "neutralizer",
+        "color": "YELLOW",
+        "at": [3, 5]
+      },
+      {
+        "kind": "neutralizer",
+        "color": "GREEN",
+        "at": [0, 4]
+      }
+    ],
+    "goal": {
+      "type": "missions"
+    }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "robot_forward",
+              "id": "go1",
+              "fields": {
+                "N": 2
+              },
+              "next": {
+                "block": {
+                  "type": "cq_proc_call",
+                  "id": "cast1",
+                  "fields": {
+                    "PROC": "deliver"
+                  },
+                  "next": {
+                    "block": {
+                      "type": "robot_turn_left",
+                      "id": "left1",
+                      "next": {
+                        "block": {
+                          "type": "robot_forward",
+                          "id": "go2",
+                          "fields": {
+                            "N": 2
+                          },
+                          "next": {
+                            "block": {
+                              "type": "cq_proc_call",
+                              "id": "cast2",
+                              "fields": {
+                                "PROC": "deliver"
+                              },
+                              "next": {
+                                "block": {
+                                  "type": "robot_turn_right",
+                                  "id": "right1",
+                                  "next": {
+                                    "block": {
+                                      "type": "robot_forward",
+                                      "id": "go3",
+                                      "fields": {
+                                        "N": 3
+                                      },
+                                      "next": {
+                                        "block": {
+                                          "type": "cq_proc_call",
+                                          "id": "cast3",
+                                          "fields": {
+                                            "PROC": "deliver"
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "cq_proc_def",
+          "id": "def_deliver",
+          "x": 380,
+          "y": 40,
+          "fields": {
+            "PROC": "deliver"
+          },
+          "inputs": {
+            "BODY": {
+              "block": {
+                "type": "robot_grab",
+                "id": "grab1",
+                "next": {
+                  "block": {
+                    "type": "robot_turn_right",
+                    "id": "right2",
+                    "next": {
+                      "block": {
+                        "type": "robot_turn_right",
+                        "id": "right3",
+                        "next": {
+                          "block": {
+                            "type": "robot_forward",
+                            "id": "go4",
+                            "fields": {
+                              "N": 1
+                            },
+                            "next": {
+                              "block": {
+                                "type": "robot_release",
+                                "id": "drop1"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "same",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "3 lần giao khối, Bíp làm giống nhau không?",
+      "point": "stage"
+    },
+    {
+      "id": "empty",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "NOTHING_TO_GRAB"
+      },
+      "say": "Bíp đã đứng trên khối trung hòa chưa?",
+      "point": "stage"
+    },
+    {
+      "id": "off",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "OFF_LINE"
+      },
+      "say": "Sau khi gắp, Bíp quay đầu chưa?",
+      "point": "block:cq_proc_def"
+    },
+    {
+      "id": "cap",
+      "when": {
+        "capacityFull": true
+      },
+      "say": "Đoạn nào lặp lại? Dạy thành phép được không?",
+      "point": "toolbox:cq_proc_def"
+    },
+    {
+      "id": "loose",
+      "when": {
+        "trigger": "run-end",
+        "orphans": true
+      },
+      "say": "Còn khối rời. Nối hết vào khi bắt đầu nhé!"
+    }
+  ],
+  "thinkingHint": "Sau khi gắp, Bíp quay về phía trạm thế nào?",
+  "feedback": {
+    "TOO_MANY_BLOCKS": "Nhiều khối quá. Đoạn nào lặp lại? Dạy thành phép được không?"
+  }
+}

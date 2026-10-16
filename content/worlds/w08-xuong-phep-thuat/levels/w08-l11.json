@@ -1,0 +1,214 @@
+{
+  "id": "w08-l11",
+  "worldId": "w08-xuong-phep-thuat",
+  "stage": "practice",
+  "kind": "maze",
+  "mode": "build",
+  "title": "Phép biết hỏi",
+  "objective": "1 phép cho cả 3 bản đồ. Đường dài, ngắn khác nhau!",
+  "learningGoal": "Phép tới ngã ba hỏi đường bên trái: lặp đến khi có đường bên trái thì tiến, rồi rẽ trái, tiến. 1 phép đúng cho đoạn dài, ngắn.",
+  "misconception": "Phép chỉ đúng cho một độ dài.",
+  "mission": "3 con đường tới vườn tre. 1 phép đi hết!",
+  "toolbox": [
+    "maze_forward",
+    "maze_turn_left",
+    "maze_turn_right",
+    "cq_repeat_until",
+    {
+      "type": "maze_is_path",
+      "fields": {
+        "DIR": "LEFT"
+      }
+    },
+    "cq_proc_def",
+    "cq_proc_call"
+  ],
+  "maxBlocks": 11,
+  "maxInstances": {
+    "cq_proc_def": 1
+  },
+  "maxLoopDepth": 1,
+  "par": 10,
+  "procedures": [
+    {
+      "id": "fork",
+      "name": "tới ngã ba"
+    }
+  ],
+  "config": {
+    "map": [
+      "#########",
+      "######.##",
+      "#####G.##",
+      "######.##",
+      "###.....#",
+      "#S...####",
+      "##.######",
+      "#########"
+    ],
+    "startDir": "E"
+  },
+  "variants": [
+    {
+      "map": [
+        "#########",
+        "######.##",
+        "#####G.##",
+        "######.##",
+        "######..#",
+        "######.##",
+        "#####...#",
+        "#S....###",
+        "###.#.###",
+        "###..####",
+        "#########"
+      ],
+      "startDir": "E"
+    },
+    {
+      "map": [
+        "##########",
+        "###.#.####",
+        "#.....####",
+        "##G##.####",
+        "#####....#",
+        "######S###",
+        "##########"
+      ],
+      "startDir": "N"
+    }
+  ],
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_proc_call",
+              "id": "cast1",
+              "fields": {
+                "PROC": "fork"
+              },
+              "next": {
+                "block": {
+                  "type": "maze_turn_right",
+                  "id": "right1",
+                  "next": {
+                    "block": {
+                      "type": "cq_proc_call",
+                      "id": "cast2",
+                      "fields": {
+                        "PROC": "fork"
+                      },
+                      "next": {
+                        "block": {
+                          "type": "cq_proc_call",
+                          "id": "cast3",
+                          "fields": {
+                            "PROC": "fork"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "cq_proc_def",
+          "id": "def_fork",
+          "x": 380,
+          "y": 40,
+          "fields": {
+            "PROC": "fork"
+          },
+          "inputs": {
+            "BODY": {
+              "block": {
+                "type": "cq_repeat_until",
+                "id": "until1",
+                "inputs": {
+                  "COND": {
+                    "block": {
+                      "type": "maze_is_path",
+                      "id": "until1c",
+                      "fields": {
+                        "DIR": "LEFT"
+                      }
+                    }
+                  },
+                  "DO": {
+                    "block": {
+                      "type": "maze_forward",
+                      "id": "fwd1"
+                    }
+                  }
+                },
+                "next": {
+                  "block": {
+                    "type": "maze_turn_left",
+                    "id": "left1",
+                    "next": {
+                      "block": {
+                        "type": "maze_forward",
+                        "id": "fwd2"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "ask",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "HIT_WALL"
+      },
+      "say": "Đường dài, ngắn khác nhau. Phép nên hỏi gì?",
+      "point": "toolbox:maze_is_path"
+    },
+    {
+      "id": "stuck",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "NOT_AT_GOAL"
+      },
+      "say": "Rẽ xong, bên trái vẫn có đường. Măng cần tiến không?",
+      "point": "stage"
+    },
+    {
+      "id": "cap",
+      "when": {
+        "capacityFull": true
+      },
+      "say": "Đoạn nào lặp lại? Dạy thành phép được không?",
+      "point": "toolbox:cq_proc_def"
+    },
+    {
+      "id": "loose",
+      "when": {
+        "trigger": "run-end",
+        "orphans": true
+      },
+      "say": "Còn khối rời. Nối hết vào khi bắt đầu nhé!"
+    }
+  ],
+  "thinkingHint": "Khi nào Măng biết đã tới ngã ba?",
+  "feedback": {
+    "TOO_MANY_BLOCKS": "Nhiều khối quá. Đoạn nào lặp lại? Dạy thành phép được không?"
+  }
+}

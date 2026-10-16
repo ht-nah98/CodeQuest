@@ -1,0 +1,227 @@
+{
+  "id": "w08-l19",
+  "worldId": "w08-xuong-phep-thuat",
+  "stage": "challenge",
+  "kind": "maze",
+  "mode": "predict",
+  "title": "Đọc 2 phép",
+  "objective": "Đọc chương trình. Măng dừng ở ô nào?",
+  "learningGoal": "Hai phép, mỗi phép làm 2 lần. Lần leo bậc thứ hai hộp nhận số 1, nên Măng dừng ở cuối dốc, chưa tới cờ.",
+  "misconception": "Hộp vẫn giữ số của lần làm phép trước.",
+  "mission": "Măng đọc sách phép. Măng dừng ở đâu?",
+  "toolbox": [],
+  "maxLoopDepth": 1,
+  "procedures": [
+    {
+      "id": "climb",
+      "name": "leo bậc",
+      "param": {
+        "id": "cells",
+        "name": "số ô",
+        "max": 9
+      }
+    },
+    {
+      "id": "hook",
+      "name": "móc câu"
+    }
+  ],
+  "config": {
+    "map": [
+      "###########",
+      "###...#####",
+      "###.#.#####",
+      "###.#.....#",
+      "###.###.#.#",
+      "#S..###.#G#",
+      "###########"
+    ],
+    "startDir": "E"
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_proc_call_n",
+              "id": "cast1",
+              "fields": {
+                "PROC": "climb",
+                "NUM": 3
+              },
+              "next": {
+                "block": {
+                  "type": "cq_proc_call",
+                  "id": "cast2",
+                  "fields": {
+                    "PROC": "hook"
+                  },
+                  "next": {
+                    "block": {
+                      "type": "cq_proc_call_n",
+                      "id": "cast3",
+                      "fields": {
+                        "PROC": "climb",
+                        "NUM": 1
+                      },
+                      "next": {
+                        "block": {
+                          "type": "cq_proc_call",
+                          "id": "cast4",
+                          "fields": {
+                            "PROC": "hook"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "cq_proc_def_n",
+          "id": "def_climb",
+          "x": 380,
+          "y": 40,
+          "fields": {
+            "PROC": "climb"
+          },
+          "inputs": {
+            "BODY": {
+              "block": {
+                "type": "maze_forward",
+                "id": "fwd1",
+                "next": {
+                  "block": {
+                    "type": "maze_forward",
+                    "id": "fwd2",
+                    "next": {
+                      "block": {
+                        "type": "maze_turn_left",
+                        "id": "left1",
+                        "next": {
+                          "block": {
+                            "type": "cq_repeat_var",
+                            "id": "boxloop1",
+                            "fields": {
+                              "VAR": "cells"
+                            },
+                            "inputs": {
+                              "DO": {
+                                "block": {
+                                  "type": "maze_forward",
+                                  "id": "fwd3"
+                                }
+                              }
+                            },
+                            "next": {
+                              "block": {
+                                "type": "maze_turn_right",
+                                "id": "right1"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "cq_proc_def",
+          "id": "def_hook",
+          "x": 380,
+          "y": 260,
+          "fields": {
+            "PROC": "hook"
+          },
+          "inputs": {
+            "BODY": {
+              "block": {
+                "type": "maze_turn_left",
+                "id": "left2",
+                "next": {
+                  "block": {
+                    "type": "maze_forward",
+                    "id": "fwd4",
+                    "next": {
+                      "block": {
+                        "type": "maze_turn_right",
+                        "id": "right2",
+                        "next": {
+                          "block": {
+                            "type": "maze_forward",
+                            "id": "fwd5",
+                            "next": {
+                              "block": {
+                                "type": "maze_forward",
+                                "id": "fwd6",
+                                "next": {
+                                  "block": {
+                                    "type": "maze_turn_right",
+                                    "id": "right3"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "predict": {
+    "options": [
+      {
+        "key": "win",
+        "label": "Tới lá cờ"
+      },
+      {
+        "key": "crash:HIT_WALL@2,3",
+        "label": "Đâm tường ngay sau bậc đầu"
+      },
+      {
+        "key": "stop@5,7",
+        "label": "Dừng ở cuối dốc xuống, cách cờ 2 cột"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "second",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Lần leo bậc thứ hai, hộp có số mấy?",
+      "point": "stage"
+    },
+    {
+      "id": "trace",
+      "when": {
+        "trigger": "idle"
+      },
+      "say": "Đi theo từng khối. Sau móc câu đầu, Măng ở đâu?",
+      "point": "stage"
+    }
+  ],
+  "thinkingHint": "Lần leo bậc thứ hai, hộp nhận số mấy?"
+}

@@ -1,0 +1,183 @@
+{
+  "id": "w08-l08",
+  "worldId": "w08-xuong-phep-thuat",
+  "stage": "practice",
+  "kind": "maze",
+  "mode": "build",
+  "title": "Phép trong vòng lặp",
+  "objective": "Leo dốc tới cờ. Không quá 11 khối nhé!",
+  "learningGoal": "Phép lên dốc (tiến, tiến, rẽ trái, tiến, rẽ phải) làm 3 lần liền: đặt làm phép trong lặp 3 lần. Rồi rẽ trái, làm phép, tiến.",
+  "misconception": "Làm phép trong vòng lặp thì phép chỉ chạy 1 lần.",
+  "mission": "Gấu nâu leo dốc dài về nhà. Giúp Gấu nhé!",
+  "toolbox": [
+    "maze_forward",
+    "maze_turn_left",
+    "maze_turn_right",
+    "cq_repeat",
+    "cq_proc_def",
+    "cq_proc_call"
+  ],
+  "maxBlocks": 11,
+  "maxInstances": {
+    "cq_proc_def": 1
+  },
+  "maxLoopDepth": 1,
+  "par": 11,
+  "procedures": [
+    {
+      "id": "hop",
+      "name": "lên dốc"
+    }
+  ],
+  "config": {
+    "map": [
+      "##########",
+      "######G###",
+      "######..##",
+      "#######.##",
+      "#####.#..#",
+      "#####...##",
+      "###...####",
+      "#S..######",
+      "###.######",
+      "##########"
+    ],
+    "startDir": "E"
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "loop1",
+              "fields": {
+                "TIMES": 3
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "cq_proc_call",
+                    "id": "cast1",
+                    "fields": {
+                      "PROC": "hop"
+                    }
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "type": "maze_turn_left",
+                  "id": "left1",
+                  "next": {
+                    "block": {
+                      "type": "cq_proc_call",
+                      "id": "cast2",
+                      "fields": {
+                        "PROC": "hop"
+                      },
+                      "next": {
+                        "block": {
+                          "type": "maze_forward",
+                          "id": "fwd1"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "cq_proc_def",
+          "id": "def_hop",
+          "x": 380,
+          "y": 40,
+          "fields": {
+            "PROC": "hop"
+          },
+          "inputs": {
+            "BODY": {
+              "block": {
+                "type": "maze_forward",
+                "id": "fwd2",
+                "next": {
+                  "block": {
+                    "type": "maze_forward",
+                    "id": "fwd3",
+                    "next": {
+                      "block": {
+                        "type": "maze_turn_left",
+                        "id": "left2",
+                        "next": {
+                          "block": {
+                            "type": "maze_forward",
+                            "id": "fwd4",
+                            "next": {
+                              "block": {
+                                "type": "maze_turn_right",
+                                "id": "right1"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "loop",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "TOO_MANY_BLOCKS"
+      },
+      "say": "Phép chạy 3 lần liền. Vòng lặp giúp được không?",
+      "point": "toolbox:cq_repeat"
+    },
+    {
+      "id": "cap",
+      "when": {
+        "capacityFull": true
+      },
+      "say": "Đoạn nào lặp lại? Dạy thành phép được không?",
+      "point": "toolbox:cq_proc_def"
+    },
+    {
+      "id": "dead",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "HIT_WALL"
+      },
+      "say": "Leo mấy bậc thì phải rẽ?",
+      "point": "stage"
+    },
+    {
+      "id": "loose",
+      "when": {
+        "trigger": "run-end",
+        "orphans": true
+      },
+      "say": "Còn khối rời. Nối hết vào khi bắt đầu nhé!"
+    }
+  ],
+  "thinkingHint": "Phép nào chạy mấy lần liền?",
+  "feedback": {
+    "TOO_MANY_BLOCKS": "Phép chạy 3 lần liền. Vòng lặp giúp được không?"
+  }
+}

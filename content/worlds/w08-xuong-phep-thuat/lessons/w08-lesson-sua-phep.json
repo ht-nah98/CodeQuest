@@ -1,0 +1,226 @@
+{
+  "id": "w08-lesson-sua-phep",
+  "worldId": "w08-xuong-phep-thuat",
+  "title": "Sửa phép",
+  "beforeLevel": "w08-l05",
+  "cards": [
+    {
+      "type": "say",
+      "pose": "point",
+      "text": "Sửa trong phép 1 lần, đúng ở mọi chỗ."
+    },
+    {
+      "type": "demo",
+      "text": "Phép sai 1 khối. Lần làm phép nào cũng sai.",
+      "kind": "maze",
+      "config": {
+        "map": ["########", "######G#", "#####..#", "##....##", "#S.#####", "########"],
+        "startDir": "E"
+      },
+      "procedures": [
+        {
+          "id": "stair",
+          "name": "bậc thang"
+        }
+      ],
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "cq_proc_call",
+                  "id": "cast1",
+                  "fields": {
+                    "PROC": "stair"
+                  },
+                  "next": {
+                    "block": {
+                      "type": "maze_forward",
+                      "id": "fwd1",
+                      "next": {
+                        "block": {
+                          "type": "maze_forward",
+                          "id": "fwd2",
+                          "next": {
+                            "block": {
+                              "type": "cq_proc_call",
+                              "id": "cast2",
+                              "fields": {
+                                "PROC": "stair"
+                              },
+                              "next": {
+                                "block": {
+                                  "type": "cq_proc_call",
+                                  "id": "cast3",
+                                  "fields": {
+                                    "PROC": "stair"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "type": "cq_proc_def",
+              "id": "def_stair",
+              "x": 380,
+              "y": 40,
+              "fields": {
+                "PROC": "stair"
+              },
+              "inputs": {
+                "BODY": {
+                  "block": {
+                    "type": "maze_forward",
+                    "id": "fwd3",
+                    "next": {
+                      "block": {
+                        "type": "maze_turn_right",
+                        "id": "right1",
+                        "next": {
+                          "block": {
+                            "type": "maze_forward",
+                            "id": "fwd4",
+                            "next": {
+                              "block": {
+                                "type": "maze_turn_right",
+                                "id": "right2"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "demo",
+      "text": "Sửa 1 khối trong phép. Cả 3 chỗ đều đúng!",
+      "kind": "maze",
+      "config": {
+        "map": ["########", "######G#", "#####..#", "##....##", "#S.#####", "########"],
+        "startDir": "E"
+      },
+      "procedures": [
+        {
+          "id": "stair",
+          "name": "bậc thang"
+        }
+      ],
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "cq_proc_call",
+                  "id": "cast1",
+                  "fields": {
+                    "PROC": "stair"
+                  },
+                  "next": {
+                    "block": {
+                      "type": "maze_forward",
+                      "id": "fwd1",
+                      "next": {
+                        "block": {
+                          "type": "maze_forward",
+                          "id": "fwd2",
+                          "next": {
+                            "block": {
+                              "type": "cq_proc_call",
+                              "id": "cast2",
+                              "fields": {
+                                "PROC": "stair"
+                              },
+                              "next": {
+                                "block": {
+                                  "type": "cq_proc_call",
+                                  "id": "cast3",
+                                  "fields": {
+                                    "PROC": "stair"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "type": "cq_proc_def",
+              "id": "def_stair",
+              "x": 380,
+              "y": 40,
+              "fields": {
+                "PROC": "stair"
+              },
+              "inputs": {
+                "BODY": {
+                  "block": {
+                    "type": "maze_forward",
+                    "id": "fwd3",
+                    "next": {
+                      "block": {
+                        "type": "maze_turn_left",
+                        "id": "left1",
+                        "next": {
+                          "block": {
+                            "type": "maze_forward",
+                            "id": "fwd4",
+                            "next": {
+                              "block": {
+                                "type": "maze_turn_right",
+                                "id": "right1"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "quiz",
+      "text": "Phép sai 1 khối, làm phép 3 lần. Sửa mấy chỗ?",
+      "options": ["1 chỗ, trong phép", "3 chỗ"],
+      "correct": 0,
+      "explain": "3 lần làm phép dùng chung 1 phép. Sửa phép là đủ."
+    }
+  ]
+}

@@ -1,0 +1,259 @@
+{
+  "id": "w08-l13",
+  "worldId": "w08-xuong-phep-thuat",
+  "stage": "practice",
+  "kind": "maze",
+  "mode": "parsons",
+  "title": "Phép có hộp",
+  "objective": "Ghép phép đi rồi rẽ. Mỗi lần 1 số ô.",
+  "learningGoal": "Phép đi rồi rẽ có hộp số ô: lặp số ô lần tiến, rồi rẽ phải. Làm phép với 5, 4, 4, 2, 2 thì Măng đi xoắn ốc.",
+  "misconception": "Phép có hộp lần nào cũng đi cùng số ô.",
+  "mission": "Vỏ ốc khổng lồ trong xưởng. Đi vào giữa nhé!",
+  "toolbox": [],
+  "maxLoopDepth": 1,
+  "par": 9,
+  "procedures": [
+    {
+      "id": "turn",
+      "name": "đi rồi rẽ",
+      "param": {
+        "id": "cells",
+        "name": "số ô",
+        "max": 9
+      }
+    }
+  ],
+  "config": {
+    "map": ["########", "#S.....#", "######.#", "##..G#.#", "##.###.#", "##.....#", "########"],
+    "startDir": "E"
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false
+        },
+        {
+          "type": "cq_proc_def_n",
+          "id": "def_turn",
+          "x": 380,
+          "y": 40,
+          "fields": {
+            "PROC": "turn"
+          }
+        },
+        {
+          "type": "cq_proc_call_n",
+          "id": "cast1",
+          "fields": {
+            "PROC": "turn",
+            "NUM": 5
+          },
+          "x": 40,
+          "y": 300
+        },
+        {
+          "type": "cq_proc_call_n",
+          "id": "cast2",
+          "fields": {
+            "PROC": "turn",
+            "NUM": 4
+          },
+          "x": 340,
+          "y": 300
+        },
+        {
+          "type": "cq_proc_call_n",
+          "id": "cast3",
+          "fields": {
+            "PROC": "turn",
+            "NUM": 4
+          },
+          "x": 40,
+          "y": 375
+        },
+        {
+          "type": "cq_proc_call_n",
+          "id": "cast4",
+          "fields": {
+            "PROC": "turn",
+            "NUM": 2
+          },
+          "x": 340,
+          "y": 375
+        },
+        {
+          "type": "cq_proc_call_n",
+          "id": "cast5",
+          "fields": {
+            "PROC": "turn",
+            "NUM": 2
+          },
+          "x": 40,
+          "y": 450
+        },
+        {
+          "type": "cq_repeat_var",
+          "id": "boxloop1",
+          "fields": {
+            "VAR": "cells"
+          },
+          "inputs": {},
+          "x": 340,
+          "y": 450
+        },
+        {
+          "type": "maze_forward",
+          "id": "fwd1",
+          "x": 40,
+          "y": 525
+        },
+        {
+          "type": "maze_turn_right",
+          "id": "right1",
+          "x": 340,
+          "y": 525
+        }
+      ]
+    }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_proc_call_n",
+              "id": "cast1",
+              "fields": {
+                "PROC": "turn",
+                "NUM": 5
+              },
+              "next": {
+                "block": {
+                  "type": "cq_proc_call_n",
+                  "id": "cast2",
+                  "fields": {
+                    "PROC": "turn",
+                    "NUM": 4
+                  },
+                  "next": {
+                    "block": {
+                      "type": "cq_proc_call_n",
+                      "id": "cast3",
+                      "fields": {
+                        "PROC": "turn",
+                        "NUM": 4
+                      },
+                      "next": {
+                        "block": {
+                          "type": "cq_proc_call_n",
+                          "id": "cast4",
+                          "fields": {
+                            "PROC": "turn",
+                            "NUM": 2
+                          },
+                          "next": {
+                            "block": {
+                              "type": "cq_proc_call_n",
+                              "id": "cast5",
+                              "fields": {
+                                "PROC": "turn",
+                                "NUM": 2
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "cq_proc_def_n",
+          "id": "def_turn",
+          "x": 380,
+          "y": 40,
+          "fields": {
+            "PROC": "turn"
+          },
+          "inputs": {
+            "BODY": {
+              "block": {
+                "type": "cq_repeat_var",
+                "id": "boxloop1",
+                "fields": {
+                  "VAR": "cells"
+                },
+                "inputs": {
+                  "DO": {
+                    "block": {
+                      "type": "maze_forward",
+                      "id": "fwd1"
+                    }
+                  }
+                },
+                "next": {
+                  "block": {
+                    "type": "maze_turn_right",
+                    "id": "right1"
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "defn",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Khối mới! Dạy phép với hộp: làm phép thì hộp nhận số",
+      "point": "block:cq_proc_def_n"
+    },
+    {
+      "id": "calln",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Khối mới! Làm phép với số: hộp của phép nhận số này",
+      "point": "block:cq_proc_call_n"
+    },
+    {
+      "id": "order",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "HIT_WALL"
+      },
+      "say": "Cạnh đầu dài mấy ô? Cạnh sau mấy ô?",
+      "point": "stage"
+    },
+    {
+      "id": "loose",
+      "when": {
+        "trigger": "run-end",
+        "orphans": true
+      },
+      "say": "Còn khối rời. Nối hết vào khi bắt đầu nhé!"
+    }
+  ],
+  "thinkingHint": "Mỗi cạnh của vỏ ốc dài mấy ô?"
+}

@@ -1,0 +1,258 @@
+{
+  "id": "w08-l03",
+  "worldId": "w08-xuong-phep-thuat",
+  "stage": "guided",
+  "kind": "maze",
+  "mode": "build",
+  "title": "Vòng kệ sách",
+  "objective": "Phép có sẵn rồi. Làm phép ở 3 kệ sách nhé!",
+  "learningGoal": "Phép vòng kệ sách đã dạy sẵn. Bé chỉ ghép chương trình chính: làm phép, rẽ phải, làm phép, tiến 2 ô, làm phép.",
+  "misconception": "Làm phép liền nhau là đủ, không cần khối giữa.",
+  "mission": "3 kệ sách chắn lối đi. Măng vòng qua nhé!",
+  "toolbox": ["maze_forward", "maze_turn_left", "maze_turn_right", "cq_proc_def", "cq_proc_call"],
+  "maxInstances": {
+    "cq_proc_def": 1
+  },
+  "maxLoopDepth": 1,
+  "par": 15,
+  "procedures": [
+    {
+      "id": "shelf",
+      "name": "vòng kệ sách"
+    }
+  ],
+  "config": {
+    "map": [
+      "######",
+      "#...##",
+      "#S#..#",
+      "####.#",
+      "###..#",
+      "###.##",
+      "###..#",
+      "####.#",
+      "###G.#",
+      "######"
+    ],
+    "startDir": "E"
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false
+        },
+        {
+          "type": "cq_proc_def",
+          "id": "def_shelf",
+          "x": 380,
+          "y": 40,
+          "fields": {
+            "PROC": "shelf"
+          },
+          "inputs": {
+            "BODY": {
+              "block": {
+                "type": "maze_turn_left",
+                "id": "left1",
+                "next": {
+                  "block": {
+                    "type": "maze_forward",
+                    "id": "fwd1",
+                    "next": {
+                      "block": {
+                        "type": "maze_turn_right",
+                        "id": "right1",
+                        "next": {
+                          "block": {
+                            "type": "maze_forward",
+                            "id": "fwd2",
+                            "next": {
+                              "block": {
+                                "type": "maze_forward",
+                                "id": "fwd3",
+                                "next": {
+                                  "block": {
+                                    "type": "maze_turn_right",
+                                    "id": "right2",
+                                    "next": {
+                                      "block": {
+                                        "type": "maze_forward",
+                                        "id": "fwd4",
+                                        "next": {
+                                          "block": {
+                                            "type": "maze_turn_left",
+                                            "id": "left2"
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_proc_call",
+              "id": "cast1",
+              "fields": {
+                "PROC": "shelf"
+              },
+              "next": {
+                "block": {
+                  "type": "maze_turn_right",
+                  "id": "right1",
+                  "next": {
+                    "block": {
+                      "type": "cq_proc_call",
+                      "id": "cast2",
+                      "fields": {
+                        "PROC": "shelf"
+                      },
+                      "next": {
+                        "block": {
+                          "type": "maze_forward",
+                          "id": "fwd1",
+                          "next": {
+                            "block": {
+                              "type": "maze_forward",
+                              "id": "fwd2",
+                              "next": {
+                                "block": {
+                                  "type": "cq_proc_call",
+                                  "id": "cast3",
+                                  "fields": {
+                                    "PROC": "shelf"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "cq_proc_def",
+          "id": "def_shelf",
+          "x": 380,
+          "y": 40,
+          "fields": {
+            "PROC": "shelf"
+          },
+          "inputs": {
+            "BODY": {
+              "block": {
+                "type": "maze_turn_left",
+                "id": "left1",
+                "next": {
+                  "block": {
+                    "type": "maze_forward",
+                    "id": "fwd3",
+                    "next": {
+                      "block": {
+                        "type": "maze_turn_right",
+                        "id": "right2",
+                        "next": {
+                          "block": {
+                            "type": "maze_forward",
+                            "id": "fwd4",
+                            "next": {
+                              "block": {
+                                "type": "maze_forward",
+                                "id": "fwd5",
+                                "next": {
+                                  "block": {
+                                    "type": "maze_turn_right",
+                                    "id": "right3",
+                                    "next": {
+                                      "block": {
+                                        "type": "maze_forward",
+                                        "id": "fwd6",
+                                        "next": {
+                                          "block": {
+                                            "type": "maze_turn_left",
+                                            "id": "left2"
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "given",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Phép vòng kệ sách dạy sẵn rồi. Làm phép ở đâu?",
+      "point": "block:cq_proc_def"
+    },
+    {
+      "id": "gap",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "HIT_WALL"
+      },
+      "say": "Sau mỗi kệ sách, Măng cần rẽ hay tiến?",
+      "point": "stage"
+    },
+    {
+      "id": "loose",
+      "when": {
+        "trigger": "run-end",
+        "orphans": true
+      },
+      "say": "Còn khối rời. Nối hết vào khi bắt đầu nhé!"
+    }
+  ],
+  "thinkingHint": "Măng phải vòng qua mấy chỗ?"
+}

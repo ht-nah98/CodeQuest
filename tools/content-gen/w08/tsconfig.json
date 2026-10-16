@@ -1,0 +1,27 @@
+{
+  "extends": "../../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": ".",
+    "types": ["node"],
+    "noEmit": true,
+    "composite": false,
+    "declaration": true,
+    "emitDeclarationOnly": false,
+    "tsBuildInfoFile": "${configDir}/.tsbuild/tsconfig.tsbuildinfo"
+  },
+  "include": ["*.ts"],
+  "references": [
+    {
+      "path": "../../../packages/content-schema"
+    },
+    {
+      "path": "../../../packages/engine"
+    },
+    {
+      "path": "../../../packages/games"
+    },
+    {
+      "path": "../../../packages/validator"
+    }
+  ]
+}

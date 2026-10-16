@@ -1,0 +1,133 @@
+{
+  "id": "w08-lesson-phep-trong-lap",
+  "worldId": "w08-xuong-phep-thuat",
+  "title": "Phép trong vòng lặp",
+  "beforeLevel": "w08-l08",
+  "cards": [
+    {
+      "type": "say",
+      "pose": "point",
+      "text": "Làm phép trong vòng lặp: mỗi vòng làm phép 1 lần."
+    },
+    {
+      "type": "demo",
+      "text": "Làm phép, tiến 2 ô, rồi lặp 3 lần làm phép.",
+      "kind": "maze",
+      "config": {
+        "map": [
+          "#########",
+          "#######G#",
+          "######..#",
+          "#####..##",
+          "##....###",
+          "#S.######",
+          "#########"
+        ],
+        "startDir": "E"
+      },
+      "procedures": [
+        {
+          "id": "stair",
+          "name": "bậc thang"
+        }
+      ],
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "cq_proc_call",
+                  "id": "cast1",
+                  "fields": {
+                    "PROC": "stair"
+                  },
+                  "next": {
+                    "block": {
+                      "type": "maze_forward",
+                      "id": "fwd1",
+                      "next": {
+                        "block": {
+                          "type": "maze_forward",
+                          "id": "fwd2",
+                          "next": {
+                            "block": {
+                              "type": "cq_repeat",
+                              "id": "loop1",
+                              "fields": {
+                                "TIMES": 3
+                              },
+                              "inputs": {
+                                "DO": {
+                                  "block": {
+                                    "type": "cq_proc_call",
+                                    "id": "cast2",
+                                    "fields": {
+                                      "PROC": "stair"
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "type": "cq_proc_def",
+              "id": "def_stair",
+              "x": 380,
+              "y": 40,
+              "fields": {
+                "PROC": "stair"
+              },
+              "inputs": {
+                "BODY": {
+                  "block": {
+                    "type": "maze_forward",
+                    "id": "fwd3",
+                    "next": {
+                      "block": {
+                        "type": "maze_turn_left",
+                        "id": "left1",
+                        "next": {
+                          "block": {
+                            "type": "maze_forward",
+                            "id": "fwd4",
+                            "next": {
+                              "block": {
+                                "type": "maze_turn_right",
+                                "id": "right1"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "quiz",
+      "text": "Lặp 3 lần, làm phép. Phép chạy mấy lần?",
+      "options": ["3 lần", "1 lần"],
+      "correct": 0,
+      "explain": "Mỗi vòng làm phép 1 lần. 3 vòng là 3 lần."
+    }
+  ]
+}

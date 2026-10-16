@@ -1,0 +1,336 @@
+{
+  "id": "w08-boss",
+  "worldId": "w08-xuong-phep-thuat",
+  "stage": "boss",
+  "kind": "robotlab",
+  "mode": "build",
+  "title": "Ngày hội phép thuật",
+  "objective": "Làm đủ 4 việc, về phòng trong 70 giây!",
+  "learningGoal": "Phép trung hòa (có hộp số ô) đi tới khối trung hòa rồi chở về trạm; phép thu hồi mang khối ô nhiễm gần đó về phòng. Trung hòa trước, thu hồi trên đường về: 65 giây. Thu hồi khối gần trước thì hết giờ.",
+  "misconception": "Việc nào gần thì làm trước.",
+  "mission": "Khối trung hòa đỏ, vàng về trạm; khối ô nhiễm về phòng!",
+  "toolbox": [
+    "robot_forward",
+    "robot_turn_left",
+    "robot_turn_right",
+    "robot_grab",
+    "robot_release",
+    "cq_proc_def",
+    "cq_proc_call",
+    "cq_proc_def_n",
+    "cq_proc_call_n",
+    {
+      "type": "cq_repeat_var",
+      "fields": {
+        "VAR": "cells"
+      }
+    }
+  ],
+  "maxBlocks": 25,
+  "maxInstances": {
+    "cq_proc_def": 1,
+    "cq_proc_def_n": 1,
+    "robot_grab": 2,
+    "robot_release": 2
+  },
+  "maxLoopDepth": 1,
+  "par": 23,
+  "parUnproven": true,
+  "procedures": [
+    {
+      "id": "neutral",
+      "name": "trung hòa",
+      "param": {
+        "id": "cells",
+        "name": "số ô",
+        "max": 9
+      }
+    },
+    {
+      "id": "fetch",
+      "name": "thu hồi"
+    }
+  ],
+  "config": {
+    "map": [".......", ".#.#.#r", "y..L...", ".#.#.#.", "......."],
+    "startDir": "N",
+    "blocks": [
+      {
+        "kind": "neutralizer",
+        "color": "RED",
+        "at": [0, 6]
+      },
+      {
+        "kind": "pollution",
+        "color": "RED",
+        "at": [2, 5]
+      },
+      {
+        "kind": "neutralizer",
+        "color": "YELLOW",
+        "at": [4, 0]
+      },
+      {
+        "kind": "pollution",
+        "color": "YELLOW",
+        "at": [2, 1]
+      }
+    ],
+    "goal": {
+      "type": "missions",
+      "mustReturn": true
+    },
+    "rules": {
+      "timeLimit": 70
+    }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "robot_turn_right",
+              "id": "right1",
+              "next": {
+                "block": {
+                  "type": "cq_proc_call_n",
+                  "id": "cast1",
+                  "fields": {
+                    "PROC": "neutral",
+                    "NUM": 1
+                  },
+                  "next": {
+                    "block": {
+                      "type": "robot_forward",
+                      "id": "go1",
+                      "fields": {
+                        "N": 1
+                      },
+                      "next": {
+                        "block": {
+                          "type": "cq_proc_call",
+                          "id": "cast2",
+                          "fields": {
+                            "PROC": "fetch"
+                          },
+                          "next": {
+                            "block": {
+                              "type": "cq_proc_call_n",
+                              "id": "cast3",
+                              "fields": {
+                                "PROC": "neutral",
+                                "NUM": 2
+                              },
+                              "next": {
+                                "block": {
+                                  "type": "cq_proc_call",
+                                  "id": "cast4",
+                                  "fields": {
+                                    "PROC": "fetch"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "cq_proc_def_n",
+          "id": "def_neutral",
+          "x": 380,
+          "y": 40,
+          "fields": {
+            "PROC": "neutral"
+          },
+          "inputs": {
+            "BODY": {
+              "block": {
+                "type": "robot_forward",
+                "id": "go2",
+                "fields": {
+                  "N": 1
+                },
+                "next": {
+                  "block": {
+                    "type": "robot_turn_left",
+                    "id": "left1",
+                    "next": {
+                      "block": {
+                        "type": "robot_forward",
+                        "id": "go3",
+                        "fields": {
+                          "N": 2
+                        },
+                        "next": {
+                          "block": {
+                            "type": "robot_turn_right",
+                            "id": "right2",
+                            "next": {
+                              "block": {
+                                "type": "robot_forward",
+                                "id": "go4",
+                                "fields": {
+                                  "N": 2
+                                },
+                                "next": {
+                                  "block": {
+                                    "type": "robot_grab",
+                                    "id": "grab1",
+                                    "next": {
+                                      "block": {
+                                        "type": "robot_turn_right",
+                                        "id": "right3",
+                                        "next": {
+                                          "block": {
+                                            "type": "cq_repeat_var",
+                                            "id": "boxloop1",
+                                            "fields": {
+                                              "VAR": "cells"
+                                            },
+                                            "inputs": {
+                                              "DO": {
+                                                "block": {
+                                                  "type": "robot_forward",
+                                                  "id": "go5",
+                                                  "fields": {
+                                                    "N": 1
+                                                  }
+                                                }
+                                              }
+                                            },
+                                            "next": {
+                                              "block": {
+                                                "type": "robot_release",
+                                                "id": "drop1"
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "cq_proc_def",
+          "id": "def_fetch",
+          "x": 380,
+          "y": 260,
+          "fields": {
+            "PROC": "fetch"
+          },
+          "inputs": {
+            "BODY": {
+              "block": {
+                "type": "robot_turn_right",
+                "id": "right4",
+                "next": {
+                  "block": {
+                    "type": "robot_forward",
+                    "id": "go6",
+                    "fields": {
+                      "N": 1
+                    },
+                    "next": {
+                      "block": {
+                        "type": "robot_grab",
+                        "id": "grab2",
+                        "next": {
+                          "block": {
+                            "type": "robot_forward",
+                            "id": "go7",
+                            "fields": {
+                              "N": 2
+                            },
+                            "next": {
+                              "block": {
+                                "type": "robot_release",
+                                "id": "drop2"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "order",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Việc gần nhất có phải làm trước không?",
+      "point": "stage"
+    },
+    {
+      "id": "time",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "OUT_OF_TIME"
+      },
+      "say": "Trung hòa xong, khối ô nhiễm nào ở gần?",
+      "point": "stage"
+    },
+    {
+      "id": "grab",
+      "when": {
+        "all": [
+          {
+            "trigger": "run-end",
+            "lastReason": "MISSIONS_LEFT"
+          },
+          {
+            "instancesFull": "robot_grab"
+          }
+        ]
+      },
+      "say": "Chỉ 2 khối gắp. Gắp 4 lần bằng cách nào?",
+      "point": "toolbox:cq_proc_def_n"
+    },
+    {
+      "id": "loose",
+      "when": {
+        "trigger": "run-end",
+        "orphans": true
+      },
+      "say": "Còn khối rời. Nối hết vào khi bắt đầu nhé!"
+    }
+  ],
+  "thinkingHint": "Làm việc nào trước thì đường về ngắn hơn?",
+  "feedback": {
+    "TOO_MANY_BLOCKS": "Nhiều khối quá. Đoạn nào lặp lại? Dạy thành phép được không?"
+  }
+}

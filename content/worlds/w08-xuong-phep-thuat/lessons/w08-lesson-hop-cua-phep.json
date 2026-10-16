@@ -1,0 +1,124 @@
+{
+  "id": "w08-lesson-hop-cua-phep",
+  "worldId": "w08-xuong-phep-thuat",
+  "title": "Hộp của phép",
+  "beforeLevel": "w08-l13",
+  "cards": [
+    {
+      "type": "say",
+      "pose": "point",
+      "text": "Khối mới! Dạy phép với hộp: làm phép thì hộp nhận số"
+    },
+    {
+      "type": "say",
+      "pose": "point",
+      "text": "Khối mới! Làm phép với số: hộp của phép nhận số này"
+    },
+    {
+      "type": "demo",
+      "text": "Làm phép với 2, rồi với 1.",
+      "kind": "maze",
+      "config": {
+        "map": ["####", "#S.#", "##.#", "#G.#", "####"],
+        "startDir": "E"
+      },
+      "procedures": [
+        {
+          "id": "turn",
+          "name": "rẽ rồi đi",
+          "param": {
+            "id": "cells",
+            "name": "số ô",
+            "max": 9
+          }
+        }
+      ],
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "maze_forward",
+                  "id": "fwd1",
+                  "next": {
+                    "block": {
+                      "type": "cq_proc_call_n",
+                      "id": "cast1",
+                      "fields": {
+                        "PROC": "turn",
+                        "NUM": 2
+                      },
+                      "next": {
+                        "block": {
+                          "type": "cq_proc_call_n",
+                          "id": "cast2",
+                          "fields": {
+                            "PROC": "turn",
+                            "NUM": 1
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "type": "cq_proc_def_n",
+              "id": "def_turn",
+              "x": 380,
+              "y": 40,
+              "fields": {
+                "PROC": "turn"
+              },
+              "inputs": {
+                "BODY": {
+                  "block": {
+                    "type": "maze_turn_right",
+                    "id": "right1",
+                    "next": {
+                      "block": {
+                        "type": "cq_repeat_var",
+                        "id": "boxloop1",
+                        "fields": {
+                          "VAR": "cells"
+                        },
+                        "inputs": {
+                          "DO": {
+                            "block": {
+                              "type": "maze_forward",
+                              "id": "fwd2"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "say",
+      "pose": "think",
+      "text": "Mỗi lần làm phép, hộp nhận số mới."
+    },
+    {
+      "type": "quiz",
+      "text": "Làm phép với 4, rồi với 1. Đi mấy ô?",
+      "options": ["5 ô", "8 ô"],
+      "correct": 0,
+      "explain": "Hộp có 4, rồi có 1: đi 5 ô."
+    }
+  ]
+}

@@ -1,0 +1,120 @@
+{
+  "id": "w08-l02",
+  "worldId": "w08-xuong-phep-thuat",
+  "stage": "guided",
+  "kind": "maze",
+  "mode": "predict",
+  "title": "Dạy mà chưa làm",
+  "objective": "Đọc chương trình. Măng dừng ở đâu?",
+  "learningGoal": "Khối dạy phép chỉ nhớ các khối bên trong. Chương trình chính không có làm phép, nên Măng chỉ tiến 2 ô.",
+  "misconception": "Phép chạy ngay khi dạy.",
+  "mission": "Bác Cú dạy phép bậc thang. Măng làm chưa?",
+  "toolbox": [],
+  "maxLoopDepth": 1,
+  "procedures": [
+    {
+      "id": "stair",
+      "name": "bậc thang"
+    }
+  ],
+  "config": {
+    "map": ["########", "#####.G#", "####..##", "#S...###", "########"],
+    "startDir": "E"
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "maze_forward",
+              "id": "fwd1",
+              "next": {
+                "block": {
+                  "type": "maze_forward",
+                  "id": "fwd2"
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "cq_proc_def",
+          "id": "def_stair",
+          "x": 380,
+          "y": 40,
+          "fields": {
+            "PROC": "stair"
+          },
+          "inputs": {
+            "BODY": {
+              "block": {
+                "type": "maze_forward",
+                "id": "fwd3",
+                "next": {
+                  "block": {
+                    "type": "maze_turn_left",
+                    "id": "left1",
+                    "next": {
+                      "block": {
+                        "type": "maze_forward",
+                        "id": "fwd4",
+                        "next": {
+                          "block": {
+                            "type": "maze_turn_right",
+                            "id": "right1"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "predict": {
+    "options": [
+      {
+        "key": "stop@2,4",
+        "label": "Leo 1 bậc rồi dừng"
+      },
+      {
+        "key": "stop@3,3",
+        "label": "Đi 2 ô, đứng dưới chân dốc"
+      },
+      {
+        "key": "win",
+        "label": "Leo hết dốc, tới lá cờ"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "look",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Dưới khi bắt đầu có khối làm phép không?",
+      "point": "stage"
+    },
+    {
+      "id": "teach",
+      "when": {
+        "trigger": "idle"
+      },
+      "say": "Dạy phép xong, Măng có làm ngay không?",
+      "point": "stage"
+    }
+  ],
+  "thinkingHint": "Măng làm những khối nào dưới khi bắt đầu?"
+}

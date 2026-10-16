@@ -1,0 +1,112 @@
+{
+  "id": "w08-xuong-phep-thuat",
+  "order": 8,
+  "title": "Xưởng Phép Thuật",
+  "emoji": "🪄",
+  "concept": "Hàm: đặt tên cho một nhóm khối, làm phép nhiều lần; phép có hộp số",
+  "story": "Gió thổi bay chữ trong sách phép của bác Cú. Măng viết lại từng phép.",
+  "chapters": [
+    {
+      "id": "sach-phep",
+      "title": "Sách phép trống trơn",
+      "lines": [
+        "Bác Cú có cuốn sách phép thuật.",
+        "Gió của phù thủy thổi bay hết chữ.",
+        "Bác Cú dạy Măng: phép là nhóm khối có tên."
+      ],
+      "art": {
+        "cast": ["owl"],
+        "prop": "spellbook"
+      }
+    },
+    {
+      "id": "phep-dau-tien",
+      "title": "Phép đầu tiên",
+      "unlockAfter": "w08-l04",
+      "lines": ["Măng dạy phép, rồi làm phép ở nhiều chỗ.", "Gấu nâu khen: đỡ mỏi tay quá!"],
+      "art": {
+        "cast": ["bear"],
+        "prop": "wand"
+      }
+    },
+    {
+      "id": "bip-hoc-phep",
+      "title": "Bíp cũng học phép",
+      "unlockAfter": "w08-l05",
+      "lines": ["Bíp cũng muốn học phép.", "Măng dạy Bíp phép giao khối trung hòa."],
+      "art": {
+        "cast": ["owl"],
+        "prop": "robot"
+      }
+    },
+    {
+      "id": "phep-co-hop",
+      "title": "Phép có hộp",
+      "unlockAfter": "w08-l12",
+      "lines": ["Bác Cú mở trang cuối sách phép.", "Phép này có 1 chiếc hộp nhỏ."],
+      "art": {
+        "cast": ["owl"],
+        "prop": "box"
+      }
+    },
+    {
+      "id": "ngay-hoi",
+      "title": "Ngày hội phép thuật",
+      "unlockAfter": "w08-boss",
+      "lines": ["Bíp dọn sạch thành phố bằng 2 phép.", "Cô Thỏ gọi: lên Tháp Họa Sĩ vẽ nhé!"],
+      "art": {
+        "cast": ["bunny", "owl"],
+        "prop": "wand"
+      }
+    }
+  ],
+  "theme": {
+    "tileset": "/tiles/ground.png",
+    "palette": "day",
+    "scene": "xuong-phep-thuat"
+  },
+  "lessonIds": [
+    "w08-lesson",
+    "w08-lesson-sua-phep",
+    "w08-lesson-phep-trong-lap",
+    "w08-lesson-hai-phep",
+    "w08-lesson-phep-hoi",
+    "w08-lesson-hop-cua-phep"
+  ],
+  "levelIds": [
+    "w08-l01",
+    "w08-l02",
+    "w08-l03",
+    "w08-l04",
+    "w08-l05",
+    "w08-l06",
+    "w08-l07",
+    "w08-l08",
+    "w08-l09",
+    "w08-l10",
+    "w08-l11",
+    "w08-l12",
+    "w08-l13",
+    "w08-l14",
+    "w08-l15",
+    "w08-l16",
+    "w08-l17",
+    "w08-l18",
+    "w08-l19",
+    "w08-boss",
+    "w08-creative"
+  ],
+  "unlock": {
+    "minStarRatio": 0.6
+  },
+  "unplugged": {
+    "title": "Thẻ phép thuật",
+    "steps": [
+      "Mỗi nhóm có thẻ trống ghi tên phép, ví dụ \"phép lò cò\".",
+      "Một bé viết lên thẻ 3 động tác: nhảy, nhảy, xoay.",
+      "Bạn đọc: \"bước, làm phép lò cò, bước, làm phép lò cò\".",
+      "Vòng 2: chỉ đọc thẻ phép mà không làm phép. Bạn kia có làm không?",
+      "Vòng 3: thẻ \"phép bước với hộp số bước\". Đọc \"làm phép bước với 3\"."
+    ]
+  }
+}
