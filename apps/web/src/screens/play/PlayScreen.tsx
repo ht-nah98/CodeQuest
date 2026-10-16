@@ -64,6 +64,7 @@ import {
 } from '../../features/play/run';
 import type { WinReward } from '../../features/play/session';
 import { hasStarGoals } from '../../features/play/starGoals';
+import { panelBoxes } from '../../features/play/varBoxes';
 import { usePlaySession } from '../../features/play/usePlaySession';
 import {
   addExamRun,
@@ -520,6 +521,11 @@ function PlaySession({
 
   // The box panel (ADR-0022 §6): levels with `variables` only. The block of the workspace
   // tells `đặt` from `tăng`, and which box a question asks about.
+  // The box panel also shows each spell's box (ADR-0023 §2): 0 until a `làm phép … với` runs.
+  const panelVariables = useMemo(
+    () => panelBoxes(level.variables, level.procedures),
+    [level.variables, level.procedures],
+  );
   const blockInfo = useCallback(
     (blockId: string) => boxBlockInfo(workspaceRef.current, blockId),
     [],
@@ -530,7 +536,7 @@ function PlaySession({
     onVar: boxChanged,
     onAsked: boxAsked,
     showVerdict,
-  } = useVarBoxes(level.variables, blockInfo);
+  } = useVarBoxes(panelVariables, blockInfo);
 
   /** Cleanup of the ✔/✘ a question block shows while the replay asks it (P2-11). */
   const senseRef = useRef<(() => void) | null>(null);
@@ -1331,7 +1337,7 @@ function PlaySession({
               {...(stageReady && !running && { onPeek: peekStage })}
             />
           )}
-          {level.variables !== undefined && (
+          {panelVariables !== undefined && (
             <VarBoxes
               state={boxes}
               announce={{ running: phase === 'running', stepping }}

@@ -11,6 +11,7 @@ import { vi } from '../../i18n/vi';
 import { getStageKind } from '../../stages/registry';
 import { type SenseMark, type SpellEvent, StageController } from '../../stages/StageController';
 import { Button, PixelIcon } from '../../ui';
+import { panelBoxes } from '../../features/play/varBoxes';
 import { boxBlockInfo, useVarBoxes } from '../play/useVarBoxes';
 import { VarBoxes } from '../play/VarBoxes';
 
@@ -91,12 +92,17 @@ export function LessonDemo({
     (blockId: string) => boxBlockInfo(workspaceRef.current, blockId),
     [],
   );
+  // The box panel also shows each spell's box (ADR-0023 §2).
+  const panelVariables = useMemo(
+    () => panelBoxes(card.variables, card.procedures),
+    [card.variables, card.procedures],
+  );
   const {
     state: boxes,
     reset: resetBoxes,
     onVar,
     onAsked,
-  } = useVarBoxes(card.variables, blockInfo);
+  } = useVarBoxes(panelVariables, blockInfo);
 
   /** The ✔/✘ a question block shows while the demo asks it (P2-11). */
   const senseRef = useRef<(() => void) | null>(null);
@@ -243,7 +249,7 @@ export function LessonDemo({
             >
               {phase === 'done' ? t.demoAgain : t.demoRun}
             </Button>
-            {card.variables !== undefined && (
+            {panelVariables !== undefined && (
               <VarBoxes
                 state={boxes}
                 compact

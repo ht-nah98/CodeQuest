@@ -1,5 +1,11 @@
-import { type LevelVariable, variableMax, variableStart } from '@codequest/content-schema';
-import { CQ_VAR_SET, type VarEvent } from '@codequest/engine';
+import {
+  type LevelProcedure,
+  type LevelVariable,
+  procedureBoxes,
+  variableMax,
+  variableStart,
+} from '@codequest/content-schema';
+import { CQ_VAR_SET, PROC_CALL_TYPES, type VarEvent } from '@codequest/engine';
 
 // The "bảng hộp" next to the stage (ADR-0022 §6): what each box holds during a replay, rebuilt
 // from the run's `var` events (never from `MapOutcome.vars`). Pure, so the panel is unit tested
@@ -50,9 +56,24 @@ export interface VarVerdict {
 /** How a block changes a box: `đặt` sets, `tăng` adds. */
 export type VarOpKind = 'set' | 'add';
 
-/** The op of a box block by its type (unknown blocks count as `add`, the common case). */
+/**
+ * The op of a box block by its type (unknown blocks count as `add`, the common case). A spell
+ * call (`làm phép … với 3`, ADR-0023 §2) sets its box on entry and back to 0 on exit: `set`.
+ */
 export function varOpOfBlockType(type: string | null | undefined): VarOpKind {
-  return type === CQ_VAR_SET ? 'set' : 'add';
+  return type === CQ_VAR_SET || (type != null && PROC_CALL_TYPES.includes(type)) ? 'set' : 'add';
+}
+
+/**
+ * Every box the panel shows (ADR-0023 §2): the level's boxes, then each spell's box (start 0),
+ * in `procedures` order. Undefined when there is none, like `level.variables`.
+ */
+export function panelBoxes(
+  variables: readonly LevelVariable[] | undefined,
+  procedures: readonly LevelProcedure[] | undefined,
+): LevelVariable[] | undefined {
+  const all = [...(variables ?? []), ...procedureBoxes(procedures)];
+  return all.length === 0 ? undefined : all;
 }
 
 /** The panel at the start of map `mapIndex` (0 = `config`): each box's `start`, nothing lit. */
