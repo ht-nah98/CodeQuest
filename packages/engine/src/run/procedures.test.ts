@@ -401,6 +401,16 @@ describe('spells with a box (ADR-0023 §2)', () => {
       (ws.getBlockById(id)?.getField('VAR') as FieldDropdown | null)?.getOptions(false);
     expect(options('rv')).toEqual([['số bậc', 'steps']]);
     expect(options('out')).toEqual([['steps', 'steps']]);
+    // Only `lặp [hộp] lần` is offered the spell's box, even inside the body (rule 25 (j)).
+    const writer = ws.newBlock('cq_var_add');
+    const below = writer.previousConnection;
+    if (below === null) throw new Error('cq_var_add is a statement');
+    ws.getBlockById('rv')?.getInput('DO')?.connection?.connect(below);
+    expect((writer.getField('VAR') as FieldDropdown | null)?.getOptions(false)).toEqual([
+      ['hộp', '__none'],
+    ]);
+    // Outside its spell the menu stays the same, but the label is the box's name, not its id.
+    expect(ws.getBlockById('out')?.getField('VAR')?.getText()).toBe('số bậc');
     expect(ws.getBlockById('defn')?.getField('BOX')?.getText()).toBe('số bậc');
     ws.dispose();
   });

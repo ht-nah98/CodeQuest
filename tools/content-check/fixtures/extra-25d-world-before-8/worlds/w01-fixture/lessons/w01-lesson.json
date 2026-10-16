@@ -1,0 +1,12 @@
+{
+  "id": "w01-lesson",
+  "worldId": "w01-fixture",
+  "title": "Đi và nhảy",
+  "cards": [
+    {
+      "type": "say",
+      "pose": "talk",
+      "text": "Măng đi từng bước một."
+    }
+  ]
+}

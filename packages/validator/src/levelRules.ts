@@ -192,6 +192,14 @@ export function modeIssues(level: Level, kind: AnyGameKindDefinition): RuleIssue
 }
 
 /** Every `lastReason` in a hint condition, nested `all`/`any`/`not` included. */
+/** Every `instancesFull` type in a hint condition, nested `all`/`any`/`not` included. */
+function cappedTypes(condition: Condition): string[] {
+  if ('all' in condition) return condition.all.flatMap(cappedTypes);
+  if ('any' in condition) return condition.any.flatMap(cappedTypes);
+  if ('not' in condition) return cappedTypes(condition.not);
+  return condition.instancesFull === undefined ? [] : [condition.instancesFull];
+}
+
 function lastReasons(condition: Condition): string[] {
   if ('all' in condition) return condition.all.flatMap(lastReasons);
   if ('any' in condition) return condition.any.flatMap(lastReasons);
@@ -226,6 +234,15 @@ export function hintIssues(level: Level, kind: AnyGameKindDefinition): RuleIssue
   const reasons = new Set<string>([...ENGINE_REASONS, ...kind.reasonCodes]);
   for (const hint of level.hints) {
     const point = hint.point;
+    // `instancesFull` only ever fires for a type the level caps (W8: a visible cap, P4-05).
+    for (const type of cappedTypes(hint.when)) {
+      if (level.maxInstances?.[type] === undefined) {
+        issues.push({
+          rule: 16,
+          message: `hint "${hint.id}" asks instancesFull "${type}", which maxInstances does not cap`,
+        });
+      }
+    }
     if (point?.startsWith('toolbox:') === true && !toolbox.has(point.slice('toolbox:'.length))) {
       issues.push({
         rule: 16,

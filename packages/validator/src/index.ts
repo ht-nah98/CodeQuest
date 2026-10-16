@@ -25,6 +25,7 @@ export type { ParsonsOptions, ParsonsResult } from './parsons';
 // Exhaustive searches (npm run par, level editor).
 export {
   findShortestPrograms,
+  MAX_CALL_NUMBERS,
   MAX_CATALOG_ENTRIES,
   MAX_PROC_BODIES,
   WORKER_MAX_CATALOG_ENTRIES,

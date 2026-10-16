@@ -1,0 +1,154 @@
+{
+  "id": "proc-boxes",
+  "worldId": "_sandbox",
+  "stage": "practice",
+  "kind": "maze",
+  "mode": "build",
+  "title": "Phép cầu thang",
+  "objective": "Leo 1 bậc, đi tiếp, rồi leo 3 bậc nhé!",
+  "learningGoal": "Phép có hộp: mỗi lần làm phép, hộp số bậc nhận một số mới.",
+  "misconception": "Hộp của phép giữ số của lần làm đầu tiên.",
+  "procedures": [
+    {
+      "id": "stairs",
+      "name": "cầu thang",
+      "param": {
+        "id": "stairs",
+        "name": "số bậc",
+        "max": 4
+      }
+    }
+  ],
+  "toolbox": [
+    "maze_forward",
+    "maze_turn_left",
+    "maze_turn_right",
+    {
+      "type": "cq_repeat_var",
+      "fields": {
+        "VAR": "steps"
+      }
+    },
+    "cq_proc_def_n",
+    {
+      "type": "cq_proc_call_n",
+      "fields": {
+        "PROC": "stairs",
+        "NUM": 1
+      }
+    },
+    {
+      "type": "cq_proc_call_n",
+      "fields": {
+        "PROC": "stairs",
+        "NUM": 3
+      }
+    }
+  ],
+  "par": 9,
+  "maxBlocks": 9,
+  "config": {
+    "map": [
+      "#########",
+      "#########",
+      "######G##",
+      "#####..##",
+      "####..###",
+      "##...####",
+      "#S.######",
+      "#########"
+    ],
+    "startDir": "E"
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "next": {
+            "block": {
+              "type": "cq_proc_call_n",
+              "id": "b1",
+              "fields": {
+                "PROC": "stairs",
+                "NUM": 1
+              },
+              "next": {
+                "block": {
+                  "type": "maze_forward",
+                  "id": "b2",
+                  "next": {
+                    "block": {
+                      "type": "cq_proc_call_n",
+                      "id": "b3",
+                      "fields": {
+                        "PROC": "stairs",
+                        "NUM": 3
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "cq_proc_def_n",
+          "id": "b4",
+          "fields": {
+            "PROC": "stairs"
+          },
+          "inputs": {
+            "BODY": {
+              "block": {
+                "type": "cq_repeat_var",
+                "id": "b5",
+                "fields": {
+                  "VAR": "steps"
+                },
+                "inputs": {
+                  "DO": {
+                    "block": {
+                      "type": "maze_forward",
+                      "id": "b6",
+                      "next": {
+                        "block": {
+                          "type": "maze_turn_left",
+                          "id": "b7",
+                          "next": {
+                            "block": {
+                              "type": "maze_forward",
+                              "id": "b8",
+                              "next": {
+                                "block": {
+                                  "type": "maze_turn_right",
+                                  "id": "b9"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "cap",
+      "when": {
+        "capacityFull": true
+      },
+      "say": "Đoạn nào lặp lại? Dạy thành phép nhé!",
+      "point": "toolbox:cq_proc_def_n"
+    }
+  ]
+}

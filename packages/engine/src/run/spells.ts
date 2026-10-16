@@ -4,11 +4,18 @@ import {
   type Level,
   type LevelProcedure,
   type LevelVariable,
+  type WorkspaceJson,
 } from '@codequest/content-schema';
+import { CQ_START } from '../blocks/common';
 import { NO_PROCEDURE } from '../blocks/procedureField';
 import { CQ_PROC_DEF_N, PROC_BODY_INPUT, PROC_CALL_TYPES, procedureOf } from '../blocks/procedures';
 import { VARIABLE_BLOCKS } from '../blocks/variables';
-import { isProcedureDefinition, isSpellDefinition, programBlocks } from './headlessWorkspace';
+import {
+  isProcedureDefinition,
+  isSpellDefinition,
+  programBlocks,
+  withHeadlessWorkspace,
+} from './headlessWorkspace';
 
 /** Static spell errors of ADR-0023 §2–§3, found before anything runs. */
 export type SpellIssue =
@@ -93,4 +100,23 @@ export function spellDefinitions(ws: Workspace): Array<{ blockId: string; id: st
     .getTopBlocks(false)
     .filter(isSpellDefinition)
     .map((definition) => ({ blockId: definition.id, id: procedureOf(definition) }));
+}
+
+/**
+ * `spellIssue` of a workspace JSON (content:check rule 25 (c), ADR-0023 §5): the static spell
+ * error the engine would refuse it with, or null.
+ */
+export function workspaceSpellIssue(
+  workspace: WorkspaceJson,
+  procedures?: readonly LevelProcedure[],
+): SpellIssue | null {
+  return withHeadlessWorkspace(
+    workspace,
+    (ws) => {
+      const start = ws.getTopBlocks(false).find((block) => block.type === CQ_START) ?? null;
+      return spellIssue(ws, start, procedures);
+    },
+    undefined,
+    procedures,
+  );
 }
