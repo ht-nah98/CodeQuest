@@ -50,6 +50,16 @@ export function createMazeApi(ctx: MazeContext): GameKindApi {
         ctx.emit({ type: 'bump', at: from, dir: state.dir }, id);
         ctx.stop('crash', 'HIT_WALL');
       }
+      // Step limit (ADR-0026): the wall first, then the steps; Măng stays where she is.
+      if (state.stepLimit !== undefined) {
+        const walked = state.steps ?? 0;
+        if (walked >= state.stepLimit) {
+          state.crashAt = from;
+          ctx.emit({ type: 'tired', at: from }, id);
+          ctx.stop('crash', 'OUT_OF_STEPS');
+        }
+        state.steps = walked + 1;
+      }
       ctx.emit({ type: 'move', from, to, dir: state.dir }, id);
       state.pos = to;
       const tile = tileAt(state.map, to);

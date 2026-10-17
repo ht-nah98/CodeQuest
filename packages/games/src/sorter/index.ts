@@ -22,6 +22,7 @@ export const sorter: GameKindDefinition<SorterConfig, SorterState, SorterEvent> 
   createApi: createSorterApi,
   evaluate: evaluateSorter,
   predictAnswer: sorterPredictAnswer,
+  questionCounter: 'questionsLeft',
 };
 
 export {

@@ -19,6 +19,11 @@ export type MazeEvent =
    * `item` a mission item (P2-11c: the key, or the friend who then follows her).
    */
   | { type: 'collect'; blockId: string | null; at: MazeCell; item?: GoalItemKind }
+  /**
+   * Step limit (ADR-0026): Măng, on `at`, has no step left for the next `tiến`; she stays there
+   * and the run ends crash OUT_OF_STEPS.
+   */
+  | { type: 'tired'; blockId: string | null; at: MazeCell }
   /** Măng stands on the goal `at` with the goal met; the run ends with success. */
   | { type: 'win'; blockId: string | null; at: MazeCell };
 

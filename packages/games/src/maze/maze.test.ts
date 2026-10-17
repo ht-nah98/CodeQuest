@@ -759,6 +759,7 @@ describe('maze definition', () => {
       'MISSED_ITEMS',
       'NEED_KEY',
       'NEED_FRIEND',
+      'OUT_OF_STEPS',
     ]);
     expect(maze.blocks.map((spec) => spec.type)).toEqual([
       'maze_forward',

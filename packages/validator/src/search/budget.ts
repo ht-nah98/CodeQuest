@@ -30,6 +30,18 @@ export interface SearchOptions {
 export const DEFAULT_MAX_DEPTH = 2;
 export const DEFAULT_MAX_WORK = 20_000_000;
 /**
+ * Default budget of kinds whose searches are cheap per unit but long (P5-03): the shelf's books
+ * make many states that each answer quickly (`sorter-bubble` needs ~200 M work, about 1 s). A
+ * search that spends all 300 M can hold ~700 MB (catalog and states); `MAX_MAP_STATES` and
+ * `MAX_CATALOG_ENTRIES` stop it before more. Run such searches one at a time (heavy jobs).
+ */
+export const KIND_MAX_WORK: Readonly<Record<string, number>> = { sorter: 300_000_000 };
+
+/** The default `maxWork` of a level's kind. */
+export function defaultMaxWork(kind: string | undefined): number {
+  return (kind === undefined ? undefined : KIND_MAX_WORK[kind]) ?? DEFAULT_MAX_WORK;
+}
+/**
  * Suggested `maxWork` for the level editor's Web Worker: a few seconds on a laptop and a few
  * hundred MB at most, enough for every W1–W2 build par and for bughunt fixes up to 2 edits.
  * Raise it (or run `npm run par`) for parEdits 3.
@@ -52,8 +64,8 @@ export class Budget {
   private readonly maxWork: number;
   private readonly shouldStop: (() => boolean) | undefined;
 
-  constructor(options: SearchOptions) {
-    this.maxWork = options.maxWork ?? DEFAULT_MAX_WORK;
+  constructor(options: SearchOptions, kind?: string) {
+    this.maxWork = options.maxWork ?? defaultMaxWork(kind);
     this.shouldStop = options.shouldStop;
   }
 

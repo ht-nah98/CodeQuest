@@ -34,6 +34,8 @@ import {
 import type { z } from 'zod';
 import { checkCurriculum, type CurriculumInput, type WorldFile } from './curriculum';
 import { procedureIssues } from './procedures';
+import { checkSorterLevel, sorterLevelWarnings, sorterTrapWarnings } from './sorter';
+import { stepLimitIssues } from './stepLimit';
 import { checkTurtleLevel, turtleLevelWarnings, turtleT1Warnings } from './turtle';
 
 export type { GameKindLookup } from '@codequest/validator';
@@ -340,6 +342,16 @@ export function checkContent(
         issues.push(...spells.errors);
         levelWarnings.push(...spells.warnings);
       }
+      // Rule 27 (sorter, ADR-0025).
+      if (checked.level !== null) issues.push(...checkSorterLevel(file.path, checked.level));
+      if (checked.level !== null) {
+        levelWarnings.push(...sorterLevelWarnings(file.path, checked.level));
+      }
+      if (checked.level !== null && !location.isDraft) {
+        levelWarnings.push(...sorterTrapWarnings(file.path, checked.level));
+      }
+      // Rule 28 (maze step limit, ADR-0026).
+      if (checked.level !== null) issues.push(...stepLimitIssues(file.path, checked.level));
       // Rule 26 (turtle, ADR-0024).
       if (checked.level !== null) issues.push(...checkTurtleLevel(file.path, checked.level));
       if (checked.level !== null)

@@ -5,5 +5,7 @@ export const MAZE_REASONS = [
   'MISSED_ITEMS',
   'NEED_KEY',
   'NEED_FRIEND',
+  // Step limit (ADR-0026): one `tiến` more than `stepLimit`.
+  'OUT_OF_STEPS',
 ] as const;
 export type MazeReason = (typeof MAZE_REASONS)[number];

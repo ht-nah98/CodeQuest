@@ -449,7 +449,28 @@ class ShortestSearch {
     }
     if (this.loops) this.repeats(state, size, used, emit);
     if (this.maxDepth > 0) this.boxRepeats(state, size, used, emit);
-    if (size >= 3) this.conditionals(state, size, used, emit);
+    if (size < 3) return;
+    // A question that counts (P5-03) moves the state, so the top-level shortcuts below (which
+    // ask, then grow a branch from the same state) do not hold: run each statement whole.
+    if (sim.countingQuestions) this.conditionalsAsSteps(state, size, used, emit);
+    else this.conditionals(state, size, used, emit);
+  }
+
+  private readonly topConditionals = new Map<number, Entry[]>();
+
+  /** Top-level `cq_if`, `cq_if_else`, `cq_repeat_until` run as one step each (counting questions). */
+  private conditionalsAsSteps(state: number, size: number, used: Usage, emit: Emit): void {
+    let entries = this.topConditionals.get(size);
+    if (entries === undefined) {
+      entries = [];
+      this.conditionalCatalog(this.maxDepth, size, entries);
+      this.topConditionals.set(size, entries);
+    }
+    for (const entry of entries) {
+      const usage = this.limits.add(used, entry.usage);
+      if (usage === null) continue;
+      emit(() => entry.statement, this.apply(entry, state), usage);
+    }
   }
 
   /**
@@ -1013,7 +1034,7 @@ export function findShortestPrograms(
   const level = searchedLevel(original, options);
   const kind = searchableKind(level, options);
   const sim = new FastSim(kind, level);
-  const budget = new Budget(options);
+  const budget = new Budget(options, level.kind);
   const maxSize = Math.min(
     options.maxSize ?? level.par ?? level.maxBlocks ?? DEFAULT_MAX_SIZE,
     level.maxBlocks ?? Infinity,
