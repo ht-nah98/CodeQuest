@@ -36,6 +36,8 @@ export const BLOCK_COLORS = {
   var: '#d13f73',
   fn: '#5560c8',
   pen: '#2f8a3e',
+  // Bookshelf (W10, ADR-0025): leather-spine brick red; white text 5.5:1.
+  shelf: '#b5432c',
   event: '#fbc73f',
 } as const;
 

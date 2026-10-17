@@ -33,7 +33,7 @@ describe('tokens.ts mirrors tokens.css', () => {
 
   it('finds the palette in tokens.css', () => {
     expect(Object.keys(ui).length).toBeGreaterThan(10);
-    expect(Object.keys(block)).toHaveLength(9);
+    expect(Object.keys(block)).toHaveLength(10);
   });
 
   it('has exactly the same UI colours', () => {

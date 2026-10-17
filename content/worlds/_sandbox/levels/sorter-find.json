@@ -1,0 +1,88 @@
+{
+  "id": "sorter-find",
+  "worldId": "_sandbox",
+  "stage": "practice",
+  "kind": "sorter",
+  "mode": "build",
+  "title": "Tìm sách số 7",
+  "objective": "Tìm cuốn sách số 7 trên mọi kệ nhé!",
+  "learningGoal": "Hỏi từng sách cho tới khi thấy: đúng cho mọi kệ.",
+  "misconception": "Đi đúng số chỗ của kệ này là đủ.",
+  "toolbox": [
+    "sorter_right",
+    {
+      "type": "sorter_book_is",
+      "fields": {
+        "OP": "EQ",
+        "NUM": 7
+      }
+    },
+    "cq_repeat_until",
+    "cq_repeat"
+  ],
+  "maxLoopDepth": 1,
+  "par": 3,
+  "config": {
+    "books": [4, 9, 1, 6, 7, 3],
+    "goal": {
+      "find": 7
+    }
+  },
+  "variants": [
+    {
+      "books": [7, 2, 5],
+      "goal": {
+        "find": 7
+      }
+    }
+  ],
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat_until",
+              "id": "until1",
+              "inputs": {
+                "COND": {
+                  "block": {
+                    "type": "sorter_book_is",
+                    "id": "ask1",
+                    "fields": {
+                      "OP": "EQ",
+                      "NUM": 7
+                    }
+                  }
+                },
+                "DO": {
+                  "block": {
+                    "type": "sorter_right",
+                    "id": "right1"
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "ask",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Sách số 7 ở đâu trên kệ thứ 2?",
+      "point": "toolbox:sorter_book_is"
+    }
+  ],
+  "thinkingHint": "Cách nào đúng cho cả hai kệ?"
+}

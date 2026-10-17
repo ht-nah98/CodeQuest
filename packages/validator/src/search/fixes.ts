@@ -263,7 +263,7 @@ export function findFixes(original: Level, options: FixOptions = {}): FixResult 
     [...conditionsOf(initial), ...bodyConditions],
   );
   const initialPrograms = [initial, ...Object.values(initialDefs)];
-  const budget = new Budget(options);
+  const budget = new Budget(options, level.kind);
   const maxEdits = options.maxEdits ?? level.parEdits ?? 1;
   const maxExamples = options.maxExamples ?? DEFAULT_MAX_EXAMPLES;
   const loopDepth = Math.min(

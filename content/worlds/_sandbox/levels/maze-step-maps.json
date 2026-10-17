@@ -1,0 +1,170 @@
+{
+  "id": "maze-step-maps",
+  "worldId": "_sandbox",
+  "stage": "practice",
+  "kind": "maze",
+  "mode": "build",
+  "title": "Ba mê cung kịp bước",
+  "objective": "Một chương trình cho cả 3 mê cung nhé!",
+  "learningGoal": "Mỗi mê cung có bước sức riêng; một phép có câu hỏi kịp cả ba.",
+  "misconception": "Bước sức giống nhau ở mọi mê cung.",
+  "procedures": [
+    {
+      "id": "fork",
+      "name": "tới ngã ba"
+    }
+  ],
+  "toolbox": [
+    "maze_forward",
+    "maze_turn_left",
+    "maze_turn_right",
+    "cq_repeat_until",
+    {
+      "type": "maze_is_path",
+      "fields": {
+        "DIR": "LEFT"
+      }
+    },
+    "cq_proc_def",
+    "cq_proc_call"
+  ],
+  "maxLoopDepth": 1,
+  "par": 9,
+  "maxBlocks": 9,
+  "config": {
+    "map": [
+      "########",
+      "########",
+      "##G..###",
+      "####.###",
+      "####.###",
+      "#S...###",
+      "########",
+      "########"
+    ],
+    "startDir": "E",
+    "stepLimit": 8
+  },
+  "variants": [
+    {
+      "map": [
+        "########",
+        "########",
+        "##G....#",
+        "######.#",
+        "#S.....#",
+        "###.####",
+        "########",
+        "########"
+      ],
+      "startDir": "E",
+      "stepLimit": 11
+    },
+    {
+      "map": [
+        "########",
+        "###G.###",
+        "####.###",
+        "####.###",
+        "####.###",
+        "##S..###",
+        "##.#####",
+        "########"
+      ],
+      "startDir": "E",
+      "stepLimit": 7
+    }
+  ],
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "next": {
+            "block": {
+              "type": "cq_proc_call",
+              "id": "b1",
+              "fields": {
+                "PROC": "fork"
+              },
+              "next": {
+                "block": {
+                  "type": "cq_proc_call",
+                  "id": "b2",
+                  "fields": {
+                    "PROC": "fork"
+                  },
+                  "next": {
+                    "block": {
+                      "type": "cq_proc_call",
+                      "id": "b3",
+                      "fields": {
+                        "PROC": "fork"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "cq_proc_def",
+          "id": "b4",
+          "fields": {
+            "PROC": "fork"
+          },
+          "inputs": {
+            "BODY": {
+              "block": {
+                "type": "maze_forward",
+                "id": "b5",
+                "next": {
+                  "block": {
+                    "type": "cq_repeat_until",
+                    "id": "b6",
+                    "inputs": {
+                      "COND": {
+                        "block": {
+                          "type": "maze_is_path",
+                          "id": "b7",
+                          "fields": {
+                            "DIR": "LEFT"
+                          }
+                        }
+                      },
+                      "DO": {
+                        "block": {
+                          "type": "maze_forward",
+                          "id": "b8"
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "maze_turn_left",
+                        "id": "b9"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "cap",
+      "when": {
+        "capacityFull": true
+      },
+      "say": "Đoạn nào lặp lại? Dạy thành phép nhé!",
+      "point": "toolbox:cq_proc_def"
+    }
+  ]
+}

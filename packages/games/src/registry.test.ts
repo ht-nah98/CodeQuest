@@ -34,7 +34,11 @@ describe('action block tooltips', () => {
     const tooltips = Object.fromEntries(
       Object.values(gameKinds)
         .flatMap((kind) => kind.blocks)
-        .filter((spec) => spec.category === 'move')
+        .filter(
+          (spec) =>
+            spec.category === 'move' ||
+            (spec.category === 'sorter' && spec.json.output === undefined),
+        )
         .map((spec) => [spec.type, spec.json.tooltip]),
     );
     expect(tooltips).toEqual({
@@ -53,6 +57,9 @@ describe('action block tooltips', () => {
       turtle_forward: 'Tiến 3 bước: bút hạ thì có nét dài 3',
       turtle_turn_right: 'Rẽ phải 90 độ: quay tại chỗ, chưa đi',
       turtle_turn_left: 'Rẽ trái 90 độ: quay tại chỗ, chưa đi',
+      sorter_right: 'Sang phải: tay sang sách kế bên phải',
+      sorter_to_start: 'Về đầu kệ: tay về sách thứ nhất',
+      sorter_swap: 'Đổi chỗ: sách này đổi với sách bên phải',
     });
   });
 });

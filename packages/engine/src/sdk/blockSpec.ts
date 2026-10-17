@@ -3,7 +3,16 @@ import type { JavascriptGenerator } from 'blockly/javascript';
 
 /** Toolbox group and colour family of a block (blockly-integration.md §3). */
 export type BlockCategory =
-  'move' | 'loop' | 'logic' | 'sensor' | 'robot' | 'variable' | 'function' | 'pen' | 'event';
+  | 'move'
+  | 'loop'
+  | 'logic'
+  | 'sensor'
+  | 'robot'
+  | 'variable'
+  | 'function'
+  | 'pen'
+  | 'event'
+  | 'sorter';
 
 /** Blockly JSON block definition without `type` (BlockSpec carries it). */
 export interface BlocklyBlockJson {

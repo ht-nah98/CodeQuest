@@ -44,6 +44,7 @@
   --color-block-var: #d13f73;
   --color-block-fn: #5560c8;
   --color-block-pen: #2f8a3e;
+  --color-block-shelf: #b5432c;
   --color-block-event: #fbc73f;
 
   /* ---- Fonts (art-direction.md §3; only fonts with a `vietnamese` subset, ADR-0012) ---- */

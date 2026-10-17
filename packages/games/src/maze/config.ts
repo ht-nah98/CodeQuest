@@ -13,6 +13,10 @@ export type MazeDir = (typeof MAZE_DIRS)[number];
 export const MAZE_SENSE_DIRS = ['AHEAD', 'LEFT', 'RIGHT'] as const;
 export type MazeSenseDir = (typeof MAZE_SENSE_DIRS)[number];
 
+/** Bounds of `stepLimit` (ADR-0026). */
+export const MAZE_STEP_LIMIT_MIN = 1;
+export const MAZE_STEP_LIMIT_MAX = 99;
+
 /** Bounds on both the row count and the column count. */
 export const MAZE_MIN_SIZE = 3;
 export const MAZE_MAX_SIZE = 12;
@@ -30,6 +34,11 @@ export const mazeConfigSchema = z
     map: z.array(z.string()).min(MAZE_MIN_SIZE).max(MAZE_MAX_SIZE),
     /** Direction Măng faces on `S`. */
     startDir: z.enum(MAZE_DIRS),
+    /**
+     * Step limit ("bước sức", ADR-0026): how many `tiến` Măng can walk on this map; one more
+     * stops her where she is (crash OUT_OF_STEPS). Turns and questions are free. Per map.
+     */
+    stepLimit: z.number().int().min(MAZE_STEP_LIMIT_MIN).max(MAZE_STEP_LIMIT_MAX).optional(),
     goal: z
       .strictObject({
         collectAll: z.boolean().optional(),

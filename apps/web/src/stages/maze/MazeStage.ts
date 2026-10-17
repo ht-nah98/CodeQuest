@@ -276,6 +276,7 @@ export class MazeStage implements StageRenderer<MazeEvent> {
     this.cheering = false;
     this.missedPulse = false;
     this.app.canvas.dataset.dizzy = 'false';
+    this.app.canvas.dataset.tired = 'false';
     this.flashAt = null;
     this.flashAlpha = 0;
     this.shake = 0;
@@ -348,6 +349,9 @@ export class MazeStage implements StageRenderer<MazeEvent> {
         return MS.collect;
       case 'win':
         return MS.cheer;
+      // Step limit (ADR-0026): Măng stops tired where she stands.
+      case 'tired':
+        return MS.daze;
     }
   }
 
@@ -455,6 +459,21 @@ export class MazeStage implements StageRenderer<MazeEvent> {
         }
         if (event.item === 'friend') this.following = true;
         this.updateGoalLock(true);
+        this.syncState();
+        return;
+      }
+      case 'tired': {
+        // Out of steps (ADR-0026): no wall, no bonk. Măng sags where she stands, a few drops of
+        // sweat fly off, and she stays crouched until the stage is reset.
+        const [r, c] = event.at;
+        this.app.canvas.dataset.tired = 'true';
+        this.setAnimation('crouch');
+        this.burst(r - 0.45, c, 3, 0.0018, 520);
+        await tween(ticker, MS.daze, signal, (t) => {
+          if (!reducedMotion()) this.pose.lean = 0.06 * Math.sin(Math.PI * 2 * t);
+        });
+        if (this.stopped(signal)) return;
+        this.pose.lean = 0;
         this.syncState();
         return;
       }

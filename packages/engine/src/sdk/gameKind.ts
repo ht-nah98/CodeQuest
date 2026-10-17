@@ -33,6 +33,14 @@ export interface GameKindDefinition<C, S, E extends GameEvent> {
    * a replayed state the same way. A kind without it supports no star goals (rule 19).
    */
   checkStarGoal?(goal: StarGoal, state: S, config: C): boolean;
+  /**
+   * "Counted questions" (ADR-0018 exception, P5-03): the name of a top-level number field of the
+   * state that a question may count down by 1 (the shelf's `questionsLeft`), present only on
+   * levels with such a budget. A question may then change the state by that field only, and may
+   * end the run (`ctx.stop`, e.g. OUT_OF_QUESTIONS). Without it every question must leave the
+   * state as it was (the par search refuses the level otherwise).
+   */
+  questionCounter?: string;
 }
 
 /**

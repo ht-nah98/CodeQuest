@@ -24,6 +24,12 @@ export interface MazeState {
   items: MazeItem[];
   /** Cell where Măng bumped into a wall, for `predictAnswer`; null while nothing crashed. */
   crashAt: MazeCell | null;
+  /**
+   * Maps with `stepLimit` only (ADR-0026): the limit and the `tiến` walked so far. Absent
+   * otherwise, so the state (and every search over it) is exactly what it was before.
+   */
+  readonly stepLimit?: number;
+  steps?: number;
 }
 
 export const cellKey = ([r, c]: MazeCell): string => `${String(r)},${String(c)}`;
@@ -51,5 +57,6 @@ export function createMazeState(config: MazeConfig): MazeState {
     collectAll: config.goal?.collectAll === true,
     items: (config.goal?.items ?? []).map(({ kind, at }) => ({ kind, at: [at[0], at[1]] })),
     crashAt: null,
+    ...(config.stepLimit !== undefined && { stepLimit: config.stepLimit, steps: 0 }),
   };
 }

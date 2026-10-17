@@ -67,3 +67,47 @@ describe('phase 4 strings (P4-06a)', () => {
     expect(wordCount(vi.play.spells.casting('tới ngã ba'))).toBeLessThanOrEqual(12);
   });
 });
+
+describe('phase 5 strings (P5-01)', () => {
+  it('names the bookshelf toolbox group', () => {
+    expect(vi.blockly.toolboxGroups.sorter).toBe('KỆ SÁCH');
+  });
+
+  it('keeps every new result-card line short, with digits for numbers', () => {
+    for (const line of Object.values(vi.results.phase5Reasons)) {
+      expect(wordCount(line), line).toBeLessThanOrEqual(12);
+      const words = line.toLowerCase().split(/[^\p{L}\p{N}]+/u);
+      expect(
+        words.filter((word) => SPELLED_NUMBERS.has(word)),
+        line,
+      ).toEqual([]);
+    }
+    expect(Object.keys(vi.results.phase5Reasons)).toEqual([
+      'OFF_SHELF',
+      'NO_BOOK_RIGHT',
+      'OUT_OF_QUESTIONS',
+      'NOT_SORTED',
+      'NOT_FOUND',
+      'NOT_AT_END',
+      'OUT_OF_STEPS',
+    ]);
+  });
+
+  it('matches feedback.json word for word for every code it already has', async () => {
+    const feedback = await loadFeedback();
+    for (const [code, line] of Object.entries(vi.results.phase5Reasons)) {
+      const shared = feedback[code];
+      if (shared !== undefined) expect(shared, code).toBe(line);
+    }
+  });
+
+  it('keeps the editor notice short', () => {
+    expect(wordCount(vi.editor.sorterUnsupported)).toBeLessThanOrEqual(12);
+  });
+
+  it('builds the HUD lines with the number as digits', () => {
+    expect(vi.play.sorter.questionsLeft(10)).toBe('Còn 10 lượt hỏi');
+    expect(vi.play.maze.stepsLeft(9)).toBe('Còn 9 bước');
+    expect(vi.play.sorter.swaps(3)).toBe('Đổi chỗ: 3');
+  });
+});

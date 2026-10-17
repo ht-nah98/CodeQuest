@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { COMMON_BLOCKS, type BlockSpec } from '@codequest/engine';
-import { BLOCK_STYLE_BY_CATEGORY, codequestTheme } from './theme';
+import { BLOCK_COLOR_BY_CATEGORY, BLOCK_STYLE_BY_CATEGORY, codequestTheme } from './theme';
 import { buildToolbox, FLYOUT_LABEL_CLASS, knownBlockSpecs } from './toolbox';
 
 const move = (type: string): BlockSpec => ({
@@ -151,6 +151,21 @@ describe('buildToolbox: spells (ADR-0023 §6)', () => {
     );
     expect(BLOCK_STYLE_BY_CATEGORY.function).toBe('procedure_blocks');
     expect(codequestTheme.blockStyles['procedure_blocks']?.hat).toBe('cap');
+  });
+});
+
+describe('buildToolbox: bookshelf (ADR-0025)', () => {
+  it('puts category "sorter" blocks in a "KỆ SÁCH" group with their own style', () => {
+    const shelf: BlockSpec = { ...move('s_right'), category: 'sorter' };
+    expect(buildToolbox({ mode: 'build', toolbox: ['s_right'] }, [shelf]).contents).toEqual([
+      label('KỆ SÁCH'),
+      { kind: 'block', type: 's_right' },
+    ]);
+    expect(BLOCK_STYLE_BY_CATEGORY.sorter).toBe('sorter_blocks');
+    expect(codequestTheme.blockStyles['sorter_blocks']?.colourPrimary).toBe('#b5432c');
+    // Its own colour: no other category shares it.
+    const colours = Object.values(BLOCK_COLOR_BY_CATEGORY);
+    expect(colours.filter((colour) => colour === BLOCK_COLOR_BY_CATEGORY.sorter)).toHaveLength(1);
   });
 });
 

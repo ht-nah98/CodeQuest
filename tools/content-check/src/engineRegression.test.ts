@@ -1,7 +1,8 @@
-// W1–W7 engine regression (P4-02, ADR-0023 §Hệ quả): spells change compileProgram, runLevel,
-// loopDepth, editDistance and nextStep, and none of it may change a level without spells. Every
-// W1–W7 solution and initialWorkspace is run and digested; the snapshot was generated on the
-// tree before P4-02 (a `git worktree` of HEAD f56bb79) and must keep matching.
+// W1–W9 engine regression: spells (P4-02, ADR-0023) changed compileProgram, runLevel, loopDepth,
+// editDistance and nextStep, and the maze step limit (P5-03, ADR-0026) changes the maze kind;
+// neither may change a level without them. Every W1–W9 solution and initialWorkspace is run and
+// digested. W1–W7 were snapshot on the tree before P4-02 (a `git worktree` of HEAD f56bb79),
+// W8–W9 on HEAD 3d1d99b before P5-03; both must keep matching.
 import { readFileSync, readdirSync } from 'node:fs';
 import { LevelSchema, type Level, type WorkspaceJson } from '@codequest/content-schema';
 import {
@@ -22,7 +23,7 @@ const shared = {
   ),
 };
 const worlds = readdirSync(new URL('worlds/', contentDir))
-  .filter((name) => /^w0[1-7]-/.test(name))
+  .filter((name) => /^w0[1-9]-/.test(name))
   .sort();
 
 function levelsOf(world: string): Level[] {

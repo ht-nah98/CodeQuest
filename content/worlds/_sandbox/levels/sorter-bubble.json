@@ -1,0 +1,120 @@
+{
+  "id": "sorter-bubble",
+  "worldId": "_sandbox",
+  "stage": "practice",
+  "kind": "sorter",
+  "mode": "build",
+  "title": "Ba kệ lộn xộn",
+  "objective": "Xếp sách từ nhỏ tới lớn trên 3 kệ nhé!",
+  "learningGoal": "Nhiều lượt, mỗi lượt từ đầu kệ: so 2 sách, lớn hơn thì đổi.",
+  "misconception": "Một lượt là xếp xong.",
+  "toolbox": [
+    "sorter_right",
+    "sorter_to_start",
+    "sorter_swap",
+    "sorter_bigger",
+    "cq_if",
+    "cq_repeat"
+  ],
+  "maxLoopDepth": 2,
+  "par": 7,
+  "config": {
+    "books": [3, 1, 2],
+    "goal": {
+      "sorted": true
+    }
+  },
+  "variants": [
+    {
+      "books": [1, 3, 2],
+      "goal": {
+        "sorted": true
+      }
+    },
+    {
+      "books": [3, 2, 1],
+      "goal": {
+        "sorted": true
+      }
+    }
+  ],
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "loop1",
+              "fields": {
+                "TIMES": 2
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "sorter_to_start",
+                    "id": "start1",
+                    "next": {
+                      "block": {
+                        "type": "cq_repeat",
+                        "id": "loop2",
+                        "fields": {
+                          "TIMES": 2
+                        },
+                        "inputs": {
+                          "DO": {
+                            "block": {
+                              "type": "cq_if",
+                              "id": "if1",
+                              "inputs": {
+                                "COND": {
+                                  "block": {
+                                    "type": "sorter_bigger",
+                                    "id": "bigger1"
+                                  }
+                                },
+                                "DO": {
+                                  "block": {
+                                    "type": "sorter_swap",
+                                    "id": "swap1"
+                                  }
+                                }
+                              },
+                              "next": {
+                                "block": {
+                                  "type": "sorter_right",
+                                  "id": "right1"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "passes",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Kệ ngược hẳn cần mấy lượt?",
+      "point": "toolbox:sorter_to_start"
+    }
+  ],
+  "thinkingHint": "Một lượt đưa sách nào về cuối kệ?"
+}

@@ -94,7 +94,7 @@ interface Level {
   par?: number;                             // bắt buộc với build/parsons
   parUnproven?: true;                       // par tính tay, vét cạn không chứng minh được trong ngân sách (ADR-0023 §4 chế độ 3); `npm run par` chỉ ⚠; lý do ở "Ghi chú khi soạn"
   parEdits?: number;                        // bughunt, mặc định 1
-  config: unknown;                          // kiểm bằng configSchema của kind; điều kiện thắng phụ (vd goal.collectAll, goal.items) nằm TRONG config
+  config: unknown;                          // kiểm bằng configSchema của kind; điều kiện thắng phụ (vd goal.collectAll, goal.items) nằm TRONG config; maze có `stepLimit?` 1–99 (bước sức, ADR-0026, luật 28)
   variants?: unknown[];                     // 1–2 bản đồ thêm, cùng kind (P2-12, ADR-0016); chỉ build/bughunt; chương trình phải thắng MỌI bản đồ
   starGoals?: StarGoal[];                   // mục tiêu ⭐ (P2-21, ADR-0017); chỉ build/bughunt; StarGoal = { kind: 'collectAll' }
   initialWorkspace?: WorkspaceJson;         // bắt buộc với parsons (khối xáo trộn), predict, bughunt
@@ -291,9 +291,16 @@ Cách hiểu chi tiết (cài đặt ở P1-11):
     - Luật 7 nhận `cq_proc_*` như mọi khối mới (lần đầu ở W8). Luật 17: `NO_SPELL`, `TWO_SPELLS`, `EMPTY_SPELL`, `SPELL_IN_SPELL`, `BOX_OUTSIDE_SPELL` có câu trong `feedback.json` của nội dung và mọi fixture.
     - Luật 24 với phép: hình lời giải = chương trình chính rồi các thân phép (theo `procedures`); thêm (M2) cho **họ thân phép** (chuỗi khối của thân, coi như vòng tròn: xoay vòng và ảnh gương là cùng họ; `spellFamily`): một họ dùng ở ≤ 2 màn trong thế giới, lần thứ hai khác mode. Với `turtle`, hình bỏ cả số bước và số độ (`DEG`).
 
+**Kệ sách** (P5-02, ADR-0025)
+27. Luật của kiểu game `sorter` (hàng sách, mục tiêu, `maxQuestions` so với lời giải, bẫy S1), cài ở `tools/content-check/src/sorter.ts` (`checkSorterLevel`, `sorterLevelWarnings`, `sorterTrapWarnings`; xem ADR-0025).
+
+**Bước sức của mê cung** (P5-03, ADR-0026)
+28. Bản đồ mê cung có `stepLimit`: lời giải (chạy không giới hạn) đi ≤ `stepLimit` bước `tiến` trên **mọi** bản đồ. Lỗi ghi `rule 28: solution walks 10 steps > stepLimit 9 on map 1` (lời giải khi đó cũng thua `OUT_OF_STEPS`, luật 9). Cài ở `tools/content-check/src/stepLimit.ts`; fixture `extra-28-step-limit-short/`, test `stepLimit.test.ts`. Luật soạn S2 ("cách chạy được nhưng chậm" phải thua `OUT_OF_STEPS`) là test của thế giới.
+
 **`turtle`** (P4-08, ADR-0024)
 26. Luật của kiểu game `turtle` (hình mẫu trên lưới, `start`, góc ghim, khóa `drawProgram`), cài ở `tools/content-check/src/turtle.ts` (xem ADR-0024).
 
+- **P5-03 (17/10/2026):** `config.stepLimit` của maze (1–99, mỗi bản đồ một số; ADR-0026), mã `OUT_OF_STEPS` (luật 17), **luật 28**; luật 27 (`sorter`) đăng ký. Dòng tổng kết in `rules 1–28`; output của W1–W9 không đổi.
 - **P4-02 … P4-05 (15–16/10/2026):** trường `procedures`, `parUnproven`, `predict.options[].drawProgram`; thẻ `demo` có `procedures`; mã engine của phép (luật 17); **luật 25** và **luật 26**; luật 20 dùng độ sâu hiệu dụng; luật 23 hiểu hộp của phép. Dòng tổng kết in `rules 1–26`; output của W1–W7 không đổi.
 - **P1-11:** đủ 18 luật, fixture cho từng luật (`tools/content-check/fixtures/`), tùy chọn `--dir`. **Thế giới tạm:** bảng `PROVISIONAL_WORLDS` trong `tools/content-check/src/curriculum.ts` ghi các thế giới mà `world.json` còn là bản tạm (từ P1-12 bảng đang rỗng; `w01-lang-tre` đã đủ bài giảng và boss). Với chúng, luật 4 và 7 chỉ **cảnh báo** (kèm chữ `provisional world until P1-12`) thay vì báo lỗi, vì thế giới còn thiếu bài giảng, boss và các màn đầu (vd `runner_walk` sẽ được giới thiệu ở `w01-l01`). Mọi luật khác vẫn là lỗi như thường. Không thêm trường mới vào schema cho việc này. Thế giới nào mới dựng dở có thể tạm thêm vào bảng, và phải xóa khi đủ bài giảng và boss.
 - **P2-12:** trường `variants` (màn nhiều bản đồ, ADR-0016); luật 1, 9, 14 xét mọi bản đồ; hai fixture `extra-02`, `extra-03`. Output của màn một bản đồ không đổi.

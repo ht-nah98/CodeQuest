@@ -13,7 +13,7 @@ maze   (Mê cung)     ●        ●         ●         ●         ●
 robotlab (Robot)     ●        ●         ●         ●         ●
 turtle (Họa sĩ)      ●        ●         ●         ●         ●
 farm   (Nông trại)   ●        ●         ●         ●         ○
-sorter (Băng chuyền) ●        ●         ●         ●         ○
+sorter (Kệ sách)     ●        ●         ●         ●         ●
 music  (Nhạc công)   ●        ●         ●         ●         ●
 ```
 Ký hiệu: ● dùng được · ○ dùng được nhưng ít giá trị.
@@ -166,6 +166,8 @@ Tọa độ ô viết `r,c` (hàng, cột, từ 0, hàng 0 ở trên cùng).
 
 **Thiết kế màn:** đường đi kéo dài quá điểm xuất phát và đích (bài học từ Blockly Games: mục tiêu là tới đích, không phải đi hết mọi ô).
 **Sprite:** cần thêm đi lên / đi xuống (task P0-08). Trước khi có, tạm lật sprite ngang + mũi tên chỉ hướng.
+
+**Bước sức (`stepLimit`, ADR-0026).** Bản đồ mê cung có thể có `stepLimit` 1–99 (mỗi bản đồ một số). Mỗi `tiến` đi được tốn 1 bước; rẽ và câu hỏi không tốn. Kiểm tường trước (`HIT_WALL`), rồi bước sức: `tiến` khi đã hết bước thì Măng đứng tại chỗ, event `tired{at}`, `crash` / `OUT_OF_STEPS` (khóa đoán `crash:OUT_OF_STEPS@r,c`). Chạm `G` ở bước cuối vẫn thắng. Màn không có `stepLimit` thì state y như cũ. HUD "Còn 9 bước" đếm event `move`.
 
 ### 3.3 `robotlab` — Phòng thí nghiệm Robot · **GĐ 3** (Thế giới 6)
 
@@ -390,8 +392,57 @@ Không thắng giữa chương trình. Chấm theo **tập** nét: thứ tự v�
 Lưới ô có cây trồng mang số quả. Khối: đi/rẽ, `farm_harvest`, `farm_fruit_count`, biến. Chấm: trạng thái cuối + giá trị biến (vd "đếm đúng tổng số quả").
 > Đề xuất 07/10/2026 (`curriculum.md` §6.2): Thế giới 7 dạy biến trên `maze` và `robotlab` bằng khối biến chung của engine; `farm` dời sau (cần khối số cắm vào ô, tức capacity guard).
 
-### 3.6 `sorter` — Băng chuyền · GĐ 4 (Thế giới 7, 10)
-Đồ vật lần lượt chạy qua băng chuyền. Khối: `sorter_color_is`, `sorter_shape_is`, `sorter_push(left|right)`, danh sách, đổi chỗ (thuật toán sắp xếp). Chấm: mọi vật vào đúng thùng / danh sách cuối đã sắp xếp.
+### 3.6 `sorter` — Kệ sách · **GĐ 5** (Thế giới 10)
+Nguồn quyết định: ADR-0025. Code: `packages/games/src/sorter/`.
+
+**Góc nhìn:** một kệ gỗ nhìn từ trước. Sách đứng thành hàng, cao theo số trên gáy (1–9). Tay Bíp chạy trên ray phía trên kệ; cuối kệ có cờ.
+
+**Config:**
+```ts
+interface SorterConfig {
+  books: number[];                 // 2–7 sách, mỗi số 1–9, từ trái sang phải
+  goal: {                          // ≥ 1 mục; không có cả find và end
+    sorted?: true;                 // kệ tăng dần lúc hết chương trình
+    find?: number;                 // tay dừng ở sách số này
+    end?: true;                    // tay ở cờ cuối kệ
+  };
+  maxQuestions?: number;           // 1–60 lượt hỏi sách; không có = không giới hạn
+}
+```
+Chỗ của tay: `p` = 1…n (một cuốn sách) hoặc n + 1 (cờ cuối kệ). Bắt đầu ở sách thứ nhất. `variants` (ADR-0016) được khác độ dài kệ.
+
+**Khối** (category `sorter`, nhóm "KỆ SÁCH"; nhãn và tooltip đúng từng chữ `curriculum.md` §6.5)
+| Khối | Nhãn | API | Tooltip |
+|---|---|---|---|
+| `sorter_right` | sang phải | `right(id)` | Sang phải: tay sang sách kế bên phải |
+| `sorter_to_start` | về đầu kệ | `toStart(id)` | Về đầu kệ: tay về sách thứ nhất |
+| `sorter_swap` | đổi chỗ | `swap(id)` | Đổi chỗ: sách này đổi với sách bên phải |
+| `sorter_book_is` | sách này [= ▾] [7]? (hỏi; `OP` `EQ`/`GT`/`LT`, `NUM` 1–9) | `bookIs(op, n, id)` → boolean | Sách này = 7? Đúng thì ✔, sai thì ✘ |
+| `sorter_bigger` | sách này lớn hơn bên phải? (hỏi) | `bigger(id)` → boolean | Sách này lớn hơn bên phải? Lớn hơn thì ✔ |
+| `sorter_at_end` | hết kệ? (hỏi) | `atEnd(id)` → boolean | Hết kệ? Tay ở cờ cuối kệ thì ✔ |
+
+Mục thanh khối của `sorter_book_is` ghim `OP` và `NUM` (luật 27).
+
+**Luật**
+| Hành động | Kết quả |
+|---|---|
+| `sang phải` | tay sang chỗ kế → `move{from,to}`; ở cờ → `offShelf{at}`, crash `OFF_SHELF` |
+| `về đầu kệ` | tay về chỗ 1 → `move{from,to:1}`; đã ở chỗ 1 thì không có event |
+| `đổi chỗ` | sách `p` đổi với sách `p + 1`, tay đứng yên → `swap{at,books}`; ở sách cuối hoặc ở cờ → `noBookRight{at}`, crash `NO_BOOK_RIGHT` |
+| `sách này …?` | so số của sách ở tay; ở cờ (không có sách) → ✘. Tốn 1 lượt hỏi; sau `sense` có `ask{at,pair:false,answer,questionsLeft}` |
+| `lớn hơn bên phải?` | sách `p` > sách `p + 1`; ở sách cuối / ở cờ → ✘. Tốn 1 lượt hỏi; sau `sense` có `ask{at,pair:true,answer,questionsLeft}` |
+| `hết kệ?` | tay ở cờ. **Không** tốn lượt hỏi |
+| hỏi quá `maxQuestions` | `outOfQuestions{at}` **trước khi trả lời**, crash `OUT_OF_QUESTIONS` |
+| Hết chương trình | kiểm lần lượt: `sorted` → `NOT_SORTED`; `find` → `NOT_FOUND`; `end` → `NOT_AT_END` (đều `incomplete`); đạt hết → `success` |
+
+Không thắng giữa chương trình (như robotlab). Câu hỏi báo câu trả lời qua `ctx.sense` (event chung `sense`). `countGoal` (ADR-0022) dùng được: thắng = mục tiêu kệ đạt **và** hộp đúng số.
+
+**Event:** `move{from,to}` · `swap{at,books}` (kệ sau khi đổi) · `ask{at,pair,answer,questionsLeft}` · `offShelf{at}` · `noBookRight{at}` · `outOfQuestions{at}`.
+**reasonCodes:** `OFF_SHELF`, `NO_BOOK_RIGHT`, `OUT_OF_QUESTIONS`, `NOT_SORTED`, `NOT_FOUND`, `NOT_AT_END`.
+**`predictAnswer`:** `shelf:<số, nối bằng ,>@<p>` (chương trình chạy hết, thắng hay không; vd `shelf:2,4,1,3,5@5`) · `crash:<REASON>@<p>` · `timeout`. Khóa `crash` **không** có thứ tự sách: thẻ đáp án vẽ kệ ban đầu của màn, nên khi soạn màn đoán có crash, chọn crash mà kệ ban đầu vẫn đủ để bé hiểu. Màn có hộp nối đuôi `#<id>=<n>`.
+**Vét cạn:** state `{ books, p }`, thêm `questionsLeft` chỉ khi màn có `maxQuestions`; câu hỏi đếm lượt là ngoại lệ có chủ ý của luật 6 (`game-kind-sdk.md`). Số đo ở ADR-0025.
+**Bẫy S1 / S2:** `SORTER_TRAPS` (`tools/content-check/src/sorter.ts`), chương trình viết gọn `REP4[S REP4[IFB[W] R]]`.
+**Sân chơi:** `apps/web/src/stages/sorter/` (P5-05).
 
 ### 3.7 `music` — Nhạc công · GĐ 4 (Thế giới 8)
 Ghép nốt theo giai điệu mẫu. Khối: `music_play(note, length)`, `music_rest`. Chấm: so chuỗi nốt với mẫu.

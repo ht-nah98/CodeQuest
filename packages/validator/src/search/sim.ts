@@ -89,6 +89,11 @@ export const LOSS = -2;
  * `complete: false`), instead of running the Web Worker or the CLI out of memory.
  */
 export const MAX_TUPLE_STATES = 1_000_000;
+/**
+ * Most states one map keeps (a snapshot and its key each, a few hundred bytes): past it the
+ * search stops like a spent budget, so a 300 M-work search (`KIND_MAX_WORK`) stays under ~1 GB.
+ */
+export const MAX_MAP_STATES = 1_000_000;
 
 /** Not computed yet, in the transition tables. */
 const UNKNOWN = -3;
@@ -184,6 +189,22 @@ export function stateKey(value: unknown): string {
     return `{${keys.map((key) => `${key}:${stateKey(record[key])}`).join(',')}}`;
   }
   return value === undefined ? 'u' : JSON.stringify(value);
+}
+
+/**
+ * Whether `after` is `before` with only `before[field]` counted down by exactly 1 (the one way a
+ * question may change the state, see `FastSim.answer`). Both must be plain objects.
+ */
+export function countsDown(before: unknown, after: unknown, field: string): boolean {
+  if (typeof before !== 'object' || before === null || typeof after !== 'object' || after === null) {
+    return false;
+  }
+  const a = before as Record<string, unknown>;
+  const b = after as Record<string, unknown>;
+  const was = a[field];
+  const now = b[field];
+  if (typeof was !== 'number' || typeof now !== 'number' || now !== was - 1) return false;
+  return stateKey({ ...a, [field]: 0 }) === stateKey({ ...b, [field]: 0 });
 }
 
 /** A search state of a level with `variables`: the kind's state and the boxes (ADR-0022). */
@@ -309,6 +330,12 @@ export class FastSim {
   steps = 0;
   /** Passes after which a `cq_repeat_until` counts as never stopping (its questions alone time out). */
   readonly untilCap: number;
+  /**
+   * Whether the questions count (the kind declares a `questionCounter` and some map's state has
+   * that field, see `answer`), decided once when the search starts: the searches then let every
+   * question run as a step (no top-level shortcuts that ask without moving on).
+   */
+  readonly countingQuestions: boolean;
   /** Whether the toolbox offers `làm phép` (ADR-0023). */
   readonly offersCall: boolean;
   /** Whether the toolbox offers `dạy phép`. */
@@ -359,6 +386,13 @@ export class FastSim {
       (config, index) =>
         new MapSim(this, { ...level, config }, kind.configSchema.parse(config), index),
     );
+    const counter = kind.questionCounter;
+    this.countingQuestions =
+      counter !== undefined &&
+      this.maps.some((map) => {
+        const game = this.unwrap(map.snapshot(map.initial)).game;
+        return typeof game === 'object' && game !== null && counter in game;
+      });
     this.initial =
       this.maps.length === 1
         ? this.firstMap.initial
@@ -782,15 +816,27 @@ export class FastSim {
     return goal === undefined || vars[goal.var] === goal.equals[map.index];
   }
 
-  /** The answer of sensor `cond` in a state of one map (used by `MapSim`). */
-  answer(map: MapSim, boxed: unknown, cond: number): boolean {
+  /**
+   * The answer of sensor `cond` in a state of one map (used by `MapSim`), and the state after the
+   * question. A question may change the state **only by counting** (ADR-0018 exception, P5-03):
+   * when the kind declares a `questionCounter` (the sorter's `questionsLeft`), that field may go
+   * down by exactly 1 and nothing else may change, else the level is unsearchable. Such a
+   * question may also end the run with a loss (`ctx.stop`, e.g. OUT_OF_QUESTIONS): `next` is
+   * then `LOSS_STATE`.
+   */
+  answer(
+    map: MapSim,
+    boxed: unknown,
+    cond: number,
+  ): { value: boolean; next: unknown } {
     const call = this.conds[cond]?.call;
     if (call === undefined) throw new Error(`no sensor ${String(cond)}`);
     const { game: state, vars } = this.unwrap(boxed);
     if (call.name === VAR_CMP_FN) {
       // A box question reads `vars` only and never changes the state (assumption 1b holds).
       try {
-        return applyVarCall(vars, this.variables, call.name, call.args).value === true;
+        const value = applyVarCall(vars, this.variables, call.name, call.args).value === true;
+        return { value, next: boxed };
       } catch (error) {
         throw new UnsearchableLevel(`unsearchable: ${String(error)}`);
       }
@@ -803,15 +849,20 @@ export class FastSim {
       value = fn(...call.args);
     } catch (error) {
       if (error instanceof UnsearchableLevel) throw error;
+      if (this.countingQuestions && error instanceof StopSignal && error.result !== 'success') {
+        return { value: false, next: LOSS_STATE };
+      }
       throw new UnsearchableLevel(`unsearchable: the sensor ${call.name} threw (${String(error)})`);
     }
     if (typeof value !== 'boolean') {
       throw new UnsearchableLevel(`unsearchable: the sensor ${call.name} returned ${typeof value}`);
     }
-    if (stateKey(ctx.state) !== stateKey(state)) {
+    if (stateKey(ctx.state) === stateKey(state)) return { value, next: boxed };
+    const counter = this.kind.questionCounter;
+    if (!this.countingQuestions || counter === undefined || !countsDown(state, ctx.state, counter)) {
       throw new UnsearchableLevel(`unsearchable: the sensor ${call.name} changes the state`);
     }
-    return value;
+    return { value, next: this.wrap(ctx.state, vars) };
   }
 
   /** Whether a final state of one map meets every star goal (true without `starGoals`). */
@@ -877,7 +928,12 @@ export class FastSim {
     const answers = [first, second].map((call) => {
       this.conds.push({ condition, call, inToolbox: false });
       try {
-        return this.answer(this.firstMap, this.firstMap.snapshot(this.firstMap.initial), index);
+        const { value, next } = this.answer(
+          this.firstMap,
+          this.firstMap.snapshot(this.firstMap.initial),
+          index,
+        );
+        return `${String(value)}:${typeof next === 'symbol' ? 'stop' : stateKey(next)}`;
       } finally {
         this.conds.pop();
       }
@@ -948,6 +1004,7 @@ class MapSim {
   private readonly ids = new Map<string, number>();
   private readonly transitions: Int32Array[] = [];
   private readonly answers: Int8Array[] = [];
+  private readonly afterAnswers = new Map<number, Int32Array>();
   private readonly finals: Array<boolean | undefined> = [];
   private readonly boxSets = new Map<string, number>();
 
@@ -1000,16 +1057,40 @@ class MapSim {
 
   /** The answer of sensor `cond` in a state (memoized). */
   test(state: number, cond: number): boolean {
+    const { value, next } = this.ask(state, cond);
+    // Only searches without counting questions answer without moving on (top-level shortcuts).
+    if (next !== state && !this.owner.countingQuestions) {
+      throw new UnsearchableLevel('unsearchable: a question moved the state');
+    }
+    return value;
+  }
+
+  /** The answer of sensor `cond` in a state and the state after asking (LOSS: the run ended). */
+  ask(state: number, cond: number): { value: boolean; next: number } {
     let row = this.answers[state];
     if (row === undefined) {
       row = new Int8Array(this.owner.conds.length).fill(-1);
       this.answers[state] = row;
     }
     const known = row[cond] ?? -1;
-    if (known !== -1) return known === 1;
-    const value = this.owner.answer(this, this.snapshots[state], cond);
+    if (known !== -1) {
+      const moved = this.afterAnswers.get(state)?.[cond] ?? UNKNOWN;
+      return { value: known === 1, next: moved === UNKNOWN ? state : moved };
+    }
+    const { value, next } = this.owner.answer(this, this.snapshots[state], cond);
+    const id =
+      next === LOSS_STATE ? LOSS : next === this.snapshots[state] ? state : this.intern(next);
     row[cond] = value ? 1 : 0;
-    return value;
+    // Only a question that moved the state keeps where it went (counting levels only).
+    if (id !== state) {
+      let after = this.afterAnswers.get(state);
+      if (after === undefined) {
+        after = new Int32Array(this.owner.conds.length).fill(UNKNOWN);
+        this.afterAnswers.set(state, after);
+      }
+      after[cond] = id;
+    }
+    return { value, next: id };
   }
 
   /**
@@ -1036,15 +1117,24 @@ class MapSim {
         for (let i = 0; i < times && current >= 0; i++) current = this.run(current, item.body);
       } else if ('then' in item) {
         if (item.cond === EMPTY_SLOT) return LOSS;
-        if (this.test(current, item.cond)) current = this.run(current, item.then);
+        const { value, next } = this.ask(current, item.cond);
+        current = next;
+        if (current < 0) return current;
+        if (value) current = this.run(current, item.then);
         else if (item.else !== null) current = this.run(current, item.else);
       } else {
         if (item.until === EMPTY_SLOT) return LOSS;
         const asked = new Set<number>();
-        while (current >= 0 && !this.test(current, item.until)) {
+        for (;;) {
+          const { value, next } = this.ask(current, item.until);
+          if (next < 0 || value) {
+            current = next;
+            break;
+          }
           if (asked.has(current) || asked.size >= this.owner.untilCap) return LOSS;
           asked.add(current);
-          current = this.run(current, item.body);
+          current = this.run(next, item.body);
+          if (current < 0) break;
         }
       }
       if (current < 0) return current;
@@ -1086,6 +1176,9 @@ class MapSim {
     const known = this.ids.get(key);
     if (known !== undefined) return known;
     const id = this.snapshots.length;
+    if (id >= MAX_MAP_STATES) {
+      throw new SearchAborted(`more than ${String(MAX_MAP_STATES)} states on one map`);
+    }
     this.snapshots.push(structuredClone(state));
     this.ids.set(key, id);
     return id;

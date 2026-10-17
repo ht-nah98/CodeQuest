@@ -107,7 +107,7 @@ jump: (blockId) => {
 3. Mỗi event hành động mang `blockId` của khối gây ra nó.
 4. Va chạm phải emit một event thất bại **trước** khi `stop`, để sân chơi diễn được cảnh ngã/đâm.
 5. Mọi `reasonCode` mới phải được liệt kê trong `reasonCodes` **và** có câu tiếng Việt trong `content/shared/feedback.json`.
-6. **Cảm biến** (khối giá trị, `json.output`, P2-11): generator gọi **một** API, block id là tham số cuối (`isAhead('HOLE', id)`); API chỉ đọc state, trả boolean qua `return ctx.sense(answer, String(blockId))` để engine ghi `sense` (khối hỏi sáng ✔/✘). Không `emit`, không `stop`, không đổi state (vét cạn kiểm và báo `unsearchable` nếu vi phạm).
+6. **Cảm biến** (khối giá trị, `json.output`, P2-11): generator gọi **một** API, block id là tham số cuối (`isAhead('HOLE', id)`); API chỉ đọc state, trả boolean qua `return ctx.sense(answer, String(blockId))` để engine ghi `sense` (khối hỏi sáng ✔/✘). Không `emit`, không `stop`, không đổi state (vét cạn kiểm và báo `unsearchable` nếu vi phạm). **Ngoại lệ `sorter`** (ADR-0025, "câu hỏi đếm"): ở màn có `maxQuestions`, câu hỏi sách giảm `questionsLeft`; câu hỏi quá lượt `emit` `outOfQuestions` rồi `stop` (`OUT_OF_QUESTIONS`) **trước** khi trả lời; câu hỏi được trả lời `emit` `ask` **sau** `ctx.sense` (để sân chơi sáng sách được so và đếm lượt). Mỗi câu hỏi sách vì vậy tính 2 việc vào `maxActions` (`sense` + `ask`).
 
 ### 1.1 Event của `runner` (P0-07, đủ luật ở P1-01)
 Type: `RunnerEvent` export từ `@codequest/games` (`packages/games/src/runner/events.ts`), kèm `RunnerObstacle` (`'branch' | 'crate'`), `RunnerMove` (`'walk' | 'crouch' | 'jump'`), `RUNNER_AHEAD_KINDS`. Mọi event có `blockId` của khối gây ra nó; engine chèn thêm `highlight` trước mỗi câu lệnh. Luật đầy đủ: `product/game-kinds.md` §3.1.
@@ -184,6 +184,22 @@ Type: `TurtleEvent` export từ `@codequest/games`. Điểm `TurtlePoint` = `[a,
 Mỗi bước tiến kiểm giấy trước, rồi mới kiểm nét lạ. **Không có event `win`**: chấm khi hết chương trình bằng `evaluate(state, config)` (hình mẫu `target` đọc từ `config`, không từ state); còn nét chưa vẽ thì `MISSING_LINES`. API: `forward(n, id)`, `turn('LEFT' | 'RIGHT', deg, id)`, `pen(down, id)`.
 
 `predictAnswer`: `draw:<khóa các nét đã sắp, nối bằng ;>` · `crash:<REASON>@a,b,c,d` · `timeout`.
+
+### 1.5 Event của `sorter` (P5-02, ADR-0025)
+Type: `SorterEvent` export từ `@codequest/games`. Chỗ trên kệ đánh số 1…n (n cuốn sách), chỗ n + 1 là cờ ở cuối kệ; tay bắt đầu ở 1.
+
+| Event | Trường | Ý nghĩa cho sân chơi |
+|---|---|---|
+| `move` | `from`, `to` | Tay sang phải một chỗ, hoặc về đầu kệ (`to` = 1). `về đầu kệ` khi tay đã ở 1 không có event |
+| `swap` | `at`, `books` | Đổi chỗ cuốn ở `at` với cuốn bên phải; `books` là hàng sách sau khi đổi |
+| `offShelf` | `at` | `sang phải` khi tay đã ở cờ; crash `OFF_SHELF` |
+| `noBookRight` | `at` | `đổi chỗ` mà bên phải không có sách; crash `NO_BOOK_RIGHT` |
+| `ask` | `at`, `pair`, `answer`, `questionsLeft` | Câu hỏi sách vừa được trả lời (ngay sau `sense` của khối hỏi): `pair` = `lớn hơn bên phải?` (sách `at` và `at + 1`), không thì `sách này …?` (sách `at`; ở cờ thì không có sách). `questionsLeft` là số lượt còn lại sau câu hỏi (`null` khi màn không có `maxQuestions`). `hết kệ?` không có `ask` |
+| `outOfQuestions` | `at` | Màn có `maxQuestions`: câu hỏi sách quá lượt, **trước khi** trả lời; crash `OUT_OF_QUESTIONS` |
+
+Câu hỏi (`sách này …?`, `lớn hơn bên phải?`) chỉ qua `ctx.sense`; mỗi câu tốn một lượt khi màn có `maxQuestions` (state `questionsLeft` giảm 1: "câu hỏi đếm", ngoại lệ của ADR-0018). `hết kệ?` không tốn lượt. **Không có event `win`**: chấm khi hết chương trình, theo thứ tự `NOT_SORTED` → `NOT_FOUND` → `NOT_AT_END`. API: `right(id)`, `toStart(id)`, `swap(id)`, `bookIs(op, n, id)`, `bigger(id)`, `atEnd(id)`.
+
+`predictAnswer`: `shelf:<sách cách nhau bởi ,>@<p>` · `crash:<REASON>@<p>` · `timeout`.
 
 ## 2. Nửa hiển thị: `StageRenderer`
 Interface định nghĩa trong `apps/web/src/stages/types.ts`:

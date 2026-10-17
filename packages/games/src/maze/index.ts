@@ -26,6 +26,8 @@ export {
   MAZE_MAX_SIZE,
   MAZE_MIN_SIZE,
   MAZE_SENSE_DIRS,
+  MAZE_STEP_LIMIT_MAX,
+  MAZE_STEP_LIMIT_MIN,
   MAZE_TILES,
   mazeConfigSchema,
 } from './config';

@@ -77,6 +77,19 @@ export const vi = {
       linesLeft: (n: number) => `Còn ${String(n)} nét`,
       linesLeftLabel: 'Nét còn lại',
     },
+    // Bookshelf stage HUD (ADR-0025, W10): questions left (levels with `maxQuestions`) and the
+    // swap count, which is only shown, never graded.
+    sorter: {
+      questionsLeft: (n: number) => `Còn ${String(n)} lượt hỏi`,
+      swaps: (n: number) => `Đổi chỗ: ${String(n)}`,
+      /** Screen readers: the HUD group under the bookshelf stage. */
+      hudLabel: 'Kệ sách: lượt hỏi và đổi chỗ',
+    },
+    // Maze steps (ADR-0026, levels with `stepLimit`): each "tiến" uses 1 step.
+    maze: {
+      stepsLeft: (n: number) => `Còn ${String(n)} bước`,
+      stepsLeftLabel: 'Bước còn lại',
+    },
     controlsLabel: 'Điều khiển',
     run: 'Chạy',
     stop: 'Dừng',
@@ -481,6 +494,20 @@ export const vi = {
       MISSING_LINES: 'Còn nét chưa vẽ.',
       OFF_PAPER: 'Ối, Măng vẽ ra ngoài giấy rồi!',
     },
+    /**
+     * Result-card lines of the phase 5 reason codes (bookshelf ADR-0025 §4, maze steps
+     * ADR-0026). feedback.json (P5-04) is the source the play screen reads; these must match it
+     * word for word (vi.test.ts checks each code once feedback.json has it).
+     */
+    phase5Reasons: {
+      OFF_SHELF: 'Hết kệ rồi! Tay Bíp không sang phải được.',
+      NO_BOOK_RIGHT: 'Bên phải không có sách!',
+      OUT_OF_QUESTIONS: 'Hết lượt hỏi rồi!',
+      NOT_SORTED: 'Kệ chưa xếp xong. Sách nhỏ phải đứng trước!',
+      NOT_FOUND: 'Tay Bíp chưa dừng ở cuốn sách cần tìm.',
+      NOT_AT_END: 'Tay Bíp chưa tới cờ cuối kệ.',
+      OUT_OF_STEPS: 'Măng mệt rồi! Hết bước.',
+    },
     newWorld: 'Mở thế giới mới!',
     next: 'Màn tiếp',
     replay: 'Chơi lại',
@@ -699,6 +726,8 @@ export const vi = {
     openFailed: 'File này không phải màn đường chạy hay mê cung.',
     // ADR-0023: no editor UI for spells yet (P4-06).
     spellsUnsupported: 'Chưa hỗ trợ phép thuật. Màn này có phép.',
+    // ADR-0025: no editor UI for bookshelf levels yet (P5-06).
+    sorterUnsupported: 'Chưa hỗ trợ kệ sách. Màn này là kệ sách.',
     droppedKeys: (keys: string) => `Bỏ các trường không phải của màn: ${keys}.`,
     download: 'Tải .json',
     copy: 'Sao chép JSON',
@@ -993,6 +1022,8 @@ export const vi = {
       function: 'PHÉP THUẬT',
       // Turtle pen blocks (ADR-0024, W9).
       pen: 'BÚT',
+      // Bookshelf blocks (ADR-0025, W10).
+      sorter: 'KỆ SÁCH',
       event: 'SỰ KIỆN',
     } satisfies Record<BlockCategory, string>,
     workspaceLabel: 'Vùng ghép khối',

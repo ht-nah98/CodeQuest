@@ -20,6 +20,8 @@ export const PROVISIONAL_WORLDS: ReadonlyMap<string, string> = new Map<string, s
   // warnings are 0 or each has a reason.
   ['w08-xuong-phep-thuat', 'P4-15'],
   ['w09-thap-hoa-si', 'P4-16'],
+  // Phase 5 (phase-5.md): removed after the coach's play test (P5-10).
+  ['w10-hoc-vien', 'P5-10'],
 ]);
 
 /** A file under `worlds/<dir>/`; `id` and `worldId` are read loosely so broken files still count. */
@@ -57,7 +59,13 @@ const MAX_BUILD_RUN = 3;
 export const ACTION_LABELS: ReadonlyMap<string, string> = new Map(
   Object.values(gameKinds)
     .flatMap((kind) => kind.blocks)
-    .filter((spec) => spec.category === 'move' && typeof spec.json.message0 === 'string')
+    // Action blocks: the moves, and the shelf's actions (P5-04; its questions have an output).
+    .filter(
+      (spec) =>
+        (spec.category === 'move' ||
+          (spec.category === 'sorter' && spec.json.output === undefined)) &&
+        typeof spec.json.message0 === 'string',
+    )
     .map((spec) => [spec.type, words(spec.json.message0.replace(/%\d+/g, ' ')).trim()]),
 );
 

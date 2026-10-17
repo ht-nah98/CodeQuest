@@ -1,6 +1,6 @@
 # ADR-0025: Kiểu game `sorter` ("Kệ sách"): hàng sách có số, tay ở một chỗ, đổi chỗ với sách bên phải, chấm khi hết chương trình, lượt hỏi là ngân sách
 
-- **Trạng thái:** Đề xuất
+- **Trạng thái:** Chấp nhận (17/10/2026, sau P5-02: lõi headless, luật 27, 4 màn mẫu và số đo vét cạn trên 4 màn phác, xem "Kết quả đo")
 - **Ngày:** 16/10/2026 (bản nháp của P5; chốt sau P5-02, khi có số đo vét cạn)
 
 ## Bối cảnh
@@ -122,5 +122,28 @@ Mục thanh khối **ghim** `OP` và `NUM` của `sorter_book_is` (vét cạn ch
 - **Tính cả `hết kệ?` vào lượt hỏi:** làm `lặp đến khi hết kệ` tốn lượt dù không nhìn sách. Bé khó hiểu "hỏi chỗ tay" với "hỏi sách" khác nhau ở đâu. Không chọn.
 - **Ngân sách là số lần đổi chỗ:** mọi cách nổi bọt đúng có cùng số lần đổi (bằng số cặp ngược), nên không phân biệt được cách nhanh / chậm. Không chọn.
 
-## Kết quả đo
-(Chưa có. P5-02 điền.)
+## Kết quả đo (P5-02, 17/10/2026)
+Lõi headless xong: `packages/games/src/sorter/` (6 khối category `sorter`, mô phỏng, chấm, khóa đoán), luật 27 (`tools/content-check/src/sorter.ts`), 3 màn mẫu `_sandbox` (`sorter-find`, `sorter-count`, `sorter-bubble`) qua `content:check`.
+
+Vét cạn (`npm run par`, ngân sách mặc định của `sorter` 3 · 10⁸ work do A nâng, `--timeout 240`) trên màn phác của §6.5, chép tạm ngoài repo. Câu hỏi đếm lượt vét được từ khi A cho câu hỏi giảm `questionsLeft` 1 hoặc dừng `OUT_OF_QUESTIONS` (`game-kind-sdk.md` §1 luật 6, ngoại lệ `sorter`).
+
+| Màn phác | Kệ, ngân sách | Kết quả | Thời gian |
+|---|---|---|---|
+| `l10` (nổi bọt) | 3 kệ 5 sách, `sorted` | ✔ `par` 7 chứng minh xong (125 lời giải 7 khối; 2 530 trạng thái) | 1,9 s |
+| `l13` (phép `một lượt` có hộp) | 3 kệ 5 sách, `maxQuestions` 10 | ✔ `par` 11 chứng minh xong (chế độ thân phép theo lời giải) | 11,6 s |
+| `l16` (`parsons`, dừng sớm) | `[1 2 4 3 5]`, `maxQuestions` 8, hộp `số lần đổi` | ⚠ vét ghép hình dừng ở 240 s (≥ 35 523 cách ghép), **≥ 241 cách ghép thắng**: mảnh ghép quá rời (mọi khối là một mảnh), bé bỏ qua được ý. P5-07 / P5-09 cần cho mảnh ghép sẵn thân (như W9 `l14`) | 240 s |
+| boss | 3 kệ 4 / 5 / 6 sách, `sorted` + `find` | ⚠ chỉ chứng minh không có lời giải ≤ 7 khối (`par` tay 12; 13 889 trạng thái ở ngân sách 2,9 · 10⁸) → `parUnproven` | 15 s |
+
+Heap tối đa của cả lần chạy 4 màn ≈ 1,37 GB (dưới trần 2 GB; `l16` chiếm phần lớn). Màn mẫu `_sandbox`: `sorter-find` `par` 3, `sorter-count` 6, `sorter-bubble` 7 (897 lời giải), đều ✔.
+
+**Chi tiết đã chốt khi cài** (lệch nhỏ so với bản nháp):
+- Category riêng `sorter` (thêm vào `BlockCategory` của engine), style `sorter_blocks`, nhóm thanh khối "KỆ SÁCH" (C ánh xạ ở `toolbox.ts` / `theme.ts`).
+- Ngoài `move`, `swap`, `outOfQuestions` có thêm hai event thất bại `offShelf{at}` và `noBookRight{at}`, vì SDK yêu cầu event trước khi dừng (`game-kind-sdk.md` §1 luật 4) để sân chơi diễn được.
+- State giữ `questionsLeft` (đếm lùi) thay cho `questions`, chỉ khi màn có `maxQuestions`. Câu hỏi thứ `maxQuestions + 1` ghi `outOfQuestions` rồi dừng, trước khi trả lời. `hết kệ?` không tốn lượt.
+- `sorted` cho phép hai sách bằng nhau đứng cạnh nhau (≤); luật 27 cấm kệ `sorted` có số trùng (S3).
+- Luật 27: (a) kệ `sorted` không trùng số, không xếp sẵn; (b) sách `find` có trên mọi bản đồ; (c) `maxQuestions` ≥ số lượt hỏi lời giải dùng trên mọi bản đồ (lớn hơn lượt của bản đồ khó nhất thì cảnh báo S2); (d) mục `sorter_book_is` của thanh khối ghim `OP` và `NUM`. Schema: kệ 2–7 sách số 1–9, mục tiêu ≥ 1, không có `find` cùng `end`, `maxQuestions` 1–60.
+- Bẫy S1 / S2: `SORTER_TRAPS` + `sorterProgram` (chương trình viết gọn `REP4[S REP4[IFB[W] R]]`) + `sorterTrapWarnings` (luật 24, cảnh báo).
+- Khóa đoán: `shelf:<số>@<p>` cho mọi chương trình chạy hết (thắng hay không), `crash:<REASON>@<p>`. Khóa `crash` không mang thứ tự sách: hình đáp án vẽ kệ ban đầu.
+- Event `ask{at, pair, answer, questionsLeft}` sau `sense` của mỗi câu hỏi sách, để sân chơi sáng sách được so và đếm lượt (`sense` không tới sân chơi). Đây là ngoại lệ của luật 6 `game-kind-sdk.md` (câu hỏi không `emit`), ghi ở đó. Mỗi câu hỏi sách tính **2 việc** vào `maxActions` (`sense` + `ask`). `hết kệ?` không có `ask`.
+- `về đầu kệ` khi tay đã ở chỗ 1 không có event (không có gì để diễn).
+- Luật 27 (e): màn `sorted` + `find` có ≥ 2 bản đồ thì chỗ của sách cần tìm **trên kệ đã xếp** phải khác nhau giữa các bản đồ (S1), nếu không `lặp k {sang phải}` thay được câu hỏi tìm.
