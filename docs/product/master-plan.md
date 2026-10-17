@@ -68,7 +68,7 @@ Robot đặt ở **Thế giới 6**, giữa lộ trình. Đến đó bé đã c�
 | 7 | 🏪 Chợ Đếm Số | **Biến**, đếm, so sánh | biến, +1, so sánh | Nông trại, Băng chuyền, Robot | 20 |
 | 8 | 🪄 Xưởng Phép Thuật | **Hàm/thủ tục**, tham số | định nghĩa hàm, gọi hàm | Họa sĩ, Robot | 20 |
 | 9 | 🎨 Tháp Họa Sĩ | **Lặp lồng nhau**, góc, hình học | lặp lồng, góc, bút màu | Họa sĩ rùa | 20 |
-| 10 | 🧠 Học Viện Thuật Toán | Tìm đường, **sắp xếp**, tìm kiếm, tối ưu | danh sách, đổi chỗ | Băng chuyền, Mê cung lớn | 20 |
+| 10 | 🧠 Học Viện Thuật Toán | Tìm đường, **sắp xếp**, tìm kiếm, so sánh cách giải | sang phải, về đầu kệ, đổi chỗ, câu hỏi sách (§6.5 `curriculum.md`) | Kệ sách (`sorter`), Mê cung có bước sức, Robot | 20 |
 
 Trong **Thế giới 6**, 20 màn tăng dần độ khó:
 - **Màn 1–5:** điều khiển robot đi theo ô, rẽ đúng góc.
@@ -362,7 +362,7 @@ Nút thắt thật sự của dự án là **sản xuất ~190 màn chơi tốt*
 | **GĐ 2 – Nhóm 6 bé** | 3 tuần · 30/10–19/11 | Supabase: đăng nhập avatar + PIN, đồng bộ; **Góc huấn luyện viên**; Thợ săn lỗi; Thế giới 3–5; validator headless + CI; level editor v0; deploy link cho cả nhóm | Cả 6 bé học trên máy riêng, anh xem được tiến độ từng bé |
 | **GĐ 3 – Thành Phố Robot** (phiên bản giữa) | 3 tuần · 20/11–10/12 | **Phòng thí nghiệm Robot**: sa bàn kiểu Synapse City, robot có dò line, cảm biến, tay gắp; nhiệm vụ Containment/Neutralization/Analysis/về CRL; đề ngẫu nhiên + đồng hồ 2–3 phút; **Thế giới 6** (20 màn) | Bé hoàn thành 1 nhiệm vụ kiểu AIROC trên mô phỏng, chạy ổn định 2 lần liên tiếp |
 | **GĐ 4 – Mở rộng** | 4 tuần | Họa sĩ, Nông trại, Băng chuyền, Nhạc công, Sân chơi; Thế giới 7–9; cửa hàng skin, huy hiệu, streak, mục tiêu nhóm, giọng đọc | 170 màn, các bé dùng coin mua skin |
-| **GĐ 5 – Thuật toán & code chữ** | 2 tuần | Thế giới 10; chế độ xem code JS/Python song song với khối | Bé đọc được code tương ứng với khối mình ghép |
+| **GĐ 5 – Học Viện Thuật Toán** | ~4 tuần (`roadmap/phase-5.md`) | Thế giới 10 trên kiểu game `sorter` (kệ sách) + bước sức mê cung; `v0.5.0`, rồi `v1.0.0`. Xem code JS/Python để sau `v1.0.0` (P5-14) | Bé sắp được mọi kệ bằng một chương trình, và chọn được cách ít lượt / ít bước hơn |
 | **GĐ 6 – Vận hành** | liên tục | Tinh chỉnh theo dữ liệu của 6 bé, thêm màn, (tùy chọn) xuất code cho Leanbot | — |
 
 **Bản đầu tiên các bé chơi được: cuối tháng 10.** Thành Phố Robot: **đầu tháng 12**. Bản v1 đầy đủ: khoảng **16 tuần**.

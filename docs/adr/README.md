@@ -30,6 +30,8 @@ Trạng thái: **Đề xuất** → **Chấp nhận** → (**Đã bị thay th�
 | [0022](0022-engine-variables.md) | Biến của engine ("hộp"): khối chỉ có ô số, biến trong trạng thái vét cạn, `countGoal`, `lặp [hộp] lần` | Chấp nhận |
 | [0023](0023-engine-procedures.md) | Phép thuật (hàm) của engine: tên do màn khai báo, tham số là hộp của phép, vét cạn với thân phép cố định, `parUnproven` | **Chấp nhận** |
 | [0024](0024-turtle-game-kind.md) | Kiểu game `turtle`: lưới chính xác bội số 30°, chấm bằng tập nét, nét lạ là dừng | **Chấp nhận** |
+| [0025](0025-sorter-game-kind.md) | Kiểu game `sorter` (kệ sách): tay ở một chỗ, đổi chỗ với sách bên phải, chấm khi hết chương trình, lượt hỏi là ngân sách | **Đề xuất** |
+| [0026](0026-maze-step-limit.md) | Bước sức của mê cung (`stepLimit`): mỗi `tiến` tốn 1 bước, hết bước là dừng | **Đề xuất** |
 
 ## Mẫu
 ```markdown

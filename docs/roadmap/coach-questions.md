@@ -144,3 +144,26 @@ Thiết kế: `product/curriculum.md` §6.3 (W8), §6.4 (W9), ADR-0023 (phép th
 15. **Xu cho bài W8, W9:** W8 có 6 bài, W9 có 9 bài. *Mặc định:* +5 xu mỗi bài lần đầu như W1–W7.
 16. **Thế giới 10** chỉ có khung (sắp xếp, tìm kiếm, đường ngắn nhất). *Mặc định:* chi tiết hóa sau khi anh chơi thử W8–W9.
 17. **W8 `l09` (hai phép soi gương "quay phải" / "quay trái" trên đường răng lược):** một chương trình chỉ dùng `lặp` (16 khối) ngắn hơn lời giải có phép (19 khối), vì "phải, trái" lặp lại đều. Màn là `parsons`: mảnh ghép cho sẵn, không có khối `lặp`, nên bé không gặp cách đó. Đã thử hơn 1 000 cách xếp khác, không cách nào qua (`curriculum.md` §6.3.1 màn 9). *Mặc định:* giữ như vậy; không đổi `l09` thành màn tự ghép (`build`) nếu chưa thiết kế lại.
+
+## J. Thế giới 10 (Học Viện Thuật Toán, GĐ 5)
+
+Thiết kế: `product/curriculum.md` §6.5, ADR-0025 (`sorter`, kệ sách), ADR-0026 (bước sức của mê cung), lịch ở `roadmap/phase-5.md`. Làm tự động như mục I: mỗi câu có **mặc định**, AI làm theo mặc định nếu anh chưa trả lời, việc không bị chặn.
+
+1. **W10 dạy gì.** *Mặc định:* **thuật toán**: tìm kiếm lần lượt, sắp xếp nổi bọt, đường ngắn nhất, và so sánh hai cách đúng ("cách nào chạy được là tốt" là ngộ nhận chính). W10 **ghép** các ý đã học (lặp lồng, `nếu`, hộp, phép), không thêm cú pháp mới. **Không** làm phép gọi phép, tham số cắm ô (`tiến [n] ô`), `biến + biến`: cần ô cắm và capacity guard, mà không thêm cách nghĩ mới. Để chuyến phiêu lưu sau.
+2. **Gọi "thuật toán" với bé.** *Mặc định:* bài mở đầu nói một lần "Thuật toán là cách làm đúng cho mọi lần"; chỗ khác nói "cách làm". Giao diện "khối", tooltip "lệnh".
+3. **Đồ vật để sắp: sách có số.** *Mặc định:* sách có số 1–9 trên gáy, số lớn thì sách cao, kệ ≤ 7 sách. Cách khác: hũ mật, bình nước, khối màu.
+4. **Ai sắp kệ.** *Mặc định:* tay của robot Bíp (W6). Măng đi vườn mê cung. Thầy **Cánh Cụt** (hình `penguin` có sẵn) giữ thư viện. Không thêm nhân vật.
+5. **Tên 6 khối kệ sách:** "sang phải", "về đầu kệ", "đổi chỗ", "sách này = 7?", "sách này lớn hơn bên phải?", "hết kệ?". *Mặc định:* như vậy (tooltip ở §6.5). Khối hỏi dùng dấu = / > / < như hộp W7. Tooltip "lớn hơn bên phải?" và "hết kệ?" chỉ nói khi nào ✔ (trần 12 chữ); trường hợp ✘ ở sách cuối / ở cờ có ở bài và demo.
+6. **Chỉ có "sang phải", không có "sang trái".** *Mặc định:* như vậy. Đủ cho tìm kiếm lần lượt và nổi bọt; "về đầu kệ" thay cho đi ngược.
+7. **Lượt hỏi là ngân sách.** Mỗi lần hỏi sách tốn 1 lượt; hết lượt thì dừng, như hết giờ ở W6. "hết kệ?" không tốn lượt. Chỉ 3 màn kệ sách có ngân sách: `l12` (đoán), `l13`, `l16`. *Mặc định:* như vậy.
+8. **Bước sức ở mê cung:** mỗi ô Măng tiến tốn 1 bước, **rẽ không tốn**; hết bước thì Măng dừng, như đâm tường. *Mặc định:* như vậy. Cách khác: rẽ cũng tốn 1 bước (giống robot hơn, bé phải đếm 2 thứ).
+9. **Chỉ dạy sắp xếp nổi bọt** (so 2 sách cạnh nhau, lớn hơn thì đổi), cùng 2 cách làm nhanh hơn: lượt sau ngắn đi 1, và không còn đổi chỗ thì dừng. *Mặc định:* không dạy sắp xếp chọn / chèn (cần đi hai chiều và nhớ vị trí).
+10. **Tìm kiếm nhị phân** ("đoán giữa, bỏ một nửa") không có ở W10. *Mặc định:* không. Bé 8–11 tuổi khó thấy lợi khi kệ chỉ 7 sách. Có thể là một chuyến phiêu lưu sau.
+11. **Tỉ lệ kiểu game:** 15 màn kệ sách, 4 mê cung (đường ngắn nhất, bước sức), 1 robot (tổng ôn `l19`). Anh muốn nhiều mê cung hơn (luật 14/10), nhưng W10 là thế giới của kiểu game mới, như W9 với `turtle`. *Mặc định:* như vậy. Muốn thêm mê cung hay robot cho AIROC thì đổi màn đoán `l09` (một lượt) hoặc thêm màn mê cung ở chặng thử thách; không đổi `l05`, `l07`, `l08`, `l10` (nơi khối kệ sách xuất hiện lần đầu).
+12. **Kết khóa học.** *Mặc định:* chương truyện cuối "Ngày tốt nghiệp": Măng nhận bằng, phù thủy gió xin vào học, thầy nói "Chuyến phiêu lưu mới đang chờ!". Không có màn hình "bằng tốt nghiệp" riêng hay bản in. Anh muốn in bằng cho 6 bé thì AI làm thêm.
+13. **Xem code JavaScript / Python** (phần cũ của khung GĐ 5). *Mặc định:* để sau `v1.0.0` (P5-14), vì bé 8–11 tuổi chưa cần, và W10 đã đủ nặng.
+14. **Màn sáng tạo W10 có nút "Xáo kệ"** (dùng lại cơ chế "Đề mới" của thi thử W6). *Mặc định:* có nếu kịp; không kịp thì kệ 7 sách cố định.
+15. **Xu cho bài W10:** W10 có 15 bài (mở đầu + 14 bài ngắn, mỗi ý mới một bài theo luật HLV 14/10). *Mặc định:* +5 xu mỗi bài lần đầu như W1–W9.
+16. **Mở khóa W10** khi các bé chưa xong W9. *Mặc định:* anh mở bằng tay ở Góc huấn luyện viên (như H18, I13).
+17. **Boss và màn tổng ôn có `par` tính tay** (`parUnproven`: boss, `l17`, `l19`). *Mặc định:* ⭐⭐⭐ vẫn tính theo `par` tay (như I14).
+18. **`v1.0.0` phát hành khi nào.** *Mặc định:* khi anh đã chơi thử và ghi "đạt" cho **cả 10 thế giới**, không còn thế giới nháp (P5-12, P5-13). `v0.5.0` phát hành ngay khi W10 đạt (P5-11).
