@@ -19,6 +19,7 @@ interface PlayHook {
   Blockly: typeof BlocklyModule;
   workspace: BlocklyModule.WorkspaceSvg;
   highlights: string[];
+  vars: string[];
   spells: string[];
   reasonCode?: string | null;
 }
@@ -282,6 +283,43 @@ test.describe('spells (phép thuật, ADR-0023)', () => {
     await page.getByTestId('play-step').click();
     await expect(page.locator('[data-spell-active="true"]')).toHaveCount(1, { timeout: RUN_MS });
     await expect(bubble(page)).toContainText('Đang làm phép «bậc thang»');
+  });
+
+  test("w08-l15: the spell's box shows on the panel and takes each call's number, then 0", async ({
+    page,
+  }, testInfo) => {
+    const w08 = readJson('worlds/w08-xuong-phep-thuat/levels/w08-l15.json') as {
+      solution: unknown;
+    };
+    await signInTestProfile(page);
+    await page.goto('/play/w08-l15');
+    await expect(stage(page)).toHaveAttribute('data-ready', 'true', { timeout: 30_000 });
+    await page.waitForFunction(
+      () => (window as unknown as Partial<HookWindow>).__cqPlay !== undefined,
+    );
+    const box = page.locator('[data-testid="var-box"][data-var="cells"]');
+    await expect(box).toContainText('số ô');
+    await expect(box).toHaveAttribute('data-value', '0');
+    await setProgram(page, w08.solution);
+    await page.getByRole('radio', { name: 'Chậm' }).click();
+    await page.getByTestId('play-run').click();
+    // While the first spell runs, its box holds that call's number (not 0).
+    await expect(box).not.toHaveAttribute('data-value', '0', { timeout: RUN_MS });
+    await expect(box).toHaveAttribute('data-state', 'set');
+    await shot(page, 'spell-box', testInfo.project.name);
+    await page.getByRole('radio', { name: 'Nhanh' }).click();
+    await expect(page.getByTestId('play-success')).toBeVisible({ timeout: RUN_MS });
+    const vars = await page.evaluate(() => (window as unknown as HookWindow).__cqPlay.vars);
+    // Each call sets the box, its end puts it back to 0: n, 0, m, 0, …
+    expect(vars.length).toBeGreaterThanOrEqual(4);
+    vars.forEach((entry, i) => {
+      if (i % 2 === 1) expect(entry).toBe('cells=0');
+      else expect(entry).toMatch(/^cells=[1-9]$/);
+    });
+    expect(new Set(vars.filter((_, i) => i % 2 === 0)).size).toBeGreaterThan(1);
+    // Măng wins on the flag inside the last spell (A1), before its end: the panel keeps the
+    // last number, as the engine does.
+    await expect(box).toHaveAttribute('data-value', String(vars.at(-1)).replace('cells=', ''));
   });
 
   test('lesson-spells: a demo card with a spell runs and lights the spell', async ({

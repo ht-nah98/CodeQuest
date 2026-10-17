@@ -5,6 +5,7 @@ import {
   applyVarCompare,
   applyVarEvent,
   varBoxesAt,
+  panelBoxes,
   varOpOfBlockType,
 } from './varBoxes';
 
@@ -65,6 +66,8 @@ describe('box panel reducer (ADR-0022 §6)', () => {
     expect(varOpOfBlockType('cq_var_set')).toBe('set');
     expect(varOpOfBlockType('cq_var_add')).toBe('add');
     expect(varOpOfBlockType(undefined)).toBe('add');
+    // A spell call sets its box on entry and back to 0 on exit (ADR-0023 §2).
+    expect(varOpOfBlockType('cq_proc_call_n')).toBe('set');
   });
 
   it('a question about a box lights ✔ / ✘ on it without changing the number', () => {
@@ -89,5 +92,21 @@ describe('box panel reducer (ADR-0022 §6)', () => {
     // A reset clears it.
     expect(varBoxesAt(VARIABLES, 1).verdict).toBeNull();
     expect(applyCountVerdict(state, 'fish', 1)).toBe(state);
+  });
+});
+
+describe('panelBoxes (ADR-0023 §2)', () => {
+  it('shows the level boxes, then each spell box from 0, or nothing at all', () => {
+    expect(panelBoxes(undefined, undefined)).toBeUndefined();
+    expect(panelBoxes(undefined, [{ id: 'stair', name: 'bậc thang' }])).toBeUndefined();
+    expect(
+      panelBoxes(
+        [{ id: 'bamboo', name: 'số măng' }],
+        [{ id: 'climb', name: 'leo bậc', param: { id: 'cells', name: 'số ô', max: 9 } }],
+      ),
+    ).toEqual([
+      { id: 'bamboo', name: 'số măng' },
+      { id: 'cells', name: 'số ô', max: 9 },
+    ]);
   });
 });

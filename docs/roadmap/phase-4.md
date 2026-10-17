@@ -28,21 +28,21 @@
 
 | ID | Task | Phụ thuộc | Người làm | Trạng thái |
 |---|---|---|---|---|
-| P4-01 | Spike + chốt ADR-0023: đo vét cạn phép (theo tập phép, thân cố định / liệt kê thân ≤ k), R5 có ngân sách, trên 3 màn maze + 1 robotlab **[nặng]** | — | AI (A) | ⬜ |
-| P4-02 | Phép thuật trong engine (headless): schema `procedures` + `parUnproven` + `predict.options[].drawProgram`; `cq_proc_def` / `cq_proc_call`; `field_cq_proc`; biên dịch, `__call` / `__ret`, event `call` / `ret`; mã lý do; độ sâu vòng lặp hiệu dụng; `blocksUsed`, `parEdits`, gợi ý tầng 2 | P4-01 (thiết kế; schema và khối làm song song với spike) | AI (A) | ⬜ |
-| P4-03 | Vét cạn có phép: `Statement.call`, chế độ theo tập phép + liệt kê thân, kiểm cờ `parUnproven` cũ, `parsons` hai chồng, `fixes`, `tools/par`, helper R5 **[nặng]** | P4-02 | AI (A) | ⬜ |
-| P4-04 | Hộp của phép (tham số): `cq_proc_def_n` / `cq_proc_call_n`, hộp chỉ dùng trong thân, `var` lúc vào / ra, sửa luật 23 + R4, vét cạn | P4-02, P4-03 | AI (A) | ⬜ |
-| P4-05 | `content:check` luật 25, luật 20 dùng độ sâu hiệu dụng, luật 24 hiểu phép + `turtle` (bỏ số độ, T1), `feedback.json`, fixture, màn mẫu, gắn ngược `parUnproven` | P4-02 (phần hộp: P4-04) | AI (A) | ⬜ |
-| P4-06a | Chữ giao diện cho GĐ 4 trong `i18n/vi.ts` (nhóm PHÉP THUẬT / BÚT, thẻ kết quả các mã mới, HUD turtle) + `PROVISIONAL_WORLDS` cho `w08`, `w09` | — | AI (C) | ⬜ |
-| P4-06 | Web phép thuật: thanh khối, theme, khối `dạy phép` không bị làm xám, flyout, bộ chặn thả khối theo độ sâu hiệu dụng, phát lại `call` / `ret`, bảng hộp của phép, thẻ demo, giọng đọc, editor "chưa hỗ trợ" **[e2e nặng]** | P4-02 (phần hộp: P4-04), P4-06a | AI (C) | ⬜ |
+| P4-01 | Spike + chốt ADR-0023: đo vét cạn phép (theo tập phép, thân cố định / liệt kê thân ≤ k), R5 có ngân sách, trên 3 màn maze + 1 robotlab **[nặng]** | — | AI (A) | ✅ |
+| P4-02 | Phép thuật trong engine (headless): schema `procedures` + `parUnproven` + `predict.options[].drawProgram`; `cq_proc_def` / `cq_proc_call`; `field_cq_proc`; biên dịch, `__call` / `__ret`, event `call` / `ret`; mã lý do; độ sâu vòng lặp hiệu dụng; `blocksUsed`, `parEdits`, gợi ý tầng 2 | P4-01 (thiết kế; schema và khối làm song song với spike) | AI (A) | ✅ |
+| P4-03 | Vét cạn có phép: `Statement.call`, chế độ theo tập phép + liệt kê thân, kiểm cờ `parUnproven` cũ, `parsons` hai chồng, `fixes`, `tools/par`, helper R5 **[nặng]** | P4-02 | AI (A) | ✅ |
+| P4-04 | Hộp của phép (tham số): `cq_proc_def_n` / `cq_proc_call_n`, hộp chỉ dùng trong thân, `var` lúc vào / ra, sửa luật 23 + R4, vét cạn | P4-02, P4-03 | AI (A) | ✅ |
+| P4-05 | `content:check` luật 25, luật 20 dùng độ sâu hiệu dụng, luật 24 hiểu phép + `turtle` (bỏ số độ, T1), `feedback.json`, fixture, màn mẫu, gắn ngược `parUnproven` | P4-02 (phần hộp: P4-04) | AI (A) | ✅ |
+| P4-06a | Chữ giao diện cho GĐ 4 trong `i18n/vi.ts` (nhóm PHÉP THUẬT / BÚT, thẻ kết quả các mã mới, HUD turtle) + `PROVISIONAL_WORLDS` cho `w08`, `w09` | — | AI (C) | ✅ |
+| P4-06 | Web phép thuật: thanh khối, theme, khối `dạy phép` không bị làm xám, flyout, bộ chặn thả khối theo độ sâu hiệu dụng, phát lại `call` / `ret`, bảng hộp của phép, thẻ demo, giọng đọc, editor "chưa hỗ trợ" **[e2e nặng]** | P4-02 (phần hộp: P4-04), P4-06a | AI (C) | ✅ |
 | P4-07 | Capacity guard (`apps/web/src/blockly/capacity.ts`). **Không chặn** W8–W9, vì mọi ô số vẫn là field | — | AI (C) | ⬜ (ưu tiên thấp) |
-| P4-08 | `turtle` headless: số học Z[√3], config, state, 5 khối (dropdown góc tĩnh), mô phỏng, chấm tập nét, `turtleDrawKey`, `EXTRA_LINE` / `MISSING_LINES` / `OFF_PAPER`, luật 26, 3 màn mẫu, đo vét cạn, chốt ADR-0024 | `drawProgram` trong schema (P4-02, phần đầu) | AI (B) | ⬜ |
-| P4-09 | `TurtleStage` PixiJS + `layout.ts` + `AnswerPicture` turtle + bộ nạp nội dung suy khóa đoán **[e2e nặng]** | P4-08; chữ của P4-06a | AI (B) | ⬜ |
-| P4-10 | Chi tiết hóa lần hai W8: bản đồ / sa bàn thật, `par` tay, R5 trên vét cạn **không** phép (vét cạn này đã có) | P4-02 (để chạy lời giải); R5 không cần | AI (C) | ⬜ |
-| P4-11 | Nội dung Thế giới 8 (20 màn + sáng tạo, bài mở đầu + 5 bài, 5 chương) **[par nặng]** | P4-03, P4-04, P4-05, P4-10; e2e cần P4-06 | AI (C soạn; A chạy `par` / R5) · HLV duyệt | ⬜ |
-| P4-12 | Chi tiết hóa lần hai W9: hình mẫu thật trên lưới, `par` tay, bẫy T1 | P4-08 | AI (B) | ⬜ |
-| P4-13 | Nội dung Thế giới 9 (20 màn + sáng tạo, bài mở đầu + 8 bài, 5 chương) **[par nặng]** | P4-08, P4-12; `world.json` cần P4-14; `l16` cần P4-03; e2e cần P4-09 | AI (B) · HLV duyệt | ⬜ |
-| P4-14 | Cảnh riêng `xuong-phep-thuat`, `thap-hoa-si` + hình `spellbook`, `wand`, `easel`, `tower` | — | AI (D, đang làm) | 🟨 (15/10: một agent khác đang làm trong cây chính; agent đó giữ `packages/content-schema/src/world.ts`) |
+| P4-08 | `turtle` headless: số học Z[√3], config, state, 5 khối (dropdown góc tĩnh), mô phỏng, chấm tập nét, `turtleDrawKey`, `EXTRA_LINE` / `MISSING_LINES` / `OFF_PAPER`, luật 26, 3 màn mẫu, đo vét cạn, chốt ADR-0024 | `drawProgram` trong schema (P4-02, phần đầu) | AI (B) | ✅ |
+| P4-09 | `TurtleStage` PixiJS + `layout.ts` + `AnswerPicture` turtle + bộ nạp nội dung suy khóa đoán **[e2e nặng]** | P4-08; chữ của P4-06a | AI (B) | ✅ |
+| P4-10 | Chi tiết hóa lần hai W8: bản đồ / sa bàn thật, `par` tay, R5 trên vét cạn **không** phép (vét cạn này đã có) | P4-02 (để chạy lời giải); R5 không cần | AI (C) | ✅ |
+| P4-11 | Nội dung Thế giới 8 (20 màn + sáng tạo, bài mở đầu + 5 bài, 5 chương) **[par nặng]** | P4-03, P4-04, P4-05, P4-10; e2e cần P4-06 | AI (C soạn; A chạy `par` / R5) · HLV duyệt | 🟨 nháp, chờ HLV chơi thử |
+| P4-12 | Chi tiết hóa lần hai W9: hình mẫu thật trên lưới, `par` tay, bẫy T1 | P4-08 | AI (B) | ✅ |
+| P4-13 | Nội dung Thế giới 9 (20 màn + sáng tạo, bài mở đầu + 8 bài, 5 chương) **[par nặng]** | P4-08, P4-12; `world.json` cần P4-14; `l16` cần P4-03; e2e cần P4-09 | AI (B) · HLV duyệt | 🟨 nháp, chờ HLV chơi thử |
+| P4-14 | Cảnh riêng `xuong-phep-thuat`, `thap-hoa-si` + hình `spellbook`, `wand`, `easel`, `tower` | — | AI (D, đang làm) | ✅ |
 | P4-15 | HLV chơi thử W8 | P4-11, P4-06 | HLV (AI sửa) | ⬜ |
 | P4-16 | HLV chơi thử W9 | P4-13, P4-09 | HLV (AI sửa) | ⬜ |
 | P4-17 | Phát hành `v0.4.0` | P4-15, P4-16 | HLV + AI | ⬜ |

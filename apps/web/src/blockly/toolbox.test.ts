@@ -120,6 +120,23 @@ describe('buildToolbox: spells (ADR-0023 §6)', () => {
     ]);
   });
 
+  it('spell blocks with a box ("với hộp") come only for spells with a param, and back', () => {
+    const contents = buildToolbox({
+      mode: 'build',
+      toolbox: ['cq_proc_def', 'cq_proc_def_n', 'cq_proc_call', 'cq_proc_call_n'],
+      procedures: [
+        { id: 'stair', name: 'bậc thang' },
+        { id: 'climb', name: 'leo bậc', param: { id: 'cells', name: 'số ô' } },
+      ],
+    }).contents;
+    expect(contents.slice(1)).toEqual([
+      { kind: 'block', type: 'cq_proc_def', fields: { PROC: 'stair' } },
+      { kind: 'block', type: 'cq_proc_def_n', fields: { PROC: 'climb' } },
+      { kind: 'block', type: 'cq_proc_call', fields: { PROC: 'stair' } },
+      { kind: 'block', type: 'cq_proc_call_n', fields: { PROC: 'climb' } },
+    ]);
+  });
+
   it('keeps a pinned spell entry as it is', () => {
     const pinned = { type: 'cq_proc_call', fields: { PROC: 'around' } };
     expect(buildToolbox({ ...level, toolbox: [pinned] }).contents).toEqual([
