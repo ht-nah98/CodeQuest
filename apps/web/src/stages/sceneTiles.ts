@@ -302,6 +302,50 @@ const TOWER_GROUND: GroundPatterns = {
   ],
 };
 
+/** Học Viện: a striped trimmed lawn over pale cloud-stone paving. */
+const ACADEMY_GROUND: GroundPatterns = {
+  top: [
+    'kkkkkkkkkkkkkkkkkk',
+    'kkkkkkkkkkkkkkkkkk',
+    'llllllllllllllllll',
+    'mmmmmmMMMMMMmmmmmm',
+    'mmmmmmMMMMMMmmmmmm',
+    'mmmmmmMMMMMMmmmmmm',
+    'mmmmmmMMMMMMmmmmmm',
+    'DDDDDDDDDDDDDDDDDD',
+    'cccccccjcccccccccj',
+    'cccccccjcccccccccj',
+    'cCccccccjcccCcccjc',
+    'jjjjjjjjjjjjjjjjjj',
+    'cccjcccccccccjcccc',
+    'cccjccccCccccjcccc',
+    'cccjcccccccccjcCcc',
+    'jjjjjjjjjjjjjjjjjj',
+    'ccccccccjccccccccj',
+    'cCccccccjccccccccj',
+  ],
+  fill: [
+    'ccccccccjccccccccj',
+    'ccccCcccjccccccccj',
+    'jjjjjjjjjjjjjjjjjj',
+    'cccjcccccccccjcccc',
+    'cccjcccccCcccjcccc',
+    'cccjcccccccccjcccc',
+    'jjjjjjjjjjjjjjjjjj',
+    'ccccccccjccccccccj',
+    'cCccccccjccccccCcj',
+    'ccccccccjccccccccj',
+    'jjjjjjjjjjjjjjjjjj',
+    'cccjcccccccccjcccc',
+    'cccjcccCcccccjcccc',
+    'cccjcccccccccjcccc',
+    'jjjjjjjjjjjjjjjjjj',
+    'ccccccccjccccccccj',
+    'ccccccccjcccCccccj',
+    'ccccccccjccccccccj',
+  ],
+};
+
 /** Ground patterns of the themes that draw their own ground (Làng Tre keeps Kenney's). */
 export const GROUND_PATTERNS = {
   'rung-lap-lai': FOREST_GROUND,
@@ -311,6 +355,7 @@ export const GROUND_PATTERNS = {
   'thanh-pho-robot': CITY_GROUND,
   'xuong-phep-thuat': SPELL_GROUND,
   'thap-hoa-si': TOWER_GROUND,
+  'hoc-vien': ACADEMY_GROUND,
 } as const satisfies Record<string, GroundPatterns>;
 
 /** The six runner ground pieces, named like the Kenney tiles they stand in for. */
@@ -573,6 +618,41 @@ const TOWER_MAZE: MazePatterns = {
   ],
 };
 
+/**
+ * Học Viện: a gravel garden path with stepping stones between walls of trimmed hedge (not the
+ * bookshelves of Xưởng Phép Thuật): a flat clipped top, leaf texture, a pink flower, a shadow.
+ */
+const ACADEMY_MAZE: MazePatterns = {
+  floor: [
+    'qqqqqqqqqqqr',
+    'qssssqqqnqqr',
+    'qsSSsqqqqqqr',
+    'qssssqqqqqqr',
+    'qqqqqqqqqqqr',
+    'qqnqqqssssqr',
+    'qqqqqqsSSsqr',
+    'qqqqqqssssqr',
+    'qqqqqqqqqqqr',
+    'qqqqqnqqqqnr',
+    'qnqqqqqqqqqr',
+    'rrrrrrrrrrrr',
+  ],
+  wall: [
+    'llllllllllll',
+    'hhlhhhhhlhhh',
+    'hhhhHhhhhhhH',
+    'hHhhhhhlhhhh',
+    'hhhhlhhhhHhh',
+    'lhhhhhHhhhhl',
+    'hhHhhhhhfhhh',
+    'hhhhhlhhhhHh',
+    'hHhhhhhHhhhh',
+    'hhhlhhhhhhlh',
+    'hhhhhHhhhhhh',
+    'HHHHHHHHHHHH',
+  ],
+};
+
 /** Maze tiles of the themes that draw their own (Làng Tre keeps maze/pixelArt.ts). */
 export const MAZE_PATTERNS = {
   'rung-lap-lai': FOREST_MAZE,
@@ -582,4 +662,5 @@ export const MAZE_PATTERNS = {
   'thanh-pho-robot': CITY_MAZE,
   'xuong-phep-thuat': SPELL_MAZE,
   'thap-hoa-si': TOWER_MAZE,
+  'hoc-vien': ACADEMY_MAZE,
 } as const satisfies Record<string, MazePatterns>;

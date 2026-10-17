@@ -199,9 +199,41 @@ const TOWER = [
   '..kkkkkkkk..',
 ];
 
+/** Bookshelf (Thế giới 10): a wooden shelf of two rows of coloured books, short legs. */
+const BOOKSHELF = [
+  'BBBBBBBBBBBB',
+  'BombyhbgoubB',
+  'BomgyhugoumB',
+  'BomgyhugoumB',
+  'BBBBBBBBBBBB',
+  'BhgbuoymbghB',
+  'BhgyuoymoghB',
+  'BhgyuoymoghB',
+  'BBBBBBBBBBBB',
+  'BbbbbbbbbbbB',
+  'BBBBBBBBBBBB',
+  'B..........B',
+];
+
+/** Diploma (Thế giới 10): a paper certificate with written lines, a gold seal and red ribbons. */
+const DIPLOMA = [
+  'kkkkkkkkkkkk',
+  'kqqqqqqqqqqk',
+  'kqpnnnnnnpqk',
+  'kqppppppppqk',
+  'kqpnnnnnppqk',
+  'kqppppppppqk',
+  'kqpnnpyyypqk',
+  'kqpppyYsYyqk',
+  'kqqqqyYYYyqk',
+  'kkkkkkyyykkk',
+  '......o.o...',
+  '.....oo.oo..',
+];
+
 const scenery = (rows: readonly string[]): GoalArt => ({ rows, palette: PALETTE });
 
-/** The maze palette plus the purple of spell covers, wood browns, pink and sky (Thế giới 8–9). */
+/** The maze palette plus the purple of spell covers, wood browns, pink and sky (Thế giới 8–10). */
 const MAGIC_PALETTE: Readonly<Record<string, string>> = {
   ...PALETTE,
   P: UI_COLORS.brandDeep,
@@ -233,4 +265,6 @@ export const STORY_PROP_ART: Readonly<Record<StoryProp, GoalArt>> = {
   wand: magic(WAND),
   easel: magic(EASEL),
   tower: magic(TOWER),
+  bookshelf: magic(BOOKSHELF),
+  diploma: magic(DIPLOMA),
 };

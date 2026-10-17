@@ -25,3 +25,24 @@ describe.each(SCENE_THEMES)('runner scenery of %s', (theme) => {
     }
   });
 });
+
+// P5-08: the academy (W10) is one of the themes above; its layers draw shapes, the same twice.
+describe('runner scenery of hoc-vien (P5-08)', () => {
+  it('draws non-empty sky, far and near layers, identical across two calls', () => {
+    expect(SCENE_THEMES).toContain('hoc-vien');
+    for (const draw of [drawSky, drawFar, drawNear]) {
+      for (const layout of [SHORT, LONG]) {
+        const a = draw(layout, 'hoc-vien');
+        const b = draw(layout, 'hoc-vien');
+        expect(a.bounds.width).toBeGreaterThan(0);
+        expect(a.bounds.height).toBeGreaterThan(0);
+        expect([b.bounds.x, b.bounds.y, b.bounds.width, b.bounds.height]).toEqual([
+          a.bounds.x,
+          a.bounds.y,
+          a.bounds.width,
+          a.bounds.height,
+        ]);
+      }
+    }
+  });
+});

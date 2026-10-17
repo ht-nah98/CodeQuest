@@ -562,6 +562,93 @@ export const TOWER_DETAIL = {
   palette: mix(B.robot, C.paper, 0.6),
 } as const;
 
+// ---- Học Viện Thuật Toán (W10): library on cloud hills, lanterns, hedge garden (P5-08) ----------
+
+const ACADEMY: SceneArt = {
+  id: 'hoc-vien',
+  sky: {
+    high: mix(C.sky, C.brand, 0.3),
+    mid: mix(C.sky, C.paper, 0.3),
+    low: mix(C.sky, C.paper, 0.6),
+  },
+  // Cream-white cloud hills with the library on top far away, trimmed hedges near the track.
+  far: {
+    main: mix(C.paper, C.brandSoft, 0.25),
+    dark: mix(C.brandSoft, C.paper, 0.2),
+    light: C.white,
+  },
+  near: {
+    main: mix(C.go, C.paper, 0.32),
+    dark: mix(C.go, C.paper, 0.18),
+    light: mix(C.go, C.paper, 0.58),
+  },
+  backdrop: [],
+  ground: {
+    patterns: GROUND_PATTERNS['hoc-vien'],
+    palette: {
+      k: mix(C.ink, C.goDeep, 0.3),
+      l: shade(C.go, 1.45),
+      m: shade(C.go, 1.3),
+      M: shade(C.go, 1.15),
+      D: C.go,
+      c: mix(C.paper2, C.brandSoft, 0.45),
+      C: mix(C.brandSoft, C.brand, 0.3),
+      j: mix(C.brand, C.paper2, 0.55),
+    },
+  },
+  maze: {
+    patterns: MAZE_PATTERNS['hoc-vien'],
+    palette: {
+      q: mix(C.paper2, C.go, 0.08),
+      r: shade(mix(C.paper2, C.go, 0.08), 0.9),
+      n: mix(C.paper2, C.brand, 0.4),
+      s: mix(C.paper, C.brand, 0.22),
+      S: mix(C.paper, C.brand, 0.38),
+      l: mix(C.go, C.goDeep, 0.3),
+      h: C.goDeep,
+      H: mix(C.goDeep, C.ink, 0.4),
+      f: C.hint,
+    },
+    background: mix(C.sky, C.paper, 0.45),
+  },
+  svgSky: mix(C.sky, C.paper, 0.3),
+  decor: null,
+};
+
+/**
+ * The academy: sun, the library on the cloud hills (pale walls, lavender roof, an arched window
+ * with a wooden bookshelf inside), lanterns on posts and the hedge garden. `shelf`, `shelfDark`
+ * and `shelfBack` are used by the runner library; the sorter shelf (P5-05) uses the same colours.
+ */
+export const ACADEMY_DETAIL = {
+  sun: C.coinShine,
+  sunRim: shade(C.coin, 1.55),
+  wall: mix(C.paper2, C.brandSoft, 0.35),
+  wallShade: mix(C.brandSoft, C.brand, 0.25),
+  column: C.paper,
+  roof: mix(C.brand, C.paper, 0.45),
+  roofDark: mix(C.brand, C.paper, 0.32),
+  /** Pastel book spines on the library's shelves. */
+  books: [
+    mix(C.oops, C.paper, 0.35),
+    mix(B.move, C.paper, 0.4),
+    mix(C.go, C.paper, 0.3),
+    C.coin,
+    mix(B.var, C.paper, 0.4),
+  ],
+  /** The wooden shelf boards and sides (sorter stage: the shelf the books stand on). */
+  shelf: mix(B.robot, C.paper, 0.35),
+  /** The shelf's edge and shadow lines. */
+  shelfDark: shade(B.robot, 0.8),
+  /** The back panel behind the books (sorter stage: the shelf's background). */
+  shelfBack: mix(C.paper2, B.robot, 0.18),
+  lantern: C.coin,
+  lanternGlow: C.coinShine,
+  lanternCap: C.inkSoft,
+  post: shade(B.robot, 0.75),
+  flower: C.hint,
+} as const;
+
 /** Each theme's backdrop: the sky in the action band and the big layers behind the track. */
 const withBackdrop = (art: SceneArt, extra: readonly string[] = []): SceneArt => ({
   ...art,
@@ -605,6 +692,17 @@ export const SCENE_ART: Readonly<Record<SceneTheme, SceneArt>> = {
     TOWER.near.light,
     TOWER_DETAIL.cloud,
     ...TOWER_DETAIL.floors,
+  ]),
+  'hoc-vien': withBackdrop(ACADEMY, [
+    ACADEMY.far.dark,
+    ACADEMY.far.light,
+    ACADEMY.near.light,
+    ACADEMY_DETAIL.wall,
+    ACADEMY_DETAIL.wallShade,
+    ACADEMY_DETAIL.column,
+    ACADEMY_DETAIL.roof,
+    ACADEMY_DETAIL.roofDark,
+    ACADEMY_DETAIL.shelfBack,
   ]),
 };
 

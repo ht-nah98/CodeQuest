@@ -349,3 +349,33 @@ describe('W8 and W9 scenes (P4-14)', () => {
     expect(tower.patterns?.wall.some((row) => row === 'WWWWWWWWWWWW')).toBe(true);
   });
 });
+
+describe('W10 scene (P5-08)', () => {
+  const art = SCENE_ART['hoc-vien'];
+
+  it('knows the academy theme, with its own ground and maze tiles', () => {
+    expect(SCENE_THEMES).toContain('hoc-vien');
+    expect(parseSceneTheme('hoc-vien')).toBe('hoc-vien');
+    expect(art.ground).not.toBeNull();
+    expect(art.maze.patterns).not.toBeNull();
+  });
+
+  it('looks different from every other theme (sky, ground and maze floor)', () => {
+    const look = (a: SceneArt): string =>
+      JSON.stringify([a.sky, a.far, a.near, a.ground?.patterns, a.maze.patterns]);
+    for (const [other, otherArt] of THEMES) {
+      if (other !== 'hoc-vien') expect(look(art), `hoc-vien vs ${other}`).not.toBe(look(otherArt));
+    }
+  });
+
+  it('draws the maze walls as a trimmed green hedge, not the W8 bookshelves', () => {
+    const maze = art.maze;
+    const wall = maze.patterns?.wall ?? [];
+    expect(wall).not.toEqual(SCENE_ART['xuong-phep-thuat'].maze.patterns?.wall);
+    expect(wall).not.toEqual(SCENE_ART['rung-lap-lai'].maze.patterns?.wall);
+    // A flat clipped top, and mostly hedge green.
+    expect(wall[0]).toBe('llllllllllll');
+    const greens = dominant(wall, maze.palette, 0.3);
+    expect(greens).toEqual([UI_COLORS.goDeep]);
+  });
+});
