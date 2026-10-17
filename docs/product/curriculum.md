@@ -29,7 +29,7 @@ Kèm mỗi thế giới có **1 hoạt động ngoài màn hình** (unplugged) 5
 | 7 | `w07-cho-dem-so` | 🏪 Chợ Đếm Số | Biến ("hộp"), đếm, so sánh | đặt, tăng thêm, so sánh, lặp [hộp] lần, phía trước có măng? (§6.2) | maze, robotlab (§6.2; farm dời sau) | 20 | GĐ 3 (sau W6) |
 | 8 | `w08-xuong-phep-thuat` | 🪄 Xưởng Phép Thuật | Hàm ("phép thuật"), một tham số số | dạy phép, làm phép, dạy phép với hộp, làm phép với số (§6.3) | maze, robotlab (§6.3; turtle, music dời) | 20 | GĐ 4 |
 | 9 | `w09-thap-hoa-si` | 🎨 Tháp Họa Sĩ | Lặp lồng nhau, góc, hình học | tiến … bước, rẽ phải / trái … độ, nhấc bút, hạ bút (§6.4) | turtle | 20 | GĐ 4 |
-| 10 | `w10-hoc-vien` | 🧠 Học Viện Thuật Toán | Tìm đường, sắp xếp, tìm kiếm, tối ưu | danh sách, đổi chỗ | sorter, maze | 20 | GĐ 5 |
+| 10 | `w10-hoc-vien` | 🧠 Học Viện Thuật Toán | Thuật toán: tìm kiếm, sắp xếp, đường ngắn nhất, so sánh cách giải | sang phải, về đầu kệ, đổi chỗ, sách này = …?, sách này lớn hơn bên phải?, hết kệ?; luật lượt hỏi, bước sức (§6.5) | sorter (kệ sách), maze, robotlab (§6.5) | 20 | GĐ 5 |
 
 > Robot nằm ở **tầng giữa** (Thế giới 6) theo quyết định của huấn luyện viên. Bé đến đó đã có tuần tự, lặp, gỡ lỗi, điều kiện, lặp có điều kiện: đủ những gì Blockly cần cho AIROC. Robot quay lại trong boss Thế giới 7–8.
 
@@ -550,7 +550,7 @@ Phụ thuộc vào các câu đang mở ở GĐ 1:
 
 ## 6. Thế giới 6–10
 
-Thế giới 6 và 7 đã chi tiết hóa (§6.1, §6.2, 07/10/2026). Thế giới 8 và 9 có **bản nháp lần một** (§6.3, §6.4, 15/10/2026, `roadmap/phase-4.md`); Thế giới 10 vẫn là **khung**.
+Thế giới 6 và 7 đã chi tiết hóa (§6.1, §6.2, 07/10/2026). Thế giới 8 và 9 có **bản nháp lần một** (§6.3, §6.4, 15/10/2026, `roadmap/phase-4.md`). Thế giới 10 có **bản nháp lần một** (§6.5, 16/10/2026, `roadmap/phase-5.md`).
 
 | Thế giới | Mục tiêu học | Ngộ nhận nhắm tới | Boss |
 |---|---|---|---|
@@ -558,7 +558,7 @@ Thế giới 6 và 7 đã chi tiết hóa (§6.1, §6.2, 07/10/2026). Thế gi�
 | 7 Chợ Đếm Số | xem §6.2 | | |
 | 8 Xưởng Phép Thuật | xem §6.3 | | |
 | 9 Tháp Họa Sĩ | xem §6.4 | | |
-| 10 Học Viện Thuật Toán | So sánh các cách giải, sắp xếp, tìm kiếm, chọn đường ngắn nhất | Cách nào chạy được là tốt | Robot chọn thứ tự nhiệm vụ tối ưu |
+| 10 Học Viện Thuật Toán | xem §6.5 | | |
 
 ### 6.1 Thế giới 6 — 🤖 Thành Phố Robot (chi tiết, bản nháp P3-04, 07/10/2026)
 
@@ -1429,13 +1429,199 @@ Tổng kết bảng:
 | `w09-l19` | 5 × 6 · (2, 3), 0° | — (predict) | `lặp 4 {tiến 1, lặp 3 {tiến 1, phải 120}, phải 90}`; thẻ: 4 lá cờ quanh tâm `lặp 4 {tiến 1, lặp 3 {tiến 1, phải 120}, phải 90}` / 1 lá cờ `tiến 1, lặp 3 {tiến 1, phải 120}` / Đường gấp khúc `lặp 4 {tiến 1, tiến 1, phải 120, phải 90}` · 6 khối | — | — |  |
 | `w09-boss` | 8 × 8 · (4, 4), 0° | lời giải trải ra | `lặp 6 {tiến 1, nhấc, tiến 1, hạ, lặp 3 {tiến 1, trái 120}, nhấc, phải 180, tiến 2, hạ, phải 120}` · 13 khối | 13 | `lặp 6 {tiến 1, tiến 1, lặp 3 {tiến 1, trái 120}, phải 180, tiến 2, phải 120}` | Mỗi cánh: nét đứt từ tâm, một tinh thể tam giác ở đầu, rồi nhấc bút đi về tâm. Không nhấc bút thì khe và đường về thành nét lạ: nhấc bút là cần để đi, không chỉ để trang trí. |
 
-### 6.5 Thế giới 10 (khung)
-- Giữ dòng khung ở bảng §6: Học Viện Thuật Toán, so sánh cách giải, sắp xếp, tìm kiếm, đường ngắn nhất; kiểu game `sorter`, `maze`.
-- Ứng viên cho W10 đã ghi lại từ W8–W9:
-  - phép gọi phép (bỏ `SPELL_IN_SPELL`);
-  - tham số cắm vào ô (`tiến [n] ô`, cần capacity guard);
-  - `biến + biến`.
-- Chi tiết hóa ở GĐ 5.
+### 6.5 Thế giới 10 — 🧠 Học Viện Thuật Toán (bản nháp lần một, P5, 16/10/2026) · 🟨 nháp, chờ HLV chơi thử
+
+> Viết theo yêu cầu của điều phối ngày 16/10/2026 (`roadmap/phase-5.md`). Làm tự động, không hỏi; câu hỏi sản phẩm ở `roadmap/coach-questions.md` mục J, câu nào cũng có mặc định.
+> - W10 dạy **thuật toán**: một cách làm đúng cho **mọi** trường hợp, và **so sánh** hai cách đúng xem cách nào nhanh hơn. Ba bài toán kinh điển: **tìm kiếm** (tìm lần lượt), **sắp xếp** (nổi bọt), **đường ngắn nhất**.
+> - Kiểu game mới **`sorter`** ("Kệ sách", ADR-0025, Đề xuất): Bíp sắp một hàng sách có số. Mê cung có thêm luật **bước sức** (`stepLimit`, ADR-0026, Đề xuất). Robot quay lại ở một màn thử thách.
+> - Mọi chương trình kệ sách trong bảng **đã chạy bằng một bộ mô phỏng nhỏ** (script tạm, ngày 16/10, đúng luật ADR-0025). Bản đồ mê cung, sa bàn và `par` vét cạn làm ở P5-07, P5-09.
+
+**Vì sao chọn thuật toán (không thêm cú pháp mới):**
+- Khung cũ (§2, `master-plan.md` §4) đã hứa W10 là "tìm đường, sắp xếp, tìm kiếm, tối ưu", và ngộ nhận cần sửa là "cách nào chạy được là tốt".
+- Bé đến W10 đã có đủ "nguyên liệu": tuần tự, lặp, gỡ lỗi, điều kiện, lặp đến khi, hộp, phép, vòng lặp trong vòng lặp. Thế giới cuối nên **ghép** chúng thành thuật toán thật, không chất thêm khối khó. Ví dụ: nổi bọt = vòng lặp trong vòng lặp (W9) + `nếu` (W4); dừng sớm = thêm hộp (W7) + `lặp đến khi` (W5); lượt ngắn dần = phép có hộp (W8).
+- Ba ứng viên ghi từ W8–W9 **không** làm ở W10. Mỗi cái thêm cú pháp mà không thêm cách nghĩ mới cho bé 8–11 tuổi:
+  - phép gọi phép: giữ `SPELL_IN_SPELL`. Không màn nào của W10 cần phép lồng;
+  - tham số cắm ô (`tiến [n] ô`) và `biến + biến`: cần ô cắm, shadow, bật capacity guard và vét cạn biểu thức (ADR-0022, 0023). Để chuyến phiêu lưu sau GĐ 5 (`later-phases.md`).
+- **Danh sách** không thành kiểu dữ liệu trong engine (không có khối "danh sách", "phần tử thứ i"). Kệ sách **là** danh sách bé nhìn thấy: hàng có thứ tự, mỗi sách một chỗ. Nhờ vậy khối chỉ có ô số / ô chọn như W7–W9, không cần capacity guard.
+- Phương án đã cân nhắc và lý do không chọn: ADR-0025 mục "Phương án".
+
+**Gọi tên với bé:**
+- Bài mở đầu nói một lần: "Thuật toán là cách làm đúng cho mọi lần." Mọi chỗ khác nói "cách làm".
+- "kệ", "sách" (trên gáy có số; số lớn thì sách cao), "tay Bíp", "cờ cuối kệ", "lượt" (một lần đi qua kệ), "lượt hỏi", "bước" (mê cung).
+- Giao diện gọi mảnh lập trình là **"khối"**, tooltip nói **"lệnh"** (luật HLV 08/10). Tooltip khối kệ sách không nêu tên nhân vật, như khối phép (§6.3). Bài giảng và gợi ý thì nói "Bíp".
+- Mọi số viết bằng chữ số; số thứ tự ("sách thứ hai") giữ chữ.
+
+**Bé làm được sau thế giới:**
+- Tìm một cuốn sách bằng cách **hỏi lần lượt** cho tới khi thấy. Biết cách đó đúng với mọi kệ, còn "đi 2 chỗ" chỉ đúng một kệ.
+- Đi **hết kệ** để đếm. Biết hỏi trước rồi mới đi, để không bỏ sót sách đầu.
+- **Đổi chỗ** hai sách cạnh nhau. Biết một **lượt** "so 2 sách cạnh nhau, lớn hơn thì đổi" đưa sách lớn nhất về cuối kệ.
+- **Sắp xếp** mọi kệ bằng vòng lặp trong vòng lặp: mỗi lượt bắt đầu từ đầu kệ. Kệ 5 sách cần tới 4 lượt (kệ ngược hẳn).
+- **So sánh hai cách đúng** bằng lượt hỏi hoặc bước:
+  - lượt sau ngắn đi 1 (phép có hộp);
+  - không còn đổi chỗ thì dừng (hộp + `lặp đến khi`);
+  - trong mê cung, chọn đường ít bước nhất.
+- (Boss) Một chương trình sắp được kệ **dài, ngắn khác nhau** (`lặp đến khi hết kệ`), rồi tìm một cuốn sách.
+
+**Ngộ nhận nhắm tới:**
+
+| Ngộ nhận | Màn |
+|---|---|
+| "Tìm là phải đi hết kệ" | `l03` |
+| "Đúng cho 1 kệ là đúng cho mọi kệ" | `l04`, bài `w10-lesson-thuat-toan` |
+| "Đi trước, hỏi sau cũng vậy" | `l06` |
+| "Đổi chỗ được 2 sách bất kỳ" | `l07` |
+| "Một lượt là xếp xong" | `l09` |
+| "Kệ nào cũng cần số lượt như nhau" | `l11` |
+| "Kệ xếp xong rồi thì hỏi thêm cũng không sao" | `l12` |
+| "Rẽ cũng tốn bước" / "Bám tường là luôn kịp" | `l14` |
+| **"Cách nào chạy được là tốt"** (ngộ nhận chính của W10) | `l13`, `l15`, `l18` |
+| "Phải chạy đủ mọi lượt mới chắc" | `l16` |
+| "Chương trình cho kệ 5 sách chạy được kệ 4 sách"; "tìm sách là đếm chỗ" | boss |
+
+**Unplugged — "Xếp hàng theo số":** 5 bé cầm thẻ số (1–9), đứng thành hàng. Một bé làm "tay Bíp", đi dọc hàng.
+- Vòng 1 (tìm): tay Bíp hỏi từng bạn "Bạn có số 7 không?" cho tới khi thấy. Cả nhóm đếm số lần hỏi.
+- Vòng 2 (sắp): tay Bíp so 2 bạn đứng cạnh nhau, bạn số lớn hơn đứng bên trái thì hai bạn đổi chỗ. Hết hàng thì về đầu hàng làm lượt mới. Đếm số lượt.
+- Vòng 3 (nhanh hơn): làm lại, nhưng lượt sau không hỏi bạn cuối hàng nữa ("bạn ấy đúng chỗ rồi"). Lượt nào không ai đổi chỗ thì dừng. So số lần hỏi với vòng 2.
+
+**Câu chuyện** (nối chương cuối W9 "Học Viện Thuật Toán đang chờ Măng!"):
+- Học Viện Thuật Toán nằm trên đồi mây, sau Tháp Họa Sĩ. Thầy **Cánh Cụt** (`penguin`, đã có trong `STORY_CAST`) giữ thư viện của Học Viện.
+- Gió của phù thủy (W6, W8) thổi tung mọi kệ sách. Sách nào cũng lạc chỗ.
+- Bíp làm "tay sắp sách". Măng đi vườn mê cung của Học Viện, tìm đường ngắn nhất.
+- Boss: **"Thư viện tốt nghiệp"**. Bíp sắp lại 3 kệ, rồi tìm cuốn sách số 4 (cuốn "Bằng tốt nghiệp") cho thầy.
+- Kết thế giới (và cả khóa): phù thủy gió xin vào học. Măng và các bạn nhận bằng. Thầy Cánh Cụt nói: "Chuyến phiêu lưu mới đang chờ!" (chuyến phiêu lưu sau GĐ 5, `later-phases.md`).
+- `STORY_PROPS` thêm `bookshelf` (kệ sách), `diploma` (bằng tốt nghiệp). Không thêm nhân vật.
+- Cảnh `theme.scene: 'hoc-vien'` (P5-08):
+  - kệ sách là nền của sân `sorter`;
+  - mê cung là **vườn hàng rào cây xén**. Ô tường của W8 đã là kệ sách, nên W10 không dùng lại.
+
+**Khối mới** (ADR-0025, kiểu game `sorter`). Nhãn và tooltip là **đề xuất**.
+- Tooltip **bắt đầu bằng nhãn khối** (luật 7, `ACTION_LABELS`). Gợi ý `enter` = "Khối mới! " + tooltip, ≤ 12 chữ.
+- Tay Bíp đứng ở chỗ 1…n (một cuốn sách) hoặc ở **cờ cuối kệ** (chỗ n + 1).
+
+| Khối | Nhãn | Tooltip (câu luật) | Ví dụ chạy được (thẻ `demo`) |
+|---|---|---|---|
+| `sorter_right` | sang phải | Sang phải: tay sang sách kế bên phải | kệ `[2 5 8]`, `sang phải, sang phải` → tay ở sách số 8 (sách thứ ba) |
+| `sorter_book_is` | sách này [= ▾] [7]? (khối hỏi; `OP` = / > / <, `NUM` 1–9) | Sách này = 7? Đúng thì ✔, sai thì ✘ | kệ `[4 2 9]`, `lặp đến khi sách này = 9 {sang phải}` → dừng ở sách thứ ba |
+| `sorter_at_end` | hết kệ? (khối hỏi) | Hết kệ? Tay ở cờ cuối kệ thì ✔ | kệ `[1 7 2]`, `lặp đến khi hết kệ {nếu sách này < 3 {tăng số sách nhỏ thêm 1}, sang phải}` → tay ở cờ, hộp 2 |
+| `sorter_swap` | đổi chỗ | Đổi chỗ: sách này đổi với sách bên phải | kệ `[2 1 3]`, `đổi chỗ` → `[1 2 3]`; kệ `[1 3 2]`, `sang phải, sang phải, đổi chỗ` → dừng `NO_BOOK_RIGHT` ("Bên phải không có sách!") |
+| `sorter_bigger` | sách này lớn hơn bên phải? (khối hỏi) | Sách này lớn hơn bên phải? Lớn hơn thì ✔ | kệ `[3 1 2]`, `nếu … {đổi chỗ}, sang phải, nếu … {đổi chỗ}` → `[1 2 3]` |
+| `sorter_to_start` | về đầu kệ | Về đầu kệ: tay về sách thứ nhất | kệ `[3 2 1]`, `lặp 2 {về đầu kệ, lặp 2 {nếu … {đổi chỗ}, sang phải}}` → `[1 2 3]` |
+
+**Luật của kệ sách** (ADR-0025):
+- Chấm **khi hết chương trình**, như robot.
+- Mục tiêu theo màn:
+  - `sorted`: kệ xếp từ nhỏ tới lớn;
+  - `find: k`: tay dừng ở sách số k;
+  - `end`: tay ở cờ cuối kệ.
+  - Một màn có thể ghép `sorted` + `find` (boss).
+- `sang phải` ở cờ cuối kệ → dừng `OFF_SHELF`. `đổi chỗ` ở sách cuối hoặc ở cờ → dừng `NO_BOOK_RIGHT`.
+- Hai khối hỏi sách ở chỗ không có sách bên phải (hoặc không có sách) trả ✘. Tooltip của `lớn hơn bên phải?` và `hết kệ?` chỉ nói khi nào ✔ (trần 12 chữ); trường hợp ✘ ở sách cuối / ở cờ có ở bài và thẻ demo.
+- **Lượt hỏi** (`maxQuestions`, chỉ màn có ghi): mỗi lần `sách này …?` hoặc `sách này lớn hơn bên phải?` tốn 1 lượt. `hết kệ?` không tốn. Hỏi quá số lượt → dừng `OUT_OF_QUESTIONS` ("Hết lượt hỏi rồi!"). HUD hiện "Còn 10 lượt hỏi".
+- Sân chơi đếm "Đổi chỗ: 3" chỉ để xem, không chấm.
+
+**Luật bước sức của mê cung** (ADR-0026, chỉ màn có `stepLimit`): mỗi `tiến` tốn 1 bước. Rẽ và câu hỏi không tốn. Hết bước mà còn `tiến` → Măng dừng tại chỗ, `OUT_OF_STEPS` ("Măng mệt rồi! Hết bước."). HUD hiện "Còn 9 bước".
+
+**Bài và thẻ cho từng ý mới** (luật HLV 14/10: câu cho bé, một thẻ `demo` chạy được, câu chuẩn ở `content-authoring.md` §5.1; mỗi thẻ ≤ 12 chữ).
+- Cột "Câu chuẩn" là câu P5-04 ghi vào §5.1, đúng từng chữ. Ý nào có khối mới thì câu chuẩn là gợi ý `enter` "Khối mới! " + tooltip.
+- Thẻ demo **không** chép lời giải của màn ngay sau. Ngoại lệ có chủ ý ghi ở từng dòng.
+
+| Bài (`beforeLevel`) | Ý mới (màn) | Câu chuẩn | Thẻ |
+|---|---|---|---|
+| `w10-lesson` (trước `l01`, 5 thẻ) | thuật toán; kệ, tay Bíp, cờ cuối kệ | "Thuật toán là cách làm đúng cho mọi lần." | 1. "Chào mừng tới Học Viện Thuật Toán!" · 2. "Gió thổi tung kệ sách. Sách nào cũng lạc chỗ." · 3. câu chuẩn · 4. `demo` kệ `[3 1 2]`, chương trình trống: "Tay Bíp ở đây. Cờ là cuối kệ." · 5. `quiz` "Cách làm chỉ đúng 1 kệ. Là thuật toán không?": **Chưa phải** / Phải |
+| `w10-lesson-sang-phai` | `sang phải` (`l01`) | "Khối mới! Sang phải: tay sang sách kế bên phải" | câu chuẩn · demo kệ `[2 5 8]`, `sang phải, sang phải`: "Sang phải 2 lần: tay ở sách thứ ba." · quiz "Tay ở sách cuối, sang phải. Tay ở đâu?": **Ở cờ cuối kệ** / Về đầu kệ |
+| `w10-lesson-hoi-sach` | `sách này = …?` (`l02`) | "Khối mới! Sách này = 7? Đúng thì ✔, sai thì ✘" | câu chuẩn · demo kệ `[4 2 9]`, `lặp đến khi sách này = 9 {sang phải}` → dừng ở sách thứ ba: "Hỏi từng sách. Thấy số 9 thì dừng." (**ngoại lệ có chủ ý**: `l02` là ghép hình, mảnh ghép đã cho sẵn; số và kệ khác) · quiz "Sách đầu đã là số 7. Tay đi mấy chỗ?": **Không đi** / Đi 1 chỗ |
+| (gợi ý `enter` của `l03`; màn đoán là demo của chính nó, như W4 `l10`) | thấy là dừng, không đi tiếp (`l03`) | "Thấy sách cần tìm là dừng, không đi tiếp." | — |
+| `w10-lesson-thuat-toan` | một cách làm cho mọi kệ (`l04`) | "Một cách làm, đúng cho mọi kệ: đó là thuật toán." | câu chuẩn · demo `lặp đến khi sách này = 9 {sang phải}` trên kệ `[5 9 1]` rồi `[2 8 9]` → cả hai ✔ · demo `sang phải` trên cùng 2 kệ → kệ 1 ✔, kệ 2 ✘: "Đi 1 chỗ: đúng kệ này, sai kệ kia." · quiz "Kệ đổi chỗ sách. Cách nào vẫn đúng?": **Hỏi từng sách** / Đi 1 chỗ. (**Ngoại lệ có chủ ý**: thân là thân của `l02` đã học; ý mới của bài là chạy cùng một thân trên 2 kệ. Số và kệ khác `l04`.) |
+| `w10-lesson-het-ke` | `hết kệ?`; xem hết kệ để đếm (`l05`) | "Khối mới! Hết kệ? Tay ở cờ cuối kệ thì ✔" | câu chuẩn · "Ô so có 3 dấu: =, > và <." (dấu đã học ở hộp W7) · demo kệ `[1 7 2]`, `lặp đến khi hết kệ {nếu sách này < 3 {tăng số sách nhỏ thêm 1}, sang phải}` → hộp 2: "Xem hết kệ: 2 sách nhỏ hơn 3." (khác `l05`: dấu <, số 3) · quiz "Đếm sách lớn. Dừng ở sách đầu được không?": **Không, xem hết kệ** / Được |
+| `w10-lesson-hoi-truoc` | hỏi trước, đi sau (`l06`) | "Hỏi sách này trước, rồi mới sang phải." | câu chuẩn · demo kệ `[9 1 2]`, đếm sách > 5 mà `sang phải` đứng **trước** `nếu` → hộp 0: "Đi trước rồi mới hỏi: bỏ sót sách số 9!" (chỉ cho xem lỗi, không cho cách sửa) · quiz "Đi trước rồi hỏi. Sách nào bị bỏ sót?": **Sách đầu** / Sách cuối |
+| `w10-lesson-doi-cho` | `đổi chỗ` (`l07`) | "Khối mới! Đổi chỗ: sách này đổi với sách bên phải" | câu chuẩn · demo kệ `[2 1 3]`, `đổi chỗ` → `[1 2 3]`: "2 sách cạnh nhau đổi chỗ. Tay vẫn ở đây." · demo kệ `[1 3 2]`, `sang phải, sang phải, đổi chỗ` → `NO_BOOK_RIGHT`: "Bên phải không có sách!" · quiz "Tay ở sách đầu, đổi chỗ. Sách nào đổi?": **Sách thứ nhất và thứ hai** / Sách đầu và sách cuối |
+| `w10-lesson-lon-hon` | `sách này lớn hơn bên phải?`; một lượt đưa sách lớn nhất về cuối (`l08`) | "Khối mới! Sách này lớn hơn bên phải? Lớn hơn thì ✔" | câu chuẩn · "So 2 sách cạnh nhau. Lớn hơn thì đổi chỗ." · demo kệ `[3 1 2]`, `nếu … {đổi chỗ}, sang phải, nếu … {đổi chỗ}` → `[1 2 3]` (không vòng lặp, khác lời giải `l08`): "Sách lớn nhất trôi về cuối kệ." · quiz "Đi hết 1 lượt. Sách lớn nhất ở đâu?": **Cuối kệ** / Đầu kệ |
+| (gợi ý `enter` của `l09`; màn đoán là demo) | một lượt chưa chắc xếp xong (`l09`) | "1 lượt đưa sách lớn nhất về cuối, chưa chắc xong." | — |
+| `w10-lesson-ve-dau` | `về đầu kệ`; nhiều lượt thì xếp xong (`l10`) | "Khối mới! Về đầu kệ: tay về sách thứ nhất" | câu chuẩn · "Mỗi lượt bắt đầu từ đầu kệ." · demo kệ `[3 2 1]`, `lặp 2 {về đầu kệ, lặp 2 {nếu … {đổi chỗ}, sang phải}}` → `[1 2 3]` (**ngoại lệ có chủ ý**: thuật toán là ý của màn; `l10` có 5 sách, 3 kệ, bé phải tự đổi số lượt) · quiz "Kệ 3 sách ngược hẳn. Cần mấy lượt?": **2 lượt** / 3 lượt |
+| `w10-lesson-ke-nguoc` | kệ ngược hẳn cần nhiều lượt nhất (`l11`) | "Kệ ngược hẳn cần nhiều lượt nhất." | câu chuẩn · demo kệ `[4 3 2 1]`: 2 lượt (một lượt 3) → `[2 1 3 4]`; 3 lượt → `[1 2 3 4]`: "Kệ 4 sách ngược hẳn cần 3 lượt." · quiz "Kệ 5 sách ngược hẳn. Cần mấy lượt?": **4 lượt** / 2 lượt |
+| `w10-lesson-luot-hoi` | luật lượt hỏi (`l12`) | "Mỗi lần hỏi sách tốn 1 lượt hỏi." | câu chuẩn · "Hết lượt hỏi thì Bíp dừng lại." · demo kệ `[3 2 1]`, 3 lượt hỏi, `lặp 2 {về đầu kệ, lặp 2 {nếu … {đổi chỗ}, sang phải}}` → hết lượt ở lần hỏi thứ 4 · quiz "Hỏi \"hết kệ?\" có tốn lượt không?": **Không** / Có |
+| `w10-lesson-ngan-dan` | lượt sau ngắn đi 1 (`l13`) | "Sách cuối đã đúng chỗ. Lượt sau ngắn đi 1." | câu chuẩn · demo kệ `[3 2 1]`, 3 lượt hỏi: phép `một lượt` với hộp `số lần so` = `về đầu kệ, lặp [số lần so] lần {nếu … {đổi chỗ}, sang phải}`, `một lượt với 2`, `một lượt với 1` → xếp xong, vừa 3 lượt (**demo cơ chế**, như bài hộp của phép W8) · quiz "Kệ 5 sách. Lượt đầu hỏi 4 lần. Lượt hai?": **3 lần** / 4 lần |
+| `w10-lesson-buoc` | luật bước sức (`l14`) | "Mỗi ô Măng tiến tốn 1 bước." | câu chuẩn · "Rẽ không tốn bước. Hết bước là Măng mệt." · demo mê cung `#####/#S..G/#####` nhìn `E`, `stepLimit` 2, `tiến, tiến, tiến` → `OUT_OF_STEPS` cạnh cờ · quiz "Rẽ trái có tốn bước không?": **Không** / Có |
+| `w10-lesson-duong-ngan` | chọn đường ít bước nhất (`l15`) | "Tới được cờ chưa đủ. Đường ngắn mới kịp!" | câu chuẩn · "Đếm bước mỗi đường trước khi chạy." · demo mê cung 2 đường tới cờ (6 và 8 bước, `stepLimit` 6): đường dài → `OUT_OF_STEPS`, đường ngắn → tới cờ · quiz "Còn 7 bước. Đường 6 hay đường 9?": **Đường 6 bước** / Đường 9 bước |
+| `w10-lesson-dung-som` | không còn đổi chỗ thì dừng (`l16`) | "Một lượt không đổi chỗ nào: kệ đã xếp xong!" | câu chuẩn · "Hộp đếm số lần đổi. Bằng 0 thì dừng." · demo kệ `[2 1 3]` có hộp `số lần đổi` (khung của `l16`, kệ 3 sách, **demo cơ chế**): lượt 1 đổi 1 lần, lượt 2 không đổi → dừng, bảng hộp hiện 1 rồi 0 · quiz "Lượt này không đổi chỗ nào. Cần lượt nữa không?": **Không cần** / Cần |
+
+**Quy ước bảng W10:**
+- Kệ viết `[3 1 2]` (sách từ trái sang phải). Tay bắt đầu ở sách thứ nhất. Chỗ `@4` của kệ 3 sách là cờ cuối kệ.
+- Chương trình viết như §6.3, §6.4: `nếu lớn hơn` = `nếu sách này lớn hơn bên phải?`; `= 7?` = `sách này = 7?`; `lượt(n)` = `làm phép một lượt với n`.
+- **"Một lượt n"** = `lặp n {nếu lớn hơn {đổi chỗ}, sang phải}`.
+- Cột "Hỏi" là số lượt hỏi lời giải dùng, trên kệ khó nhất của màn (đã mô phỏng). Cột "par" là **ước lượng** tới khi có vét cạn (P5-09).
+- Bản đồ mê cung và sa bàn robot là **ý**, vẽ thật ở P5-07 theo luật M1–M3 (§2.3 `content-authoring.md`).
+- Mục thanh khối của `sách này …?` **ghim** `OP` và `NUM` ở mọi màn có khối này (vd `l02`: `=` 7; `l05`, `l06`: `>` 5; boss: `=` 4), vì vét cạn chỉ thử số ghim.
+
+**Luật soạn riêng W10** (ghi vào `content-authoring.md` ở P5-04):
+- **S1. Một chương trình cho mọi kệ.** Từ `l04`, mọi màn kệ sách `build` / `bughunt` có ≥ 2 kệ (`variants`, ADR-0016), khác thứ tự sách. Boss khác cả độ dài.
+  - **Miễn `l07`**: chỉ có `đổi chỗ` và `sang phải`, nên không có chương trình chung cho nhiều kệ. Ý của màn là "đổi 2 sách cạnh nhau".
+  - Mỗi màn khai báo ≥ 1 **cách sai hợp lý** thắng ở một kệ mà thua ở kệ khác, như T1 của W9. Danh sách ở `SORTER_TRAPS` (`tools/content-check/src/sorter.ts`); test kiểm từng cách sai thua đúng mã.
+  - Màn có `find` sau `sorted` (boss): sách cần tìm phải nằm **ở chỗ khác nhau** trên các kệ sau khi xếp. Như vậy `lặp k {sang phải}` không thay được câu hỏi.
+- **S2. Ngân sách phải cắt cách chậm.** Màn có `maxQuestions` / `stepLimit` khai báo "cách chạy được nhưng chậm" (vd nổi bọt đủ lượt ở `l13`). Cách đó phải dừng `OUT_OF_QUESTIONS` / `OUT_OF_STEPS`. Ngân sách = số lượt (bước) lời giải dùng trên kệ (bản đồ) khó nhất, khít; nới ra thì ghi lý do.
+- **S3. Kệ sắp xếp không có 2 sách cùng số**, ≤ 7 sách, số 1–9. Không kệ nào đã xếp sẵn (`content:check` luật 27). Kệ tìm kiếm được trùng số, chỉ ở màn mà trùng số là ý dạy (`l03`).
+- **S4. Có kệ cần nhiều lượt nhất khi số lượt là ý dạy** (`l10`, `l11`): kệ 5 sách cần 4 lượt (ngược hẳn như `[5 4 3 2 1]`, hoặc sách số 1 ở cuối như `[4 3 5 2 1]`). Cách "ít lượt hơn" phải thua ở kệ đó.
+- **Độ sâu vòng lặp:** `maxLoopDepth: 1` tới `l09`; `2` từ `l10`. Màn có phép tính độ sâu hiệu dụng (ADR-0023): phép `một lượt` có vòng lặp trong thân, nên mọi `làm phép` nằm thẳng dưới `cq_start`.
+- **Phép** (`l13`, `l17`) theo luật W8: tiết kiệm khối (`(c − 1)(b − 1) ≥ 3`), R5 (bỏ khối phép thì không gì thắng).
+- **Gợi ý theo `lastReason`:**
+  - `OUT_OF_QUESTIONS`: "Lượt sau có cần hỏi lại sách cuối không?";
+  - `OUT_OF_STEPS`: "Có đường nào ít bước hơn không?";
+  - `NOT_SORTED` sau 2 lần sai: "Kệ ngược hẳn cần mấy lượt?".
+  - Đều là câu hỏi, không lộ khối.
+- **Mê cung W10** (`l14`, `l15`, `l17`, `l18`) theo M1–M3, có ngã ba và ngõ cụt có việc. Đường ngắn nhất phải **khác** đường "bám tường" của W4 `l19` / W5 boss: không dùng lại bản đồ hay hình đường của hai màn đó.
+- **Robot `l19`** là tổng ôn, không ý mới. Sa bàn và nhiệm vụ không trùng bẫy thứ tự việc của W6 boss / W8 boss. Lời nhiệm vụ nói rõ màu và loại khối.
+- **Chữ số cho số đếm** ("3 lượt", "1 bước", "2 sách"). `w10.test.ts` kiểm.
+
+| # | ID | Chặng | Kind | Mode | Ý chính (một ý) · chương trình đúng (đã mô phỏng) | Kệ / bản đồ | Khối mới / bài trước | par · maxBlocks · Hỏi | Bẫy (S1 / S2) |
+|---|---|---|---|---|---|---|---|---|---|
+| — | `w10-lesson` | (bài giảng) | — | — | Thuật toán; kệ, tay Bíp, cờ cuối kệ | — | — | — | — |
+| 1 | `w10-l01` | guided | sorter | build | Khối **sang phải**: tìm sách số 7 ở chỗ thứ tư · `lặp 3 {sang phải}` | `[2 5 8 7 4]`, `find 7` | `sorter_right` (`toolbox:`) · `w10-lesson-sang-phai` | 2 · 3 · — | `lặp 4` dừng ở sách số 4 (`NOT_FOUND`) |
+| 2 | `w10-l02` | guided | sorter | parsons | Khối **sách này = …?** trong `lặp đến khi`: hỏi từng sách tới khi thấy · `lặp đến khi = 7? {sang phải}` | `[4 9 1 6 7 3]`, `find 7` | `sorter_book_is` (`block:`) · `w10-lesson-hoi-sach` | 3 · — · — | (ghép hình) |
+| 3 | `w10-l03` | guided | sorter | predict | **Thấy là dừng**: dừng ở cuốn đầu tiên thấy (khối `sang phải` đầu chỉ để hình chương trình khác `l02`, `l04`) · `sang phải, lặp đến khi = 5? {sang phải}` → `@3`; thẻ: sách số 5 ở đầu kệ / sách số 5 thứ hai ✔ / cờ cuối kệ | `[5 2 5 3 1]` | gợi ý `enter` câu chuẩn | — | — |
+| 4 | `w10-l04` | guided | sorter | build | **Thuật toán: một cách làm cho mọi kệ** · `lặp đến khi = 6? {sang phải}` (kệ 3: 0 vòng) | `[3 6 2 9]` · `[8 1 4 6 2]` · `[6 5 7]`, `find 6` | `w10-lesson-thuat-toan` | 3 · 4 · — | `lặp 1 {sang phải}` thắng kệ 1, thua kệ 2, 3 |
+| 5 | `w10-l05` | practice | sorter | build | Khối **hết kệ?**: **xem hết kệ** để đếm sách lớn hơn 5 (ôn hộp W7) · `lặp đến khi hết kệ {nếu > 5? {tăng số sách lớn thêm 1}, sang phải}` | `[7 2 9 4]` (2) · `[3 8 6 1 9]` (3), `end` + `countGoal [2, 3]` | `sorter_at_end` (`toolbox:`) · `w10-lesson-het-ke` | 6 · 8 · — | `lặp 4 {…}` đúng kệ 1, kệ 2 chưa tới cờ (`NOT_AT_END`), đếm 2 |
+| 6 | `w10-l06` | practice | sorter | bughunt | **Hỏi trước, đi sau**: cho sẵn `sang phải` đứng trước `nếu` → bỏ sót sách đầu (kệ 1 đếm 1, đúng là 2) → kéo `sang phải` xuống dưới `nếu` (1 thao tác) | `[8 2 6 1]` (2) · `[1 7 3 9 6]` (3), `end` + `countGoal [2, 3]` | `w10-lesson-hoi-truoc` | 6 / sửa 1 | bản lỗi đúng ở kệ 2 (sách đầu nhỏ), sai ở kệ 1 (`WRONG_COUNT`) |
+| 7 | `w10-l07` | practice | sorter | build | Khối **đổi chỗ**: chỉ đổi 2 sách **cạnh nhau** · `đổi chỗ, lặp 3 {sang phải}, đổi chỗ` (miễn S1) | `[2 1 3 5 4]`, `sorted` | `sorter_swap` (`toolbox:`) · `w10-lesson-doi-cho` | 4 · 6 · — | `lặp 4 {sang phải}, đổi chỗ` → `NO_BOOK_RIGHT` ở sách cuối |
+| 8 | `w10-l08` | practice | sorter | parsons | Khối **lớn hơn bên phải?**: **một lượt** đưa sách lớn về cuối · `lặp 5 {nếu lớn hơn {đổi chỗ}, sang phải}`. Kệ này 1 lượt là xong **có chủ ý**: gieo ngộ nhận "1 lượt là xong" để `l09` phá (PRIMM) | `[3 1 2 6 4 5]` | `sorter_bigger` (`block:`) · `w10-lesson-lon-hon` | 5 · — · — | (ghép hình: `sang phải` trong `nếu` thì tay kẹt ở sách thứ ba, kệ chưa xếp) |
+| 9 | `w10-l09` | practice | sorter | predict | **Một lượt chưa chắc xếp xong** · `lặp 4 {nếu lớn hơn {đổi chỗ}, sang phải}` → `[2 4 1 3 5]`; thẻ: `[2 4 1 3 5]` ✔ / `[1 2 3 4 5]` / `[4 2 5 1 3]` (không đổi) | `[4 2 5 1 3]` | gợi ý `enter` câu chuẩn | — | — |
+| 10 | `w10-l10` | practice | sorter | build | Khối **về đầu kệ**: **nhiều lượt**, mỗi lượt từ đầu kệ (nổi bọt; vòng lặp trong vòng lặp W9) · `lặp 4 {về đầu kệ, lặp 4 {nếu lớn hơn {đổi chỗ}, sang phải}}` | `[3 5 1 4 2]` · `[2 1 5 3 4]` · `[4 3 5 2 1]`, `sorted` | `sorter_to_start` (`toolbox:`) · `w10-lesson-ve-dau` | 7 · 9 · 16 | bỏ `về đầu kệ` → `OFF_SHELF` ở lượt 2; `lặp 3` lượt thắng kệ 1, 2, thua kệ 3 (S4) |
+| 11 | `w10-l11` | practice | sorter | bughunt | **Kệ ngược hẳn cần nhiều lượt nhất**: cho sẵn `lặp 2` lượt → đúng kệ 1, kệ 2 ra `[3 2 1 4 5]` → sửa thành `lặp 4` (1 thao tác) | `[2 1 3 5 4]` · `[5 4 3 2 1]` | `w10-lesson-ke-nguoc` | 7 / sửa 1 · — · 16 | `lặp 3` vẫn thua kệ 2 (S4) |
+| 12 | `w10-l12` | practice | sorter | predict | **Luật lượt hỏi**: kệ xếp xong rồi mà vẫn hỏi thì hết lượt · `lặp 3 {nếu lớn hơn {đổi chỗ}, sang phải}, về đầu kệ, lặp 3 {…}`, 5 lượt hỏi → kệ đã `[1 2 3 4]` nhưng `crash:OUT_OF_QUESTIONS@3`; thẻ: thắng (kệ xếp xong) / hết lượt ở sách thứ ba ✔ / hết lượt ở lượt 1 | `[4 3 1 2]`, `maxQuestions` 5 | `w10-lesson-luot-hoi` | — | — |
+| 13 | `w10-l13` | practice | sorter | build | **Lượt sau ngắn đi 1** (phép có hộp W8) · phép `một lượt` [`số lần so`] = `về đầu kệ, lặp [số lần so] {nếu lớn hơn {đổi chỗ}, sang phải}`; `lượt(4), lượt(3), lượt(2), lượt(1)` | `[3 5 1 4 2]` · `[5 4 3 2 1]` · `[2 5 4 1 3]`, `sorted`, `maxQuestions` 10 | `w10-lesson-ngan-dan` | 11 · 13 · 10 | S2: nổi bọt `l10` (16 lượt hỏi) → `OUT_OF_QUESTIONS` ở lần hỏi thứ 11; R5: 4 lượt chép thẳng 24 khối |
+| 14 | `w10-l14` | practice | maze | predict | **Luật bước sức**: bám tường phải (W4–W5) với `stepLimit`: Măng có kịp tới cờ không? Đúng: hết bước ở ngõ cụt sâu; thẻ: tới cờ / hết bước ở ngõ cụt ✔ / hết bước cạnh cờ | mê cung 1 bản đồ, 2 đường tới cờ, ngõ cụt sâu bên phải | `w10-lesson-buoc` | — | — |
+| 15 | `w10-l15` | practice | maze | build | **Đường ngắn nhất**: 3 đường tới chìa khóa rồi cờ, `stepLimit` vừa đường ngắn nhất · chương trình theo đường (có `lặp`) | mê cung 1 bản đồ ≤ 9 × 9, có đường vòng và ngõ cụt | `w10-lesson-duong-ngan` | ~8 | bám tường (W5) và đường "trông gần" hết bước |
+| 16 | `w10-l16` | practice | sorter | parsons | **Không còn đổi chỗ thì dừng** (hộp W7 + `lặp đến khi` W5) · `đặt số lần đổi thành 1, lặp đến khi số lần đổi = 0 {đặt số lần đổi thành 0, về đầu kệ, lặp 4 {nếu lớn hơn {đổi chỗ, tăng số lần đổi thêm 1}, sang phải}}` | `[1 2 4 3 5]`, `sorted`, `maxQuestions` 8 | `w10-lesson-dung-som` | 11 · — · 8 | (ghép hình: `tăng` ngoài `nếu` → hết lượt hỏi ở lần thứ 9; đủ 4 lượt cần 16 lượt hỏi) |
+| 17 | `w10-l17` | challenge | maze | build | (tổng ôn) **"Vườn mê cung lớn"**: 3 mê cung ≤ 12 × 12, một chương trình có câu hỏi + 1 phép, mỗi bản đồ có `stepLimit` riêng; chọn thứ tự hỏi để mọi bản đồ kịp bước | 3 bản đồ khác hình (M3) | — | ~10 ⚠ | thứ tự hỏi khác thì hết bước ở ≥ 1 bản đồ |
+| 18 | `w10-l18` | challenge | maze | bughunt | (tổng ôn `l15`) **Đường ngắn qua chìa khóa**: Măng nhặt chìa khóa theo đường vòng nên hết bước trước cửa → đổi 2 khối rẽ để đi đường tắt | mê cung 1 bản đồ, `goal.items` chìa khóa, `stepLimit` | — | ~10 / sửa 2 | bản cho sẵn là "cách chậm" S2 |
+| 19 | `w10-l19` | challenge | robotlab | build | (tổng ôn) **"Bíp thi tốt nghiệp"**: 3 sa bàn, đề đổi màu (khối trung hòa đỏ / vàng), một chương trình: dò line (W6), câu hỏi màu, 1 phép có câu hỏi (W8), đồng hồ khít | 3 sa bàn 5 × 5 khác độ dài | — | ~14 ⚠ | chương trình thuộc lòng sa bàn 1 thua sa bàn 2 |
+| 20 | `w10-boss` | boss | sorter | build | **"Thư viện tốt nghiệp"**: 3 kệ **dài ngắn khác nhau**, xếp rồi tìm sách số 4 · `lặp 5 {về đầu kệ, lặp đến khi hết kệ {nếu lớn hơn {đổi chỗ}, sang phải}}, về đầu kệ, lặp đến khi = 4? {sang phải}`. Dùng cả 6 khối kệ sách | `[4 9 2 6]` · `[5 2 4 1 8]` · `[6 4 1 5 3 2]`, `sorted` + `find 4` (sau khi xếp, sách số 4 ở chỗ 2 / 3 / 4) | — | 12 · 14 · — (không ngân sách; 34 lần hỏi ở kệ 6 sách) ⚠ `parUnproven` nếu vét cạn không xong | vòng trong `lặp 5` (thuộc kệ 6 sách) → `OFF_SHELF` ở kệ 4 sách; `lặp k {sang phải}` thay câu hỏi tìm chỉ đúng 1 kệ (S1) |
+| ✦ | `w10-creative` | creative | sorter | creative | Kệ 7 sách, mọi khối kệ sách + lặp, nếu, hộp, 3 phép tên sẵn; nút "Xáo kệ" (mặc định J14) | `[7 3 6 1 5 2 4]` | — | — | — |
+
+Tổng kết bảng:
+- **Chặng:** 4 guided · 12 practice · 3 challenge · 1 boss.
+- **Mode:** build 10 (kể cả boss) · parsons 3 · predict 4 · bughunt 3. Build liền nhau nhiều nhất 2 (`l04`–`l05`, `l19`–`l20`).
+- **Kiểu game:** sorter 15 · maze 4 (`l14`, `l15`, `l17`, `l18`) · robotlab 1 (`l19`). W10 là thế giới của kiểu game mới, như W9 với `turtle`. Mê cung của W10 mang ý mới "đường ngắn nhất", không chỉ là thêm màn (J11).
+- **Khối mới lần đầu (luật 7):**
+  - `sang phải` ở `l01`, `hết kệ?` ở `l05`, `đổi chỗ` ở `l07`, `về đầu kệ` ở `l10`: build, gợi ý `toolbox:`;
+  - `sách này = …?` ở `l02`, `lớn hơn bên phải?` ở `l08`: parsons, gợi ý `block:`.
+- **Luật mới, không phải khối** (mỗi luật một bài ngắn `beforeLevel`, giới thiệu ở màn đoán): lượt hỏi (`l12`), bước sức (`l14`). Cách làm mới dùng luật đó ở màn sau: lượt ngắn dần (`l13`), đường ngắn nhất (`l15`), dừng sớm (`l16`).
+- **Boss** dùng mọi khối kệ sách (luật §7). P5-09 kiểm: bỏ `sách này = …?` khỏi thanh khối thì không gì thắng. Phép không bắt buộc ở boss. `maxLoopDepth: 2`.
+- **Hình lời giải** (M2, bỏ số; dấu `OP` là ô chọn nên tính vào hình):
+  - `lặp đến khi = {sang phải}` ở `l02` (parsons) và `l04` (build). `l03` thêm `sang phải` ở đầu: hình khác;
+  - `lặp đến khi hết kệ {nếu > {tăng}, sang phải}` ở `l05` (build) và `l06` (bughunt);
+  - một lượt `lặp{nếu{đổi}, sang phải}` ở `l08` (parsons) và `l09` (predict);
+  - `lặp{về đầu, lặp{nếu{đổi}, sang phải}}` ở `l10` (build) và `l11` (bughunt);
+  - mỗi cặp 2 lần, khác mode. Mọi hình khác dùng 1 lần (`l12` là 2 lượt chép thẳng, không có vòng ngoài).
+- **Số lượng bài:** `w10-lesson` + 14 bài ngắn. 2 ý (`l03`, `l09`) dùng gợi ý `enter`, vì màn đoán là demo của chính nó. Mỗi bài +5 xu lần đầu (J15).
+
+**Truyện chia chương** (đề xuất):
+1. `thu-vien-lon-xon` "Thư viện lộn xộn" (mở đầu)
+2. `tim-sach` "Tìm sách" (sau `l06`)
+3. `sap-ke` "Sắp kệ" (sau `l11`)
+4. `nhanh-hon` "Cách nào nhanh hơn?" (sau `l16`)
+5. `tot-nghiep` "Ngày tốt nghiệp" (sau boss): "Măng đi hết 10 thế giới rồi!"
+
+**Còn mở** (`coach-questions.md` mục J, mỗi câu có mặc định): tên khối và đồ vật (sách hay hũ), chỉ có "sang phải", lượt hỏi, bước sức, chỉ dạy nổi bọt, không dạy tìm kiếm nhị phân, tỉ lệ kiểu game, kết khóa, xem code.
 
 ## 7. Quy tắc soạn chương trình học
 `content:check` tự kiểm các luật có dấu ⚙ (luật 7–8 ở `architecture/content-model.md` §5).

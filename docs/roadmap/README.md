@@ -9,7 +9,7 @@ Nguồn chuẩn cho: giai đoạn, task, thứ tự, tiêu chí nghiệm thu. L�
 | **GĐ 2 · Nhóm 6 bé** | 30/10–19/11 | Supabase, ghép máy, đồng bộ, Góc huấn luyện viên, Thế giới 3–5, level editor, PWA offline | [`phase-2.md`](phase-2.md) |
 | GĐ 3 · Thành Phố Robot | 07/10/2026 → sau AIROC | robotlab, Thế giới 6, biến trong engine, Thế giới 7 | [`phase-3.md`](phase-3.md) |
 | GĐ 4 · Xưởng Phép Thuật, Tháp Họa Sĩ | 16/10 → ~07/11/2026 | phép thuật (hàm) trong engine, kiểu game `turtle`, Thế giới 8–9 | [`phase-4.md`](phase-4.md) |
-| GĐ 5 · Thuật toán & code chữ | 2 tuần | Thế giới 10, xem code JS/Python | [`later-phases.md`](later-phases.md) |
+| GĐ 5 · Học Viện Thuật Toán | 17/10 → ~14/11/2026, rồi `v1.0.0` | kiểu game `sorter` (kệ sách), bước sức mê cung, Thế giới 10, phát hành `v0.5.0` và `v1.0.0`; xem code JS để sau | [`phase-5.md`](phase-5.md) |
 
 ## Quy ước task
 - Mã: `P<giai đoạn>-<2 số>`, vd `P1-07`. Mã không đổi; task bỏ thì ghi "Hủy".

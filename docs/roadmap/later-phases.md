@@ -12,10 +12,11 @@ Chi tiết hóa thành task có nghiệm thu khi giai đoạn trước sắp xon
 Đã chi tiết hóa: xem [`phase-4.md`](phase-4.md) (P4-01…P4-17: phép thuật trong engine, kiểu game `turtle`, Thế giới 8–9, capacity guard chuẩn bị cho W10). Thế giới 7 đã làm ở GĐ 3.
 - Còn lại của khung GĐ 4 cũ, **chưa xếp lịch**: kiểu game `farm`, `sorter` (đầy đủ), `music`; cửa hàng & tủ đồ; huy hiệu; màn bonus; giọng đọc đầy đủ. (Chuỗi ngày và thưởng ngày đã có từ GĐ 1.)
 
-## GĐ 5 · Thuật toán & code chữ (2 tuần)
-- Thế giới 10 (khung ở `curriculum.md` §6.5: sắp xếp, tìm kiếm, đường ngắn nhất; ứng viên từ W8–W9: phép gọi phép, tham số cắm ô cần capacity guard, `biến + biến`).
-- Chế độ xem code: hiển thị JavaScript/Python tương ứng (generator `blockly/python`) song song với khối, tô sáng dòng đang chạy.
-- (Tùy chọn) Xuất chương trình robotlab sang C++ cho Leanbot.
+## GĐ 5 · Học Viện Thuật Toán (17/10 → ~14/11/2026)
+Đã chi tiết hóa: xem [`phase-5.md`](phase-5.md) (P5-01…P5-14: kiểu game `sorter`, bước sức mê cung, Thế giới 10, `v0.5.0`, `v1.0.0`). Thiết kế ở `curriculum.md` §6.5. Phép gọi phép, tham số cắm ô, `biến + biến` **không** làm ở W10 (lý do ở §6.5); để chuyến phiêu lưu bên dưới.
+- Phần cũ của khung GĐ 5, **chưa xếp lịch** (P5-14, ưu tiên thấp):
+  - Chế độ xem code: hiển thị JavaScript/Python tương ứng (generator `blockly/python`) song song với khối, tô sáng dòng đang chạy.
+  - (Tùy chọn) Xuất chương trình robotlab sang C++ cho Leanbot.
 
 ## Ý tưởng · Hành trình phiêu lưu (HLV đề xuất 03/10/2026, chưa xếp lịch)
 Sau khi Măng đi hết bản đồ 10 thế giới đầu, mở thêm các **chuyến phiêu lưu** theo cốt truyện. Mỗi chuyến vừa luyện lại/khó hơn các khái niệm code đã học, vừa cho bé biết thêm về thế giới và khoa học.
