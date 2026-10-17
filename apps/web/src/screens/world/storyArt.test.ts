@@ -10,4 +10,13 @@ describe('STORY_PROP_ART', () => {
     // Throws on an unknown colour letter or a ragged row.
     expect(goalPixels(art).width).toBe(art.rows.length);
   });
+
+  it('has art for every story prop, W10 bookshelf and diploma included (P5-08)', () => {
+    expect(Object.keys(STORY_PROP_ART).sort()).toEqual([...STORY_PROPS].sort());
+    for (const prop of ['bookshelf', 'diploma'] as const) {
+      const rows = STORY_PROP_ART[prop].rows;
+      expect(rows).toHaveLength(12);
+      expect(new Set(rows.map((row) => row.length))).toEqual(new Set([12]));
+    }
+  });
 });

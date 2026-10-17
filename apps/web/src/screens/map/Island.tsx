@@ -246,6 +246,37 @@ const ISLAND_THEMES: Readonly<Partial<Record<SceneTheme, IslandTheme>>> = {
       w: C.paper,
     },
   },
+  'hoc-vien': {
+    ground: {
+      g: shade(C.go, 1.25),
+      G: C.goDeep,
+      L: C.hint,
+      d: mix(C.brandSoft, C.paper, 0.4),
+      s: C.brand,
+    },
+    landmark: [
+      '..........r.................',
+      '........rrrrr...............',
+      '......rrrrrrrrr.............',
+      '.....RRRRRRRRRRR.......n....',
+      '......wcwbbbwcw.......yyy...',
+      '......wcwbsbwcw...hh...p....',
+      '..hh..wcwbsbwcw..hhhh..p.hh.',
+      '.hhhh.wwwwwwwww..hhhh..p.hh.',
+    ],
+    colors: {
+      r: mix(C.brand, C.paper, 0.35),
+      R: mix(C.brand, C.paper, 0.15),
+      w: C.paper2,
+      c: C.paper,
+      b: B.robot,
+      s: C.oops,
+      n: C.inkSoft,
+      y: C.coin,
+      p: shade(B.robot, 0.75),
+      h: C.goDeep,
+    },
+  },
 };
 
 /** Fogged landmark letters (locked island): the shape stays, in lavender. */

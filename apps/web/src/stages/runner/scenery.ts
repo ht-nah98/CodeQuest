@@ -1,6 +1,7 @@
 import { Graphics } from 'pixi.js';
 import { UI_COLORS } from '../../ui/tokens';
 import {
+  ACADEMY_DETAIL,
   CITY_DETAIL,
   FOREST_DETAIL,
   LANG_TRE_DETAIL,
@@ -122,6 +123,9 @@ export function drawSky(layout: RunnerLayout, theme?: SceneTheme): Graphics {
       break;
     case 'thap-hoa-si':
       sun(sky, layout, TOWER_DETAIL);
+      break;
+    case 'hoc-vien':
+      sun(sky, layout, ACADEMY_DETAIL);
       break;
   }
   return sky;
@@ -390,6 +394,7 @@ export function drawFar(layout: RunnerLayout, theme?: SceneTheme): Graphics {
   if (art.id === 'thanh-pho-robot') return skyline(layout, art);
   if (art.id === 'xuong-phep-thuat') return bookcases(layout, art);
   if (art.id === 'thap-hoa-si') return paintedTowers(layout, art);
+  if (art.id === 'hoc-vien') return cloudLibrary(layout, art);
   return farBamboo(layout, art);
 }
 
@@ -569,6 +574,73 @@ function paintedTowers(layout: RunnerLayout, art: SceneArt): Graphics {
   return g;
 }
 
+/** Học Viện: white cloud hills, some with the library on top (P5-08). */
+function cloudLibrary(layout: RunnerLayout, art: SceneArt): Graphics {
+  const { groundTop, tileScale: u } = layout;
+  const span = spanOf(layout, PARALLAX.far);
+  const g = new Graphics();
+  const next = sequence(79);
+  let x = -snap(next() * 12 * u, u);
+  for (let i = 0; x < span + 30 * u; i++) {
+    const w = (44 + Math.floor(next() * 24)) * u;
+    const top = snap(groundTop * (0.66 + next() * 0.08), u);
+    // The library stands in the cloud: the cloud is drawn over its steps, never over its window.
+    const lx = x + snap((w - 30 * u) / 2, u);
+    const hasLibrary = i % 2 === 0;
+    if (hasLibrary) library(g, lx, top + u, u);
+    // A flat-bottomed cloud: round puffs of different sizes on a body, lit on top, shaded below.
+    const puffs: [number, number][] = [];
+    for (let px = x + 6 * u; px < x + w - 5 * u; px += (8 + Math.floor(next() * 4)) * u) {
+      const r = 4 + Math.floor(next() * 3);
+      if (!hasLibrary || px < lx + (8 - r) * u || px > lx + (22 + r) * u) puffs.push([px, r]);
+    }
+    g.rect(x, top, w, groundTop - top).fill(art.far.main);
+    for (const [px, r] of puffs) disc(g, px, top, r, u, art.far.main);
+    for (const [px, r] of puffs) g.rect(px - 2 * u, top - (r - 1) * u, 3 * u, u);
+    g.fill(art.far.light);
+    g.rect(x, groundTop - 3 * u, w, 3 * u).fill(art.far.dark);
+    x += w + (4 + Math.floor(next() * 16)) * u;
+  }
+  return g;
+}
+
+/**
+ * The library, 34 × 32 texels standing on `base`: a stepped lavender roof, two pairs of columns,
+ * an arched window with a wooden bookshelf inside, and a lantern under each end of the eaves.
+ */
+function library(g: Graphics, bx: number, base: number, u: number): void {
+  const d = ACADEMY_DETAIL;
+  g.rect(bx, base - 22 * u, 30 * u, 22 * u).fill(d.wall);
+  g.rect(bx, base - 22 * u, 30 * u, u).rect(bx + 28 * u, base - 21 * u, 2 * u, 21 * u);
+  g.fill(d.wallShade);
+  for (let row = 0; row < 7; row++) {
+    g.rect(bx - 2 * u + row * 2 * u, base - 23 * u - row * u, 34 * u - row * 4 * u, u);
+  }
+  g.fill(d.roof);
+  g.rect(bx - 2 * u, base - 23 * u, 34 * u, u).fill(d.roofDark);
+  for (const cx of [2, 6, 22, 26]) g.rect(bx + cx * u, base - 21 * u, 2 * u, 19 * u);
+  g.fill(d.column);
+  g.rect(bx - u, base - 2 * u, 32 * u, 2 * u).fill(d.column);
+  // The arched window: a wooden frame round the back panel, three shelves of book spines.
+  g.rect(bx + 10 * u, base - 18 * u, 10 * u, 16 * u).rect(bx + 11 * u, base - 19 * u, 8 * u, u);
+  g.fill(d.shelf);
+  g.rect(bx + 11 * u, base - 17 * u, 8 * u, 14 * u).fill(d.shelfBack);
+  let book = 0;
+  for (const sy of [13, 8, 3]) {
+    g.rect(bx + 11 * u, base - sy * u, 8 * u, u).fill(d.shelfDark);
+    for (let bk = 0; bk < 7; bk++) {
+      const h = bk % 3 === 1 ? 3 : 4;
+      const spine = d.books[book++ % d.books.length] ?? d.shelf;
+      g.rect(bx + (11 + bk) * u, base - (sy + h) * u, u, h * u).fill(spine);
+    }
+  }
+  for (const lx of [-u, 28 * u]) {
+    g.rect(bx + lx + u, base - 22 * u, u, 2 * u).fill(d.lanternCap);
+    g.rect(bx + lx, base - 20 * u, 3 * u, 3 * u).fill(d.lantern);
+    g.rect(bx + lx + u, base - 19 * u, u, u).fill(d.lanternGlow);
+  }
+}
+
 /** Mountain range: stepped peaks lit from the left, snow on the tops. */
 function mountains(layout: RunnerLayout, art: SceneArt): Graphics {
   const { groundTop, tileScale: u } = layout;
@@ -635,6 +707,7 @@ export function drawNear(layout: RunnerLayout, theme?: SceneTheme, boss = false)
   if (art.id === 'song') return riverBank(layout, art, boss);
   if (art.id === 'xuong-phep-thuat') return spellDesks(layout, art);
   if (art.id === 'thap-hoa-si') return easels(layout, art);
+  if (art.id === 'hoc-vien') return hedgeGarden(layout, art);
   return hills(layout, art);
 }
 
@@ -840,6 +913,52 @@ function easels(layout: RunnerLayout, art: SceneArt): Graphics {
     g.rect(tx + u, top + 2 * u, 2 * u, 7 * u).rect(tx + 11 * u, top + 2 * u, 2 * u, 7 * u);
     g.fill(art.near.dark);
     picture(g, tx + 2 * u, top - PALETTE_PIC.length * u, PALETTE_PIC, u, pal);
+  }
+  return g;
+}
+
+/** Học Viện garden: trimmed hedges with pink flowers, clipped topiary balls, lantern posts. */
+function hedgeGarden(layout: RunnerLayout, art: SceneArt): Graphics {
+  const { groundTop, tileScale: u } = layout;
+  const span = spanOf(layout, PARALLAX.hills);
+  const d = ACADEMY_DETAIL;
+  const g = new Graphics();
+  const next = sequence(83);
+  let x = snap(next() * 16 * u, u);
+  while (x < span) {
+    // A hedge: a box with clipped corners, lit flat top, shaded right end, leaves and flowers.
+    const w = (16 + Math.floor(next() * 14)) * u;
+    const h = (7 + Math.floor(next() * 4)) * u;
+    const top = groundTop - h;
+    g.rect(x + u, top, w - 2 * u, u)
+      .rect(x, top + u, w, h - u)
+      .fill(art.near.main);
+    g.rect(x + u, top, w - 2 * u, u).fill(art.near.light);
+    g.rect(x + w - 3 * u, top + u, 3 * u, h - u).fill(art.near.dark);
+    for (let lx = x + 2 * u; lx < x + w - 4 * u; lx += 4 * u) {
+      g.rect(lx + (next() < 0.5 ? 0 : u), top + snap(2 * u + next() * (h - 4 * u), u), u, u);
+    }
+    g.fill(art.near.dark);
+    for (let fx = x + 3 * u; fx < x + w - 4 * u; fx += 7 * u) g.rect(fx, top + 2 * u, u, u);
+    g.fill(d.flower);
+    x += w + (3 + Math.floor(next() * 6)) * u;
+    const pick = next();
+    if (pick < 0.45) {
+      // A topiary ball on a short trunk.
+      const cx = x + 5 * u;
+      g.rect(cx - u, groundTop - 5 * u, 2 * u, 5 * u).fill(d.post);
+      disc(g, cx, groundTop - 10 * u, 4, u, art.near.main);
+      g.rect(cx - 2 * u, groundTop - 14 * u, 3 * u, u).fill(art.near.light);
+      x += 12 * u;
+    } else if (pick < 0.8) {
+      // A lantern on a wooden post.
+      const px = x + 2 * u;
+      g.rect(px, groundTop - 16 * u, 2 * u, 16 * u).fill(d.post);
+      g.rect(px - u, groundTop - 21 * u, 4 * u, u).fill(d.lanternCap);
+      g.rect(px - u, groundTop - 20 * u, 4 * u, 4 * u).fill(d.lantern);
+      g.rect(px, groundTop - 19 * u, 2 * u, 2 * u).fill(d.lanternGlow);
+      x += 8 * u;
+    }
   }
   return g;
 }
