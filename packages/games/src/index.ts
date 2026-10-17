@@ -143,3 +143,24 @@ export type {
 } from './turtle';
 export { turtleDrawKey } from './turtle/drawKey';
 export type { DrawKeyLevel } from './turtle/drawKey';
+// Sorter ("Kệ sách", ADR-0025): schema, constants and the shelf key for the stage and tools.
+export {
+  isSorted,
+  shelfKey,
+  SORTER_MAX_BOOKS,
+  SORTER_MAX_NUMBER,
+  SORTER_MAX_QUESTIONS,
+  SORTER_MIN_BOOKS,
+  SORTER_MIN_NUMBER,
+  SORTER_OPS,
+  SORTER_REASONS,
+  sorterConfigSchema,
+} from './sorter';
+export type {
+  SorterConfig,
+  SorterEvent,
+  SorterEventType,
+  SorterOp,
+  SorterReason,
+  SorterState,
+} from './sorter';

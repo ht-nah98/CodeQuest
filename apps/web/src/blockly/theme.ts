@@ -36,6 +36,7 @@ export const BLOCK_STYLE_BY_CATEGORY: Readonly<Record<BlockCategory, string>> = 
   variable: 'variable_blocks',
   function: 'procedure_blocks',
   pen: 'pen_blocks',
+  sorter: 'sorter_blocks',
   event: 'event_blocks',
 };
 
@@ -49,6 +50,7 @@ export const BLOCK_COLOR_BY_CATEGORY: Readonly<Record<BlockCategory, string>> = 
   variable: BLOCK_COLORS.var,
   function: BLOCK_COLORS.fn,
   pen: BLOCK_COLORS.pen,
+  sorter: BLOCK_COLORS.shelf,
   event: BLOCK_COLORS.event,
 };
 

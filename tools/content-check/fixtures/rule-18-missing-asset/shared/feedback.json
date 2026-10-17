@@ -37,5 +37,12 @@
   "LOW_SCORE": "Chưa đủ điểm. Chọn việc nhiều điểm hơn nhé!",
   "EXTRA_LINE": "Nét này không có trong hình mẫu.",
   "MISSING_LINES": "Còn nét chưa vẽ.",
-  "OFF_PAPER": "Ối, Măng vẽ ra ngoài giấy rồi!"
+  "OFF_PAPER": "Ối, Măng vẽ ra ngoài giấy rồi!",
+  "OFF_SHELF": "Hết kệ rồi! Tay Bíp không sang phải được.",
+  "NO_BOOK_RIGHT": "Bên phải không có sách!",
+  "OUT_OF_QUESTIONS": "Hết lượt hỏi rồi!",
+  "NOT_SORTED": "Kệ chưa xếp xong. Sách nhỏ phải đứng trước!",
+  "NOT_FOUND": "Tay Bíp chưa dừng ở cuốn sách cần tìm.",
+  "NOT_AT_END": "Tay Bíp chưa tới cờ cuối kệ.",
+  "OUT_OF_STEPS": "Măng mệt rồi! Hết bước."
 }

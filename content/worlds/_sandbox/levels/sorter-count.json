@@ -1,0 +1,131 @@
+{
+  "id": "sorter-count",
+  "worldId": "_sandbox",
+  "stage": "practice",
+  "kind": "sorter",
+  "mode": "build",
+  "title": "Đếm sách lớn",
+  "objective": "Đếm sách lớn hơn 5, đi tới cờ nhé!",
+  "learningGoal": "Xem hết kệ để đếm: lặp đến khi hết kệ.",
+  "misconception": "Đếm tới sách cuối là đủ, không cần tới cờ.",
+  "toolbox": [
+    "sorter_right",
+    "sorter_at_end",
+    {
+      "type": "sorter_book_is",
+      "fields": {
+        "OP": "GT",
+        "NUM": 5
+      }
+    },
+    "cq_if",
+    "cq_repeat_until",
+    "cq_repeat",
+    {
+      "type": "cq_var_add",
+      "fields": {
+        "VAR": "big",
+        "NUM": 1
+      }
+    }
+  ],
+  "maxLoopDepth": 1,
+  "par": 6,
+  "variables": [
+    {
+      "id": "big",
+      "name": "số sách lớn"
+    }
+  ],
+  "countGoal": {
+    "var": "big",
+    "equals": [2, 3]
+  },
+  "config": {
+    "books": [7, 2, 9, 4],
+    "goal": {
+      "end": true
+    }
+  },
+  "variants": [
+    {
+      "books": [3, 8, 6, 1, 9],
+      "goal": {
+        "end": true
+      }
+    }
+  ],
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat_until",
+              "id": "until1",
+              "inputs": {
+                "COND": {
+                  "block": {
+                    "type": "sorter_at_end",
+                    "id": "end1"
+                  }
+                },
+                "DO": {
+                  "block": {
+                    "type": "cq_if",
+                    "id": "if1",
+                    "inputs": {
+                      "COND": {
+                        "block": {
+                          "type": "sorter_book_is",
+                          "id": "ask1",
+                          "fields": {
+                            "OP": "GT",
+                            "NUM": 5
+                          }
+                        }
+                      },
+                      "DO": {
+                        "block": {
+                          "type": "cq_var_add",
+                          "id": "add1",
+                          "fields": {
+                            "VAR": "big",
+                            "NUM": 1
+                          }
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "sorter_right",
+                        "id": "right1"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "end",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Kệ dài ngắn khác nhau. Khi nào thì dừng?",
+      "point": "toolbox:sorter_at_end"
+    }
+  ],
+  "thinkingHint": "Kệ thứ 2 có mấy sách lớn hơn 5?"
+}

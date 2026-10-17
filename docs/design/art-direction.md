@@ -79,6 +79,7 @@ Chọn đủ đậm để **chữ trắng in đậm trên khối đạt độ t�
 | Biến & số | `#D13F73` | 🔢 |
 | Hàm | `#5560C8` | 🪄 |
 | Bút vẽ | `#2F8A3E` | 🖍️ |
+| Kệ sách (W10, `sorter`) | `#B5432C` | 📚 |
 
 ---
 
