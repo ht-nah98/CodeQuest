@@ -53,3 +53,13 @@ export async function unlockLeanbotCourse(page: Page): Promise<void> {
     for (let i = 0; i < 40; i++) localStorage.setItem(`cq.leanbot.check.bai-00.${String(i)}`, '1');
   });
 }
+
+/**
+ * Signing in lands on the hub, where the two courses are chosen (ADR-0028). Specs that are about
+ * CodeQuest step through it with one click and carry on from the map.
+ */
+export async function hubIntoCodeQuest(page: Page): Promise<void> {
+  await expect(page).toHaveURL(/\/hub$/);
+  await page.getByRole('link', { name: /CodeQuest/ }).click();
+  await expect(page).toHaveURL(/\/map$/);
+}

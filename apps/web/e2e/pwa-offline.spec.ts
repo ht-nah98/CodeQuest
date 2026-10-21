@@ -1,4 +1,5 @@
 import { expect, type BrowserContext, type Page, test } from '@playwright/test';
+import { hubIntoCodeQuest } from './helpers';
 
 // P2-09 acceptance (docs/roadmap/phase-2.md): on the production build (`vite preview`, port 4180,
 // sent with the production CSP by vite.config.ts) the app installs its service worker, then opens
@@ -70,7 +71,7 @@ async function createProfile(page: Page, nickname: string): Promise<void> {
     await expect(page.getByTestId('pin-dots')).toHaveAttribute('data-filled', '0');
     for (const digit of '1234') await page.locator(`button[data-key="${digit}"]`).click();
   }
-  await expect(page).toHaveURL(/\/map$/);
+  await hubIntoCodeQuest(page);
 }
 
 /** Map → World 1 → its lesson (level 1 waits for it) → /play/w01-l01, stage ready. */
@@ -258,7 +259,7 @@ test.describe('PWA on the production build', () => {
     await other.goto('/');
     await other.getByTestId('profile-tile').first().click();
     for (const digit of '1234') await other.locator(`button[data-key="${digit}"]`).click();
-    await expect(other).toHaveURL(/\/map$/);
+    await hubIntoCodeQuest(other);
     const otherBanner = other.getByTestId('update-banner');
     await expect(otherBanner).toContainText('Có bản mới!');
     await Promise.all([
