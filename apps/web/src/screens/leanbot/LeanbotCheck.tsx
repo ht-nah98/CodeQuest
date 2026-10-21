@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { isTicked, setTicked } from '../../features/leanbot/leanbotGate';
 import { FOCUS_RING } from '../../ui/focusRing';
 
 /**
@@ -7,13 +8,7 @@ import { FOCUS_RING } from '../../ui/focusRing';
  */
 export function LeanbotCheck({ id, label }: { id: string; label: string }) {
   const key = `cq.leanbot.check.${id}`;
-  const [on, setOn] = useState(() => {
-    try {
-      return localStorage.getItem(key) === '1';
-    } catch {
-      return false;
-    }
-  });
+  const [on, setOn] = useState(() => isTicked(key));
 
   return (
     <button
@@ -22,12 +17,7 @@ export function LeanbotCheck({ id, label }: { id: string; label: string }) {
       onClick={() => {
         const next = !on;
         setOn(next);
-        try {
-          if (next) localStorage.setItem(key, '1');
-          else localStorage.removeItem(key);
-        } catch {
-          // Storage can be blocked; the tick still works for this visit.
-        }
+        setTicked(key, next);
       }}
       className={`flex w-full items-center gap-3 rounded-panel border-3 border-dashed border-go p-3 text-left text-bubble font-bold ${
         on ? 'bg-go text-paper' : 'bg-go-soft'

@@ -45,8 +45,16 @@
       "part": "Hai góc phải nhớ",
       "title": "0 độ là MỞ, 90 độ là ĐÓNG",
       "chips": [
-        { "label": "0 độ · Mở", "body": "Hai càng chúc thẳng xuống đất", "tone": "go" },
-        { "label": "90 độ · Đóng", "body": "Hai càng nằm ngang, khép vào giữa", "tone": "sky" }
+        {
+          "label": "0 độ · Mở",
+          "body": "Hai càng chúc thẳng xuống đất",
+          "tone": "go"
+        },
+        {
+          "label": "90 độ · Đóng",
+          "body": "Hai càng nằm ngang, khép vào giữa",
+          "tone": "sky"
+        }
       ],
       "tip": "Nghe ngược nhỉ? Số nhỏ lại là mở. Con cứ nhớ theo hình, đừng nhớ theo số."
     },
@@ -62,10 +70,22 @@
       "part": "Hai góc phải nhớ",
       "title": "Thử mở càng xem nào",
       "steps": [
-        ["1", "Leanbot bắt đầu hoạt động"],
-        ["2", "Nhiệm vụ: Bắt đầu khi chạm cùng lúc TB1A + TB1B"],
-        ["3", "Tay gắp: Mở"],
-        ["4", "Nhiệm vụ: Kết thúc"]
+        [
+          "1",
+          "Leanbot bắt đầu hoạt động"
+        ],
+        [
+          "2",
+          "Nhiệm vụ: Bắt đầu khi chạm cùng lúc TB1A + TB1B"
+        ],
+        [
+          "3",
+          "Tay gắp: Mở"
+        ],
+        [
+          "4",
+          "Nhiệm vụ: Kết thúc"
+        ]
       ],
       "check": "Con mở được hai càng rồi"
     },
@@ -93,11 +113,23 @@
       "part": "Chọn góc bất kỳ",
       "title": "Khối xoay từng càng có ba ô",
       "table": {
-        "head": ["Ô", "Điền gì vào"],
+        "head": [
+          "Ô",
+          "Điền gì vào"
+        ],
         "rows": [
-          ["1", "Góc của càng TRÁI"],
-          ["2", "Góc của càng PHẢI"],
-          ["3", "Thời gian quay, tính bằng mili giây"]
+          [
+            "1",
+            "Góc của càng TRÁI"
+          ],
+          [
+            "2",
+            "Góc của càng PHẢI"
+          ],
+          [
+            "3",
+            "Thời gian quay, tính bằng mili giây"
+          ]
         ]
       },
       "warn": "Bé hay điền thời gian nhầm vào ô góc. Đọc to từng ô khi điền: trái, phải, thời gian."
@@ -106,8 +138,16 @@
       "part": "Chọn góc bất kỳ",
       "title": "Mili giây là gì?",
       "chips": [
-        { "label": "1 giây", "body": "1000 mili giây", "tone": "go" },
-        { "label": "Nửa giây", "body": "500 mili giây", "tone": "coin" }
+        {
+          "label": "1 giây",
+          "body": "1000 mili giây",
+          "tone": "go"
+        },
+        {
+          "label": "Nửa giây",
+          "body": "500 mili giây",
+          "tone": "coin"
+        }
       ],
       "tip": "Số mili giây càng NHỎ thì càng quay càng nhanh. 100 là chớp mắt, 5000 là chậm rì."
     },
@@ -115,10 +155,22 @@
       "part": "Chọn góc bất kỳ",
       "title": "Thử một lần nhanh, một lần chậm",
       "steps": [
-        ["1", "Xoay càng Trái tới 120 và càng Phải tới −30 trong 100 mili giây"],
-        ["2", "Chờ 2 giây"],
-        ["3", "Xoay càng Trái tới −30 và càng Phải tới 120 trong 5000 mili giây"],
-        ["4", "Chờ 2 giây"]
+        [
+          "1",
+          "Xoay càng Trái tới 120 và càng Phải tới −30 trong 100 mili giây"
+        ],
+        [
+          "2",
+          "Chờ 2 giây"
+        ],
+        [
+          "3",
+          "Xoay càng Trái tới −30 và càng Phải tới 120 trong 5000 mili giây"
+        ],
+        [
+          "4",
+          "Chờ 2 giây"
+        ]
       ],
       "note": "Khối này làm XONG rồi chương trình mới đi tiếp. Robot không đứng im đâu, nó đang quay chậm.",
       "check": "Con thấy càng quay nhanh và quay chậm"
@@ -127,10 +179,22 @@
       "part": "Gắp – chở – thả",
       "title": "Bốn bước để gắp",
       "steps": [
-        ["1", "Tới gần vật"],
-        ["2", "Mở càng"],
-        ["3", "Hạ càng vào đúng chỗ"],
-        ["4", "Đóng càng"]
+        [
+          "1",
+          "Tới gần vật"
+        ],
+        [
+          "2",
+          "Mở càng"
+        ],
+        [
+          "3",
+          "Hạ càng vào đúng chỗ"
+        ],
+        [
+          "4",
+          "Đóng càng"
+        ]
       ],
       "warn": "Đóng càng trước khi tới nơi thì robot chộp hụt. Mở càng NGAY ĐẦU chương trình cho chắc."
     },
@@ -138,10 +202,22 @@
       "part": "Gắp – chở – thả",
       "title": "Bốn bước để thả",
       "steps": [
-        ["1", "Đi tới nơi cần thả"],
-        ["2", "Đứng đúng chỗ"],
-        ["3", "Mở càng, khối rơi xuống"],
-        ["4", "Lùi ra"]
+        [
+          "1",
+          "Đi tới nơi cần thả"
+        ],
+        [
+          "2",
+          "Đứng đúng chỗ"
+        ],
+        [
+          "3",
+          "Mở càng, khối rơi xuống"
+        ],
+        [
+          "4",
+          "Lùi ra"
+        ]
       ],
       "note": "Vì sao phải lùi ra? Để robot không đụng đổ chính khối nó vừa thả."
     },
@@ -161,7 +237,8 @@
         "Sau khi đóng càng, cho robot chờ 1 giây rồi mới chạy.",
         "Một giây đó để càng kẹp chặt, khối không tuột."
       ],
-      "code": "Leanbot.delay(1.0);"
+      "code": "LbDelay(1000);",
+      "note": "LbDelay đếm bằng mili giây, nên 1 giây là 1000."
     },
     {
       "part": "Thử sức",
@@ -182,9 +259,18 @@
       "part": "Thử sức",
       "title": "Robot chộp hụt thì hỏi gì?",
       "steps": [
-        ["1", "Robot có cần tiến gần hơn không?"],
-        ["2", "Càng mở đủ rộng chưa?"],
-        ["3", "Các khối đã đúng thứ tự chưa?"]
+        [
+          "1",
+          "Robot có cần tiến gần hơn không?"
+        ],
+        [
+          "2",
+          "Càng mở đủ rộng chưa?"
+        ],
+        [
+          "3",
+          "Các khối đã đúng thứ tự chưa?"
+        ]
       ],
       "tip": "Ai cũng chộp hụt vài lần. Kỹ sư tìm chỗ sai rồi sửa, không xóa cả chương trình."
     },
@@ -202,19 +288,34 @@
   "quiz": [
     {
       "q": "Tay gắp MỞ ở góc bao nhiêu?",
-      "options": ["0 độ", "45 độ", "90 độ", "120 độ"],
+      "options": [
+        "0 độ",
+        "45 độ",
+        "90 độ",
+        "120 độ"
+      ],
       "correct": 0,
       "explain": "0 độ là mở, hai càng chúc xuống đất. 90 độ mới là đóng."
     },
     {
       "q": "Số nào KHÔNG an toàn cho góc của càng?",
-      "options": ["120", "90", "−30", "150"],
+      "options": [
+        "120",
+        "90",
+        "−30",
+        "150"
+      ],
       "correct": 3,
       "explain": "Càng chỉ quay từ −30 đến 120 độ. Quá khoảng đó thì càng có thể gãy."
     },
     {
       "q": "Muốn càng quay trong 2 giây thì điền ô thời gian là bao nhiêu?",
-      "options": ["2", "20", "200", "2000"],
+      "options": [
+        "2",
+        "20",
+        "200",
+        "2000"
+      ],
       "correct": 3,
       "explain": "1 giây là 1000 mili giây, nên 2 giây là 2000 mili giây."
     },

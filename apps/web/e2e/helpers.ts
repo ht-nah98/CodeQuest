@@ -42,3 +42,14 @@ export async function confirmRestart(page: Page): Promise<void> {
   await page.getByTestId('restart-yes').click();
   await expect(page.getByTestId('restart-confirm')).toHaveCount(0);
 }
+
+/**
+ * Ticks every box of Leanbot lesson 0, which is what opens the rest of that course. Specs about
+ * a later lesson call this first; the one spec about the gate itself does not. Seeds every screen
+ * index of the lesson, so inserting a screen cannot quietly leave a spec on the locked side.
+ */
+export async function unlockLeanbotCourse(page: Page): Promise<void> {
+  await page.evaluate(() => {
+    for (let i = 0; i < 40; i++) localStorage.setItem(`cq.leanbot.check.bai-00.${String(i)}`, '1');
+  });
+}

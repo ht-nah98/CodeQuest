@@ -48,7 +48,7 @@ Các từ Ngưỡng, Điều kiện / Nếu, Vòng lặp, Sửa lỗi, Chạy th
 | `Leanbot.whenStarted` (When Leanbot started) | Leanbot bắt đầu hoạt động | Điểm bắt đầu chương trình |
 | `LbMotion.run` (Motion: Run with velocity Left ? Right ? rpm) | Di chuyển: Chạy với vận tốc Trái ? Phải ? | Đặt tốc độ hai bánh. 30 là tiến, -30 là lùi |
 | `LbMotion.stop` (Motion: Stop) | Di chuyển: Dừng | Giảm tốc rồi dừng hẳn hai bánh |
-| `Leanbot.objectInFront` (Ping: Object in front is within ? cm distance ?) | Đo xa: Phía trước có vật trong vòng ? cm ? | Câu hỏi đúng/sai. Dùng trong khối `nếu`. Slide điền 25 |
+| `Leanbot.pingCm` (Ping: Object in front is within ? cm distance ?) | Đo xa: Phía trước có vật trong vòng ? cm ? | Câu hỏi đúng/sai. Dùng trong khối `nếu`. Slide điền 25. **Thư viện không có `objectInFront`**; dạng biên dịch được là `Leanbot.pingCm() <= 25` |
 | `Leanbot.ping` (Ping: Front distance in cm) | Đo xa: Khoảng cách phía trước, tính bằng cm | Trả về một con số (cm). Đem so sánh trong `lặp khi` |
 | `if ... do ...` (khối Blockly có sẵn) | nếu ... thì | Điều kiện đúng thì làm các khối bên trong, **chỉ kiểm tra một lần** mỗi khi chạy tới nó |
 | `repeat while` (khối Blockly có sẵn) | lặp khi | Điều kiện còn đúng thì làm đi làm lại các khối bên trong |
@@ -110,8 +110,8 @@ Leanbot bắt đầu hoạt động
 ```cpp
 // Cách đọc: mỗi khối thành một lệnh.
 LbMotion.runLRrpm(30, 30);          // Chạy Trái 30, Phải 30 vòng/phút
-if (Leanbot.objectInFront(25)) {    // nếu phía trước có vật trong 25 cm
-  LbMotion.stop();                  // Dừng
+if (Leanbot.pingCm() <= 25) {       // nếu phía trước có vật trong 25 cm
+  LbMotion.stopAndWait();           // Dừng
 }
 ```
 Trong ảnh slide, khối `nếu` **chỉ kiểm tra một lần**, ngay sau khi robot bắt đầu chạy. Nghĩa là nó có thể chưa dừng đúng lúc. Phiên bản trọn vẹn nằm ở chương trình đầy đủ dưới đây.
@@ -127,7 +127,7 @@ Leanbot bắt đầu hoạt động
 while (Leanbot.ping() <= 30) {      // lặp khi khoảng cách phía trước ≤ 30 cm
   LbMotion.runLRrpm(-30, -30);      // lùi
 }
-LbMotion.stop();                    // Dừng, sau khi vòng lặp kết thúc
+LbMotion.stopAndWait();             // Dừng, sau khi vòng lặp kết thúc
 ```
 Khối `Dừng` nằm **ngoài** vòng lặp, thẳng hàng với `lặp khi`.
 
@@ -146,17 +146,17 @@ Leanbot bắt đầu hoạt động
 ```cpp
 while (true) {                              // lặp mãi: kiểm tra liên tục
   LbMotion.runLRrpm(30, 30);                // luật 1: phía trước trống thì đi tiếp
-  if (Leanbot.objectInFront(25)) {          // luật 2: vật ≤ 25 cm
-    LbMotion.stop();
+  if (Leanbot.pingCm() <= 25) {             // luật 2: vật ≤ 25 cm
+    LbMotion.stopAndWait();
     while (Leanbot.ping() <= 30) {          // luật 3: lùi cho tới khi hơn 30 cm
       LbMotion.runLRrpm(-30, -30);
     }
-    LbMotion.stop();
+    LbMotion.stopAndWait();
   }
 }
 ```
 
-**Phần code C++ ở trên chưa được đối chiếu với trình soạn khối thật.** Nguồn mà giáo án có chỉ cho thấy `LbMotion.runLRrpm(30, -30)` (từ Bài 10) và `LbMotion.runLR(...)`. Tên hàm `Leanbot.objectInFront`, `Leanbot.ping`, `LbMotion.stop` lấy theo tên loại khối, còn dạng chữ chính xác sinh ra, cùng việc khối "Leanbot bắt đầu hoạt động" đặt trong `setup()` hay `loop()`, thầy cần mở trình soạn, ghép khối và đọc cột code bên phải để xác nhận. Bài gốc cũng không có chương trình C++ hay file `.bduino` nào cho Bài 3.
+**Code C++ ở trên đã biên dịch thật** trên máy chủ của hãng (`cs.leanbot.space`, 21/10/2026): `Leanbot.pingCm()`, `LbMotion.runLRrpm()`, `LbMotion.stopAndWait()` đều có thật. Hai tên cũ `Leanbot.objectInFront` và `LbMotion.stop` **không tồn tại trong thư viện**. Còn việc trình soạn sinh ra đúng chữ nào cho khối `Phía trước có vật trong vòng ? cm`, cùng việc khối "Leanbot bắt đầu hoạt động" đặt trong `setup()` hay `loop()`, thầy cần mở trình soạn, ghép khối và đọc cột code bên phải để xác nhận. Bài gốc cũng không có chương trình C++ hay file `.bduino` nào cho Bài 3.
 
 Khối "Lặp mãi" (Repeat Forever) chỉ được nhắc ở slide Growth 03, **không có trong ảnh chương trình mẫu**. Giáo án chưa xác nhận trình soạn có khối này hay không. Nếu không, dùng `lặp khi` với điều kiện `đúng`.
 
@@ -201,8 +201,8 @@ Khối "Lặp mãi" (Repeat Forever) chỉ được nhắc ở slide Growth 03, 
 **10. Làm trên máy.** Ghép khối sao cho trình soạn sinh ra đoạn code này, rồi nói robot sẽ làm gì:
 ```cpp
 LbMotion.runLRrpm(30, 30);
-if (Leanbot.objectInFront(25)) {
-  LbMotion.stop();
+if (Leanbot.pingCm() <= 25) {
+  LbMotion.stopAndWait();
 }
 ```
 

@@ -171,3 +171,46 @@ Tài liệu khắc phục sự cố của Pythaverse: <https://pythaverse.space/
    firmware, hiệu chỉnh cảm biến đang lưu, và mức pin — những thứ đó sẽ giúp chỉnh giáo án
    cho đúng con robot này. Việc này cần robot cắm vào máy.
 3. **Chưa biết lớp dùng Windows hay Linux**, nên phần driver mới nêu nguyên tắc.
+
+## Nạp code không cần trình duyệt
+
+Cách này dùng khi WebSerial không chạy (Chrome thiếu quyền cổng, máy Linux chưa vào nhóm
+`dialout`, hoặc muốn nạp hàng loạt bằng script). Đã chạy thật ngày 21/10/2026 trên máy của
+huấn luyện viên.
+
+Mấu chốt: **không cần thư viện Leanbot trên máy**. Thư viện nằm trên máy chủ biên dịch của
+hãng — đúng máy chủ mà trình soạn khối web gọi tới. Máy mình chỉ cần `avrdude` để nạp file hex.
+
+1. **Biên dịch.** POST lên `https://cs.leanbot.space/v3/compile`, thân JSON:
+
+   ```json
+   {
+     "fqbn": "arduino:avr:uno",
+     "files": [{ "name": "LeanbotSketch/LeanbotSketch.ino", "content": "<mã nguồn>" }],
+     "flags": { "verbose": false, "preferLocal": false },
+     "libs": []
+   }
+   ```
+
+   Trả về `{ "hex": "<base64>", "log": "<log biên dịch>" }`. Lỗi biên dịch thì `hex` rỗng và
+   `log` là thông báo lỗi của gcc — rất hữu ích để **kiểm tên hàm có thật hay không**.
+
+2. **Giải base64** ra tệp `.hex`.
+
+3. **Nạp.** `avrdude` đi kèm nhân `arduino:avr` (cài bằng `arduino-cli core install arduino:avr`):
+
+   ```bash
+   avrdude -C <đường dẫn>/avrdude.conf -p atmega328p -c arduino \
+           -P /dev/ttyUSB0 -b 115200 -D -U flash:w:chuongtrinh.hex:i
+   ```
+
+   Dù não là Arduino NANO, `-c arduino -b 115200` (dạng UNO) vẫn nạp được, khớp với việc
+   trình soạn đặt `BOARD: ARDUINO UNO`.
+
+4. **Đọc robot nói gì.** Mở `/dev/ttyUSB0` ở 115200 baud. Robot in số hiệu của nó khi khởi
+   động, rồi in tiếp những gì chương trình `Serial.print`.
+
+Máy Linux cần quyền cổng: tài khoản phải ở nhóm `dialout` (`sudo usermod -aG dialout $USER`,
+rồi **đăng xuất đăng nhập lại**), và phải chặn `brltty` nhận nhầm chip CH340 làm màn hình chữ
+nổi (`sudo systemctl mask brltty-udev.service brltty.service`). Không chặn thì `/dev/ttyUSB0`
+hiện ra rồi biến mất sau một giây.

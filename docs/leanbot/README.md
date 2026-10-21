@@ -47,6 +47,11 @@ Tổng **155 bài ôn luyện** có đáp án.
 **Bản cho bé trong app** (`content/leanbot/*.json`, xem `/leanbot`) hiện có: **Bài 0, 1, 2
 và 3**. Các bài còn lại mới có bản của thầy ở `giao-an/`.
 
+**Bài 0 là cổng** (ADR-0029). Bài 0 bản cho bé có **9 ô tích**, mỗi ô là một việc làm xong
+trên robot thật. Chưa tích đủ thì Bài 1 trở đi hiện trong danh sách nhưng mang ổ khóa, bấm
+không vào, gõ thẳng URL cũng bị chặn. Thêm một ô tích vào `content/leanbot/bai-00.json` là
+cổng tự chặt hơn, không phải sửa code.
+
 ## Cách đọc một giáo án
 
 - **Bài 0** dạy cách *dùng* bộ công cụ, không dạy lập trình. Dạy trước mọi bài khác, vì
@@ -61,6 +66,26 @@ Mục **"Ghi chú về bản gốc"** ở cuối mỗi giáo án liệt kê lỗ
 tiếng Anh. Đọc mục này trước khi lên lớp: bé sẽ nhìn thấy slide gốc trên Plearn, và có chỗ
 slide nói khác chương trình mẫu. Tổng hợp mọi lỗi tìm được:
 [`nen-tang/pythaverse.md`](nen-tang/pythaverse.md) §7.
+
+## Đã chốt trên robot thật (21/10/2026)
+
+Biên dịch bằng **máy chủ của hãng** (`cs.leanbot.space/v3/compile`, đúng cái trình soạn web
+dùng) rồi nạp xuống robot bằng `avrdude`. Cách làm: [`thiet-bi/cai-dat.md`](thiet-bi/cai-dat.md)
+mục "Nạp code không cần trình duyệt". Nhờ đó sửa được bốn chỗ sai trong tài liệu:
+
+| Tài liệu từng ghi | Thư viện thật |
+|---|---|
+| `LbMotion.stop()` | **Không có.** Chỉ có `LbMotion.stopAndWait()` |
+| `Leanbot.delay(1.0)` | **Không có.** Thật là `LbDelay(1000)` — hàm tự do, đơn vị mili giây |
+| `Leanbot.objectInFront(25)` | **Không có.** Dạng biên dịch được: `Leanbot.pingCm() <= 25`. Có `ping()`, `pingCm()`, `pingMm()` |
+| `LbTouch.waitUntil(TB1A)` | **Không có.** Chỉ có `LbTouch.read(TB1A)` |
+
+Có thật và đã biên dịch: `runLR`, `runLRrpm`, `waitDistanceMm`, `waitRotationDeg`,
+`stopAndWait`, `LbGripper.open/close/moveTo/moveToLR`, `LbIRLine.read/value/isBlackDetected/doManualCalibration`,
+`LbIRSensor.read(sir6L)`, `LbMission.begin/end`. **Không có** `runLRsps`, `waitDistanceCm`.
+`LbIRLine.read` có ba dạng: không tham số, một ngưỡng, hoặc bốn ngưỡng.
+
+Dòng robot in ra lúc khởi động là **số hiệu của chính nó** (máy đang dùng: `LB398377`).
 
 ## Chỗ cần HLV kiểm lại trước khi dạy
 

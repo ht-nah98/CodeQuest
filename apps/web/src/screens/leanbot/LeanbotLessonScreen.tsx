@@ -7,6 +7,7 @@ import {
   progressOf,
   useLeanbotCourse,
 } from '../../features/leanbot/leanbotCourse';
+import { gateState, isLessonOpen } from '../../features/leanbot/leanbotGate';
 import { vi } from '../../i18n/vi';
 import { Button, Panel } from '../../ui';
 import { ScreenMessage } from '../shared/ScreenMessage';
@@ -36,6 +37,21 @@ export default function LeanbotLessonScreen() {
           }}
         >
           {t.title}
+        </Button>
+      </ScreenMessage>
+    );
+  }
+
+  // A hand-typed URL must not walk around the gate either.
+  if (!isLessonOpen(lesson, gateState(lessons))) {
+    return (
+      <ScreenMessage text={`${t.locked} ${t.lockedWhy}`} alert>
+        <Button
+          onClick={() => {
+            void navigate('/leanbot/bai-00/0');
+          }}
+        >
+          {t.toGate}
         </Button>
       </ScreenMessage>
     );

@@ -52,7 +52,7 @@ Nhãn Việt lấy từ `tools/lbeditor-vi/leanbot_vi.js`.
 | `LbGripper.close` | Tay gắp: Đóng | Cả hai càng về **90°** |
 | `LbGripper.moveTo` | Tay gắp: Xoay tới góc ? độ | Cả hai càng tới đúng góc chọn |
 | `LbGripper.moveToLR` | Tay gắp: Xoay càng Trái tới ? và càng Phải tới ? độ trong ? mili giây | Mỗi càng một góc, có thời gian quay. Làm xong mới sang lệnh sau |
-| `Leanbot.delay` | Chờ ? giây | Đứng yên một lúc rồi làm lệnh sau |
+| `LbDelay` | Chờ ? giây | Đứng yên một lúc rồi làm lệnh sau. **Code thật là `LbDelay(1000)`** — một hàm tự do, đơn vị mili giây (kiểm trên máy chủ biên dịch 21/10/2026) |
 | Khối ghi chú (màu xám) | Ghi chú | Chữ cho người đọc, robot không làm gì |
 | Khối di chuyển (Bài 1) | Di chuyển: Chạy đoạn đường ? cm, … | Dùng ở bài Claw Machine. Tên và số cụ thể xem Bài 1 |
 
@@ -138,7 +138,7 @@ void loop() {
   - Chờ 2 giây
 - Nhiệm vụ: Kết thúc
 
-C++ của hai khối `Xoay càng Trái… Phải…` và `Chờ` **chưa lấy được** (không có trên slide, không có trong chương trình mẫu của khóa). Muốn biết, mở trình soạn khối và đọc cột code bên phải. Giáo trình tổng §4 cho dạng `Leanbot.delay(1.0);` cho khối `Chờ 1 giây`.
+C++ của hai khối `Xoay càng Trái… Phải…` và `Chờ` **chưa lấy được** (không có trên slide, không có trong chương trình mẫu của khóa). Muốn biết, mở trình soạn khối và đọc cột code bên phải. Giáo trình tổng §4 từng ghi `Leanbot.delay(1.0);` — **sai**: lớp `cLeanbot` không có hàm `delay`. Dạng biên dịch được là `LbDelay(1000);`.
 
 **Máy gắp thú — gợi ý khung (slide không đưa mẫu)**
 - Nhiệm vụ: Bắt đầu khi chạm TB1A + TB1B
@@ -155,7 +155,7 @@ C++ của hai khối `Xoay càng Trái… Phải…` và `Chờ` **chưa lấy �
   LbGripper.open();
   // ... tiến tới khối xốp (code của khối di chuyển, xem Bài 1)
   LbGripper.close();
-  Leanbot.delay(1.0);   // dạng viết lấy từ giáo trình tổng §4
+  LbDelay(1000);        // 1 giây = 1000 ms; đã biên dịch thật, 21/10/2026
   // ... lùi về chỗ xuất phát
   LbGripper.open();
   LbMission.end();

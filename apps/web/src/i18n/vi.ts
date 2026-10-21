@@ -428,6 +428,13 @@ export const vi = {
     loading: 'Măng đang mở sách…',
     loadError: 'Ối, chưa mở được bài học. Con tải lại trang nhé!',
     notFound: 'Không tìm thấy bài này.',
+    // Cổng Bài 0: tích đủ ô kiểm tra thì các bài sau mở khóa.
+    locked: 'Xong Bài 0 đã nhé!',
+    lockedWhy: 'Bài này cần nạp code xuống robot thật.',
+    lockedCount: (done: number, total: number) =>
+      `Bài 0 còn ${String(total - done)} ô chưa tích (${String(done)}/${String(total)})`,
+    gateDone: (total: number) => `Bài 0 xong! Đủ ${String(total)} ô.`,
+    toGate: 'Về Bài 0',
   },
 
   // "/w/:worldId" Trang thế giới.

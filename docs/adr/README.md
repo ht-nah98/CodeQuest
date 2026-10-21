@@ -33,6 +33,7 @@ Trạng thái: **Đề xuất** → **Chấp nhận** → (**Đã bị thay th�
 | [0025](0025-sorter-game-kind.md) | Kiểu game `sorter` (kệ sách): tay ở một chỗ, đổi chỗ với sách bên phải, chấm khi hết chương trình, lượt hỏi là ngân sách | **Đề xuất** |
 | [0026](0026-maze-step-limit.md) | Bước sức của mê cung (`stepLimit`): mỗi `tiến` tốn 1 bước, hết bước là dừng | **Đề xuất** |
 | [0028](0028-two-courses-one-account.md) | Hai khóa trong một app (`/hub`): Leanbot và CodeQuest, chung một tài khoản | **Chấp nhận** |
+| [0029](0029-lesson-zero-gates-the-leanbot-course.md) | Bài 0 là cổng của khóa Leanbot: tích đủ 9 ô kiểm tra thì bài sau mới mở | **Chấp nhận** |
 
 ## Mẫu
 ```markdown

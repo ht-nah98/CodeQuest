@@ -36,8 +36,16 @@
       "part": "Mắt thần",
       "title": "Hai mắt tròn phía trước",
       "chips": [
-        { "label": "Mắt T · bộ phát", "body": "Gửi tiếng kêu đi", "tone": "go" },
-        { "label": "Mắt R · bộ thu", "body": "Nghe tiếng vọng về", "tone": "sky" }
+        {
+          "label": "Mắt T · bộ phát",
+          "body": "Gửi tiếng kêu đi",
+          "tone": "go"
+        },
+        {
+          "label": "Mắt R · bộ thu",
+          "body": "Nghe tiếng vọng về",
+          "tone": "sky"
+        }
       ],
       "note": "Tiếng kêu này cao đến mức tai người không nghe được. Người ta gọi là SÓNG ÂM."
     },
@@ -45,11 +53,23 @@
       "part": "Mắt thần",
       "title": "Vọng về nhanh thì vật gần",
       "table": {
-        "head": ["Tiếng vọng", "Nghĩa là"],
+        "head": [
+          "Tiếng vọng",
+          "Nghĩa là"
+        ],
         "rows": [
-          ["Về rất nhanh", "Vật ở gần"],
-          ["Về chậm", "Vật ở xa"],
-          ["Không về", "Phía trước trống, hoặc xa quá 4 mét"]
+          [
+            "Về rất nhanh",
+            "Vật ở gần"
+          ],
+          [
+            "Về chậm",
+            "Vật ở xa"
+          ],
+          [
+            "Không về",
+            "Phía trước trống, hoặc xa quá 4 mét"
+          ]
         ]
       },
       "tip": "Con thử vỗ tay vào tường rồi nghe tiếng dội. Robot nghe y như vậy, chỉ là nhanh hơn nhiều."
@@ -58,11 +78,23 @@
       "part": "Ba con số",
       "title": "Ba con số phải nhớ",
       "table": {
-        "head": ["Số", "Robot làm gì"],
+        "head": [
+          "Số",
+          "Robot làm gì"
+        ],
         "rows": [
-          ["25 cm", "Vật gần bằng hoặc gần hơn: DỪNG"],
-          ["30 cm", "Lùi cho tới khi trống hơn 30 cm"],
-          ["400 cm", "Xa nhất mắt thần nhìn thấy, tức 4 mét"]
+          [
+            "25 cm",
+            "Vật gần bằng hoặc gần hơn: DỪNG"
+          ],
+          [
+            "30 cm",
+            "Lùi cho tới khi trống hơn 30 cm"
+          ],
+          [
+            "400 cm",
+            "Xa nhất mắt thần nhìn thấy, tức 4 mét"
+          ]
         ]
       }
     },
@@ -97,10 +129,22 @@
       "part": "Ba con số",
       "title": "Bốn luật robot an toàn",
       "steps": [
-        ["1", "Phía trước hơn 25 cm thì đi tiếp"],
-        ["2", "Vật cách 25 cm hoặc gần hơn thì dừng"],
-        ["3", "Lùi cho tới khi trống hơn 30 cm"],
-        ["4", "Kiểm tra liên tục, không nghỉ"]
+        [
+          "1",
+          "Phía trước hơn 25 cm thì đi tiếp"
+        ],
+        [
+          "2",
+          "Vật cách 25 cm hoặc gần hơn thì dừng"
+        ],
+        [
+          "3",
+          "Lùi cho tới khi trống hơn 30 cm"
+        ],
+        [
+          "4",
+          "Kiểm tra liên tục, không nghỉ"
+        ]
       ],
       "tip": "Con đọc to bốn luật này một lần. Luật 4 là luật bé hay quên nhất."
     },
@@ -121,28 +165,54 @@
         "Sai rồi thì nó thôi và đi xuống khối dưới."
       ],
       "chips": [
-        { "label": "nếu", "body": "Hỏi một lần rồi đi tiếp", "tone": "coin" },
-        { "label": "lặp khi", "body": "Hỏi lại sau mỗi vòng", "tone": "go" }
+        {
+          "label": "nếu",
+          "body": "Hỏi một lần rồi đi tiếp",
+          "tone": "coin"
+        },
+        {
+          "label": "lặp khi",
+          "body": "Hỏi lại sau mỗi vòng",
+          "tone": "go"
+        }
       ]
     },
     {
       "part": "Nếu và lặp khi",
       "title": "Chương trình 1: dừng khi gần vật",
       "steps": [
-        ["1", "Chạy với vận tốc Trái 30 Phải 30"],
-        ["2", "nếu — Phía trước có vật trong vòng 25 cm?"],
-        ["3", "thì — Dừng"]
+        [
+          "1",
+          "Chạy với vận tốc Trái 30 Phải 30"
+        ],
+        [
+          "2",
+          "nếu — Phía trước có vật trong vòng 25 cm?"
+        ],
+        [
+          "3",
+          "thì — Dừng"
+        ]
       ],
-      "code": "if (Leanbot.objectInFront(25)) { LbMotion.stop(); }",
+      "code": "if (Leanbot.pingCm() <= 25) { LbMotion.stopAndWait(); }",
       "check": "Con cho robot dừng trước hộp giấy"
     },
     {
       "part": "Nếu và lặp khi",
       "title": "Chương trình 2: lùi tới khi trống",
       "steps": [
-        ["1", "lặp khi — Khoảng cách phía trước ≤ 30"],
-        ["2", "thì — Chạy với vận tốc Trái −30 Phải −30"],
-        ["3", "Dừng"]
+        [
+          "1",
+          "lặp khi — Khoảng cách phía trước ≤ 30"
+        ],
+        [
+          "2",
+          "thì — Chạy với vận tốc Trái −30 Phải −30"
+        ],
+        [
+          "3",
+          "Dừng"
+        ]
       ],
       "warn": "Khối Dừng nằm NGOÀI vòng lặp, thẳng hàng với khối lặp khi. Để trong là robot dừng hoài."
     },
@@ -153,18 +223,33 @@
         "Trái −30 Phải −30 là lùi, y như Bài 1.",
         "Robot còn gần thì còn lùi. Hơn 30 cm là nó thôi."
       ],
-      "code": "while (Leanbot.ping() <= 30) { ... }",
+      "code": "while (Leanbot.pingCm() <= 30) { ... }",
       "check": "Con cho robot lùi ra xa tường"
     },
     {
       "part": "Nếu và lặp khi",
       "title": "Ghép cả hai thành robot biết tránh",
       "steps": [
-        ["1", "lặp mãi"],
-        ["2", "Chạy tới"],
-        ["3", "nếu vật ≤ 25 cm thì Dừng"],
-        ["4", "rồi lùi tới khi trống hơn 30 cm"],
-        ["5", "Dừng, và vòng lặp lại từ đầu"]
+        [
+          "1",
+          "lặp mãi"
+        ],
+        [
+          "2",
+          "Chạy tới"
+        ],
+        [
+          "3",
+          "nếu vật ≤ 25 cm thì Dừng"
+        ],
+        [
+          "4",
+          "rồi lùi tới khi trống hơn 30 cm"
+        ],
+        [
+          "5",
+          "Dừng, và vòng lặp lại từ đầu"
+        ]
       ],
       "note": "Phải bọc trong lặp mãi thì robot mới kiểm tra liên tục. Đó chính là luật số 4.",
       "check": "Robot của con tự tránh được vật cản"
@@ -186,9 +271,18 @@
       "part": "Thử sức",
       "title": "Robot lùi mãi không dừng",
       "steps": [
-        ["1", "Đọc lại con số: gõ 3 thay vì 30 chưa?"],
-        ["2", "Xem khối Dừng có nằm ngoài vòng lặp không"],
-        ["3", "Kiểm hai dây của mắt thần có cắm chắc không"]
+        [
+          "1",
+          "Đọc lại con số: gõ 3 thay vì 30 chưa?"
+        ],
+        [
+          "2",
+          "Xem khối Dừng có nằm ngoài vòng lặp không"
+        ],
+        [
+          "3",
+          "Kiểm hai dây của mắt thần có cắm chắc không"
+        ]
       ],
       "note": "Mắt thần lỏng dây thì nó báo số lung tung, robot làm gì cũng vô lý."
     },
@@ -217,7 +311,12 @@
     },
     {
       "q": "Chương trình dừng ở 25 cm. Vật đứng cách đúng 25 cm. Robot làm gì?",
-      "options": ["Dừng", "Đi tiếp", "Lùi", "Quay đầu"],
+      "options": [
+        "Dừng",
+        "Đi tiếp",
+        "Lùi",
+        "Quay đầu"
+      ],
       "correct": 0,
       "explain": "25 cm là 'bằng hoặc gần hơn' nên vẫn tính. Robot dừng."
     },

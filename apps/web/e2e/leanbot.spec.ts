@@ -1,11 +1,13 @@
 import { expect, test } from '@playwright/test';
-import { signInTestProfile } from './helpers';
+import { signInTestProfile, unlockLeanbotCourse } from './helpers';
 
 // Two courses, one account (ADR-0028): the hub, the Leanbot lesson list, and one lesson from
 // its goals page through a screen to the quiz.
 
 test.beforeEach(async ({ page }) => {
   await signInTestProfile(page);
+  // Lesson 0 gates the rest of the course; the gate has its own test below.
+  await unlockLeanbotCourse(page);
 });
 
 test('the hub offers both courses and leads into each', async ({ page }) => {
@@ -43,7 +45,7 @@ test('a lesson runs from its goals to the quiz and scores it', async ({ page }) 
   await page.goto('/leanbot/bai-00/0');
 
   // The page counter names the whole lesson, so the flow below cannot silently skip pages.
-  await expect(page.getByText('1 / 21')).toBeVisible();
+  await expect(page.getByText('1 / 31')).toBeVisible();
 
   await page.getByRole('button', { name: 'Tiếp →' }).click();
   await expect(page).toHaveURL(/\/leanbot\/bai-00\/1$/);
@@ -60,6 +62,12 @@ test('a lesson runs from its goals to the quiz and scores it', async ({ page }) 
   await expect(page.getByText('Để NẠP CODE')).toBeVisible();
   await expect(page.getByText('Chỉ để SẠC')).toBeVisible();
 
+  // beforeEach seeds every tick, so clear this one to watch it go from empty to set.
+  await page.evaluate(() => {
+    localStorage.removeItem('cq.leanbot.check.bai-00.6');
+  });
+  await page.reload();
+
   const tick = page.getByRole('button', { name: /Con chỉ đúng hai cổng rồi/ });
   await expect(tick).toHaveAttribute('aria-pressed', 'false');
   await tick.click();
@@ -72,7 +80,7 @@ test('a lesson runs from its goals to the quiz and scores it', async ({ page }) 
   );
 
   // The quiz marks a right answer and explains it.
-  await page.goto('/leanbot/bai-00/20');
+  await page.goto('/leanbot/bai-00/30');
   await expect(page.getByRole('heading', { name: 'Con nhớ được bao nhiêu?' })).toBeVisible();
   await page.getByRole('button', { name: /Cắm vào cổng nào\?/ }).click();
   await expect(page.getByText(/hai cổng USB sát nhau/)).toBeVisible();
@@ -150,4 +158,29 @@ test('lessons 2 and 3 open from the list and score their quizzes', async ({ page
   await page.goto('/leanbot/bai-03/19');
   await page.getByRole('button', { name: /giật tới lui như yo-yo/ }).click();
   await expect(page.getByText(/5 cm chênh là vùng đệm/)).toBeVisible();
+});
+
+// The gate (lesson 0 is the setup lesson): until its tick boxes are all set, the later lessons
+// are listed but not openable, by click or by URL.
+test('lesson 0 gates the rest of the course until its boxes are ticked', async ({ page }) => {
+  await page.evaluate(() => {
+    for (let i = 0; i < 40; i++) localStorage.removeItem(`cq.leanbot.check.bai-00.${String(i)}`);
+  });
+  await page.goto('/leanbot');
+
+  await expect(page.getByText(/Bài 0 còn \d+ ô chưa tích/)).toBeVisible();
+  await expect(page.getByRole('link', { name: /Làm quen và kiểm tra Leanbot/ })).toBeVisible();
+  await expect(page.getByRole('link', { name: /Cùng di chuyển/ })).toHaveCount(0);
+  await expect(page.getByText('Xong Bài 0 đã nhé!').first()).toBeVisible();
+
+  // A hand-typed URL is refused too, and offers the way back to lesson 0.
+  await page.goto('/leanbot/bai-01/4');
+  await expect(page.getByRole('button', { name: 'Về Bài 0' })).toBeVisible();
+
+  // Ticking the lot opens everything.
+  await unlockLeanbotCourse(page);
+  await page.goto('/leanbot');
+  await expect(page.getByText('Bài 0 xong! Đủ 9 ô.')).toBeVisible();
+  await page.getByRole('link', { name: /Cùng di chuyển/ }).click();
+  await expect(page).toHaveURL(/\/leanbot\/bai-01\/0$/);
 });

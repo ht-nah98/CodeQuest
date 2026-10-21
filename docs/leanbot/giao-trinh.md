@@ -94,7 +94,7 @@ Mỗi bài dạy theo **ba lớp**, bé thấy cùng một việc ở ba dạng:
 ```
 ┌─ Khối tiếng Việt ─────────┐   ┌─ Code C++ sinh ra ───────────┐
 │ Tay gắp: Đóng             │ → │ LbGripper.close();           │
-│ Chờ 1 giây                │ → │ Leanbot.delay(1.0);          │
+│ Chờ 1 giây                │ → │ LbDelay(1000);               │
 └───────────────────────────┘   └──────────────────────────────┘
                   ↓ bé tự đọc lại bằng nhãn gốc
          ┌─ Khối tiếng Anh trên Plearn ─┐
@@ -195,16 +195,16 @@ Bảng đầy đủ Anh → Việt nằm trong [`../../tools/lbeditor-vi/leanbot
 | `LbMotion.run` | Motion: Run with velocity Left ? Right ? | Di chuyển: Chạy với vận tốc Trái ? Phải ? |
 | `LbMotion.waitDistanceMm` | Motion: Keep running for ? cm | Di chuyển: Chạy đoạn đường ? cm |
 | `LbMotion.waitRotationDeg` | Motion: Keep turning for ? degrees | Di chuyển: Rẽ góc ? độ |
-| `LbMotion.stop` | Motion: Stop | Di chuyển: Dừng |
+| `LbMotion.stopAndWait` | Motion: Stop | Di chuyển: Dừng |
 | `LbGripper.open` / `close` | Gripper: Open / Close | Tay gắp: Mở / Đóng |
 | `LbGripper.moveTo` | Gripper: Rotate to ? degrees | Tay gắp: Xoay tới góc ? độ |
 | `Leanbot.ping` | Ping: Front distance in cm | Đo xa: Khoảng cách phía trước, tính bằng cm |
-| `Leanbot.objectInFront` | Ping: Object in front is within ? cm ? | Đo xa: Phía trước có vật trong vòng ? cm ? |
+| `Leanbot.pingCm() <= ?` | Ping: Object in front is within ? cm ? | Đo xa: Phía trước có vật trong vòng ? cm ? |
 | `LbIRLine.doManualCalibration` | IRLine: Do manual calibration with ? button | Cảm biến vạch: Cân chỉnh bằng nút ? |
 | `LbIRLine.read` | IRLine: Read sensors | Cảm biến vạch: Đọc cảm biến |
 | `LbIRLine.value` | IRLine: Sensor values (2L, 0L, 1R, 3R) | Cảm biến vạch: Giá trị 4 mắt (2T, 0T, 1P, 3P) |
 | `LbIRLine.isBlackDetected` | IRLine: Black is detected ? | Cảm biến vạch: Có thấy màu đen? |
-| `LbTouch.waitUntil` | Touch: wait until ? touched | Nút chạm: Chờ tới khi ? được chạm |
+| `LbTouch.read(TB1A)` | Touch: wait until ? touched | Nút chạm: Chờ tới khi ? được chạm (thư viện **không có** `waitUntil`) |
 | `LbMission.beginByTeacher_end` | Mission: Begin when ? combo touched | Nhiệm vụ: Bắt đầu khi chạm cùng lúc ? |
 | `LbMission.end` | Mission: End | Nhiệm vụ: Kết thúc |
 
