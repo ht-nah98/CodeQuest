@@ -17,6 +17,8 @@ Nếu hai tài liệu nói khác nhau, **tài liệu ở cột "Nguồn chuẩn"
 | Lý do gốc của các quyết định sản phẩm (bản kế hoạch đầu tiên; **không** thắng khi mâu thuẫn với tài liệu chuyên đề) | `product/master-plan.md` |
 | Chương trình học: 10 thế giới, khái niệm, số màn | `product/curriculum.md` |
 | Đặc tả từng kiểu game | `product/game-kinds.md` |
+| Khóa Leanbot AIROC tiếng Việt: giáo trình, thuật ngữ Anh ↔ Việt, lộ trình, ôn luyện | `product/leanbot-airoc-vi.md` (giáo án từng bài: `product/leanbot-airoc/`) |
+| Thông tin cuộc thi AIROC 2026 | `product/airoc-2026.md` |
 | Sao, coin, giá gợi ý, huy hiệu, mở khóa | `product/rewards-economy.md` |
 | Phong cách hình ảnh, màu, font, sprite | `design/art-direction.md` |
 | Danh sách màn hình, luồng, trạng thái UI | `design/screens-and-flows.md` |
@@ -49,7 +51,10 @@ docs/
 │  ├─ master-plan.md         kế hoạch tổng (bản gốc, chi tiết lý do)
 │  ├─ curriculum.md
 │  ├─ game-kinds.md
-│  └─ rewards-economy.md
+│  ├─ rewards-economy.md
+│  ├─ airoc-2026.md          cuộc thi AIROC 2026
+│  ├─ leanbot-airoc-vi.md    khóa Leanbot tiếng Việt (bám khóa gốc của Pythaverse)
+│  └─ leanbot-airoc/         giáo án + phiếu ôn luyện 16 bài
 ├─ design/                   TRÔNG & NÓI NHƯ THẾ NÀO
 │  ├─ art-direction.md
 │  ├─ screens-and-flows.md
