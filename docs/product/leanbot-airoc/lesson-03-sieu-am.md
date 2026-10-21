@@ -163,30 +163,39 @@ Khối "Lặp mãi" (Repeat Forever) chỉ được nhắc ở slide Growth 03, 
 ## Phiếu ôn luyện
 
 **1. Đọc đoán kết quả (dễ).** Chương trình: `nếu` Phía trước có vật trong vòng 25 cm thì Dừng. Robot đang chạy tới. Vật đứng cách 10 cm, 25 cm, 40 cm. Robot dừng hay đi tiếp ở từng trường hợp?
+
 **Đáp án:** 10 cm: dừng. 25 cm: dừng (25 cm là "hoặc gần hơn" nên tính). 40 cm: đi tiếp.
 
 **2. Đọc đoán kết quả.** Chương trình 2 (lặp khi khoảng cách ≤ 30 thì lùi, rồi Dừng). Robot đang cách tường 12 cm. Robot làm gì và dừng khi nào? Nếu robot đang cách tường 40 cm thì sao?
+
 **Đáp án:** Cách 12 cm: 12 ≤ 30 nên robot lùi, lùi tới khi khoảng cách hơn 30 cm thì thoát vòng lặp và Dừng. Cách 40 cm: 40 không ≤ 30 nên vòng lặp không chạy, robot **không lùi**, chỉ Dừng.
 
 **3. Tìm lỗi (a).** Bé ghép: `nếu` Phía trước có vật trong vòng 25 cm thì Dừng, nhưng khối `nếu` nằm ngay dưới khối Chạy, **không nằm trong vòng lặp**. Robot đâm vào vật. Sai ở đâu, sửa thế nào?
+
 **Đáp án:** Khối `nếu` chỉ hỏi một lần lúc mới bắt đầu, lúc đó chưa có vật gần nên không dừng. Sửa: đặt `nếu` vào **trong vòng lặp** (lặp mãi) để robot hỏi liên tục.
 
 **4. Tìm lỗi (b).** Bé muốn "lùi tới khi hơn 30 cm" nhưng gõ nhầm số, viết lặp khi khoảng cách ≤ **3**. Robot đang cách tường 12 cm. Chuyện gì xảy ra? Sửa thế nào?
+
 **Đáp án:** 12 không ≤ 3 nên vòng lặp không chạy, robot đứng yên, không lùi. Sửa: thay 3 bằng 30 (thiếu một số 0).
 
 **5. Sắp thứ tự.** Có 4 khối xáo trộn: (A) Di chuyển: Dừng. (B) Chạy với vận tốc Trái -30 Phải -30. (C) lặp khi khoảng cách ≤ 30. (D) Leanbot bắt đầu hoạt động. Xếp lại cho robot lùi tới khi trống rồi dừng.
+
 **Đáp án:** D, C, B, A. B nằm **bên trong** C. A nằm **sau** C, ngoài vòng lặp.
 
 **6. Điền số (a).** Điền số vào chỗ trống để robot dừng khi vật cách 15 cm hoặc gần hơn: `nếu` Phía trước có vật trong vòng __ cm thì Dừng. Rồi làm lại cho 20 cm.
+
 **Đáp án:** 15, và 20. Chỉ đổi con số trong khối `Đo xa: Phía trước có vật trong vòng ? cm ?`.
 
 **7. Điền số (b).** Điền số để robot lùi tới khi vật hoặc tường xa hơn 60 cm: lặp khi khoảng cách ≤ __ thì Chạy Trái __ Phải __.
+
 **Đáp án:** 60. Hai tốc độ là số âm, ví dụ -30 và -30. Vì: còn ≤ 60 thì còn lùi, hơn 60 thì thoát vòng lặp.
 
 **8. Điền số (c) và giải thích.** Chương trình đầy đủ dùng hai ngưỡng: dừng khi vật ≤ __ cm, coi là trống khi hơn __ cm. Vì sao hai số khác nhau?
+
 **Đáp án:** 25 và 30. Nếu cùng một số, robot lùi tới vừa quá số đó là tiến lại ngay, rồi dừng, rồi lùi: giật tới lui như yo-yo. Chênh 5 cm tạo vùng đệm an toàn.
 
 **9. Dịch nhãn.** Dịch sang tiếng Việt: (a) `Ping: Front distance in cm`. (b) `Ping: Object in front is within 25 cm distance ?`. (c) `Motion: Stop`. (d) `Motion: Run with velocity Left -30 Right -30 rpm`. (e) `When Leanbot started`.
+
 **Đáp án:** (a) Đo xa: Khoảng cách phía trước, tính bằng cm. (b) Đo xa: Phía trước có vật trong vòng 25 cm ? (c) Di chuyển: Dừng. (d) Di chuyển: Chạy với vận tốc Trái -30 Phải -30. (e) Leanbot bắt đầu hoạt động.
 
 **10. Làm trên máy.** Ghép khối sao cho trình soạn sinh ra đoạn code này, rồi nói robot sẽ làm gì:
@@ -196,6 +205,7 @@ if (Leanbot.objectInFront(25)) {
   LbMotion.stop();
 }
 ```
+
 **Đáp án:** Khối `Chạy với vận tốc Trái 30 Phải 30`, rồi khối `nếu` có điều kiện `Phía trước có vật trong vòng 25 cm ?`, bên trong là khối `Dừng`. Robot chạy tới, nếu **ngay lúc kiểm tra** vật ở ≤ 25 cm thì dừng. Chỉ kiểm tra một lần. (Lưu ý: dạng code này cần đối chiếu với trình soạn thật, xem phần Chương trình mẫu.)
 
 ## Câu hỏi kiểm tra của khóa gốc (dịch)

@@ -302,6 +302,7 @@ Hàng "Thế hệ mai sau" bị cắt đáy ảnh trên slide, nhưng cả ba ô
 **Đề:** Nối nhãn tiếng Anh với tiếng Việt.
 a) `forever` b) `when green flag clicked` c) `go to (left shoulder)` d) `when (smile) detected` e) `say (Yay!)`
 1) Khi thấy cười 2) Nói "Yay!" 3) Lặp mãi mãi 4) Đi tới vai trái 5) Khi bấm cờ xanh
+
 **Đáp án:** a-3, b-5, c-4, d-1, e-2.
 
 **Bài 2. Đọc đoán kết quả**
@@ -313,6 +314,7 @@ forever
     go to (thumb) (tip)
 ```
 Bé giơ ngón cái lên rồi di chuyển bàn tay sang phải.
+
 **Đáp án:** Nhân vật nói "That's a thumbs up from me!" **một lần**, rồi cứ bám theo đầu ngón cái. Bàn tay sang phải thì nhân vật cũng sang phải, vì khối `go to` nằm trong `forever` nên lặp mãi.
 
 **Bài 3. Đọc đoán kết quả**
@@ -326,6 +328,7 @@ when (eyebrow furrow) detected
 switch costume to (angry)
 say (Grrrr...)
 ```
+
 **Đáp án:** Cười: nhân vật đổi sang hình "ecstatic" và nói "Yay!". Nhíu mày: đổi sang hình "angry" và nói "Grrrr...".
 
 **Bài 4. Tìm lỗi**
@@ -335,27 +338,33 @@ when [green flag] clicked
 go to (left shoulder)
 ```
 Sai ở đâu? Sửa thế nào?
+
 **Đáp án:** Thiếu `forever`. Khối `go to` chỉ chạy một lần. Sửa: đặt `go to (left shoulder)` vào trong `forever`.
 
 **Bài 5. Tìm lỗi**
 **Đề:** Bé tự dạy mô hình trên Máy học được dạy, ghép chương trình có khối `if <prediction is (Class 1)>` nhưng máy không phản ứng gì. Bé có thể đã quên hai việc với khối `use model`. Nêu cả hai.
+
 **Đáp án:** (1) Chưa dán địa chỉ mô hình vào khối `use model`. (2) Chưa bấm vào khối đó để tải mô hình. Slide ghi: "Put the link to your model in this block and click it!" Sau khi mô hình tải xong, còn phải chọn nhóm (class) mình muốn nhân vật phản ứng.
 
 **Bài 6. Sắp thứ tự**
 **Đề:** Sắp 4 bước làm mô hình riêng cho đúng thứ tự:
 (A) Xuất mô hình sang Scratch (B) Làm cho nó làm việc gì đó vui (C) Mở trang `teachablemachine.withgoogle.com/train` (D) Huấn luyện mô hình ảnh hoặc dáng
+
 **Đáp án:** C → D → A → B.
 
 **Bài 7. Điền số**
 **Đề:** a) Trò Snake Game điều khiển rắn bằng mô hình tự dạy. Cần huấn luyện bao nhiêu nhóm? Là những nhóm nào? b) Chương trình `Lặp mãi mãi: Lướt 1 giây tới vị trí ngẫu nhiên` chạy 10 giây thì nhân vật lướt bao nhiêu lần?
+
 **Đáp án:** a) **4** nhóm: lên, xuống, trái, phải (vì rắn đi được 4 hướng). b) **10** lần, vì mỗi lần lướt mất 1 giây.
 
 **Bài 8. Đọc bảng "Ai vui, ai lo?"**
 **Đề:** Nhìn bảng máy phát hiện tay chạm mặt ở trên. Hàng nào có cả ba ô đều "quan tâm nhiều"? Vì sao bố mẹ lại quan tâm cả ba điều?
+
 **Đáp án:** Hàng **Bố mẹ** và hàng **Thầy cô**. Gợi ý cho "vì sao": bố mẹ muốn con khỏe, cần đi làm được, và cũng không muốn tự bị ốm. (Bé nói lý do của mình cũng được, miễn hợp lý.)
 
 **Bài 9. Làm trên máy** (khó)
 **Đề:** Trong Scratch có Body Sensing, ghép chương trình để nhân vật nói "Hi friend!" một lần rồi đứng đúng vai trái của bé suốt lúc chạy. Viết lại chương trình bằng chữ để thầy kiểm.
+
 **Đáp án (một cách đúng):**
 ```
 when [green flag] clicked
@@ -367,6 +376,7 @@ Kiểm trên máy: bấm cờ xanh, bé di chuyển, nhân vật phải đi theo
 
 **Bài 10. Nghĩ thêm** (mở)
 **Đề:** Nghĩ một máy AI trong đời sống (cái cửa tự mở, camera ở cổng trường, loa nghe lệnh...). Vẽ bảng "Ai vui, ai lo?" cho nó: ít nhất 2 hàng người, 2 cột điều quan tâm.
+
 **Đáp án:** Không có đáp án duy nhất. Đạt khi: hàng là **người** thật sự bị ảnh hưởng, cột là **điều họ quan tâm**, và bé giải thích được một ô.
 
 ## Câu hỏi kiểm tra của khóa gốc (dịch)

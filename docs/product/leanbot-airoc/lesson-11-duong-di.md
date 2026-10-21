@@ -259,32 +259,39 @@ Di chuyển: Dừng
 
 **Bài 1 — Đọc đoán kết quả (dễ).**
 **Đề:** Chương trình: Chạy Trái 30 Phải 30 vòng/phút → Chạy đoạn đường 10 cm → Dừng. Robot làm gì?
+
 **Đáp án:** Robot đi thẳng 10 cm rồi dừng. Không rẽ, không lùi.
 
 **Bài 2 — Đọc đoán kết quả (vừa).**
 **Đề:** Chương trình: Chạy 2000/2000 bước/giây → Chạy đoạn đường 20 cm → Dừng → Chạy −2000/−2000 bước/giây → Chạy đoạn đường 20 cm → Dừng. Robot dừng ở đâu? Tổng cộng nó đi bao nhiêu cm?
+
 **Đáp án:** Robot **về đúng chỗ xuất phát**. Tổng quãng đường đi là 20 + 20 = 40 cm, nhưng chỗ dừng cách chỗ đầu 0 cm.
 
 **Bài 3 — Tìm lỗi (dễ).**
 **Đề:** Con muốn robot tiến 4.2 cm, chờ, rồi **lùi** 4.2 cm. Chương trình con viết: Chạy 30/30 → Chạy đoạn đường 4.2 cm → Dừng → Chờ 1.25 giây → Chạy **30/30** → Chạy đoạn đường 4.2 cm → Dừng. Robot dừng ở đâu? Sai ở đâu? Sửa thế nào?
+
 **Đáp án:** Robot đi tiến hai lần, dừng cách chỗ đầu 8.4 cm. Sai ở khối "Chạy" thứ hai: hai số vẫn dương. Muốn lùi thì hai số phải âm. Sửa thành Trái **−30** Phải **−30**.
 
 **Bài 4 — Tìm lỗi (vừa).**
 **Đề:** Một bạn muốn robot chạy nhanh nhất có thể và viết "Chạy với vận tốc Trái 60 Phải 60 vòng/phút". Số 60 có vấn đề gì? Sửa thế nào?
+
 **Đáp án:** Khoảng tốc độ chỉ từ −59 đến 59 vòng/phút. 60 vượt giới hạn. Máy sẽ báo lỗi hay tự cắt về 59 thì chưa biết (slide không nói), nên chọn số không quá 59. Sửa thành 59 hoặc nhỏ hơn.
 
 **Bài 5 — Sắp thứ tự (vừa).**
 **Đề:** Sắp lại các khối để robot **tiến 4.2 cm, chờ, rồi lùi về chỗ cũ**:
 (a) Chờ 1.25 giây · (b) Nhiệm vụ: Kết thúc · (c) Dừng · (d) Chạy đoạn đường 4.2 cm · (e) Chạy Trái 30 Phải 30 vòng/phút · (f) Nhiệm vụ: Bắt đầu trên Bản Sao Số "SynapseCity.01" · (g) Chạy Trái −30 Phải −30 vòng/phút · (h) Chạy đoạn đường 4.2 cm · (i) Dừng
 (Khối "Leanbot bắt đầu hoạt động" đã nằm sẵn trên cùng.)
+
 **Đáp án:** f → e → d → c → a → g → h → i → b. (Khối nào ghi "Chạy" cũng phải đi đôi với khối "Chạy đoạn đường" ngay sau nó, rồi mới "Dừng".)
 
 **Bài 6 — Điền số (vừa).**
 **Đề:** (a) Muốn rẽ một góc vuông, điền vào "Rẽ góc ? độ". (b) "Chờ 1.25 giây" là bao nhiêu mili-giây? (c) Khối ghi 20 cm thì chữ Python ghi `waitDistanceMm(20 * ?)`. (d) Chương trình đi 4.2 cm rồi rẽ 90 độ rồi đi 20 cm. Con đổi **chỉ** số 20 thành 30. Robot dừng xa hơn bao nhiêu cm, theo hướng nào?
+
 **Đáp án:** (a) **90** (góc vuông). (b) **1250** (1000 mili-giây là 1 giây, nên 1.25 × 1000). (c) **10** (1 cm = 10 mm). (d) Xa hơn **10 cm**, theo hướng robot đang quay mặt sau cú rẽ. Vì ta chỉ đổi đoạn cuối, hai đoạn đầu không đổi.
 
 **Bài 7 — Dịch nhãn (dễ).**
 **Đề:** Dịch sang tiếng Việt: (a) Motion: Stop (b) Motion: Keep running for 20 cm (c) Motion: Keep turning for 90 degrees (d) Wait for 1.25 seconds (e) Comment. Rồi dịch ngược: (f) Nhiệm vụ: Kết thúc (g) Di chuyển: Chạy với vận tốc Trái ? Phải ?
+
 **Đáp án:** (a) Di chuyển: Dừng (b) Di chuyển: Chạy đoạn đường 20 cm (c) Di chuyển: Rẽ góc 90 độ (d) Chờ 1.25 giây (e) Ghi chú (f) Mission: End (g) Motion: Run with velocity Left ? Right ?
 
 **Bài 8 — Làm trên máy (khó).**
@@ -303,6 +310,7 @@ LbMotion.waitDistanceMm(20 * 10)
 LbMotion.stopAndWait()
 LbMission.end()
 ```
+
 **Đáp án:** Chương trình ở mục "Chương trình mẫu", ví dụ 1: chọn tên `msNumberGrid` trong danh sách, hai khối "Chạy với vận tốc" (2000/2000 rồi −2000/−2000, đơn vị bước/giây), mỗi khối kèm "Chạy đoạn đường 20 cm" và "Dừng". Cột code giống từng dòng thì đúng.
 
 ## Câu hỏi kiểm tra của khóa gốc (dịch)

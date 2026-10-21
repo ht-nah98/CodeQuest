@@ -271,18 +271,22 @@ Bước thêm theo đúng lời slide: chờ 1 giây sau khi gắp, lùi sau khi
 
 **1. Dịch nhãn (dễ).**
 Đề: Dịch sang tiếng Việt: (a) `Gripper: Open` (b) `Gripper: Close` (c) `Gripper: Rotate to ? degrees` (d) Neutralizer (e) Containment area. Dịch ngược sang tiếng Anh: (f) "Kho trung hòa S1–S6".
+
 **Đáp án:** (a) Tay gắp: Mở (b) Tay gắp: Đóng (c) Tay gắp: Xoay tới góc ? độ (d) Khối trung hòa (e) Khu cách ly (f) Neutralizer storage S1–S6.
 
 **2. Đọc đoán kết quả: tay gắp (dễ).**
 Đề: Chương trình chạy `LbGripper.moveTo(50);` rồi `Forward(2000, 100);` rồi `LbGripper.open();`. Tay gắp làm gì ở từng dòng? Khối trung hòa nằm ở đâu lúc kết thúc?
+
 **Đáp án:** Dòng 1: servo xoay tới 50 độ, kẹp khối. Dòng 2: robot tiến 100 mm, tay gắp vẫn giữ khối. Dòng 3: tay gắp mở, khối được thả tại chỗ robot vừa tới (trong chương trình mẫu là khu cách ly E).
 
 **3. Đọc đoán kết quả: đúng màu (dễ).**
 Đề: Khu cách ly E đã có một khối ô nhiễm **xanh dương**. Ở kho, S1 có khối trung hòa xanh lá, S5 có khối trung hòa xanh dương. Lấy khối ở ô nào? Nếu mang cả hai vào ô E thì được mấy điểm? (Giả sử Nhiệm vụ 1 đã khoanh vùng thành công và cả hai chạm khu cách ly.)
+
 **Đáp án:** Lấy khối ở **S5** (cùng màu xanh dương). Khối xanh lá sai màu nên không được điểm. Một cặp đúng màu được **160 điểm**.
 
 **4. Sắp thứ tự (vừa).**
 Đề: Xếp lại chuỗi nhặt khối cho đúng: (a) Đóng tay gắp (b) Chờ 1 giây (c) Tiến chậm tới sát khối (d) Mở tay gắp.
+
 **Đáp án:** d, c, a, b: Mở tay gắp, tiến chậm, đóng tay gắp, chờ 1 giây. Chờ 1 giây để ma sát giữ chặt khối trước khi robot đi.
 
 **5. Điền số (vừa).**
@@ -294,10 +298,12 @@ followLineMultipleJunctions(___);
 goToJunction();
 LbGripper.moveTo(___);
 ```
+
 **Đáp án:** 110; 108; 2; 50. Đây là các số của chương trình mẫu, chạy đúng với sa bàn và robot của slide. Robot của bé có thể cần số khác: đặc biệt góc kẹp 50 độ phải thử lại cho từng robot.
 
 **6. Đọc đoán kết quả: chặng đầu (vừa).**
 Đề: Đọc `Forward(2000, 110); Rotate((-2000), 108); followLineMultipleJunctions(2); goToJunction();`. Theo dòng chú thích của chương trình thì robot đi tới đâu? Dòng nào ngay sau đó, và nó làm gì?
+
 **Đáp án:** Chú thích ghi "Follow line to S3": robot đi tới **S3**. Dòng ngay sau là `LbGripper.moveTo(50)`: tay gắp xoay tới 50 độ để kẹp khối ở S3.
 
 **7. Tìm lỗi: thiếu chờ (vừa).**
@@ -307,6 +313,7 @@ LbGripper.moveTo(50);
 Rotate(2000, 60);
 ```
 Sai ở đâu? Sửa thế nào? Vì sao?
+
 **Đáp án:** Thiếu bước **chờ 1 giây** sau khi đóng tay gắp, thêm `Leanbot.delay(1.0);` giữa hai dòng. Lý do (theo slide): chờ cho ma sát ổn định, khối được giữ chặt rồi mới đi. Chương trình mẫu chính thức cũng không có bước này; bé là người thêm vào. Nếu vẫn tuột thì thử đổi góc kẹp.
 
 **8. Tìm lỗi: thả rồi rẽ liền (khó).**
@@ -316,6 +323,7 @@ LbGripper.open();
 Rotate(2000, 60);
 ```
 Sai ở đâu? Sửa thế nào?
+
 **Đáp án:** Robot còn sát khối nên khi rẽ, thân hoặc tay gắp gạt vào khối. Thêm một đoạn **lùi ngắn** trước khi rẽ, ví dụ `Backward(1000, 50);` (50 mm là số để bé thử, slide chỉ nói "một đoạn ngắn"). Lý do trong bài kiểm tra: lùi để không đụng khối khi rẽ.
 
 **9. Làm trên máy (vừa).**
@@ -325,10 +333,12 @@ LbGripper.open();
 LbGripper.close();
 Leanbot.delay(1.0);
 ```
+
 **Đáp án:** Ba khối nối nhau: "Tay gắp: Mở", "Tay gắp: Đóng", rồi khối chờ 1 giây. (Đoạn code mẫu `LbGripper.close(); Leanbot.delay(1.0);` lấy từ giáo trình tổng §4; thầy kiểm tên khối chờ trong thanh khối của bản vá trước khi giao bài.) Chạy trên robot thật, góc đóng của khối này khác góc 50 của chương trình mẫu, nên để bé quan sát chỗ khác nhau.
 
 **10. Điền số: tính điểm cả lượt (khó).**
 Đề: Một lượt: khoanh vùng 1 khối ô nhiễm, trung hòa đúng màu 1 cặp, không có khối phân tích, robot dừng với cả hai bánh nằm trong CRL. Tổng bao nhiêu điểm? Nếu trung hòa **sai màu** thì sao?
+
 **Đáp án:** 45 + 160 + 0 + 40 = **245 điểm**. Nếu sai màu thì không tính cặp trung hòa: 45 + 0 + 0 + 40 = **85 điểm**.
 
 Phiếu có đủ sáu dạng: đọc đoán (2, 3, 6), tìm lỗi (7, 8), sắp thứ tự (4), điền số (5, 10), dịch nhãn (1), làm trên máy (9).

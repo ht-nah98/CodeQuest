@@ -9,7 +9,7 @@ mẫu kèm code, phiếu ôn luyện có đáp án, và chỗ bé hay vướng.
 
 | Bài | Tên | Dạy gì | Bài ôn luyện |
 |---|---|---|---|
-| **0** | [**Bắt đầu: dùng Leanbot thế nào**](lesson-00-bat-dau.md) | 5 địa chỉ Pythaverse, sạc, bật, ghép Bluetooth, nạp code 6 bước, trình ghép khối, bẫy trên Linux — **có ảnh chụp màn hình** | 8 |
+| **0** | [**Làm quen và kiểm tra Leanbot**](lesson-00-bat-dau.md) | Phần cứng, hai cổng USB, sạc, giữ gìn, chương trình kiểm tra 8 lệnh, hiệu chỉnh, nạp code — **có ảnh** | 8 |
 | 1 | [Chào Leanbot! Cùng di chuyển](lesson-01-di-chuyen.md) | Thứ tự các bước, tiến/lùi theo cm, quay tại chỗ theo độ, số âm | 10 |
 | 2 | [Cánh tay kẹp thần kỳ](lesson-02-tay-gap.md) | Servo, góc 0° mở / 90° đóng, chuỗi gắp–chở–thả | 8 |
 | 3 | [Mắt thần siêu âm](lesson-03-sieu-am.md) | Đo khoảng cách, `nếu`, `lặp khi`, hai ngưỡng 25/30 cm | 10 |

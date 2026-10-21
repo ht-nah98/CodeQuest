@@ -201,33 +201,43 @@ Ngưỡng và tỉ lệ đúng cần đạt:
 ## Phiếu ôn luyện
 
 **1. Dịch nhãn.** Nối: Background Noise, Class, False Positive, False Negative, Confusion Matrix, Data Balance.
+
 **Đáp án:** Tiếng nền; nhóm âm; báo nhầm; bỏ sót; bảng nhầm lẫn; cân bằng dữ liệu.
 
 **2. Điền số.** Hoàn thành bảng mẫu cho mô hình cuối: Tiếng nền ___, Vỗ tay ___, Búng tay ___, Gõ bàn ___. Vì sao bốn số gần nhau?
+
 **Đáp án:** 20, 30, 35, 35 (theo buổi C; buổi B ghi Búng tay 40). Gần nhau để máy không thiên vị nhóm nhiều mẫu nhất, tức là cân bằng dữ liệu.
 
 **3. Sắp thứ tự.** Xếp các việc của một buổi: Dạy máy; Mở file cũ; Lưu file; Thu mẫu; Thêm nhóm mới; Chạy thử; Dọn mẫu hỏng.
+
 **Đáp án:** Mở file cũ → Thêm nhóm mới → Thu mẫu → Dọn mẫu hỏng → Dạy máy → Chạy thử → Lưu file.
 
 **4. Dọn dữ liệu (giữ hay xóa).** Sáu mẫu: tiếng cười, "xoẹt", click sắc, gió, thụp rõ, bút rơi. Mẫu nào giữ, mẫu nào xóa?
+
 **Đáp án:** Giữ: click sắc (nhóm Búng tay), thụp rõ (nhóm Gõ bàn). Xóa: tiếng cười, "xoẹt", gió, bút rơi.
 
 **5. Đọc đoán kết quả.** Con ngồi im mà thanh Clap nhấp nháy, báo "Clap". Còn một lần con búng tay, máy báo Clap. Máy làm gì, vì sao?
+
 **Đáp án:** Lần đầu là báo nhầm, có thể do tiếng nền bẩn lẫn tiếng click. Lần sau là nhầm Búng tay thành Vỗ tay: tiếng búng đục, trầm. Không phải bỏ sót, vì máy vẫn báo.
 
 **6. Tìm lỗi.** Một nhóm có Tiếng nền 20, Vỗ tay 30, Búng tay 5, Gõ bàn 100 mẫu, và sau đó vỗ tay máy hay báo Gõ. Sai ở đâu, sửa thế nào?
+
 **Đáp án:** Mất cân bằng: Búng tay thiếu (cần khoảng 35–40), Gõ bàn thừa (giảm về khoảng 35). Dạy máy lại.
 
 **7. Tìm lỗi (chọn cách sửa).** Nối lỗi với cách sửa: (a) vỗ tay mà máy nói SNAP; (b) gõ mạnh mà máy nói CLAP; (c) im lặng mà báo CLAP; (d) gõ cùng bàn laptop mà máy không nhận.
+
 **Đáp án:** (a) thu thêm kiểu vỗ đó vào nhóm CLAP; (b) gõ bằng nắm đấm, thấp hơn; (c) thu các tiếng click vào Tiếng nền; (d) nhấc laptop lên hoặc gõ nhẹ.
 
 **8. Đọc đoán kết quả (bảng nhầm lẫn).** Con làm 10 lần thử và máy đoán đúng 8 lần. Mô hình có tốt không? Nếu khóa gốc nói "xuất sắc là trên 80%" thì sao?
+
 **Đáp án:** Theo buổi B, 8/10 là tốt. Nhưng 8/10 bằng đúng 80%, không phải "trên 80%" của buổi C. Hỏi thầy, hoặc thử thêm vài lần để đạt cao hơn. Đây là một chỗ lệch của khóa gốc.
 
 **9. Làm trên máy.** Mở `Final_Audio_Model_Class5A.tm`. Làm theo thứ tự CLAP, CLAP, KNOCK, SNAP, KNOCK và chụp màn hình thanh kết quả sau mỗi tiếng. Có mấy tiếng đúng?
+
 **Đáp án:** đáp án mở. Khóa gốc đòi "trên 80% đúng"; với 5 tiếng, 4/5 chỉ bằng đúng 80%, nên cần 5/5, hoặc thử nhiều lượt rồi tính. Thầy xem bé sửa tiếng sai bằng cách nào (thu thêm mẫu, đổi cách gõ).
 
 **10. Làm trên máy (gỡ lỗi).** Thử đập bàn bằng lòng bàn tay rồi bằng nắm đấm. Máy báo gì mỗi lần?
+
 **Đáp án:** Lòng bàn tay: tiếng bổng "bốp", ra CLAP. Nắm đấm: tiếng trầm "thụp", ra KNOCK.
 
 ## Câu hỏi kiểm tra của khóa gốc (dịch)

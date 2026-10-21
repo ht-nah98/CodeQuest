@@ -119,39 +119,48 @@ Mẹo (Growth 17): chụp ảnh ở chỗ sáng, quay mặt ra cửa sổ hoặc
 
 **Bài 1. Nhìn và đoán: AI hay không phải AI?** (dễ)
 **Đề.** Trong các thứ sau, thứ nào dùng AI? Robot hút bụi / Chổi rơm / Loa thông minh / Xe đạp / Bản đồ chỉ đường / Hòn đá.
+
 **Đáp án.** Robot hút bụi, loa thông minh, bản đồ chỉ đường.
 
 **Bài 2. Nhìn dữ liệu đoán AI sẽ trả lời gì.** (dễ)
 **Đề.** Con xem rất nhiều video khủng long trên YouTube. Lần sau mở YouTube, AI sẽ gợi ý gì? Vì sao?
+
 **Đáp án.** Thêm video khủng long, vì AI nhớ con thích gì.
 
 **Bài 3. Nhìn dữ liệu đoán AI sẽ trả lời gì (khó hơn).** (vừa)
 **Đề.** Một robot chỉ được xem toàn ảnh **táo xanh**. Đưa cho nó quả táo đỏ, nó sẽ nói gì? Cần làm gì để robot nhận ra táo đỏ?
+
 **Đáp án.** Nó nói "Đây không phải táo". Phải cho nó xem thêm ảnh táo đỏ (và nhiều kiểu khác) rồi dạy lại.
 
 **Bài 4. Chọn dữ liệu tốt / xấu.** (vừa)
 **Đề.** Bốn ảnh mèo: (A) rõ nét, (B) mờ, (C) tối đen, (D) có một bạn lạ chen vào sau lưng. Ảnh nào là dữ liệu **tốt**? Mỗi ảnh còn lại hỏng vì sao?
+
 **Đáp án.** Chỉ ảnh A tốt. B hỏng vì mờ, C vì tối đen, D vì có người lạ.
 
 **Bài 5. Tìm lỗi: sửa nhãn.** (vừa)
 **Đề.** Bốn ảnh có nhãn: "mèo", "mèo", "chó", "chó". Ảnh thứ ba thực ra là ảnh mèo. Sai ở đâu? Sửa thế nào? Nếu để nguyên, AI sẽ học ra sao?
+
 **Đáp án.** Ảnh thứ ba bị gán nhãn sai. Đổi nhãn thành "mèo". Nếu để nguyên, AI học sai (học bài sai thì làm bài sai).
 
 **Bài 6. Sắp thứ tự: sửa robot bị nhầm.** (vừa)
 Xếp lại cho đúng:
 (a) Bấm TRAIN MODEL dạy lại (b) Robot đoán sai (c) Tìm thêm nhiều ảnh đúng (d) Robot đoán đúng.
+
 **Đáp án.** (b) → (c) → (a) → (d).
 
 **Bài 7. Chọn dữ liệu tốt / xấu (điền công thức).** (khó)
 **Đề.** Điền: "Ảnh ___ + Nhiều ___ + Tên ___ = AI thông minh".
+
 **Đáp án.** rõ / kiểu / đúng. Giải thích: ảnh rõ thì điểm ảnh rõ; nhiều kiểu để không thiên lệch; tên đúng để không gán nhãn sai.
 
 **Bài 8. Dịch thuật ngữ Anh–Việt.** (vừa)
 **Đề.** Nối: Data, Recommend, Blurry, Wrong Label, Diversity, Quantity, Re-Train, Pixel với: gợi ý / ảnh mờ / điểm ảnh / dạy lại / dữ liệu / đa dạng / số lượng / gán nhãn sai.
+
 **Đáp án.** Data = dữ liệu; Recommend = gợi ý; Blurry = ảnh mờ; Wrong Label = gán nhãn sai; Diversity = đa dạng; Quantity = số lượng; Re-Train = dạy lại; Pixel = điểm ảnh.
 
 **Bài 9. Làm trên máy.** (khó, bài do thầy đặt, không có trong slide)
 **Đề.** Vào Plearn, mở lại hoạt động Bài 5, làm lại 5 câu quiz và **đọc to đáp án bằng tiếng Việt**. Sau đó chọn một câu và kể cho bạn vì sao đáp án đó đúng.
+
 **Đáp án.** Bé làm đúng 5 câu theo mục "Câu hỏi kiểm tra của khóa gốc" và giải thích được bằng lời của mình.
 
 ## Câu hỏi kiểm tra của khóa gốc (dịch)

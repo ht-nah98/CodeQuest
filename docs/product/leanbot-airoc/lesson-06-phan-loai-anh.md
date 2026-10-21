@@ -136,34 +136,42 @@ Trên ảnh minh họa giao diện (Practice 02), ngoài nút Webcam và Upload 
 ## Phiếu ôn luyện
 **Bài 1. Xếp đồ vào nhà.** (dễ nhất)
 **Đề.** Xếp 6 thẻ vào hai hộp "Trái cây" và "Rau củ": táo, cà rốt, chuối, củ cải, nho, khoai tây.
+
 **Đáp án.** Trái cây: táo, chuối, nho. Rau củ: cà rốt, củ cải, khoai tây. Mỗi hộp là một "nhóm ảnh" có tên.
 
 **Bài 2. Sắp thứ tự 3 bước.**
 **Đề.** Xếp thứ tự: (a) Xem thử (b) Thu thập (c) Dạy máy. Nối mỗi bước với hình: máy ảnh, bộ não, con mắt.
+
 **Đáp án.** (b) Thu thập (máy ảnh) → (c) Dạy máy (bộ não) → (a) Xem thử (con mắt).
 
 **Bài 3. Nhìn dữ liệu đoán AI sẽ trả lời gì.**
 **Đề.** Thanh độ chắc chắn của robot hiện: "Mèo 100%", "Chó 50%", "Mèo 20%". Robot chắc chắn nhất ở thanh nào? Thanh nào là "Ừm… có thể?"
+
 **Đáp án.** Chắc nhất: "Mèo 100%". "Chó 50%" là chưa chắc.
 
 **Bài 4. Chọn dữ liệu tốt / xấu.**
 **Đề.** Nhóm DOG có 9 ảnh: 2 ảnh mờ, 1 ảnh đen thui, 1 ảnh mèo lọt vào, 5 ảnh còn lại rõ nét. Ảnh nào cần xóa?
+
 **Đáp án.** Xóa 4 ảnh (2 mờ, 1 đen thui, 1 mèo). Giữ 5 ảnh.
 
 **Bài 5. Tìm lỗi.**
 **Đề.** Bạn An bỏ một ảnh mèo vào nhóm DOG và bấm Dạy máy. Sai ở đâu? Phải làm gì?
+
 **Đáp án.** Sai: ảnh mèo nằm nhầm nhà ("kẻ lạc nhà"), lại còn đã bấm Train khi chưa kiểm tra. Cách sửa: xóa ảnh bằng thùng rác trước, rồi mới dạy máy. Nếu để nguyên, robot sẽ bị rối.
 
 **Bài 6. Thám tử mõm và tai.**
 **Đề.** Đoán chó hay mèo, nêu dấu hiệu: (a) tai nhọn dựng, mũi nhỏ phẳng, ria dài cứng; (b) tai cụp dài, mõm dài.
+
 **Đáp án.** (a) Mèo. (b) Chó. Dấu hiệu thường gặp, không tuyệt đối.
 
 **Bài 7. Dịch thuật ngữ Anh–Việt.**
 **Đề.** Dịch: Classification, Class, Upload, Confidence Score, Preview, Intruder.
+
 **Đáp án.** Phân loại; nhóm (lớp) ảnh; tải lên; độ chắc chắn; xem thử; kẻ lạc nhà.
 
 **Bài 8. Làm trên máy: nhóm riêng của em.** (khó nhất, theo đề xuất của người bóc tách)
 **Đề.** Tự chọn 2 nhóm mới (ví dụ "Bút" và "Thước"). Tạo hai nhóm trong Teachable Machine, tải ảnh từ thư mục thầy chuẩn bị, rà lại ảnh nhầm. **Chưa bấm Train.**
+
 **Đáp án.** Hai nhóm đúng tên, không có ảnh lẫn nhóm, không có ảnh mờ hoặc đen. Số ảnh tối thiểu (người bóc tách đề xuất khoảng 20 ảnh mỗi nhóm) là con số do người bóc tách đề xuất, không có trên slide; thầy tự quyết.
 
 ## Câu hỏi kiểm tra của khóa gốc (dịch)

@@ -167,8 +167,9 @@ C++ của hai khối `Xoay càng Trái… Phải…` và `Chờ` **chưa lấy �
 **Đề:** Nối khối tiếng Anh với nhãn tiếng Việt.
 a) `Gripper: Open`  b) `Gripper: Close`  c) `Gripper: Rotate to 45 degrees`  d) `Wait for 2 seconds`
 1) Chờ 2 giây  2) Tay gắp: Xoay tới góc 45 độ  3) Tay gắp: Đóng  4) Tay gắp: Mở
-**Đáp án:** a-4, b-3, c-2, d-1.
-Thêm: khối `Mission: End` tiếng Việt là gì? **Đáp án:** Nhiệm vụ: Kết thúc.
+
+**Đáp án:** a-4, b-3, c-2, d-1. Hỏi thêm cho bé: khối `Mission: End` tiếng Việt là
+**Nhiệm vụ: Kết thúc**.
 
 **Bài 2. Đọc đoán kết quả** (dễ)
 **Đề:** Chương trình sau làm robot thế nào, hai càng ở góc bao nhiêu khi xong?
@@ -185,14 +186,17 @@ Thêm: khối `Mission: End` tiếng Việt là gì? **Đáp án:** Nhiệm vụ
 a) Muốn càng mở hẳn bằng khối `Xoay tới góc`, điền ___ độ.
 b) Muốn càng đóng bằng khối `Xoay tới góc`, điền ___ độ.
 c) Trong các số 150, 120, 90, -30, -90, 0, số nào **không** an toàn?
+
 **Đáp án:** a) **0**, vì 0° là mở. b) **90**, vì 90° là đóng. c) **150 và -90**, vì ngoài khoảng -30 … 120, càng có thể gãy.
 
 **Bài 4. Sắp thứ tự** (vừa)
 **Đề:** Xếp lại cho robot gắp một khối rồi thả về chỗ cũ: (A) Tay gắp: Đóng (B) Lùi (C) Tay gắp: Mở (thả) (D) Tiến tới khối xốp (E) Tay gắp: Mở (chuẩn bị).
+
 **Đáp án:** **E → D → A → B → C**. Mở trước để khối lọt vào giữa, tiến tới, đóng để gắp, lùi, mở để thả.
 
 **Bài 5. Tìm lỗi** (vừa)
 **Đề:** Robot không gắp được khối. Chương trình: Tiến tới khối → Tay gắp: Mở → Tay gắp: Đóng → Lùi. Sai ở đâu?
+
 **Đáp án:** Càng chỉ mở **sau khi** robot đã tiến sát khối, nên lúc tiến càng còn khép và có thể đẩy khối đi. Sửa: đặt `Tay gắp: Mở` **đầu chương trình**, trước khi tiến. Chỉ sửa một chỗ này rồi chạy thử lại.
 Biến thể: chương trình "Tiến → Mở → Đóng → Lùi" chuyển thành "Tiến → Lùi → Đóng". Sai: đóng càng **sau khi** đã lùi, khối bị bỏ lại. Sửa: đóng càng **trước** khi lùi.
 
@@ -201,10 +205,12 @@ Biến thể: chương trình "Tiến → Mở → Đóng → Lùi" chuyển th�
 1) `Xoay càng Trái tới 120 và càng Phải tới -30 độ trong 100 mili giây`, chờ 2 giây.
 2) `Xoay càng Trái tới -30 và càng Phải tới 120 độ trong 5000 mili giây`, chờ 2 giây.
 Bước nào càng quay nhanh hơn? Mỗi bước mất bao nhiêu giây để quay? Hai càng trong cùng một bước có quay nhanh bằng nhau không?
+
 **Đáp án:** Bước 1 nhanh hơn. Bước 1 quay trong 0,1 giây (100 mili giây), bước 2 quay trong 5 giây (5000 mili giây). Trong cùng một bước, hai càng dùng **chung** một thời gian nên tới đích cùng lúc. Số mili giây càng nhỏ thì quay càng nhanh.
 
 **Bài 7. Điền số** (khó)
 **Đề:** Càng trái 120°, càng phải -30°, quay trong 2 giây. Điền ba ô của khối. Nếu đổi thành 0,5 giây thì ô thời gian là bao nhiêu?
+
 **Đáp án:** `Xoay càng Trái tới` **120**, `càng Phải tới` **-30**, `trong` **2000** mili giây (2 giây × 1000). Với 0,5 giây: **500** mili giây.
 
 **Bài 8. Làm trên máy** (khó)
@@ -215,7 +221,8 @@ LbGripper.open();
 LbGripper.moveTo(120);
 LbMission.end();
 ```
-**Đáp án:** Ghép: `Nhiệm vụ: Bắt đầu khi chạm cùng lúc TB1A + TB1B` → `Tay gắp: Mở` → `Tay gắp: Xoay tới góc 120 độ` → `Nhiệm vụ: Kết thúc`. Khung `void setup()` / `void loop()` do trình soạn tự sinh. Hỏi thêm: ở cuối hai càng ở góc nào? **Đáp án:** 120°.
+
+**Đáp án:** Ghép: `Nhiệm vụ: Bắt đầu khi chạm cùng lúc TB1A + TB1B` → `Tay gắp: Mở` → `Tay gắp: Xoay tới góc 120 độ` → `Nhiệm vụ: Kết thúc`. Khung `void setup()` / `void loop()` do trình soạn tự sinh. Hỏi thêm cho bé: ở cuối hai càng đang ở góc **120°**.
 
 ## Câu hỏi kiểm tra của khóa gốc (dịch)
 Khóa gốc **không có câu hỏi trắc nghiệm** (CYU/Quiz) ở 35 slide của bài này, nên không có đáp án chính thức để chép. Chỉ có câu thảo luận và suy ngẫm, không có đáp án đúng:

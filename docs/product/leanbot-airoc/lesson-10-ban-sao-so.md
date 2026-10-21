@@ -237,38 +237,47 @@ Hai dòng này làm robot **xoay tại chỗ 90 độ** (hai bánh quay ngược
 
 **Bài 1. Sắp thứ tự** (dễ)
 **Đề:** Sắp 3 thẻ theo thứ tự đúng: (A) Chạy robot thật (B) Quan sát xem robot có đi như mình muốn không (C) Thử mã trong thế giới ảo.
+
 **Đáp án:** C → B → A. (Thử → Quan sát → Chạy robot thật.)
 
 **Bài 2. Đọc đoán kết quả**
 **Đề:** Đọc chương trình mẫu ở trên. a) Robot đi tiến bao nhiêu cm, rồi lùi bao nhiêu cm? b) Tổng thời gian đứng chờ (các khối "Chờ") là bao nhiêu giây? c) Hai khối "Tay gắp" làm gì, theo thứ tự?
+
 **Đáp án:** a) Tiến **35 cm**, lùi **35 cm** (khối lùi ghi −35). b) 4 khối chờ, mỗi khối 1 giây, tổng **4 giây**. c) **Đóng** tay gắp (kẹp vật) trước, **Mở** tay gắp (thả vật) sau.
 
 **Bài 3. Đọc đoán kết quả**
 **Đề:** Đổi hai tốc độ 2000, 2000 thành 1000, 1000. Quãng đường vẫn 35 cm. Con đoán: (a) robot còn đi thẳng không? (b) nhanh hơn hay chậm hơn? (c) khi so thời gian chạy, lần nào lâu hơn?
+
 **Đáp án:** (a) Còn đi **thẳng**, vì hai bánh vẫn bằng nhau. (b) **Chậm hơn**. (c) Lần tốc độ **1000** lâu hơn. (Bé phải chạy thật để kiểm. Dự đoán sai cũng là điều học được.)
 
 **Bài 4. Tìm lỗi**
 **Đề:** Một bé đổi dòng `LbMission.beginDigitalTwin("msNumberGrid")` thành `LbMission.beginDigitalTwin("abc")` cho "đẹp". Sai ở đâu? Sửa thế nào?
+
 **Đáp án:** Bài này **không được đổi tên nhiệm vụ** `msNumberGrid` (slide ghi rõ "don't change this mission name in this lesson"). Sửa lại tên cũ. (Điều gì xảy ra nếu đổi thì slide không nói, nên không đoán.)
 
 **Bài 5. Tìm lỗi**
 **Đề:** Bé chạy xong ô mã ở PNote, thấy hai dòng "Virtual Leanbot ready..." nhưng robot ảo không động đậy. Có ba chỗ có thể sai. Nêu ít nhất hai chỗ.
+
 **Đáp án:** Bất kỳ hai trong ba: (1) chưa **bấm link** trong kết quả để mở Bản Sao Số; (2) ở trang Bản Sao Số chưa bấm nút **Start**; (3) đang nhìn nhầm một **tab Bản Sao Số cũ** của lần chạy trước (nhớ đóng tab sau mỗi lần). Slide cho thấy chỉ sau khi bấm Start, PNote mới in "Countdown 3 ... Go ... Done".
 
 **Bài 6. Điền số**
 **Đề:** a) Muốn robot lùi về đúng chỗ xuất phát sau khi tiến 35 cm, khối lùi điền bao nhiêu cm? b) 35 cm bằng bao nhiêu mm (số trong `waitDistanceMm(35 * ?)`)? c) Khoảng tốc độ cho phép là −2000 … 2000 bước/giây. Trong 3 số 1500, −1000, 2500, số nào ra ngoài khoảng?
+
 **Đáp án:** a) **−35** (số âm là lùi, giống chương trình mẫu). b) **10**: 35 cm = 350 mm, nên nhân 10. c) **2500**, vì lớn hơn 2000.
 
 **Bài 7. Dịch nhãn**
 **Đề:** a) Dịch sang tiếng Việt: `Gripper: Close`, `Motion: Stop`, `Motion: Keep running for [35] cm`. b) Dịch sang tiếng Anh: "Chờ 1 giây", "Nhiệm vụ: Kết thúc", "Tay gắp: Mở".
+
 **Đáp án:** a) Tay gắp: Đóng; Di chuyển: Dừng; Di chuyển: Chạy đoạn đường 35 cm. b) Wait for 1 seconds; Mission: End; Gripper: Open.
 
 **Bài 8. Sắp thứ tự thao tác**
 **Đề:** Sắp 7 việc theo thứ tự đúng khi chạy mã mẫu: (A) Bấm Start ở trang Bản Sao Số (B) Bấm Load Demo rồi OK (C) Bấm "Restart the kernal and run all cells" (D) Bấm Open PNote rồi Allow (E) Dán mã vào ô của notebook "Python 3 (ipykernel)" (F) Bấm link trong kết quả của PNote (G) Mở trình soạn khối `lbeditor-python-simulation`.
+
 **Đáp án:** G → B → D → E → C → F → A. (Sau cùng đóng tab Bản Sao Số.)
 
 **Bài 9. So sánh hai lần chạy**
 **Đề:** Bé chạy chương trình y hệt hai lần. Lần 1 mất 17.4, lần 2 mất 19.4 (trong trang Mission histories). Hai lần có giống nhau không? Việc này có ý nghĩa gì? Bé nên làm gì tiếp?
+
 **Đáp án:** **Khác nhau** (17.4 và 19.4). Theo slide, khác nhau là **manh mối**: có thể có lỗi nhỏ trong mã hoặc mô phỏng đã thay đổi. Bé nên chạy thêm vài lần, xem lại bằng nút Replay, rồi mới nạp cho robot thật. (Đơn vị trong bảng không ghi trên slide.)
 
 **Bài 10. Làm trên máy** (khó)
@@ -280,6 +289,7 @@ LbMotion.stopAndWait()
 LbDelay(2 * 1000)
 LbGripper.close()
 ```
+
 **Đáp án:** Năm khối, theo thứ tự: Chạy với vận tốc Trái **1000** Phải **1000** bước/giây → Chạy đoạn đường **20** cm → Dừng → Chờ **2** giây → Tay gắp: Đóng. Tự chấm: mã sinh ra phải giống chữ ở đề. (Dòng ghi chú `###` có thể xuất hiện nếu bé dùng khối ghi chú; không ảnh hưởng.)
 
 ## Câu hỏi kiểm tra của khóa gốc (dịch)

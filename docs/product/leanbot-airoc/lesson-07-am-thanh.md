@@ -119,27 +119,35 @@ Ba hình cần nhận ra trên ảnh phổ:
 ## Phiếu ôn luyện
 
 **1. Dịch nhãn.** Nối từ Anh với từ Việt: Amplitude, Frequency, Microphone, Noise, Sampling, Spectrogram.
+
 **Đáp án:** Amplitude = biên độ (độ to); Frequency = tần số (độ cao thấp của giọng); Microphone = micro; Noise = nhiễu; Sampling = lấy mẫu; Spectrogram = ảnh phổ âm thanh.
 
 **2. Đọc đoán kết quả.** Có bốn sóng: A cao và thưa, B thấp và thưa, C cao và dày, D thấp và dày. Ghép mỗi sóng với "to-trầm", "nhỏ-trầm", "to-bổng", "nhỏ-bổng".
+
 **Đáp án:** A to-trầm; B nhỏ-trầm; C to-bổng; D nhỏ-bổng. (Cao = to. Dày = bổng.)
 
 **3. Đọc đoán kết quả (ảnh phổ).** Ba hình: (a) vạch dọc cao, (b) vạch mảnh dồn lên đỉnh, (c) khối ngắn ở đáy. Hình nào là vỗ tay, búng tay, gõ? Vì sao hình (c) nằm ở đáy?
+
 **Đáp án:** (a) vỗ tay; (b) búng tay; (c) gõ. Gõ là âm trầm nên nằm sát đáy. (Nên dùng ảnh chụp thật của lớp.)
 
 **4. Sắp thứ tự.** Xếp lại cho đúng: ảnh phổ, sóng âm, AI nhận ra, dãy số, lấy mẫu, micro.
+
 **Đáp án:** sóng âm → micro → lấy mẫu → dãy số → ảnh phổ → AI nhận ra.
 
 **5. Điền số.** (a) Tai trẻ em nghe được tới ___ Hz. (b) Trong ví dụ lấy mẫu của slide, giây 1 cao 5, giây 2 cao ___, giây 3 cao ___. (c) Đơn vị đo tần số là ___.
+
 **Đáp án:** (a) 20.000; (b) 8 và 2; (c) Hz (héc). Vì sao 20.000: đó là con số slide nêu cho tai trẻ em. Người lớn nghe kém tiếng bổng.
 
 **6. Tìm lỗi.** Bạn Na nói: "Sóng xếp sát nhau là giọng trầm. Phòng im lặng thì không có dữ liệu. AI nghe tiếng bằng tai như mình." Có ba lỗi, tìm và sửa.
+
 **Đáp án:** (1) Sóng sát nhau là giọng bổng, sóng thưa mới là trầm. (2) Im lặng vẫn là dữ liệu, giúp robot biết lúc không làm gì. (3) AI "nhìn" ảnh phổ, không "nghe" như mình.
 
 **7. Làm trên máy.** Mở Chrome Music Lab (Spectrogram). Làm cho hình hiện ra: (a) một đường đi lên; (b) một vạch dọc cao; (c) đám sương lộn xộn. Ghi lại con đã làm gì.
+
 **Đáp án:** (a) huýt sáo từ thấp lên cao; (b) vỗ tay một lần thật mạnh; (c) cả nhóm nói cùng lúc. Thầy kiểm tra bé có nêu đúng thuật ngữ: tần số, to nhỏ, nhiễu.
 
 **8. Thám tử âm thanh (khó).** Chọn một trong ba tiếng con ghi ở nhà. Đoán: trầm hay bổng, to hay nhỏ. Mở Chrome Music Lab xem hình có khớp không.
+
 **Đáp án:** đáp án mở. Thầy chấm lý do bé nêu, và ghi bé đã dùng đúng thuật ngữ nào.
 
 ## Câu hỏi kiểm tra của khóa gốc (dịch)

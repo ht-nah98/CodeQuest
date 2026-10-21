@@ -338,15 +338,18 @@ Không cần máy, trừ bài 9 và bài 10.
 
 **Bài 1. Trắng hay đen? (dễ)**
 Đề: Điền "mạnh" hoặc "yếu": (a) Mắt robot nhìn xuống nền trắng, ánh sáng dội lên rất ___. (b) Mắt robot nhìn xuống vạch đen, ánh sáng dội lên rất ___. (c) Chỗ nào ánh sáng dội lên yếu thì robot biết đó là ___.
+
 **Đáp án:** (a) mạnh; (b) yếu; (c) vạch đường (vạch đen).
 
 **Bài 2. Đọc đoán kết quả: 4 ô (dễ)**
 Đề: Mỗi dòng cho 4 ô (① ② ③ ④) và số tên. Robot quẹo trái, quẹo phải hay đi thẳng?
 (a) ▢■▢▢ (số 4) (b) ▢▢▢■ (số 1) (c) ▢■■▢ (số 6) (d) ■■▢▢ (số 12) (e) ▢▢■■ (số 3)
+
 **Đáp án:** (a) trái; (b) phải; (c) thẳng; (d) trái (đen lệch trái); (e) phải (đen lệch phải).
 
 **Bài 3. Đọc đoán kết quả: lệnh bánh xe (vừa)**
 Đề: Robot đang đọc được số 12. Nó chạy lệnh `LbMotion.runLR(190, 1500)`. (a) Bánh nào chạy chậm? (b) Robot quẹo hướng nào? (c) Vì sao như vậy là đúng?
+
 **Đáp án:** (a) bánh trái (190 nhỏ hơn 1500). (b) Quẹo trái. (c) Số 12 là ■■▢▢: vạch đen lệch về bên trái; robot quẹo về bên trái mới bắt kịp vạch.
 
 **Bài 4. Đọc đoán kết quả: khi nào dừng? (vừa)**
@@ -355,6 +358,7 @@ Không cần máy, trừ bài 9 và bài 10.
 (b) Đã đi 1200 mm, 4 mắt đọc ▢■■▢ (6).
 (c) Đã đi 1200 mm, 4 mắt đọc ■■▢▢ (12).
 (d) Đã đi 700 mm, 4 mắt đều trắng ▢▢▢▢.
+
 **Đáp án:** (a) Đi tiếp thẳng (chưa quá 1000 mm). (b) Dừng (đã quá `target` và mã là 6). (c) Đi tiếp, quẹo trái (mã 12, không phải 6). (d) Dừng, vì không còn thấy đen nên vòng `lặp khi thấy đen` kết thúc.
 
 **Bài 5. Tìm lỗi (vừa)**
@@ -368,6 +372,7 @@ case 8:
   break;
 ```
 Robot chạy thử thì trôi ra khỏi vạch ở chỗ cua. (a) Sai ở đâu? (b) Sửa thế nào? (c) Việc đầu tiên con nên kiểm tra khi robot cứ rời vạch (mà chương trình đã đúng) là gì?
+
 **Đáp án:** (a) Hai con số 190 và 1500 bị đổi chỗ. Các số 4, 14, 12, 8 là đen lệch trái; robot phải quẹo trái nhưng lệnh này làm bánh phải chậm nên robot quẹo phải, càng xa vạch. (b) Đổi lại thành `LbMotion.runLR(190, 1500);`. (c) Cân chỉnh lại (nhất là khi đổi chỗ có ánh sáng khác).
 
 **Bài 6. Sắp thứ tự: cân chỉnh (vừa)**
@@ -379,6 +384,7 @@ D. Chạm TB1A lần 2.
 E. Chạm TB1A lần 1.
 F. Đặt robot nhìn vào vùng toàn trắng.
 G. Đèn xanh lá, robot vào chế độ thử.
+
 **Đáp án:** C → F → E → A → B → D → G. (Xong nhớ chạm TB1A lần 3 để hoàn tất.) Chấp nhận B → D đứng trước F → E nếu bé làm đen trước, vì slide cho phép đổi thứ tự bước 2 và 5; khi đó đèn vàng vẫn sau lần chạm đầu tiên.
 
 **Bài 7. Điền số (khó hơn)**
@@ -390,6 +396,7 @@ case 3:
 ```
 (b) Robot gọi `followLine()` lúc `LbMotion.getDistanceMm()` đang là 350. Khi đó `target` bằng bao nhiêu? Robot được phép dừng khi đã đi quá bao nhiêu mm?
 (c) Hai mắt giữa cùng thấy đen thì số tên là bao nhiêu?
+
 **Đáp án:** (a) `runLR(1500, 190)`: số 3 là đen lệch phải, nên bánh phải chậm (190), bánh trái nhanh (1500). (b) `target = 350 + 1000 = 1350`; được dừng khi đường đã đi **lớn hơn 1350 mm** (và mắt đọc số 6). (c) 6.
 
 **Bài 8. Dịch nhãn (vừa)**
@@ -407,6 +414,7 @@ c. Cảm biến vạch: Cân chỉnh bằng nút TB1A
 d. Nhiệm vụ: Bắt đầu khi chạm cùng lúc TB1A + TB1B
 e. Cảm biến vạch: Đọc cảm biến
 f. Di chuyển: Chạy với vận tốc Trái … Phải …
+
 **Đáp án:** 1-c, 2-e, 3-a, 4-d, 5-f, 6-b. Hỏi thêm: "2L, 0L, 1R, 3R" bản Việt viết là gì? (2T, 0T, 1P, 3P; T = trái, P = phải.)
 
 **Bài 9. Làm trên máy: khối sinh ra đúng code (khó)**
@@ -423,10 +431,12 @@ void loop() {
 }
 ```
 Rồi thêm 1 khối nữa để trong `loop` có thêm dòng `LbMotion.runLR(1500, 1500);` nằm **giữa** `begin` và `end`.
+
 **Đáp án:** `Leanbot bắt đầu hoạt động` + `Cảm biến vạch: Cân chỉnh bằng nút TB1A`; `Nhiệm vụ: Bắt đầu khi chạm cùng lúc TB1A + TB1B … Kết thúc`. Khối thêm: `Di chuyển: Chạy với vận tốc Trái 1500 Phải 1500` đặt bên trong khối Nhiệm vụ. Tự chấm: cột code giống đoạn trên là đúng. (Đoạn sinh ra có thêm dòng `{ }` cho ghi chú nếu bé thêm khối Ghi chú, bỏ qua được.)
 
 **Bài 10. Chạy robot thật (thử thách)**
 Đề: Cân chỉnh, rồi cho robot đi theo vạch: (a) B → C; (b) A → D; (c) A → H. Ghi vào nhật ký mỗi lần chạy: đã cân chỉnh lại chưa, robot rời vạch ở đâu, sửa gì.
+
 **Đáp án:** Đạt khi robot bám vạch tới đúng khu cần đến mà không rời vạch, và bé tự làm được không cần nhắc. Nếu robot rời vạch: (1) cân chỉnh lại, (2) kiểm tra vạch có bị bẩn, bị nhăn, (3) đặt lại robot đúng ô xuất phát. Phiếu này nằm ở mốc "Hết Bài 4" trong §9 giáo trình tổng.
 
 ## Câu hỏi kiểm tra của khóa gốc (dịch)

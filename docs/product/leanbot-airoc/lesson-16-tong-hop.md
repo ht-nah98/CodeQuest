@@ -369,6 +369,7 @@ followLineMultipleJunctions(2);
 goToJunction();
 Rotate(2000, 110);
 ```
+
 **Đáp án:** (1) Dòng đầu là `Forward`, phải là `Backward(2000, 150)`: robot đang đứng sát khối nên phải lùi ra, tiến nữa là đâm tiếp. (2) Sau `followLineMultipleJunctions(2)` đầu tiên thiếu `goToJunction();`, robot xoay 60° ngay mép ngã tư thay vì giữa ngã tư, nên tâm quay lệch và lệch dần.
 
 **4. Sắp thứ tự.** Xếp 11 chặng theo đúng thứ tự:
@@ -409,6 +410,7 @@ LbGripper.open();
 Backward(2000, 150);
 Rotate((-2000), 120);
 ```
+
 **Đáp án:** Gọi `Forward` với `2000`, `150`; "Tay gắp: Mở"; gọi `Backward` với `2000`, `150`; gọi `Rotate` với `-2000`, `120`. Đối chiếu cột code bên phải, giống từng dòng là đúng.
 
 **8. Chiến thuật: bỏ nhiệm vụ nào.** *Số trong bài này do người soạn đặt ra để tập tính, không phải số đo thật.* Một đội đo: Khoanh vùng mất 30 giây, Trung hòa mất 50 giây, Phân tích và về CRL mất 40 giây, đường nối mất 20 giây; tổng 140 giây, hơn 120. Giả sử bỏ nhiệm vụ nào thì tiết kiệm đúng số giây của nhiệm vụ đó. Bỏ nhiệm vụ nào thì được nhiều điểm nhất mà vẫn đủ 120 giây?

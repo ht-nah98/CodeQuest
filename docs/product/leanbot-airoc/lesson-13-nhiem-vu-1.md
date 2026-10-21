@@ -324,14 +324,17 @@ Toàn bộ chương trình bắt đầu bằng `#include <Leanbot.h>`.
 
 **1. Đọc đoán kết quả (dễ).**
 Đề: Chương trình chạy `Forward(2000, 110);` rồi `Rotate((-2000), 23);`. Robot tiến bao nhiêu mm? Xoay bao nhiêu độ? Lúc xoay, hai bánh quay thế nào?
+
 **Đáp án:** Tiến 110 mm, xoay 23 độ. Lúc xoay bánh trái quay -2000, bánh phải quay +2000, hai bánh quay ngược chiều nên robot xoay tại chỗ chứ không lùi.
 
 **2. Điền số: tính điểm (dễ).**
 Đề: Một lượt thi có 1 khối khoanh vùng, 1 khối phân tích, và robot dừng với cả hai bánh trong CRL. Không có cặp trung hòa. Tổng bao nhiêu điểm? (Điểm: khoanh vùng 45, phân tích 100, về CRL 40.)
+
 **Đáp án:** 45 + 100 + 40 = **185 điểm**.
 
 **3. Đọc đoán kết quả: bảng `line` (vừa).**
 Đề: Trong `runFollowLine`, cảm biến đọc ra `line = 12`. Hai bánh chạy tốc độ nào? Robot quẹo thế nào? Nếu `line = 15` thì sao?
+
 **Đáp án:** Bánh trái 200, bánh phải 2000, bánh phải nhanh hơn nhiều nên robot quẹo trái gấp. Số 15 không có `case` riêng nên rơi vào nhánh còn lại (hai bánh 2000, đi thẳng); nhưng `followLineUntilJunction` thấy `line` bằng 15 thì thoát vòng lặp, vì đó là ngã tư.
 
 **4. Tìm lỗi (vừa).**
@@ -343,18 +346,22 @@ void followLineUntilJunction() {
   }
 }
 ```
+
 **Đáp án:** Điều kiện bị ngược. Vòng lặp chỉ chạy khi `line` bằng 15 (đang ở ngã tư), mà lúc xuất phát `line` thường chưa bằng 15, nên vòng lặp bị bỏ qua ngay. Sửa thành `while ((line != 15))`: bám vạch **chừng nào chưa** tới ngã tư.
 
 **5. Sắp thứ tự (vừa).**
 Đề: Các bước của chương trình mẫu đã bị xáo trộn. Xếp lại cho đúng: (a) `Rotate(2000, 15)` (b) `LbMission.begin(TB1A + TB1B)` (c) `Forward(2000, 110)` (d) `goToJunction()` lần cuối (e) `Rotate(-2000, 23)` (f) `followLineMultipleJunctions(4)` (g) `Forward(2000, 28)` (h) `LbMission.end()` (i) `Rotate(2000, 60)` (k) `followLineMultipleJunctions(1)` (l) `goToJunction()` lần đầu (m) `Rotate(500, 50)`.
+
 **Đáp án:** b, c, e, f, l, i, k, d, a, g, m, h. Tức: chờ chạm nút; tiến 110; xoay -2000 23 độ; qua 4 ngã tư; goToJunction; xoay 60; qua 1 ngã tư; goToJunction; xoay 15; tiến 28; xoay 500 50 độ; kết thúc.
 
 **6. Điền số: tốc độ (khó hơn).**
 Đề: Tốc độ bánh đi từ -2000 đến 2000 bước/giây. Bé mới tập nên dùng 30–50% tốc độ. Hai mốc đó là khoảng bao nhiêu bước/giây? Chương trình mẫu dùng tốc độ 2000 khi đi thẳng. Đó là bao nhiêu phần trăm?
+
 **Đáp án:** 30% của 2000 là 600, 50% là 1000, vậy khoảng **600 đến 1000 bước/giây** (tính từ giáo trình tổng, slide không cho số bước/giây). Tốc độ 2000 là **100%**, tức chương trình mẫu không chạy theo lời khuyên 30–50%.
 
 **7. Dịch nhãn (dễ).**
 Đề: Dịch sang tiếng Việt: (a) `Mission: End` (b) `Motion: Stop` (c) `IRLine: Read sensors` (d) `Motion: Run with velocity Left ? Right ?`. Rồi dịch ngược: (e) "Di chuyển: Rẽ góc ? độ" sang tiếng Anh.
+
 **Đáp án:** (a) Nhiệm vụ: Kết thúc (b) Di chuyển: Dừng (c) Cảm biến vạch: Đọc cảm biến (d) Di chuyển: Chạy với vận tốc Trái ? Phải ? (e) `Motion: Turn angle ? degrees` (trong giáo trình tổng ghi nhãn gốc là "Motion: Keep turning for ? degrees"; cả hai cách ghi đều là khối `LbMotion.waitRotationDeg`).
 
 **8. Làm trên máy: đi thẳng (vừa).**
@@ -364,6 +371,7 @@ LbMotion.runLR(1000, 1000);
 LbMotion.waitDistanceMm(50);
 LbMotion.stopAndWait();
 ```
+
 **Đáp án:** Ba khối nối nhau: "Di chuyển: Chạy với vận tốc Trái 1000 Phải 1000", "Di chuyển: Chạy đoạn đường 50 mm", "Di chuyển: Dừng". Code khớp thì đúng.
 
 **9. Làm trên máy: xoay tại chỗ (khó).**
@@ -373,10 +381,12 @@ LbMotion.runLR(600, -600);
 LbMotion.waitRotationDeg(90);
 LbMotion.stopAndWait();
 ```
+
 **Đáp án:** "Chạy với vận tốc Trái 600 Phải -600", "Rẽ góc 90 độ", "Dừng". Hai bánh quay ngược chiều nên robot xoay tại chỗ 90 độ rồi dừng. Tốc độ 600 là 30% của 2000.
 
 **10. Đúng hay sai: Bản Sao Số (khó).**
 Đề: Chạy xong trên Bản Sao Số thấy dòng "Boundary Violation". Việc đầu tiên cần làm trước khi chạy lại là gì?
+
 **Đáp án:** Đặt lại môi trường nhiệm vụ trong Bản Sao Số, rồi mới chạy code mới.
 
 Phiếu này có đủ cả sáu dạng: đọc đoán (bài 1, 3), tìm lỗi (4), sắp thứ tự (5), điền số (2, 6), dịch nhãn (7), làm trên máy (8, 9), cộng thêm bài 10.

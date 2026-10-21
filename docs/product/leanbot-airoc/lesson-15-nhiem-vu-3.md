@@ -259,6 +259,7 @@ goToJunction();
 Rotate(2000, 35);
 LbMission.end();
 ```
+
 **Đáp án:** (1) Dòng 2 xoay **trái**, mẫu xoay **phải**: phải là `Rotate(2000, 35)`. (2) Sau `followLineMultipleJunctions(1)` thiếu `goToJunction();`. Không có nó robot không dừng giữa ngã tư, mà xoay ngay khi vừa tới mép ngã tư nên tâm quay lệch. (3) Trước `LbMission.end()` thiếu `LbGripper.open();`, robot không nhả khối trong CRL; khối còn kẹp trong gọng thì chưa chắc được tính (slide Learn 04), có thể mất 100 điểm.
 
 **4. Sắp thứ tự.** Xếp 5 đoạn của chương trình chính theo đúng thứ tự:
@@ -304,6 +305,7 @@ LbGripper.moveTo(50);
 Backward(2000, 30);
 Rotate(2000, 35);
 ```
+
 **Đáp án:** Năm khối nối nhau dưới khối "Nhiệm vụ": gọi `Rotate` với tốc độ `-2000` góc `35`; gọi `Forward` với `2000`, `30`; "Tay gắp: Xoay tới góc 50 độ"; gọi `Backward` với `2000`, `30`; gọi `Rotate` với `2000`, `35`. Đối chiếu cột code bên phải: giống từng dòng là đúng.
 
 **8. Làm trên máy: quay đầu và tìm lại vạch (khó).** Viết hàm `searchLine` sinh ra đúng code này, rồi gọi nó sau `Rotate(1000, 180)`:
@@ -319,6 +321,7 @@ void searchLine() {
   LbMotion.stopAndWait();
 }
 ```
+
 **Đáp án:** Tạo hàm `searchLine`; trong hàm: "Chạy với vận tốc Trái 500 Phải −500", "Đọc cảm biến", đặt `line` = "Giá trị 4 mắt", rồi "Lặp khi `line` = 0" chứa hai khối vừa đọc vừa đặt `line`, cuối cùng "Di chuyển: Dừng". Chương trình chính: `Rotate(1000, 180); searchLine();`. **Lưu ý:** hàm này và các số 500, 1000 là gợi ý của người soạn bài, **chưa thử trên robot thật**. Phải đọc cảm biến trong mỗi vòng; quên thì `line` không đổi và robot xoay mãi.
 
 **9. Thí nghiệm có robot: tốc độ quay đầu êm nhất.** Kẹp khối gỗ, gọi `Rotate(tốc độ, 180)` với tốc độ 2000, 1500, 1000, 500. Ghi bảng: khối có văng không, robot còn trên vạch không. Chốt tốc độ lớn nhất mà khối không văng.

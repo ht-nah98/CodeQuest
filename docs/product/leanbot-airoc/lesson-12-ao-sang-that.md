@@ -225,27 +225,33 @@ Chỉ khác **dòng bắt đầu nhiệm vụ**, đúng như khối bé phải �
 
 **Bài 1 — Ảo hay thật? (dễ)**
 **Đề:** Mỗi câu dưới đây nói về robot ảo hay robot thật? (a) Luôn đi đúng 50 cm. (b) Có ma sát với sàn. (c) Dễ làm lại từ đầu. (d) Có thể bị lệch sang một bên. (e) Thử sai bao nhiêu lần cũng an toàn. (f) Dạy ta những bài học thật.
+
 **Đáp án:** (a) ảo · (b) thật · (c) ảo · (d) thật · (e) ảo · (f) thật.
 
 **Bài 2 — Đọc đoán kết quả (dễ).**
 **Đề:** Đọc đoạn C++ ở mục "Chương trình mẫu". Con bật robot lên và đặt xuống sàn, **chưa chạm gì**. Robot làm gì? Khi con chạm cùng lúc TB1A và TB1B thì robot làm gì, dừng ở đâu?
+
 **Đáp án:** Chưa chạm thì robot **đứng yên chờ**, vì dòng `LbMission.begin(TB1A + TB1B)` đợi hai nút được chạm cùng lúc. Chạm xong, robot chạy 30/30 vòng/phút, đi thẳng 20 cm (200 mm) rồi dừng. Trên sàn thật, chỗ dừng có thể lệch chút so với 20 cm.
 
 **Bài 3 — Tìm lỗi (dễ).**
 **Đề:** Một bạn chuyển chương trình sang trang robot thật, dán xong, nạp xuống robot, chạm TB1A + TB1B. Robot **đứng yên**. Khối đầu chương trình của bạn vẫn là "Nhiệm vụ: Bắt đầu trên Bản Sao Số 'SynapseCity.01'". Sai ở đâu? Sửa thế nào?
+
 **Đáp án:** Bạn quên **đổi khối bắt đầu nhiệm vụ**. Khối Bản Sao Số dành cho robot ảo, robot thật không chạy theo nó (slide: "your robot will just sit there"). Sửa: kéo "Nhiệm vụ: Bắt đầu khi chạm cùng lúc TB1A + TB1B" thay vào, giữ nguyên các khối bên trong, rồi nạp lại. Slide không nói rõ điều gì xảy ra với dòng `beginDigitalTwin` khi nạp xuống robot thật, nên đáp án dựa vào lời cảnh báo của slide.
 
 **Bài 4 — Sắp thứ tự (vừa).**
 **Đề:** Sáu bước chuyển chương trình bị xáo trộn. Xếp lại cho đúng:
 (a) Dán khối · (b) Nạp code C++ xuống robot thật · (c) Đổi khối bắt đầu nhiệm vụ · (d) Mở trình soạn khối robot thật · (e) Tìm chương trình trên Bản Sao Số · (f) Sao chép khối
+
 **Đáp án:** e → f → d → a → c → b.
 
 **Bài 5 — Điền số (vừa).**
 **Đề:** (a) Robot ảo đi 50 cm. Robot thật chạy cùng lệnh, có thể đi từ ? đến ? cm (theo ví dụ trên slide). (b) Robot đi quá, khối đang ghi 50 cm. Thử đổi thành bao nhiêu (theo slide)? (c) Robot rẽ chưa đủ, khối ghi 90 độ. Thử đổi thành bao nhiêu? (d) Khối ghi 20 cm, code C++ ghi `waitDistanceMm(20 * ?)`. Điền số.
+
 **Đáp án:** (a) **48** đến **52** cm. (b) **47** cm (giảm một chút). (c) **95** độ (tăng một chút). (d) **10**, vì 1 cm là 10 mm. Ở (b) và (c), điều quan trọng là đổi **nhỏ** và **một số một lần**, không phải đúng 47 hay 95.
 
 **Bài 6 — Dịch nhãn (dễ).**
 **Đề:** Dịch sang tiếng Việt: (a) Mission: Begin when TB1A + TB1B combo touched (b) Mission: End (c) Motion: Run with velocity Left 30 Right 30 (d) Motion: Keep running for 20 cm (e) Motion: Stop. Dịch ngược sang tiếng Anh: (f) Nhiệm vụ: Bắt đầu trên Bản Sao Số (g) Leanbot bắt đầu hoạt động.
+
 **Đáp án:** (a) Nhiệm vụ: Bắt đầu khi chạm cùng lúc TB1A + TB1B · (b) Nhiệm vụ: Kết thúc · (c) Di chuyển: Chạy với vận tốc Trái 30 Phải 30 · (d) Di chuyển: Chạy đoạn đường 20 cm · (e) Di chuyển: Dừng · (f) Mission: Begin Digital Twin · (g) When Leanbot started.
 
 **Bài 7 — Làm trên máy (vừa).**
@@ -265,10 +271,12 @@ void loop() {
   LbMission.end();
 }
 ```
+
 **Đáp án:** Khối "Nhiệm vụ: Bắt đầu khi chạm cùng lúc TB1A + TB1B", bên trong có "Chạy với vận tốc Trái 30 Phải 30 vòng/phút", "Chạy đoạn đường 20 cm", "Dừng", rồi "Nhiệm vụ: Kết thúc". Cột code giống từng dòng thì đúng.
 
 **Bài 8 — Chẩn đoán (khó).**
 **Đề:** Nối tình huống với nguyên nhân và cách sửa: (1) Robot đi qua khỏi Khu A. (2) Robot rẽ sai hướng hoặc sai góc. (3) Robot dừng quá sớm hoặc trôi sang một bên. Rồi trả lời: nếu con thấy ba chỗ sai cùng lúc thì nên sửa thế nào?
+
 **Đáp án:** (1) **Đi quá**: khoảng cách có thể quá lớn, giảm khoảng cách một chút (ví dụ 50 → 47 cm). (2) **Rẽ sai**: kiểm tra góc rẽ trong chương trình (rẽ chưa đủ thì tăng, ví dụ 90 → 95 độ). (3) **Trượt đích**: xem lại từng bước; một bánh có thể quay nhanh hơn bánh kia nên robot trôi, hoặc sàn trơn. Sửa **từng chỗ một**, ghi lại đã đổi gì, chạy lại. Đổi nhiều thứ cùng lúc thì không biết thứ nào làm robot tốt hơn.
 
 ## Câu hỏi kiểm tra của khóa gốc (dịch)
