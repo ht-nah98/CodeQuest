@@ -49,7 +49,12 @@ test('a lesson runs from its goals to the quiz and scores it', async ({ page }) 
   await expect(page).toHaveURL(/\/leanbot\/bai-00\/1$/);
   await expect(page.getByRole('heading', { name: 'Chào Leanbot!' })).toBeVisible();
 
-  // The two USB ports: the screen a child needs most, with a picture and a tick box.
+  // The picture of the robot's back, which always carries its description.
+  await page.goto('/leanbot/bai-00/6');
+  await expect(page.getByRole('heading', { name: /HAI cổng USB/ })).toBeVisible();
+  await expect(page.getByRole('img')).toHaveAttribute('alt', /Mặt sau Leanbot/);
+
+  // The next screen names the trap and offers the tick box.
   await page.goto('/leanbot/bai-00/7');
   await expect(page.getByRole('heading', { name: /Cắm nhầm/ })).toBeVisible();
   await expect(page.getByText('Để NẠP CODE')).toBeVisible();
@@ -65,10 +70,6 @@ test('a lesson runs from its goals to the quiz and scores it', async ({ page }) 
     'aria-pressed',
     'true',
   );
-
-  // A picture always carries its description.
-  const shot = page.getByRole('img').first();
-  await expect(shot).toHaveAttribute('alt', /.+/);
 
   // The quiz marks a right answer and explains it.
   await page.goto('/leanbot/bai-00/20');
