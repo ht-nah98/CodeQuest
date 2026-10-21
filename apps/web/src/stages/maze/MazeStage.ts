@@ -4,12 +4,14 @@ import {
   Container,
   Graphics,
   Sprite,
+  Text,
   type Texture,
   type Ticker,
 } from 'pixi.js';
 import type { RunOutcome } from '@codequest/engine';
 import { DEFAULT_SCENE_THEME, type GoalSprite, type SceneTheme } from '@codequest/content-schema';
 import type { GoalItemKind, MazeCell, MazeConfig, MazeDir, MazeEvent } from '@codequest/games';
+import { vi } from '../../i18n/vi';
 import { UI_COLORS } from '../../ui/tokens';
 import type { PandaTextures } from '../assets';
 import { shade } from '../colors';
@@ -187,6 +189,10 @@ export class MazeStage implements StageRenderer<MazeEvent> {
   /** Stage clock in ms (scaled by ticker speed), for idle bobbing and orbits. */
   private clock = 0;
   private flagSpeed = FLAG_SPEED;
+  /** Steps used so far on a level with `stepLimit` (ADR-0026); each `tiến` uses one. */
+  private stepsUsed = 0;
+  /** The "Còn N bước" chip of such a level, null on every other level (and on Node). */
+  private stepsChip: { panel: Graphics; text: Text } | null = null;
   /** Set by destroy(): a replay still awaiting a tween must not touch the scene afterwards. */
   private destroyed = false;
 
@@ -277,6 +283,8 @@ export class MazeStage implements StageRenderer<MazeEvent> {
     this.missedPulse = false;
     this.app.canvas.dataset.dizzy = 'false';
     this.app.canvas.dataset.tired = 'false';
+    this.stepsUsed = 0;
+    this.drawSteps();
     this.flashAt = null;
     this.flashAlpha = 0;
     this.shake = 0;
@@ -362,6 +370,10 @@ export class MazeStage implements StageRenderer<MazeEvent> {
     this.needPulse = false;
     switch (event.type) {
       case 'move': {
+        if (this.config.stepLimit !== undefined) {
+          this.stepsUsed += 1;
+          this.drawSteps();
+        }
         const [r0, c0] = event.from;
         const [r1, c1] = event.to;
         this.faceTowards(event.dir);
@@ -861,11 +873,49 @@ export class MazeStage implements StageRenderer<MazeEvent> {
   }
 
   /**
+   * "Còn N bước" at the top centre, on levels with a step budget (ADR-0026). Măng's steps are the
+   * scarce thing there, so the number has to be on the stage next to her, not only in the lesson.
+   * Also published as `data-maze-steps` for e2e.
+   */
+  private drawSteps(): void {
+    const limit = this.config.stepLimit;
+    if (limit === undefined || this.destroyed) return;
+    const left = Math.max(0, limit - this.stepsUsed);
+    this.app.canvas.dataset.mazeSteps = String(left);
+    if (typeof document === 'undefined') return;
+    if (!this.stepsChip) {
+      const panel = new Graphics();
+      const text = new Text({
+        text: '',
+        style: { fontFamily: 'VT323', fontSize: 22, fill: UI_COLORS.ink },
+      });
+      this.stepsChip = { panel, text };
+      this.hud.addChild(panel, text);
+    }
+    const { panel, text } = this.stepsChip;
+    text.text = vi.play.maze.stepsLeft(left);
+    const w = text.width + HUD_PAD * 2;
+    const h = text.height + HUD_PAD;
+    // Top centre: the shoot counter owns the left corner and the stage's zoom button the right.
+    const x = Math.max(HUD_MARGIN, Math.round((this.layout.width - w) / 2));
+    panel
+      .clear()
+      .roundRect(x + 3, HUD_MARGIN + 3, w, h, 10)
+      .fill({ color: UI_COLORS.ink })
+      .roundRect(x, HUD_MARGIN, w, h, 10)
+      .fill({ color: left === 0 ? UI_COLORS.oopsSoft : UI_COLORS.paper })
+      .stroke({ color: UI_COLORS.ink, width: 3 });
+    text.position.set(x + HUD_PAD, HUD_MARGIN + HUD_PAD / 2);
+  }
+
+  /**
    * Counter (top-left, in its own band): one shoot per `b` on the map, lit once collected, then
    * one icon per mission item (key, friend), lit once picked up.
    */
   private updateHud(): void {
     for (const child of this.hud.removeChildren()) child.destroy();
+    this.stepsChip = null;
+    this.drawSteps();
     const shoots = this.bambooCells.length;
     const itemKeys = [...this.itemKinds.keys()];
     const total = shoots + itemKeys.length;

@@ -18,8 +18,7 @@ import {
   levelFileText,
   newDraft,
   unknownLevelKeys,
-  withMode,
-} from '../../features/editor/draft';
+  withMode, isShelfLevel, } from '../../features/editor/draft';
 import {
   deleteLevelDraft,
   loadLevelDraft,
@@ -122,6 +121,7 @@ function LevelEditor() {
     const json = load === undefined ? null : await load();
     const level = draftFromJson(json);
     if (hasSpells(json)) setNotice(t.spellsUnsupported);
+    else if (isShelfLevel(json)) setNotice(t.sorterUnsupported);
     else if (level === null) setNotice(t.openFailed);
     else start(level, crypto.randomUUID(), id, json);
   };
@@ -130,6 +130,7 @@ function LevelEditor() {
     const json = await loadLevelDraft(key);
     const level = draftFromJson(json);
     if (hasSpells(json)) setNotice(t.spellsUnsupported);
+    else if (isShelfLevel(json)) setNotice(t.sorterUnsupported);
     else if (level === null) setNotice(t.openFailed);
     else start(level, key, null, json);
   };
@@ -146,6 +147,7 @@ function LevelEditor() {
     }
     const level = draftFromJson(json);
     if (hasSpells(json)) setNotice(t.spellsUnsupported);
+    else if (isShelfLevel(json)) setNotice(t.sorterUnsupported);
     else if (level === null) setNotice(t.openFailed);
     else start(level, crypto.randomUUID(), null, json);
   };

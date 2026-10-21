@@ -238,3 +238,60 @@ describe('MazeStage scene themes (P2-23)', () => {
     }
   });
 });
+
+describe('MazeStage with a step budget (ADR-0026)', () => {
+  const LIMITED: MazeConfig = { map: ['S..G'], startDir: 'E', stepLimit: 2 };
+
+  function stageWithLimit(): { stage: MazeStage; data: Record<string, string> } {
+    const canvasOfLevel = { dataset: {} as Record<string, string> };
+    const app = {
+      ticker,
+      screen: { width: 516, height: 360 },
+      stage: new Container(),
+      canvas: canvasOfLevel,
+    };
+    return {
+      stage: new MazeStage(app as unknown as Application, LIMITED, pandaTextures()),
+      data: canvasOfLevel.dataset,
+    };
+  }
+
+  it('starts with the whole budget', () => {
+    expect(stageWithLimit().data.mazeSteps).toBe('2');
+  });
+
+  it('a step uses one, and the counter stops at zero', async () => {
+    const { stage: limited, data } = stageWithLimit();
+    const controller = new AbortController();
+    for (const [from, to] of [
+      [1, 2],
+      [2, 3],
+    ] as const) {
+      const done = limited.play(
+        { type: 'move', blockId: 'm', from: [0, from], to: [0, to], dir: 'E' },
+        controller.signal,
+      );
+      await advance(600);
+      await done;
+    }
+    expect(data.mazeSteps).toBe('0');
+  });
+
+  it('reset gives the budget back', async () => {
+    const { stage: limited, data } = stageWithLimit();
+    const controller = new AbortController();
+    const done = limited.play(
+      { type: 'move', blockId: 'm', from: [0, 1], to: [0, 2], dir: 'E' },
+      controller.signal,
+    );
+    await advance(600);
+    await done;
+    expect(data.mazeSteps).toBe('1');
+    limited.reset();
+    expect(data.mazeSteps).toBe('2');
+  });
+
+  it('a level without a budget publishes no counter', () => {
+    expect(canvas.dataset.mazeSteps).toBeUndefined();
+  });
+});

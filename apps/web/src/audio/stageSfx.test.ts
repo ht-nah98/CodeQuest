@@ -19,6 +19,16 @@ describe('stageSfx', () => {
     expect(stageSfx('move')).toBe('step');
   });
 
+  it('maps the shelf events and the maze step limit', () => {
+    expect(stageSfx('swap')).toBe('snap');
+    expect(stageSfx('ask')).toBe('click');
+    expect(stageSfx('offShelf')).toBe('bump');
+    expect(stageSfx('noBookRight')).toBe('bump');
+    // Both end the run, so they play the fail sound themselves (like `missed`).
+    expect(stageSfx('outOfQuestions')).toBe('wrong');
+    expect(stageSfx('tired')).toBe('wrong');
+  });
+
   it('is silent for unknown events (and inherited object keys)', () => {
     expect(stageSfx('teleport')).toBeNull();
     expect(stageSfx('toString')).toBeNull();

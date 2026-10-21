@@ -91,6 +91,14 @@ export function hasSpells(json: unknown): boolean {
 }
 
 /**
+ * Whether this is a shelf level (ADR-0025). The editor's map tools draw grids, and a shelf is a
+ * row of numbered books, so opening one here would drop its `books` and `goal` without saying so.
+ */
+export function isShelfLevel(json: unknown): boolean {
+  return isRecord(json) && json['kind'] === 'sorter';
+}
+
+/**
  * A draft from a level file, a saved draft or a content level: any object with an editor
  * `kind` and a known `mode`; missing fields come from a new draft. Null when it is not one.
  */

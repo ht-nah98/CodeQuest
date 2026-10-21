@@ -20,6 +20,17 @@ const STAGE_SFX: Partial<Record<string, SfxName>> = {
   // maze
   move: 'step',
   turn: 'click',
+  // Out of steps (ADR-0026) ends the run, so it plays the fail sound itself; the play screen
+  // then skips its own, as it does for `missed`.
+  tired: 'wrong',
+  // sorter (ADR-0025): the hand's `move` shares the maze's step. A swap is two books clicking
+  // into place; a question is a small click; walking off the shelf or swapping with nothing is a
+  // bump; running out of questions ends the run.
+  swap: 'snap',
+  ask: 'click',
+  offShelf: 'bump',
+  noBookRight: 'bump',
+  outOfQuestions: 'wrong',
 };
 
 /** The sound for a stage event type, or null when the event is silent. */
