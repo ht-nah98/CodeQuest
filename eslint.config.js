@@ -107,6 +107,8 @@ export default defineConfig(
     '**/test-results/',
     'apps/web/public/',
     '**/.omc/',
+    // Vendored copy of Pythaverse's own message file, kept only to diff against.
+    'tools/lbeditor-vi/upstream-leanbot_vi.js',
   ]),
 
   js.configs.recommended,
@@ -244,6 +246,18 @@ export default defineConfig(
   {
     files: ['apps/web/scripts/**/*.js'],
     rules: { 'no-console': 'off' },
+  },
+
+  // tools/lbeditor-vi ships code that runs inside Pythaverse's own page, not in this repo's
+  // build: the userscript and the drop-in message file see `window`, `Blockly` and Closure's
+  // `goog`, and the checker is a standalone .mjs that no tsconfig covers. Both are therefore
+  // outside the type-aware program (research/pythaverse-synapse-city.md §4).
+  {
+    files: ['tools/lbeditor-vi/**/*.{js,mjs}'],
+    extends: [tseslint.configs.disableTypeChecked],
+    languageOptions: {
+      globals: { ...globals.browser, ...globals.node, Blockly: 'readonly', goog: 'readonly' },
+    },
   },
 
   // Web app.
