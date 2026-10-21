@@ -1,0 +1,74 @@
+{
+  "id": "w10-lesson-hoi-truoc",
+  "worldId": "w10-hoc-vien",
+  "title": "Hỏi trước, đi sau",
+  "beforeLevel": "w10-l06",
+  "cards": [
+    { "type": "say", "pose": "point", "text": "Hỏi sách này trước, rồi mới sang phải." },
+    {
+      "type": "demo",
+      "text": "Đi trước rồi mới hỏi: bỏ sót sách số 9!",
+      "kind": "sorter",
+      "config": { "books": [9, 1, 2], "goal": { "end": true } },
+      "variables": [{ "id": "lon", "name": "số sách lớn" }],
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "cq_repeat_until",
+                  "id": "until1",
+                  "inputs": {
+                    "COND": { "block": { "type": "sorter_at_end", "id": "end1" } },
+                    "DO": {
+                      "block": {
+                        "type": "sorter_right",
+                        "id": "r1",
+                        "next": {
+                          "block": {
+                            "type": "cq_if",
+                            "id": "if1",
+                            "inputs": {
+                              "COND": {
+                                "block": {
+                                  "type": "sorter_book_is",
+                                  "id": "ask1",
+                                  "fields": { "OP": "GT", "NUM": 5 }
+                                }
+                              },
+                              "DO": {
+                                "block": {
+                                  "type": "cq_var_add",
+                                  "id": "add1",
+                                  "fields": { "VAR": "lon", "NUM": 1 }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "quiz",
+      "text": "Đi trước rồi hỏi. Sách nào bị bỏ sót?",
+      "options": ["Sách đầu", "Sách cuối"],
+      "correct": 0,
+      "explain": "Tay đi khỏi cuốn đầu rồi mới hỏi, nên cuốn đầu không ai hỏi."
+    }
+  ]
+}

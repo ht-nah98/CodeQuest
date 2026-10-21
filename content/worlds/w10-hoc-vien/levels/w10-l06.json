@@ -1,0 +1,226 @@
+{
+  "id": "w10-l06",
+  "worldId": "w10-hoc-vien",
+  "stage": "practice",
+  "kind": "sorter",
+  "mode": "bughunt",
+  "title": "Bỏ sót cuốn đầu",
+  "objective": "Bíp đếm thiếu một cuốn. Con sửa giúp nhé!",
+  "learningGoal": "Hỏi sách này trước, rồi mới sang phải.",
+  "misconception": "Đi trước rồi hỏi cũng vậy.",
+  "thinkingHint": "Kệ thứ ba mở đầu bằng cuốn số 9. Cuốn đó có được hỏi không?",
+  "toolbox": [
+    "sorter_right",
+    "sorter_at_end",
+    {
+      "type": "sorter_book_is",
+      "fields": {
+        "OP": "GT",
+        "NUM": 5
+      }
+    },
+    "cq_if",
+    "cq_repeat_until",
+    {
+      "type": "cq_var_add",
+      "fields": {
+        "VAR": "lon",
+        "NUM": 1
+      }
+    }
+  ],
+  "maxLoopDepth": 1,
+  "par": 6,
+  "parEdits": 2,
+  "variables": [
+    {
+      "id": "lon",
+      "name": "số sách lớn"
+    }
+  ],
+  "countGoal": {
+    "var": "lon",
+    "equals": [
+      2,
+      2,
+      1
+    ]
+  },
+  "config": {
+    "books": [
+      3,
+      7,
+      2,
+      8
+    ],
+    "goal": {
+      "end": true
+    }
+  },
+  "variants": [
+    {
+      "books": [
+        2,
+        4,
+        9,
+        6
+      ],
+      "goal": {
+        "end": true
+      }
+    },
+    {
+      "books": [
+        9,
+        1,
+        4,
+        2
+      ],
+      "goal": {
+        "end": true
+      }
+    }
+  ],
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat_until",
+              "id": "until1",
+              "inputs": {
+                "COND": {
+                  "block": {
+                    "type": "sorter_at_end",
+                    "id": "end1"
+                  }
+                },
+                "DO": {
+                  "block": {
+                    "type": "sorter_right",
+                    "id": "r1",
+                    "next": {
+                      "block": {
+                        "type": "cq_if",
+                        "id": "if1",
+                        "inputs": {
+                          "COND": {
+                            "block": {
+                              "type": "sorter_book_is",
+                              "id": "ask1",
+                              "fields": {
+                                "OP": "GT",
+                                "NUM": 5
+                              }
+                            }
+                          },
+                          "DO": {
+                            "block": {
+                              "type": "cq_var_add",
+                              "id": "add1",
+                              "fields": {
+                                "VAR": "lon",
+                                "NUM": 1
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat_until",
+              "id": "until1",
+              "inputs": {
+                "COND": {
+                  "block": {
+                    "type": "sorter_at_end",
+                    "id": "end1"
+                  }
+                },
+                "DO": {
+                  "block": {
+                    "type": "cq_if",
+                    "id": "if1",
+                    "inputs": {
+                      "COND": {
+                        "block": {
+                          "type": "sorter_book_is",
+                          "id": "ask1",
+                          "fields": {
+                            "OP": "GT",
+                            "NUM": 5
+                          }
+                        }
+                      },
+                      "DO": {
+                        "block": {
+                          "type": "cq_var_add",
+                          "id": "add1",
+                          "fields": {
+                            "VAR": "lon",
+                            "NUM": 1
+                          }
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "sorter_right",
+                        "id": "r1"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "first",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Cuốn đầu kệ có được hỏi không?",
+      "point": "stage"
+    },
+    {
+      "id": "order",
+      "when": {
+        "trigger": "idle"
+      },
+      "say": "Kéo khối sang phải xuống dưới khối nếu nhé.",
+      "point": "block:sorter_right"
+    }
+  ]
+}

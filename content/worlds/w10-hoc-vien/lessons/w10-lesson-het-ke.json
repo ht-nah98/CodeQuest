@@ -1,0 +1,70 @@
+{
+  "id": "w10-lesson-het-ke",
+  "worldId": "w10-hoc-vien",
+  "title": "Hết kệ",
+  "beforeLevel": "w10-l05",
+  "cards": [
+    { "type": "say", "pose": "point", "text": "Khối mới! Hết kệ? Tay ở cờ cuối kệ thì ✔" },
+    { "type": "say", "pose": "think", "text": "Ô so có 3 dấu: =, > và <." },
+    {
+      "type": "demo",
+      "text": "Xem hết kệ: 2 sách nhỏ hơn 3.",
+      "kind": "sorter",
+      "config": { "books": [1, 7, 2], "goal": { "end": true } },
+      "variables": [{ "id": "nho", "name": "số sách nhỏ" }],
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "cq_repeat_until",
+                  "id": "until1",
+                  "inputs": {
+                    "COND": { "block": { "type": "sorter_at_end", "id": "end1" } },
+                    "DO": {
+                      "block": {
+                        "type": "cq_if",
+                        "id": "if1",
+                        "inputs": {
+                          "COND": {
+                            "block": {
+                              "type": "sorter_book_is",
+                              "id": "ask1",
+                              "fields": { "OP": "LT", "NUM": 3 }
+                            }
+                          },
+                          "DO": {
+                            "block": {
+                              "type": "cq_var_add",
+                              "id": "add1",
+                              "fields": { "VAR": "nho", "NUM": 1 }
+                            }
+                          }
+                        },
+                        "next": { "block": { "type": "sorter_right", "id": "r1" } }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "quiz",
+      "text": "Đếm sách lớn. Dừng ở sách đầu được không?",
+      "options": ["Không, xem hết kệ", "Được"],
+      "correct": 0,
+      "explain": "Đếm thì phải xem hết kệ, tới tận cờ cuối kệ."
+    }
+  ]
+}

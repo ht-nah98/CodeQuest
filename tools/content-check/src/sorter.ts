@@ -264,6 +264,11 @@ export const SORTER_TRAPS: ReadonlyMap<string, readonly SorterTrap[]> = new Map(
     // Counting places instead of asking: one step right finds the 6 of shelf 1 and misses it on
     // the other two (S1).
     'w10-l04': [{ program: 'R', reason: 'NOT_FOUND', s1: true }],
+    // Counting the first shelf's four books: the five-book shelf stops one short of its flag (S1).
+    'w10-l05': [{ program: 'REP4[IF>5[ADD:lon] R]', reason: 'NOT_AT_END', s1: true }],
+    // The bug as it ships: asking after the step skips the first book, which is the big one on
+    // shelf 1 and a small one on shelf 2 (S1).
+    'w10-l06': [{ program: 'UNTILE[R IF>5[ADD:lon]]', reason: 'WRONG_COUNT', s1: true }],
   }),
 );
 

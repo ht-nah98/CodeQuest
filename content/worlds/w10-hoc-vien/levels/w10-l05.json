@@ -1,0 +1,96 @@
+{
+  "id": "w10-l05",
+  "worldId": "w10-hoc-vien",
+  "stage": "practice",
+  "kind": "sorter",
+  "mode": "build",
+  "title": "Đếm sách lớn",
+  "objective": "Đếm xem kệ có mấy cuốn lớn hơn 5 nhé!",
+  "learningGoal": "Hết kệ? cho biết khi nào xem xong: đếm phải đi tới cờ.",
+  "misconception": "Đếm tới cuốn cuối là xong, không cần tới cờ.",
+  "thinkingHint": "Kệ thứ hai dài hơn. Dừng ở đâu thì mới chắc đã xem hết?",
+  "toolbox": [
+    "sorter_right",
+    "sorter_at_end",
+    { "type": "sorter_book_is", "fields": { "OP": "GT", "NUM": 5 } },
+    "cq_if",
+    "cq_repeat_until",
+    "cq_repeat",
+    { "type": "cq_var_add", "fields": { "VAR": "lon", "NUM": 1 } }
+  ],
+  "maxLoopDepth": 1,
+  "par": 6,
+  "maxBlocks": 8,
+  "variables": [{ "id": "lon", "name": "số sách lớn" }],
+  "countGoal": { "var": "lon", "equals": [2, 3] },
+  "config": {
+    "books": [7, 2, 9, 4],
+    "goal": { "end": true }
+  },
+  "variants": [{ "books": [3, 8, 6, 1, 9], "goal": { "end": true } }],
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat_until",
+              "id": "until1",
+              "inputs": {
+                "COND": { "block": { "type": "sorter_at_end", "id": "end1" } },
+                "DO": {
+                  "block": {
+                    "type": "cq_if",
+                    "id": "if1",
+                    "inputs": {
+                      "COND": {
+                        "block": {
+                          "type": "sorter_book_is",
+                          "id": "ask1",
+                          "fields": { "OP": "GT", "NUM": 5 }
+                        }
+                      },
+                      "DO": {
+                        "block": {
+                          "type": "cq_var_add",
+                          "id": "add1",
+                          "fields": { "VAR": "lon", "NUM": 1 }
+                        }
+                      }
+                    },
+                    "next": { "block": { "type": "sorter_right", "id": "r1" } }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "end",
+      "when": { "trigger": "enter" },
+      "say": "Kệ dài ngắn khác nhau. Khi nào thì xem xong?",
+      "point": "toolbox:sorter_at_end"
+    },
+    {
+      "id": "count",
+      "when": { "trigger": "idle" },
+      "say": "Thấy sách lớn hơn 5 thì tăng hộp thêm 1.",
+      "point": "toolbox:cq_var_add"
+    },
+    {
+      "id": "short",
+      "when": { "trigger": "run-end", "lastReason": "NOT_AT_END" },
+      "say": "Tay chưa tới cờ. Kệ còn sách chưa xem."
+    }
+  ]
+}
