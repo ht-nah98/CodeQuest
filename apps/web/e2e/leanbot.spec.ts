@@ -23,6 +23,11 @@ test('the hub offers both courses and leads into each', async ({ page }) => {
 
   await codequest.click();
   await expect(page).toHaveURL(/\/map$/);
+  // The map must lead back to the hub, or the other course is unreachable without the URL.
+  await page.getByRole('button', { name: /Học gì hôm nay/ }).click();
+  await expect(page).toHaveURL(/\/hub$/);
+  await page.getByRole('link', { name: /CodeQuest/ }).click();
+  await expect(page).toHaveURL(/\/map$/);
 
   await page.goto('/hub');
   await page.getByRole('link', { name: /Leanbot/ }).click();

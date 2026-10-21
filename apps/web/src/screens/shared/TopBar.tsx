@@ -8,7 +8,7 @@ import { FOCUS_RING } from '../../ui/focusRing';
 import { CoachBadge } from './CoachBadge';
 
 export interface TopBarProps {
-  /** Back button (label + route); omitted on the map, the hub of the app. */
+  /** Back button (label + route). Every screen after the hub has one, the hub itself does not. */
   back?: { label: string; to: string };
   /** Middle of the bar (screen title). */
   children?: ReactNode;

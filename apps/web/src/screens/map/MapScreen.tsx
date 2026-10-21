@@ -89,7 +89,7 @@ export default function MapScreen() {
 
   return (
     <main className="grid h-dvh min-h-[500px] grid-rows-[auto_minmax(0,1fr)] gap-3 bg-ground p-3">
-      <TopBar fullHud>
+      <TopBar fullHud back={{ label: vi.hub.title, to: '/hub' }}>
         <h1 className="m-0 truncate font-display text-[28px] text-paper">{t.title}</h1>
         <UpdateBanner />
       </TopBar>
