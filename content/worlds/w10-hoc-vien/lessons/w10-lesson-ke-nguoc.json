@@ -1,0 +1,71 @@
+{
+  "id": "w10-lesson-ke-nguoc",
+  "worldId": "w10-hoc-vien",
+  "title": "Kệ ngược hẳn",
+  "beforeLevel": "w10-l11",
+  "cards": [
+    { "type": "say", "pose": "think", "text": "Kệ ngược hẳn cần nhiều lượt nhất." },
+    {
+      "type": "demo",
+      "text": "Kệ 4 sách ngược hẳn cần 3 lượt.",
+      "kind": "sorter",
+      "config": { "books": [4, 3, 2, 1], "goal": { "sorted": true } },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "cq_repeat",
+                  "id": "loop1",
+                  "fields": { "TIMES": 3 },
+                  "inputs": {
+                    "DO": {
+                      "block": {
+                        "type": "sorter_to_start",
+                        "id": "s1",
+                        "next": {
+                          "block": {
+                            "type": "cq_repeat",
+                            "id": "loop2",
+                            "fields": { "TIMES": 3 },
+                            "inputs": {
+                              "DO": {
+                                "block": {
+                                  "type": "cq_if",
+                                  "id": "if1",
+                                  "inputs": {
+                                    "COND": { "block": { "type": "sorter_bigger", "id": "ask1" } },
+                                    "DO": { "block": { "type": "sorter_swap", "id": "w1" } }
+                                  },
+                                  "next": { "block": { "type": "sorter_right", "id": "r1" } }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "quiz",
+      "text": "Kệ 5 sách ngược hẳn. Cần mấy lượt?",
+      "options": ["4 lượt", "2 lượt"],
+      "correct": 0,
+      "explain": "Kệ mấy cuốn thì cần số lượt ít hơn một: 5 cuốn cần 4 lượt."
+    }
+  ]
+}

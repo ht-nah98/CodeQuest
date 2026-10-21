@@ -1,0 +1,213 @@
+{
+  "id": "w10-l11",
+  "worldId": "w10-hoc-vien",
+  "stage": "practice",
+  "kind": "sorter",
+  "mode": "bughunt",
+  "title": "Thiếu mấy lượt",
+  "objective": "Kệ thứ hai chưa xếp xong. Con sửa giúp nhé!",
+  "learningGoal": "Kệ ngược hẳn cần nhiều lượt nhất: kệ 5 sách cần 4 lượt.",
+  "misconception": "Kệ nào cũng cần số lượt như nhau.",
+  "thinkingHint": "Kệ thứ hai ngược hẳn. Mỗi lượt đưa được mấy cuốn về đúng chỗ?",
+  "toolbox": [
+    "sorter_right",
+    "sorter_swap",
+    "sorter_bigger",
+    "sorter_to_start",
+    "cq_if",
+    "cq_repeat"
+  ],
+  "maxLoopDepth": 2,
+  "par": 7,
+  "parEdits": 1,
+  "config": {
+    "books": [
+      2,
+      1,
+      3,
+      5,
+      4
+    ],
+    "goal": {
+      "sorted": true
+    },
+    "maxQuestions": 16
+  },
+  "variants": [
+    {
+      "books": [
+        5,
+        4,
+        3,
+        2,
+        1
+      ],
+      "goal": {
+        "sorted": true
+      },
+      "maxQuestions": 16
+    }
+  ],
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "loop1",
+              "fields": {
+                "TIMES": 2
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "sorter_to_start",
+                    "id": "s1",
+                    "next": {
+                      "block": {
+                        "type": "cq_repeat",
+                        "id": "loop2",
+                        "fields": {
+                          "TIMES": 4
+                        },
+                        "inputs": {
+                          "DO": {
+                            "block": {
+                              "type": "cq_if",
+                              "id": "if1",
+                              "inputs": {
+                                "COND": {
+                                  "block": {
+                                    "type": "sorter_bigger",
+                                    "id": "ask1"
+                                  }
+                                },
+                                "DO": {
+                                  "block": {
+                                    "type": "sorter_swap",
+                                    "id": "w1"
+                                  }
+                                }
+                              },
+                              "next": {
+                                "block": {
+                                  "type": "sorter_right",
+                                  "id": "r1"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "loop1",
+              "fields": {
+                "TIMES": 4
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "sorter_to_start",
+                    "id": "s1",
+                    "next": {
+                      "block": {
+                        "type": "cq_repeat",
+                        "id": "loop2",
+                        "fields": {
+                          "TIMES": 4
+                        },
+                        "inputs": {
+                          "DO": {
+                            "block": {
+                              "type": "cq_if",
+                              "id": "if1",
+                              "inputs": {
+                                "COND": {
+                                  "block": {
+                                    "type": "sorter_bigger",
+                                    "id": "ask1"
+                                  }
+                                },
+                                "DO": {
+                                  "block": {
+                                    "type": "sorter_swap",
+                                    "id": "w1"
+                                  }
+                                }
+                              },
+                              "next": {
+                                "block": {
+                                  "type": "sorter_right",
+                                  "id": "r1"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "count",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Kệ thứ hai cần mấy lượt mới xếp xong?",
+      "point": "stage"
+    },
+    {
+      "id": "outer",
+      "when": {
+        "trigger": "idle"
+      },
+      "say": "Số trong khối lặp ngoài là số lượt.",
+      "point": "stage"
+    },
+    {
+      "id": "still",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "NOT_SORTED"
+      },
+      "say": "Vẫn chưa xong. Thêm lượt nữa xem sao."
+    }
+  ]
+}

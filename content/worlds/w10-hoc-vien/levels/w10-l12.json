@@ -1,0 +1,153 @@
+{
+  "id": "w10-l12",
+  "worldId": "w10-hoc-vien",
+  "stage": "practice",
+  "kind": "sorter",
+  "mode": "predict",
+  "title": "Hết lượt hỏi",
+  "objective": "Đoán xem Bíp làm xong hay hết lượt hỏi nhé!",
+  "learningGoal": "Mỗi lần hỏi sách tốn 1 lượt; hỏi thừa là hết lượt.",
+  "misconception": "Kệ xếp xong rồi thì hỏi thêm cũng không sao.",
+  "thinkingHint": "Kệ xếp xong ở lần hỏi thứ mấy? Còn mấy lượt hỏi nữa?",
+  "toolbox": [],
+  "config": {
+    "books": [
+      4,
+      3,
+      1,
+      2
+    ],
+    "goal": {
+      "sorted": true
+    },
+    "maxQuestions": 5
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "loop1",
+              "fields": {
+                "TIMES": 3
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "cq_if",
+                    "id": "if1",
+                    "inputs": {
+                      "COND": {
+                        "block": {
+                          "type": "sorter_bigger",
+                          "id": "ask1"
+                        }
+                      },
+                      "DO": {
+                        "block": {
+                          "type": "sorter_swap",
+                          "id": "w1"
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "sorter_right",
+                        "id": "r1"
+                      }
+                    }
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "type": "sorter_to_start",
+                  "id": "s1",
+                  "next": {
+                    "block": {
+                      "type": "cq_repeat",
+                      "id": "loop2",
+                      "fields": {
+                        "TIMES": 3
+                      },
+                      "inputs": {
+                        "DO": {
+                          "block": {
+                            "type": "cq_if",
+                            "id": "if2",
+                            "inputs": {
+                              "COND": {
+                                "block": {
+                                  "type": "sorter_bigger",
+                                  "id": "ask2"
+                                }
+                              },
+                              "DO": {
+                                "block": {
+                                  "type": "sorter_swap",
+                                  "id": "w2"
+                                }
+                              }
+                            },
+                            "next": {
+                              "block": {
+                                "type": "sorter_right",
+                                "id": "r2"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "predict": {
+    "options": [
+      {
+        "key": "shelf:1,2,3,4@3",
+        "label": "Xếp xong, Bíp dừng lại"
+      },
+      {
+        "key": "crash:OUT_OF_QUESTIONS@3",
+        "label": "Xếp xong rồi mới hết lượt hỏi"
+      },
+      {
+        "key": "crash:OUT_OF_QUESTIONS@1",
+        "label": "Hết lượt hỏi ngay lượt đầu"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "enter",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Mỗi lần hỏi sách tốn 1 lượt hỏi.",
+      "point": "stage"
+    },
+    {
+      "id": "count",
+      "when": {
+        "trigger": "idle"
+      },
+      "say": "Đếm số lần hỏi của lượt 1 và lượt 2.",
+      "point": "stage"
+    }
+  ]
+}

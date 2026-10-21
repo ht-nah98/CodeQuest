@@ -1,0 +1,112 @@
+{
+  "id": "w10-lesson-luot-hoi",
+  "worldId": "w10-hoc-vien",
+  "title": "Lượt hỏi",
+  "beforeLevel": "w10-l12",
+  "cards": [
+    {
+      "type": "say",
+      "pose": "point",
+      "text": "Mỗi lần hỏi sách tốn 1 lượt hỏi."
+    },
+    {
+      "type": "say",
+      "pose": "think",
+      "text": "Hết lượt hỏi thì Bíp dừng lại."
+    },
+    {
+      "type": "demo",
+      "text": "3 lượt hỏi: hỏi lần thứ 4 là hết.",
+      "kind": "sorter",
+      "config": {
+        "books": [
+          3,
+          2,
+          1
+        ],
+        "goal": {
+          "sorted": true
+        },
+        "maxQuestions": 3
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "cq_repeat",
+                  "id": "loop1",
+                  "fields": {
+                    "TIMES": 2
+                  },
+                  "inputs": {
+                    "DO": {
+                      "block": {
+                        "type": "sorter_to_start",
+                        "id": "s1",
+                        "next": {
+                          "block": {
+                            "type": "cq_repeat",
+                            "id": "loop2",
+                            "fields": {
+                              "TIMES": 2
+                            },
+                            "inputs": {
+                              "DO": {
+                                "block": {
+                                  "type": "cq_if",
+                                  "id": "if1",
+                                  "inputs": {
+                                    "COND": {
+                                      "block": {
+                                        "type": "sorter_bigger",
+                                        "id": "ask1"
+                                      }
+                                    },
+                                    "DO": {
+                                      "block": {
+                                        "type": "sorter_swap",
+                                        "id": "w1"
+                                      }
+                                    }
+                                  },
+                                  "next": {
+                                    "block": {
+                                      "type": "sorter_right",
+                                      "id": "r1"
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "quiz",
+      "text": "Hỏi \"hết kệ?\" có tốn lượt không?",
+      "options": [
+        "Không",
+        "Có"
+      ],
+      "correct": 0,
+      "explain": "Chỉ hỏi sách mới tốn lượt. Hỏi hết kệ thì không."
+    }
+  ]
+}
