@@ -4,7 +4,7 @@
 >
 > Buổi 14 trong lộ trình (giáo trình tổng §7). Cột mốc: **cùng một chương trình chạy đúng cả trên Bản Sao Số lẫn robot thật.**
 >
-> Đây là bài quan trọng nhất về thao tác: lần đầu bé chuyển chương trình từ Bản Sao Số sang robot thật. **Chuẩn bị nạp code và xử lý lỗi nạp** nằm ở [`../../playbooks/leanbot-setup.md`](../../playbooks/leanbot-setup.md). Giáo án này chỉ trỏ sang đó, không chép lại. (Khi viết giáo án, file đó chưa có trong repo. Thầy kiểm tra trước giờ học.)
+> Đây là bài quan trọng nhất về thao tác: lần đầu bé chuyển chương trình từ Bản Sao Số sang robot thật. **Chuẩn bị nạp code và xử lý lỗi nạp** nằm ở [`../../playbooks/leanbot-setup.md`](../thiet-bi/cai-dat.md). Giáo án này chỉ trỏ sang đó, không chép lại. (Khi viết giáo án, file đó chưa có trong repo. Thầy kiểm tra trước giờ học.)
 
 ## Bé học xong thì làm được gì
 - Chép chương trình từ trình soạn khối của Bản Sao Số sang trình soạn khối của robot thật (Sao chép khối, Dán khối).

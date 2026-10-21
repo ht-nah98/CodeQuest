@@ -36,7 +36,7 @@ không có §2, còn §7 nằm rải rác ở nơi khác.
 
 ## §1. Leanbot gồm những gì
 
-![Leanbot nhìn nghiêng, có chú thích từng bộ phận](img/leanbot-phan-cung-1.png)
+![Leanbot nhìn nghiêng, có chú thích từng bộ phận](../img/leanbot-phan-cung-1.png)
 
 | Số lượng | Bộ phận | Để làm gì | Học ở bài |
 |---|---|---|---|
@@ -60,7 +60,7 @@ bám vạch.
 
 ### Bốn nút chạm nằm ở đâu
 
-![Leanbot nhìn từ trên xuống: 4 nút chạm, Arduino Nano, mô-đun Bluetooth](img/leanbot-phan-cung-3.png)
+![Leanbot nhìn từ trên xuống: 4 nút chạm, Arduino Nano, mô-đun Bluetooth](../img/leanbot-phan-cung-3.png)
 
 Nút chạm có tên in ngay trên bảng mạch: **`TB1A`, `TB1B`** ở **phía trước** (gần tay gắp),
 **`TB2A`, `TB2B`** ở **phía sau**. Nhớ điều này vì hầu hết chương trình mẫu đều bắt đầu bằng
@@ -84,7 +84,7 @@ Cạnh nó là **mô-đun Bluetooth**, dùng cho Bản Sao Số ở Bài 10.
 
 ## §2. Hai cổng USB — chỗ sai nhiều nhất
 
-![Leanbot nhìn từ phía sau: cổng nạp Arduino, cổng sạc, công tắc, cục pin](img/leanbot-phan-cung-2.png)
+![Leanbot nhìn từ phía sau: cổng nạp Arduino, cổng sạc, công tắc, cục pin](../img/leanbot-phan-cung-2.png)
 
 Mặt sau robot có **hai cổng USB nằm gần nhau**, làm hai việc hoàn toàn khác nhau:
 
@@ -251,7 +251,7 @@ Phần này khóa gốc không gom vào System Configuration, nhưng không có 
 
 ### Nút nạp nằm ở đâu
 
-![Ba biểu tượng góc phải màn hình IDE](img/ide-nut-nap.png)
+![Ba biểu tượng góc phải màn hình IDE](../img/ide-nut-nap.png)
 
 Tài liệu Pythaverse gọi nó là nút `Compile & Upload`. **Trên màn hình không có chữ đó** — chỉ
 có biểu tượng:
@@ -267,7 +267,7 @@ robot không nhận gì.
 
 ### Thanh dưới cùng phải đúng ba thứ
 
-![Thanh dưới: SELECT DEVICE, BOARD ARDUINO UNO, SERVER ONLINE](img/ide-thanh-duoi.png)
+![Thanh dưới: SELECT DEVICE, BOARD ARDUINO UNO, SERVER ONLINE](../img/ide-thanh-duoi.png)
 
 | Chữ | Phải là |
 |---|---|

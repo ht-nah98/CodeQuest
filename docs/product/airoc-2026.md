@@ -1,7 +1,7 @@
 # AIROC 2026: những gì đã biết
 
 Nguồn chuẩn cho: thông tin về cuộc thi AIROC 2026 dùng để soạn Thế giới 6 (`robotlab`) và khóa
-[`leanbot-airoc-vi.md`](leanbot-airoc-vi.md). Tra cứu web ngày 07/10/2026, **cập nhật 21/10/2026**
+[`leanbot/giao-trinh.md`](../leanbot/giao-trinh.md). Tra cứu web ngày 07/10/2026, **cập nhật 21/10/2026**
 từ trang chính thức `airoc.space/airoc`. Mức tin cậy: **xác nhận** (nguồn chính thức hoặc nhiều
 báo), **có thể** (suy ra hợp lý), **chưa rõ** (chưa thấy nguồn công khai).
 
@@ -12,7 +12,7 @@ báo), **có thể** (suy ra hợp lý), **chưa rõ** (chưa thấy nguồn cô
 > liệu nên sửa nhanh.
 >
 > Bộ khối Blockly Leanbot nay đã **khảo sát đầy đủ 48 khối** — xem
-> [`../research/pythaverse-synapse-city.md`](../research/pythaverse-synapse-city.md) §4.
+> [`../research/pythaverse-synapse-city.md`](../leanbot/nen-tang/pythaverse.md) §4.
 
 ## 1a. Bảng hạng (xác nhận, `airoc.space/airoc`, 21/10/2026)
 
@@ -68,12 +68,12 @@ Xác nhận từ mã mẫu Arduino công khai (github.com/lesysang1322002/Leanbo
 - Có cảm biến màu (leanbot.space liệt kê), chưa thấy trong mã mẫu: chưa rõ hạng Creator có dùng không.
 - **Tên khối Blockly chính thức: đã có đủ.** 48 khối Leanbot, nhãn Anh và Việt, liệt kê trong
   [`../../tools/lbeditor-vi/leanbot_vi.js`](../../tools/lbeditor-vi/leanbot_vi.js); các khối hay
-  dùng nhất tóm tắt ở [`leanbot-airoc-vi.md`](leanbot-airoc-vi.md) §5.5.
+  dùng nhất tóm tắt ở [`leanbot/giao-trinh.md`](../leanbot/giao-trinh.md) §5.5.
 - **Khoảng tốc độ bánh xe: −59…59 vòng/phút, hoặc −2000…2000 bước/giây** (xác nhận, slide Bài 1).
 - **Tay gắp: mở = 0°, đóng = 90°** (xác nhận, slide Bài 2 và tooltip khối).
 - Năm chương trình mẫu chính thức của ba nhiệm vụ nằm ở kho công khai
   `git.pythaverse.space/ptvairoc/Synapsecity_Primary`; phân tích ở
-  [`../research/pythaverse-synapse-city.md`](../research/pythaverse-synapse-city.md) §5.
+  [`../research/pythaverse-synapse-city.md`](../leanbot/nen-tang/pythaverse.md) §5.
   Đáng chú ý: mẫu **không dùng cảm biến siêu âm** và **không đọc đồng hồ** — robot định vị
   hoàn toàn bằng đếm ngã tư, và giữ trong 2 phút chỉ bằng cách chạy nhanh.
 

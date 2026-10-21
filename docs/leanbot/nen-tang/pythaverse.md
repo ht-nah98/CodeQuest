@@ -3,7 +3,7 @@
 Tài liệu tham khảo, **không phải nguồn chuẩn**. Ghi lại những gì đo được trực tiếp trên nền
 tảng Pythaverse ngày **21/10/2026**, để sau này kiểm chứng lại hoặc phát hiện khi nền tảng đổi.
 
-Giáo trình dựng từ khảo sát này: [`../product/leanbot-airoc-vi.md`](../product/leanbot-airoc-vi.md)
+Giáo trình dựng từ khảo sát này: [`giao-trinh.md`](../giao-trinh.md)
 
 ## 1. Cách lấy dữ liệu
 
@@ -85,7 +85,7 @@ Blockly.Blocks[id]         = block(id, Code.LANG);
 Blockly.Blocks[id + "_vi"] = block(id, "vi");
 ```
 
-Đây là chỗ móc vào để việt hóa — xem [`../../tools/lbeditor-vi/README.md`](../../tools/lbeditor-vi/README.md).
+Đây là chỗ móc vào để việt hóa — xem [`../../tools/lbeditor-vi/README.md`](../../../tools/lbeditor-vi/README.md).
 
 ### 4.2 Hiện trạng bản dịch tiếng Việt
 
@@ -134,7 +134,7 @@ xác nhận trên robot thật.
 ## 6. Luật AIROC 2026
 
 Từ `airoc.space/airoc`. Đối chiếu và cập nhật vào
-[`../product/airoc-2026.md`](../product/airoc-2026.md).
+[`../product/airoc-2026.md`](../../product/airoc-2026.md).
 
 | Hạng | Tuổi | Robot | Ngôn ngữ | Tham số khối | Thử thách |
 |---|---|---|---|---|---|

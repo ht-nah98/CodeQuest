@@ -3,8 +3,8 @@
 Hướng dẫn từ máy trắng tới lúc nạp được chương trình xuống robot thật và chạy được robot ảo.
 Làm một lần cho mỗi máy. Dành cho **huấn luyện viên**, không đưa cho bé tự làm.
 
-Giáo trình: [`../product/leanbot-airoc-vi.md`](../product/leanbot-airoc-vi.md) ·
-Việt hóa trình soạn khối: [`../../tools/lbeditor-vi/`](../../tools/lbeditor-vi/)
+Giáo trình: [`giao-trinh.md`](../giao-trinh.md) ·
+Việt hóa trình soạn khối: [`../../tools/lbeditor-vi/`](../../../tools/lbeditor-vi)
 
 > **Tài khoản và mật khẩu không ghi trong tài liệu này.** Repo là nơi chứa code, không phải
 > nơi chứa mật khẩu. HLV giữ riêng tài khoản Pythaverse của lớp.
@@ -48,13 +48,13 @@ Không bắt buộc về kỹ thuật, nhưng là thứ quyết định bé có 
 
 1. Cài tiện ích **Tampermonkey** cho Chrome.
 2. Tampermonkey → *Create a new script* → dán toàn bộ
-   [`../../tools/lbeditor-vi/lbeditor-vi.user.js`](../../tools/lbeditor-vi/lbeditor-vi.user.js) → Ctrl+S.
+   [`../../tools/lbeditor-vi/lbeditor-vi.user.js`](../../../tools/lbeditor-vi/lbeditor-vi.user.js) → Ctrl+S.
 3. Mở <https://ide.pythaverse.space/lbeditor/?lang=vi>.
 4. Kiểm: nhóm **Leanbot → Tay gắp** phải thấy khối **"Tay gắp: Mở"**, không phải
    "Gripper: Open". Console hiện `[lbeditor-vi] đã bật nhãn tiếng Việt đầy đủ`.
 
 Bản vá phủ **cả hai** trình soạn khối và **không làm đổi code sinh ra** — xem phần
-"Đã kiểm chứng những gì" trong [`../../tools/lbeditor-vi/README.md`](../../tools/lbeditor-vi/README.md).
+"Đã kiểm chứng những gì" trong [`../../tools/lbeditor-vi/README.md`](../../../tools/lbeditor-vi/README.md).
 
 ## 4. Ba địa chỉ phải phân biệt
 

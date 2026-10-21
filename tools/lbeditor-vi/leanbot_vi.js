@@ -15,7 +15,7 @@
  * blocks render and generate the same Arduino code.
  *
  * Wording targets 9-11 year olds: short, no jargon, same term for the same thing
- * everywhere (see docs/product/leanbot-airoc-vi.md for the glossary).
+ * everywhere (see docs/leanbot/giao-trinh.md for the glossary).
  */
 
 'use strict';

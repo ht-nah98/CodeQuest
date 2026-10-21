@@ -2,8 +2,8 @@
 
 Nguồn chuẩn cho: chương trình học tiếng Việt bám theo khóa **SYNAPSE CITY: Robotics & AI
 Explorer** của Pythaverse, thuật ngữ Anh ↔ Việt dùng trong khóa đó, lộ trình và hệ thống
-ôn luyện. Dữ liệu khảo sát thô: [`../research/pythaverse-synapse-city.md`](../research/pythaverse-synapse-city.md).
-Luật thi: [`airoc-2026.md`](airoc-2026.md). Việt hóa trình soạn khối: [`../../tools/lbeditor-vi/`](../../tools/lbeditor-vi/).
+ôn luyện. Dữ liệu khảo sát thô: [`../research/pythaverse-synapse-city.md`](nen-tang/pythaverse.md).
+Luật thi: [`airoc-2026.md`](../product/airoc-2026.md). Việt hóa trình soạn khối: [`../../tools/lbeditor-vi/`](../../tools/lbeditor-vi).
 
 > Khóa này **không thay** khóa gốc. Bé vẫn phải tự hoàn thành 26 hoạt động trên Plearn để
 > lấy chứng chỉ. Tài liệu này là bản tiếng Việt đi **song song**, để bé hiểu được bài rồi
@@ -256,14 +256,14 @@ Lấy từ slide bài học và chương trình mẫu chính thức. Sai số n�
 | 18 | Bài 16: ghép ba nhiệm vụ | Chạy trọn vẹn một lượt |
 | 19 | Chạy thử như thi thật, bấm giờ 2 phút | Hai lượt liên tiếp cùng ra điểm |
 
-Buổi 0 là buổi **bắt buộc có người lớn**: xem [`../playbooks/leanbot-setup.md`](../playbooks/leanbot-setup.md).
+Buổi 0 là buổi **bắt buộc có người lớn**: xem [`../playbooks/leanbot-setup.md`](thiet-bi/cai-dat.md).
 
 ## 8. Hệ thống ôn luyện
 
 Ba tầng, vì một tầng không đủ.
 
 ### Tầng 1 — Phiếu giấy (không cần máy)
-Mỗi bài một phiếu trong `docs/product/leanbot-airoc/lesson-NN-*.md`, mục "Phiếu ôn luyện".
+Mỗi bài một phiếu trong `docs/leanbot/giao-an/bai-NN-*.md`, mục "Phiếu ôn luyện".
 Dạng bài: đọc chương trình đoán kết quả, tìm lỗi sai, sắp xếp lại thứ tự khối, điền số
 còn thiếu, dịch nhãn khối Anh ↔ Việt. Làm được khi không có robot, không có mạng.
 
@@ -292,7 +292,7 @@ tầng 1 và tầng 2. Đừng để bé tưởng chơi hết Thế giới 6 là
 | Hết Bài 12 | Cùng một chương trình chạy đúng cả trên Bản Sao Số lẫn robot thật | Sai lệch < 2 cm |
 | Hết Bài 16 | Chạy trọn một lượt trong 2 phút | **Hai lượt liên tiếp cùng ra một kết quả** |
 
-Mốc cuối theo nguyên tắc đã có trong [`vision.md`](vision.md) §3: chạy ổn định hai lần
+Mốc cuối theo nguyên tắc đã có trong [`vision.md`](../product/vision.md) §3: chạy ổn định hai lần
 liên tiếp mới tính là làm được, vì ngày thi lấy điểm theo độ ổn định giữa hai lượt.
 
 ## 10. Việc của ai
@@ -300,7 +300,7 @@ liên tiếp mới tính là làm được, vì ngày thi lấy điểm theo đ�
 | Việc | Ai làm |
 |---|---|
 | Nội dung bài, chứng chỉ, luật thi | Pythaverse / BTC AIROC |
-| Bản dịch slide và giáo án tiếng Việt | Tài liệu này + `leanbot-airoc/` |
+| Bản dịch slide và giáo án tiếng Việt | Tài liệu này + `giao-an/` |
 | Nhãn khối tiếng Việt | `tools/lbeditor-vi/` |
 | Màn ôn luyện dạng game | `content/worlds/w06-thanh-pho-robot/` |
 | Robot thật, dây USB, pin | Huấn luyện viên |
@@ -317,4 +317,4 @@ Ghi lại để không quên, không phải để làm ngay.
 4. **Phần Bản Sao Số (Bài 10–12) chưa tự tay chạy thử.** Các bước lấy từ slide và tài liệu
    Gateway (bản cập nhật 16/10/2023, có thể đã cũ). Buổi 12 phải dành thời gian dự phòng.
 5. **Chưa có luật AIROC 2026 bản đầy đủ.** Số điểm trong §6 lấy từ `airoc.space`; xem mức
-   tin cậy ở [`airoc-2026.md`](airoc-2026.md).
+   tin cậy ở [`airoc-2026.md`](../product/airoc-2026.md).
