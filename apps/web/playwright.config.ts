@@ -20,6 +20,11 @@ export default defineConfig({
   testDir: './e2e',
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 1 : 0,
+  // Playwright's own ceiling per test is 30 s. A GitHub runner has two cores and no GPU, so the
+  // stages rasterize in software: the robot lab's longest smoke run and the keyboard walk through
+  // the whole app both pass here in well under 30 s and do not there. Raising a wait inside a
+  // test does nothing while the test itself is cut off, which is what made CI red three times.
+  timeout: process.env.CI ? 180_000 : 30_000,
   // Vite dev servers + WebGL on a laptop-size machine: 8 parallel workers starve the stage into
   // 30 s timeouts. 4 is stable on 8 GB. A GitHub runner has two cores, where even 4 starved the
   // robot lab and the maze into the same timeouts on the first CI run this repo ever had.
