@@ -570,7 +570,10 @@ describe('World 6 score levels: only the right jobs reach the target', () => {
     },
   );
 
-  it('boss: neutralize + retrieve + contain never fit in 50 s', { timeout: 240_000 }, () => {
+  // The heaviest search in the suite. 77 s on the coach's laptop with coverage on; a GitHub
+  // runner has two cores and took longer than the old 240 s ceiling, which is what made CI red on
+  // its first ever run. The ceiling is for a slow machine, not a promise about this one.
+  it('boss: neutralize + retrieve + contain never fit in 50 s', { timeout: 600_000 }, () => {
     const all = canScore(
       'w06-boss',
       0,
