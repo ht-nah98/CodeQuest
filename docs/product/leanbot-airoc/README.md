@@ -9,7 +9,7 @@ mẫu kèm code, phiếu ôn luyện có đáp án, và chỗ bé hay vướng.
 
 | Bài | Tên | Dạy gì | Bài ôn luyện |
 |---|---|---|---|
-| **0** | [**Bắt đầu: dùng Leanbot thế nào**](lesson-00-bat-dau.md) | 5 địa chỉ Pythaverse, sạc, bật, ghép Bluetooth, nạp code 6 bước, bẫy trên Linux | 6 |
+| **0** | [**Bắt đầu: dùng Leanbot thế nào**](lesson-00-bat-dau.md) | 5 địa chỉ Pythaverse, sạc, bật, ghép Bluetooth, nạp code 6 bước, trình ghép khối, bẫy trên Linux — **có ảnh chụp màn hình** | 8 |
 | 1 | [Chào Leanbot! Cùng di chuyển](lesson-01-di-chuyen.md) | Thứ tự các bước, tiến/lùi theo cm, quay tại chỗ theo độ, số âm | 10 |
 | 2 | [Cánh tay kẹp thần kỳ](lesson-02-tay-gap.md) | Servo, góc 0° mở / 90° đóng, chuỗi gắp–chở–thả | 8 |
 | 3 | [Mắt thần siêu âm](lesson-03-sieu-am.md) | Đo khoảng cách, `nếu`, `lặp khi`, hai ngưỡng 25/30 cm | 10 |
@@ -27,7 +27,7 @@ mẫu kèm code, phiếu ôn luyện có đáp án, và chỗ bé hay vướng.
 | 15 | [Nhiệm vụ 3: Mang mẫu về lab](lesson-15-nhiem-vu-3.md) | Quay đầu khi đang kẹp, tìm lại vạch (100 điểm) | 9 |
 | 16 | [Nhiệm vụ tổng hợp](lesson-16-tong-hop.md) | Ghép ba nhiệm vụ trong 2 phút, chia hàm | 9 |
 
-Tổng **153 bài ôn luyện** có đáp án.
+Tổng **155 bài ôn luyện** có đáp án.
 
 ## Cách đọc một giáo án
 
@@ -50,7 +50,7 @@ Những điểm giáo án **không tự quyết được**, đã đánh dấu tr
 
 | Bài | Cần kiểm | Vì sao |
 |---|---|---|
-| 1, 4 | Trình soạn khối đổi **vòng/phút** ↔ **bước/giây** thế nào | Bài học ghi vòng/phút, chương trình mẫu ghi bước/giây |
+| 1, 4 | ~~Trình soạn khối đổi **vòng/phút** ↔ **bước/giây** thế nào~~ — **đã chốt: ô chọn trên khối** | Đọc thẳng khối trong trình soạn: `LbMotion.run` có ô `UnitSpeed` với đúng hai lựa chọn `vòng/phút → rpm` và `bước/giây → sps`. Tương tự: quãng đường có `cm`/`mm`, thời gian có `giây`/`mili giây`, góc chỉ có `độ`. Xem [Bài 0 §8](lesson-00-bat-dau.md) |
 | 4 | Mắt cảm biến nào nằm bên nào | Tên chân trên slide (`ir3R, ir1R, ir0L, ir2L`) lệch thứ tự với nhãn khối (`2L, 0L, 1R, 3R`) |
 | 4 | Dòng `if (isBlackDetected()) break;` | Nghi là mất chữ "không" khi xuất file; ảnh slide quá mờ để xác nhận |
 | 2, 14, 15 | Góc 50° của tay gắp trong mẫu là mở hay đóng | Mẫu chỉ có `moveTo(50)`, slide dạy 0° mở / 90° đóng |

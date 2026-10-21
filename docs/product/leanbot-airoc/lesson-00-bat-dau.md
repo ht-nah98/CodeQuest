@@ -42,6 +42,20 @@ Portal thì đòi đăng nhập bằng tài khoản có quyền đặc biệt. X
 
 Nhớ nhanh: **learn** là để *học*, **ide** là để *làm*, **git** là để *giữ*.
 
+Mở `ide.pythaverse.space/#/code` thì thấy thế này — **không cần đăng nhập**:
+
+![Toàn cảnh Leanbot IDE: menu trên cùng, danh sách tệp bên trái, code ở giữa](img/ide-toan-canh.png)
+
+Chỗ cần nhìn ngay là **thanh dưới cùng bên phải**:
+
+![Thanh dưới: SELECT DEVICE, BOARD: ARDUINO UNO, SERVER: ONLINE](img/ide-thanh-duoi.png)
+
+| Chữ trên thanh | Nghĩa |
+|---|---|
+| `SELECT DEVICE` | Chọn robot. Sau khi chọn xong sẽ đổi thành `SERIAL: SELECTED` |
+| `BOARD: ARDUINO UNO` | Loại mạch. **Phải là `ARDUINO UNO` hoặc `ARDUINO NANO`** |
+| `SERVER: ONLINE` | Máy chủ biên dịch. Chữ này mà không xanh thì không nạp được, phải chờ |
+
 Hai địa chỉ bắt đầu bằng `ide.` nhìn giống nhau nhưng **khác nhau**: `#/code` là trình viết
 chữ, `lbeditor/` là trình ghép khối. Bé hạng Creator làm bài bằng `lbeditor/`.
 
@@ -90,6 +104,22 @@ Mỗi robot chỉ ghép một lần. Lần sau máy tự nhận.
 | 6 | **Rút cáp USB** | Robot chạy chương trình mới |
 
 **Board phải đặt là `ARDUINO UNO` hoặc `ARDUINO NANO`.** Đặt sai board thì nạp sẽ lỗi.
+
+### Nút nạp nằm ở đâu — và vì sao khó tìm
+
+Tài liệu Pythaverse gọi nó là nút `Compile & Upload`. **Trên màn hình không có chữ đó.**
+Chỉ có hai biểu tượng nhỏ ở góc trên bên phải:
+
+![Ba biểu tượng góc phải: dấu ngoặc có tích, màn hình có nút play, và SERIAL](img/ide-nut-nap.png)
+
+| Biểu tượng | Làm gì | Khi nào dùng |
+|---|---|---|
+| `< >` có dấu **tích** | **Chỉ biên dịch**, kiểm code có lỗi không. **Không** nạp vào robot | Khi muốn soát lỗi mà chưa cắm robot |
+| Màn hình có nút **play** | **Biên dịch rồi nạp vào robot** | Đây là nút tài liệu gọi là `Compile & Upload` |
+| `>_` **SERIAL** | Mở cửa sổ xem robot gửi chữ về máy | Bài 5 trở đi, khi cần xem số liệu cảm biến |
+
+Bé hay bấm nhầm biểu tượng thứ nhất rồi tưởng đã nạp xong, vì nó cũng chạy và cũng báo
+thành công — nhưng robot không hề nhận gì. **Nút đúng là nút có hình tam giác play.**
 
 **Nghe tiếng bíp để biết robot đang làm gì:**
 
@@ -168,6 +198,92 @@ ls -l /dev/ttyUSB*     # phải thấy /dev/ttyUSB0, và nó không biến mất
 
 Cổng còn phải **tồn tại bền**, không chỉ loé lên rồi tắt. Cắm rồi đợi 5 giây rồi kiểm lại.
 
+**Hai bẫy này cho ra hai triệu chứng khác hẳn nhau.** Phân biệt được thì sửa đúng chỗ:
+
+| Thấy gì khi bấm nút nạp | Bẫy nào | Sửa |
+|---|---|---|
+| Cửa sổ chọn cổng hiện ra nhưng **danh sách trống** | Bẫy 1: `brltty` đã giật mất cổng | `mask brltty` |
+| Chọn được cổng, biên dịch xong tới ~50 %, rồi báo `*** Upload Error: Failed to execute 'open' on 'SerialPort': Failed to open serial port.` | Bẫy 2: thiếu nhóm `dialout` | Thêm nhóm **rồi đăng xuất đăng nhập lại** |
+
+Thông báo ở hàng thứ hai hay làm người ta tưởng robot hỏng, vì dòng ngay trên nó in ra
+`Sketch uses 11918 bytes (36%) of program storage space` — tức **code đã biên dịch xong
+hoàn toàn**. Chỉ riêng bước mở cổng bị hệ điều hành từ chối.
+
+**Quan trọng:** thêm nhóm `dialout` xong thì **Chrome đang mở vẫn chưa có quyền**, vì
+tiến trình Chrome thừa hưởng nhóm từ lúc nó khởi động. Phải **đăng xuất rồi đăng nhập
+lại** (hoặc khởi động lại máy), sau đó mở Chrome mới. Kiểm nhanh xem phiên hiện tại đã có
+chưa:
+
+```bash
+id -nG | tr ' ' '\n' | grep -x dialout    # in ra "dialout" là xong
+```
+
+## 8. Trình ghép khối — nơi bé làm việc
+
+Mở `ide.pythaverse.space/lbeditor/?lang=vi`. Thêm `?lang=vi` để có nhãn tiếng Việt ngay;
+không có nó thì mở menu bánh răng ⚙ góc phải rồi chọn `Tiếng Việt`.
+
+![Trình ghép khối: danh mục bên trái, khối giữa, code Arduino sinh ra bên phải](img/blockly-toan-canh.png)
+
+Màn hình chia ba cột:
+
+| Cột | Là gì |
+|---|---|
+| **Trái** | Danh mục khối. Bấm vào tên danh mục thì khay khối mở ra |
+| **Giữa** | Chỗ ghép khối. Ba khối màu hồng có sẵn là khung chương trình, **đừng xóa** |
+| **Phải** | **Code C++ sinh ra, cập nhật ngay khi bé kéo khối.** Đây là cột quý nhất |
+
+Cột phải chính là chỗ áp dụng cách học **nhìn và học song song** của khóa: bé kéo một khối,
+mắt liếc sang phải xem dòng lệnh nào vừa xuất hiện. Lâu dần bé đọc được C++ mà không cần
+ai dạy riêng.
+
+### Danh mục khối của Leanbot
+
+Khối của robot nằm trong danh mục màu cam **`LeanbotVN`**. Bấm vào nó sẽ xổ ra 6 nhóm con:
+
+![Khay khối Di chuyển với các khối vận tốc, quãng đường, rẽ góc, dừng](img/blockly-khay-di-chuyen.png)
+
+| Nhóm con | Dạy ở bài |
+|---|---|
+| **Di chuyển** | Bài 1 |
+| **Tay gắp** | Bài 2 |
+| **Đèn Led RGB** | Bài 2, 14 |
+| **Phát nhạc** | Bài 7 |
+| **Cảm biến** | Bài 3 |
+| **Cảm biến vạch** | Bài 4 |
+
+### Đơn vị nằm ngay trên khối
+
+Nhìn kỹ ảnh trên: mỗi khối có một **ô chọn đơn vị** ở cuối. Đây là chỗ gây lẫn lộn nhiều
+nhất giữa bài học và chương trình mẫu, nên nhớ kỹ:
+
+| Khối | Ô chọn | Hai lựa chọn |
+|---|---|---|
+| `Di chuyển: Chạy với vận tốc Trái … Phải …` | đơn vị vận tốc | **`vòng/phút`** hoặc **`bước/giây`** |
+| `Di chuyển: Chạy đoạn đường …` | đơn vị dài | **`cm`** hoặc **`mm`** |
+| `Di chuyển: Tiếp tục chạy trong …` | đơn vị thời gian | **`giây`** hoặc **`mili giây`** |
+| `Di chuyển: Rẽ góc …` | đơn vị góc | chỉ có **`độ`** |
+
+Cùng một khối, đổi ô chọn là đổi hẳn ý nghĩa con số. Bài học của khóa viết theo `vòng/phút`
+và `cm`; **mọi chương trình mẫu chính thức lại dùng `bước/giây` và `mm`**. Robot không sai,
+chỉ là hai cách ghi cùng một việc. Khi so chương trình của bé với chương trình mẫu, **nhìn
+ô chọn trước khi kết luận số sai**.
+
+Khối cũng ghi sẵn giá trị mặc định: vận tốc `30` / `30`, quãng đường `4.2 cm`, rẽ `90 độ`,
+tiếp tục `1.25 giây`. Bé chỉ việc sửa số trong ô.
+
+### Nhãn còn tiếng Anh
+
+Trong ảnh có ba khối còn nguyên tiếng Anh: `Di chuyển: approx. Distance in mm`,
+`approx. Heading in độ`, `Reset Distance and Heading`. Khối khung chương trình cũng vậy —
+`Mission: Begin when TB1A + TB1B combo touched` và `Mission: End` chưa dịch. Bản dịch sẵn
+có của Pythaverse mới xong 13 trong 48 khối.
+
+Muốn thấy toàn bộ nhãn tiếng Việt, cài bản vá của chúng ta theo hướng dẫn trong
+[`../../../tools/lbeditor-vi/README.md`](../../../tools/lbeditor-vi/README.md). Bản vá chỉ
+đổi chữ hiển thị, **không đụng tới code sinh ra** — đã kiểm bằng cách so từng dòng trước và
+sau khi vá.
+
 ## Phiếu ôn luyện
 
 **Câu 1.** Bé muốn ghép khối lệnh cho robot thật. Mở địa chỉ nào?
@@ -203,6 +319,20 @@ một bên. Nghĩ tới nguyên nhân nào trước?
 
 **Đáp án:** **Pin yếu**. Pin yếu thì hai động cơ không còn khoẻ bằng nhau nên robot lệch,
 dù code không đổi một chữ. Kiểm đèn LED trên pin trước khi sửa code.
+
+**Câu 7.** Bé bấm biểu tượng `< >` có dấu tích. Máy báo thành công, nhưng robot đứng im
+không làm gì. Vì sao?
+
+**Đáp án:** Đó là nút **chỉ biên dịch**, không nạp vào robot. Nó báo "thành công" nghĩa là
+code không có lỗi cú pháp, chứ không phải đã vào robot. Phải bấm biểu tượng **màn hình có
+nút play** mới nạp.
+
+**Câu 8.** Chương trình mẫu của ban tổ chức ghi vận tốc `2000`, còn bài học dạy vận tốc
+`30`. Số nào đúng?
+
+**Đáp án:** **Cả hai đều đúng**, vì khác đơn vị. Bài học dùng ô chọn `vòng/phút` (tối đa 59),
+chương trình mẫu dùng ô chọn `bước/giây` (2000 là chạy gần hết cỡ). Nhìn **ô chọn đơn vị**
+trên khối trước khi kết luận số nào sai.
 
 ## Bé hay vướng ở đâu
 
