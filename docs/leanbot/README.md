@@ -3,6 +3,34 @@
 Khóa thứ hai trong app CodeQuest, dạy robot Leanbot thật để đi thi AIROC 2026. Dịch và viết
 lại từ khóa "Synapse City Primary" của Pythaverse. Ranh giới với CodeQuest: ADR-0028.
 
+## Trạng thái ngày 21/10/2026 — đang tạm dừng ở đây
+
+Khóa Leanbot **tạm dừng sau Bài 4** để quay lại hoàn thiện CodeQuest. Đọc mục này trước khi
+làm tiếp, nó nói chỗ đang đứng và việc tiếp theo.
+
+**Đã xong:**
+
+- **Bản của thầy:** đủ **17 giáo án** (Bài 0 → 16), 155 bài ôn luyện có đáp án, giáo trình
+  tổng, tài liệu thiết bị, khảo sát nền tảng.
+- **Bản cho bé trong app:** **Bài 0 → 4** (`content/leanbot/bai-00…bai-04.json`), tổng 115
+  màn và 30 câu kiểm tra. Bài 0 là **cổng** 9 ô tích (ADR-0029).
+- **Mỗi bài kết bằng phần `Kiểm nghiệm`:** phép thử trên robot thật, con số nào là đạt, bảng
+  "con thấy → sửa chỗ nào". Bắt buộc với mọi bài thêm sau, xem "Thêm một bài mới" mục 5.
+- **Nạp code bằng dòng lệnh** đã chạy thật trên robot `LB398377`, xem `thiet-bi/cai-dat.md`.
+  Nhờ nó phát hiện bốn tên hàm sai trong tài liệu (bảng ngay dưới).
+
+**Việc tiếp theo, theo thứ tự:**
+
+1. **Bài 5** — bắt đầu phần AI (Teachable Machine, Scratch), **không dùng Leanbot**. Phần
+   "Kiểm nghiệm" của bài này phải khác: thử xem mô hình đoán sai lúc nào, không đo bằng thước.
+2. Bài 6 → 9 (AI), rồi 10 → 12 (Bản Sao Số), rồi 13 → 16 (ba nhiệm vụ thi).
+3. Hai câu còn treo cần robot và một vạch đen thật: nghĩa của `LbIRLine.isBlackDetected()`
+   (cả bốn mắt hay bất kỳ mắt nào) và thứ tự bốn mắt ①②③④ ngoài đời. Chương trình đo đã nạp
+   sẵn trong robot: đặt ba tư thế trắng / đen / nửa trong nửa ngoài rồi đọc serial.
+
+**Chưa làm:** gửi bản việt hóa `tools/lbeditor-vi/` cho Pythaverse · bộ dựng PDF vẫn nằm ngoài
+repo · chưa xem 2 khóa Pythaverse còn lại.
+
 ## Thư mục này có gì
 
 | Nơi | Nội dung | Viết cho ai |

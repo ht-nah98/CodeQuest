@@ -29,16 +29,26 @@
 >
 > **Máy dev:** RAM thật **7,8 GB**. **Mỗi lúc chỉ một việc nặng** (xem "Việc nặng", giống `phase-4.md`). File này thay khung GĐ 5 ở `later-phases.md`.
 
+> **Trạng thái ngày 21/10/2026** (xác minh bằng code, không tin ô tick cũ):
+> - **Xong và đã ở trên `main`:** P5-01 (chữ GĐ 5), P5-02 (`sorter` headless + ADR-0025),
+>   P5-03 (bước sức của maze + ADR-0026), P5-04 (vét cạn + `content:check` luật 27/28 —
+>   `content:check` đang báo "rules 1–28"), P5-08 (cảnh `hoc-vien` trong `sceneThemes.ts`).
+> - **Chưa bắt đầu:** P5-05 trở đi. Cụ thể là **chưa có `SorterStage`**, nên kiểu game
+>   `sorter` chạy được trên Node mà **chưa chơi được trong trình duyệt**; và **chưa có
+>   `content/worlds/w10-*`**, nên W10 chưa tồn tại với bé. Không có chữ `w10` nào trong
+>   `apps/`, `packages/`, `content/`.
+> - W1–W9 chơi được đủ, đó là phần bé học hiện nay.
+
 | ID | Task | Phụ thuộc | Người làm | Trạng thái |
 |---|---|---|---|---|
-| P5-01 | Chữ giao diện GĐ 5 trong `i18n/vi.ts` (nhóm KỆ SÁCH, thẻ kết quả 7 mã mới, HUD "Còn 10 lượt hỏi", "Còn 9 bước", "Đổi chỗ: 3") + `PROVISIONAL_WORLDS` cho `w10` | — | AI (C) | ⬜ |
-| P5-02 | `sorter` headless: config, state, 6 khối, mô phỏng, chấm, lượt hỏi, khóa đoán, luật 27, 3 màn mẫu, đo vét cạn, chốt ADR-0025 **[nặng: đo]** | — | AI (B) | ⬜ |
-| P5-03 | Bước sức của maze (`stepLimit`): state, `OUT_OF_STEPS`, event `tired`, vét cạn (so sánh trội nếu cần), luật 28, hồi quy W1–W9, đo, chốt ADR-0026 **[nặng]** | — | AI (A) | ⬜ |
-| P5-04 | Vét cạn + `content:check` cho W10: đăng ký luật 27 / 28, khung test S1 / S2 (`SORTER_TRAPS`, "cách chậm"), luật 24 (M2) hiểu `sorter`, `feedback.json`, màn mẫu có phép + `maxQuestions`, câu chuẩn của mọi ý W10, tài liệu **[nặng: R5]** | P5-02 (khối, config), P5-03 | AI (A) | ⬜ |
+| P5-01 | Chữ giao diện GĐ 5 trong `i18n/vi.ts` (nhóm KỆ SÁCH, thẻ kết quả 7 mã mới, HUD "Còn 10 lượt hỏi", "Còn 9 bước", "Đổi chỗ: 3") + `PROVISIONAL_WORLDS` cho `w10` | — | AI (C) | ✅ |
+| P5-02 | `sorter` headless: config, state, 6 khối, mô phỏng, chấm, lượt hỏi, khóa đoán, luật 27, 3 màn mẫu, đo vét cạn, chốt ADR-0025 **[nặng: đo]** | — | AI (B) | ✅ |
+| P5-03 | Bước sức của maze (`stepLimit`): state, `OUT_OF_STEPS`, event `tired`, vét cạn (so sánh trội nếu cần), luật 28, hồi quy W1–W9, đo, chốt ADR-0026 **[nặng]** | — | AI (A) | ✅ |
+| P5-04 | Vét cạn + `content:check` cho W10: đăng ký luật 27 / 28, khung test S1 / S2 (`SORTER_TRAPS`, "cách chậm"), luật 24 (M2) hiểu `sorter`, `feedback.json`, màn mẫu có phép + `maxQuestions`, câu chuẩn của mọi ý W10, tài liệu **[nặng: R5]** | P5-02 (khối, config), P5-03 | AI (A) | ✅ |
 | P5-05 | `SorterStage` PixiJS + `layout.ts` + `AnswerPicture` kệ sách + bộ nạp nội dung **[e2e nặng]** | P5-02; chữ của P5-01 | AI (B) | ⬜ |
 | P5-06 | Web cho W10: thanh khối / theme KỆ SÁCH, HUD bước sức của maze, phát lại `swap` / `tired` / `outOfQuestions`, `LessonDemo` kệ sách, editor "chưa hỗ trợ", giọng đọc **[e2e nặng]** | P5-01, P5-02 (block spec), P5-03 (event `tired`); phần `LessonDemo` kệ sách và e2e demo cần P5-05 | AI (C) | ⬜ |
 | P5-07 | Chi tiết hóa lần hai W10: kệ thật, bản đồ mê cung và sa bàn robot thật, `par` tay, bẫy S1, "cách chậm" S2, câu bài và gợi ý; review sư phạm | P5-02, P5-03 (để chạy lời giải); bản đồ vẽ tay làm ngay | AI (C; B gửi phần kệ sách) | ⬜ |
-| P5-08 | Cảnh `hoc-vien` (thư viện trên mây, vườn hàng rào cây xén) + hình `bookshelf`, `diploma` | — | AI (D) | ⬜ |
+| P5-08 | Cảnh `hoc-vien` (thư viện trên mây, vườn hàng rào cây xén) + hình `bookshelf`, `diploma` | — | AI (D) | ✅ |
 | P5-09 | Nội dung Thế giới 10 (20 màn + sáng tạo, bài mở đầu + 14 bài, 5 chương) **[par nặng]** | P5-04, P5-07; `world.json` cần P5-08; e2e cần P5-05, P5-06 | AI (C soạn; A chạy `par` / R5) · HLV duyệt | ⬜ |
 | P5-10 | HLV chơi thử W10 | P5-09 | HLV (AI sửa) | ⬜ |
 | P5-11 | Phát hành `v0.5.0` | P5-10, P4-17 (`v0.4.0` phát hành trước) | HLV + AI | ⬜ |
