@@ -36,6 +36,8 @@ export interface BookPlace {
 }
 
 export interface ShelfLayout {
+  /** Height of a book carrying the biggest number, in px; every book is scaled against it. */
+  tallest: number;
   /** Slot centres for 1…n books plus the flag at n + 1. */
   places: number[];
   books: BookPlace[];
@@ -81,13 +83,15 @@ export function layoutShelf(books: readonly number[], width: number, height: num
   const bookWidth = Math.round(slot * 0.74);
 
   return {
+    tallest,
     places,
     slot,
     plankY,
     plankX: left,
     plankWidth: shelfWidth,
     flagX: places[books.length] ?? left,
-    handY: Math.max(HUD_BAND + 8, bodyTop - HAND_BAND + 8),
+    // Below the HUD chips (they share the top strip) and above the tallest book.
+    handY: HUD_BAND + 40,
     books: books.map((number, i) => {
       const cx = places[i] ?? left;
       const bookTall = bookHeight(number, tallest);

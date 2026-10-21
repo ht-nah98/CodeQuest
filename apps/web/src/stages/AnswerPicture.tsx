@@ -19,6 +19,7 @@ import { UI_COLORS } from '../ui/tokens';
 import { RobotAnswerPicture } from './robotlab/RobotAnswer';
 import { sceneArt } from './sceneThemes';
 import { TurtleAnswerPicture } from './turtle/TurtleAnswer';
+import { ShelfAnswerPicture } from './sorter/ShelfAnswer';
 import {
   MAZE_CELL,
   MazeBoard,
@@ -375,6 +376,8 @@ function KindPicture({
   if (kind === 'robotlab') return <RobotAnswerPicture config={config} answerKey={answerKey} />;
   // Turtle keys are drawings (`draw:<segments>`) or a crash point (ADR-0024 §5).
   if (kind === 'turtle') return <TurtleAnswerPicture config={config} answerKey={answerKey} />;
+  // Shelf keys carry the books themselves (`shelf:3,1,2@2`), ADR-0025 §5.
+  if (kind === 'sorter') return <ShelfAnswerPicture config={config} answerKey={answerKey} />;
   const answer = parseAnswerKey(answerKey);
   if (answer === null) return null;
   if (kind === 'runner') {

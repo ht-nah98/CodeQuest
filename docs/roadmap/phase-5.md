@@ -33,10 +33,12 @@
 > - **Xong và đã ở trên `main`:** P5-01 (chữ GĐ 5), P5-02 (`sorter` headless + ADR-0025),
 >   P5-03 (bước sức của maze + ADR-0026), P5-04 (vét cạn + `content:check` luật 27/28 —
 >   `content:check` đang báo "rules 1–28"), P5-08 (cảnh `hoc-vien` trong `sceneThemes.ts`).
-> - **Chưa bắt đầu:** P5-05 trở đi. Cụ thể là **chưa có `SorterStage`**, nên kiểu game
->   `sorter` chạy được trên Node mà **chưa chơi được trong trình duyệt**; và **chưa có
->   `content/worlds/w10-*`**, nên W10 chưa tồn tại với bé. Không có chữ `w10` nào trong
->   `apps/`, `packages/`, `content/`.
+> - **P5-05 xong ngày 21/10/2026:** `apps/web/src/stages/sorter/` có `layout.ts` (hình học
+>   thuần, 16 test), `SorterStage.ts` (vẽ bằng PixiJS, 11 test), `ShelfAnswer.tsx` (hình đáp án
+>   cho khóa `shelf:…`, 10 test) và một mục trong `stages/registry.ts`. Ba màn kệ sách trong
+>   `_sandbox` **chơi được trong trình duyệt**, lời giải mẫu ra 3 sao; e2e ở `e2e/sorter.spec.ts`.
+> - **Chưa bắt đầu:** P5-06 trở đi. Vẫn **chưa có `content/worlds/w10-*`**, nên W10 chưa tồn tại
+>   với bé: không có chữ `w10` nào trong `apps/`, `packages/`, `content/`.
 > - W1–W9 chơi được đủ, đó là phần bé học hiện nay.
 
 | ID | Task | Phụ thuộc | Người làm | Trạng thái |
@@ -45,7 +47,7 @@
 | P5-02 | `sorter` headless: config, state, 6 khối, mô phỏng, chấm, lượt hỏi, khóa đoán, luật 27, 3 màn mẫu, đo vét cạn, chốt ADR-0025 **[nặng: đo]** | — | AI (B) | ✅ |
 | P5-03 | Bước sức của maze (`stepLimit`): state, `OUT_OF_STEPS`, event `tired`, vét cạn (so sánh trội nếu cần), luật 28, hồi quy W1–W9, đo, chốt ADR-0026 **[nặng]** | — | AI (A) | ✅ |
 | P5-04 | Vét cạn + `content:check` cho W10: đăng ký luật 27 / 28, khung test S1 / S2 (`SORTER_TRAPS`, "cách chậm"), luật 24 (M2) hiểu `sorter`, `feedback.json`, màn mẫu có phép + `maxQuestions`, câu chuẩn của mọi ý W10, tài liệu **[nặng: R5]** | P5-02 (khối, config), P5-03 | AI (A) | ✅ |
-| P5-05 | `SorterStage` PixiJS + `layout.ts` + `AnswerPicture` kệ sách + bộ nạp nội dung **[e2e nặng]** | P5-02; chữ của P5-01 | AI (B) | ⬜ |
+| P5-05 | `SorterStage` PixiJS + `layout.ts` + `AnswerPicture` kệ sách + bộ nạp nội dung **[e2e nặng]** | P5-02; chữ của P5-01 | AI (B) | ✅ |
 | P5-06 | Web cho W10: thanh khối / theme KỆ SÁCH, HUD bước sức của maze, phát lại `swap` / `tired` / `outOfQuestions`, `LessonDemo` kệ sách, editor "chưa hỗ trợ", giọng đọc **[e2e nặng]** | P5-01, P5-02 (block spec), P5-03 (event `tired`); phần `LessonDemo` kệ sách và e2e demo cần P5-05 | AI (C) | ⬜ |
 | P5-07 | Chi tiết hóa lần hai W10: kệ thật, bản đồ mê cung và sa bàn robot thật, `par` tay, bẫy S1, "cách chậm" S2, câu bài và gợi ý; review sư phạm | P5-02, P5-03 (để chạy lời giải); bản đồ vẽ tay làm ngay | AI (C; B gửi phần kệ sách) | ⬜ |
 | P5-08 | Cảnh `hoc-vien` (thư viện trên mây, vườn hàng rào cây xén) + hình `bookshelf`, `diploma` | — | AI (D) | ✅ |

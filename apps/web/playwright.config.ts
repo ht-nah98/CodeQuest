@@ -21,8 +21,9 @@ export default defineConfig({
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 1 : 0,
   // Vite dev servers + WebGL on a laptop-size machine: 8 parallel workers starve the stage into
-  // 30 s timeouts. 4 is stable on 8 GB.
-  workers: 4,
+  // 30 s timeouts. 4 is stable on 8 GB. A GitHub runner has two cores, where even 4 starved the
+  // robot lab and the maze into the same timeouts on the first CI run this repo ever had.
+  workers: process.env.CI ? 2 : 4,
   reporter: process.env.CI ? 'github' : 'list',
   use: {
     baseURL: BASE_URL,
