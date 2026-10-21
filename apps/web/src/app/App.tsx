@@ -11,7 +11,10 @@ import { SmallScreenGate } from './SmallScreenGate';
 const ProfilePickScreen = lazy(() => import('../screens/profile/ProfilePickScreen'));
 const NewProfileScreen = lazy(() => import('../screens/profile/NewProfileScreen'));
 const RestoreScreen = lazy(() => import('../screens/settings/RestoreScreen'));
+const HubScreen = lazy(() => import('../screens/hub/HubScreen'));
 const MapScreen = lazy(() => import('../screens/map/MapScreen'));
+const LeanbotScreen = lazy(() => import('../screens/leanbot/LeanbotScreen'));
+const LeanbotLessonScreen = lazy(() => import('../screens/leanbot/LeanbotLessonScreen'));
 const WorldScreen = lazy(() => import('../screens/world/WorldScreen'));
 const LessonScreen = lazy(() => import('../screens/lesson/LessonScreen'));
 const PlayScreen = lazy(() => import('../screens/play/PlayScreen'));
@@ -49,7 +52,13 @@ export function App() {
                   <Route path="/" element={<ProfilePickScreen />} />
                   <Route path="/profile/new" element={<NewProfileScreen />} />
                   <Route path="/restore" element={<RestoreScreen />} />
+                  <Route path="/hub" element={signedIn(<HubScreen />)} />
                   <Route path="/map" element={signedIn(<MapScreen />)} />
+                  <Route path="/leanbot" element={signedIn(<LeanbotScreen />)} />
+                  <Route
+                    path="/leanbot/:lessonId/:page"
+                    element={signedIn(<LeanbotLessonScreen />)}
+                  />
                   <Route path="/w/:worldId" element={signedIn(<WorldScreen />)} />
                   <Route path="/w/:worldId/lesson/:lessonId" element={signedIn(<LessonScreen />)} />
                   <Route path="/play/:levelId" element={signedIn(<PlayScreen />)} />

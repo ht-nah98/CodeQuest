@@ -1,0 +1,486 @@
+{
+  "id": "bai-00",
+  "number": 0,
+  "title": "Làm quen và kiểm tra Leanbot",
+  "tagline": "Cầm robot, sạc, bật, kiểm tra từng bộ phận",
+  "minutes": 45,
+  "source": "Khóa 1437 · System Configuration 1–7",
+  "goals": [
+    "Chỉ đúng 6 bộ phận trên robot thật",
+    "Phân biệt cổng nạp code và cổng sạc",
+    "Sạc robot, đọc được đèn báo",
+    "Nạp chương trình kiểm tra vào robot",
+    "Đọc dòng số liệu robot gửi về",
+    "Gõ 8 lệnh thử và biết bộ phận nào hỏng"
+  ],
+  "screens": [
+    {
+      "part": "Robot của con",
+      "title": "Chào Leanbot!",
+      "lines": [
+        "Đây là robot con sẽ lập trình cả khóa.",
+        "Trước khi ra lệnh cho nó, mình làm quen đã."
+      ],
+      "image": "leanbot-phan-cung-1.png",
+      "alt": "Leanbot nhìn nghiêng, có chú thích từng bộ phận"
+    },
+    {
+      "part": "Robot của con",
+      "title": "Robot có 6 bộ phận",
+      "lines": [
+        "Mỗi bộ phận học ở một bài khác nhau."
+      ],
+      "table": {
+        "head": [
+          "Mấy cái",
+          "Bộ phận",
+          "Để làm gì"
+        ],
+        "rows": [
+          [
+            "1",
+            "Mắt siêu âm",
+            "Đo xa gần"
+          ],
+          [
+            "2",
+            "Bánh xe",
+            "Tiến, lùi, quay"
+          ],
+          [
+            "2",
+            "Càng tay gắp",
+            "Mở, đóng"
+          ],
+          [
+            "7",
+            "Đèn nhiều màu",
+            "Báo hiệu"
+          ],
+          [
+            "8",
+            "Mắt hồng ngoại",
+            "Nhìn vạch, nhìn vật"
+          ],
+          [
+            "4",
+            "Nút chạm",
+            "Ra lệnh bắt đầu"
+          ]
+        ]
+      }
+    },
+    {
+      "part": "Robot của con",
+      "title": "8 mắt hồng ngoại chia 2 nhóm",
+      "lines": [
+        "Đừng lẫn hai nhóm này. Chúng làm hai việc khác nhau."
+      ],
+      "chips": [
+        {
+          "label": "4 mắt dưới bụng",
+          "body": "Nhìn vạch đen dưới sàn",
+          "tone": "go"
+        },
+        {
+          "label": "4 mắt hai bên",
+          "body": "Nhìn vật ở hai bên thân",
+          "tone": "sky"
+        }
+      ]
+    },
+    {
+      "part": "Robot của con",
+      "title": "Não robot là Arduino Nano",
+      "lines": [
+        "Ô vuông nhỏ ở giữa lưng robot chính là bộ não."
+      ],
+      "image": "leanbot-phan-cung-3.png",
+      "alt": "Leanbot nhìn từ trên xuống: 4 nút chạm, Arduino Nano, Bluetooth",
+      "note": "Lát nữa trong máy tính con sẽ thấy chữ ARDUINO UNO. Không sao, vẫn nạp được."
+    },
+    {
+      "part": "Robot của con",
+      "title": "4 nút chạm, nhớ tên nhé",
+      "lines": [
+        "TB1A và TB1B ở phía trước.",
+        "TB2A và TB2B ở phía sau."
+      ],
+      "code": "LbMission.begin( TB1A + TB1B );",
+      "warn": "Phải chạm CÙNG LÚC hai nút trước. Chạm một nút thì robot đứng im — robot không hỏng đâu!"
+    },
+    {
+      "part": "Hai cổng USB",
+      "title": "Mặt sau có HAI cổng USB",
+      "lines": [
+        "Hai cổng nằm sát nhau mà làm hai việc khác hẳn."
+      ],
+      "image": "leanbot-phan-cung-2.png",
+      "alt": "Mặt sau Leanbot: cổng Arduino, cổng sạc, công tắc, cục pin"
+    },
+    {
+      "part": "Hai cổng USB",
+      "title": "Cắm nhầm là coi như robot chết",
+      "chips": [
+        {
+          "label": "Cổng TRÊN · Arduino",
+          "body": "Để NẠP CODE",
+          "tone": "go"
+        },
+        {
+          "label": "Cổng DƯỚI · cục pin",
+          "body": "Chỉ để SẠC",
+          "tone": "coin"
+        }
+      ],
+      "warn": "Cắm vào cổng sạc thì máy tính không thấy robot. Giống hệt robot hỏng, mà thật ra chỉ cắm nhầm.",
+      "tip": "Mẹo: dán nhãn \"NẠP\" và \"SẠC\" lên hai cổng.",
+      "check": "Con chỉ đúng hai cổng rồi"
+    },
+    {
+      "part": "Sạc robot",
+      "title": "Sạc bằng 2 cách",
+      "chips": [
+        {
+          "label": "Cách 1",
+          "body": "Cáp USB nối máy tính",
+          "tone": "sky"
+        },
+        {
+          "label": "Cách 2",
+          "body": "Củ sạc cắm ổ điện",
+          "tone": "sky"
+        }
+      ],
+      "note": "Cáp loại USB-C sang USB-A. Sạc đầy mất 2–4 tiếng."
+    },
+    {
+      "part": "Sạc robot",
+      "title": "Nhìn đèn để biết sạc xong chưa",
+      "chips": [
+        {
+          "label": "Nháy đỏ",
+          "body": "Đang sạc",
+          "tone": "oops"
+        },
+        {
+          "label": "Xanh, không nháy",
+          "body": "Đã đầy!",
+          "tone": "go"
+        }
+      ],
+      "warn": "Pin yếu thì robot chạy lệch dù code đúng từng chữ. Robot tự nhiên chạy sai? Nghĩ tới pin TRƯỚC.",
+      "check": "Con sạc robot rồi"
+    },
+    {
+      "part": "Giữ gìn robot",
+      "title": "3 điều phải nhớ",
+      "list": [
+        "Các bộ phận KHÔNG lắp lẫn cổng được. Mắt siêu âm có cổng riêng của nó.",
+        "Không dùng thì cất vào hộp. Không để ngoài bàn, không phơi nắng.",
+        "Sạc đều đặn để robot luôn đủ điện."
+      ]
+    },
+    {
+      "part": "Kiểm tra robot",
+      "title": "Giờ mình xem robot còn tốt không",
+      "lines": [
+        "Có một chương trình kiểm tra sẵn.",
+        "Nạp vào robot, nó sẽ tự báo từng bộ phận."
+      ],
+      "link": {
+        "label": "git.pythaverse.space/leanbot/Tools",
+        "href": "https://git.pythaverse.space/leanbot/Tools"
+      },
+      "note": "Lấy tệp Sample Code/Leanbot_Test_and_Demo_v1.ino"
+    },
+    {
+      "part": "Kiểm tra robot",
+      "title": "Nút nạp không có chữ nào cả",
+      "image": "ide-nut-nap.png",
+      "alt": "Ba biểu tượng ở góc phải màn hình IDE",
+      "chips": [
+        {
+          "label": "Dấu tích",
+          "body": "CHỈ kiểm code. Không nạp!",
+          "tone": "oops"
+        },
+        {
+          "label": "Nút play",
+          "body": "Nạp vào robot. Bấm cái này!",
+          "tone": "go"
+        },
+        {
+          "label": "SERIAL",
+          "body": "Xem robot nói gì",
+          "tone": "sky"
+        }
+      ],
+      "warn": "Bấm nhầm dấu tích thì máy vẫn báo thành công, mà robot không nhận gì."
+    },
+    {
+      "part": "Kiểm tra robot",
+      "title": "Nạp code: 6 bước",
+      "steps": [
+        [
+          "1",
+          "Mở trình soạn thảo, dán chương trình vào"
+        ],
+        [
+          "2",
+          "Bật công tắc robot — đèn đỏ sáng"
+        ],
+        [
+          "3",
+          "Cắm cáp vào cổng TRÊN"
+        ],
+        [
+          "4",
+          "Bấm nút play"
+        ],
+        [
+          "5",
+          "Chọn cổng → Connect → chờ 100% – Done!"
+        ],
+        [
+          "6",
+          "Rút cáp. Robot chạy!"
+        ]
+      ],
+      "warn": "Không rút cáp khi đang nạp. Chờ đủ 100%.",
+      "check": "Con nạp được chương trình rồi"
+    },
+    {
+      "part": "Kiểm tra robot",
+      "title": "Trước khi bấm, nhìn thanh dưới",
+      "image": "ide-thanh-duoi.png",
+      "alt": "Thanh dưới màn hình IDE",
+      "table": {
+        "head": [
+          "Chữ",
+          "Phải là"
+        ],
+        "rows": [
+          [
+            "BOARD",
+            "ARDUINO UNO hoặc NANO"
+          ],
+          [
+            "SERVER",
+            "ONLINE (màu xanh)"
+          ],
+          [
+            "SELECT DEVICE",
+            "Chọn xong thành SERIAL: SELECTED"
+          ]
+        ]
+      }
+    },
+    {
+      "part": "Đọc số liệu",
+      "title": "Robot gửi số liệu về đây",
+      "lines": [
+        "Mở cửa sổ SERIAL. Robot gửi về liên tục một dòng như này:"
+      ],
+      "code": "TB 0000 - IR 00 .... 00 - 23 cm - GR 50 50"
+    },
+    {
+      "part": "Đọc số liệu",
+      "title": "Đọc từng khúc một",
+      "table": {
+        "head": [
+          "Khúc",
+          "Là gì",
+          "Thử thế nào"
+        ],
+        "rows": [
+          [
+            "TB 0000",
+            "4 nút chạm",
+            "Chạm nút → số thành 1"
+          ],
+          [
+            "IR 00 .... 00",
+            "Mắt hồng ngoại",
+            "Đặt lên vạch đen → số đổi"
+          ],
+          [
+            "23 cm",
+            "Mắt siêu âm",
+            "Đưa tay lại gần → số nhỏ đi"
+          ],
+          [
+            "GR 50 50",
+            "Góc hai càng",
+            "Mở càng → số đổi"
+          ]
+        ]
+      },
+      "tip": "Bộ phận nào số không đổi thì bộ phận đó có vấn đề.",
+      "check": "Con đọc được dòng số liệu"
+    },
+    {
+      "part": "Tám lệnh thử",
+      "title": "Gõ lệnh, robot làm thử",
+      "lines": [
+        "Gõ vào ô của cửa sổ SERIAL rồi Enter."
+      ],
+      "table": {
+        "head": [
+          "Gõ",
+          "Robot làm gì",
+          "Tốt thì thấy"
+        ],
+        "rows": [
+          [
+            "Motion",
+            "Tiến, lùi, quay 2 lần",
+            "Về đúng chỗ cũ"
+          ],
+          [
+            "StraightMotion",
+            "Chạy thẳng 1 mét rồi lùi",
+            "Đi thẳng, không lệch"
+          ],
+          [
+            "Gripper",
+            "Đóng càng rồi mở càng",
+            "Hai càng đều nhau"
+          ],
+          [
+            "RGBLeds",
+            "Bật 7 đèn màu",
+            "Đủ 7 đèn sáng"
+          ],
+          [
+            "Buzzer",
+            "Kêu 8 nốt nhạc",
+            "Nghe đủ đô rê mi fa sol la si đô"
+          ],
+          [
+            "LineFollow",
+            "Bám vạch đen",
+            "Bám được, dừng ở ngã tư"
+          ],
+          [
+            "Objectfollow",
+            "Bám theo tay con",
+            "Giữ cách 15 cm"
+          ],
+          [
+            "IRLine",
+            "Hiệu chỉnh mắt dò vạch",
+            "Xem màn sau"
+          ]
+        ]
+      },
+      "check": "Con chạy đủ 8 lệnh"
+    },
+    {
+      "part": "Hiệu chỉnh",
+      "title": "Dò vạch chập chờn? Đừng sửa code",
+      "lines": [
+        "Hiệu chỉnh lại mắt dò vạch trước đã."
+      ],
+      "steps": [
+        [
+          "1",
+          "Gõ lệnh IRLine"
+        ],
+        [
+          "2",
+          "Đặt robot lên nền TRẮNG → chạm nút TB1A"
+        ],
+        [
+          "3",
+          "Đặt robot lên VẠCH ĐEN → chạm nút TB1A"
+        ],
+        [
+          "4",
+          "Xong! Robot tự nhớ hai mức sáng đó"
+        ]
+      ],
+      "note": "Ngưỡng mặc định là 60. Sàn nhà mỗi nơi một màu nên không phải lúc nào cũng hợp."
+    },
+    {
+      "part": "Hiệu chỉnh",
+      "title": "Hiệu chỉnh là gì?",
+      "lines": [
+        "Là chỉnh cho bộ phận chạy ĐÚNG. Không phải sửa chữa, cũng không phải cho nhanh hơn."
+      ],
+      "list": [
+        "Trước khi hiệu chỉnh: chuẩn bị đủ dụng cụ.",
+        "Làm xong: thử lại chính việc đó để kiểm.",
+        "Vẫn sai: xem phần khắc phục sự cố, đừng làm lại từ đầu."
+      ]
+    }
+  ],
+  "quiz": [
+    {
+      "q": "Cắm cáp rồi mà máy tính không thấy robot. Hỏi gì đầu tiên?",
+      "options": [
+        "Robot hết pin à?",
+        "Cắm vào cổng nào?",
+        "Code sai à?",
+        "Đổi máy khác thử"
+      ],
+      "correct": 1,
+      "explain": "Robot có hai cổng USB sát nhau. Cổng sạc không nạp code được."
+    },
+    {
+      "q": "Cục pin đang nháy đỏ. Robot sạc xong chưa?",
+      "options": [
+        "Xong rồi",
+        "Chưa, đang sạc",
+        "Pin hỏng",
+        "Không biết được"
+      ],
+      "correct": 1,
+      "explain": "Nháy đỏ là đang sạc. Xong là xanh dương, không nháy."
+    },
+    {
+      "q": "Chương trình bắt đầu bằng TB1A + TB1B. Bé chạm một nút, robot không chạy. Vì sao?",
+      "options": [
+        "Robot hỏng",
+        "Hết pin",
+        "Phải chạm cùng lúc hai nút trước",
+        "Nạp code lại"
+      ],
+      "correct": 2,
+      "explain": "Dấu + nghĩa là cả hai nút cùng lúc."
+    },
+    {
+      "q": "Não của Leanbot là loại Arduino nào?",
+      "options": [
+        "Arduino UNO",
+        "Arduino NANO",
+        "Arduino Mega",
+        "Arduino Wifi"
+      ],
+      "correct": 1,
+      "explain": "Não là NANO. Trong IDE ghi UNO là chuyện khác, vẫn nạp được."
+    },
+    {
+      "q": "Gõ lệnh nào để nghe robot kêu 8 nốt nhạc?",
+      "options": [
+        "Motion",
+        "RGBLeds",
+        "Buzzer",
+        "Gripper"
+      ],
+      "correct": 2,
+      "explain": "Buzzer kêu đô rê mi fa sol la si đô."
+    },
+    {
+      "q": "Robot dò vạch lúc được lúc không. Làm gì trước?",
+      "options": [
+        "Sửa code",
+        "Hiệu chỉnh mắt dò vạch",
+        "Thay robot",
+        "Tăng tốc độ"
+      ],
+      "correct": 1,
+      "explain": "Gõ IRLine rồi lấy mẫu nền trắng và vạch đen."
+    }
+  ]
+}

@@ -392,6 +392,44 @@ export const vi = {
     mangHere: 'Măng đang ở đây',
   },
 
+  // "/hub" Chọn nơi học (ADR-0028): một tài khoản, hai khóa.
+  hub: {
+    title: 'Học gì hôm nay?',
+    greeting: (nickname: string) => `Chào ${nickname}! Con muốn học gì?`,
+    leanbot: {
+      title: 'Leanbot',
+      what: 'Robot thật, đi thi AIROC',
+      need: 'Cần có robot Leanbot',
+    },
+    codequest: {
+      title: 'CodeQuest',
+      what: 'Phiêu lưu, học tư duy',
+      need: 'Chỉ cần máy tính',
+    },
+  },
+
+  // "/leanbot" Khóa Leanbot (ADR-0028).
+  leanbot: {
+    title: 'Khóa Leanbot',
+    minutes: (n: number) => `${String(n)} phút`,
+    moreSoon: 'Các bài sau đang làm. Học xong bài này rồi quay lại nhé!',
+    lessonNumber: (n: number) => `Bài ${String(n)}`,
+    goalsTitle: 'Học xong bài này con sẽ…',
+    progress: 'Tiến độ bài học',
+    back: '← Quay lại',
+    backToList: 'Về danh sách bài',
+    next: 'Tiếp →',
+    toQuiz: 'Làm bài kiểm tra →',
+    quizEyebrow: 'Kiểm tra',
+    quizTitle: 'Con nhớ được bao nhiêu?',
+    questionNumber: (at: number, total: number) => `Câu ${String(at)} / ${String(total)}`,
+    quizDone: (lesson: number, right: number, total: number) =>
+      `Xong Bài ${String(lesson)}! Đúng ${String(right)}/${String(total)}`,
+    loading: 'Măng đang mở sách…',
+    loadError: 'Ối, chưa mở được bài học. Con tải lại trang nhé!',
+    notFound: 'Không tìm thấy bài này.',
+  },
+
   // "/w/:worldId" Trang thế giới.
   world: {
     backToMap: 'Bản đồ',

@@ -52,6 +52,23 @@ export { LessonCardSchema, LessonSchema, MASCOT_POSES, MascotPoseSchema } from '
 export type { Lesson, LessonCard, MascotPose } from './lesson';
 
 export {
+  LEANBOT_TONES,
+  LeanbotChipSchema,
+  LeanbotLessonSchema,
+  LeanbotQuestionSchema,
+  LeanbotScreenSchema,
+  LeanbotStepListSchema,
+  LeanbotTableSchema,
+  LeanbotToneSchema,
+} from './leanbot';
+export type {
+  LeanbotLesson,
+  LeanbotQuestion,
+  LeanbotScreen,
+  LeanbotTone,
+} from './leanbot';
+
+export {
   DEFAULT_SCENE_THEME,
   SCENE_THEMES,
   SceneThemeSchema,

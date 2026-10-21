@@ -39,6 +39,8 @@ export const ID_PATTERNS = {
   world: /^w\d{2}-[a-z0-9]+(?:-[a-z0-9]+)*$/,
   level: /^w\d{2}-(?:l\d{2}|boss|creative|exam|bonus\d{2})$/,
   lesson: /^w\d{2}-lesson(?:-[a-z0-9]+(?:-[a-z0-9]+)*)?$/,
+  /** Leanbot course lessons (ADR-0028) are numbered, not tied to a world. */
+  leanbot: /^bai-\d{2}$/,
 } as const;
 
 export interface ValidateLevelOptions {
