@@ -1,7 +1,7 @@
 # tools/lbeditor-vi — việt hóa Leanbot Blockly Editor
 
 Hoàn thiện nhãn tiếng Việt cho **cả hai** trình soạn khối của Pythaverse, dùng cho khóa
-AIROC 2026 (xem `docs/product/leanbot-airoc-vi.md`):
+AIROC 2026 (xem `docs/leanbot/giao-trinh.md`):
 
 | Trình | Dùng cho | Sinh ra |
 |---|---|---|
