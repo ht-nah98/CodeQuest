@@ -1,0 +1,61 @@
+{
+  "id": "w10-lesson",
+  "worldId": "w10-hoc-vien",
+  "title": "Học Viện Thuật Toán",
+  "cards": [
+    {
+      "type": "say",
+      "pose": "happy",
+      "text": "Chào mừng tới Học Viện Thuật Toán!"
+    },
+    {
+      "type": "say",
+      "pose": "think",
+      "text": "Gió thổi tung kệ sách. Sách nào cũng lạc chỗ."
+    },
+    {
+      "type": "say",
+      "pose": "point",
+      "text": "Thuật toán là cách làm đúng cho mọi lần."
+    },
+    {
+      "type": "demo",
+      "text": "Tay Bíp ở đây. Cờ là cuối kệ.",
+      "kind": "sorter",
+      "config": {
+        "books": [
+          3,
+          1,
+          2
+        ],
+        "goal": {
+          "end": true
+        }
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "quiz",
+      "text": "Cách làm chỉ đúng 1 kệ. Là thuật toán không?",
+      "options": [
+        "Chưa phải",
+        "Phải"
+      ],
+      "correct": 0,
+      "explain": "Thuật toán phải đúng với mọi kệ, không chỉ một kệ."
+    }
+  ]
+}

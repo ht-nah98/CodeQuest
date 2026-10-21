@@ -1,0 +1,88 @@
+{
+  "id": "w10-l01",
+  "worldId": "w10-hoc-vien",
+  "stage": "guided",
+  "kind": "sorter",
+  "mode": "build",
+  "title": "Cuốn thứ tư",
+  "objective": "Đưa tay Bíp tới cuốn sách số 7 nhé!",
+  "learningGoal": "Khối sang phải đưa tay sang sách kế bên phải.",
+  "misconception": "Tay tự nhảy tới sách cần tìm.",
+  "thinkingHint": "Sách số 7 đứng thứ mấy trên kệ?",
+  "toolbox": [
+    "sorter_right",
+    "cq_repeat"
+  ],
+  "maxLoopDepth": 1,
+  "par": 2,
+  "maxBlocks": 3,
+  "config": {
+    "books": [
+      2,
+      5,
+      8,
+      7,
+      4
+    ],
+    "goal": {
+      "find": 7
+    }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "loop1",
+              "fields": {
+                "TIMES": 3
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "sorter_right",
+                    "id": "r1"
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "count",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Đếm xem tay phải sang phải mấy lần.",
+      "point": "toolbox:sorter_right"
+    },
+    {
+      "id": "repeat",
+      "when": {
+        "trigger": "idle"
+      },
+      "say": "Khối lặp làm hộ con mấy lần giống nhau.",
+      "point": "toolbox:cq_repeat"
+    },
+    {
+      "id": "past",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "NOT_FOUND"
+      },
+      "say": "Tay đi quá rồi. Sách số 7 đứng thứ mấy?"
+    }
+  ]
+}

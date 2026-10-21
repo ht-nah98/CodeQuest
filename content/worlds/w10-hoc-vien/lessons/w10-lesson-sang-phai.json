@@ -1,0 +1,43 @@
+{
+  "id": "w10-lesson-sang-phai",
+  "worldId": "w10-hoc-vien",
+  "title": "Sang phải",
+  "beforeLevel": "w10-l01",
+  "cards": [
+    { "type": "say", "pose": "point", "text": "Khối mới! Sang phải: tay sang sách kế bên phải" },
+    {
+      "type": "demo",
+      "text": "Sang phải 2 lần: tay ở sách thứ ba.",
+      "kind": "sorter",
+      "config": { "books": [2, 5, 8], "goal": { "end": true } },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "sorter_right",
+                  "id": "r1",
+                  "next": { "block": { "type": "sorter_right", "id": "r2" } }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "quiz",
+      "text": "Tay ở sách cuối, sang phải. Tay ở đâu?",
+      "options": ["Ở cờ cuối kệ", "Về đầu kệ"],
+      "correct": 0,
+      "explain": "Sau sách cuối là cờ cuối kệ. Sang phải nữa là Bíp hụt tay."
+    }
+  ]
+}

@@ -258,6 +258,9 @@ export const SORTER_TRAPS: ReadonlyMap<string, readonly SorterTrap[]> = new Map(
     'sorter-count': [{ program: 'REP4[IF>5[ADD:big] R]', reason: 'NOT_AT_END', s1: true }],
     // One pass sorts shelves 1 and 2, not the reversed shelf 3 (S1).
     'sorter-bubble': [{ program: 'REP2[IFB[W] R]', reason: 'NOT_SORTED', s1: true }],
+    // W10.
+    // One step too many: the hand walks past the 7 and stops on the 4.
+    'w10-l01': [{ program: 'REP4[R]', reason: 'NOT_FOUND' }],
   }),
 );
 
