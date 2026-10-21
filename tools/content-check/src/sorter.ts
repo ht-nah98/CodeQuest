@@ -261,6 +261,9 @@ export const SORTER_TRAPS: ReadonlyMap<string, readonly SorterTrap[]> = new Map(
     // W10.
     // One step too many: the hand walks past the 7 and stops on the 4.
     'w10-l01': [{ program: 'REP4[R]', reason: 'NOT_FOUND' }],
+    // Counting places instead of asking: one step right finds the 6 of shelf 1 and misses it on
+    // the other two (S1).
+    'w10-l04': [{ program: 'R', reason: 'NOT_FOUND', s1: true }],
   }),
 );
 

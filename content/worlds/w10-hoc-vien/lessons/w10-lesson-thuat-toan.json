@@ -1,0 +1,73 @@
+{
+  "id": "w10-lesson-thuat-toan",
+  "worldId": "w10-hoc-vien",
+  "title": "Thuật toán",
+  "beforeLevel": "w10-l04",
+  "cards": [
+    { "type": "say", "pose": "point", "text": "Một cách làm, đúng cho mọi kệ: đó là thuật toán." },
+    {
+      "type": "demo",
+      "text": "Hỏi từng sách: kệ nào cũng tìm được số 9.",
+      "kind": "sorter",
+      "config": { "books": [5, 9, 1], "goal": { "find": 9 } },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "cq_repeat_until",
+                  "id": "until1",
+                  "inputs": {
+                    "COND": {
+                      "block": {
+                        "type": "sorter_book_is",
+                        "id": "ask1",
+                        "fields": { "OP": "EQ", "NUM": 9 }
+                      }
+                    },
+                    "DO": { "block": { "type": "sorter_right", "id": "r1" } }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "demo",
+      "text": "Đi 1 chỗ: đúng kệ này, sai kệ kia.",
+      "kind": "sorter",
+      "config": { "books": [2, 8, 9], "goal": { "find": 9 } },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": { "block": { "type": "sorter_right", "id": "r1" } }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "quiz",
+      "text": "Kệ đổi chỗ sách. Cách nào vẫn đúng?",
+      "options": ["Hỏi từng sách", "Đi 1 chỗ"],
+      "correct": 0,
+      "explain": "Hỏi từng sách thì kệ nào cũng đúng. Đếm chỗ chỉ đúng một kệ."
+    }
+  ]
+}

@@ -1,0 +1,126 @@
+{
+  "id": "w10-l04",
+  "worldId": "w10-hoc-vien",
+  "stage": "guided",
+  "kind": "sorter",
+  "mode": "build",
+  "title": "Kệ nào cũng đúng",
+  "objective": "Một cách làm thôi, mà đúng cả 3 kệ nhé!",
+  "learningGoal": "Thuật toán: một cách làm đúng cho mọi kệ, không chỉ kệ này.",
+  "misconception": "Đúng cho 1 kệ là đúng cho mọi kệ.",
+  "thinkingHint": "Kệ thứ ba có sách số 6 ngay đầu. Tay đi mấy chỗ?",
+  "toolbox": [
+    "sorter_right",
+    {
+      "type": "sorter_book_is",
+      "fields": {
+        "OP": "EQ",
+        "NUM": 6
+      }
+    },
+    "cq_repeat_until",
+    "cq_repeat"
+  ],
+  "maxLoopDepth": 1,
+  "par": 3,
+  "maxBlocks": 4,
+  "config": {
+    "books": [
+      3,
+      6,
+      2,
+      9
+    ],
+    "goal": {
+      "find": 6
+    }
+  },
+  "variants": [
+    {
+      "books": [
+        8,
+        1,
+        4,
+        6,
+        2
+      ],
+      "goal": {
+        "find": 6
+      }
+    },
+    {
+      "books": [
+        6,
+        5,
+        7
+      ],
+      "goal": {
+        "find": 6
+      }
+    }
+  ],
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat_until",
+              "id": "until1",
+              "inputs": {
+                "COND": {
+                  "block": {
+                    "type": "sorter_book_is",
+                    "id": "ask1",
+                    "fields": {
+                      "OP": "EQ",
+                      "NUM": 6
+                    }
+                  }
+                },
+                "DO": {
+                  "block": {
+                    "type": "sorter_right",
+                    "id": "r1"
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "three",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Ba kệ khác nhau. Một chương trình phải đúng cả ba.",
+      "point": "stage"
+    },
+    {
+      "id": "ask",
+      "when": {
+        "trigger": "idle"
+      },
+      "say": "Hỏi từng cuốn thì kệ nào cũng tìm được.",
+      "point": "toolbox:cq_repeat_until"
+    },
+    {
+      "id": "notfound",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "NOT_FOUND"
+      },
+      "say": "Kệ kia sách số 6 ở chỗ khác. Đếm chỗ sai rồi."
+    }
+  ]
+}

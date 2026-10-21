@@ -1,0 +1,74 @@
+{
+  "id": "w10-l03",
+  "worldId": "w10-hoc-vien",
+  "stage": "guided",
+  "kind": "sorter",
+  "mode": "predict",
+  "title": "Thấy là dừng",
+  "objective": "Đoán xem tay Bíp dừng ở cuốn nào nhé!",
+  "learningGoal": "Lặp đến khi dừng ở cuốn ĐẦU TIÊN thấy, không đi tiếp.",
+  "misconception": "Tìm là phải đi hết kệ.",
+  "thinkingHint": "Kệ này có hai cuốn số 5. Bíp dừng ở cuốn nào?",
+  "toolbox": [],
+  "config": {
+    "books": [5, 2, 5, 3, 1],
+    "goal": { "find": 5 }
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "sorter_right",
+              "id": "r0",
+              "next": {
+                "block": {
+                  "type": "cq_repeat_until",
+                  "id": "until1",
+                  "inputs": {
+                    "COND": {
+                      "block": {
+                        "type": "sorter_book_is",
+                        "id": "ask1",
+                        "fields": { "OP": "EQ", "NUM": 5 }
+                      }
+                    },
+                    "DO": { "block": { "type": "sorter_right", "id": "r1" } }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "predict": {
+    "options": [
+      { "key": "shelf:5,2,5,3,1@1", "label": "Cuốn số 5 ở đầu kệ" },
+      { "key": "shelf:5,2,5,3,1@3", "label": "Cuốn số 5 thứ hai" },
+      { "key": "shelf:5,2,5,3,1@6", "label": "Cờ cuối kệ" }
+    ]
+  },
+  "hints": [
+    {
+      "id": "enter",
+      "when": { "trigger": "enter" },
+      "say": "Thấy sách cần tìm là dừng, không đi tiếp.",
+      "point": "stage"
+    },
+    {
+      "id": "first",
+      "when": { "trigger": "idle" },
+      "say": "Khối sang phải đầu tiên đưa tay qua cuốn thứ nhất.",
+      "point": "stage"
+    }
+  ]
+}

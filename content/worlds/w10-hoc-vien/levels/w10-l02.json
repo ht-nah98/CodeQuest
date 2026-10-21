@@ -1,0 +1,120 @@
+{
+  "id": "w10-l02",
+  "worldId": "w10-hoc-vien",
+  "stage": "guided",
+  "kind": "sorter",
+  "mode": "parsons",
+  "title": "Hỏi từng cuốn",
+  "objective": "Hỏi từng cuốn tới khi thấy sách số 7 nhé!",
+  "learningGoal": "Lặp đến khi sách này = 7: hỏi từng sách rồi mới đi tiếp.",
+  "misconception": "Phải biết trước sách số 7 đứng thứ mấy.",
+  "thinkingHint": "Nếu sách số 7 đổi chỗ, chương trình này còn đúng không?",
+  "toolbox": [],
+  "maxLoopDepth": 1,
+  "par": 3,
+  "config": {
+    "books": [
+      4,
+      9,
+      1,
+      6,
+      7,
+      3
+    ],
+    "goal": {
+      "find": 7
+    }
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false
+        },
+        {
+          "type": "cq_repeat_until",
+          "id": "until1",
+          "x": 60,
+          "y": 150
+        },
+        {
+          "type": "sorter_book_is",
+          "id": "ask1",
+          "fields": {
+            "OP": "EQ",
+            "NUM": 7
+          },
+          "x": 320,
+          "y": 240
+        },
+        {
+          "type": "sorter_right",
+          "id": "r1",
+          "x": 60,
+          "y": 320
+        }
+      ]
+    }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat_until",
+              "id": "until1",
+              "inputs": {
+                "COND": {
+                  "block": {
+                    "type": "sorter_book_is",
+                    "id": "ask1",
+                    "fields": {
+                      "OP": "EQ",
+                      "NUM": 7
+                    }
+                  }
+                },
+                "DO": {
+                  "block": {
+                    "type": "sorter_right",
+                    "id": "r1"
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "until",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Lặp đến khi nào thì tay Bíp mới dừng?",
+      "point": "block:cq_repeat_until"
+    },
+    {
+      "id": "inside",
+      "when": {
+        "trigger": "idle"
+      },
+      "say": "Khối hỏi gắn vào ô tròn của khối lặp nhé.",
+      "point": "block:sorter_book_is"
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "id": "w10-lesson-hoi-sach",
+  "worldId": "w10-hoc-vien",
+  "title": "Hỏi sách",
+  "beforeLevel": "w10-l02",
+  "cards": [
+    { "type": "say", "pose": "point", "text": "Khối mới! Sách này = 7? Đúng thì ✔, sai thì ✘" },
+    {
+      "type": "demo",
+      "text": "Hỏi từng sách. Thấy số 9 thì dừng.",
+      "kind": "sorter",
+      "config": { "books": [4, 2, 9], "goal": { "find": 9 } },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "cq_repeat_until",
+                  "id": "until1",
+                  "inputs": {
+                    "COND": {
+                      "block": {
+                        "type": "sorter_book_is",
+                        "id": "ask1",
+                        "fields": { "OP": "EQ", "NUM": 9 }
+                      }
+                    },
+                    "DO": { "block": { "type": "sorter_right", "id": "r1" } }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "quiz",
+      "text": "Sách đầu đã là số 7. Tay đi mấy chỗ?",
+      "options": ["Không đi", "Đi 1 chỗ"],
+      "correct": 0,
+      "explain": "Lặp đến khi hỏi trước. Thấy ngay thì tay đứng yên."
+    }
+  ]
+}

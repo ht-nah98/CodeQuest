@@ -29,10 +29,15 @@
   },
   "lessonIds": [
     "w10-lesson",
-    "w10-lesson-sang-phai"
+    "w10-lesson-sang-phai",
+    "w10-lesson-hoi-sach",
+    "w10-lesson-thuat-toan"
   ],
   "levelIds": [
-    "w10-l01"
+    "w10-l01",
+    "w10-l02",
+    "w10-l03",
+    "w10-l04"
   ],
   "unlock": {
     "minStarRatio": 0.6
