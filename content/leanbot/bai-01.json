@@ -26,11 +26,26 @@
       "part": "Quy tắc số 1",
       "title": "Pha một gói mì, con làm gì trước?",
       "steps": [
-        ["1", "Xé gói mì"],
-        ["2", "Cho mì vào bát"],
-        ["3", "Đổ nước sôi"],
-        ["4", "Chờ 3 phút"],
-        ["5", "Ăn"]
+        [
+          "1",
+          "Xé gói mì"
+        ],
+        [
+          "2",
+          "Cho mì vào bát"
+        ],
+        [
+          "3",
+          "Đổ nước sôi"
+        ],
+        [
+          "4",
+          "Chờ 3 phút"
+        ],
+        [
+          "5",
+          "Ăn"
+        ]
       ],
       "note": "Đổ nước sôi trước khi cho mì vào bát thì sao? Bát nước nóng, không có mì."
     },
@@ -52,9 +67,37 @@
       "image": "blockly-toan-canh.png",
       "alt": "Trình soạn khối lệnh: thanh nhóm bên trái, vùng ghép khối ở giữa, cột code bên phải",
       "link": {
-        "label": "Mở trình soạn khối lệnh",
-        "href": "https://ide.pythaverse.space/lbeditor/"
+        "label": "Mở trình soạn khối lệnh (tiếng Việt)",
+        "href": "https://ide.pythaverse.space/lbeditor/?lang=vi"
       }
+    },
+    {
+      "part": "Trung tâm chỉ huy",
+      "title": "Chữ ra tiếng Anh thì đổi thế nào?",
+      "lines": [
+        "Trình soạn chỉ nói tiếng Việt khi địa chỉ có đuôi ?lang=vi."
+      ],
+      "steps": [
+        [
+          "1",
+          "Nhìn lên thanh địa chỉ của trình duyệt"
+        ],
+        [
+          "2",
+          "Gõ thêm ?lang=vi vào ngay cuối địa chỉ"
+        ],
+        [
+          "3",
+          "Bấm Enter, chờ trang nạp lại"
+        ],
+        [
+          "4",
+          "Thanh nhóm bên trái thành Vòng lặp, Toán, Di chuyển…"
+        ]
+      ],
+      "code": "https://ide.pythaverse.space/lbeditor/?lang=vi",
+      "warn": "Nút bánh răng ở góc trên bên phải KHÔNG đổi ngôn ngữ. Nó mở bảng chọn nhóm khối nào được hiện.",
+      "tip": "Mở bằng đường dẫn ở màn trước thì đã có sẵn đuôi ?lang=vi rồi, không phải gõ tay."
     },
     {
       "part": "Trung tâm chỉ huy",
@@ -70,10 +113,22 @@
       "part": "Trung tâm chỉ huy",
       "title": "Kéo một khối thế nào?",
       "steps": [
-        ["1", "Đặt con trỏ lên khối trong khay"],
-        ["2", "Bấm giữ chuột trái"],
-        ["3", "Kéo sang vùng ghép khối"],
-        ["4", "Nhả chuột ra"]
+        [
+          "1",
+          "Đặt con trỏ lên khối trong khay"
+        ],
+        [
+          "2",
+          "Bấm giữ chuột trái"
+        ],
+        [
+          "3",
+          "Kéo sang vùng ghép khối"
+        ],
+        [
+          "4",
+          "Nhả chuột ra"
+        ]
       ],
       "tip": "Kéo cho mép hai khối sát nhau, chúng tự khớp như mảnh ghép. Chỉ nằm gần thì chưa dính."
     },
@@ -96,17 +151,34 @@
         "Hai ô cùng số 30 thì robot đi thẳng về phía mặt nó đang hướng."
       ],
       "chips": [
-        { "label": "Trái 30 · Phải 30", "body": "Đi thẳng tới", "tone": "go" },
-        { "label": "Trái 50 · Phải 50", "body": "Vẫn tới, nhưng nhanh hơn", "tone": "sky" }
+        {
+          "label": "Trái 30 · Phải 30",
+          "body": "Đi thẳng tới",
+          "tone": "go"
+        },
+        {
+          "label": "Trái 50 · Phải 50",
+          "body": "Vẫn tới, nhưng nhanh hơn",
+          "tone": "sky"
+        }
       ]
     },
     {
       "part": "Đi tới, đi lùi",
       "title": "Ba khối để đi tới 15 cm",
       "steps": [
-        ["1", "Di chuyển: Chạy với vận tốc Trái 30 Phải 30"],
-        ["2", "Di chuyển: Chạy đoạn đường 15 cm"],
-        ["3", "Di chuyển: Dừng"]
+        [
+          "1",
+          "Di chuyển: Chạy với vận tốc Trái 30 Phải 30"
+        ],
+        [
+          "2",
+          "Di chuyển: Chạy đoạn đường 15 cm"
+        ],
+        [
+          "3",
+          "Di chuyển: Dừng"
+        ]
       ],
       "note": "Số 30 là chạy nhanh hay chậm. Số 15 là đi xa bao nhiêu. Hai số đó gọi là THAM SỐ."
     },
@@ -123,8 +195,16 @@
       "part": "Đi tới, đi lùi",
       "title": "Dấu trừ nghĩa là lùi",
       "chips": [
-        { "label": "Trái 30 · Phải 30", "body": "Không dấu trừ: đi TỚI", "tone": "go" },
-        { "label": "Trái −50 · Phải −50", "body": "Có dấu trừ: đi LÙI", "tone": "coin" }
+        {
+          "label": "Trái 30 · Phải 30",
+          "body": "Không dấu trừ: đi TỚI",
+          "tone": "go"
+        },
+        {
+          "label": "Trái −50 · Phải −50",
+          "body": "Có dấu trừ: đi LÙI",
+          "tone": "coin"
+        }
       ],
       "warn": "Phải thêm dấu trừ cho CẢ HAI ô. Chỉ một ô có dấu trừ thì robot quay chứ không lùi."
     },
@@ -150,11 +230,23 @@
       "part": "Quay tại chỗ",
       "title": "Quay bao nhiêu độ?",
       "table": {
-        "head": ["Số độ", "Robot làm gì"],
+        "head": [
+          "Số độ",
+          "Robot làm gì"
+        ],
         "rows": [
-          ["90", "Quay một góc vuông, như góc tờ giấy"],
-          ["180", "Quay ngược lại, mặt hướng phía đối diện"],
-          ["360", "Quay đúng một vòng, về lại hướng cũ"]
+          [
+            "90",
+            "Quay một góc vuông, như góc tờ giấy"
+          ],
+          [
+            "180",
+            "Quay ngược lại, mặt hướng phía đối diện"
+          ],
+          [
+            "360",
+            "Quay đúng một vòng, về lại hướng cũ"
+          ]
         ]
       }
     },
@@ -170,9 +262,18 @@
       "part": "Quay tại chỗ",
       "title": "Quay sang phải",
       "steps": [
-        ["1", "Di chuyển: Rẽ với vận tốc Trái 50 Phải −50"],
-        ["2", "Di chuyển: Rẽ góc 90 độ"],
-        ["3", "Di chuyển: Dừng"]
+        [
+          "1",
+          "Di chuyển: Rẽ với vận tốc Trái 50 Phải −50"
+        ],
+        [
+          "2",
+          "Di chuyển: Rẽ góc 90 độ"
+        ],
+        [
+          "3",
+          "Di chuyển: Dừng"
+        ]
       ],
       "tip": "Bánh bên nào lùi thì robot quay về bên đó. Quay phải: bánh phải mang dấu trừ."
     },
@@ -180,9 +281,18 @@
       "part": "Quay tại chỗ",
       "title": "Quay sang trái",
       "steps": [
-        ["1", "Di chuyển: Rẽ với vận tốc Trái −50 Phải 50"],
-        ["2", "Di chuyển: Rẽ góc 90 độ"],
-        ["3", "Di chuyển: Dừng"]
+        [
+          "1",
+          "Di chuyển: Rẽ với vận tốc Trái −50 Phải 50"
+        ],
+        [
+          "2",
+          "Di chuyển: Rẽ góc 90 độ"
+        ],
+        [
+          "3",
+          "Di chuyển: Dừng"
+        ]
       ],
       "note": "Đổi từ quay phải sang quay trái chỉ cần đổi chỗ dấu trừ giữa hai ô.",
       "check": "Con cho robot quay phải và quay trái rồi"
@@ -191,8 +301,16 @@
       "part": "Quay tại chỗ",
       "title": "Robot quay lố thì sao?",
       "chips": [
-        { "label": "Cách 1", "body": "Chỉnh góc nhỏ hơn: 85 độ thay vì 90", "tone": "go" },
-        { "label": "Cách 2", "body": "Chỉnh vận tốc nhỏ: 30 và −30", "tone": "sky" }
+        {
+          "label": "Cách 1",
+          "body": "Chỉnh góc nhỏ hơn: 85 độ thay vì 90",
+          "tone": "go"
+        },
+        {
+          "label": "Cách 2",
+          "body": "Chỉnh vận tốc nhỏ: 30 và −30",
+          "tone": "sky"
+        }
       ],
       "tip": "Quay lố là chuyện bình thường, không phải con làm sai. Kỹ sư chỉnh số rồi chạy thử lại."
     },
@@ -203,12 +321,30 @@
         "Cho Leanbot đi tới 50 cm, rồi quay sang phải một góc vuông."
       ],
       "steps": [
-        ["1", "Chạy với vận tốc Trái 50 Phải 50"],
-        ["2", "Chạy đoạn đường 50 cm"],
-        ["3", "Dừng"],
-        ["4", "Rẽ với vận tốc Trái 30 Phải −30"],
-        ["5", "Rẽ góc 85 độ"],
-        ["6", "Dừng"]
+        [
+          "1",
+          "Chạy với vận tốc Trái 50 Phải 50"
+        ],
+        [
+          "2",
+          "Chạy đoạn đường 50 cm"
+        ],
+        [
+          "3",
+          "Dừng"
+        ],
+        [
+          "4",
+          "Rẽ với vận tốc Trái 30 Phải −30"
+        ],
+        [
+          "5",
+          "Rẽ góc 85 độ"
+        ],
+        [
+          "6",
+          "Dừng"
+        ]
       ]
     },
     {
@@ -237,10 +373,22 @@
       "part": "Thử sức",
       "title": "Robot đi sai thì làm gì?",
       "steps": [
-        ["1", "Nhìn xem robot đi sai ở chỗ nào"],
-        ["2", "Kiểm số trên từng khối, từ trên xuống"],
-        ["3", "Chỉnh một chút rồi chạy thử lại"],
-        ["4", "Vẫn sai thì hỏi bạn hoặc hỏi thầy"]
+        [
+          "1",
+          "Nhìn xem robot đi sai ở chỗ nào"
+        ],
+        [
+          "2",
+          "Kiểm số trên từng khối, từ trên xuống"
+        ],
+        [
+          "3",
+          "Chỉnh một chút rồi chạy thử lại"
+        ],
+        [
+          "4",
+          "Vẫn sai thì hỏi bạn hoặc hỏi thầy"
+        ]
       ],
       "tip": "Chỉnh số rồi thử lại gọi là SỬA LỖI. Không cần xóa cả chương trình làm lại."
     }
@@ -248,37 +396,67 @@
   "quiz": [
     {
       "q": "Bánh trái đi tới, bánh phải đi lùi. Leanbot làm gì?",
-      "options": ["Quay tại chỗ", "Nhảy lên", "Dừng lại", "Đi thẳng"],
+      "options": [
+        "Quay tại chỗ",
+        "Nhảy lên",
+        "Dừng lại",
+        "Đi thẳng"
+      ],
       "correct": 0,
       "explain": "Hai bánh ngược chiều thì robot xoay tại chỗ như con quay, không đi xa khỏi chỗ cũ."
     },
     {
       "q": "Muốn quay sang phải thì ô Phải điền số nào?",
-      "options": ["Số không", "Số rất lớn", "Số có dấu trừ", "Số không có dấu trừ"],
+      "options": [
+        "Số không",
+        "Số rất lớn",
+        "Số có dấu trừ",
+        "Số không có dấu trừ"
+      ],
       "correct": 2,
       "explain": "Bánh bên nào lùi thì robot quay về bên đó. Quay phải: Trái 50, Phải −50."
     },
     {
       "q": "Leanbot quay quá đà. Con nên làm gì?",
-      "options": ["Xóa chương trình", "Chỉnh lại số độ", "Sửa bánh xe", "Vỗ tay"],
+      "options": [
+        "Xóa chương trình",
+        "Chỉnh lại số độ",
+        "Sửa bánh xe",
+        "Vỗ tay"
+      ],
       "correct": 1,
       "explain": "Chỉnh góc nhỏ hơn, ví dụ 85 độ, hoặc giảm vận tốc. Rồi chạy thử lại."
     },
     {
       "q": "Bé An muốn robot LÙI nhưng điền Trái 30 Phải 30. Robot làm gì?",
-      "options": ["Lùi đúng ý An", "Đi tới", "Quay tại chỗ", "Đứng im"],
+      "options": [
+        "Lùi đúng ý An",
+        "Đi tới",
+        "Quay tại chỗ",
+        "Đứng im"
+      ],
       "correct": 1,
       "explain": "Không có dấu trừ thì robot đi tới. Phải sửa cả hai ô thành −30."
     },
     {
       "q": "Số nào KHÔNG được đặt cho vận tốc một bánh?",
-      "options": ["30", "−50", "60", "−59"],
+      "options": [
+        "30",
+        "−50",
+        "60",
+        "−59"
+      ],
       "correct": 2,
       "explain": "Vận tốc mỗi bánh chỉ từ −59 đến 59 vòng/phút. 60 là quá."
     },
     {
       "q": "Khối Dừng bị đặt LÊN TRÊN khối Chạy với vận tốc. Robot làm gì?",
-      "options": ["Chạy bình thường", "Gần như đứng im", "Chạy rồi lùi", "Quay tại chỗ"],
+      "options": [
+        "Chạy bình thường",
+        "Gần như đứng im",
+        "Chạy rồi lùi",
+        "Quay tại chỗ"
+      ],
       "correct": 1,
       "explain": "Khối trên làm trước. Dừng trước khi chạy thì robot gần như không đi đâu."
     }

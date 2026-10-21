@@ -95,22 +95,28 @@ test('lesson 1 lists, links out to the editor and scores its quiz', async ({ pag
   await page.goto('/leanbot');
   await page.getByRole('link', { name: /Cùng di chuyển/ }).click();
   await expect(page).toHaveURL(/\/leanbot\/bai-01\/0$/);
-  await expect(page.getByText('1 / 24')).toBeVisible();
+  await expect(page.getByText('1 / 25')).toBeVisible();
 
   // The editor screen: its picture carries a description and the link opens in a new tab.
   await page.goto('/leanbot/bai-01/4');
   await expect(page.getByRole('heading', { name: 'Đây là trung tâm chỉ huy' })).toBeVisible();
   await expect(page.getByRole('img')).toHaveAttribute('alt', /Trình soạn khối lệnh/);
-  const editor = page.getByRole('link', { name: 'Mở trình soạn khối lệnh' });
-  await expect(editor).toHaveAttribute('href', 'https://ide.pythaverse.space/lbeditor/');
+  const editor = page.getByRole('link', { name: 'Mở trình soạn khối lệnh (tiếng Việt)' });
+  await expect(editor).toHaveAttribute('href', 'https://ide.pythaverse.space/lbeditor/?lang=vi');
   await expect(editor).toHaveAttribute('target', '_blank');
 
+  // The screen after it is how a coach switches the editor to Vietnamese at all.
+  await page.goto('/leanbot/bai-01/5');
+  await expect(page.getByRole('heading', { name: /Chữ ra tiếng Anh/ })).toBeVisible();
+  await expect(page.getByText('https://ide.pythaverse.space/lbeditor/?lang=vi')).toBeVisible();
+  await expect(page.getByText(/bánh răng.*KHÔNG đổi ngôn ngữ/)).toBeVisible();
+
   // The turning screen states which wheel carries the minus sign.
-  await page.goto('/leanbot/bai-01/16');
+  await page.goto('/leanbot/bai-01/17');
   await expect(page.getByRole('heading', { name: 'Quay sang phải' })).toBeVisible();
   await expect(page.getByText('Trái 50 Phải −50')).toBeVisible();
 
-  await page.goto('/leanbot/bai-01/23');
+  await page.goto('/leanbot/bai-01/24');
   await expect(page.getByRole('heading', { name: 'Con nhớ được bao nhiêu?' })).toBeVisible();
   await page.getByRole('button', { name: /^A.*Quay tại chỗ/ }).click();
   await expect(page.getByText(/xoay tại chỗ như con quay/)).toBeVisible();

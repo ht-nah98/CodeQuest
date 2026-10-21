@@ -13,7 +13,8 @@
 | Thứ | Ghi chú |
 |---|---|
 | Máy tính, trình duyệt | Mở trình soạn khối lệnh: <https://ide.pythaverse.space/lbeditor/> |
-| Bản vá tiếng Việt | `tools/lbeditor-vi/`. Dạy bằng khối tiếng Việt trước, đổi `?lang=en` để đối chiếu nhãn Anh sau (giáo trình tổng §4) |
+| Trình soạn ở chế độ tiếng Việt | **Bắt buộc thêm `?lang=vi` vào cuối địa chỉ**: <https://ide.pythaverse.space/lbeditor/?lang=vi>. Trong trình soạn **không có** menu đổi ngôn ngữ; nút bánh răng góc trên bên phải chỉ mở bảng `categories choice` (chọn nhóm khối nào hiện ra) |
+| Bản vá tiếng Việt | `tools/lbeditor-vi/`. Không vá thì 30/48 nhãn khối vẫn tiếng Anh dù đã có `?lang=vi`. Dạy bằng khối tiếng Việt trước, đổi `?lang=en` để đối chiếu nhãn Anh sau (giáo trình tổng §4) |
 | Leanbot đã sạc pin, mỗi nhóm 1 con | Cách sạc, kiểm tra: mục Khởi động GS1 |
 | Cách nạp chương trình xuống robot | Mục Khởi động GS2 (khóa gốc dạy bằng video). Bài 1 chỉ nói "Download and run", không có từng bước trên slide |
 | Mặt sàn phẳng, còn trống ít nhất 1 m | Để chạy thử 50 cm rồi quay. Gợi ý của thầy: dán băng dính đánh dấu 15 cm, 35 cm, 50 cm |

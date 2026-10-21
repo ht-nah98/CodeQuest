@@ -12,8 +12,12 @@ Cả hai dùng chung file ngôn ngữ `blocklyduino/msg/leanbot_vi.js`, nên m�
 
 ## Vì sao cần
 
-Trình soạn thảo **đã có sẵn chế độ tiếng Việt** (`?lang=vi`, hoặc menu bánh răng →
-`Tiếng Việt`). Nhưng bản dịch mới xong một nửa. Đo ngày 21/10/2026 trên Chrome 154:
+Trình soạn thảo **đã có sẵn chế độ tiếng Việt**, nhưng **chỉ bật được bằng địa chỉ**:
+thêm `?lang=vi` vào cuối URL. Nút bánh răng góc trên bên phải **không phải nút đổi ngôn
+ngữ** — nó mở bảng `categories choice` (chọn nhóm khối nào hiện trong thanh bên trái).
+Kiểm ngày 21/10/2026: trong trình soạn **không có** menu chọn ngôn ngữ nào.
+
+Và bản dịch sẵn có mới xong một nửa. Đo ngày 21/10/2026 trên Chrome 154:
 
 | | Số khối |
 |---|---|
