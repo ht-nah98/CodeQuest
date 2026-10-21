@@ -91,6 +91,13 @@ async function setProgram(page: Page, json: unknown): Promise<void> {
 
 const board = (page: Page) => page.getByTestId('play-stage').locator('canvas');
 
+/**
+ * How long a board state may take to arrive. A GitHub runner has two cores and no GPU, so PixiJS
+ * falls back to software rasterizing and the lab's longest smoke run (tiến 3, gắp, rẽ ×2, tiến 3,
+ * thả) does not finish inside the 20 s that is plenty here.
+ */
+const BOARD_TIMEOUT = process.env.CI ? 90_000 : 20_000;
+
 /** Waits (every frame) until the canvas shows `value` in data-robot-<name>. */
 async function boardShows(page: Page, name: string, value: string): Promise<void> {
   await page.waitForFunction(
@@ -99,7 +106,7 @@ async function boardShows(page: Page, name: string, value: string): Promise<void
         key
       ] === wanted,
     [name, value] as const,
-    { polling: 'raf', timeout: 20_000 },
+    { polling: 'raf', timeout: BOARD_TIMEOUT },
   );
 }
 
