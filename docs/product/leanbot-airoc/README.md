@@ -9,6 +9,7 @@ mẫu kèm code, phiếu ôn luyện có đáp án, và chỗ bé hay vướng.
 
 | Bài | Tên | Dạy gì | Bài ôn luyện |
 |---|---|---|---|
+| **0** | [**Bắt đầu: dùng Leanbot thế nào**](lesson-00-bat-dau.md) | 5 địa chỉ Pythaverse, sạc, bật, ghép Bluetooth, nạp code 6 bước, bẫy trên Linux | 6 |
 | 1 | [Chào Leanbot! Cùng di chuyển](lesson-01-di-chuyen.md) | Thứ tự các bước, tiến/lùi theo cm, quay tại chỗ theo độ, số âm | 10 |
 | 2 | [Cánh tay kẹp thần kỳ](lesson-02-tay-gap.md) | Servo, góc 0° mở / 90° đóng, chuỗi gắp–chở–thả | 8 |
 | 3 | [Mắt thần siêu âm](lesson-03-sieu-am.md) | Đo khoảng cách, `nếu`, `lặp khi`, hai ngưỡng 25/30 cm | 10 |
@@ -26,10 +27,13 @@ mẫu kèm code, phiếu ôn luyện có đáp án, và chỗ bé hay vướng.
 | 15 | [Nhiệm vụ 3: Mang mẫu về lab](lesson-15-nhiem-vu-3.md) | Quay đầu khi đang kẹp, tìm lại vạch (100 điểm) | 9 |
 | 16 | [Nhiệm vụ tổng hợp](lesson-16-tong-hop.md) | Ghép ba nhiệm vụ trong 2 phút, chia hàm | 9 |
 
-Tổng **147 bài ôn luyện** có đáp án.
+Tổng **153 bài ôn luyện** có đáp án.
 
 ## Cách đọc một giáo án
 
+- **Bài 0** dạy cách *dùng* bộ công cụ, không dạy lập trình. Dạy trước mọi bài khác, vì
+  chưa nạp được code vào robot thì 16 bài sau không chạy được. Bài này do chúng ta viết:
+  khóa gốc và trang `leanbot.space/start/` đều không có hướng dẫn nào như vậy.
 - **Bài 1–4, 13–16** dùng robot Leanbot và khối Blockly. Đây là phần đi thi.
 - **Bài 5–9** là phần AI, dùng Teachable Machine và Scratch, **không** dùng Leanbot.
   Bắt buộc để lấy chứng chỉ, nhưng hạng Creator không dùng khi thi.

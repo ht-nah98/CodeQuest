@@ -300,13 +300,13 @@ Từ dễ đến khó. Ghi chú: `Chạy` / `Rẽ` là hai lựa chọn trong me
 - Di chuyển: Chạy đoạn đường 20 cm
 - Di chuyển: Dừng
 
-**Đáp án**: Leanbot đi **thẳng tới** 20 cm rồi dừng, cách chỗ xuất phát 20 cm theo hướng mặt robot. Hai bánh cùng 30, không dấu trừ nên đi tới.
+**Đáp án:** Leanbot đi **thẳng tới** 20 cm rồi dừng, cách chỗ xuất phát 20 cm theo hướng mặt robot. Hai bánh cùng 30, không dấu trừ nên đi tới.
 
 **Bài 2. Sắp thứ tự**
 Đề: Các khối bị xáo trộn. Hãy xếp lại, từ trên xuống, để Leanbot đi tới 15 cm rồi dừng:
 (a) Di chuyển: Dừng · (b) Nhiệm vụ: Kết thúc · (c) Di chuyển: Chạy đoạn đường 15 cm · (d) Nhiệm vụ: Bắt đầu khi chạm cùng lúc TB1A + TB1B · (e) Di chuyển: Chạy với vận tốc Trái 30 Phải 30
 
-**Đáp án**: (d) → (e) → (c) → (a) → (b). Khối bắt đầu ở trên cùng, khối kết thúc ở dưới cùng, ba lệnh nằm giữa. Phải đặt vận tốc **trước**, rồi mới chạy đủ quãng đường, rồi dừng. Đây là quy tắc "cái này trước, rồi mới cái kia".
+**Đáp án:** (d) → (e) → (c) → (a) → (b). Khối bắt đầu ở trên cùng, khối kết thúc ở dưới cùng, ba lệnh nằm giữa. Phải đặt vận tốc **trước**, rồi mới chạy đủ quãng đường, rồi dừng. Đây là quy tắc "cái này trước, rồi mới cái kia".
 
 **Bài 3. Dịch nhãn**
 Đề: (a) Nối nhãn Anh với nhãn Việt:
@@ -314,7 +314,7 @@ Từ dễ đến khó. Ghi chú: `Chạy` / `Rẽ` là hai lựa chọn trong me
 A. Di chuyển: Chạy đoạn đường ? cm · B. Nhiệm vụ: Kết thúc · C. Di chuyển: Dừng · D. Di chuyển: Rẽ góc ? độ
 (b) Dịch sang tiếng Anh: "Di chuyển: Chạy với vận tốc Trái ? Phải ?"
 
-**Đáp án**: (a) 1–C, 2–D, 3–A, 4–B. (b) **Motion: Run with velocity Left ? Right ? rpm**.
+**Đáp án:** (a) 1–C, 2–D, 3–A, 4–B. (b) **Motion: Run with velocity Left ? Right ? rpm**.
 
 **Bài 4. Đọc đoán kết quả**
 Đề: Robot đang quay mặt về phía trước. Chương trình:
@@ -324,7 +324,7 @@ A. Di chuyển: Chạy đoạn đường ? cm · B. Nhiệm vụ: Kết thúc ·
 
 (a) Robot quay sang phải hay sang trái? (b) Robot có đi xa khỏi chỗ cũ không? (c) Muốn quay sang bên kia thì sửa gì?
 
-**Đáp án**: (a) Sang **phải**: bánh trái đi tới (50), bánh phải đi lùi (−50). (b) **Không**, quay tại chỗ như con quay, đứng nguyên một điểm. (c) Đổi chỗ dấu trừ: Trái **−50** Phải **50**.
+**Đáp án:** (a) Sang **phải**: bánh trái đi tới (50), bánh phải đi lùi (−50). (b) **Không**, quay tại chỗ như con quay, đứng nguyên một điểm. (c) Đổi chỗ dấu trừ: Trái **−50** Phải **50**.
 
 **Bài 5. Tìm lỗi**
 Đề: Bé An muốn Leanbot **lùi** 15 cm. Chương trình của An:
@@ -334,17 +334,17 @@ A. Di chuyển: Chạy đoạn đường ? cm · B. Nhiệm vụ: Kết thúc ·
 
 Robot lại đi tới. Sai ở đâu? Sửa thế nào?
 
-**Đáp án**: Hai số vận tốc không có dấu trừ nên robot đi tới. Sửa thành Trái **−30** Phải **−30** (thêm dấu trừ cho **cả hai** ô). Lưu ý bé hay chỉ sửa một ô: nếu chỉ một ô có dấu trừ thì robot sẽ quay chứ không lùi.
+**Đáp án:** Hai số vận tốc không có dấu trừ nên robot đi tới. Sửa thành Trái **−30** Phải **−30** (thêm dấu trừ cho **cả hai** ô). Lưu ý bé hay chỉ sửa một ô: nếu chỉ một ô có dấu trừ thì robot sẽ quay chứ không lùi.
 
 **Bài 6. Điền số**
 Đề: (a) Để Leanbot **quay trái** tại chỗ, điền số vào ô: Rẽ với vận tốc Trái __ Phải __ (dùng số 50 hoặc −50). (b) Muốn Leanbot **quay ngược lại** (mặt hướng phía đối diện) phải rẽ góc bao nhiêu độ? (c) Trong các số 30, −50, 60, −59, số nào **không được** đặt cho vận tốc của một bánh?
 
-**Đáp án**: (a) Trái **−50** Phải **50**. Quay trái thì bánh trái lùi (có dấu trừ), bánh phải tới. (b) **180** độ (nửa vòng; cả vòng là 360). (c) **60**, vì vận tốc chỉ nằm trong khoảng từ −59 đến 59 vòng/phút.
+**Đáp án:** (a) Trái **−50** Phải **50**. Quay trái thì bánh trái lùi (có dấu trừ), bánh phải tới. (b) **180** độ (nửa vòng; cả vòng là 360). (c) **60**, vì vận tốc chỉ nằm trong khoảng từ −59 đến 59 vòng/phút.
 
 **Bài 7. Tìm lỗi (quay lố)**
 Đề: Chương trình quay phải 90° của Mai làm robot quay lố, hơi quá góc vuông. Nêu **hai** cách sửa theo bài học.
 
-**Đáp án**: Cách 1: chỉnh góc nhỏ hơn, ví dụ **85 độ** thay vì 90. Cách 2: dùng vận tốc nhỏ hơn, ví dụ 30 / −30 thay vì 50 / −50, để robot quay chậm hơn. Sau mỗi lần chỉnh phải chạy thử lại. Không cần xóa chương trình.
+**Đáp án:** Cách 1: chỉnh góc nhỏ hơn, ví dụ **85 độ** thay vì 90. Cách 2: dùng vận tốc nhỏ hơn, ví dụ 30 / −30 thay vì 50 / −50, để robot quay chậm hơn. Sau mỗi lần chỉnh phải chạy thử lại. Không cần xóa chương trình.
 
 **Bài 8. Đọc đoán kết quả**
 Đề: Chương trình (đã bỏ khối `Dừng` cho gọn, nhưng giả sử robot dừng sau mỗi đoạn):
@@ -355,7 +355,7 @@ Robot lại đi tới. Sai ở đâu? Sửa thế nào?
 
 (a) Tổng quãng đường đi tới là bao nhiêu cm? (b) Sau bước 2 robot quay sang phía nào? (c) Sau bước 4, robot quay mặt về hướng nào so với lúc bắt đầu?
 
-**Đáp án**: (a) 50 + 35 = **85 cm**. (b) Sang **phải** (bánh trái dương, bánh phải âm). (c) **Cùng hướng** lúc bắt đầu: quay phải một góc vuông rồi quay trái một góc vuông thì mặt lại hướng như cũ. Đường đi hình chữ L.
+**Đáp án:** (a) 50 + 35 = **85 cm**. (b) Sang **phải** (bánh trái dương, bánh phải âm). (c) **Cùng hướng** lúc bắt đầu: quay phải một góc vuông rồi quay trái một góc vuông thì mặt lại hướng như cũ. Đường đi hình chữ L.
 
 **Bài 9. Làm trên máy**
 Đề: Mở trình soạn khối (bản vá tiếng Việt). Ghép các khối **trong khối Nhiệm vụ** để cột code bên phải có các dòng:
@@ -366,12 +366,12 @@ LbMotion.stopAndWait();
 ```
 Nói rõ: khối nào ra dòng nào, và cm trên khối khác mm trong code thế nào.
 
-**Đáp án**: `Chạy với vận tốc Trái −50 Phải −50` → `LbMotion.runLR(-50, -50)`; `Chạy đoạn đường 15 cm` → `LbMotion.waitDistanceMm(150)` (15 cm = 150 mm); `Dừng` → `LbMotion.stopAndWait()`. Cả ba khối nằm giữa `Nhiệm vụ: Bắt đầu…` và `Nhiệm vụ: Kết thúc`. *Thầy kiểm lại trên máy thật: số trong `runLR` có thể khác −50 vì đơn vị (xem lưu ý ở mục Chương trình mẫu). Nếu khác, đổi đáp án cho khớp máy.*
+**Đáp án:** `Chạy với vận tốc Trái −50 Phải −50` → `LbMotion.runLR(-50, -50)`; `Chạy đoạn đường 15 cm` → `LbMotion.waitDistanceMm(150)` (15 cm = 150 mm); `Dừng` → `LbMotion.stopAndWait()`. Cả ba khối nằm giữa `Nhiệm vụ: Bắt đầu…` và `Nhiệm vụ: Kết thúc`. *Thầy kiểm lại trên máy thật: số trong `runLR` có thể khác −50 vì đơn vị (xem lưu ý ở mục Chương trình mẫu). Nếu khác, đổi đáp án cho khớp máy.*
 
 **Bài 10. Làm trên máy**
 Đề: Ghép khối để cột code bên phải có dòng `LbMotion.waitRotationDeg(90);` và robot quay **trái**. Dùng khối nào, điền số gì?
 
-**Đáp án**: `Rẽ với vận tốc Trái −50 Phải 50` (menu chọn `Rẽ`) rồi `Rẽ góc 90 độ` rồi `Dừng`. Dòng sinh ra: `LbMotion.waitRotationDeg(90);`, số góc đi thẳng từ khối ra code. Dòng `runLR` cần thầy kiểm trên máy, như Bài 9.
+**Đáp án:** `Rẽ với vận tốc Trái −50 Phải 50` (menu chọn `Rẽ`) rồi `Rẽ góc 90 độ` rồi `Dừng`. Dòng sinh ra: `LbMotion.waitRotationDeg(90);`, số góc đi thẳng từ khối ra code. Dòng `runLR` cần thầy kiểm trên máy, như Bài 9.
 
 ## Câu hỏi kiểm tra của khóa gốc (dịch)
 Khóa gốc có 4 mục trong phần "Check Your Understanding!" (Resolve 05–08). Nội dung nằm trong H5P, ảnh slide trống; ba câu đầu lấy được từ phần phân tích, **câu thứ 4 có phần đề trống, không có gì để chép**. Đáp án đúng đánh dấu ✔.
