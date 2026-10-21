@@ -86,7 +86,7 @@ const TOO_LONG = {
 };
 
 test.describe('/play turtle', () => {
-  test.describe.configure({ timeout: 120_000 });
+  test.describe.configure({ timeout: process.env.CI ? 300_000 : 120_000 });
 
   test('@smoke turtle-square: the solution draws the square and wins', async ({
     page,

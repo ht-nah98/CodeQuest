@@ -98,7 +98,7 @@ async function runAndWait(page: Page, slot: number, points: string): Promise<voi
 }
 
 test.describe('/play w06-exam (thi thử)', () => {
-  test.describe.configure({ timeout: 120_000 });
+  test.describe.configure({ timeout: process.env.CI ? 300_000 : 120_000 });
 
   test('@smoke a run, Đề mới, replay a đề by number, two runs and the best one', async ({
     page,

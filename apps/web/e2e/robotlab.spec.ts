@@ -116,7 +116,10 @@ const stageShot = (page: Page, name: string, project: string) =>
   page.getByTestId('play-stage').screenshot({ path: `${SHOTS}/${project}-${name}.png` });
 
 test.describe('/play robotlab', () => {
-  test.describe.configure({ timeout: 90_000 });
+  // These runs are long even on a fast machine; a GitHub runner rasterizes the stage in software
+  // and needs more. This number overrides the config's own ceiling, so it has to be raised here
+  // too - raising only the config left CI red with "Test timeout of 90000ms exceeded".
+  test.describe.configure({ timeout: process.env.CI ? 240_000 : 90_000 });
 
   test('@smoke robotlab-stage: tiến 3, gắp, rẽ phải ×2, tiến 3, thả in the lab', async ({
     page,
@@ -291,7 +294,7 @@ test.describe('/play robotlab', () => {
 });
 
 test.describe('World 6 · Thành Phố Robot', () => {
-  test.describe.configure({ timeout: 120_000 });
+  test.describe.configure({ timeout: process.env.CI ? 300_000 : 120_000 });
 
   test('the world page tells the story and shows the level stones; w06-l01 wins', async ({
     page,

@@ -11,7 +11,7 @@ import { signInTestProfile } from './helpers';
 const SHOTS = process.env['CQ_SHOTS_DIR'] ?? 'test-results/world-story';
 mkdirSync(SHOTS, { recursive: true });
 
-test.describe.configure({ timeout: 90_000 });
+test.describe.configure({ timeout: process.env.CI ? 225_000 : 90_000 });
 
 let errors: string[];
 

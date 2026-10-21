@@ -12,7 +12,7 @@ const SHOTS = 'test-results/pwa';
 
 test.use({ baseURL: PREVIEW_URL });
 // Service worker + a cold Pixi/Blockly boot + the lesson: well over the default 30 s under load.
-test.describe.configure({ timeout: 120_000 });
+test.describe.configure({ timeout: process.env.CI ? 300_000 : 120_000 });
 
 let problems: string[];
 

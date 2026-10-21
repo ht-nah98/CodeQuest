@@ -130,7 +130,7 @@ const shot = (page: Page, name: string, project: string) =>
 const RUN_MS = 40_000;
 
 test.describe('spells (phép thuật, ADR-0023)', () => {
-  test.describe.configure({ timeout: 120_000 });
+  test.describe.configure({ timeout: process.env.CI ? 300_000 : 120_000 });
 
   test('@smoke maze-spells: teach a spell, cast it twice, win; the spell lights while it runs', async ({
     page,

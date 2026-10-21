@@ -44,7 +44,7 @@ const crouch = (id: string): Block => ({ type: 'runner_crouch', id });
 const kick = (id: string): Block => ({ type: 'runner_kick', id });
 
 // Cold dev-server loads (Blockly + Pixi compiled on demand) can take most of the default 30 s.
-test.describe.configure({ timeout: 60_000 });
+test.describe.configure({ timeout: process.env.CI ? 150_000 : 60_000 });
 
 let errors: string[];
 

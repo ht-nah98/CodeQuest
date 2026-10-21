@@ -170,7 +170,7 @@ async function buyNextStep(page: Page): Promise<void> {
 }
 
 test.describe('coach playtest fixes', () => {
-  test.describe.configure({ timeout: 120_000 });
+  test.describe.configure({ timeout: process.env.CI ? 300_000 : 120_000 });
 
   test('tier 2 moves on after the child places the suggested block', async ({ page }, testInfo) => {
     const project = testInfo.project.name;

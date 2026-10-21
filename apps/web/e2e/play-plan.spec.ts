@@ -29,7 +29,7 @@ interface PlayHook {
 }
 type HookWindow = Window & { __cqPlay: PlayHook };
 
-test.describe.configure({ timeout: 60_000 });
+test.describe.configure({ timeout: process.env.CI ? 150_000 : 60_000 });
 
 let errors: string[];
 

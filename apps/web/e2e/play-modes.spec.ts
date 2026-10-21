@@ -83,7 +83,7 @@ const bubble = (page: Page) => page.getByTestId('play-bubble');
 
 test.describe('/play modes (P1-06)', () => {
   // Two levels or two picks with their replays per test, on a cold dev server.
-  test.describe.configure({ timeout: 120_000 });
+  test.describe.configure({ timeout: process.env.CI ? 300_000 : 120_000 });
 
   test('@smoke predict maze-predict: a wrong card, its replay, then the right card', async ({
     page,

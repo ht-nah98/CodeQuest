@@ -106,7 +106,7 @@ const hasClass = (page: Page, blockId: string, className: string) =>
   );
 
 test.describe('/play hints (P1-07)', () => {
-  test.describe.configure({ timeout: 180_000 });
+  test.describe.configure({ timeout: process.env.CI ? 450_000 : 180_000 });
 
   test('tier-0 tip on enter points at the đi block of w01-l01, with the spotlight', async ({
     page,

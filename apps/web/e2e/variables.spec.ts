@@ -204,7 +204,7 @@ const shot = (page: Page, name: string, project: string) =>
 const RUN_MS = 40_000;
 
 test.describe('boxes (hộp, ADR-0022)', () => {
-  test.describe.configure({ timeout: 120_000 });
+  test.describe.configure({ timeout: process.env.CI ? 300_000 : 120_000 });
 
   test('@smoke maze-boxes: build a counting program by mouse, the box counts each map', async ({
     page,

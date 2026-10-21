@@ -69,7 +69,7 @@ const shot = (page: Page, name: string, project: string) =>
   page.screenshot({ path: `${SHOTS}/${project}-${name}.png` });
 
 test.describe('/play w09', () => {
-  test.describe.configure({ timeout: 120_000 });
+  test.describe.configure({ timeout: process.env.CI ? 300_000 : 120_000 });
 
   for (const id of ['w09-l01', 'w09-l10', 'w09-boss']) {
     test(`@smoke ${id}: the solution draws the target and wins`, async ({ page }, testInfo) => {
