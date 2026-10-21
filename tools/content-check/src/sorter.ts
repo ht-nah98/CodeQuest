@@ -274,6 +274,9 @@ export const SORTER_TRAPS: ReadonlyMap<string, readonly SorterTrap[]> = new Map(
     'w10-l07': [{ program: 'REP4[R] W', reason: 'NO_BOOK_RIGHT' }],
     // Without "về đầu kệ" the second pass starts where the first ended and walks off the shelf;
     // three passes sort the first two shelves and leave the reversed one unsorted (S4).
+    // S2: the bubble sort of l10 does sort every shelf, but it asks 16 questions where the
+    // budget is 10, so the slow way runs out.
+    'w10-l13': [{ program: 'REP4[S REP4[IFB[W] R]]', reason: 'OUT_OF_QUESTIONS' }],
     // Three passes still leave the reversed shelf unsorted (S4).
     'w10-l11': [{ program: 'REP3[S REP4[IFB[W] R]]', reason: 'NOT_SORTED', s1: true }],
     'w10-l10': [

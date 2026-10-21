@@ -1,0 +1,218 @@
+{
+  "id": "w10-l13",
+  "worldId": "w10-hoc-vien",
+  "stage": "practice",
+  "kind": "sorter",
+  "mode": "build",
+  "title": "Lượt sau ngắn đi",
+  "objective": "Xếp kệ mà chỉ được hỏi 10 lần thôi nhé!",
+  "learningGoal": "Sách cuối đã đúng chỗ, nên lượt sau so ít cặp hơn một.",
+  "misconception": "Cách nào chạy được là tốt.",
+  "thinkingHint": "Sau lượt đầu, cuốn cuối đã đúng chỗ. Lượt sau còn phải so nó không?",
+  "toolbox": [
+    "sorter_right",
+    "sorter_swap",
+    "sorter_bigger",
+    "sorter_to_start",
+    "cq_if",
+    "cq_repeat",
+    "cq_proc_def_n",
+    "cq_proc_call_n",
+    {
+      "type": "cq_repeat_var",
+      "fields": {
+        "VAR": "so"
+      }
+    }
+  ],
+  "maxLoopDepth": 2,
+  "par": 11,
+  "parUnproven": true,
+  "maxBlocks": 13,
+  "procedures": [
+    {
+      "id": "luot",
+      "name": "một lượt",
+      "param": {
+        "id": "so",
+        "name": "số lần so",
+        "max": 9
+      }
+    }
+  ],
+  "config": {
+    "books": [
+      3,
+      5,
+      1,
+      4,
+      2
+    ],
+    "goal": {
+      "sorted": true
+    },
+    "maxQuestions": 10
+  },
+  "variants": [
+    {
+      "books": [
+        5,
+        4,
+        3,
+        2,
+        1
+      ],
+      "goal": {
+        "sorted": true
+      },
+      "maxQuestions": 10
+    },
+    {
+      "books": [
+        2,
+        5,
+        4,
+        1,
+        3
+      ],
+      "goal": {
+        "sorted": true
+      },
+      "maxQuestions": 10
+    }
+  ],
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_proc_call_n",
+              "id": "call4",
+              "fields": {
+                "PROC": "luot",
+                "NUM": 4
+              },
+              "next": {
+                "block": {
+                  "type": "cq_proc_call_n",
+                  "id": "call3",
+                  "fields": {
+                    "PROC": "luot",
+                    "NUM": 3
+                  },
+                  "next": {
+                    "block": {
+                      "type": "cq_proc_call_n",
+                      "id": "call2",
+                      "fields": {
+                        "PROC": "luot",
+                        "NUM": 2
+                      },
+                      "next": {
+                        "block": {
+                          "type": "cq_proc_call_n",
+                          "id": "call1",
+                          "fields": {
+                            "PROC": "luot",
+                            "NUM": 1
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "cq_proc_def_n",
+          "id": "def_luot",
+          "x": 420,
+          "y": 40,
+          "fields": {
+            "PROC": "luot"
+          },
+          "inputs": {
+            "BODY": {
+              "block": {
+                "type": "sorter_to_start",
+                "id": "s1",
+                "next": {
+                  "block": {
+                    "type": "cq_repeat_var",
+                    "id": "loopvar",
+                    "fields": {
+                      "VAR": "so"
+                    },
+                    "inputs": {
+                      "DO": {
+                        "block": {
+                          "type": "cq_if",
+                          "id": "if1",
+                          "inputs": {
+                            "COND": {
+                              "block": {
+                                "type": "sorter_bigger",
+                                "id": "ask1"
+                              }
+                            },
+                            "DO": {
+                              "block": {
+                                "type": "sorter_swap",
+                                "id": "w1"
+                              }
+                            }
+                          },
+                          "next": {
+                            "block": {
+                              "type": "sorter_right",
+                              "id": "r1"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "budget",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Chỉ 10 lượt hỏi. Nổi bọt thường cần 16.",
+      "point": "stage"
+    },
+    {
+      "id": "shrink",
+      "when": {
+        "trigger": "idle"
+      },
+      "say": "Phép có ô số: mỗi lượt gọi với số nhỏ dần.",
+      "point": "toolbox:cq_proc_call_n"
+    },
+    {
+      "id": "outq",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "OUT_OF_QUESTIONS"
+      },
+      "say": "Lượt sau có cần hỏi lại sách cuối không?"
+    }
+  ]
+}

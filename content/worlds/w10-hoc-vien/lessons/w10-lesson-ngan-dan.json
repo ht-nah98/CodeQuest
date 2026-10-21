@@ -1,0 +1,138 @@
+{
+  "id": "w10-lesson-ngan-dan",
+  "worldId": "w10-hoc-vien",
+  "title": "Lượt sau ngắn đi",
+  "beforeLevel": "w10-l13",
+  "cards": [
+    {
+      "type": "say",
+      "pose": "point",
+      "text": "Sách cuối đã đúng chỗ. Lượt sau ngắn đi 1."
+    },
+    {
+      "type": "demo",
+      "text": "Lượt 2 so ít hơn lượt 1 một cặp.",
+      "kind": "sorter",
+      "config": {
+        "books": [
+          3,
+          2,
+          1
+        ],
+        "goal": {
+          "sorted": true
+        },
+        "maxQuestions": 3
+      },
+      "procedures": [
+        {
+          "id": "luot",
+          "name": "một lượt",
+          "param": {
+            "id": "so",
+            "name": "số lần so",
+            "max": 9
+          }
+        }
+      ],
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "cq_proc_call_n",
+                  "id": "call2",
+                  "fields": {
+                    "PROC": "luot",
+                    "NUM": 2
+                  },
+                  "next": {
+                    "block": {
+                      "type": "cq_proc_call_n",
+                      "id": "call1",
+                      "fields": {
+                        "PROC": "luot",
+                        "NUM": 1
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "type": "cq_proc_def_n",
+              "id": "def_luot",
+              "x": 420,
+              "y": 40,
+              "fields": {
+                "PROC": "luot"
+              },
+              "inputs": {
+                "BODY": {
+                  "block": {
+                    "type": "sorter_to_start",
+                    "id": "s1",
+                    "next": {
+                      "block": {
+                        "type": "cq_repeat_var",
+                        "id": "loopvar",
+                        "fields": {
+                          "VAR": "so"
+                        },
+                        "inputs": {
+                          "DO": {
+                            "block": {
+                              "type": "cq_if",
+                              "id": "if1",
+                              "inputs": {
+                                "COND": {
+                                  "block": {
+                                    "type": "sorter_bigger",
+                                    "id": "ask1"
+                                  }
+                                },
+                                "DO": {
+                                  "block": {
+                                    "type": "sorter_swap",
+                                    "id": "w1"
+                                  }
+                                }
+                              },
+                              "next": {
+                                "block": {
+                                  "type": "sorter_right",
+                                  "id": "r1"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "quiz",
+      "text": "Kệ 5 sách. Lượt đầu hỏi 4 lần. Lượt hai?",
+      "options": [
+        "3 lần",
+        "4 lần"
+      ],
+      "correct": 0,
+      "explain": "Sau lượt đầu, cuốn cuối đã đúng chỗ nên lượt hai so ít hơn một cặp."
+    }
+  ]
+}

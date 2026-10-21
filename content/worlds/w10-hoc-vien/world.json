@@ -38,7 +38,8 @@
     "w10-lesson-lon-hon",
     "w10-lesson-ve-dau",
     "w10-lesson-ke-nguoc",
-    "w10-lesson-luot-hoi"
+    "w10-lesson-luot-hoi",
+    "w10-lesson-ngan-dan"
   ],
   "levelIds": [
     "w10-l01",
@@ -52,7 +53,8 @@
     "w10-l09",
     "w10-l10",
     "w10-l11",
-    "w10-l12"
+    "w10-l12",
+    "w10-l13"
   ],
   "unlock": {
     "minStarRatio": 0.6
