@@ -121,3 +121,33 @@ test('lesson 1 lists, links out to the editor and scores its quiz', async ({ pag
   await page.getByRole('button', { name: /^A.*Quay tại chỗ/ }).click();
   await expect(page.getByText(/xoay tại chỗ như con quay/)).toBeVisible();
 });
+
+// Lessons 2 and 3: the list must carry every lesson that has a JSON file, and each lesson's
+// quiz must score. These two are the first whose screens are pure procedure and warning.
+test('lessons 2 and 3 open from the list and score their quizzes', async ({ page }) => {
+  await page.goto('/leanbot');
+  for (const name of [/Làm quen và kiểm tra Leanbot/, /Cùng di chuyển/, /Cánh tay kẹp/, /Mắt thần siêu âm/]) {
+    await expect(page.getByRole('link', { name })).toBeVisible();
+  }
+
+  // Lesson 2: the two angles a child keeps swapping, and the safe range.
+  await page.getByRole('link', { name: /Cánh tay kẹp/ }).click();
+  await expect(page).toHaveURL(/\/leanbot\/bai-02\/0$/);
+  await expect(page.getByText('1 / 20')).toBeVisible();
+
+  await page.goto('/leanbot/bai-02/4');
+  await expect(page.getByRole('heading', { name: '0 độ là MỞ, 90 độ là ĐÓNG' })).toBeVisible();
+  await page.goto('/leanbot/bai-02/5');
+  await expect(page.getByText(/càng có thể GÃY/)).toBeVisible();
+
+  await page.goto('/leanbot/bai-02/19');
+  await page.getByRole('button', { name: /^A.*0 độ/ }).click();
+  await expect(page.getByText(/hai càng chúc xuống đất/)).toBeVisible();
+
+  // Lesson 3: the yo-yo explanation is the point of the lesson.
+  await page.goto('/leanbot/bai-03/7');
+  await expect(page.getByRole('heading', { name: /5 cm đó gọi là vùng đệm/ })).toBeVisible();
+  await page.goto('/leanbot/bai-03/19');
+  await page.getByRole('button', { name: /giật tới lui như yo-yo/ }).click();
+  await expect(page.getByText(/5 cm chênh là vùng đệm/)).toBeVisible();
+});

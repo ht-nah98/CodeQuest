@@ -44,8 +44,8 @@ ngữ Anh ↔ Việt bắt buộc dùng, §6 là những con số sai một ch�
 
 Tổng **155 bài ôn luyện** có đáp án.
 
-**Bản cho bé trong app** (`content/leanbot/*.json`, xem `/leanbot`) hiện có: **Bài 0** và
-**Bài 1**. Các bài còn lại mới có bản của thầy ở `giao-an/`.
+**Bản cho bé trong app** (`content/leanbot/*.json`, xem `/leanbot`) hiện có: **Bài 0, 1, 2
+và 3**. Các bài còn lại mới có bản của thầy ở `giao-an/`.
 
 ## Cách đọc một giáo án
 

@@ -1,0 +1,255 @@
+{
+  "id": "bai-02",
+  "number": 2,
+  "title": "Cánh tay kẹp thần kỳ",
+  "tagline": "Mở càng, đóng càng, gắp một khối rồi chở đi thả",
+  "minutes": 85,
+  "source": "Khóa 1437 · Lesson 2 The Functional Bot, The Magic Gripper (35 slide)",
+  "goals": [
+    "Nhớ càng mở ở 0 độ, đóng ở 90 độ",
+    "Ghép khối Tay gắp: Mở và Tay gắp: Đóng",
+    "Điền góc vào khối Xoay tới góc, giữ trong khoảng an toàn",
+    "Điền đúng ba ô của khối xoay từng càng",
+    "Xếp đúng thứ tự gắp – chở – thả",
+    "Cho robot gắp một khối rồi thả về chỗ cũ"
+  ],
+  "screens": [
+    {
+      "part": "Tay gắp của robot",
+      "title": "Hôm nay robot có tay",
+      "lines": [
+        "Con từng thấy cần cẩu, máy gắp thú hay robot giao hàng chưa?",
+        "Người mình nhấc đồ bằng tay. Leanbot cũng vậy."
+      ]
+    },
+    {
+      "part": "Tay gắp của robot",
+      "title": "Hai càng nằm phía trước",
+      "lines": [
+        "Tay gắp là hai càng ở phía trước robot.",
+        "Mỗi càng có một động cơ nhỏ gọi là SERVO."
+      ],
+      "image": "leanbot-phan-cung-1.png",
+      "alt": "Leanbot nhìn nghiêng, thấy hai càng tay gắp phía trước và các bộ phận khác"
+    },
+    {
+      "part": "Tay gắp của robot",
+      "title": "Servo làm gì?",
+      "lines": [
+        "Servo quay càng tới đúng góc con bảo, rồi GIỮ nguyên ở đó.",
+        "Không quay mãi như bánh xe."
+      ],
+      "note": "Khối tay gắp nằm trong nhóm Leanbot, nhóm con Tay gắp (tiếng Anh: Gripper)."
+    },
+    {
+      "part": "Hai góc phải nhớ",
+      "title": "0 độ là MỞ, 90 độ là ĐÓNG",
+      "chips": [
+        { "label": "0 độ · Mở", "body": "Hai càng chúc thẳng xuống đất", "tone": "go" },
+        { "label": "90 độ · Đóng", "body": "Hai càng nằm ngang, khép vào giữa", "tone": "sky" }
+      ],
+      "tip": "Nghe ngược nhỉ? Số nhỏ lại là mở. Con cứ nhớ theo hình, đừng nhớ theo số."
+    },
+    {
+      "part": "Hai góc phải nhớ",
+      "title": "Càng chỉ quay trong khoảng an toàn",
+      "lines": [
+        "Góc của càng chỉ được nằm từ −30 độ đến 120 độ."
+      ],
+      "warn": "Gõ 150 hay −90 là càng có thể GÃY. Trước khi bấm chạy, con đọc lại số một lần nữa."
+    },
+    {
+      "part": "Hai góc phải nhớ",
+      "title": "Thử mở càng xem nào",
+      "steps": [
+        ["1", "Leanbot bắt đầu hoạt động"],
+        ["2", "Nhiệm vụ: Bắt đầu khi chạm cùng lúc TB1A + TB1B"],
+        ["3", "Tay gắp: Mở"],
+        ["4", "Nhiệm vụ: Kết thúc"]
+      ],
+      "check": "Con mở được hai càng rồi"
+    },
+    {
+      "part": "Hai góc phải nhớ",
+      "title": "Giờ đổi thành đóng",
+      "lines": [
+        "Giữ nguyên chương trình, chỉ thay khối giữa thành Tay gắp: Đóng.",
+        "Nhìn cột code bên phải xem dòng nào đổi."
+      ],
+      "code": "LbGripper.open();   →   LbGripper.close();",
+      "check": "Con đóng được hai càng rồi"
+    },
+    {
+      "part": "Chọn góc bất kỳ",
+      "title": "Khối Xoay tới góc",
+      "lines": [
+        "Khối này cho con tự chọn góc, không chỉ mở hay đóng.",
+        "Hai càng cùng về đúng góc đó."
+      ],
+      "code": "LbGripper.moveTo(120);",
+      "note": "120 độ là đóng SÁT hơn cả Đóng. Nó cũng là giới hạn trên của khoảng an toàn."
+    },
+    {
+      "part": "Chọn góc bất kỳ",
+      "title": "Khối xoay từng càng có ba ô",
+      "table": {
+        "head": ["Ô", "Điền gì vào"],
+        "rows": [
+          ["1", "Góc của càng TRÁI"],
+          ["2", "Góc của càng PHẢI"],
+          ["3", "Thời gian quay, tính bằng mili giây"]
+        ]
+      },
+      "warn": "Bé hay điền thời gian nhầm vào ô góc. Đọc to từng ô khi điền: trái, phải, thời gian."
+    },
+    {
+      "part": "Chọn góc bất kỳ",
+      "title": "Mili giây là gì?",
+      "chips": [
+        { "label": "1 giây", "body": "1000 mili giây", "tone": "go" },
+        { "label": "Nửa giây", "body": "500 mili giây", "tone": "coin" }
+      ],
+      "tip": "Số mili giây càng NHỎ thì càng quay càng nhanh. 100 là chớp mắt, 5000 là chậm rì."
+    },
+    {
+      "part": "Chọn góc bất kỳ",
+      "title": "Thử một lần nhanh, một lần chậm",
+      "steps": [
+        ["1", "Xoay càng Trái tới 120 và càng Phải tới −30 trong 100 mili giây"],
+        ["2", "Chờ 2 giây"],
+        ["3", "Xoay càng Trái tới −30 và càng Phải tới 120 trong 5000 mili giây"],
+        ["4", "Chờ 2 giây"]
+      ],
+      "note": "Khối này làm XONG rồi chương trình mới đi tiếp. Robot không đứng im đâu, nó đang quay chậm.",
+      "check": "Con thấy càng quay nhanh và quay chậm"
+    },
+    {
+      "part": "Gắp – chở – thả",
+      "title": "Bốn bước để gắp",
+      "steps": [
+        ["1", "Tới gần vật"],
+        ["2", "Mở càng"],
+        ["3", "Hạ càng vào đúng chỗ"],
+        ["4", "Đóng càng"]
+      ],
+      "warn": "Đóng càng trước khi tới nơi thì robot chộp hụt. Mở càng NGAY ĐẦU chương trình cho chắc."
+    },
+    {
+      "part": "Gắp – chở – thả",
+      "title": "Bốn bước để thả",
+      "steps": [
+        ["1", "Đi tới nơi cần thả"],
+        ["2", "Đứng đúng chỗ"],
+        ["3", "Mở càng, khối rơi xuống"],
+        ["4", "Lùi ra"]
+      ],
+      "note": "Vì sao phải lùi ra? Để robot không đụng đổ chính khối nó vừa thả."
+    },
+    {
+      "part": "Gắp – chở – thả",
+      "title": "Đóng càng rồi mới chạy",
+      "lines": [
+        "Gắp ở kho, chở tới khu phố, rồi mới thả.",
+        "Càng phải ĐÓNG suốt lúc robot đang chạy."
+      ],
+      "tip": "Mở càng chỉ khi đã tới nơi. Đúng thứ tự thì mới giao được hàng."
+    },
+    {
+      "part": "Gắp – chở – thả",
+      "title": "Chờ một giây cho càng kẹp chắc",
+      "lines": [
+        "Sau khi đóng càng, cho robot chờ 1 giây rồi mới chạy.",
+        "Một giây đó để càng kẹp chặt, khối không tuột."
+      ],
+      "code": "Leanbot.delay(1.0);"
+    },
+    {
+      "part": "Thử sức",
+      "title": "Máy gắp thú",
+      "lines": [
+        "Đặt một khối xốp trước robot. Con tự ghép khối nhé."
+      ],
+      "list": [
+        "Bắt đầu với càng MỞ.",
+        "Tiến tới khối xốp.",
+        "Đóng càng để gắp.",
+        "Lùi về chỗ xuất phát.",
+        "Mở càng để thả khối."
+      ],
+      "check": "Robot của con gắp và thả được khối"
+    },
+    {
+      "part": "Thử sức",
+      "title": "Robot chộp hụt thì hỏi gì?",
+      "steps": [
+        ["1", "Robot có cần tiến gần hơn không?"],
+        ["2", "Càng mở đủ rộng chưa?"],
+        ["3", "Các khối đã đúng thứ tự chưa?"]
+      ],
+      "tip": "Ai cũng chộp hụt vài lần. Kỹ sư tìm chỗ sai rồi sửa, không xóa cả chương trình."
+    },
+    {
+      "part": "Thử sức",
+      "title": "Viết ba dòng vào sổ kỹ sư",
+      "list": [
+        "Phần khó nhất hôm nay là gì?",
+        "Lần sau con sẽ làm khác chỗ nào?",
+        "Con tự hào nhất điều gì?"
+      ],
+      "note": "Ba câu này không có đáp án sai. Con viết thật điều con nghĩ."
+    }
+  ],
+  "quiz": [
+    {
+      "q": "Tay gắp MỞ ở góc bao nhiêu?",
+      "options": ["0 độ", "45 độ", "90 độ", "120 độ"],
+      "correct": 0,
+      "explain": "0 độ là mở, hai càng chúc xuống đất. 90 độ mới là đóng."
+    },
+    {
+      "q": "Số nào KHÔNG an toàn cho góc của càng?",
+      "options": ["120", "90", "−30", "150"],
+      "correct": 3,
+      "explain": "Càng chỉ quay từ −30 đến 120 độ. Quá khoảng đó thì càng có thể gãy."
+    },
+    {
+      "q": "Muốn càng quay trong 2 giây thì điền ô thời gian là bao nhiêu?",
+      "options": ["2", "20", "200", "2000"],
+      "correct": 3,
+      "explain": "1 giây là 1000 mili giây, nên 2 giây là 2000 mili giây."
+    },
+    {
+      "q": "Xếp đúng thứ tự: gắp một khối rồi thả về chỗ cũ.",
+      "options": [
+        "Mở → Tiến → Đóng → Lùi → Mở",
+        "Tiến → Mở → Đóng → Lùi",
+        "Đóng → Tiến → Mở → Lùi",
+        "Tiến → Lùi → Đóng → Mở"
+      ],
+      "correct": 0,
+      "explain": "Mở càng trước để khối lọt vào giữa, tiến tới, đóng để gắp, lùi, rồi mở để thả."
+    },
+    {
+      "q": "Robot tiến tới rồi mới mở càng. Chuyện gì xảy ra?",
+      "options": [
+        "Gắp bình thường",
+        "Càng khép lúc tiến nên đẩy khối đi",
+        "Robot đứng im",
+        "Càng gãy"
+      ],
+      "correct": 1,
+      "explain": "Lúc tiến càng vẫn khép nên húc khối ra xa. Mở càng ngay đầu chương trình."
+    },
+    {
+      "q": "Khối xoay càng trong 5000 mili giây. Robot có bị treo không?",
+      "options": [
+        "Có, phải nạp lại code",
+        "Không, nó đang quay chậm trong 5 giây",
+        "Có, hết pin rồi",
+        "Không, khối đó bị bỏ qua"
+      ],
+      "correct": 1,
+      "explain": "Khối này làm xong mới đi tiếp. 5000 mili giây là 5 giây quay thật chậm."
+    }
+  ]
+}
