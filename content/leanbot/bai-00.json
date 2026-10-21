@@ -608,6 +608,65 @@
         "Bài 0 chưa xong mà học tiếp thì ghép khối xong cũng không thấy gì chạy."
       ],
       "tip": "Quay lại các màn còn thiếu ô tích. Ô tích nằm ngay dưới phần hướng dẫn của màn đó."
+    },
+    {
+      "part": "Kiểm nghiệm",
+      "title": "Thử lại một lượt từ đầu",
+      "lines": [
+        "Tích đủ chín ô rồi thì thử lại một lượt, không nhìn hướng dẫn."
+      ],
+      "steps": [
+        [
+          "1",
+          "Tắt robot, rút cáp ra"
+        ],
+        [
+          "2",
+          "Bật robot, cắm cáp vào cổng TRÊN"
+        ],
+        [
+          "3",
+          "Nạp lại chương trình kiểm tra"
+        ],
+        [
+          "4",
+          "Mở SERIAL, gõ Buzzer rồi Enter"
+        ],
+        [
+          "5",
+          "Nghe đủ 8 nốt là xong Bài 0"
+        ]
+      ],
+      "tip": "Làm được một lượt không cần nhìn hướng dẫn thì máy của con đã sẵn sàng cho mọi bài sau."
+    },
+    {
+      "part": "Kiểm nghiệm",
+      "title": "Một lượt mà vướng ở đâu?",
+      "table": {
+        "head": [
+          "Vướng ở bước",
+          "Quay lại màn"
+        ],
+        "rows": [
+          [
+            "Không thấy cổng nào",
+            "Máy không thấy robot thì sao?"
+          ],
+          [
+            "Nạp báo lỗi giữa chừng",
+            "Nạp code: 6 bước"
+          ],
+          [
+            "SERIAL không có chữ nào",
+            "Robot gửi số liệu về đây"
+          ],
+          [
+            "Gõ lệnh mà robot im",
+            "Thử từng bộ phận"
+          ]
+        ]
+      },
+      "note": "Vướng chỗ nào thì bỏ ô tích của chỗ đó ra, làm lại cho tới khi chạy."
     }
   ],
   "quiz": [

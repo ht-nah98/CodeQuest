@@ -409,6 +409,30 @@ Khóa gốc có 4 mục trong phần "Check Your Understanding!" (Resolve 05–0
 | Đo xa nhầm đơn vị | Gõ 15 mà robot đi bé tí | Kiểm menu đơn vị là **cm** hay **mm** |
 | Nản vì lỗi | Bé nói "con làm sai rồi" | "Ai cũng mắc lỗi. Kỹ sư tìm chỗ sai rồi chữa, gọi là sửa lỗi." |
 
+## Kiểm nghiệm cuối bài
+
+Bé chỉ được coi là xong Bài 1 khi **đo bằng thước**, không phải khi nhìn thấy robot nhúc nhích.
+
+**Phép thử chính (5 phút).**
+
+1. Dán hai mẩu băng dính trên sàn, cách nhau **đúng 50 cm**.
+2. Đặt **bánh sau** robot sát mẩu thứ nhất, mặt robot hướng về mẩu thứ hai.
+3. Nạp chương trình Practice #1, rút cáp, chạm cùng lúc TB1A + TB1B.
+4. Robot dừng rồi, đo từ mẩu thứ nhất tới bánh sau.
+5. **Đạt khi sai số trong 2–3 cm.** Sai quá 10 cm là có lỗi thật, tra bảng dưới.
+6. Xem tiếp góc quay: robot phải quay **gần vuông góc**, không quá đà rõ rệt.
+
+**Phép thử phụ:** cho robot lùi đúng quãng đường vừa đi, xem nó có về lại gần mẩu băng dính
+đầu tiên không. Đây là cách nhanh nhất phát hiện hai bánh không đều nhau.
+
+| Con thấy | Nguyên nhân thường gặp | Sửa |
+|---|---|---|
+| Robot đứng im | Chạm một nút, hoặc lệnh nằm ngoài khối Nhiệm vụ | Chạm **cùng lúc** TB1A + TB1B; kéo lệnh vào trong khối |
+| Đi cong một bên | Hai ô vận tốc khác nhau | Đặt cả hai về 50 |
+| Đi ngắn / dài hơn nhiều | Sai ô `Chạy đoạn đường`, hoặc đo từ điểm khác | Kiểm số trên khối; đo lại từ bánh sau |
+| Quay lố | Robot hay quay quá đà, chuyện bình thường | 85 độ thay vì 90, hoặc vận tốc 30 / −30 |
+| Lùi thay vì tiến | Dấu trừ thừa | Bỏ dấu trừ ở **cả hai** ô |
+
 ## Ghi chú về bản gốc
 - **Nhãn khối**: file bóc tách đề xuất "Chuyển động / Giữ chạy / Giữ quay / Khi Leanbot khởi động". Giáo trình tổng §5.5 và `leanbot_vi.js` ghi "Di chuyển / Chạy đoạn đường / Rẽ góc / Leanbot bắt đầu hoạt động". Giáo án này theo §5.5 và `leanbot_vi.js`. Nhãn khối `Tiếp tục chạy trong ? giây` lấy từ `leanbot_vi.js`.
 - **Số liệu khớp §6**: khoảng vận tốc −59 … 59 vòng/phút, hoặc −2000 … 2000 bước/giây (slide Learn 08). Không mâu thuẫn. Hai điểm cần lưu ý, không phải mâu thuẫn: (1) §6 ghi "tốc độ nên dùng khi mới tập 30–50 %" (nguồn Bài 13) theo phần trăm, còn bài 1 dùng 30 và 50 vòng/phút, đơn vị khác nhau; (2) chương trình mẫu chính thức dùng số bước/giây (đến 2000) trong khi bài 1 dùng vòng/phút; chưa kiểm chứng cách đổi (xem lưu ý ở mục Chương trình mẫu).

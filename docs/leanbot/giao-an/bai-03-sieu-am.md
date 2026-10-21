@@ -236,6 +236,32 @@ Khóa gốc không có câu trắc nghiệm cho Bài 3 (mục này trống trong
 | Cảm biến đọc 0 hoặc 999 | Robot lùi hoặc dừng vô lý | Kiểm tra dây Trig và Echo cắm chắc, đúng khe (slide Growth 03) |
 | Chữ tiếng Anh khó | Bé lúng túng với ultrasonic, echo, threshold | Dùng bảng thuật ngữ, vẽ hình, nói tiếng Việt trước rồi cho xem chữ gốc |
 
+## Kiểm nghiệm cuối bài
+
+Bài này có ba luật, nên có **ba phép thử**, mỗi phép thử kiểm một luật. Làm đủ ba mới biết
+chương trình đúng hay chỉ đúng một nửa.
+
+**Chuẩn bị:** một hộp giấy làm tường, một cái thước, chỗ trống khoảng 1,5 m.
+
+1. **Luật dừng.** Đặt robot cách hộp khoảng 1 mét, nạp chương trình, chạm hai nút. Robot phải
+   dừng trước hộp. Đo: **23–27 cm là đạt**.
+2. **Luật lùi.** Đẩy hộp lại sát robot rồi bỏ tay ra. Robot phải lùi, và **dừng lùi khi trống
+   hơn 30 cm** — đo lại lần nữa.
+3. **Luật kiểm tra liên tục.** Trong lúc robot đang chạy, cầm quyển vở chắn ngang trước mặt nó.
+   Robot phải dừng **ngay tại đó**, không chạy tiếp tới hộp. Luật này là thứ duy nhất phân biệt
+   chương trình có vòng lặp với chương trình chỉ có khối `nếu`.
+
+Bỏ hộp đi hẳn: robot phải chạy tiếp và **không lùi**. Nếu nó vẫn lùi thì ngưỡng đang sai.
+
+| Con thấy | Sửa |
+|---|---|
+| Đâm thẳng vào hộp | Khối `nếu` nằm ngoài vòng lặp |
+| Dừng quá xa / quá gần | Đổi số 25 trong khối `Đo xa` |
+| Lùi mãi không dừng | Khối `Dừng` đang nằm **trong** vòng lặp |
+| Không lùi lần nào | Gõ nhầm 3 thay vì 30 |
+| Số đo nhảy lung tung | Vải, mút, rèm nuốt tiếng vọng. Dùng bìa cứng hoặc tường |
+| Luôn báo 0 hoặc 999 | Dây Trig/Echo lỏng, cắm lại |
+
 ## Ghi chú về bản gốc
 1. **Chương trình mẫu trên slide chưa đủ.** Slide Learn 07 chỉ có `nếu` (kiểm tra một lần) và Learn 08 chỉ có `lặp khi`. Hai nửa này **rời nhau**. Luật 4 (Learn 06) và thẻ lỗi (d) ở Growth 03 lại nói phải kiểm tra liên tục trong vòng lặp. Bài gốc không đưa chương trình ghép hoàn chỉnh. Chương trình đầy đủ trong giáo án này là đề xuất, đã đánh dấu.
 2. **Khối "Repeat Forever"** được nhắc ở Growth 03 nhưng không thấy trong ảnh chương trình mẫu nào.

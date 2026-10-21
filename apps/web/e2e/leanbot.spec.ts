@@ -45,7 +45,7 @@ test('a lesson runs from its goals to the quiz and scores it', async ({ page }) 
   await page.goto('/leanbot/bai-00/0');
 
   // The page counter names the whole lesson, so the flow below cannot silently skip pages.
-  await expect(page.getByText('1 / 31')).toBeVisible();
+  await expect(page.getByText('1 / 33')).toBeVisible();
 
   await page.getByRole('button', { name: 'Tiếp →' }).click();
   await expect(page).toHaveURL(/\/leanbot\/bai-00\/1$/);
@@ -80,7 +80,7 @@ test('a lesson runs from its goals to the quiz and scores it', async ({ page }) 
   );
 
   // The quiz marks a right answer and explains it.
-  await page.goto('/leanbot/bai-00/30');
+  await page.goto('/leanbot/bai-00/32');
   await expect(page.getByRole('heading', { name: 'Con nhớ được bao nhiêu?' })).toBeVisible();
   await page.getByRole('button', { name: /Cắm vào cổng nào\?/ }).click();
   await expect(page.getByText(/hai cổng USB sát nhau/)).toBeVisible();
@@ -103,7 +103,7 @@ test('lesson 1 lists, links out to the editor and scores its quiz', async ({ pag
   await page.goto('/leanbot');
   await page.getByRole('link', { name: /Cùng di chuyển/ }).click();
   await expect(page).toHaveURL(/\/leanbot\/bai-01\/0$/);
-  await expect(page.getByText('1 / 25')).toBeVisible();
+  await expect(page.getByText('1 / 27')).toBeVisible();
 
   // The editor screen: its picture carries a description and the link opens in a new tab.
   await page.goto('/leanbot/bai-01/4');
@@ -124,7 +124,14 @@ test('lesson 1 lists, links out to the editor and scores its quiz', async ({ pag
   await expect(page.getByRole('heading', { name: 'Quay sang phải' })).toBeVisible();
   await expect(page.getByText('Trái 50 Phải −50')).toBeVisible();
 
+  // Every lesson ends with how to try it on the robot and what a wrong result means.
   await page.goto('/leanbot/bai-01/24');
+  await expect(page.getByRole('heading', { name: /Thử trên robot/ })).toBeVisible();
+  await page.goto('/leanbot/bai-01/25');
+  await expect(page.getByText('Robot đi cong')).toBeVisible();
+  await expect(page.getByRole('button', { name: /robot đi gần đúng 50 cm/ })).toBeVisible();
+
+  await page.goto('/leanbot/bai-01/26');
   await expect(page.getByRole('heading', { name: 'Con nhớ được bao nhiêu?' })).toBeVisible();
   await page.getByRole('button', { name: /^A.*Quay tại chỗ/ }).click();
   await expect(page.getByText(/xoay tại chỗ như con quay/)).toBeVisible();
@@ -141,21 +148,21 @@ test('lessons 2 and 3 open from the list and score their quizzes', async ({ page
   // Lesson 2: the two angles a child keeps swapping, and the safe range.
   await page.getByRole('link', { name: /Cánh tay kẹp/ }).click();
   await expect(page).toHaveURL(/\/leanbot\/bai-02\/0$/);
-  await expect(page.getByText('1 / 20')).toBeVisible();
+  await expect(page.getByText('1 / 22')).toBeVisible();
 
   await page.goto('/leanbot/bai-02/4');
   await expect(page.getByRole('heading', { name: '0 độ là MỞ, 90 độ là ĐÓNG' })).toBeVisible();
   await page.goto('/leanbot/bai-02/5');
   await expect(page.getByText(/càng có thể GÃY/)).toBeVisible();
 
-  await page.goto('/leanbot/bai-02/19');
+  await page.goto('/leanbot/bai-02/21');
   await page.getByRole('button', { name: /^A.*0 độ/ }).click();
   await expect(page.getByText(/hai càng chúc xuống đất/)).toBeVisible();
 
   // Lesson 3: the yo-yo explanation is the point of the lesson.
   await page.goto('/leanbot/bai-03/7');
   await expect(page.getByRole('heading', { name: /5 cm đó gọi là vùng đệm/ })).toBeVisible();
-  await page.goto('/leanbot/bai-03/19');
+  await page.goto('/leanbot/bai-03/22');
   await page.getByRole('button', { name: /giật tới lui như yo-yo/ }).click();
   await expect(page.getByText(/5 cm chênh là vùng đệm/)).toBeVisible();
 });

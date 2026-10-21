@@ -391,6 +391,66 @@
         ]
       ],
       "tip": "Chỉnh số rồi thử lại gọi là SỬA LỖI. Không cần xóa cả chương trình làm lại."
+    },
+    {
+      "part": "Kiểm nghiệm",
+      "title": "Thử trên robot: đi 50 cm rồi quay",
+      "steps": [
+        [
+          "1",
+          "Dán hai mẩu băng dính cách nhau đúng 50 cm"
+        ],
+        [
+          "2",
+          "Đặt bánh sau robot sát mẩu thứ nhất"
+        ],
+        [
+          "3",
+          "Nạp chương trình Thử sức 1, rút cáp"
+        ],
+        [
+          "4",
+          "Chạm cùng lúc TB1A + TB1B, lùi lại xem"
+        ],
+        [
+          "5",
+          "Robot dừng rồi, đo từ mẩu thứ nhất tới bánh sau"
+        ]
+      ],
+      "tip": "Sai trong khoảng 2–3 cm là bình thường. Sai quá 10 cm thì xem bảng ở màn sau."
+    },
+    {
+      "part": "Kiểm nghiệm",
+      "title": "Robot làm sai thì tra bảng này",
+      "table": {
+        "head": [
+          "Con thấy",
+          "Sửa chỗ nào"
+        ],
+        "rows": [
+          [
+            "Robot đứng im",
+            "Chạm CÙNG LÚC hai nút chưa? Lệnh có nằm trong khối Nhiệm vụ không?"
+          ],
+          [
+            "Robot đi cong",
+            "Hai ô vận tốc phải bằng nhau: 50 và 50"
+          ],
+          [
+            "Đi ngắn hoặc dài hơn nhiều",
+            "Xem ô Chạy đoạn đường, và đo lại từ đúng điểm xuất phát"
+          ],
+          [
+            "Quay lố quá góc vuông",
+            "Đổi 90 thành 85 độ, hoặc giảm vận tốc xuống 30"
+          ],
+          [
+            "Robot lùi thay vì tiến",
+            "Có dấu trừ thừa trong ô vận tốc"
+          ]
+        ]
+      },
+      "check": "Con đo rồi: robot đi gần đúng 50 cm"
     }
   ],
   "quiz": [

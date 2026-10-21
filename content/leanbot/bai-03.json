@@ -295,6 +295,76 @@
         "Máy bay không người lái giao hàng."
       ],
       "tip": "Con nghĩ thêm được chỗ nào nữa không? Câu này không có đáp án sai."
+    },
+    {
+      "part": "Kiểm nghiệm",
+      "title": "Thử trên robot: dừng trước hộp",
+      "steps": [
+        [
+          "1",
+          "Dựng một hộp giấy làm tường"
+        ],
+        [
+          "2",
+          "Đặt robot cách hộp khoảng 1 mét"
+        ],
+        [
+          "3",
+          "Nạp chương trình tránh vật, rút cáp"
+        ],
+        [
+          "4",
+          "Chạm hai nút, để robot tự chạy tới"
+        ],
+        [
+          "5",
+          "Robot dừng rồi, lấy thước đo khoảng cách tới hộp"
+        ]
+      ],
+      "tip": "Đo được 23–27 cm là đúng. Rồi con đẩy hộp lại gần xem robot có tự lùi ra không."
+    },
+    {
+      "part": "Kiểm nghiệm",
+      "title": "Hai phép thử khó hơn",
+      "list": [
+        "Cầm quyển vở chắn trước robot đang chạy: nó phải dừng ngay, không đợi tới hộp.",
+        "Đẩy hộp sát robot rồi bỏ tay ra: robot lùi, và phải dừng khi trống hơn 30 cm.",
+        "Bỏ hộp đi hẳn: robot chạy tiếp, không được lùi."
+      ],
+      "note": "Ba phép thử này kiểm đúng ba luật của bài. Thiếu một cái là chương trình còn sót chỗ."
+    },
+    {
+      "part": "Kiểm nghiệm",
+      "title": "Robot làm sai thì tra bảng này",
+      "table": {
+        "head": [
+          "Con thấy",
+          "Sửa chỗ nào"
+        ],
+        "rows": [
+          [
+            "Robot đâm thẳng vào hộp",
+            "Khối nếu đang nằm ngoài vòng lặp"
+          ],
+          [
+            "Dừng quá xa hoặc quá gần",
+            "Đổi con số 25 trong khối Đo xa"
+          ],
+          [
+            "Lùi mãi không dừng",
+            "Khối Dừng đang nằm trong vòng lặp"
+          ],
+          [
+            "Không lùi lần nào",
+            "Gõ nhầm 3 thay vì 30"
+          ],
+          [
+            "Số đo nhảy lung tung",
+            "Đừng chắn bằng vải hay mút, chúng nuốt tiếng vọng"
+          ]
+        ]
+      },
+      "check": "Robot dừng trước hộp và tự lùi khi con đẩy hộp lại gần"
     }
   ],
   "quiz": [

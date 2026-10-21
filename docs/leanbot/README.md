@@ -140,17 +140,28 @@ Mỗi bài tồn tại ở **hai bản**: bản của thầy trong `giao-an/`, b
    (`window.H5PIntegration`), không nằm trong HTML. Cách lấy: `nen-tang/pythaverse.md` §2.
 2. **Viết giáo án** `giao-an/bai-NN-<slug>.md`. Giữ đúng bộ mục của các bài đã có: bé học
    xong làm được gì · cần chuẩn bị · thuật ngữ của bài · cách dạy · chương trình mẫu ·
-   phiếu ôn luyện · bé hay vướng · **ghi chú về bản gốc**.
+   phiếu ôn luyện · bé hay vướng · **kiểm nghiệm cuối bài** · **ghi chú về bản gốc**.
 3. **Mỗi đáp án là một đoạn riêng**, viết `**Đáp án:**` ở đầu dòng và có **dòng trống phía
    trước**. Dòng bắt đầu bằng `1)` hoặc `2)` bị markdown hiểu là danh sách và sẽ nuốt dòng
    đáp án ngay dưới nó.
 4. **Viết bản cho bé** `content/leanbot/bai-NN.json` theo `LeanbotLessonSchema`. Schema giới
    hạn độ dài từng trường, nên nếu một màn không vừa thì **tách thành hai màn**, đừng rút gọn
    câu cho vừa.
-5. **Ảnh**: bản của thầy dùng `docs/leanbot/img/`, bản của bé dùng
+5. **Bài nào cũng kết bằng phần `Kiểm nghiệm`** — bắt buộc, cả hai bản. Gồm ba thứ:
+   - **Phép thử trên robot thật**, viết thành các bước làm được ngay: đặt robot ở đâu, nạp
+     chương trình nào, chạm nút gì, **đo bằng gì**. Nói rõ **con số nào là đạt** ("23–27 cm",
+     "sai trong 2–3 cm"), đừng viết "robot chạy đúng".
+   - **Bảng "con thấy … → sửa chỗ nào"**, lấy từ mục "bé hay vướng" của giáo án.
+   - **Một ô tích** cho phép thử chính, viết theo kết quả đo được chứ không theo cảm giác:
+     "Con đo rồi: robot đi gần đúng 50 cm", không phải "Con làm xong bài".
+
+   Phép thử tốt là phép thử **phân biệt được đúng với gần đúng**: nhấc cả robot lên xem khối
+   có rơi không (Bài 2), cầm vở chắn ngang khi robot đang chạy (Bài 3). Chạy được một lần
+   không chứng minh gì cả.
+6. **Ảnh**: bản của thầy dùng `docs/leanbot/img/`, bản của bé dùng
    `apps/web/public/leanbot/img/`. Cùng tệp thì chép sang cả hai nơi.
-6. **Cập nhật hai bảng**: bảng 17 buổi dạy ở trên, và bản đồ bài trong `giao-trinh.md`.
-7. **Chạy `npm run content:check`.** Nó kiểm schema, id (`bai-<2 số>`) và sự tồn tại của ảnh.
-8. **Thêm vào `apps/web/e2e/leanbot.spec.ts`** nếu bài có kiểu màn mới.
+7. **Cập nhật hai bảng**: bảng 17 buổi dạy ở trên, và bản đồ bài trong `giao-trinh.md`.
+8. **Chạy `npm run content:check`.** Nó kiểm schema, id (`bai-<2 số>`) và sự tồn tại của ảnh.
+9. **Thêm vào `apps/web/e2e/leanbot.spec.ts`** nếu bài có kiểu màn mới.
 
 Việc nào còn treo và cần kiểm trên robot thật: xem bảng cuối tài liệu này.

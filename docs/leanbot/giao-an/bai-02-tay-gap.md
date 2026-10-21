@@ -246,6 +246,29 @@ Khóa gốc **không có câu hỏi trắc nghiệm** (CYU/Quiz) ở 35 slide c�
 | Quên lùi ra sau khi thả | Robot đẩy đổ khối | Hỏi: "Con thả xong thì robot ở đâu?" |
 | Chưa chắc lệnh tiến lùi | Bé không nhớ khối di chuyển | Ôn nhanh Bài 1 trước hoạt động Claw Machine |
 
+## Kiểm nghiệm cuối bài
+
+Gắp được chưa, nhìn là biết. Nhưng **gắp chắc** hay không thì phải thử.
+
+**Phép thử chính (5 phút).**
+
+1. Đặt khối xốp trước robot, cách khoảng 15 cm.
+2. Nạp chương trình Máy gắp thú, rút cáp, chạm hai nút.
+3. Nhìn kỹ **thứ tự**: càng phải mở **trước khi** robot tiến. Đây là lỗi hay gặp nhất.
+4. Robot gắp xong: **nhấc cả robot lên khỏi bàn 5 giây**. Khối vẫn nằm trong càng là đạt.
+5. Thả robot xuống, cho chạy nốt phần lùi và mở càng. Khối phải rơi đúng chỗ, robot lùi ra.
+
+Bước 4 là phép thử thật: chở hàng mà rơi dọc đường thì coi như chưa gắp được. Nếu rơi, thêm
+`LbDelay(1000)` ngay sau khi đóng càng cho servo kẹp chặt rồi mới chạy.
+
+| Con thấy | Sửa |
+|---|---|
+| Robot húc khối văng đi | Đặt `Tay gắp: Mở` ở **đầu** chương trình |
+| Càng khép vào chỗ trống | Cho tiến thêm vài cm |
+| Gắp được rồi tuột khi chạy | Thêm `LbDelay(1000)` sau khi đóng càng |
+| Một càng khép, một càng không | Càng đó cần hiệu chỉnh, không phải lỗi chương trình |
+| Càng kêu rè rè | Góc ngoài khoảng −30…120. **Tắt robot ngay** kẻo gãy càng |
+
 ## Ghi chú về bản gốc
 Do file bóc tách phát hiện, cùng đối chiếu với giáo trình tổng §6:
 - **Số liệu khớp §6:** mở 0°, đóng 90°. Không mâu thuẫn.

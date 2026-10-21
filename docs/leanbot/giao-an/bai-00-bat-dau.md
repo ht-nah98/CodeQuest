@@ -461,6 +461,32 @@ chỉnh động cơ bước.
 - **Lẫn hai nhóm mắt hồng ngoại**: 4 mắt bụng dò vạch, 4 mắt bên nhìn vật. Hai nhóm dùng hàm khác nhau.
 - **Quên sạc.** Nguyên nhân số một của "code đúng mà robot chạy sai".
 
+## Kiểm nghiệm: biết chắc máy đã sẵn sàng
+
+Bài 0 **có cổng** (ADR-0029): bản cho bé có 9 ô tích, chưa tích đủ thì Bài 1 trở đi không mở.
+Thầy đi quanh lớp, nhìn tận mắt từng việc rồi mới cho bé tích. Chín việc đó là:
+
+| # | Việc | Nhìn thấy gì thì coi là đạt |
+|---|---|---|
+| 1 | Chỉ đúng hai cổng USB | Bé chỉ cổng trên là nạp, cổng dưới là sạc, không lẫn |
+| 2 | Sạc robot | Đèn cục pin nháy đỏ lúc sạc, xanh dương đứng yên khi đầy |
+| 3 | Máy tính thấy robot | Trình soạn hiện `SERIAL: SELECTED` sau khi Connect |
+| 4 | Nạp được chương trình | Thanh tiến trình chạy đủ 100% và hiện Done |
+| 5 | Đọc được dòng số liệu | Bé đọc đúng bốn khúc `TB` / `IR` / `cm` / `GR` |
+| 6 | Bánh xe chạy đúng | Lệnh `Motion` về đúng chỗ cũ, `StraightMotion` đi thẳng không lệch |
+| 7 | Tay gắp mở đóng đều | Hai càng khép và dang **đều nhau**, không lệch bên nào |
+| 8 | Đèn và còi | Đủ 7 đèn sáng, nghe đủ 8 nốt |
+| 9 | Hai loại mắt | `Objectfollow` bám tay giữ ~15 cm, `LineFollow` bám vạch và dừng ở ngã tư |
+
+**Phép thử cuối, bắt buộc:** cho bé làm lại một lượt **không nhìn hướng dẫn** — tắt robot, rút
+cáp, bật lại, cắm cáp, nạp lại chương trình kiểm tra, mở SERIAL, gõ `Buzzer`. Nghe đủ 8 nốt là
+máy của bé thật sự sẵn sàng. Vướng ở bước nào thì bỏ ô tích tương ứng và làm lại đúng bước đó.
+
+**Thầy tự kiểm trước giờ dạy** (một lần cho mỗi máy): cắm robot, chạy `arduino-cli board list`
+hoặc mở trình soạn, thấy cổng là được. Máy Linux xem mục "Nạp code không cần trình duyệt"
+trong [`../thiet-bi/cai-dat.md`](../thiet-bi/cai-dat.md) — có cả cách nạp bằng dòng lệnh khi
+trình duyệt không mở được cổng.
+
 ## Ghi chú về bản gốc
 
 - **Bốn tệp hiệu chỉnh mà khóa gốc nhắc tên không có trong kho.** Câu hỏi chương 4 hỏi về

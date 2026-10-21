@@ -283,6 +283,66 @@
         "Con tự hào nhất điều gì?"
       ],
       "note": "Ba câu này không có đáp án sai. Con viết thật điều con nghĩ."
+    },
+    {
+      "part": "Kiểm nghiệm",
+      "title": "Thử trên robot: gắp và chở",
+      "steps": [
+        [
+          "1",
+          "Đặt khối xốp trước robot, cách khoảng 15 cm"
+        ],
+        [
+          "2",
+          "Nạp chương trình Máy gắp thú, rút cáp"
+        ],
+        [
+          "3",
+          "Chạm hai nút, nhìn càng mở trước khi tiến"
+        ],
+        [
+          "4",
+          "Robot gắp xong, con nhấc cả robot lên 5 giây"
+        ],
+        [
+          "5",
+          "Khối vẫn nằm trong càng là gắp chắc"
+        ]
+      ],
+      "tip": "Bước 4 là phép thử thật: chở hàng mà rơi dọc đường thì coi như chưa gắp được."
+    },
+    {
+      "part": "Kiểm nghiệm",
+      "title": "Gắp hỏng kiểu nào thì sửa kiểu đó",
+      "table": {
+        "head": [
+          "Con thấy",
+          "Sửa chỗ nào"
+        ],
+        "rows": [
+          [
+            "Robot húc khối văng đi",
+            "Khối Tay gắp: Mở phải nằm ĐẦU chương trình"
+          ],
+          [
+            "Càng khép vào chỗ trống",
+            "Cho robot tiến gần thêm vài cm"
+          ],
+          [
+            "Gắp được rồi tuột khi chạy",
+            "Thêm LbDelay(1000) ngay sau khi đóng càng"
+          ],
+          [
+            "Một càng khép, một càng không",
+            "Càng đó cần hiệu chỉnh, báo thầy"
+          ],
+          [
+            "Càng kêu rè rè",
+            "Góc đang ngoài khoảng −30…120. Tắt robot ngay"
+          ]
+        ]
+      },
+      "check": "Con nhấc robot lên mà khối không rơi"
     }
   ],
   "quiz": [
