@@ -456,6 +456,45 @@ Khóa gốc **không có** câu hỏi kiểm tra (CYU/Quiz) trong 27 slide của
 | Đặt robot sai ô xuất phát | Robot đi sai đường dù bám vạch tốt | Dán chữ A, B trên bản đồ; bé kiểm tra "đặt đúng khu chưa" trước khi chạm nút |
 | Nhầm đơn vị | Bé hỏi 190 là cm hay gì | 190 và 1500 là **tốc độ bánh**, đơn vị bước/giây (xem Ghi chú về bản gốc, mục 4) |
 
+## Kiểm nghiệm cuối bài
+
+Bài này không đo bằng thước mà đo bằng **số lần robot rời vạch**. Một lần rời là chưa đạt.
+
+**Chuẩn bị tối thiểu, không cần sa bàn:** một tờ giấy trắng khổ lớn (hoặc mặt bàn sáng màu),
+băng dính đen bản ~2 cm dán thành đường thẳng dài khoảng 1 mét, thêm một mảng đen to và một
+tờ trắng sạch để cân chỉnh.
+
+**Phép thử chính (10 phút).**
+
+1. Nạp `FollowLine_EN.bduino`, rút cáp.
+2. **Cân chỉnh đủ 7 bước ngay trên tờ giấy sẽ chạy**, không cân chỉnh ở chỗ khác rồi mang sang.
+3. Đặt robot ở đầu vạch, bốn mắt nằm trên vạch, chạm cùng lúc TB1A + TB1B.
+4. **Đạt khi robot đi hết đoạn vạch mà không rời ra lần nào.**
+5. Chạy lại lần hai để chắc: bám vạch được một lần có thể là may.
+
+**Ba phép thử khó hơn**, mỗi cái kiểm một thứ khác nhau:
+
+| Phép thử | Kiểm cái gì | Đạt khi |
+|---|---|---|
+| Dán thêm một khúc cua | Nhóm "quẹo trái / quẹo phải" của bảng mã | Robot ôm cua, không cắt ngang |
+| Đặt robot **lệch hẳn** sang một bên vạch rồi chạy | Robot có tự bắt lại vạch không | Trong vòng ~10 cm robot về giữa vạch |
+| Bật thêm đèn phòng rồi chạy lại **mà không cân chỉnh** | Vì sao lần nào cũng phải cân chỉnh | Robot chạy tệ hẳn đi — và đó là kết quả **đúng** của phép thử |
+
+Phép thử thứ ba là phép thử dạy chứ không phải phép thử chấm: cho bé thấy tận mắt rằng ánh
+sáng đổi thì mắt thấy khác.
+
+| Con thấy | Sửa |
+|---|---|
+| Trôi khỏi vạch liên tục | **Cân chỉnh lại trước đã** — lỗi hay gặp nhất, slide Resolve 02 cũng nói vậy |
+| Chạy vài giây rồi dừng | Mất vạch (số 0) vì băng dính đứt nét hoặc cua gấp |
+| Dừng ngay khi vừa chạy | Đường ngắn hơn `target` 1000 mm; giảm số đó cho vừa đường thật |
+| Cắt ngang khúc cua | Cua gấp quá so với tốc độ 1500; dán cua rộng hơn |
+| Đèn vẫn nháy đỏ | Chưa chạm đủ ba lần TB1A |
+| Lúc được lúc không | Giấy bóng, hoặc nắng/đèn chiếu xiên vào mặt giấy; đổi chỗ chạy |
+
+**Ghi vào nhật ký chạy thử** (slide Resolve 03): lần này đã cân chỉnh lại chưa, robot rời vạch
+ở chỗ nào trên đường, lúc đó đèn LED màu gì. Ba câu đó đủ để lần sau sửa đúng chỗ.
+
 ## Ghi chú về bản gốc
 Có mấy chỗ mâu thuẫn hoặc chưa chắc; thầy đọc trước khi dạy.
 

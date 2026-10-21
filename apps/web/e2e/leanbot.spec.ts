@@ -141,7 +141,13 @@ test('lesson 1 lists, links out to the editor and scores its quiz', async ({ pag
 // quiz must score. These two are the first whose screens are pure procedure and warning.
 test('lessons 2 and 3 open from the list and score their quizzes', async ({ page }) => {
   await page.goto('/leanbot');
-  for (const name of [/Làm quen và kiểm tra Leanbot/, /Cùng di chuyển/, /Cánh tay kẹp/, /Mắt thần siêu âm/]) {
+  for (const name of [
+    /Làm quen và kiểm tra Leanbot/,
+    /Cùng di chuyển/,
+    /Cánh tay kẹp/,
+    /Mắt thần siêu âm/,
+    /Đi theo đường thông minh/,
+  ]) {
     await expect(page.getByRole('link', { name })).toBeVisible();
   }
 
@@ -190,4 +196,32 @@ test('lesson 0 gates the rest of the course until its boxes are ticked', async (
   await expect(page.getByText('Bài 0 xong! Đủ 9 ô.')).toBeVisible();
   await page.getByRole('link', { name: /Cùng di chuyển/ }).click();
   await expect(page).toHaveURL(/\/leanbot\/bai-01\/0$/);
+});
+
+// Lesson 4 is the hardest of the first five: the four-eye code, the calibration order, and a
+// test measured in "times the robot left the line".
+test('lesson 4 teaches the four eyes and ends with a line test', async ({ page }) => {
+  await page.goto('/leanbot/bai-04/0');
+  await expect(page.getByText('1 / 20')).toBeVisible();
+
+  // A child without a mat is told how to make a line first.
+  await page.goto('/leanbot/bai-04/2');
+  await expect(page.getByRole('heading', { name: /Chưa có sa bàn/ })).toBeVisible();
+
+  // The three groups, which is all a child has to remember of the sixteen codes.
+  await page.goto('/leanbot/bai-04/7');
+  await expect(page.getByRole('heading', { name: 'Chỉ cần nhớ ba nhóm' })).toBeVisible();
+  await expect(page.getByText('Lệch sang TRÁI')).toBeVisible();
+
+  // Calibration is the answer to "the robot keeps leaving the line".
+  await page.goto('/leanbot/bai-04/11');
+  await expect(page.getByRole('heading', { name: /Đỏ – Trắng – Vàng – Đen – Xanh – Xong/ })).toBeVisible();
+
+  await page.goto('/leanbot/bai-04/18');
+  await expect(page.getByText('Trôi khỏi vạch liên tục')).toBeVisible();
+  await expect(page.getByRole('button', { name: /không rời lần nào/ })).toBeVisible();
+
+  await page.goto('/leanbot/bai-04/19');
+  await page.getByRole('button', { name: /Đen dội lại rất ít ánh sáng/ }).click();
+  await expect(page.getByText(/Trắng dội nhiều, đen dội ít/)).toBeVisible();
 });

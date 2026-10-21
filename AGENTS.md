@@ -177,7 +177,18 @@ Lỗi chỉ lộ ra khi có **bộ đếm so khớp hai con số**.
 thay vì mắt người. Ví dụ đang dùng: `content:check` so số đáp án trong markdown với số dựng
 ra, và luật 18 kiểm ảnh tồn tại. **Thử phá có chủ đích** để chắc bộ chặn còn bắt được.
 
-### 9.7. Báo cả phần chưa làm được
+### 9.7. Thêm tệp nội dung thì phải khởi động lại `npm run dev`
+
+Đã mất thì giờ ba lần vì cùng một chuyện: thêm `content/leanbot/bai-0N.json` xong, mở
+`localhost:5173` thì thấy **"Không tìm thấy bài này."** và tưởng mình viết sai dữ liệu. Thật ra
+Vite chốt danh sách `import.meta.glob` **lúc khởi động**, nên tệp mới không có trong gói cho
+tới khi chạy lại dev server. Ảnh chụp màn hình lúc đó là ảnh của trang lỗi, không phải của bài.
+
+**Luật:** thêm **tệp mới** trong `content/` thì khởi động lại `npm run dev` trước khi chụp màn
+hình hay kết luận. Sửa nội dung trong một tệp đã có thì không cần. Bộ e2e tự dựng server riêng
+nên không dính lỗi này — e2e xanh mà màn hình đỏ thì gần như chắc chắn là nó.
+
+### 9.8. Báo cả phần chưa làm được
 
 Khi một mục của "Định nghĩa xong" chưa làm được (chưa có e2e, chưa xem được video hướng dẫn,
 chưa chạy thử trên robot thật) thì **nói thẳng ở cuối báo cáo**, đừng im lặng. Riêng mục

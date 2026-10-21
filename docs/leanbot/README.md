@@ -44,8 +44,8 @@ ngữ Anh ↔ Việt bắt buộc dùng, §6 là những con số sai một ch�
 
 Tổng **155 bài ôn luyện** có đáp án.
 
-**Bản cho bé trong app** (`content/leanbot/*.json`, xem `/leanbot`) hiện có: **Bài 0, 1, 2
-và 3**. Các bài còn lại mới có bản của thầy ở `giao-an/`.
+**Bản cho bé trong app** (`content/leanbot/*.json`, xem `/leanbot`) hiện có: **Bài 0 → 4**.
+Các bài còn lại mới có bản của thầy ở `giao-an/`.
 
 **Bài 0 là cổng** (ADR-0029). Bài 0 bản cho bé có **9 ô tích**, mỗi ô là một việc làm xong
 trên robot thật. Chưa tích đủ thì Bài 1 trở đi hiện trong danh sách nhưng mang ổ khóa, bấm
