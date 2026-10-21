@@ -4,6 +4,7 @@ import { Link } from 'react-router';
 import { vi } from '../../i18n/vi';
 import { Panel } from '../../ui';
 import { FOCUS_RING } from '../../ui/focusRing';
+import { LeanbotEyebrow } from './LeanbotEyebrow';
 
 const t = vi.leanbot;
 
@@ -19,9 +20,7 @@ export function LeanbotQuiz({ lesson }: { lesson: LeanbotLesson }) {
 
   return (
     <>
-      <span className="justify-self-start rounded-key border-3 border-ink bg-brand-soft px-2 py-0.5 font-display text-sm tracking-wide uppercase">
-        {t.quizEyebrow}
-      </span>
+      <LeanbotEyebrow text={t.quizEyebrow} />
       <h2 className="m-0 font-display text-[28px] leading-tight">{t.quizTitle}</h2>
 
       {lesson.quiz.map((question, qi) => {
