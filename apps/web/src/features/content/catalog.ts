@@ -48,7 +48,15 @@ async function readCatalog(): Promise<Catalog> {
         }
       : w,
   );
-  const sorted = [...shown].sort((a, b) => {
+  // A world still being written has no boss yet (its last level is missing), and half a world on
+  // the map is a world a child can walk into and find nothing at the end. It appears as soon as
+  // its boss level does; the dev sandbox is exempt because it is a list of samples, not a world.
+  const ready = shown.filter(
+    (w) =>
+      w.id === SANDBOX_WORLD_ID ||
+      w.levelIds.some((id) => levelById.get(id)?.stage === 'boss' && levelById.get(id)?.retired !== true),
+  );
+  const sorted = [...ready].sort((a, b) => {
     const rank = (w: World) => (w.id === SANDBOX_WORLD_ID ? Number.MAX_SAFE_INTEGER : w.order);
     return rank(a) - rank(b);
   });

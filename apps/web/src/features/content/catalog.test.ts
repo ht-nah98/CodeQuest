@@ -203,6 +203,20 @@ describe('block lessons (beforeLevel)', () => {
 });
 
 describe('loadCatalog', () => {
+  it('leaves out a world that has no boss yet, and keeps every finished one', async () => {
+    const loaded = await loadCatalog();
+    const ids = loaded.worlds.map((w) => w.id);
+    for (const id of ids) {
+      if (id === SANDBOX_WORLD_ID) continue;
+      const world = loaded.worldById.get(id);
+      const hasBoss = world?.levelIds.some((levelId) => loaded.levels.get(levelId)?.stage === 'boss');
+      expect(hasBoss, `${id} is on the map, so it must have a boss`).toBe(true);
+    }
+    // World 10 is still being written (P5-09), so a child does not see it yet.
+    expect(ids).not.toContain('w10-hoc-vien');
+    expect(ids).toContain('w09-thap-hoa-si');
+  });
+
   it('loads world 1 and, in dev, the sandbox world last', async () => {
     const loaded = await loadCatalog();
     expect(loaded.worlds[0]?.id).toBe('w01-lang-tre');
