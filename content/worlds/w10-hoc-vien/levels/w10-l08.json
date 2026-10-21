@@ -1,0 +1,80 @@
+{
+  "id": "w10-l08",
+  "worldId": "w10-hoc-vien",
+  "stage": "practice",
+  "kind": "sorter",
+  "mode": "parsons",
+  "title": "Một lượt qua kệ",
+  "objective": "So từng cặp, lớn hơn thì đổi chỗ nhé!",
+  "learningGoal": "Một lượt so từng cặp đưa sách lớn nhất về cuối kệ.",
+  "misconception": "Phải nhìn cả kệ mới biết đổi cuốn nào.",
+  "thinkingHint": "Sau một lượt, cuốn nào chắc chắn đúng chỗ?",
+  "toolbox": [],
+  "maxLoopDepth": 1,
+  "par": 5,
+  "config": {
+    "books": [3, 1, 2, 6, 4, 5],
+    "goal": { "sorted": true }
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        { "type": "cq_start", "id": "start", "x": 40, "y": 40, "deletable": false },
+        { "type": "cq_repeat", "id": "loop1", "fields": { "TIMES": 5 }, "x": 60, "y": 150 },
+        { "type": "cq_if", "id": "if1", "x": 330, "y": 230 },
+        { "type": "sorter_bigger", "id": "ask1", "x": 60, "y": 330 },
+        { "type": "sorter_swap", "id": "w1", "x": 330, "y": 400 },
+        { "type": "sorter_right", "id": "r1", "x": 60, "y": 470 }
+      ]
+    }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "loop1",
+              "fields": { "TIMES": 5 },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "cq_if",
+                    "id": "if1",
+                    "inputs": {
+                      "COND": { "block": { "type": "sorter_bigger", "id": "ask1" } },
+                      "DO": { "block": { "type": "sorter_swap", "id": "w1" } }
+                    },
+                    "next": { "block": { "type": "sorter_right", "id": "r1" } }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "pair",
+      "when": { "trigger": "enter" },
+      "say": "So 2 sách cạnh nhau. Lớn hơn thì đổi chỗ.",
+      "point": "block:sorter_bigger"
+    },
+    {
+      "id": "after",
+      "when": { "trigger": "idle" },
+      "say": "So xong cặp này thì tay mới sang phải.",
+      "point": "block:sorter_right"
+    }
+  ]
+}

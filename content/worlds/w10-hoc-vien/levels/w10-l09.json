@@ -1,0 +1,72 @@
+{
+  "id": "w10-l09",
+  "worldId": "w10-hoc-vien",
+  "stage": "practice",
+  "kind": "sorter",
+  "mode": "predict",
+  "title": "Một lượt đã xong chưa?",
+  "objective": "Đoán xem sau một lượt kệ trông thế nào nhé!",
+  "learningGoal": "Một lượt đưa sách lớn nhất về cuối, kệ chưa chắc xếp xong.",
+  "misconception": "Một lượt là xếp xong.",
+  "thinkingHint": "Cuốn số 1 đang ở gần cuối. Một lượt có đưa nó về đầu không?",
+  "toolbox": [],
+  "config": {
+    "books": [4, 2, 5, 1, 3],
+    "goal": { "sorted": true }
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "loop1",
+              "fields": { "TIMES": 4 },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "cq_if",
+                    "id": "if1",
+                    "inputs": {
+                      "COND": { "block": { "type": "sorter_bigger", "id": "ask1" } },
+                      "DO": { "block": { "type": "sorter_swap", "id": "w1" } }
+                    },
+                    "next": { "block": { "type": "sorter_right", "id": "r1" } }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "predict": {
+    "options": [
+      { "key": "shelf:2,4,1,3,5@5", "label": "Số 5 về cuối, kệ còn lộn xộn" },
+      { "key": "shelf:1,2,3,4,5@5", "label": "Kệ xếp xong hẳn" },
+      { "key": "shelf:4,2,5,1,3@5", "label": "Kệ y như cũ" }
+    ]
+  },
+  "hints": [
+    {
+      "id": "enter",
+      "when": { "trigger": "enter" },
+      "say": "1 lượt đưa sách lớn nhất về cuối, chưa chắc xong.",
+      "point": "stage"
+    },
+    {
+      "id": "small",
+      "when": { "trigger": "idle" },
+      "say": "Nhìn cuốn số 1 xem nó đi được mấy chỗ.",
+      "point": "stage"
+    }
+  ]
+}

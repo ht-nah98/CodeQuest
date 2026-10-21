@@ -1,0 +1,67 @@
+{
+  "id": "w10-lesson-lon-hon",
+  "worldId": "w10-hoc-vien",
+  "title": "Lớn hơn bên phải",
+  "beforeLevel": "w10-l08",
+  "cards": [
+    {
+      "type": "say",
+      "pose": "point",
+      "text": "Khối mới! Sách này lớn hơn bên phải? Lớn hơn thì ✔"
+    },
+    { "type": "say", "pose": "think", "text": "So 2 sách cạnh nhau. Lớn hơn thì đổi chỗ." },
+    {
+      "type": "demo",
+      "text": "Sách lớn nhất trôi về cuối kệ.",
+      "kind": "sorter",
+      "config": { "books": [3, 1, 2], "goal": { "sorted": true } },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "cq_if",
+                  "id": "if1",
+                  "inputs": {
+                    "COND": { "block": { "type": "sorter_bigger", "id": "ask1" } },
+                    "DO": { "block": { "type": "sorter_swap", "id": "w1" } }
+                  },
+                  "next": {
+                    "block": {
+                      "type": "sorter_right",
+                      "id": "r1",
+                      "next": {
+                        "block": {
+                          "type": "cq_if",
+                          "id": "if2",
+                          "inputs": {
+                            "COND": { "block": { "type": "sorter_bigger", "id": "ask2" } },
+                            "DO": { "block": { "type": "sorter_swap", "id": "w2" } }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "quiz",
+      "text": "Đi hết 1 lượt. Sách lớn nhất ở đâu?",
+      "options": ["Cuối kệ", "Đầu kệ"],
+      "correct": 0,
+      "explain": "Mỗi lần so, sách lớn hơn lại nhích sang phải một chỗ."
+    }
+  ]
+}

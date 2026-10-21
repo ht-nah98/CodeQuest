@@ -1,0 +1,68 @@
+{
+  "id": "w10-l07",
+  "worldId": "w10-hoc-vien",
+  "stage": "practice",
+  "kind": "sorter",
+  "mode": "build",
+  "title": "Đổi hai cuốn",
+  "objective": "Xếp kệ bằng hai lần đổi chỗ nhé!",
+  "learningGoal": "Đổi chỗ chỉ đổi được sách này với sách ngay bên phải.",
+  "misconception": "Đổi chỗ được hai cuốn bất kỳ.",
+  "thinkingHint": "Hai cuốn lạc chỗ có đứng cạnh nhau không?",
+  "toolbox": ["sorter_right", "sorter_swap", "cq_repeat"],
+  "maxLoopDepth": 1,
+  "par": 4,
+  "maxBlocks": 6,
+  "config": {
+    "books": [2, 1, 3, 5, 4],
+    "goal": { "sorted": true }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "sorter_swap",
+              "id": "w1",
+              "next": {
+                "block": {
+                  "type": "cq_repeat",
+                  "id": "loop1",
+                  "fields": { "TIMES": 3 },
+                  "inputs": { "DO": { "block": { "type": "sorter_right", "id": "r1" } } },
+                  "next": { "block": { "type": "sorter_swap", "id": "w2" } }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "pairs",
+      "when": { "trigger": "enter" },
+      "say": "Đổi chỗ chỉ đổi sách này với sách bên phải.",
+      "point": "toolbox:sorter_swap"
+    },
+    {
+      "id": "walk",
+      "when": { "trigger": "idle" },
+      "say": "Đổi cặp đầu xong, tay phải đi tới cặp sau.",
+      "point": "toolbox:sorter_right"
+    },
+    {
+      "id": "nopair",
+      "when": { "trigger": "run-end", "lastReason": "NO_BOOK_RIGHT" },
+      "say": "Tay đang ở cuốn cuối. Bên phải không còn sách."
+    }
+  ]
+}

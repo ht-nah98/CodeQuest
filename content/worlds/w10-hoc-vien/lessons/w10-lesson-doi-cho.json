@@ -1,0 +1,70 @@
+{
+  "id": "w10-lesson-doi-cho",
+  "worldId": "w10-hoc-vien",
+  "title": "Đổi chỗ",
+  "beforeLevel": "w10-l07",
+  "cards": [
+    { "type": "say", "pose": "point", "text": "Khối mới! Đổi chỗ: sách này đổi với sách bên phải" },
+    {
+      "type": "demo",
+      "text": "2 sách cạnh nhau đổi chỗ. Tay vẫn ở đây.",
+      "kind": "sorter",
+      "config": { "books": [2, 1, 3], "goal": { "sorted": true } },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": { "block": { "type": "sorter_swap", "id": "w1" } }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "demo",
+      "text": "Bên phải không có sách!",
+      "kind": "sorter",
+      "config": { "books": [1, 3, 2], "goal": { "sorted": true } },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "sorter_right",
+                  "id": "r1",
+                  "next": {
+                    "block": {
+                      "type": "sorter_right",
+                      "id": "r2",
+                      "next": { "block": { "type": "sorter_swap", "id": "w1" } }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "quiz",
+      "text": "Tay ở sách đầu, đổi chỗ. Sách nào đổi?",
+      "options": ["Sách thứ nhất và thứ hai", "Sách đầu và sách cuối"],
+      "correct": 0,
+      "explain": "Đổi chỗ chỉ đổi hai cuốn đứng cạnh nhau."
+    }
+  ]
+}

@@ -269,6 +269,9 @@ export const SORTER_TRAPS: ReadonlyMap<string, readonly SorterTrap[]> = new Map(
     // The bug as it ships: asking after the step skips the first book, which is the big one on
     // shelf 1 and a small one on shelf 2 (S1).
     'w10-l06': [{ program: 'UNTILE[R IF>5[ADD:lon]]', reason: 'WRONG_COUNT', s1: true }],
+    // One step too far: the hand is on the last book, where there is nothing to swap with.
+    // (S1 does not apply here: with only swap and right there is no program for several shelves.)
+    'w10-l07': [{ program: 'REP4[R] W', reason: 'NO_BOOK_RIGHT' }],
   }),
 );
 
