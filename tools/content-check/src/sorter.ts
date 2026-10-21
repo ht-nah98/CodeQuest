@@ -272,6 +272,12 @@ export const SORTER_TRAPS: ReadonlyMap<string, readonly SorterTrap[]> = new Map(
     // One step too far: the hand is on the last book, where there is nothing to swap with.
     // (S1 does not apply here: with only swap and right there is no program for several shelves.)
     'w10-l07': [{ program: 'REP4[R] W', reason: 'NO_BOOK_RIGHT' }],
+    // Without "về đầu kệ" the second pass starts where the first ended and walks off the shelf;
+    // three passes sort the first two shelves and leave the reversed one unsorted (S4).
+    'w10-l10': [
+      { program: 'REP4[REP4[IFB[W] R]]', reason: 'OFF_SHELF' },
+      { program: 'REP3[S REP4[IFB[W] R]]', reason: 'NOT_SORTED', s1: true },
+    ],
   }),
 );
 

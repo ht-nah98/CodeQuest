@@ -1,0 +1,161 @@
+{
+  "id": "w10-l10",
+  "worldId": "w10-hoc-vien",
+  "stage": "practice",
+  "kind": "sorter",
+  "mode": "build",
+  "title": "Nhiều lượt mới xong",
+  "objective": "Xếp xong cả 3 kệ nhé! Mỗi lượt về đầu kệ.",
+  "learningGoal": "Lặp nhiều lượt, mỗi lượt về đầu kệ: kệ nào cũng xếp được.",
+  "misconception": "Một lượt là xếp xong.",
+  "thinkingHint": "Kệ thứ ba ngược hẳn. Cần mấy lượt?",
+  "toolbox": [
+    "sorter_right",
+    "sorter_swap",
+    "sorter_bigger",
+    "sorter_to_start",
+    "cq_if",
+    "cq_repeat"
+  ],
+  "maxLoopDepth": 2,
+  "par": 7,
+  "maxBlocks": 9,
+  "config": {
+    "books": [
+      3,
+      5,
+      1,
+      4,
+      2
+    ],
+    "goal": {
+      "sorted": true
+    },
+    "maxQuestions": 16
+  },
+  "variants": [
+    {
+      "books": [
+        2,
+        1,
+        5,
+        3,
+        4
+      ],
+      "goal": {
+        "sorted": true
+      },
+      "maxQuestions": 16
+    },
+    {
+      "books": [
+        4,
+        3,
+        5,
+        2,
+        1
+      ],
+      "goal": {
+        "sorted": true
+      },
+      "maxQuestions": 16
+    }
+  ],
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "loop1",
+              "fields": {
+                "TIMES": 4
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "sorter_to_start",
+                    "id": "s1",
+                    "next": {
+                      "block": {
+                        "type": "cq_repeat",
+                        "id": "loop2",
+                        "fields": {
+                          "TIMES": 4
+                        },
+                        "inputs": {
+                          "DO": {
+                            "block": {
+                              "type": "cq_if",
+                              "id": "if1",
+                              "inputs": {
+                                "COND": {
+                                  "block": {
+                                    "type": "sorter_bigger",
+                                    "id": "ask1"
+                                  }
+                                },
+                                "DO": {
+                                  "block": {
+                                    "type": "sorter_swap",
+                                    "id": "w1"
+                                  }
+                                }
+                              },
+                              "next": {
+                                "block": {
+                                  "type": "sorter_right",
+                                  "id": "r1"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "again",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Khối về đầu kệ đưa tay về sách thứ nhất.",
+      "point": "toolbox:sorter_to_start"
+    },
+    {
+      "id": "loops",
+      "when": {
+        "trigger": "idle"
+      },
+      "say": "Một khối lặp đếm lượt, khối lặp trong đếm cặp.",
+      "point": "toolbox:cq_repeat"
+    },
+    {
+      "id": "notsorted",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "NOT_SORTED",
+        "failStreak": {
+          "gte": 2
+        }
+      },
+      "say": "Kệ ngược hẳn cần mấy lượt?"
+    }
+  ]
+}

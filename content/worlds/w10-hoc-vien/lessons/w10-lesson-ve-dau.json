@@ -1,0 +1,72 @@
+{
+  "id": "w10-lesson-ve-dau",
+  "worldId": "w10-hoc-vien",
+  "title": "Về đầu kệ",
+  "beforeLevel": "w10-l10",
+  "cards": [
+    { "type": "say", "pose": "point", "text": "Khối mới! Về đầu kệ: tay về sách thứ nhất" },
+    { "type": "say", "pose": "think", "text": "Mỗi lượt bắt đầu từ đầu kệ." },
+    {
+      "type": "demo",
+      "text": "Hai lượt là kệ 3 sách xếp xong.",
+      "kind": "sorter",
+      "config": { "books": [3, 2, 1], "goal": { "sorted": true } },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "cq_repeat",
+                  "id": "loop1",
+                  "fields": { "TIMES": 2 },
+                  "inputs": {
+                    "DO": {
+                      "block": {
+                        "type": "sorter_to_start",
+                        "id": "s1",
+                        "next": {
+                          "block": {
+                            "type": "cq_repeat",
+                            "id": "loop2",
+                            "fields": { "TIMES": 2 },
+                            "inputs": {
+                              "DO": {
+                                "block": {
+                                  "type": "cq_if",
+                                  "id": "if1",
+                                  "inputs": {
+                                    "COND": { "block": { "type": "sorter_bigger", "id": "ask1" } },
+                                    "DO": { "block": { "type": "sorter_swap", "id": "w1" } }
+                                  },
+                                  "next": { "block": { "type": "sorter_right", "id": "r1" } }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "quiz",
+      "text": "Kệ 3 sách ngược hẳn. Cần mấy lượt?",
+      "options": ["2 lượt", "3 lượt"],
+      "correct": 0,
+      "explain": "Mỗi lượt đưa một cuốn về đúng chỗ cuối, nên kệ 3 sách cần 2 lượt."
+    }
+  ]
+}
