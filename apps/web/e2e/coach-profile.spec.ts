@@ -28,6 +28,9 @@ test('HLV picks the coach tile, enters the PIN and opens a late W2 level from th
   await tile.click();
   await expect(page.getByTestId('pin-dialog')).toBeVisible();
   for (const digit of PIN ?? '') await page.keyboard.press(digit);
+  // Signing in lands on the hub, which is where the two courses are chosen (ADR-0028).
+  await expect(page).toHaveURL(/\/hub$/);
+  await page.getByRole('link', { name: /CodeQuest/ }).click();
   await expect(page).toHaveURL(/\/map$/);
   await expect(page.getByTestId('switch-profile').getByTestId('coach-badge')).toBeVisible();
 

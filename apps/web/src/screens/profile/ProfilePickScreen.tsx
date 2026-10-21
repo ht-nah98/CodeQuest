@@ -116,7 +116,7 @@ export default function ProfilePickScreen() {
               setWrong(!ok);
               if (ok) {
                 select(picked.id);
-                void navigate('/map');
+                void navigate('/hub');
               }
               return ok;
             }}

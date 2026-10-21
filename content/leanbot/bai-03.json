@@ -1,0 +1,438 @@
+{
+  "id": "bai-03",
+  "number": 3,
+  "title": "Mắt thần siêu âm",
+  "tagline": "Robot nghe tiếng vọng để biết vật cách bao xa",
+  "minutes": 55,
+  "source": "Khóa 1437 · Lesson 3 Detect Obstacles with Ultrasonic Sensors (26 slide)",
+  "goals": [
+    "Kể được robot đo xa bằng tiếng vọng",
+    "Chỉ đúng mắt phát và mắt thu trên robot",
+    "Cho robot dừng khi vật cách 25 cm hoặc gần hơn",
+    "Cho robot lùi tới khi phía trước trống hơn 30 cm",
+    "Nói được vì sao hai số 25 và 30 phải khác nhau",
+    "Phân biệt khối nếu và khối lặp khi"
+  ],
+  "screens": [
+    {
+      "part": "Mắt thần",
+      "title": "Robot cứ đâm vào tường",
+      "lines": [
+        "Robot giao hàng trong thành phố đâm vào thùng hàng, vào tường.",
+        "Làm sao con biết có vật gì quá gần con? Con nhìn bằng mắt.",
+        "Robot chưa có mắt. Hôm nay mình lắp mắt cho nó."
+      ]
+    },
+    {
+      "part": "Mắt thần",
+      "title": "Con dơi bay trong bóng tối thế nào?",
+      "lines": [
+        "Dơi kêu một tiếng rồi nghe tiếng dội lại.",
+        "Nghe tiếng dội là dơi biết phía trước có gì, dù trời tối thui."
+      ],
+      "note": "Tiếng dội lại gọi là TIẾNG VỌNG. Mắt thần của Leanbot cũng làm đúng như con dơi."
+    },
+    {
+      "part": "Mắt thần",
+      "title": "Hai mắt tròn phía trước",
+      "chips": [
+        {
+          "label": "Mắt T · bộ phát",
+          "body": "Gửi tiếng kêu đi",
+          "tone": "go"
+        },
+        {
+          "label": "Mắt R · bộ thu",
+          "body": "Nghe tiếng vọng về",
+          "tone": "sky"
+        }
+      ],
+      "note": "Tiếng kêu này cao đến mức tai người không nghe được. Người ta gọi là SÓNG ÂM."
+    },
+    {
+      "part": "Mắt thần",
+      "title": "Vọng về nhanh thì vật gần",
+      "table": {
+        "head": [
+          "Tiếng vọng",
+          "Nghĩa là"
+        ],
+        "rows": [
+          [
+            "Về rất nhanh",
+            "Vật ở gần"
+          ],
+          [
+            "Về chậm",
+            "Vật ở xa"
+          ],
+          [
+            "Không về",
+            "Phía trước trống, hoặc xa quá 4 mét"
+          ]
+        ]
+      },
+      "tip": "Con thử vỗ tay vào tường rồi nghe tiếng dội. Robot nghe y như vậy, chỉ là nhanh hơn nhiều."
+    },
+    {
+      "part": "Ba con số",
+      "title": "Ba con số phải nhớ",
+      "table": {
+        "head": [
+          "Số",
+          "Robot làm gì"
+        ],
+        "rows": [
+          [
+            "25 cm",
+            "Vật gần bằng hoặc gần hơn: DỪNG"
+          ],
+          [
+            "30 cm",
+            "Lùi cho tới khi trống hơn 30 cm"
+          ],
+          [
+            "400 cm",
+            "Xa nhất mắt thần nhìn thấy, tức 4 mét"
+          ]
+        ]
+      }
+    },
+    {
+      "part": "Ba con số",
+      "title": "Sao không dùng chung một số?",
+      "lines": [
+        "Thử xem: dừng ở 25 cm, rồi lùi tới khi hơn 25 cm.",
+        "Vừa lên 26 là robot tiến lại, tới 25 lại dừng, lại lùi, lại tiến."
+      ],
+      "warn": "Robot giật tới giật lui như cái yo-yo, không đi đâu được cả."
+    },
+    {
+      "part": "Ba con số",
+      "title": "5 cm đó gọi là vùng đệm",
+      "lines": [
+        "Dừng ở 25 cm, nhưng lùi tới tận hơn 30 cm mới thôi.",
+        "Robot có thừa 5 cm để thở, nên nó không giật nữa."
+      ],
+      "tip": "Số để DỪNG phải nhỏ hơn số coi là TRỐNG. Đừng sửa cho hai số bằng nhau."
+    },
+    {
+      "part": "Ba con số",
+      "title": "Vật cách đúng 27 cm thì sao?",
+      "lines": [
+        "Robot đang tiến: 27 lớn hơn 25 nên nó CHƯA dừng.",
+        "Robot đang lùi: 27 chưa hơn 30 nên nó VẪN lùi tiếp."
+      ],
+      "note": "Cùng một khoảng cách mà robot làm hai việc khác nhau, tùy nó đang tiến hay đang lùi."
+    },
+    {
+      "part": "Ba con số",
+      "title": "Bốn luật robot an toàn",
+      "steps": [
+        [
+          "1",
+          "Phía trước hơn 25 cm thì đi tiếp"
+        ],
+        [
+          "2",
+          "Vật cách 25 cm hoặc gần hơn thì dừng"
+        ],
+        [
+          "3",
+          "Lùi cho tới khi trống hơn 30 cm"
+        ],
+        [
+          "4",
+          "Kiểm tra liên tục, không nghỉ"
+        ]
+      ],
+      "tip": "Con đọc to bốn luật này một lần. Luật 4 là luật bé hay quên nhất."
+    },
+    {
+      "part": "Nếu và lặp khi",
+      "title": "Khối nếu chỉ hỏi MỘT lần",
+      "lines": [
+        "Chương trình chạy tới khối nếu, hỏi một câu, rồi đi tiếp.",
+        "Nó không quay lại hỏi nữa."
+      ],
+      "warn": "Chỉ có khối nếu thôi thì robot vẫn đâm vào tường: lúc nó hỏi, vật còn ở xa."
+    },
+    {
+      "part": "Nếu và lặp khi",
+      "title": "Khối lặp khi hỏi đi hỏi lại",
+      "lines": [
+        "Điều kiện còn đúng thì nó còn làm các khối bên trong.",
+        "Sai rồi thì nó thôi và đi xuống khối dưới."
+      ],
+      "chips": [
+        {
+          "label": "nếu",
+          "body": "Hỏi một lần rồi đi tiếp",
+          "tone": "coin"
+        },
+        {
+          "label": "lặp khi",
+          "body": "Hỏi lại sau mỗi vòng",
+          "tone": "go"
+        }
+      ]
+    },
+    {
+      "part": "Nếu và lặp khi",
+      "title": "Chương trình 1: dừng khi gần vật",
+      "steps": [
+        [
+          "1",
+          "Chạy với vận tốc Trái 30 Phải 30"
+        ],
+        [
+          "2",
+          "nếu — Phía trước có vật trong vòng 25 cm?"
+        ],
+        [
+          "3",
+          "thì — Dừng"
+        ]
+      ],
+      "code": "if (Leanbot.pingCm() <= 25) { LbMotion.stopAndWait(); }",
+      "check": "Con cho robot dừng trước hộp giấy"
+    },
+    {
+      "part": "Nếu và lặp khi",
+      "title": "Chương trình 2: lùi tới khi trống",
+      "steps": [
+        [
+          "1",
+          "lặp khi — Khoảng cách phía trước ≤ 30"
+        ],
+        [
+          "2",
+          "thì — Chạy với vận tốc Trái −30 Phải −30"
+        ],
+        [
+          "3",
+          "Dừng"
+        ]
+      ],
+      "warn": "Khối Dừng nằm NGOÀI vòng lặp, thẳng hàng với khối lặp khi. Để trong là robot dừng hoài."
+    },
+    {
+      "part": "Nếu và lặp khi",
+      "title": "Dấu trừ lại xuất hiện",
+      "lines": [
+        "Trái −30 Phải −30 là lùi, y như Bài 1.",
+        "Robot còn gần thì còn lùi. Hơn 30 cm là nó thôi."
+      ],
+      "code": "while (Leanbot.pingCm() <= 30) { ... }",
+      "check": "Con cho robot lùi ra xa tường"
+    },
+    {
+      "part": "Nếu và lặp khi",
+      "title": "Ghép cả hai thành robot biết tránh",
+      "steps": [
+        [
+          "1",
+          "lặp mãi"
+        ],
+        [
+          "2",
+          "Chạy tới"
+        ],
+        [
+          "3",
+          "nếu vật ≤ 25 cm thì Dừng"
+        ],
+        [
+          "4",
+          "rồi lùi tới khi trống hơn 30 cm"
+        ],
+        [
+          "5",
+          "Dừng, và vòng lặp lại từ đầu"
+        ]
+      ],
+      "note": "Phải bọc trong lặp mãi thì robot mới kiểm tra liên tục. Đó chính là luật số 4.",
+      "check": "Robot của con tự tránh được vật cản"
+    },
+    {
+      "part": "Thử sức",
+      "title": "Đổi ngưỡng rồi ghi lại",
+      "lines": [
+        "Con thử ba đề này, mỗi lần chỉ đổi MỘT con số."
+      ],
+      "list": [
+        "Dừng khi vật cách 15 cm hoặc gần hơn.",
+        "Dừng khi vật cách 20 cm hoặc gần hơn.",
+        "Lùi tới khi tường xa hơn 60 cm."
+      ],
+      "tip": "Ghi vào sổ: số nào làm robot dừng đẹp nhất? Đổi nhiều số một lúc thì không biết số nào có công."
+    },
+    {
+      "part": "Thử sức",
+      "title": "Robot lùi mãi không dừng",
+      "steps": [
+        [
+          "1",
+          "Đọc lại con số: gõ 3 thay vì 30 chưa?"
+        ],
+        [
+          "2",
+          "Xem khối Dừng có nằm ngoài vòng lặp không"
+        ],
+        [
+          "3",
+          "Kiểm hai dây của mắt thần có cắm chắc không"
+        ]
+      ],
+      "note": "Mắt thần lỏng dây thì nó báo số lung tung, robot làm gì cũng vô lý."
+    },
+    {
+      "part": "Thử sức",
+      "title": "Mắt thần còn dùng ở đâu?",
+      "list": [
+        "Xe hơi kêu bíp khi con lùi sát tường.",
+        "Robot hút bụi tránh chân ghế.",
+        "Máy bay không người lái giao hàng."
+      ],
+      "tip": "Con nghĩ thêm được chỗ nào nữa không? Câu này không có đáp án sai."
+    },
+    {
+      "part": "Kiểm nghiệm",
+      "title": "Thử trên robot: dừng trước hộp",
+      "steps": [
+        [
+          "1",
+          "Dựng một hộp giấy làm tường"
+        ],
+        [
+          "2",
+          "Đặt robot cách hộp khoảng 1 mét"
+        ],
+        [
+          "3",
+          "Nạp chương trình tránh vật, rút cáp"
+        ],
+        [
+          "4",
+          "Chạm hai nút, để robot tự chạy tới"
+        ],
+        [
+          "5",
+          "Robot dừng rồi, lấy thước đo khoảng cách tới hộp"
+        ]
+      ],
+      "tip": "Đo được 23–27 cm là đúng. Rồi con đẩy hộp lại gần xem robot có tự lùi ra không."
+    },
+    {
+      "part": "Kiểm nghiệm",
+      "title": "Hai phép thử khó hơn",
+      "list": [
+        "Cầm quyển vở chắn trước robot đang chạy: nó phải dừng ngay, không đợi tới hộp.",
+        "Đẩy hộp sát robot rồi bỏ tay ra: robot lùi, và phải dừng khi trống hơn 30 cm.",
+        "Bỏ hộp đi hẳn: robot chạy tiếp, không được lùi."
+      ],
+      "note": "Ba phép thử này kiểm đúng ba luật của bài. Thiếu một cái là chương trình còn sót chỗ."
+    },
+    {
+      "part": "Kiểm nghiệm",
+      "title": "Robot làm sai thì tra bảng này",
+      "table": {
+        "head": [
+          "Con thấy",
+          "Sửa chỗ nào"
+        ],
+        "rows": [
+          [
+            "Robot đâm thẳng vào hộp",
+            "Khối nếu đang nằm ngoài vòng lặp"
+          ],
+          [
+            "Dừng quá xa hoặc quá gần",
+            "Đổi con số 25 trong khối Đo xa"
+          ],
+          [
+            "Lùi mãi không dừng",
+            "Khối Dừng đang nằm trong vòng lặp"
+          ],
+          [
+            "Không lùi lần nào",
+            "Gõ nhầm 3 thay vì 30"
+          ],
+          [
+            "Số đo nhảy lung tung",
+            "Đừng chắn bằng vải hay mút, chúng nuốt tiếng vọng"
+          ]
+        ]
+      },
+      "check": "Robot dừng trước hộp và tự lùi khi con đẩy hộp lại gần"
+    }
+  ],
+  "quiz": [
+    {
+      "q": "Mắt thần đo xa bằng cách nào?",
+      "options": [
+        "Chụp ảnh vật",
+        "Phát sóng âm rồi nghe tiếng vọng",
+        "Đo bằng ánh sáng đèn",
+        "Chạm vào vật"
+      ],
+      "correct": 1,
+      "explain": "Y như con dơi: kêu một tiếng, nghe tiếng dội. Vọng về càng lâu thì vật càng xa."
+    },
+    {
+      "q": "Chương trình dừng ở 25 cm. Vật đứng cách đúng 25 cm. Robot làm gì?",
+      "options": [
+        "Dừng",
+        "Đi tiếp",
+        "Lùi",
+        "Quay đầu"
+      ],
+      "correct": 0,
+      "explain": "25 cm là 'bằng hoặc gần hơn' nên vẫn tính. Robot dừng."
+    },
+    {
+      "q": "Vì sao dừng ở 25 cm mà lùi tới tận hơn 30 cm?",
+      "options": [
+        "Cho robot chạy nhanh hơn",
+        "Để robot khỏi giật tới lui như yo-yo",
+        "Vì 30 là số đẹp",
+        "Để tiết kiệm pin"
+      ],
+      "correct": 1,
+      "explain": "Hai số bằng nhau thì vừa lùi quá một chút là robot tiến lại ngay. 5 cm chênh là vùng đệm."
+    },
+    {
+      "q": "Chỉ có khối nếu, không có vòng lặp. Robot vẫn đâm vào tường. Vì sao?",
+      "options": [
+        "Mắt thần hỏng",
+        "Khối nếu chỉ hỏi một lần, lúc đó vật còn xa",
+        "Tốc độ 30 nhanh quá",
+        "Thiếu khối Dừng"
+      ],
+      "correct": 1,
+      "explain": "Muốn robot hỏi liên tục thì phải đặt khối nếu vào trong vòng lặp."
+    },
+    {
+      "q": "Bé gõ nhầm: lặp khi khoảng cách ≤ 3. Robot đang cách tường 12 cm.",
+      "options": [
+        "Robot lùi mãi không dừng",
+        "Robot đứng yên, không lùi",
+        "Robot tiến tới tường",
+        "Robot quay vòng"
+      ],
+      "correct": 1,
+      "explain": "12 không nhỏ hơn hay bằng 3 nên vòng lặp không chạy lần nào. Thiếu một số 0."
+    },
+    {
+      "q": "Khối Dừng của chương trình lùi phải đặt ở đâu?",
+      "options": [
+        "Bên trong vòng lặp",
+        "Ngoài vòng lặp, thẳng hàng với lặp khi",
+        "Trước vòng lặp",
+        "Không cần khối Dừng"
+      ],
+      "correct": 1,
+      "explain": "Để trong thì robot dừng ngay mỗi vòng. Ra khỏi vòng lặp rồi mới dừng hẳn."
+    }
+  ]
+}

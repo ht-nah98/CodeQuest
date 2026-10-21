@@ -11,6 +11,7 @@ import { fileURLToPath } from 'node:url';
 import {
   BadgesFileSchema,
   FeedbackFileSchema,
+  LeanbotLessonSchema,
   LessonSchema,
   ShopFileSchema,
   WorldSchema,
@@ -40,7 +41,7 @@ import { checkTurtleLevel, turtleLevelWarnings, turtleT1Warnings } from './turtl
 
 export type { GameKindLookup } from '@codequest/validator';
 
-export type ContentKind = 'world' | 'level' | 'lesson' | 'shared';
+export type ContentKind = 'world' | 'level' | 'lesson' | 'leanbot' | 'shared';
 
 export interface ContentFile {
   /** Path relative to `content/`, always with `/` separators. */
@@ -88,9 +89,10 @@ const ROBOTLAB_RULES_PATH = 'shared/robotlab.json';
 const SHOP_ITEM_ID = /^(?:skin|pen|fx|music|bonus-level)-[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const BADGE_ID = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
-const ENTITY_SCHEMAS: Record<'world' | 'lesson', z.ZodType> = {
+const ENTITY_SCHEMAS: Record<'world' | 'lesson' | 'leanbot', z.ZodType> = {
   world: WorldSchema,
   lesson: LessonSchema,
+  leanbot: LeanbotLessonSchema,
 };
 
 function schemaIssues(path: string, error: z.ZodError): Issue[] {
@@ -200,8 +202,13 @@ function locate(path: string): Location | string {
     }
     return { kind: 'shared', isDraft: false, expectedId: null, worldPrefix: null, worldDir: null };
   }
+  // The Leanbot course (ADR-0028) is a flat folder: it has no worlds, levels or unlock chain.
+  if (parts[0] === 'leanbot' && parts.length === 2) {
+    const id = (parts[1] ?? '').replace(/\.json$/, '');
+    return { kind: 'leanbot', isDraft: false, expectedId: id, worldPrefix: null, worldDir: null };
+  }
   if (parts[0] !== 'worlds' || parts.length < 3) {
-    return 'file is outside shared/ and worlds/<world>/';
+    return 'file is outside shared/, worlds/<world>/ and leanbot/';
   }
   const worldDir = parts[1] ?? '';
   const isDraft = worldDir.startsWith('_');
@@ -366,6 +373,19 @@ export function checkContent(
 
     const entity = ENTITY_SCHEMAS[location.kind].safeParse(parsed);
     if (!entity.success) issues.push(...schemaIssues(file.path, entity.error));
+    if (location.kind === 'leanbot') {
+      // Rule 18 for the Leanbot course: a screen's picture must exist in public/leanbot/img.
+      const lesson = entity.success ? LeanbotLessonSchema.parse(parsed) : null;
+      for (const [index, screen] of (lesson?.screens ?? []).entries()) {
+        if (screen.image !== undefined) {
+          shared.assets.push([
+            file.path,
+            `screens.${String(index)}.image`,
+            `/leanbot/img/${screen.image}`,
+          ]);
+        }
+      }
+    }
     if (location.kind === 'lesson') {
       const lesson = entity.success ? LessonSchema.parse(parsed) : null;
       for (const [index, card] of (lesson?.cards ?? []).entries()) {

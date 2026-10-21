@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { expect, type Locator, type Page, test } from '@playwright/test';
 import type * as BlocklyModule from 'blockly';
+import { hubIntoCodeQuest } from './helpers';
 
 // P1-10 acceptance (docs/roadmap/phase-1.md): profile → map → world → lesson → play → results →
 // next level, by mouse and by keyboard; progress survives a reload; the results overlay shows
@@ -59,7 +60,7 @@ async function typePin(page: Page, pin: string): Promise<void> {
   for (const digit of pin) await page.keyboard.press(digit);
 }
 
-/** Creates a profile through /profile/new with the mouse; ends on /map. */
+/** Creates a profile through /profile/new with the mouse; ends on /map, through the hub. */
 async function createProfileByMouse(page: Page, nickname: string, pin: string): Promise<void> {
   await page.goto('/');
   await expect(page).toHaveURL(/\/profile\/new$/);
@@ -72,7 +73,7 @@ async function createProfileByMouse(page: Page, nickname: string, pin: string): 
     for (const digit of pin) await page.locator(`button[data-key="${digit}"]`).click();
     if (round === 1) await expect(page.getByText('Nhập lại đúng 4 số vừa rồi.')).toBeVisible();
   }
-  await expect(page).toHaveURL(/\/map$/);
+  await hubIntoCodeQuest(page);
 }
 
 async function waitForPlay(page: Page): Promise<void> {
@@ -83,11 +84,23 @@ async function waitForPlay(page: Page): Promise<void> {
 }
 
 async function setProgram(page: Page, json: unknown): Promise<void> {
-  await page.evaluate((workspaceJson) => {
-    const { Blockly, workspace } = (window as unknown as HookWindow).__cqPlay;
-    workspace.clear();
-    Blockly.serialization.workspaces.load(workspaceJson as object, workspace);
-  }, json);
+  // The dev hook belongs to the workspace that is up. Moving to the next level mounts the new
+  // workspace and disposes the old one, and the dispose can land last and delete the hook the new
+  // one just installed, so wait for it here rather than only in waitForPlay - and if it vanishes
+  // between the wait and the call, wait again instead of failing the whole run.
+  for (const attempt of [1, 2]) {
+    await page.waitForFunction(() => (window as Partial<HookWindow>).__cqPlay !== undefined);
+    try {
+      await page.evaluate((workspaceJson) => {
+        const { Blockly, workspace } = (window as unknown as HookWindow).__cqPlay;
+        workspace.clear();
+        Blockly.serialization.workspaces.load(workspaceJson as object, workspace);
+      }, json);
+      return;
+    } catch (error) {
+      if (attempt === 2) throw error;
+    }
+  }
 }
 
 /** "khi bắt đầu" followed by blocks of these types. */
@@ -245,6 +258,10 @@ test.describe('screen flow', () => {
     await typePin(page, '2468');
     await expect(page.getByText('Nhập lại đúng 4 số vừa rồi.')).toBeVisible();
     await typePin(page, '2468');
+    // The hub, by keyboard too: Tab to the CodeQuest card and press Enter.
+    await expect(page).toHaveURL(/\/hub$/);
+    await tabTo(page, page.getByRole('link', { name: /CodeQuest/ }));
+    await page.keyboard.press('Enter');
     await expect(page).toHaveURL(/\/map$/);
 
     // Sign out and back in with the PIN: a wrong PIN shakes and clears, no lock-out.
@@ -257,6 +274,9 @@ test.describe('screen flow', () => {
     await expect(page.getByTestId('pin-dots')).toHaveAttribute('data-filled', '0');
     await shot(page, 'pin-wrong', project);
     await typePin(page, '2468');
+    await expect(page).toHaveURL(/\/hub$/);
+    await tabTo(page, page.getByRole('link', { name: /CodeQuest/ }));
+    await page.keyboard.press('Enter');
     await expect(page).toHaveURL(/\/map$/);
 
     await tabTo(page, page.locator('[data-world="w01-lang-tre"]'));
@@ -407,7 +427,7 @@ test.describe('screen flow', () => {
     await page.getByRole('button', { name: 'Quay lại' }).click();
     await page.getByTestId('profile-tile').click();
     await typePin(page, '1357');
-    await expect(page).toHaveURL(/\/map$/);
+    await hubIntoCodeQuest(page);
     await expect(hudCoins(page)).toContainText('65');
   });
 

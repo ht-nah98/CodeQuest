@@ -17,6 +17,8 @@ Nếu hai tài liệu nói khác nhau, **tài liệu ở cột "Nguồn chuẩn"
 | Lý do gốc của các quyết định sản phẩm (bản kế hoạch đầu tiên; **không** thắng khi mâu thuẫn với tài liệu chuyên đề) | `product/master-plan.md` |
 | Chương trình học: 10 thế giới, khái niệm, số màn | `product/curriculum.md` |
 | Đặc tả từng kiểu game | `product/game-kinds.md` |
+| **Khóa Leanbot** (khóa thứ hai trong app, ADR-0028): giáo trình, giáo án, thiết bị, nền tảng | **`leanbot/`** — mục lục ở `leanbot/README.md`, nguồn chuẩn ở `leanbot/giao-trinh.md` |
+| Thông tin cuộc thi AIROC 2026 | `product/airoc-2026.md` |
 | Sao, coin, giá gợi ý, huy hiệu, mở khóa | `product/rewards-economy.md` |
 | Phong cách hình ảnh, màu, font, sprite | `design/art-direction.md` |
 | Danh sách màn hình, luồng, trạng thái UI | `design/screens-and-flows.md` |
@@ -49,7 +51,15 @@ docs/
 │  ├─ master-plan.md         kế hoạch tổng (bản gốc, chi tiết lý do)
 │  ├─ curriculum.md
 │  ├─ game-kinds.md
-│  └─ rewards-economy.md
+│  ├─ rewards-economy.md
+│  └─ airoc-2026.md          cuộc thi AIROC 2026
+├─ leanbot/                 KHÓA LEANBOT — mọi thứ về robot thật (ADR-0028)
+│  ├─ README.md             mục lục của khóa; bắt đầu đọc ở đây
+│  ├─ giao-trinh.md         nguồn chuẩn: hạng thi, lộ trình, thuật ngữ, con số
+│  ├─ giao-an/              bai-00 … bai-16, mỗi bài một buổi dạy + phiếu ôn luyện
+│  ├─ thiet-bi/             cài đặt, hiệu chỉnh, khắc phục sự cố trên robot thật
+│  ├─ nen-tang/             khảo sát Pythaverse: nền tảng, lỗi của khóa gốc
+│  └─ img/                  ảnh dùng trong giáo án (bản cho bé: apps/web/public/leanbot/img)
 ├─ design/                   TRÔNG & NÓI NHƯ THẾ NÀO
 │  ├─ art-direction.md
 │  ├─ screens-and-flows.md

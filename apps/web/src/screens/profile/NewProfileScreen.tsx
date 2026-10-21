@@ -83,7 +83,7 @@ export default function NewProfileScreen() {
       const profile = await createProfile({ nickname, avatarId, pin });
       persistLocalData();
       select(profile.id);
-      void navigate('/map');
+      void navigate('/hub');
       return true;
     } catch (caught) {
       const code = caught instanceof ProfileError ? caught.code : 'unknown';

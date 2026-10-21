@@ -10,6 +10,8 @@ content/
 │  ├─ shop.json            vật phẩm cửa hàng
 │  ├─ badges.json          huy hiệu
 │  └─ robotlab.json        luật chung của robotlab: giờ, giây mỗi lệnh, điểm (ADR-0021)
+├─ leanbot/                khóa Leanbot (ADR-0028), phẳng: không có world, level, par
+│  └─ bai-00.json
 └─ worlds/
    └─ w01-lang-tre/
       ├─ world.json        thông tin thế giới + thứ tự các màn
@@ -37,12 +39,27 @@ content/
 | World | `w<2 số>-<slug>` | `w01-lang-tre` |
 | Level | `w<2 số>-l<2 số>` · `w<2 số>-boss` · `w<2 số>-creative` · `w<2 số>-exam` (thi thử, P3-08) · `w<2 số>-bonus<2 số>` | `w02-l05`, `w02-boss` |
 | Lesson | `w<2 số>-lesson[-<slug>]` | `w01-lesson` |
+| Bài Leanbot | `bai-<2 số>` | `bai-00` |
 | Block type | `<kind>_<verb>` hoặc `cq_<tên>` cho khối chung | `runner_jump`, `cq_repeat`, `cq_start` |
 | Badge | kebab-case | `loop-master` |
 | Shop item | `<loại>-<slug>` | `skin-astro-panda`, `fx-confetti` |
 | Câu thoại có giọng đọc | `<id>.<khóa>` (chỉ chữ, số, `.` `_` `-`; là tên file) | `w01-l03.objective` · `w03-l11.mission` · `w01-l03.thinking` · `w01-l03.hint.<hintId>` · `w01-l03.feedback.<REASON>` (câu feedback riêng của màn) · `w01-lesson.c<n>` (thẻ thứ n, **đếm từ 1**) · `w01-lesson.c<n>.explain` (giải thích của thẻ quiz) · `w01-lang-tre.story.gio-to.<n>` (dòng thứ n của chương truyện, **đếm từ 1**, P2-24) · `feedback.FELL_IN_HOLE` · `ui.<khóa trong vi.ts>`. Danh sách đầy đủ: `npm run voice -- lines` (`docs/architecture/audio.md` §5) |
 
 ID **không bao giờ đổi** sau khi đã có bé chơi, vì tiến độ gắn với ID. Muốn bỏ màn: đặt `"retired": true`.
+
+### Khóa Leanbot (ADR-0028)
+
+`content/leanbot/*.json` là khóa thứ hai trong cùng app: bé đọc, xem ảnh và làm trên robot
+thật, **không** có Blockly, không mô phỏng, không `par`. Vì vậy nó không nằm trong `worlds/`
+và không dính luật 3–8.
+
+Một bài gồm `goals` (bé làm được gì), `screens` (mỗi màn một ý) và `quiz`. Schema giới hạn
+**độ dài từng trường** — `lines` tối đa 3 câu, mỗi câu 120 ký tự; `title` 60 ký tự — nên
+không ai dán được cả trang chữ vào một màn dành cho bé 9 tuổi. Một màn phải có ít nhất một
+thứ để xem ngoài tiêu đề, và đã có `image` thì bắt buộc có `alt`.
+
+Ảnh của màn nằm ở `apps/web/public/leanbot/img/`, trong JSON chỉ ghi tên tệp; `content:check`
+kiểm ảnh tồn tại bằng luật 18 như mọi tài sản khác.
 
 ## 3. Schema (TypeScript rút gọn; nguồn thật là zod trong `content-schema`)
 

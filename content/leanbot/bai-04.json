@@ -1,0 +1,289 @@
+{
+  "id": "bai-04",
+  "number": 4,
+  "title": "Đi theo đường thông minh",
+  "tagline": "Bốn mắt dưới bụng, robot tự bám vạch đen",
+  "minutes": 90,
+  "source": "Khóa 1437 · Lesson 4 Follow the Smart Roads (27 slide) + mẫu FollowLine_EN.bduino",
+  "goals": [
+    "Nói được vì sao robot thấy vạch đen",
+    "Chỉ đúng 4 mắt dò vạch dưới mũi robot",
+    "Vẽ 4 ô trắng đen cho một thế đứng bất kỳ",
+    "Nhìn 4 ô mà đoán được robot quẹo bên nào",
+    "Làm đủ 7 bước cân chỉnh bằng nút TB1A",
+    "Cho robot bám hết một đoạn vạch",
+    "Robot trôi khỏi vạch thì cân chỉnh lại trước"
+  ],
+  "screens": [
+    {
+      "part": "Vạch đen chỉ đường",
+      "title": "Không ai bảo robot rẽ trái hay phải",
+      "lines": [
+        "Robot tự đi từ khu này sang khu kia, qua mấy khúc cua.",
+        "Ai chỉ đường cho nó? Chính vạch đen dưới sàn."
+      ],
+      "note": "Robot trong nhà máy, trong kho hàng ngoài đời cũng đi theo vạch y như vậy."
+    },
+    {
+      "part": "Vạch đen chỉ đường",
+      "title": "Chưa có sa bàn? Tự làm đường",
+      "steps": [
+        ["1", "Lấy giấy trắng khổ lớn, hoặc mặt bàn sáng màu"],
+        ["2", "Dán băng dính đen, bản rộng khoảng 2 cm"],
+        ["3", "Dán thành đường thẳng dài 1 mét trước đã"],
+        ["4", "Quen rồi thì dán thêm khúc cua"]
+      ],
+      "tip": "Cần thêm một tờ giấy TRẮNG và một mảng ĐEN to để cân chỉnh. Băng dính dán kín một ô cũng được."
+    },
+    {
+      "part": "Mắt nhìn xuống đất",
+      "title": "Trắng dội nhiều, đen dội ít",
+      "lines": [
+        "Mắt robot chiếu ánh sáng xuống đất rồi hứng phần dội ngược lên.",
+        "Chỗ nào dội lại yếu, chỗ đó là vạch đen."
+      ],
+      "chips": [
+        { "label": "Nền trắng", "body": "Dội lại NHIỀU ánh sáng", "tone": "go" },
+        { "label": "Vạch đen", "body": "Dội lại RẤT ÍT", "tone": "sky" }
+      ],
+      "note": "Ánh sáng này là hồng ngoại, mắt người không thấy. Điều khiển ti vi cũng dùng nó."
+    },
+    {
+      "part": "Mắt nhìn xuống đất",
+      "title": "Bốn mắt nằm hàng ngang",
+      "lines": [
+        "Lật robot lên, con thấy một hàng mắt nhỏ ở mũi.",
+        "Mình gọi chúng là mắt ① ② ③ ④, từ trái qua phải."
+      ],
+      "image": "leanbot-phan-cung-1.png",
+      "alt": "Leanbot nhìn nghiêng, thấy hàng mắt hồng ngoại dưới mũi robot",
+      "warn": "Robot có 8 mắt hồng ngoại. Bốn mắt DƯỚI BỤNG mới là mắt dò vạch. Bốn mắt hai bên nhìn vật cản."
+    },
+    {
+      "part": "Bốn ô trắng đen",
+      "title": "Vẽ lại điều robot đang thấy",
+      "lines": [
+        "Mỗi mắt cho một ô: thấy đen thì tô đen, thấy trắng thì để trắng.",
+        "Bốn mắt thành bốn ô, đọc từ trái sang phải."
+      ],
+      "table": {
+        "head": ["Vạch nằm đâu", "Bốn ô"],
+        "rows": [
+          ["Chính giữa mũi robot", "▢ ■ ■ ▢"],
+          ["Lệch sang trái", "■ ■ ▢ ▢"],
+          ["Lệch sang phải", "▢ ▢ ■ ■"],
+          ["Hết vạch rồi", "▢ ▢ ▢ ▢"]
+        ]
+      }
+    },
+    {
+      "part": "Bốn ô trắng đen",
+      "title": "Robot không hiểu hình, chỉ hiểu số",
+      "lines": [
+        "Nên mỗi thế bốn ô được đặt một số tên, từ 0 đến 15.",
+        "Khối Giá trị 4 mắt đọc ra đúng con số đó."
+      ],
+      "chips": [
+        { "label": "Số 6", "body": "▢ ■ ■ ▢ · vạch nằm chính giữa", "tone": "go" },
+        { "label": "Số 0", "body": "▢ ▢ ▢ ▢ · không thấy đen nữa", "tone": "oops" }
+      ],
+      "note": "Con KHÔNG phải học thuộc 16 con số. Nhìn bốn ô là đủ."
+    },
+    {
+      "part": "Bốn ô trắng đen",
+      "title": "Chỉ cần nhớ ba nhóm",
+      "table": {
+        "head": ["Đen lệch về đâu", "Robot làm gì"],
+        "rows": [
+          ["Lệch sang TRÁI", "Quẹo trái"],
+          ["Lệch sang PHẢI", "Quẹo phải"],
+          ["Ở giữa, hoặc lẫn lộn", "Đi thẳng"]
+        ]
+      },
+      "tip": "Vạch chạy về bên nào thì robot quay về bên đó, để bắt kịp vạch."
+    },
+    {
+      "part": "Bốn ô trắng đen",
+      "title": "Quẹo là một bánh chậm lại",
+      "lines": [
+        "Quẹo không giống quay tại chỗ ở Bài 1. Hai bánh vẫn cùng tiến.",
+        "Bánh bên nào chậm thì robot nghiêng về bên đó."
+      ],
+      "code": "Quẹo trái: Trái 190, Phải 1500   ·   Quẹo phải: Trái 1500, Phải 190",
+      "note": "Số ở đây là bước/giây, không phải vòng/phút. Số to hơn nhiều mà vẫn hợp lệ."
+    },
+    {
+      "part": "Bốn ô trắng đen",
+      "title": "Chơi đoán hướng",
+      "list": [
+        "▢ ■ ■ ▢ → robot đi thẳng.",
+        "■ ■ ▢ ▢ → robot quẹo trái.",
+        "▢ ▢ ▢ ■ → robot quẹo phải.",
+        "▢ ▢ ▢ ▢ → hết vạch, robot dừng."
+      ],
+      "tip": "Con che đáp án rồi tự đoán trước. Đoán đúng ba trên bốn là nhớ bài rồi."
+    },
+    {
+      "part": "Cân chỉnh mắt",
+      "title": "Vì sao phải cân chỉnh?",
+      "lines": [
+        "Phòng sáng hay tối, giấy bóng hay mờ, mắt robot thấy khác nhau.",
+        "Nên TRƯỚC MỖI LẦN chạy nhiệm vụ, con dạy lại cho mắt biết đâu là trắng, đâu là đen."
+      ],
+      "warn": "Robot cứ trôi khỏi vạch? Việc ĐẦU TIÊN là cân chỉnh lại, không phải sửa code."
+    },
+    {
+      "part": "Cân chỉnh mắt",
+      "title": "Đỏ – Trắng – Vàng – Đen – Xanh – Xong",
+      "steps": [
+        ["1", "Robot vừa bật: 4 đèn nháy ĐỎ, nghĩa là chưa cân chỉnh"],
+        ["2", "Đặt 4 mắt lên vùng TOÀN TRẮNG"],
+        ["3", "Chạm TB1A lần 1 — đèn chuyển VÀNG"],
+        ["4", "Đặt 4 mắt lên vùng TOÀN ĐEN"],
+        ["5", "Chạm TB1A lần 2 — đèn XANH LÁ khi mắt thấy đen"],
+        ["6", "Thử dời robot qua vài chỗ, xem đèn có đổi đúng"],
+        ["7", "Chạm TB1A lần 3 là xong"]
+      ],
+      "tip": "Nhớ ba lần chạm TB1A: lần 1 trắng, lần 2 đen, lần 3 xong."
+    },
+    {
+      "part": "Cân chỉnh mắt",
+      "title": "Lỡ làm sai thì sao?",
+      "lines": [
+        "Bấm nút Reset trên robot rồi làm lại từ đèn đỏ.",
+        "Không sao cả, cân chỉnh lại mất chưa tới một phút."
+      ],
+      "check": "Con cân chỉnh được, đèn chạy đủ đỏ vàng xanh"
+    },
+    {
+      "part": "Đọc chương trình mẫu",
+      "title": "Chương trình bám vạch có ba phần",
+      "steps": [
+        ["1", "ĐỌC MẮT: đọc cảm biến, lấy ra số của bốn ô"],
+        ["2", "CHỌN HƯỚNG: nhìn số đó, quẹo trái, quẹo phải hay thẳng"],
+        ["3", "KIỂM ĐÍCH: đi đủ xa chưa, tới nơi thì dừng"]
+      ],
+      "note": "Ba phần này lặp đi lặp lại rất nhanh, mỗi vòng robot chỉ nhích 1 mm."
+    },
+    {
+      "part": "Đọc chương trình mẫu",
+      "title": "Vì sao phải đi hơn 1 mét rồi mới được dừng?",
+      "lines": [
+        "Lúc xuất phát, robot đã đứng sẵn trên vạch rồi.",
+        "Không có luật này thì nó dừng ngay tại chỗ, chưa đi đâu cả."
+      ],
+      "code": "target = quãng đường đã đi + 1000 mm",
+      "tip": "1000 mm là 1 mét. Đường của con ngắn hơn thì đổi số này cho vừa."
+    },
+    {
+      "part": "Đọc chương trình mẫu",
+      "title": "Cả đoạn dài gói thành một cái tên",
+      "lines": [
+        "Phần bám vạch rất dài, nên người ta gói lại và đặt tên: followLine.",
+        "Chương trình chính chỉ còn gọi đúng một dòng."
+      ],
+      "note": "Con chưa phải tự viết lại đoạn này. Đọc hiểu ba phần ở màn trước là đủ."
+    },
+    {
+      "part": "Kiểm nghiệm",
+      "title": "Thử trên robot: bám hết một đoạn vạch",
+      "steps": [
+        ["1", "Dán đường thẳng dài khoảng 1 mét"],
+        ["2", "Nạp chương trình mẫu, rút cáp"],
+        ["3", "Cân chỉnh đủ 7 bước trên chính tờ giấy đó"],
+        ["4", "Đặt robot lên đầu vạch, bốn mắt trên vạch"],
+        ["5", "Chạm cùng lúc TB1A + TB1B rồi lùi ra xem"]
+      ],
+      "tip": "Đạt khi robot đi hết đoạn vạch mà KHÔNG rời ra lần nào. Rời một lần là chưa đạt."
+    },
+    {
+      "part": "Kiểm nghiệm",
+      "title": "Ba phép thử khó hơn",
+      "list": [
+        "Dán thêm một khúc cua: robot phải ôm được cua, không cắt ngang.",
+        "Đặt robot LỆCH hẳn sang một bên vạch rồi cho chạy: nó phải tự bắt lại vạch.",
+        "Bật đèn phòng sáng hơn rồi chạy lại mà KHÔNG cân chỉnh: robot sẽ chạy tệ đi."
+      ],
+      "note": "Phép thử thứ ba cho con thấy vì sao lần nào cũng phải cân chỉnh lại."
+    },
+    {
+      "part": "Kiểm nghiệm",
+      "title": "Robot làm sai thì tra bảng này",
+      "table": {
+        "head": ["Con thấy", "Sửa chỗ nào"],
+        "rows": [
+          ["Trôi khỏi vạch liên tục", "Cân chỉnh lại. Đây là lỗi hay gặp nhất"],
+          ["Chạy vài giây rồi dừng", "Mất vạch nên thành số 0. Dán vạch liền nét hơn"],
+          ["Dừng ngay khi vừa chạy", "Đường ngắn hơn 1 mét. Giảm số 1000 mm xuống"],
+          ["Cắt ngang khúc cua", "Cua gấp quá, dán cua rộng hơn"],
+          ["Đèn vẫn nháy đỏ", "Chưa cân chỉnh xong. Chạm đủ ba lần TB1A"],
+          ["Lúc được lúc không", "Giấy bóng hoặc nắng chiếu vào. Đổi chỗ chạy"]
+        ]
+      },
+      "check": "Robot bám hết đoạn vạch, không rời lần nào"
+    }
+  ],
+  "quiz": [
+    {
+      "q": "Vì sao robot nhận ra vạch đen?",
+      "options": [
+        "Vạch đen nóng hơn",
+        "Đen dội lại rất ít ánh sáng",
+        "Robot chụp ảnh mặt sàn",
+        "Vạch đen phát ra tín hiệu"
+      ],
+      "correct": 1,
+      "explain": "Mắt chiếu sáng xuống rồi hứng phần dội lên. Trắng dội nhiều, đen dội ít."
+    },
+    {
+      "q": "Bốn ô là ■ ■ ▢ ▢. Robot nên làm gì?",
+      "options": ["Quẹo trái", "Quẹo phải", "Đi thẳng", "Dừng lại"],
+      "correct": 0,
+      "explain": "Đen đang lệch sang trái, nên robot quẹo trái để bắt kịp vạch."
+    },
+    {
+      "q": "Bốn ô là ▢ ▢ ▢ ▢. Nghĩa là gì?",
+      "options": [
+        "Vạch nằm chính giữa",
+        "Không mắt nào thấy đen, robot mất vạch",
+        "Cả bốn mắt thấy đen",
+        "Robot đang quẹo"
+      ],
+      "correct": 1,
+      "explain": "Bốn ô trắng là số 0: hết vạch. Chương trình mẫu cho robot dừng."
+    },
+    {
+      "q": "Muốn robot quẹo trái thì hai bánh chạy thế nào?",
+      "options": [
+        "Trái 1500, Phải 190",
+        "Trái 190, Phải 1500",
+        "Hai bánh cùng 1500",
+        "Trái 190, Phải −190"
+      ],
+      "correct": 1,
+      "explain": "Bánh trái chậm lại, bánh phải chạy nhanh, nên robot nghiêng sang trái."
+    },
+    {
+      "q": "Cân chỉnh: chạm TB1A lần thứ nhất lúc nào?",
+      "options": [
+        "Khi 4 mắt đang trên vùng TOÀN TRẮNG",
+        "Khi 4 mắt đang trên vùng TOÀN ĐEN",
+        "Khi robot đang chạy",
+        "Sau khi đèn xanh lá"
+      ],
+      "correct": 0,
+      "explain": "Đỏ – Trắng – Vàng – Đen – Xanh – Xong. Trắng trước, đen sau, rồi chạm lần ba là xong."
+    },
+    {
+      "q": "Robot cứ trôi khỏi vạch. Việc ĐẦU TIÊN con làm?",
+      "options": [
+        "Sửa lại chương trình",
+        "Cân chỉnh lại mắt",
+        "Thay robot khác",
+        "Tăng tốc độ"
+      ],
+      "correct": 1,
+      "explain": "Ánh sáng phòng đổi là mắt thấy khác. Cân chỉnh lại sửa được phần lớn trường hợp."
+    }
+  ]
+}
