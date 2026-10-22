@@ -1,0 +1,321 @@
+{
+  "id": "w10-l16",
+  "worldId": "w10-hoc-vien",
+  "stage": "practice",
+  "kind": "sorter",
+  "mode": "bughunt",
+  "title": "Đếm cho đúng mới dừng",
+  "objective": "Bíp hỏi mãi không dừng. Con sửa giúp nhé!",
+  "learningGoal": "Hộp chỉ đếm khi thật sự đổi chỗ; lượt nào đếm được 0 thì kệ đã xếp xong và Bíp dừng sớm, không cần đủ 4 lượt.",
+  "misconception": "Phải chạy đủ mọi lượt mới chắc kệ đã xếp xong.",
+  "thinkingHint": "Lượt không đổi chỗ nào, hộp đếm được mấy?",
+  "toolbox": [
+    "sorter_right",
+    "sorter_swap",
+    "sorter_bigger",
+    "sorter_to_start",
+    "cq_if",
+    "cq_repeat",
+    "cq_repeat_until",
+    {
+      "type": "cq_var_set",
+      "fields": {
+        "VAR": "swaps",
+        "NUM": 0
+      }
+    },
+    {
+      "type": "cq_var_add",
+      "fields": {
+        "VAR": "swaps",
+        "NUM": 1
+      }
+    },
+    {
+      "type": "cq_var_compare",
+      "fields": {
+        "VAR": "swaps",
+        "OP": "EQ",
+        "NUM": 0
+      }
+    }
+  ],
+  "maxLoopDepth": 2,
+  "par": 11,
+  "parUnproven": true,
+  "variables": [
+    {
+      "id": "swaps",
+      "name": "số lần đổi",
+      "max": 20
+    }
+  ],
+  "config": {
+    "books": [
+      1,
+      2,
+      4,
+      3,
+      5
+    ],
+    "goal": {
+      "sorted": true
+    },
+    "maxQuestions": 8
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_var_set",
+              "id": "set1",
+              "fields": {
+                "VAR": "swaps",
+                "NUM": 1
+              },
+              "next": {
+                "block": {
+                  "type": "cq_repeat_until",
+                  "id": "until1",
+                  "inputs": {
+                    "COND": {
+                      "block": {
+                        "type": "cq_var_compare",
+                        "id": "cmp1",
+                        "fields": {
+                          "VAR": "swaps",
+                          "OP": "EQ",
+                          "NUM": 0
+                        }
+                      }
+                    },
+                    "DO": {
+                      "block": {
+                        "type": "cq_var_set",
+                        "id": "set0",
+                        "fields": {
+                          "VAR": "swaps",
+                          "NUM": 0
+                        },
+                        "next": {
+                          "block": {
+                            "type": "sorter_to_start",
+                            "id": "home1",
+                            "next": {
+                              "block": {
+                                "type": "cq_repeat",
+                                "id": "loop1",
+                                "fields": {
+                                  "TIMES": 4
+                                },
+                                "inputs": {
+                                  "DO": {
+                                    "block": {
+                                      "type": "cq_if",
+                                      "id": "if1",
+                                      "inputs": {
+                                        "COND": {
+                                          "block": {
+                                            "type": "sorter_bigger",
+                                            "id": "ask1"
+                                          }
+                                        },
+                                        "DO": {
+                                          "block": {
+                                            "type": "sorter_swap",
+                                            "id": "w1"
+                                          }
+                                        }
+                                      },
+                                      "next": {
+                                        "block": {
+                                          "type": "cq_var_add",
+                                          "id": "add1",
+                                          "fields": {
+                                            "VAR": "swaps",
+                                            "NUM": 1
+                                          },
+                                          "next": {
+                                            "block": {
+                                              "type": "sorter_right",
+                                              "id": "r1"
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_var_set",
+              "id": "set1",
+              "fields": {
+                "VAR": "swaps",
+                "NUM": 1
+              },
+              "next": {
+                "block": {
+                  "type": "cq_repeat_until",
+                  "id": "until1",
+                  "inputs": {
+                    "COND": {
+                      "block": {
+                        "type": "cq_var_compare",
+                        "id": "cmp1",
+                        "fields": {
+                          "VAR": "swaps",
+                          "OP": "EQ",
+                          "NUM": 0
+                        }
+                      }
+                    },
+                    "DO": {
+                      "block": {
+                        "type": "cq_var_set",
+                        "id": "set0",
+                        "fields": {
+                          "VAR": "swaps",
+                          "NUM": 0
+                        },
+                        "next": {
+                          "block": {
+                            "type": "sorter_to_start",
+                            "id": "home1",
+                            "next": {
+                              "block": {
+                                "type": "cq_repeat",
+                                "id": "loop1",
+                                "fields": {
+                                  "TIMES": 4
+                                },
+                                "inputs": {
+                                  "DO": {
+                                    "block": {
+                                      "type": "cq_if",
+                                      "id": "if1",
+                                      "inputs": {
+                                        "COND": {
+                                          "block": {
+                                            "type": "sorter_bigger",
+                                            "id": "ask1"
+                                          }
+                                        },
+                                        "DO": {
+                                          "block": {
+                                            "type": "sorter_swap",
+                                            "id": "w1",
+                                            "next": {
+                                              "block": {
+                                                "type": "cq_var_add",
+                                                "id": "add1",
+                                                "fields": {
+                                                  "VAR": "swaps",
+                                                  "NUM": 1
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      },
+                                      "next": {
+                                        "block": {
+                                          "type": "sorter_right",
+                                          "id": "r1"
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "enter",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Hộp đếm số lần đổi. Bằng 0 thì dừng.",
+      "point": "stage"
+    },
+    {
+      "id": "count",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "OUT_OF_QUESTIONS"
+      },
+      "say": "Không đổi chỗ mà hộp vẫn tăng. Vì sao?",
+      "point": "block:cq_var_add"
+    },
+    {
+      "id": "where",
+      "when": {
+        "trigger": "idle"
+      },
+      "say": "Khối tăng nên nằm trong nếu hay ngoài nếu?",
+      "point": "block:cq_var_add"
+    }
+  ],
+  "parEdits": 1,
+  "variants": [
+    {
+      "books": [
+        2,
+        3,
+        4,
+        1,
+        5
+      ],
+      "goal": {
+        "sorted": true
+      },
+      "maxQuestions": 16
+    }
+  ]
+}

@@ -1,0 +1,156 @@
+{
+  "id": "w10-lesson-dung-som",
+  "worldId": "w10-hoc-vien",
+  "title": "Dừng sớm",
+  "beforeLevel": "w10-l16",
+  "cards": [
+    {
+      "type": "say",
+      "pose": "point",
+      "text": "Một lượt không đổi chỗ nào: kệ đã xếp xong!"
+    },
+    {
+      "type": "say",
+      "pose": "think",
+      "text": "Hộp đếm số lần đổi. Bằng 0 thì dừng."
+    },
+    {
+      "type": "demo",
+      "text": "Lượt 1 đổi 1 lần. Lượt 2 không đổi: Bíp dừng.",
+      "kind": "sorter",
+      "config": {
+        "books": [
+          2,
+          1,
+          3
+        ],
+        "goal": {
+          "sorted": true
+        }
+      },
+      "variables": [
+        {
+          "id": "swaps",
+          "name": "số lần đổi",
+          "max": 20
+        }
+      ],
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "cq_var_set",
+                  "id": "set1",
+                  "fields": {
+                    "VAR": "swaps",
+                    "NUM": 1
+                  },
+                  "next": {
+                    "block": {
+                      "type": "cq_repeat_until",
+                      "id": "until1",
+                      "inputs": {
+                        "COND": {
+                          "block": {
+                            "type": "cq_var_compare",
+                            "id": "cmp1",
+                            "fields": {
+                              "VAR": "swaps",
+                              "OP": "EQ",
+                              "NUM": 0
+                            }
+                          }
+                        },
+                        "DO": {
+                          "block": {
+                            "type": "cq_var_set",
+                            "id": "set0",
+                            "fields": {
+                              "VAR": "swaps",
+                              "NUM": 0
+                            },
+                            "next": {
+                              "block": {
+                                "type": "sorter_to_start",
+                                "id": "home1",
+                                "next": {
+                                  "block": {
+                                    "type": "cq_repeat",
+                                    "id": "loop1",
+                                    "fields": {
+                                      "TIMES": 2
+                                    },
+                                    "inputs": {
+                                      "DO": {
+                                        "block": {
+                                          "type": "cq_if",
+                                          "id": "if1",
+                                          "inputs": {
+                                            "COND": {
+                                              "block": {
+                                                "type": "sorter_bigger",
+                                                "id": "ask1"
+                                              }
+                                            },
+                                            "DO": {
+                                              "block": {
+                                                "type": "sorter_swap",
+                                                "id": "w1",
+                                                "next": {
+                                                  "block": {
+                                                    "type": "cq_var_add",
+                                                    "id": "add1",
+                                                    "fields": {
+                                                      "VAR": "swaps",
+                                                      "NUM": 1
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          },
+                                          "next": {
+                                            "block": {
+                                              "type": "sorter_right",
+                                              "id": "r1"
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "quiz",
+      "text": "Lượt này không đổi chỗ nào. Cần lượt nữa không?",
+      "options": [
+        "Không cần",
+        "Cần"
+      ],
+      "correct": 0,
+      "explain": "Không cặp nào sai chỗ, nên kệ đã xếp xong."
+    }
+  ]
+}

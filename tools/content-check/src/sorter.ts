@@ -278,6 +278,12 @@ export const SORTER_TRAPS: ReadonlyMap<string, readonly SorterTrap[]> = new Map(
     // budget is 10, so the slow way runs out.
     'w10-l13': [{ program: 'REP4[S REP4[IFB[W] R]]', reason: 'OUT_OF_QUESTIONS' }],
     // Three passes still leave the reversed shelf unsorted (S4).
+    // A fixed number of passes, no early stop: 2 leave shelf 2 unsorted (S1), 4 ask 16 questions
+    // on shelf 1, whose budget is 8 (S2).
+    'w10-l16': [
+      { program: 'REP2[S REP4[IFB[W] R]]', reason: 'NOT_SORTED', s1: true },
+      { program: 'REP4[S REP4[IFB[W] R]]', reason: 'OUT_OF_QUESTIONS', s1: true },
+    ],
     'w10-l11': [{ program: 'REP3[S REP4[IFB[W] R]]', reason: 'NOT_SORTED', s1: true }],
     'w10-l10': [
       { program: 'REP4[REP4[IFB[W] R]]', reason: 'OFF_SHELF' },
