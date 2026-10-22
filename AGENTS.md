@@ -116,7 +116,7 @@ Báo cáo kết quả **thật**: lệnh nào đỏ thì nói đỏ, kèm output
 
 ## 9. Sai lầm đã xảy ra, đừng lặp lại
 
-Ghi ngày 21/10/2026, sau một phiên làm việc mà **ba hướng bị làm rồi bỏ**; mục 9.8–9.15 thêm
+Ghi ngày 21/10/2026, sau một phiên làm việc mà **ba hướng bị làm rồi bỏ**; mục 9.8–9.17 thêm
 ngày 22/10/2026, sau khi bật CI và đẩy lên production lần đầu. Mỗi mục là một việc đã thật sự
 xảy ra, không phải lời khuyên chung chung.
 
@@ -272,3 +272,19 @@ luyện viên phát hiện khi dạy.
 Khi một mục của "Định nghĩa xong" chưa làm được (chưa có e2e, chưa xem được video hướng dẫn,
 chưa chạy thử trên robot thật) thì **nói thẳng ở cuối báo cáo**, đừng im lặng. Riêng mục
 "huấn luyện viên chơi thử" thì **AI không bao giờ được tự tích**.
+
+### 9.17. Đừng chờ một giá trị chỉ sống vài khung hình
+
+Test smoke của sân robot đỏ trên CI suốt ba lần đẩy, và đã bị đổ cho "máy ảo yếu, sân chơi
+đứng": nâng trần chờ từ 20 s lên 90 s mà vẫn đỏ. Tái hiện trên máy này bằng
+`CI=1 taskset -c 0,1 npm run e2e -- --grep @smoke` (2 nhân như máy GitHub) thì ảnh lúc hỏng cho
+thấy **robot đã chạy xong, ba sao**. Test chờ đồng hồ hiện đúng số `19` — số chỉ sống vài khung
+hình — và máy bận thì bước dò bỏ lỡ nó, rồi ngồi chờ một con số không bao giờ quay lại. Trên CI
+cũng không xem được gì vì reporter `github` không sinh `playwright-report`, nên bước tải lên luôn
+rỗng.
+
+**Luật:** muốn kiểm các bước giữa chừng của một lần chạy thì **ghi lại** bằng
+`recordAttributes` / `attributeHistory` (`e2e/helpers.ts`, dùng MutationObserver, không sót lần
+ghi nào) rồi kiểm thứ tự **sau khi chạy xong**, đừng `waitForFunction` từng giá trị. Test đỏ vì
+quá thời gian thì **mở ảnh lúc hỏng trước** khi nâng trần: nâng trần chỉ đúng khi ảnh cho thấy
+việc thật sự chưa xong.

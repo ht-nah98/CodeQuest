@@ -29,14 +29,19 @@ export default defineConfig({
   // 30 s timeouts. 4 is stable on 8 GB. A GitHub runner has two cores, where even 4 starved the
   // robot lab and the maze into the same timeouts on the first CI run this repo ever had.
   workers: process.env.CI ? 2 : 4,
-  reporter: process.env.CI ? 'github' : 'list',
+  // CI also writes the HTML report: the workflow uploads it on failure, with the trace of every
+  // failed attempt. With `github` alone there was no report folder, so the upload step always
+  // came back empty and nobody could see what a stuck stage looked like.
+  reporter: process.env.CI ? [['github'], ['html', { open: 'never' }]] : 'list',
   use: {
     baseURL: BASE_URL,
     // WSL2 / CI have no audio device: without this Chromium may log "The AudioContext encountered
     // an error from the audio device" (a console error the specs rightly treat as failure).
     launchOptions: { args: ['--mute-audio', '--disable-audio-output'] },
     locale: 'vi-VN',
-    trace: 'on-first-retry',
+    // The first failure is the one worth keeping: on CI a retry often passes and its trace
+    // shows nothing wrong.
+    trace: process.env.CI ? 'retain-on-first-failure' : 'on-first-retry',
     screenshot: 'only-on-failure',
   },
   // Target laptops: minimum 1280×720, common 1366×768 (ADR-0011).

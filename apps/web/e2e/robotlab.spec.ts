@@ -1,7 +1,13 @@
 import { readFileSync } from 'node:fs';
 import { expect, type Page, test } from '@playwright/test';
 import type * as BlocklyModule from 'blockly';
-import { confirmRestart, signInTestProfile } from './helpers';
+import {
+  attributeHistory,
+  confirmRestart,
+  inOrder,
+  recordAttributes,
+  signInTestProfile,
+} from './helpers';
 
 // P3-03 acceptance (docs/roadmap/phase-3.md): the robot lab stage on /play/:levelId with the
 // dev-only _sandbox levels robotlab-stage (score 140 in 20 s) and robotlab-predict (missions).
@@ -98,16 +104,23 @@ const board = (page: Page) => page.getByTestId('play-stage').locator('canvas');
  */
 const BOARD_TIMEOUT = process.env.CI ? 90_000 : 20_000;
 
-/** Waits (every frame) until the canvas shows `value` in data-robot-<name>. */
-async function boardShows(page: Page, name: string, value: string): Promise<void> {
-  await page.waitForFunction(
-    ([key, wanted]) =>
-      document.querySelector<HTMLCanvasElement>('[data-testid="play-stage"] canvas')?.dataset[
-        key
-      ] === wanted,
-    [name, value] as const,
-    { polling: 'raf', timeout: BOARD_TIMEOUT },
-  );
+const BOARD = '[data-testid="play-stage"] canvas';
+/** What the run steps are checked on: the board's state as the canvas publishes it. */
+const BOARD_STATE = [
+  'data-robot-clock-shown',
+  'data-robot-pos',
+  'data-robot-clock',
+  'data-robot-held',
+  'data-robot-dir',
+];
+
+/** Waits until the recorded board state has passed through `entry` (e.g. `data-robot-pos=1,1`). */
+async function boardHasShown(page: Page, entry: string): Promise<void> {
+  await expect
+    .poll(async () => (await attributeHistory(page, BOARD)).includes(entry), {
+      timeout: BOARD_TIMEOUT,
+    })
+    .toBe(true);
 }
 
 const RUN_MS = 30_000;
@@ -148,20 +161,31 @@ test.describe('/play robotlab', () => {
     await stageShot(page, 'start', project);
 
     await setProgram(page, sandbox('robotlab-stage').solution);
+    await recordAttributes(page, BOARD, BOARD_STATE);
     await page.getByTestId('play-run').click();
-    // Counting crossings: one stop per crossing, the clock down 2 s each.
-    // The clock the child sees runs down while Bíp drives (19 on the way, 18 on the crossing).
-    await boardShows(page, 'robotClockShown', '19');
-    await boardShows(page, 'robotPos', '1,1');
-    await boardShows(page, 'robotClock', '18');
-    await boardShows(page, 'robotClockShown', '18');
-    await boardShows(page, 'robotPos', '1,2');
-    await boardShows(page, 'robotPos', '1,3');
-    await boardShows(page, 'robotClock', '14');
-    await boardShows(page, 'robotHeld', 'pollution');
+    await boardHasShown(page, 'data-robot-held=pollution');
     await stageShot(page, 'grabbed', project);
-    await boardShows(page, 'robotDir', 'W');
-    await expect(page.getByTestId('play-success')).toBeVisible({ timeout: RUN_MS });
+    await expect(page.getByTestId('play-success')).toBeVisible({ timeout: BOARD_TIMEOUT });
+    // The steps are checked after the run, from every value the board took: some last only a
+    // few frames, and waiting for each in turn missed them on CI (see recordAttributes).
+    // Counting crossings: one stop per crossing, the clock down 2 s each. The clock the child
+    // sees runs down while Bíp drives, rounded to the second: 19 on the way, and already 18 for
+    // the last quarter of the drive, before Bíp stands on the crossing.
+    const history = await attributeHistory(page, BOARD);
+    expect(
+      inOrder(history, [
+        'data-robot-clock-shown=19',
+        'data-robot-clock-shown=18',
+        'data-robot-pos=1,1',
+        'data-robot-clock=18',
+        'data-robot-pos=1,2',
+        'data-robot-pos=1,3',
+        'data-robot-clock=14',
+        'data-robot-held=pollution',
+        'data-robot-dir=W',
+      ]),
+      history.join('\n'),
+    ).toBe(true);
     await expect(canvas).toHaveAttribute('data-robot-pos', '1,0');
     await expect(canvas).toHaveAttribute('data-robot-held', 'none');
     await expect(canvas).toHaveAttribute('data-robot-clock', '2');
@@ -278,8 +302,9 @@ test.describe('/play robotlab', () => {
   test('a quick Làm lại mid-run puts Bíp back and nothing late moves it', async ({ page }) => {
     await open(page, 'robotlab-stage');
     await setProgram(page, sandbox('robotlab-stage').solution);
+    await recordAttributes(page, BOARD, BOARD_STATE);
     await page.getByTestId('play-run').click();
-    await boardShows(page, 'robotPos', '1,1');
+    await boardHasShown(page, 'data-robot-pos=1,1');
     await page.keyboard.press('r');
     await confirmRestart(page);
     const canvas = board(page);
