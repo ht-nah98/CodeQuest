@@ -37,8 +37,17 @@
 >   thuần, 16 test), `SorterStage.ts` (vẽ bằng PixiJS, 11 test), `ShelfAnswer.tsx` (hình đáp án
 >   cho khóa `shelf:…`, 10 test) và một mục trong `stages/registry.ts`. Ba màn kệ sách trong
 >   `_sandbox` **chơi được trong trình duyệt**, lời giải mẫu ra 3 sao; e2e ở `e2e/sorter.spec.ts`.
-> - **Chưa bắt đầu:** P5-06 trở đi. Vẫn **chưa có `content/worlds/w10-*`**, nên W10 chưa tồn tại
->   với bé: không có chữ `w10` nào trong `apps/`, `packages/`, `content/`.
+> - **P5-06 một phần (21/10/2026):** HUD "Còn N bước" trên sân mê cung, âm thanh cho sự kiện kệ
+>   sách và `tired`, trình soạn màn từ chối màn kệ sách. `LessonDemo` kệ sách chạy qua registry.
+>   Còn lại: giọng đọc cho mã lý do mới.
+> - **P5-07 / P5-09 đang làm:** `content/worlds/w10-hoc-vien/` có **13/20 màn** (`l01`–`l13`) và
+>   12 bài giảng, `content:check` 0 lỗi, `npm run par` khớp từng màn (`l13` có `parUnproven`).
+>   Còn: `l14`–`l15` (mê cung có bước sức, **vẽ bản đồ tay**), `l16` (dừng sớm), `l17`–`l19`
+>   (tổng ôn: mê cung lớn, đường ngắn qua chìa khóa, sa bàn robot), `w10-boss`, `w10-creative`,
+>   và bốn chương truyện mở sau `l04`, `l10`, `l14`, boss. Chương chỉ được thêm khi màn nó
+>   `unlockAfter` đã có (luật 21); nội dung câu chuyện theo `product/curriculum.md` §6.5.
+> - **W10 chưa hiện trên bản đồ của bé**: thế giới chưa có boss thì `catalog.ts` không đưa lên
+>   (AGENTS.md §9.10). Có boss là tự hiện.
 > - W1–W9 chơi được đủ, đó là phần bé học hiện nay.
 
 | ID | Task | Phụ thuộc | Người làm | Trạng thái |

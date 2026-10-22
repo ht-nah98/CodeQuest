@@ -116,8 +116,9 @@ Báo cáo kết quả **thật**: lệnh nào đỏ thì nói đỏ, kèm output
 
 ## 9. Sai lầm đã xảy ra, đừng lặp lại
 
-Ghi ngày 21/10/2026, sau một phiên làm việc mà **ba hướng bị làm rồi bỏ**. Mỗi mục là một
-việc đã thật sự xảy ra, không phải lời khuyên chung chung.
+Ghi ngày 21/10/2026, sau một phiên làm việc mà **ba hướng bị làm rồi bỏ**; mục 9.8–9.14 thêm
+ngày 22/10/2026, sau khi bật CI và đẩy lên production lần đầu. Mỗi mục là một việc đã thật sự
+xảy ra, không phải lời khuyên chung chung.
 
 ### 9.1. Đọc nội dung nguồn TRƯỚC khi viết nội dung
 
@@ -188,7 +189,75 @@ tới khi chạy lại dev server. Ảnh chụp màn hình lúc đó là ảnh c
 hình hay kết luận. Sửa nội dung trong một tệp đã có thì không cần. Bộ e2e tự dựng server riêng
 nên không dính lỗi này — e2e xanh mà màn hình đỏ thì gần như chắc chắn là nó.
 
-### 9.8. Báo cả phần chưa làm được
+### 9.8. Chạy ĐỦ bộ kiểm rồi mới báo xanh
+
+Ngày 21/10 có bốn lần liền báo "e2e 16/16 xanh" trong khi chỉ chạy `leanbot.spec.ts`. Bộ đầy
+đủ có **398 test**, và 4 trong số đó đã đỏ từ lúc đổi luồng đăng nhập — gồm cả test `@smoke` mà
+CI chạy. Chỉ lộ ra khi chạy cả bộ trước lúc đẩy.
+
+**Luật:** thay đổi đụng tới thứ dùng chung (route, đăng nhập, layout, thanh trên, catalog) thì
+chạy **`npm run e2e` đầy đủ**, không chạy riêng spec của phần mình. Báo con số của cả bộ, và
+đừng chạy `npm run build` trong lúc e2e đang chạy: `pwa-offline.spec.ts` phục vụ chính `dist/`.
+
+### 9.9. Đổi đường đi chung thì đi lại cả hai chiều
+
+Đăng nhập chuyển sang `/hub` (ADR-0028). Chiều vào thì đã kiểm, chiều ra thì không: bản đồ
+CodeQuest **mất nút quay về hub**, bé chọn CodeQuest rồi là không về được khóa Leanbot nếu không
+gõ URL. Huấn luyện viên phát hiện ra, không phải bộ kiểm.
+
+**Luật:** thêm hay dời một màn hình thì liệt kê mọi màn **dẫn tới** nó và mọi màn **nó dẫn
+đi**, rồi có e2e đi trọn vòng (ví dụ `map → hub → map` trong `leanbot.spec.ts`).
+
+### 9.10. Gộp vào `main` là lên production
+
+`main` tự deploy lên Vercel. Thế giới 10 đã lên bản đồ của bé khi mới có 13/20 màn và chưa có
+boss — một hòn đảo bé đi vào mà không có đích. Phát hiện bằng cách mở chính trang production ra
+đếm số đảo.
+
+**Luật:** thứ chưa xong không được để bé nhìn thấy. Đã có chặn tự động: thế giới **chưa có màn
+boss thì không lên bản đồ** (`features/content/catalog.ts`, có test). Thứ dang dở khác thì phải
+có cách ẩn tương tự **trước** khi gộp, không phải sau. Sau mỗi lần đẩy, mở production kiểm.
+
+### 9.11. CI phải thật sự chạy, và trần thời gian đặt theo máy chậm nhất
+
+Repo có `.github/workflows/ci.yml` từ 02/10 mà **GitHub Actions chưa chạy lần nào** (tính năng
+đang tắt). Bật lên thì lòi ra bốn lỗi có sẵn, toàn về thời gian trên máy ảo 2 nhân không GPU:
+test vét cạn W6 quá 240 s, 4 worker làm sân chơi bị bỏ đói, chờ 20 s cho robotlab là không đủ,
+và **`test.describe.configure({ timeout })` trong từng spec đè lên trần ở config**.
+
+**Luật:** sau khi đẩy, xem CI xanh thật (`gh run list`), đừng giả định. Trần thời gian mới phải
+có nhánh `process.env.CI ? …` (đang dùng ×2,5), và đặt ở **mọi** chỗ có trần, không chỉ config.
+
+### 9.12. Tên hàm thì hỏi trình biên dịch, đừng tin tài liệu
+
+Giáo án Leanbot ghi `LbMotion.stop()`, `Leanbot.delay(1.0)`, `Leanbot.objectInFront(25)`,
+`LbTouch.waitUntil(TB1A)` — **cả bốn không tồn tại**, hai trong số đó đã lọt vào màn hình của bé.
+Lộ ra khi biên dịch thật trên máy chủ của hãng và nạp xuống robot.
+
+**Luật:** code nào in ra cho bé hay cho thầy thì phải **biên dịch được**. Leanbot: POST tới
+`cs.leanbot.space/v3/compile` (cách làm ở `docs/leanbot/thiet-bi/cai-dat.md`); log lỗi của gcc
+còn liệt kê được chữ ký hàm thật.
+
+### 9.13. Bộ vét cạn là người duyệt nội dung, đọc kỹ những gì nó in ra
+
+Màn `w10-l06` chọn hai kệ bằng tay, và `npm run par` in ra **ba** cách sửa thay vì một: hai cách
+"cộng bừa 1 rồi bỏ sót một cuốn" thắng vì hai cái sai triệt tiêu nhau đúng trên hai kệ đó. Không
+có lỗi đỏ nào cả — chỉ có dòng `fix:` thừa.
+
+**Luật:** dòng `fix:` / `shortest:` khác lời giải là **dấu hiệu bản đồ yếu**, không phải chuyện
+vặt. Chọn kệ / bản đồ bằng script thử mọi cách sai đã biết, và khai báo chúng trong
+`SORTER_TRAPS`. Vét cạn dừng vì ngân sách thì đặt `parUnproven: true`.
+
+### 9.14. Thêm tài sản thì đo lại ngân sách
+
+Ba ảnh phần cứng Leanbot vào repo ở dạng PNG 1600 px, 1,8 MB, đẩy precache của PWA lên
+6 332 KiB, **vượt ngân sách 5 MiB** — mỗi bé tải thêm chừng ấy ở lần mở đầu. Giảm còn 1140 px,
+bảng màu 256: 292 KB, chữ trên ảnh vẫn rõ.
+
+**Luật:** thêm ảnh, âm thanh hay font thì đọc dòng `precache N entries (… KiB)` ở cuối
+`npm run build` và so với `deployment-ops.md`.
+
+### 9.15. Báo cả phần chưa làm được
 
 Khi một mục của "Định nghĩa xong" chưa làm được (chưa có e2e, chưa xem được video hướng dẫn,
 chưa chạy thử trên robot thật) thì **nói thẳng ở cuối báo cáo**, đừng im lặng. Riêng mục
