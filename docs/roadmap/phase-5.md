@@ -47,6 +47,8 @@
 >   có câu hỏi vì vét cạn tìm ra mẹo "xoay tìm lối" 6 khối) có test S2 trong `stepLimit.test.ts`.
 >   `l16` đổi từ ghép hình sang **tìm lỗi 2 kệ** (HLV duyệt 22/10): ghép hình 11 khối có ≥ 186 cách
 >   thắng, kể cả mẹo đổi chỗ chẵn lần; kệ 2 cần 3 lượt nên số lượt cố định nào cũng thua.
+>   **HLV chơi thử `l14`–`l16` ngày 22/10 (bản xem trước ở Sân thử): không góp ý.** Bài giảng
+>   trước mỗi màn chưa được xem trong app (Sân thử không hiện bài của W10).
 >   Còn: `l17`–`l19`
 >   (tổng ôn: mê cung lớn, đường ngắn qua chìa khóa, sa bàn robot), `w10-boss`, `w10-creative`,
 >   và bốn chương truyện mở sau `l04`, `l10`, `l14`, boss. Chương chỉ được thêm khi màn nó

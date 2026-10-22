@@ -116,7 +116,7 @@ Báo cáo kết quả **thật**: lệnh nào đỏ thì nói đỏ, kèm output
 
 ## 9. Sai lầm đã xảy ra, đừng lặp lại
 
-Ghi ngày 21/10/2026, sau một phiên làm việc mà **ba hướng bị làm rồi bỏ**; mục 9.8–9.17 thêm
+Ghi ngày 21/10/2026, sau một phiên làm việc mà **ba hướng bị làm rồi bỏ**; mục 9.8–9.19 thêm
 ngày 22/10/2026, sau khi bật CI và đẩy lên production lần đầu. Mỗi mục là một việc đã thật sự
 xảy ra, không phải lời khuyên chung chung.
 
@@ -288,3 +288,27 @@ rỗng.
 ghi nào) rồi kiểm thứ tự **sau khi chạy xong**, đừng `waitForFunction` từng giá trị. Test đỏ vì
 quá thời gian thì **mở ảnh lúc hỏng trước** khi nâng trần: nâng trần chỉ đúng khi ảnh cho thấy
 việc thật sự chưa xong.
+
+### 9.18. Ý nhiều khối thì đừng làm ghép hình
+
+`w10-l16` (dừng sớm, 11 khối) được lên kế hoạch là ghép hình. Vét cạn tìm ra **ít nhất 186 cách
+ghép thắng**, có cả cách sai hẳn mà thắng nhờ may (đổi một cặp sách chẵn lần, rồi hộp tình cờ về
+0). Ghép sẵn một phần cũng không giúp: bé tháo rời được nên bộ tìm coi mọi khối là rời. Màn ghép
+hình lại chỉ có một bản đồ, không có `variants` để chặn mẹo.
+
+**Luật:** ghép hình chỉ cho ý **ít khối** (≤ 6 như `l02`, `l08`). Ý nhiều khối thì dùng **tìm
+lỗi nhiều kệ / nhiều bản đồ**, chọn bản đồ sao cho cách "số lượt cố định" thua ở ít nhất một
+cái, và đọc dòng `fix:` của `npm run par` tới khi chỉ còn một. Đổi kiểu màn so với
+`curriculum.md` thì hỏi HLV trước (§9.5).
+
+### 9.19. Repo chuyển chỗ thì `.env.local` không đi theo
+
+HLV mở `localhost:5173` để chơi thử thì **không thấy hồ sơ HLV**, và tưởng AI đã xóa. Thật ra
+repo ở `~/Desktop/CodeQuest` chưa từng có `apps/web/.env.local`, vì tệp này bị git bỏ qua nên clone
+hay chép repo đều không mang theo. Không có `VITE_COACH_PIN` thì dev server không tạo hồ sơ HLV.
+Code không bao giờ xóa hồ sơ này.
+
+**Luật:** trước khi nhờ HLV chơi thử ở local, kiểm `apps/web/.env.local` có `VITE_COACH_PIN`
+(xem `.env.example`) và trang chọn hồ sơ có ô "HLV". Thế giới chưa có boss vẫn ẩn cả với HLV, nên
+màn mới thì tạm chép vào `content/worlds/_sandbox/levels/` (đổi `id`, `worldId: "_sandbox"`),
+khởi động lại dev, gửi link `/play/<id>`, chơi xong thì xóa. Đừng commit các bản chép đó.
