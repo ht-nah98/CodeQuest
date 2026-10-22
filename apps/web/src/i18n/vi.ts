@@ -433,6 +433,7 @@ export const vi = {
     lockedWhy: 'Bài này cần nạp code xuống robot thật.',
     lockedCount: (done: number, total: number) =>
       `Bài 0 còn ${String(total - done)} ô chưa tích (${String(done)}/${String(total)})`,
+    coachOpen: 'HLV xem được mọi bài, không cần tích Bài 0.',
     gateDone: (total: number) => `Bài 0 xong! Đủ ${String(total)} ô.`,
     toGate: 'Về Bài 0',
     // Trang đường dẫn: mọi trang khóa học gửi bé và thầy tới, luôn cách danh sách bài một lần bấm.

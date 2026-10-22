@@ -1,6 +1,7 @@
 import { Link } from 'react-router';
 import { useLeanbotCourse } from '../../features/leanbot/leanbotCourse';
 import { gateState, isLessonOpen } from '../../features/leanbot/leanbotGate';
+import { useCurrentProfile } from '../../features/profiles';
 import { vi } from '../../i18n/vi';
 import { Panel } from '../../ui';
 import { FOCUS_RING } from '../../ui/focusRing';
@@ -31,6 +32,7 @@ const FACTS: [label: string, value: string][] = [
 /** "/leanbot" Danh sách bài của khóa Leanbot. */
 export default function LeanbotScreen() {
   const { lessons, failed } = useLeanbotCourse();
+  const coach = useCurrentProfile().profile?.role === 'coach';
 
   if (failed) return <ScreenMessage text={t.loadError} alert />;
   if (!lessons) return <ScreenMessage text={t.loading} />;
@@ -69,14 +71,18 @@ export default function LeanbotScreen() {
         {gate.total > 0 && (
           <Panel className="p-4">
             <p className="m-0 font-bold">
-              {gate.open ? t.gateDone(gate.total) : t.lockedCount(gate.done, gate.total)}
+              {gate.open
+                ? t.gateDone(gate.total)
+                : coach
+                  ? t.coachOpen
+                  : t.lockedCount(gate.done, gate.total)}
             </p>
           </Panel>
         )}
 
         <ul className="m-0 grid list-none gap-3 p-0">
           {lessons.map((lesson) => {
-            const open = isLessonOpen(lesson, gate);
+            const open = isLessonOpen(lesson, gate, coach);
             const body = (
               <>
                 <span className="grid size-14 shrink-0 place-items-center rounded-key border-3 border-ink bg-brand-soft font-display text-[24px]">

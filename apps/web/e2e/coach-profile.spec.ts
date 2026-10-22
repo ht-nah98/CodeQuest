@@ -48,6 +48,28 @@ test('HLV picks the coach tile, enters the PIN and opens a late W2 level from th
   await page.screenshot({ path: `${SHOTS}/play-w02-l15.png` });
 });
 
+test('HLV reads every Leanbot lesson without the lesson 0 ticks', async ({ page }) => {
+  // Coach request 22/10/2026: the coach reviews the whole course, and has no robot ticks to give.
+  await page.goto('/');
+  await page.getByTestId('coach-tile').click();
+  for (const digit of PIN ?? '') await page.keyboard.press(digit);
+  await expect(page).toHaveURL(/\/hub$/);
+  // The pointer is still where the coach tile was. At 1280 px that is the bottom edge of the
+  // Leanbot card, whose hover lift moves it off the pointer and back: it never holds still.
+  await page.mouse.move(0, 0);
+  await page.getByRole('link', { name: /Leanbot/ }).click();
+  await expect(page).toHaveURL(/\/leanbot$/);
+  await expect(page.getByText('HLV xem được mọi bài, không cần tích Bài 0.')).toBeVisible();
+  const last = page.getByRole('link', { name: /Đi theo đường thông minh/ });
+  await expect(last).toBeVisible();
+  await page.screenshot({ path: `${SHOTS}/leanbot-coach.png` });
+
+  await last.click();
+  await expect(page).toHaveURL(/\/leanbot\/bai-04\/0$/);
+  await expect(page.getByRole('alert')).toHaveCount(0);
+  await page.screenshot({ path: `${SHOTS}/leanbot-coach-bai-04.png` });
+});
+
 test('a child profile stays locked on the same laptop', async ({ page }) => {
   await signInTestProfile(page, 'Bé Khóa');
   await page.addInitScript(() => {

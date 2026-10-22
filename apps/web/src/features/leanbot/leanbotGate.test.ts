@@ -58,12 +58,37 @@ describe('gateState', () => {
 
 describe('isLessonOpen', () => {
   it('always lets lesson 0 itself through', () => {
-    expect(isLessonOpen(gate, gateState(course, () => false))).toBe(true);
+    expect(
+      isLessonOpen(
+        gate,
+        gateState(course, () => false),
+      ),
+    ).toBe(true);
   });
 
   it('holds back every later lesson until the gate opens', () => {
-    expect(isLessonOpen(later, gateState(course, () => false))).toBe(false);
-    expect(isLessonOpen(later, gateState(course, () => true))).toBe(true);
+    expect(
+      isLessonOpen(
+        later,
+        gateState(course, () => false),
+      ),
+    ).toBe(false);
+    expect(
+      isLessonOpen(
+        later,
+        gateState(course, () => true),
+      ),
+    ).toBe(true);
+  });
+
+  it('opens every lesson to the coach, with no tick set', () => {
+    expect(
+      isLessonOpen(
+        later,
+        gateState(course, () => false),
+        true,
+      ),
+    ).toBe(true);
   });
 });
 

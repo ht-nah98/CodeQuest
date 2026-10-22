@@ -63,7 +63,11 @@ export function gateState(
   return { done, total: keys.length, open: done === keys.length };
 }
 
-/** Lesson 0 is always open; the rest wait for its ticks. */
-export function isLessonOpen(lesson: LeanbotLesson, gate: GateState): boolean {
-  return lesson.number === 0 || gate.open;
+/**
+ * Lesson 0 is always open; the rest wait for its ticks. The coach profile reads every lesson
+ * (coach request 22/10/2026), as it opens every world of CodeQuest: it reviews the course, and
+ * has no robot ticks of its own to give.
+ */
+export function isLessonOpen(lesson: LeanbotLesson, gate: GateState, coach = false): boolean {
+  return coach || lesson.number === 0 || gate.open;
 }

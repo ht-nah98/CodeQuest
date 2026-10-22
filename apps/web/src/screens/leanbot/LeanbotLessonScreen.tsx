@@ -8,6 +8,7 @@ import {
   useLeanbotCourse,
 } from '../../features/leanbot/leanbotCourse';
 import { gateState, isLessonOpen } from '../../features/leanbot/leanbotGate';
+import { useCurrentProfile } from '../../features/profiles';
 import { vi } from '../../i18n/vi';
 import { Button, Panel } from '../../ui';
 import { ScreenMessage } from '../shared/ScreenMessage';
@@ -23,6 +24,7 @@ export default function LeanbotLessonScreen() {
   const { lessonId = '', page = '0' } = useParams();
   const navigate = useNavigate();
   const { lessons, failed } = useLeanbotCourse();
+  const coach = useCurrentProfile().profile?.role === 'coach';
 
   if (failed) return <ScreenMessage text={t.loadError} alert />;
   if (!lessons) return <ScreenMessage text={t.loading} />;
@@ -43,7 +45,7 @@ export default function LeanbotLessonScreen() {
   }
 
   // A hand-typed URL must not walk around the gate either.
-  if (!isLessonOpen(lesson, gateState(lessons))) {
+  if (!isLessonOpen(lesson, gateState(lessons), coach)) {
     return (
       <ScreenMessage text={`${t.locked} ${t.lockedWhy}`} alert>
         <Button
