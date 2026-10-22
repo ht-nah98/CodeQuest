@@ -1,0 +1,74 @@
+{
+  "id": "w10-lesson-buoc",
+  "worldId": "w10-hoc-vien",
+  "title": "Bước sức",
+  "beforeLevel": "w10-l14",
+  "cards": [
+    {
+      "type": "say",
+      "pose": "point",
+      "text": "Mỗi ô Măng tiến tốn 1 bước."
+    },
+    {
+      "type": "say",
+      "pose": "think",
+      "text": "Rẽ không tốn bước. Hết bước là Măng mệt."
+    },
+    {
+      "type": "demo",
+      "text": "Còn 2 bước mà cờ cách 3 ô: Măng mệt ngay cạnh cờ.",
+      "kind": "maze",
+      "config": {
+        "map": [
+          "######",
+          "#S..G#",
+          "######"
+        ],
+        "startDir": "E",
+        "stepLimit": 2
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "maze_forward",
+                  "id": "m1",
+                  "next": {
+                    "block": {
+                      "type": "maze_forward",
+                      "id": "m2",
+                      "next": {
+                        "block": {
+                          "type": "maze_forward",
+                          "id": "m3"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "quiz",
+      "text": "Rẽ trái có tốn bước không?",
+      "options": [
+        "Không",
+        "Có"
+      ],
+      "correct": 0,
+      "explain": "Chỉ tiến mới tốn bước. Rẽ thì không."
+    }
+  ]
+}

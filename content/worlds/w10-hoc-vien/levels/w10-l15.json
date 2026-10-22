@@ -1,0 +1,159 @@
+{
+  "id": "w10-l15",
+  "worldId": "w10-hoc-vien",
+  "stage": "practice",
+  "kind": "maze",
+  "mode": "build",
+  "title": "Đường ngắn nhất",
+  "objective": "Lấy chìa khóa rồi tới cờ, kịp 12 bước nhé!",
+  "learningGoal": "Đếm bước của từng đường trước khi chạy: đường xuống bên trái trông xa nhưng chỉ 6 bước tới chìa khóa, đường trên trông gần mà tốn 8. Chỉ đường ngắn nhất kịp 12 bước.",
+  "misconception": "Cách nào tới được cờ cũng tốt.",
+  "thinkingHint": "Có 3 đường tới chìa khóa. Đường nào ít bước nhất?",
+  "toolbox": [
+    "maze_forward",
+    "maze_turn_left",
+    "maze_turn_right",
+    {
+      "type": "cq_repeat",
+      "fields": {
+        "TIMES": 3
+      }
+    }
+  ],
+  "maxLoopDepth": 2,
+  "par": 7,
+  "maxBlocks": 13,
+  "config": {
+    "map": [
+      "#########",
+      "#S......#",
+      "#.##..#.#",
+      "#.#.#.#.#",
+      "#.....#.#",
+      "##.#.##.#",
+      "##.#.#..#",
+      "####...G#",
+      "#########"
+    ],
+    "startDir": "E",
+    "stepLimit": 12,
+    "goal": {
+      "items": [
+        {
+          "kind": "key",
+          "at": [
+            4,
+            4
+          ]
+        }
+      ]
+    }
+  },
+  "solution": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat",
+              "id": "b7",
+              "fields": {
+                "TIMES": 2
+              },
+              "inputs": {
+                "DO": {
+                  "block": {
+                    "type": "maze_turn_right",
+                    "id": "b1",
+                    "next": {
+                      "block": {
+                        "type": "cq_repeat",
+                        "id": "b3",
+                        "fields": {
+                          "TIMES": 3
+                        },
+                        "inputs": {
+                          "DO": {
+                            "block": {
+                              "type": "maze_forward",
+                              "id": "b2"
+                            }
+                          }
+                        },
+                        "next": {
+                          "block": {
+                            "type": "maze_turn_left",
+                            "id": "b4",
+                            "next": {
+                              "block": {
+                                "type": "cq_repeat",
+                                "id": "b6",
+                                "fields": {
+                                  "TIMES": 3
+                                },
+                                "inputs": {
+                                  "DO": {
+                                    "block": {
+                                      "type": "maze_forward",
+                                      "id": "b5"
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "hints": [
+    {
+      "id": "count",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Có 3 đường tới chìa khóa. Đếm bước nhé!",
+      "point": "stage"
+    },
+    {
+      "id": "tired",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "OUT_OF_STEPS"
+      },
+      "say": "Có đường nào ít bước hơn không?",
+      "point": "stage"
+    },
+    {
+      "id": "key",
+      "when": {
+        "trigger": "run-end",
+        "lastReason": "NEED_KEY"
+      },
+      "say": "Cửa cờ cần chìa khóa. Lấy trước nhé!",
+      "point": "stage"
+    },
+    {
+      "id": "shape",
+      "when": {
+        "capacityFull": true
+      },
+      "say": "Hai nửa đường giống nhau. Lặp được không?",
+      "point": "toolbox:cq_repeat"
+    }
+  ]
+}

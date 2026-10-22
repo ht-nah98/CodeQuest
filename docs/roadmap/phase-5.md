@@ -40,9 +40,12 @@
 > - **P5-06 một phần (21/10/2026):** HUD "Còn N bước" trên sân mê cung, âm thanh cho sự kiện kệ
 >   sách và `tired`, trình soạn màn từ chối màn kệ sách. `LessonDemo` kệ sách chạy qua registry.
 >   Còn lại: giọng đọc cho mã lý do mới.
-> - **P5-07 / P5-09 đang làm:** `content/worlds/w10-hoc-vien/` có **13/20 màn** (`l01`–`l13`) và
->   12 bài giảng, `content:check` 0 lỗi, `npm run par` khớp từng màn (`l13` có `parUnproven`).
->   Còn: `l14`–`l15` (mê cung có bước sức, **vẽ bản đồ tay**), `l16` (dừng sớm), `l17`–`l19`
+> - **P5-07 / P5-09 đang làm:** `content/worlds/w10-hoc-vien/` có **15/20 màn** (`l01`–`l15`) và
+>   14 bài giảng, `content:check` 0 lỗi, `npm run par` khớp từng màn (`l13` có `parUnproven`).
+>   `l14` (đoán: bám tường phải cần 16 bước, `stepLimit` 10, hết bước trong ngõ cụt) và `l15`
+>   (đường ngắn nhất qua chìa khóa: 3 lối 6 / 8 / 18 bước, `stepLimit` 12, par 7; thanh khối không
+>   có câu hỏi vì vét cạn tìm ra mẹo "xoay tìm lối" 6 khối) có test S2 trong `stepLimit.test.ts`.
+>   Còn: `l16` (dừng sớm), `l17`–`l19`
 >   (tổng ôn: mê cung lớn, đường ngắn qua chìa khóa, sa bàn robot), `w10-boss`, `w10-creative`,
 >   và bốn chương truyện mở sau `l04`, `l10`, `l14`, boss. Chương chỉ được thêm khi màn nó
 >   `unlockAfter` đã có (luật 21); nội dung câu chuyện theo `product/curriculum.md` §6.5.

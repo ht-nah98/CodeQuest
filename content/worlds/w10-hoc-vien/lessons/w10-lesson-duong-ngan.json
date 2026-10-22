@@ -1,0 +1,210 @@
+{
+  "id": "w10-lesson-duong-ngan",
+  "worldId": "w10-hoc-vien",
+  "title": "Đường ngắn nhất",
+  "beforeLevel": "w10-l15",
+  "cards": [
+    {
+      "type": "say",
+      "pose": "point",
+      "text": "Tới được cờ chưa đủ. Đường ngắn mới kịp!"
+    },
+    {
+      "type": "say",
+      "pose": "think",
+      "text": "Đếm bước mỗi đường trước khi chạy."
+    },
+    {
+      "type": "demo",
+      "text": "Đường trên dài 8 bước. Còn 6 bước: Măng mệt giữa đường.",
+      "kind": "maze",
+      "config": {
+        "map": [
+          "#######",
+          "#S....#",
+          "#.###.#",
+          "#...#.#",
+          "###.G.#",
+          "#######"
+        ],
+        "startDir": "E",
+        "stepLimit": 6
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "maze_forward",
+                  "id": "m1",
+                  "next": {
+                    "block": {
+                      "type": "maze_forward",
+                      "id": "m2",
+                      "next": {
+                        "block": {
+                          "type": "maze_forward",
+                          "id": "m3",
+                          "next": {
+                            "block": {
+                              "type": "maze_forward",
+                              "id": "m4",
+                              "next": {
+                                "block": {
+                                  "type": "maze_turn_right",
+                                  "id": "m5",
+                                  "next": {
+                                    "block": {
+                                      "type": "maze_forward",
+                                      "id": "m6",
+                                      "next": {
+                                        "block": {
+                                          "type": "maze_forward",
+                                          "id": "m7",
+                                          "next": {
+                                            "block": {
+                                              "type": "maze_forward",
+                                              "id": "m8",
+                                              "next": {
+                                                "block": {
+                                                  "type": "maze_turn_right",
+                                                  "id": "m9",
+                                                  "next": {
+                                                    "block": {
+                                                      "type": "maze_forward",
+                                                      "id": "m10"
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "demo",
+      "text": "Đường dưới chỉ 6 bước. Vừa kịp tới cờ!",
+      "kind": "maze",
+      "config": {
+        "map": [
+          "#######",
+          "#S....#",
+          "#.###.#",
+          "#...#.#",
+          "###.G.#",
+          "#######"
+        ],
+        "startDir": "E",
+        "stepLimit": 6
+      },
+      "workspace": {
+        "blocks": {
+          "languageVersion": 0,
+          "blocks": [
+            {
+              "type": "cq_start",
+              "id": "start",
+              "x": 40,
+              "y": 40,
+              "deletable": false,
+              "next": {
+                "block": {
+                  "type": "maze_turn_right",
+                  "id": "m1",
+                  "next": {
+                    "block": {
+                      "type": "maze_forward",
+                      "id": "m2",
+                      "next": {
+                        "block": {
+                          "type": "maze_forward",
+                          "id": "m3",
+                          "next": {
+                            "block": {
+                              "type": "maze_turn_left",
+                              "id": "m4",
+                              "next": {
+                                "block": {
+                                  "type": "maze_forward",
+                                  "id": "m5",
+                                  "next": {
+                                    "block": {
+                                      "type": "maze_forward",
+                                      "id": "m6",
+                                      "next": {
+                                        "block": {
+                                          "type": "maze_turn_right",
+                                          "id": "m7",
+                                          "next": {
+                                            "block": {
+                                              "type": "maze_forward",
+                                              "id": "m8",
+                                              "next": {
+                                                "block": {
+                                                  "type": "maze_turn_left",
+                                                  "id": "m9",
+                                                  "next": {
+                                                    "block": {
+                                                      "type": "maze_forward",
+                                                      "id": "m10"
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "quiz",
+      "text": "Còn 7 bước. Đi đường 6 bước hay 9 bước?",
+      "options": [
+        "Đường 6 bước",
+        "Đường 9 bước"
+      ],
+      "correct": 0,
+      "explain": "Đường 9 bước cần 9 bước. Chỉ còn 7 thì mệt giữa đường."
+    }
+  ]
+}

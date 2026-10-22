@@ -118,6 +118,75 @@ describe('S2 on maze-step-maps: a spell with a detour reaches every flag, too sl
   });
 });
 
+const w10 = fileURLToPath(new URL('../../../content/worlds/w10-hoc-vien/levels/', import.meta.url));
+const loadW10 = (name: string) =>
+  LevelSchema.parse(JSON.parse(readFileSync(`${w10}${name}.json`, 'utf8')));
+
+describe('S2 in World 10: the ways that reach the flag are too slow', () => {
+  const kind = getGameKind('maze');
+  if (kind === undefined) throw new Error('no maze');
+  const F = { block: 'maze_forward' };
+  const L = { block: 'maze_turn_left' };
+  const R = { block: 'maze_turn_right' };
+  const path = (dir: string) => ({ block: 'maze_is_path', fields: { DIR: dir } });
+  const goal = { block: 'maze_at_goal' };
+  const rightWall = programToWorkspace([
+    {
+      until: goal,
+      body: [
+        { if: path('RIGHT'), then: [R] },
+        { if: path('AHEAD'), then: [F], else: [L] },
+      ],
+    },
+  ]);
+
+  /** Runs `workspace` with and without the level's step limit (and with no block cap). */
+  function both(level: Level, workspace: unknown) {
+    const capped: Level = { ...level };
+    delete capped.maxBlocks;
+    const free: Level = { ...capped, config: withoutLimit(level.config) };
+    return {
+      free: runLevel({
+        kind: kind as NonNullable<typeof kind>,
+        level: free,
+        workspace: workspace as never,
+      }),
+      capped: runLevel({
+        kind: kind as NonNullable<typeof kind>,
+        level: capped,
+        workspace: workspace as never,
+      }),
+    };
+  }
+
+  it('w10-l14: following the right wall reaches the flag, and tires in the deep dead end', () => {
+    const level = loadW10('w10-l14');
+    const { free, capped } = both(level, level.initialWorkspace);
+    expect(free.result).toBe('success');
+    expect(capped.answerKey).toBe('crash:OUT_OF_STEPS@6,5');
+  });
+
+  it('w10-l15: the road that looks near and the right wall both run out of steps', () => {
+    const level = loadW10('w10-l15');
+    const near = programToWorkspace([
+      { repeat: 4, body: [F] },
+      R,
+      { repeat: 3, body: [F] },
+      R,
+      F,
+      L,
+      { repeat: 3, body: [F] },
+      L,
+      { repeat: 3, body: [F] },
+    ]);
+    for (const workspace of [near, rightWall]) {
+      const { free, capped } = both(level, workspace);
+      expect(free.result).toBe('success');
+      expect(capped).toMatchObject({ result: 'crash', reasonCode: 'OUT_OF_STEPS' });
+    }
+  });
+});
+
 function withoutLimit(config: unknown): unknown {
   const copy = { ...(config as Record<string, unknown>) };
   delete copy['stepLimit'];

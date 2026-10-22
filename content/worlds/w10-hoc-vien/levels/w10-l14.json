@@ -1,0 +1,142 @@
+{
+  "id": "w10-l14",
+  "worldId": "w10-hoc-vien",
+  "stage": "practice",
+  "kind": "maze",
+  "mode": "predict",
+  "title": "Bám tường có kịp?",
+  "objective": "Đoán xem Măng có kịp tới cờ không nhé!",
+  "learningGoal": "Mỗi ô Măng tiến tốn 1 bước; bám tường phải đi vào ngõ cụt sâu nên hết 10 bước trước khi tới cờ, dù đường trên chỉ cần 8 bước.",
+  "misconception": "Bám tường là luôn tới được cờ, nên lúc nào cũng kịp.",
+  "thinkingHint": "Đếm từng ô Măng tiến. Tới ô thứ 10 thì Măng ở đâu?",
+  "toolbox": [],
+  "config": {
+    "map": [
+      "#########",
+      "###.....#",
+      "#S..###G#",
+      "###.#.#.#",
+      "###.....#",
+      "#####.###",
+      "#####.###",
+      "#####.###",
+      "#########"
+    ],
+    "startDir": "E",
+    "stepLimit": 10
+  },
+  "initialWorkspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "cq_start",
+          "id": "start",
+          "x": 40,
+          "y": 40,
+          "deletable": false,
+          "next": {
+            "block": {
+              "type": "cq_repeat_until",
+              "id": "until1",
+              "inputs": {
+                "COND": {
+                  "block": {
+                    "type": "maze_at_goal",
+                    "id": "ask0"
+                  }
+                },
+                "DO": {
+                  "block": {
+                    "type": "cq_if",
+                    "id": "if1",
+                    "inputs": {
+                      "COND": {
+                        "block": {
+                          "type": "maze_is_path",
+                          "id": "ask1",
+                          "fields": {
+                            "DIR": "RIGHT"
+                          }
+                        }
+                      },
+                      "DO": {
+                        "block": {
+                          "type": "maze_turn_right",
+                          "id": "right1"
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "cq_if_else",
+                        "id": "ifelse1",
+                        "inputs": {
+                          "COND": {
+                            "block": {
+                              "type": "maze_is_path",
+                              "id": "ask2",
+                              "fields": {
+                                "DIR": "AHEAD"
+                              }
+                            }
+                          },
+                          "DO": {
+                            "block": {
+                              "type": "maze_forward",
+                              "id": "fwd1"
+                            }
+                          },
+                          "ELSE": {
+                            "block": {
+                              "type": "maze_turn_left",
+                              "id": "left1"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "predict": {
+    "options": [
+      {
+        "key": "win",
+        "label": "Tới cờ, còn dư bước"
+      },
+      {
+        "key": "crash:OUT_OF_STEPS@6,5",
+        "label": "Hết bước trong ngõ cụt"
+      },
+      {
+        "key": "crash:OUT_OF_STEPS@3,7",
+        "label": "Hết bước ngay cạnh cờ"
+      }
+    ]
+  },
+  "hints": [
+    {
+      "id": "enter",
+      "when": {
+        "trigger": "enter"
+      },
+      "say": "Mỗi ô Măng tiến tốn 1 bước.",
+      "point": "stage"
+    },
+    {
+      "id": "count",
+      "when": {
+        "trigger": "idle"
+      },
+      "say": "Gặp lối bên phải, Măng rẽ vào đó.",
+      "point": "stage"
+    }
+  ]
+}
