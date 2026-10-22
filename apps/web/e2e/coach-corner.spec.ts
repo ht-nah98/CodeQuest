@@ -2,7 +2,7 @@ import { mkdirSync, readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { expect, type Page, test } from '@playwright/test';
-import { signInTestProfile } from './helpers';
+import { signInTestProfile, worldDirsOnMap } from './helpers';
 
 // P2-05 acceptance (docs/roadmap/phase-2.md): the coach corner at /coach, behind the adult lock.
 // Local progress is seeded straight into IndexedDB, two backup files are opened (read in memory,
@@ -355,7 +355,8 @@ test('opens two backup files read-only and exports the CSV summary', async ({ pa
     ),
   );
   // One line per child × world.
-  const worlds = readdirSync(CONTENT).filter((dir) => !dir.startsWith('_')).length;
+  // One row per world on the map; a world without its boss yet is not on it (catalog.ts).
+  const worlds = worldDirsOnMap().length;
   expect(lines).toHaveLength(1 + 2 * worlds);
   expect(lines.filter((l) => l.startsWith('Tý,'))).toHaveLength(worlds);
 

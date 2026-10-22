@@ -435,6 +435,9 @@ export const vi = {
       `Bài 0 còn ${String(total - done)} ô chưa tích (${String(done)}/${String(total)})`,
     gateDone: (total: number) => `Bài 0 xong! Đủ ${String(total)} ô.`,
     toGate: 'Về Bài 0',
+    // Trang đường dẫn: mọi trang khóa học gửi bé và thầy tới, luôn cách danh sách bài một lần bấm.
+    links: 'Đường dẫn cần biết',
+    linksWhy: 'Trình soạn khối, video, tải cài đặt',
   },
 
   // "/w/:worldId" Trang thế giới.

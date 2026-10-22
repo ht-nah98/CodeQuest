@@ -154,6 +154,12 @@
           "tone": "sky"
         }
       ],
+      "links": [
+        {
+          "label": "Video: sạc robot",
+          "href": "https://youtu.be/hfoZm4PWt6M"
+        }
+      ],
       "note": "Cáp loại USB-C sang USB-A. Sạc đầy mất 2–4 tiếng."
     },
     {
@@ -181,6 +187,12 @@
         "Các bộ phận KHÔNG lắp lẫn cổng được. Mắt siêu âm có cổng riêng của nó.",
         "Không dùng thì cất vào hộp. Không để ngoài bàn, không phơi nắng.",
         "Sạc đều đặn để robot luôn đủ điện."
+      ],
+      "links": [
+        {
+          "label": "Video: giữ gìn robot",
+          "href": "https://youtu.be/BS4ZiNJZEhM"
+        }
       ]
     },
     {
@@ -190,6 +202,20 @@
         "Trình duyệt Chrome hoặc Edge. Firefox và Safari KHÔNG nạp code được.",
         "Trình soạn khối lệnh, mở kèm đuôi ?lang=vi cho ra tiếng Việt.",
         "Cáp USB cắm được cả hai đầu: một đầu vào máy, một đầu vào robot."
+      ],
+      "links": [
+        {
+          "label": "Tải Chrome",
+          "href": "https://www.google.com/chrome/"
+        },
+        {
+          "label": "Tải Edge",
+          "href": "https://www.microsoft.com/edge"
+        },
+        {
+          "label": "Mở trình soạn khối lệnh (tiếng Việt)",
+          "href": "https://ide.pythaverse.space/lbeditor/?lang=vi"
+        }
       ],
       "warn": "Có loại cáp chỉ sạc được, không truyền dữ liệu. Cáp đó nạp code không bao giờ chạy."
     },
@@ -213,6 +239,12 @@
           "4",
           "Chọn tên cổng vừa hiện ra, bấm Connect"
         ]
+      ],
+      "links": [
+        {
+          "label": "Mở trình soạn khối lệnh (tiếng Việt)",
+          "href": "https://ide.pythaverse.space/lbeditor/?lang=vi"
+        }
       ],
       "tip": "Thấy chữ SERIAL: SELECTED là máy đã bắt tay được với robot. Chưa thấy thì xem màn sau.",
       "check": "Máy tính thấy robot rồi"
@@ -244,6 +276,12 @@
           ]
         ]
       },
+      "links": [
+        {
+          "label": "Driver CH340 cho máy Windows",
+          "href": "https://www.wch-ic.com/downloads/CH341SER_EXE.html"
+        }
+      ],
       "note": "Máy Linux còn cần quyền mở cổng. Thầy làm một lần cho mỗi máy, bé không phải làm."
     },
     {
@@ -253,7 +291,13 @@
         "Não robot là Arduino NANO, nhưng trong trình soạn chọn ARDUINO UNO vẫn nạp được.",
         "Chọn sai hẳn loại khác thì nạp xong robot không chạy gì."
       ],
-      "code": "BOARD: ARDUINO UNO   ·   SERVER: ONLINE"
+      "code": "BOARD: ARDUINO UNO   ·   SERVER: ONLINE",
+      "links": [
+        {
+          "label": "Mở trình soạn khối lệnh (tiếng Việt)",
+          "href": "https://ide.pythaverse.space/lbeditor/?lang=vi"
+        }
+      ]
     },
     {
       "part": "Kiểm tra robot",
@@ -262,10 +306,16 @@
         "Có một chương trình kiểm tra sẵn.",
         "Nạp vào robot, nó sẽ tự báo từng bộ phận."
       ],
-      "link": {
-        "label": "git.pythaverse.space/leanbot/Tools",
-        "href": "https://git.pythaverse.space/leanbot/Tools"
-      },
+      "links": [
+        {
+          "label": "Kho chương trình kiểm tra (Tools)",
+          "href": "https://git.pythaverse.space/leanbot/Tools"
+        },
+        {
+          "label": "Video: kiểm tra cảm biến",
+          "href": "https://youtu.be/i-EFK6lf2as"
+        }
+      ],
       "note": "Lấy tệp Sample Code/Leanbot_Test_and_Demo_v1.ino"
     },
     {
@@ -321,6 +371,12 @@
           "Rút cáp. Robot chạy!"
         ]
       ],
+      "links": [
+        {
+          "label": "Mở trình soạn khối lệnh (tiếng Việt)",
+          "href": "https://ide.pythaverse.space/lbeditor/?lang=vi"
+        }
+      ],
       "warn": "Không rút cáp khi đang nạp. Chờ đủ 100%.",
       "check": "Con nạp được chương trình rồi"
     },
@@ -356,7 +412,13 @@
       "lines": [
         "Mở cửa sổ SERIAL. Robot gửi về liên tục một dòng như này:"
       ],
-      "code": "TB 0000 - IR 00 .... 00 - 23 cm - GR 50 50"
+      "code": "TB 0000 - IR 00 .... 00 - 23 cm - GR 50 50",
+      "links": [
+        {
+          "label": "Mở trình soạn khối lệnh (tiếng Việt)",
+          "href": "https://ide.pythaverse.space/lbeditor/?lang=vi"
+        }
+      ]
     },
     {
       "part": "Đọc số liệu",
@@ -448,6 +510,12 @@
           ]
         ]
       },
+      "links": [
+        {
+          "label": "Mở trình soạn khối lệnh (tiếng Việt)",
+          "href": "https://ide.pythaverse.space/lbeditor/?lang=vi"
+        }
+      ],
       "note": "Bốn màn sau đi qua từng bộ phận một. Bảng này để con tra lại khi quên lệnh nào."
     },
     {
@@ -559,6 +627,20 @@
         "Trước khi hiệu chỉnh: chuẩn bị đủ dụng cụ.",
         "Làm xong: thử lại chính việc đó để kiểm.",
         "Vẫn sai: xem phần khắc phục sự cố, đừng làm lại từ đầu."
+      ],
+      "links": [
+        {
+          "label": "Video: hiệu chỉnh tay gắp",
+          "href": "https://youtu.be/pp1wQUnQceo"
+        },
+        {
+          "label": "Video: hiệu chỉnh đèn LED",
+          "href": "https://youtu.be/XUh6FlSeuWY"
+        },
+        {
+          "label": "Video: hiệu chỉnh động cơ",
+          "href": "https://youtu.be/KGyC57e1b7o"
+        }
       ]
     },
     {
@@ -636,6 +718,12 @@
           "5",
           "Nghe đủ 8 nốt là xong Bài 0"
         ]
+      ],
+      "links": [
+        {
+          "label": "Mở trình soạn khối lệnh (tiếng Việt)",
+          "href": "https://ide.pythaverse.space/lbeditor/?lang=vi"
+        }
       ],
       "tip": "Làm được một lượt không cần nhìn hướng dẫn thì máy của con đã sẵn sàng cho mọi bài sau."
     },

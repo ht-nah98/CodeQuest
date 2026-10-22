@@ -321,6 +321,12 @@
           "Robot dừng rồi, lấy thước đo khoảng cách tới hộp"
         ]
       ],
+      "links": [
+        {
+          "label": "Mở trình soạn khối lệnh (tiếng Việt)",
+          "href": "https://ide.pythaverse.space/lbeditor/?lang=vi"
+        }
+      ],
       "tip": "Đo được 23–27 cm là đúng. Rồi con đẩy hộp lại gần xem robot có tự lùi ra không."
     },
     {

@@ -1,3 +1,5 @@
+import { readdirSync, readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { expect, type Page } from '@playwright/test';
 
 // Shared e2e helpers. Screens after "/" need a signed-in profile (screens-and-flows.md §1).
@@ -62,4 +64,25 @@ export async function hubIntoCodeQuest(page: Page): Promise<void> {
   await expect(page).toHaveURL(/\/hub$/);
   await page.getByRole('link', { name: /CodeQuest/ }).click();
   await expect(page).toHaveURL(/\/map$/);
+}
+
+const WORLDS_DIR = fileURLToPath(new URL('../../../content/worlds/', import.meta.url));
+
+/**
+ * The world folders a child sees on the map: the app leaves out a world with no boss level yet
+ * (catalog.ts), so specs that walk "every world" must leave it out too, or they visit a world
+ * the app does not have.
+ */
+export function worldDirsOnMap(): string[] {
+  return readdirSync(WORLDS_DIR)
+    .filter((dir) => !dir.startsWith('_'))
+    .filter((dir) =>
+      readdirSync(`${WORLDS_DIR}${dir}/levels`).some(
+        (file) =>
+          (JSON.parse(readFileSync(`${WORLDS_DIR}${dir}/levels/${file}`, 'utf8')) as {
+            stage?: string;
+            retired?: boolean;
+          }).stage === 'boss',
+      ),
+    );
 }

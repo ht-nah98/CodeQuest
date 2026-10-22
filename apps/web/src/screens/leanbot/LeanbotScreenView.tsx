@@ -1,8 +1,8 @@
 import type { LeanbotScreen } from '@codequest/content-schema';
 import { LEANBOT_IMG } from '../../features/leanbot/leanbotCourse';
-import { FOCUS_RING } from '../../ui/focusRing';
 import { LeanbotCheck } from './LeanbotCheck';
 import { LeanbotEyebrow } from './LeanbotEyebrow';
+import { LeanbotLinkList } from './LeanbotLinkList';
 
 // One screen of a Leanbot lesson. Every block the schema allows has exactly one shape here,
 // so a lesson author cannot invent a layout and the pages stay consistent (ADR-0028).
@@ -123,18 +123,7 @@ export function LeanbotScreenView({
         </pre>
       )}
 
-      {screen.link && (
-        <p className="m-0">
-          <a
-            href={screen.link.href}
-            target="_blank"
-            rel="noopener"
-            className={`font-bold underline ${FOCUS_RING}`}
-          >
-            {screen.link.label}
-          </a>
-        </p>
-      )}
+      {screen.links && <LeanbotLinkList links={screen.links} />}
 
       {screen.warn !== undefined && (
         <p className={`m-0 ${BOX} border-oops bg-oops-soft font-bold`}>⚠️ {screen.warn}</p>

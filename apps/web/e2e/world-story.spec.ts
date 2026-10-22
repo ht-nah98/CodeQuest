@@ -1,7 +1,7 @@
-import { mkdirSync, readdirSync, readFileSync } from 'node:fs';
+import { mkdirSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { expect, type Page, test } from '@playwright/test';
-import { signInTestProfile } from './helpers';
+import { signInTestProfile, worldDirsOnMap } from './helpers';
 
 // P2-24 (docs/roadmap/phase-2.md): the world page tells Măng's story in chapters that open as
 // the child wins levels, with a "Chương mới!" highlight the first time. Also the clipped
@@ -97,7 +97,7 @@ async function expectFits(page: Page): Promise<void> {
 
 /** The worlds with a tale, read from content/: chapter count and every unlock level. */
 const CONTENT = fileURLToPath(new URL('../../../content/worlds/', import.meta.url));
-const WORLDS = readdirSync(CONTENT)
+const WORLDS = worldDirsOnMap()
   .filter((dir) => /^w\d{2}-/.test(dir))
   .map((dir) => {
     const world = JSON.parse(readFileSync(`${CONTENT}${dir}/world.json`, 'utf8')) as {
@@ -342,4 +342,13 @@ test('titles keep their Vietnamese marks (Xưởng Sửa Lỗi, Lắp lại…)'
   await page.goto('/');
   await expect(page.getByText('Ngỗng Lỗi')).toBeVisible();
   expect(await clippedTitles(page)).toEqual([]);
+});
+
+// A world id the app does not have (a typo, an old link, a world not released yet) says so and
+// offers the map, instead of waiting forever behind "Măng đang chuẩn bị…".
+test('an unknown world says it is not found and leads back to the map', async ({ page }) => {
+  await childWith(page, 'Bé Lạc', []);
+  await page.goto('/w/w99-khong-co');
+  await expect(page.getByRole('alert')).toBeVisible();
+  await expect(page.getByText('Măng đang chuẩn bị…')).toHaveCount(0);
 });

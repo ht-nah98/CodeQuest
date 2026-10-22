@@ -230,3 +230,36 @@ test('lesson 4 teaches the four eyes and ends with a line test', async ({ page }
   await page.getByRole('button', { name: /Đen dội lại rất ít ánh sáng/ }).click();
   await expect(page.getByText(/Trắng dội nhiều, đen dội ít/)).toBeVisible();
 });
+
+// Every page the course names has to be one click away: on the screen that names it, and all
+// together on the links page reachable from the lesson list.
+test('the links page gathers every page the course sends people to', async ({ page }) => {
+  await page.goto('/leanbot');
+  await page.getByRole('link', { name: /Đường dẫn cần biết/ }).click();
+  await expect(page).toHaveURL(/\/leanbot\/duong-dan$/);
+  await expect(page.getByRole('heading', { name: 'Mở mỗi buổi học' })).toBeVisible();
+
+  const editor = page.getByRole('link', { name: /Trình soạn khối lệnh — robot thật/ });
+  await expect(editor).toHaveAttribute('href', 'https://ide.pythaverse.space/lbeditor/?lang=vi');
+  await expect(editor).toHaveAttribute('target', '_blank');
+  await expect(page.getByRole('link', { name: /Driver CH340/ })).toBeVisible();
+  await expect(page.getByRole('link', { name: /Bài 4: Đi theo đường thông minh/ })).toBeVisible();
+
+  await page.getByRole('button', { name: /Khóa Leanbot/ }).click();
+  await expect(page).toHaveURL(/\/leanbot$/);
+});
+
+test('a screen that names a tool carries its link', async ({ page }) => {
+  // Lesson 0, "Máy tính cần ba thứ": Chrome, Edge and the editor, each one click away.
+  await page.goto('/leanbot/bai-00/11');
+  await expect(page.getByRole('heading', { name: 'Máy tính cần ba thứ' })).toBeVisible();
+  await expect(page.getByRole('link', { name: /Tải Chrome/ })).toHaveAttribute(
+    'href',
+    'https://www.google.com/chrome/',
+  );
+  await expect(page.getByRole('link', { name: /Tải Edge/ })).toBeVisible();
+  await expect(page.getByRole('link', { name: /Mở trình soạn khối lệnh/ })).toHaveAttribute(
+    'href',
+    'https://ide.pythaverse.space/lbeditor/?lang=vi',
+  );
+});

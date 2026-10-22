@@ -55,6 +55,8 @@ export {
   LEANBOT_TONES,
   LeanbotChipSchema,
   LeanbotLessonSchema,
+  LeanbotLinkSchema,
+  LeanbotLinksPageSchema,
   LeanbotQuestionSchema,
   LeanbotScreenSchema,
   LeanbotStepListSchema,
@@ -63,6 +65,8 @@ export {
 } from './leanbot';
 export type {
   LeanbotLesson,
+  LeanbotLink,
+  LeanbotLinksPage,
   LeanbotQuestion,
   LeanbotScreen,
   LeanbotTone,

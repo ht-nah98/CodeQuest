@@ -15,6 +15,7 @@ const HubScreen = lazy(() => import('../screens/hub/HubScreen'));
 const MapScreen = lazy(() => import('../screens/map/MapScreen'));
 const LeanbotScreen = lazy(() => import('../screens/leanbot/LeanbotScreen'));
 const LeanbotLessonScreen = lazy(() => import('../screens/leanbot/LeanbotLessonScreen'));
+const LeanbotLinksScreen = lazy(() => import('../screens/leanbot/LeanbotLinksScreen'));
 const WorldScreen = lazy(() => import('../screens/world/WorldScreen'));
 const LessonScreen = lazy(() => import('../screens/lesson/LessonScreen'));
 const PlayScreen = lazy(() => import('../screens/play/PlayScreen'));
@@ -55,6 +56,7 @@ export function App() {
                   <Route path="/hub" element={signedIn(<HubScreen />)} />
                   <Route path="/map" element={signedIn(<MapScreen />)} />
                   <Route path="/leanbot" element={signedIn(<LeanbotScreen />)} />
+                  <Route path="/leanbot/duong-dan" element={signedIn(<LeanbotLinksScreen />)} />
                   <Route
                     path="/leanbot/:lessonId/:page"
                     element={signedIn(<LeanbotLessonScreen />)}

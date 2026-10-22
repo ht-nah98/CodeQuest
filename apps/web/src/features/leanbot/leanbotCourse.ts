@@ -1,10 +1,19 @@
 import { useEffect, useState } from 'react';
-import { LeanbotLessonSchema, type LeanbotLesson } from '@codequest/content-schema';
+import {
+  LeanbotLessonSchema,
+  LeanbotLinksPageSchema,
+  type LeanbotLesson,
+  type LeanbotLinksPage,
+} from '@codequest/content-schema';
 
 // The Leanbot course (ADR-0028). Like the CodeQuest catalog, the lessons are JSON in
 // content/, read once per page load through the '@content' alias and validated with zod.
 
-const lessonFiles = import.meta.glob<unknown>('@content/leanbot/*.json', { import: 'default' });
+// Lessons only: the folder also holds `duong-dan.json`, the links page, which is not a lesson.
+const lessonFiles = import.meta.glob<unknown>('@content/leanbot/bai-*.json', { import: 'default' });
+const linksFile = import.meta.glob<unknown>('@content/leanbot/duong-dan.json', {
+  import: 'default',
+});
 
 /** Pictures live in public/leanbot/img; a lesson stores only the file name. */
 export const LEANBOT_IMG = '/leanbot/img/';
@@ -64,6 +73,38 @@ export function useLeanbotCourse(): CourseState {
       })
       .catch(() => {
         if (alive) setState({ lessons: null, failed: true });
+      });
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  return state;
+}
+
+/** The course's page of links (`content/leanbot/duong-dan.json`), validated like a lesson. */
+export async function loadLeanbotLinks(): Promise<LeanbotLinksPage> {
+  const load = Object.values(linksFile)[0];
+  if (load === undefined) throw new Error('content/leanbot/duong-dan.json is missing');
+  return LeanbotLinksPageSchema.parse(await load());
+}
+
+export interface LinksState {
+  page: LeanbotLinksPage | null;
+  failed: boolean;
+}
+
+export function useLeanbotLinks(): LinksState {
+  const [state, setState] = useState<LinksState>({ page: null, failed: false });
+
+  useEffect(() => {
+    let alive = true;
+    loadLeanbotLinks()
+      .then((page) => {
+        if (alive) setState({ page, failed: false });
+      })
+      .catch(() => {
+        if (alive) setState({ page: null, failed: true });
       });
     return () => {
       alive = false;

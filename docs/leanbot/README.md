@@ -31,6 +31,15 @@ làm tiếp, nó nói chỗ đang đứng và việc tiếp theo.
 **Chưa làm:** gửi bản việt hóa `tools/lbeditor-vi/` cho Pythaverse · bộ dựng PDF vẫn nằm ngoài
 repo · chưa xem 2 khóa Pythaverse còn lại.
 
+## Đường dẫn cần biết
+
+Mọi trang khóa học gửi bé và thầy tới — trình soạn khối, robot ảo, Bản Sao Số, Plearn từng bài,
+driver CH340, kho chương trình mẫu, video hướng dẫn của hãng, Teachable Machine — nằm **một chỗ**:
+`content/leanbot/duong-dan.json`, hiện trong app ở **`/leanbot/duong-dan`** (thẻ "Đường dẫn cần
+biết" ngay đầu danh sách bài). Thêm đường dẫn mới thì thêm vào file đó, đừng chỉ ghi trong giáo án.
+
+Hai trang `git.pythaverse.space` cần đăng nhập (HLV giữ tài khoản lớp, không ghi vào repo).
+
 ## Thư mục này có gì
 
 | Nơi | Nội dung | Viết cho ai |
@@ -175,7 +184,10 @@ Mỗi bài tồn tại ở **hai bản**: bản của thầy trong `giao-an/`, b
 4. **Viết bản cho bé** `content/leanbot/bai-NN.json` theo `LeanbotLessonSchema`. Schema giới
    hạn độ dài từng trường, nên nếu một màn không vừa thì **tách thành hai màn**, đừng rút gọn
    câu cho vừa.
-5. **Bài nào cũng kết bằng phần `Kiểm nghiệm`** — bắt buộc, cả hai bản. Gồm ba thứ:
+5. **Màn nào nhắc tới một trang web hay công cụ thì gắn link ngay trên màn đó** (`links`, tối đa
+   4), và thêm trang đó vào `duong-dan.json` nếu chưa có. Viết "mở trình soạn khối lệnh" mà không
+   có link là bắt bé và thầy tự đi tìm.
+6. **Bài nào cũng kết bằng phần `Kiểm nghiệm`** — bắt buộc, cả hai bản. Gồm ba thứ:
    - **Phép thử trên robot thật**, viết thành các bước làm được ngay: đặt robot ở đâu, nạp
      chương trình nào, chạm nút gì, **đo bằng gì**. Nói rõ **con số nào là đạt** ("23–27 cm",
      "sai trong 2–3 cm"), đừng viết "robot chạy đúng".
@@ -186,10 +198,10 @@ Mỗi bài tồn tại ở **hai bản**: bản của thầy trong `giao-an/`, b
    Phép thử tốt là phép thử **phân biệt được đúng với gần đúng**: nhấc cả robot lên xem khối
    có rơi không (Bài 2), cầm vở chắn ngang khi robot đang chạy (Bài 3). Chạy được một lần
    không chứng minh gì cả.
-6. **Ảnh**: bản của thầy dùng `docs/leanbot/img/`, bản của bé dùng
+7. **Ảnh**: bản của thầy dùng `docs/leanbot/img/`, bản của bé dùng
    `apps/web/public/leanbot/img/`. Cùng tệp thì chép sang cả hai nơi.
-7. **Cập nhật hai bảng**: bảng 17 buổi dạy ở trên, và bản đồ bài trong `giao-trinh.md`.
-8. **Chạy `npm run content:check`.** Nó kiểm schema, id (`bai-<2 số>`) và sự tồn tại của ảnh.
-9. **Thêm vào `apps/web/e2e/leanbot.spec.ts`** nếu bài có kiểu màn mới.
+8. **Cập nhật hai bảng**: bảng 17 buổi dạy ở trên, và bản đồ bài trong `giao-trinh.md`.
+9. **Chạy `npm run content:check`.** Nó kiểm schema, id (`bai-<2 số>`) và sự tồn tại của ảnh.
+10. **Thêm vào `apps/web/e2e/leanbot.spec.ts`** nếu bài có kiểu màn mới.
 
 Việc nào còn treo và cần kiểm trên robot thật: xem bảng cuối tài liệu này.

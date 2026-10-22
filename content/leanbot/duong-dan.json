@@ -1,0 +1,207 @@
+{
+  "title": "Đường dẫn cần biết",
+  "groups": [
+    {
+      "title": "Mở mỗi buổi học",
+      "note": "Bé và thầy dùng hằng ngày. Mở bằng Chrome hoặc Edge.",
+      "links": [
+        {
+          "label": "Trình soạn khối lệnh — robot thật",
+          "href": "https://ide.pythaverse.space/lbeditor/?lang=vi",
+          "note": "Ghép khối, nạp code xuống Leanbot"
+        },
+        {
+          "label": "Trình soạn khối lệnh — robot ảo",
+          "href": "https://ide.pythaverse.space/lbeditor-python-simulation/index.html?lang=vi",
+          "note": "Chạy thử trên Bản Sao Số, không cần robot"
+        },
+        {
+          "label": "Bản Sao Số (sa bàn ảo)",
+          "href": "https://digitaltwin.pythaverse.space/experience",
+          "note": "Bài 10 tới 12"
+        },
+        {
+          "label": "Khóa học gốc trên Plearn",
+          "href": "https://learn.pythaverse.space/course/view.php?id=1437",
+          "note": "Tiếng Anh. Cần tài khoản lớp, HLV giữ"
+        }
+      ]
+    },
+    {
+      "title": "Cài đặt máy tính",
+      "note": "Làm một lần cho mỗi máy, xem Bài 0.",
+      "links": [
+        {
+          "label": "Tải Chrome",
+          "href": "https://www.google.com/chrome/"
+        },
+        {
+          "label": "Tải Edge",
+          "href": "https://www.microsoft.com/edge"
+        },
+        {
+          "label": "Driver CH340 cho máy Windows",
+          "href": "https://www.wch-ic.com/downloads/CH341SER_EXE.html",
+          "note": "Máy không thấy robot thì cài cái này"
+        },
+        {
+          "label": "Kho chương trình kiểm tra (Tools)",
+          "href": "https://git.pythaverse.space/leanbot/Tools",
+          "note": "Cần đăng nhập. Lấy Leanbot_Test_and_Demo_v1.ino"
+        },
+        {
+          "label": "Kho chương trình mẫu của khóa",
+          "href": "https://git.pythaverse.space/ptvairoc/Synapsecity_Primary",
+          "note": "Cần đăng nhập. FollowLine, Fullmision…"
+        },
+        {
+          "label": "Gateway: nối robot thật vào sân ảo",
+          "href": "https://meta.pythaverse.space/gateway?lang=en",
+          "note": "Bài 12"
+        }
+      ]
+    },
+    {
+      "title": "Video hướng dẫn của hãng",
+      "note": "Tiếng Anh, có hình. Xem cùng Bài 0.",
+      "links": [
+        {
+          "label": "Sạc robot",
+          "href": "https://youtu.be/hfoZm4PWt6M"
+        },
+        {
+          "label": "Giữ gìn robot",
+          "href": "https://youtu.be/BS4ZiNJZEhM"
+        },
+        {
+          "label": "Kiểm tra cảm biến",
+          "href": "https://youtu.be/i-EFK6lf2as"
+        },
+        {
+          "label": "Hiệu chỉnh tay gắp",
+          "href": "https://youtu.be/pp1wQUnQceo"
+        },
+        {
+          "label": "Hiệu chỉnh đèn LED",
+          "href": "https://youtu.be/XUh6FlSeuWY"
+        },
+        {
+          "label": "Hiệu chỉnh động cơ",
+          "href": "https://youtu.be/KGyC57e1b7o"
+        }
+      ]
+    },
+    {
+      "title": "Bài học gốc trên Plearn",
+      "note": "Từng bài của khóa tiếng Anh, để thầy đối chiếu.",
+      "links": [
+        {
+          "label": "Bài 1: Chào Leanbot! Cùng di chuyển",
+          "href": "https://learn.pythaverse.space/mod/h5pactivity/view.php?id=61113"
+        },
+        {
+          "label": "Bài 2: Cánh tay kẹp thần kỳ",
+          "href": "https://learn.pythaverse.space/mod/h5pactivity/view.php?id=62121"
+        },
+        {
+          "label": "Bài 3: Mắt thần siêu âm",
+          "href": "https://learn.pythaverse.space/mod/h5pactivity/view.php?id=62125"
+        },
+        {
+          "label": "Bài 4: Đi theo đường thông minh",
+          "href": "https://learn.pythaverse.space/mod/h5pactivity/view.php?id=62361"
+        },
+        {
+          "label": "Bài 5: Dữ liệu là gì?",
+          "href": "https://learn.pythaverse.space/mod/h5pactivity/view.php?id=62105"
+        },
+        {
+          "label": "Bài 6: Dạy robot phân loại ảnh",
+          "href": "https://learn.pythaverse.space/mod/h5pactivity/view.php?id=62109"
+        },
+        {
+          "label": "Bài 7: Âm thanh vô hình",
+          "href": "https://learn.pythaverse.space/mod/h5pactivity/view.php?id=62113"
+        },
+        {
+          "label": "Bài 8: Phân loại âm thanh nâng cao",
+          "href": "https://learn.pythaverse.space/mod/h5pactivity/view.php?id=62973"
+        },
+        {
+          "label": "Bài 9: Nhận diện dáng người",
+          "href": "https://learn.pythaverse.space/mod/h5pactivity/view.php?id=62977"
+        },
+        {
+          "label": "Bài 10: Nhìn robot chạy thử trước",
+          "href": "https://learn.pythaverse.space/mod/h5pactivity/view.php?id=62981"
+        },
+        {
+          "label": "Bài 11: Điều khiển đường đi",
+          "href": "https://learn.pythaverse.space/mod/h5pactivity/view.php?id=62985"
+        },
+        {
+          "label": "Bài 12: Từ robot ảo sang robot thật",
+          "href": "https://learn.pythaverse.space/mod/h5pactivity/view.php?id=62989"
+        },
+        {
+          "label": "Bài 13: Nhiệm vụ 1: Khoanh vùng",
+          "href": "https://learn.pythaverse.space/mod/h5pactivity/view.php?id=62997"
+        },
+        {
+          "label": "Bài 14: Nhiệm vụ 2: Rải chất trung hòa",
+          "href": "https://learn.pythaverse.space/mod/h5pactivity/view.php?id=63001"
+        },
+        {
+          "label": "Bài 15: Nhiệm vụ 3: Mang mẫu về lab",
+          "href": "https://learn.pythaverse.space/mod/h5pactivity/view.php?id=63005"
+        },
+        {
+          "label": "Bài 16: Nhiệm vụ tổng hợp",
+          "href": "https://learn.pythaverse.space/mod/h5pactivity/view.php?id=63009"
+        }
+      ]
+    },
+    {
+      "title": "Công cụ cho phần AI (Bài 5 tới 9)",
+      "links": [
+        {
+          "label": "Teachable Machine",
+          "href": "https://teachablemachine.withgoogle.com/train",
+          "note": "Dạy máy phân loại ảnh, âm thanh, dáng người"
+        },
+        {
+          "label": "Scratch",
+          "href": "https://scratch.mit.edu/"
+        },
+        {
+          "label": "Xem âm thanh thành hình (Spectrogram)",
+          "href": "https://musiclab.chromeexperiments.com/Spectrogram/",
+          "note": "Bài 7"
+        }
+      ]
+    },
+    {
+      "title": "Tài liệu của hãng",
+      "note": "Cho thầy, khi gặp lỗi lạ.",
+      "links": [
+        {
+          "label": "Bắt đầu với Leanbot",
+          "href": "https://leanbot.space/start/"
+        },
+        {
+          "label": "Tài liệu Pythaverse",
+          "href": "https://pythaverse.space/docs/"
+        },
+        {
+          "label": "Khắc phục sự cố",
+          "href": "https://pythaverse.space/docs/troubleshooting-guide/"
+        },
+        {
+          "label": "Không gian học sinh",
+          "href": "https://pythaverse.space/student-workspace/dashboard",
+          "note": "Xem tiến độ trên Plearn"
+        }
+      ]
+    }
+  ]
+}

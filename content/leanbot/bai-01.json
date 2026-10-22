@@ -66,10 +66,12 @@
       ],
       "image": "blockly-toan-canh.png",
       "alt": "Trình soạn khối lệnh: thanh nhóm bên trái, vùng ghép khối ở giữa, cột code bên phải",
-      "link": {
-        "label": "Mở trình soạn khối lệnh (tiếng Việt)",
-        "href": "https://ide.pythaverse.space/lbeditor/?lang=vi"
-      }
+      "links": [
+        {
+          "label": "Mở trình soạn khối lệnh (tiếng Việt)",
+          "href": "https://ide.pythaverse.space/lbeditor/?lang=vi"
+        }
+      ]
     },
     {
       "part": "Trung tâm chỉ huy",
@@ -96,6 +98,12 @@
         ]
       ],
       "code": "https://ide.pythaverse.space/lbeditor/?lang=vi",
+      "links": [
+        {
+          "label": "Mở trình soạn khối lệnh (tiếng Việt)",
+          "href": "https://ide.pythaverse.space/lbeditor/?lang=vi"
+        }
+      ],
       "warn": "Nút bánh răng ở góc trên bên phải KHÔNG đổi ngôn ngữ. Nó mở bảng chọn nhóm khối nào được hiện.",
       "tip": "Mở bằng đường dẫn ở màn trước thì đã có sẵn đuôi ?lang=vi rồi, không phải gõ tay."
     },
@@ -188,6 +196,12 @@
       "lines": [
         "Nạp chương trình xuống Leanbot, đặt robot xuống sàn phẳng.",
         "Chạm CÙNG LÚC hai nút trước TB1A và TB1B thì robot mới chạy."
+      ],
+      "links": [
+        {
+          "label": "Mở trình soạn khối lệnh (tiếng Việt)",
+          "href": "https://ide.pythaverse.space/lbeditor/?lang=vi"
+        }
       ],
       "check": "Con cho robot đi được 15 cm rồi"
     },
@@ -416,6 +430,12 @@
           "5",
           "Robot dừng rồi, đo từ mẩu thứ nhất tới bánh sau"
         ]
+      ],
+      "links": [
+        {
+          "label": "Mở trình soạn khối lệnh (tiếng Việt)",
+          "href": "https://ide.pythaverse.space/lbeditor/?lang=vi"
+        }
       ],
       "tip": "Sai trong khoảng 2–3 cm là bình thường. Sai quá 10 cm thì xem bảng ở màn sau."
     },

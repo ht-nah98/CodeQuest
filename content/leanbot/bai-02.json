@@ -309,6 +309,12 @@
           "Khối vẫn nằm trong càng là gắp chắc"
         ]
       ],
+      "links": [
+        {
+          "label": "Mở trình soạn khối lệnh (tiếng Việt)",
+          "href": "https://ide.pythaverse.space/lbeditor/?lang=vi"
+        }
+      ],
       "tip": "Bước 4 là phép thử thật: chở hàng mà rơi dọc đường thì coi như chưa gắp được."
     },
     {

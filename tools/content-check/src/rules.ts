@@ -12,6 +12,7 @@ import {
   BadgesFileSchema,
   FeedbackFileSchema,
   LeanbotLessonSchema,
+  LeanbotLinksPageSchema,
   LessonSchema,
   ShopFileSchema,
   WorldSchema,
@@ -41,7 +42,7 @@ import { checkTurtleLevel, turtleLevelWarnings, turtleT1Warnings } from './turtl
 
 export type { GameKindLookup } from '@codequest/validator';
 
-export type ContentKind = 'world' | 'level' | 'lesson' | 'leanbot' | 'shared';
+export type ContentKind = 'world' | 'level' | 'lesson' | 'leanbot' | 'leanbotLinks' | 'shared';
 
 export interface ContentFile {
   /** Path relative to `content/`, always with `/` separators. */
@@ -89,10 +90,14 @@ const ROBOTLAB_RULES_PATH = 'shared/robotlab.json';
 const SHOP_ITEM_ID = /^(?:skin|pen|fx|music|bonus-level)-[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const BADGE_ID = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
-const ENTITY_SCHEMAS: Record<'world' | 'lesson' | 'leanbot', z.ZodType> = {
+/** `content/leanbot/duong-dan.json`: the course's page of links, not a lesson. */
+export const LEANBOT_LINKS_FILE = 'duong-dan.json';
+
+const ENTITY_SCHEMAS: Record<'world' | 'lesson' | 'leanbot' | 'leanbotLinks', z.ZodType> = {
   world: WorldSchema,
   lesson: LessonSchema,
   leanbot: LeanbotLessonSchema,
+  leanbotLinks: LeanbotLinksPageSchema,
 };
 
 function schemaIssues(path: string, error: z.ZodError): Issue[] {
@@ -203,6 +208,9 @@ function locate(path: string): Location | string {
     return { kind: 'shared', isDraft: false, expectedId: null, worldPrefix: null, worldDir: null };
   }
   // The Leanbot course (ADR-0028) is a flat folder: it has no worlds, levels or unlock chain.
+  if (parts[0] === 'leanbot' && parts[1] === LEANBOT_LINKS_FILE) {
+    return { kind: 'leanbotLinks', isDraft: false, expectedId: null, worldPrefix: null, worldDir: null };
+  }
   if (parts[0] === 'leanbot' && parts.length === 2) {
     const id = (parts[1] ?? '').replace(/\.json$/, '');
     return { kind: 'leanbot', isDraft: false, expectedId: id, worldPrefix: null, worldDir: null };
@@ -313,6 +321,13 @@ export function checkContent(
     if (location.kind === 'shared') {
       entries.push({ path: file.path, kind: 'shared', id: null });
       issues.push(...sharedIssues(file.path, parsed, claimId, shared));
+      continue;
+    }
+
+    // The Leanbot links page is one fixed file without an id: schema only.
+    if (location.kind === 'leanbotLinks') {
+      const page = LeanbotLinksPageSchema.safeParse(parsed);
+      if (!page.success) issues.push(...schemaIssues(file.path, page.error));
       continue;
     }
 

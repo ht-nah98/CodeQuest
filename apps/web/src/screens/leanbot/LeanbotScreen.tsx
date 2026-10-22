@@ -56,6 +56,16 @@ export default function LeanbotScreen() {
           ))}
         </ul>
 
+        <Link to="/leanbot/duong-dan" className={CARD}>
+          <span className="grid size-14 shrink-0 place-items-center rounded-key border-3 border-ink bg-sky-soft text-[26px]">
+            🔗
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block font-display text-[22px] leading-tight">{t.links}</span>
+            <span className="block text-sm opacity-70">{t.linksWhy}</span>
+          </span>
+        </Link>
+
         {gate.total > 0 && (
           <Panel className="p-4">
             <p className="m-0 font-bold">

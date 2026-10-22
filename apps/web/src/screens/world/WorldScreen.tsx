@@ -78,7 +78,9 @@ export default function WorldScreen() {
   useMusic('village');
 
   if (state.status === 'error') return <ScreenMessage text={vi.map.loadError} alert />;
-  if (!catalog || !child || !views) return <ScreenMessage text={vi.play.loading} />;
+  if (!catalog || !child) return <ScreenMessage text={vi.play.loading} />;
+  // Checked before `views`, which can never exist without a world: an unknown (or not yet
+  // released) world id used to wait on it forever behind "Măng đang chuẩn bị…".
   if (!world) {
     return (
       <ScreenMessage text={t.notFound} alert>
@@ -86,6 +88,7 @@ export default function WorldScreen() {
       </ScreenMessage>
     );
   }
+  if (!views) return <ScreenMessage text={vi.play.loading} />;
   if (!isUnlocked({ worldId: world.id }, unlockContext(catalog, child))) {
     return (
       <ScreenMessage text={t.lockedWorld} alert>

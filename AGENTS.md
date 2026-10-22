@@ -116,7 +116,7 @@ Báo cáo kết quả **thật**: lệnh nào đỏ thì nói đỏ, kèm output
 
 ## 9. Sai lầm đã xảy ra, đừng lặp lại
 
-Ghi ngày 21/10/2026, sau một phiên làm việc mà **ba hướng bị làm rồi bỏ**; mục 9.8–9.14 thêm
+Ghi ngày 21/10/2026, sau một phiên làm việc mà **ba hướng bị làm rồi bỏ**; mục 9.8–9.15 thêm
 ngày 22/10/2026, sau khi bật CI và đẩy lên production lần đầu. Mỗi mục là một việc đã thật sự
 xảy ra, không phải lời khuyên chung chung.
 
@@ -257,7 +257,17 @@ bảng màu 256: 292 KB, chữ trên ảnh vẫn rõ.
 **Luật:** thêm ảnh, âm thanh hay font thì đọc dòng `precache N entries (… KiB)` ở cuối
 `npm run build` và so với `deployment-ops.md`.
 
-### 9.15. Báo cả phần chưa làm được
+### 9.15. Nhắc tới công cụ thì đưa luôn đường dẫn
+
+Khóa Leanbot có 9 màn viết "mở trình soạn khối lệnh", "cài driver CH340", "dùng Chrome"… mà
+**không có một link nào**; gần 40 đường dẫn quan trọng chỉ nằm rải rác trong giáo án markdown, bé
+và thầy không thấy. Schema khi đó chỉ cho một `link` mỗi màn, nên đã chẳng gắn ở đâu cả. Huấn
+luyện viên phát hiện khi dạy.
+
+**Luật:** chữ nào nhắc một trang web hay công cụ thì màn đó mang link của nó (`links`), và mọi
+đường dẫn của khóa nằm chung ở `content/leanbot/duong-dan.json` (`/leanbot/duong-dan`).
+
+### 9.16. Báo cả phần chưa làm được
 
 Khi một mục của "Định nghĩa xong" chưa làm được (chưa có e2e, chưa xem được video hướng dẫn,
 chưa chạy thử trên robot thật) thì **nói thẳng ở cuối báo cáo**, đừng im lặng. Riêng mục

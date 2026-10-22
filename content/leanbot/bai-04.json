@@ -28,10 +28,22 @@
       "part": "Vạch đen chỉ đường",
       "title": "Chưa có sa bàn? Tự làm đường",
       "steps": [
-        ["1", "Lấy giấy trắng khổ lớn, hoặc mặt bàn sáng màu"],
-        ["2", "Dán băng dính đen, bản rộng khoảng 2 cm"],
-        ["3", "Dán thành đường thẳng dài 1 mét trước đã"],
-        ["4", "Quen rồi thì dán thêm khúc cua"]
+        [
+          "1",
+          "Lấy giấy trắng khổ lớn, hoặc mặt bàn sáng màu"
+        ],
+        [
+          "2",
+          "Dán băng dính đen, bản rộng khoảng 2 cm"
+        ],
+        [
+          "3",
+          "Dán thành đường thẳng dài 1 mét trước đã"
+        ],
+        [
+          "4",
+          "Quen rồi thì dán thêm khúc cua"
+        ]
       ],
       "tip": "Cần thêm một tờ giấy TRẮNG và một mảng ĐEN to để cân chỉnh. Băng dính dán kín một ô cũng được."
     },
@@ -43,8 +55,16 @@
         "Chỗ nào dội lại yếu, chỗ đó là vạch đen."
       ],
       "chips": [
-        { "label": "Nền trắng", "body": "Dội lại NHIỀU ánh sáng", "tone": "go" },
-        { "label": "Vạch đen", "body": "Dội lại RẤT ÍT", "tone": "sky" }
+        {
+          "label": "Nền trắng",
+          "body": "Dội lại NHIỀU ánh sáng",
+          "tone": "go"
+        },
+        {
+          "label": "Vạch đen",
+          "body": "Dội lại RẤT ÍT",
+          "tone": "sky"
+        }
       ],
       "note": "Ánh sáng này là hồng ngoại, mắt người không thấy. Điều khiển ti vi cũng dùng nó."
     },
@@ -67,12 +87,27 @@
         "Bốn mắt thành bốn ô, đọc từ trái sang phải."
       ],
       "table": {
-        "head": ["Vạch nằm đâu", "Bốn ô"],
+        "head": [
+          "Vạch nằm đâu",
+          "Bốn ô"
+        ],
         "rows": [
-          ["Chính giữa mũi robot", "▢ ■ ■ ▢"],
-          ["Lệch sang trái", "■ ■ ▢ ▢"],
-          ["Lệch sang phải", "▢ ▢ ■ ■"],
-          ["Hết vạch rồi", "▢ ▢ ▢ ▢"]
+          [
+            "Chính giữa mũi robot",
+            "▢ ■ ■ ▢"
+          ],
+          [
+            "Lệch sang trái",
+            "■ ■ ▢ ▢"
+          ],
+          [
+            "Lệch sang phải",
+            "▢ ▢ ■ ■"
+          ],
+          [
+            "Hết vạch rồi",
+            "▢ ▢ ▢ ▢"
+          ]
         ]
       }
     },
@@ -84,8 +119,16 @@
         "Khối Giá trị 4 mắt đọc ra đúng con số đó."
       ],
       "chips": [
-        { "label": "Số 6", "body": "▢ ■ ■ ▢ · vạch nằm chính giữa", "tone": "go" },
-        { "label": "Số 0", "body": "▢ ▢ ▢ ▢ · không thấy đen nữa", "tone": "oops" }
+        {
+          "label": "Số 6",
+          "body": "▢ ■ ■ ▢ · vạch nằm chính giữa",
+          "tone": "go"
+        },
+        {
+          "label": "Số 0",
+          "body": "▢ ▢ ▢ ▢ · không thấy đen nữa",
+          "tone": "oops"
+        }
       ],
       "note": "Con KHÔNG phải học thuộc 16 con số. Nhìn bốn ô là đủ."
     },
@@ -93,11 +136,23 @@
       "part": "Bốn ô trắng đen",
       "title": "Chỉ cần nhớ ba nhóm",
       "table": {
-        "head": ["Đen lệch về đâu", "Robot làm gì"],
+        "head": [
+          "Đen lệch về đâu",
+          "Robot làm gì"
+        ],
         "rows": [
-          ["Lệch sang TRÁI", "Quẹo trái"],
-          ["Lệch sang PHẢI", "Quẹo phải"],
-          ["Ở giữa, hoặc lẫn lộn", "Đi thẳng"]
+          [
+            "Lệch sang TRÁI",
+            "Quẹo trái"
+          ],
+          [
+            "Lệch sang PHẢI",
+            "Quẹo phải"
+          ],
+          [
+            "Ở giữa, hoặc lẫn lộn",
+            "Đi thẳng"
+          ]
         ]
       },
       "tip": "Vạch chạy về bên nào thì robot quay về bên đó, để bắt kịp vạch."
@@ -136,13 +191,34 @@
       "part": "Cân chỉnh mắt",
       "title": "Đỏ – Trắng – Vàng – Đen – Xanh – Xong",
       "steps": [
-        ["1", "Robot vừa bật: 4 đèn nháy ĐỎ, nghĩa là chưa cân chỉnh"],
-        ["2", "Đặt 4 mắt lên vùng TOÀN TRẮNG"],
-        ["3", "Chạm TB1A lần 1 — đèn chuyển VÀNG"],
-        ["4", "Đặt 4 mắt lên vùng TOÀN ĐEN"],
-        ["5", "Chạm TB1A lần 2 — đèn XANH LÁ khi mắt thấy đen"],
-        ["6", "Thử dời robot qua vài chỗ, xem đèn có đổi đúng"],
-        ["7", "Chạm TB1A lần 3 là xong"]
+        [
+          "1",
+          "Robot vừa bật: 4 đèn nháy ĐỎ, nghĩa là chưa cân chỉnh"
+        ],
+        [
+          "2",
+          "Đặt 4 mắt lên vùng TOÀN TRẮNG"
+        ],
+        [
+          "3",
+          "Chạm TB1A lần 1 — đèn chuyển VÀNG"
+        ],
+        [
+          "4",
+          "Đặt 4 mắt lên vùng TOÀN ĐEN"
+        ],
+        [
+          "5",
+          "Chạm TB1A lần 2 — đèn XANH LÁ khi mắt thấy đen"
+        ],
+        [
+          "6",
+          "Thử dời robot qua vài chỗ, xem đèn có đổi đúng"
+        ],
+        [
+          "7",
+          "Chạm TB1A lần 3 là xong"
+        ]
       ],
       "tip": "Nhớ ba lần chạm TB1A: lần 1 trắng, lần 2 đen, lần 3 xong."
     },
@@ -159,9 +235,18 @@
       "part": "Đọc chương trình mẫu",
       "title": "Chương trình bám vạch có ba phần",
       "steps": [
-        ["1", "ĐỌC MẮT: đọc cảm biến, lấy ra số của bốn ô"],
-        ["2", "CHỌN HƯỚNG: nhìn số đó, quẹo trái, quẹo phải hay thẳng"],
-        ["3", "KIỂM ĐÍCH: đi đủ xa chưa, tới nơi thì dừng"]
+        [
+          "1",
+          "ĐỌC MẮT: đọc cảm biến, lấy ra số của bốn ô"
+        ],
+        [
+          "2",
+          "CHỌN HƯỚNG: nhìn số đó, quẹo trái, quẹo phải hay thẳng"
+        ],
+        [
+          "3",
+          "KIỂM ĐÍCH: đi đủ xa chưa, tới nơi thì dừng"
+        ]
       ],
       "note": "Ba phần này lặp đi lặp lại rất nhanh, mỗi vòng robot chỉ nhích 1 mm."
     },
@@ -182,17 +267,48 @@
         "Phần bám vạch rất dài, nên người ta gói lại và đặt tên: followLine.",
         "Chương trình chính chỉ còn gọi đúng một dòng."
       ],
+      "links": [
+        {
+          "label": "Kho chương trình mẫu của khóa",
+          "href": "https://git.pythaverse.space/ptvairoc/Synapsecity_Primary"
+        }
+      ],
       "note": "Con chưa phải tự viết lại đoạn này. Đọc hiểu ba phần ở màn trước là đủ."
     },
     {
       "part": "Kiểm nghiệm",
       "title": "Thử trên robot: bám hết một đoạn vạch",
       "steps": [
-        ["1", "Dán đường thẳng dài khoảng 1 mét"],
-        ["2", "Nạp chương trình mẫu, rút cáp"],
-        ["3", "Cân chỉnh đủ 7 bước trên chính tờ giấy đó"],
-        ["4", "Đặt robot lên đầu vạch, bốn mắt trên vạch"],
-        ["5", "Chạm cùng lúc TB1A + TB1B rồi lùi ra xem"]
+        [
+          "1",
+          "Dán đường thẳng dài khoảng 1 mét"
+        ],
+        [
+          "2",
+          "Nạp chương trình mẫu, rút cáp"
+        ],
+        [
+          "3",
+          "Cân chỉnh đủ 7 bước trên chính tờ giấy đó"
+        ],
+        [
+          "4",
+          "Đặt robot lên đầu vạch, bốn mắt trên vạch"
+        ],
+        [
+          "5",
+          "Chạm cùng lúc TB1A + TB1B rồi lùi ra xem"
+        ]
+      ],
+      "links": [
+        {
+          "label": "Kho chương trình mẫu của khóa",
+          "href": "https://git.pythaverse.space/ptvairoc/Synapsecity_Primary"
+        },
+        {
+          "label": "Mở trình soạn khối lệnh (tiếng Việt)",
+          "href": "https://ide.pythaverse.space/lbeditor/?lang=vi"
+        }
       ],
       "tip": "Đạt khi robot đi hết đoạn vạch mà KHÔNG rời ra lần nào. Rời một lần là chưa đạt."
     },
@@ -210,14 +326,35 @@
       "part": "Kiểm nghiệm",
       "title": "Robot làm sai thì tra bảng này",
       "table": {
-        "head": ["Con thấy", "Sửa chỗ nào"],
+        "head": [
+          "Con thấy",
+          "Sửa chỗ nào"
+        ],
         "rows": [
-          ["Trôi khỏi vạch liên tục", "Cân chỉnh lại. Đây là lỗi hay gặp nhất"],
-          ["Chạy vài giây rồi dừng", "Mất vạch nên thành số 0. Dán vạch liền nét hơn"],
-          ["Dừng ngay khi vừa chạy", "Đường ngắn hơn 1 mét. Giảm số 1000 mm xuống"],
-          ["Cắt ngang khúc cua", "Cua gấp quá, dán cua rộng hơn"],
-          ["Đèn vẫn nháy đỏ", "Chưa cân chỉnh xong. Chạm đủ ba lần TB1A"],
-          ["Lúc được lúc không", "Giấy bóng hoặc nắng chiếu vào. Đổi chỗ chạy"]
+          [
+            "Trôi khỏi vạch liên tục",
+            "Cân chỉnh lại. Đây là lỗi hay gặp nhất"
+          ],
+          [
+            "Chạy vài giây rồi dừng",
+            "Mất vạch nên thành số 0. Dán vạch liền nét hơn"
+          ],
+          [
+            "Dừng ngay khi vừa chạy",
+            "Đường ngắn hơn 1 mét. Giảm số 1000 mm xuống"
+          ],
+          [
+            "Cắt ngang khúc cua",
+            "Cua gấp quá, dán cua rộng hơn"
+          ],
+          [
+            "Đèn vẫn nháy đỏ",
+            "Chưa cân chỉnh xong. Chạm đủ ba lần TB1A"
+          ],
+          [
+            "Lúc được lúc không",
+            "Giấy bóng hoặc nắng chiếu vào. Đổi chỗ chạy"
+          ]
         ]
       },
       "check": "Robot bám hết đoạn vạch, không rời lần nào"
@@ -237,7 +374,12 @@
     },
     {
       "q": "Bốn ô là ■ ■ ▢ ▢. Robot nên làm gì?",
-      "options": ["Quẹo trái", "Quẹo phải", "Đi thẳng", "Dừng lại"],
+      "options": [
+        "Quẹo trái",
+        "Quẹo phải",
+        "Đi thẳng",
+        "Dừng lại"
+      ],
       "correct": 0,
       "explain": "Đen đang lệch sang trái, nên robot quẹo trái để bắt kịp vạch."
     },

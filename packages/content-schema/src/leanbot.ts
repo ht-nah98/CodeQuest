@@ -24,6 +24,13 @@ export const LeanbotTableSchema = z.strictObject({
 });
 
 /** A numbered procedure. Longer than eight steps is a sign the screen holds two ideas. */
+/** A web page a child or the coach opens from the course: the editor, a video, a download. */
+export const LeanbotLinkSchema = z.strictObject({
+  label: z.string().min(1).max(60),
+  href: z.url(),
+});
+export type LeanbotLink = z.infer<typeof LeanbotLinkSchema>;
+
 export const LeanbotStepListSchema = z
   .array(z.tuple([z.string().min(1).max(3), z.string().min(1).max(90)]))
   .min(2)
@@ -49,7 +56,11 @@ export const LeanbotScreenSchema = z
     steps: LeanbotStepListSchema.optional(),
     list: z.array(z.string().min(1).max(140)).min(2).max(5).optional(),
     code: z.string().min(1).max(200).optional(),
-    link: z.strictObject({ label: z.string().min(1), href: z.url() }).optional(),
+    /**
+     * Pages this screen talks about. A screen that names a tool ("trình soạn khối lệnh", "Chrome",
+     * "driver CH340") carries its link, so nobody has to go and look for it.
+     */
+    links: z.array(LeanbotLinkSchema).min(1).max(4).optional(),
     /** Red box: a trap that looks like a broken robot. */
     warn: z.string().min(1).max(200).optional(),
     /** Yellow box: a trick worth keeping. */
@@ -107,3 +118,33 @@ export const LeanbotLessonSchema = z.strictObject({
   source: z.string().min(1).optional(),
 });
 export type LeanbotLesson = z.infer<typeof LeanbotLessonSchema>;
+
+/**
+ * `content/leanbot/duong-dan.json`: every page the course sends people to, in groups, on one
+ * screen that is always one click from the lesson list. A link that only lives inside one lesson
+ * is a link nobody finds again.
+ */
+export const LeanbotLinksPageSchema = z.strictObject({
+  title: z.string().min(1).max(60),
+  groups: z
+    .array(
+      z.strictObject({
+        title: z.string().min(1).max(60),
+        /** Who it is for, or when to open it. */
+        note: z.string().min(1).max(160).optional(),
+        links: z
+          .array(
+            z.strictObject({
+              label: z.string().min(1).max(60),
+              href: z.url(),
+              note: z.string().min(1).max(120).optional(),
+            }),
+          )
+          .min(1)
+          .max(20),
+      }),
+    )
+    .min(1)
+    .max(12),
+});
+export type LeanbotLinksPage = z.infer<typeof LeanbotLinksPageSchema>;
