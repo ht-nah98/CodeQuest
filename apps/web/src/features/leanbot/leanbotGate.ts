@@ -9,15 +9,23 @@ import type { LeanbotLesson } from '@codequest/content-schema';
 
 const PREFIX = 'cq.leanbot.check.';
 
-/** Storage key of one tick box; the screen index is the one the route uses. */
-export function checkKey(lessonId: string, index: number): string {
-  return `${PREFIX}${lessonId}.${String(index)}`;
+/**
+ * Storage key of one tick box: the screen's `checkId`, or its index for a screen without one.
+ * Screens that may move carry a `checkId`, so a tick stays with its screen.
+ */
+export function checkKey(lessonId: string, id: string | number): string {
+  return `${PREFIX}${lessonId}.${String(id)}`;
+}
+
+/** The storage id of the tick on screen `index`. */
+export function checkIdOf(screen: LeanbotLesson['screens'][number], index: number): string {
+  return screen.checkId ?? String(index);
 }
 
 /** Keys of every tick box in a lesson, in screen order. */
 export function checkKeysOf(lesson: LeanbotLesson): string[] {
   return lesson.screens.flatMap((screen, i) =>
-    screen.check === undefined ? [] : [checkKey(lesson.id, i)],
+    screen.check === undefined ? [] : [checkKey(lesson.id, checkIdOf(screen, i))],
   );
 }
 

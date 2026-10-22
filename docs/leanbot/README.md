@@ -198,8 +198,11 @@ Mỗi bài tồn tại ở **hai bản**: bản của thầy trong `giao-an/`, b
    Phép thử tốt là phép thử **phân biệt được đúng với gần đúng**: nhấc cả robot lên xem khối
    có rơi không (Bài 2), cầm vở chắn ngang khi robot đang chạy (Bài 3). Chạy được một lần
    không chứng minh gì cả.
-7. **Ảnh**: bản của thầy dùng `docs/leanbot/img/`, bản của bé dùng
-   `apps/web/public/leanbot/img/`. Cùng tệp thì chép sang cả hai nơi.
+7. **Ảnh — gần như màn nào cũng có** (HLV 22/10/2026: bé đọc chữ không hiểu, học qua hình).
+   Robot đi thế nào thì vẽ robot với mũi tên; ghép khối gì thì chụp đúng các khối đó; dễ nhầm
+   thì một cặp hình "Đúng / Sai". Vẽ bằng `npm run leanbot:art` (xem
+   `tools/leanbot-art/README.md`), gắn vào màn bằng `images`. Ảnh chụp tay: bản của thầy dùng
+   `docs/leanbot/img/`, bản của bé dùng `apps/web/public/leanbot/img/`.
 8. **Cập nhật hai bảng**: bảng 17 buổi dạy ở trên, và bản đồ bài trong `giao-trinh.md`.
 9. **Chạy `npm run content:check`.** Nó kiểm schema, id (`bai-<2 số>`) và sự tồn tại của ảnh.
 10. **Thêm vào `apps/web/e2e/leanbot.spec.ts`** nếu bài có kiểu màn mới.

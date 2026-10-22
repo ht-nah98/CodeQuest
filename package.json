@@ -24,7 +24,8 @@
     "e2e": "npm -w apps/web run e2e --",
     "sprites": "python3 tools/sprites/clean.py",
     "sprites:pack": "python3 tools/sprites/pack.py",
-    "coach-pin-hash": "python3 tools/coach/pin_hash.py"
+    "coach-pin-hash": "python3 tools/coach/pin_hash.py",
+    "leanbot:art": "node tools/leanbot-art/render.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

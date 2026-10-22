@@ -8,7 +8,12 @@
         {
           "label": "Trình soạn khối lệnh — robot thật",
           "href": "https://ide.pythaverse.space/lbeditor/?lang=vi",
-          "note": "Ghép khối, nạp code xuống Leanbot"
+          "note": "Ghép khối, rồi bấm copy để mang code sang Leanbot IDE"
+        },
+        {
+          "label": "Leanbot IDE — nạp code, xem SERIAL",
+          "href": "https://ide.pythaverse.space/#/code",
+          "note": "Dán code, chọn cổng, nạp xuống robot thật; kiểm robot ở Bài 0"
         },
         {
           "label": "Trình soạn khối lệnh — robot ảo",

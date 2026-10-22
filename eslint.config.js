@@ -260,6 +260,15 @@ export default defineConfig(
     },
   },
 
+  // tools/leanbot-art is a standalone Node script that drives a browser: the code passed to
+  // `evaluate` runs inside Pythaverse's block editor, where `Blockly` is a global.
+  {
+    files: ['tools/leanbot-art/**/*.mjs'],
+    extends: [tseslint.configs.disableTypeChecked],
+    languageOptions: { globals: { ...globals.browser, ...globals.node } },
+    rules: { 'no-console': 'off' },
+  },
+
   // Web app.
   {
     files: ['apps/web/src/**/*.{ts,tsx}'],

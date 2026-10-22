@@ -392,11 +392,11 @@ export function checkContent(
       // Rule 18 for the Leanbot course: a screen's picture must exist in public/leanbot/img.
       const lesson = entity.success ? LeanbotLessonSchema.parse(parsed) : null;
       for (const [index, screen] of (lesson?.screens ?? []).entries()) {
-        if (screen.image !== undefined) {
+        for (const [i, image] of (screen.images ?? []).entries()) {
           shared.assets.push([
             file.path,
-            `screens.${String(index)}.image`,
-            `/leanbot/img/${screen.image}`,
+            `screens.${String(index)}.images.${String(i)}.src`,
+            `/leanbot/img/${image.src}`,
           ]);
         }
       }

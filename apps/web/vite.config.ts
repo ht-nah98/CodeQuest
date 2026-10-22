@@ -113,8 +113,14 @@ export default defineConfig({
         // App shell, every JS chunk (content JSON is bundled into chunks), CSS, fonts, sprites,
         // tiles, Blockly media, music and sound effects. Budget: deployment-ops.md "PWA".
         globPatterns: ['**/*.{html,js,css,woff2,png,svg,gif,cur,mp3,json}'],
-        // Voice lines grow with the curriculum: cached on first play instead (below).
-        globIgnores: ['audio/voice/**', 'icons/icon-*.png', 'icons/apple-touch-icon.png'],
+        // Voice lines and Leanbot lesson pictures grow with the curriculum: cached on first use
+        // instead (below). The Leanbot course is taught next to an online editor anyway.
+        globIgnores: [
+          'audio/voice/**',
+          'leanbot/img/**',
+          'icons/icon-*.png',
+          'icons/apple-touch-icon.png',
+        ],
         // StageController (Pixi + Blockly) is ~1.3 MB; the default 2 MiB cap would be tight.
         maximumFileSizeToCacheInBytes: 3 * 1024 * 1024,
         navigateFallback: '/index.html',
@@ -125,6 +131,11 @@ export default defineConfig({
             urlPattern: /\/audio\/voice\/.+\.mp3$/,
             handler: 'StaleWhileRevalidate',
             options: { cacheName: 'cq-voice', expiration: { maxEntries: 1000 } },
+          },
+          {
+            urlPattern: /\/leanbot\/img\/.+\.(?:png|svg)$/,
+            handler: 'StaleWhileRevalidate',
+            options: { cacheName: 'cq-leanbot-img', expiration: { maxEntries: 500 } },
           },
         ],
       },

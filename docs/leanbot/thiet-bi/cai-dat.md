@@ -91,6 +91,22 @@ C++ Code to physical Leanbot", không nói làm thế nào.
 6. **Rút dây USB.** Robot bắt đầu chạy chương trình mới.
 7. Robot chờ **chạm cùng lúc TB1A + TB1B** rồi mới đi (nếu dùng khối Nhiệm vụ của lớp).
 
+### 5.3 Máy Linux báo "Failed to open serial port"
+
+Hộp chọn cổng thấy `USB Serial (ttyUSB0)` mà nạp thì báo lỗi này: tài khoản chưa có quyền mở
+cổng (`/dev/ttyUSB0` thuộc nhóm `dialout`; thêm vào nhóm rồi thì phải đăng xuất mới có hiệu
+lực). Cấp quyền một lần cho mọi Leanbot (chip CH340, `1a86:7523`), không cần đăng xuất:
+
+```bash
+echo 'SUBSYSTEM=="tty", ATTRS{idVendor}=="1a86", ATTRS{idProduct}=="7523", MODE="0666", ENV{ID_MM_DEVICE_IGNORE}="1"' \
+  | sudo tee /etc/udev/rules.d/99-leanbot.rules
+sudo udevadm control --reload && sudo udevadm trigger
+```
+
+Kiểm ngày 22/10/2026 trên máy của thầy: sau lệnh này IDE nạp tới 100% – Done!.
+Chip CH340 không có số serial nên **Chrome không nhớ quyền cổng**: mỗi lần mở lại Chrome phải
+bấm SELECT DEVICE chọn cổng một lần.
+
 Máy **Windows 7 32-bit** cần cài driver cổng Arduino riêng — xem tài liệu
 "Instructions for installing the driver for the port connected to the Arduino circuit"
 trên <https://pythaverse.space/docs/>. Windows 10/11 và Linux không cần.

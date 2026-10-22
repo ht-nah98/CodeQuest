@@ -7,7 +7,7 @@
   "source": "Khóa 1437 · Lesson 2 The Functional Bot, The Magic Gripper (35 slide)",
   "goals": [
     "Nhớ càng mở ở 0 độ, đóng ở 90 độ",
-    "Ghép khối Tay gắp: Mở và Tay gắp: Đóng",
+    "Ghép khối Gripper: Open (mở) và Gripper: Close (đóng)",
     "Điền góc vào khối Xoay tới góc, giữ trong khoảng an toàn",
     "Điền đúng ba ô của khối xoay từng càng",
     "Xếp đúng thứ tự gắp – chở – thả",
@@ -20,6 +20,12 @@
       "lines": [
         "Con từng thấy cần cẩu, máy gắp thú hay robot giao hàng chưa?",
         "Người mình nhấc đồ bằng tay. Leanbot cũng vậy."
+      ],
+      "images": [
+        {
+          "src": "bai-02/may-gap.png",
+          "alt": "Máy gắp thú gắp quả bóng, mũi tên sang Leanbot đang kẹp một khối vàng"
+        }
       ]
     },
     {
@@ -29,8 +35,12 @@
         "Tay gắp là hai càng ở phía trước robot.",
         "Mỗi càng có một động cơ nhỏ gọi là SERVO."
       ],
-      "image": "leanbot-phan-cung-1.png",
-      "alt": "Leanbot nhìn nghiêng, thấy hai càng tay gắp phía trước và các bộ phận khác"
+      "images": [
+        {
+          "src": "leanbot-phan-cung-1.png",
+          "alt": "Leanbot nhìn nghiêng, thấy hai càng tay gắp phía trước và các bộ phận khác"
+        }
+      ]
     },
     {
       "part": "Tay gắp của robot",
@@ -39,11 +49,31 @@
         "Servo quay càng tới đúng góc con bảo, rồi GIỮ nguyên ở đó.",
         "Không quay mãi như bánh xe."
       ],
+      "images": [
+        {
+          "src": "bai-02/servo-giu.png",
+          "alt": "Hai càng dừng ở một góc, có ổ khóa: servo quay tới góc rồi giữ"
+        },
+        {
+          "src": "bai-02/banh-quay-mai.png",
+          "alt": "Bánh xe có mũi tên quay vòng: bánh xe quay mãi"
+        }
+      ],
       "note": "Khối tay gắp nằm trong nhóm Leanbot, nhóm con Tay gắp (tiếng Anh: Gripper)."
     },
     {
       "part": "Hai góc phải nhớ",
       "title": "0 độ là MỞ, 90 độ là ĐÓNG",
+      "images": [
+        {
+          "src": "bai-02/goc-0.png",
+          "alt": "Robot nhìn từ trước, hai càng chúc thẳng xuống đất: 0 độ là mở"
+        },
+        {
+          "src": "bai-02/goc-90.png",
+          "alt": "Robot nhìn từ trước, hai càng nằm ngang khép vào giữa: 90 độ là đóng"
+        }
+      ],
       "chips": [
         {
           "label": "0 độ · Mở",
@@ -64,11 +94,23 @@
       "lines": [
         "Góc của càng chỉ được nằm từ −30 độ đến 120 độ."
       ],
+      "images": [
+        {
+          "src": "bai-02/khoang-an-toan.png",
+          "alt": "Vùng xanh từ −30 độ đến 120 độ là an toàn; vùng đỏ ngoài đó, 150 độ là gãy"
+        }
+      ],
       "warn": "Gõ 150 hay −90 là càng có thể GÃY. Trước khi bấm chạy, con đọc lại số một lần nữa."
     },
     {
       "part": "Hai góc phải nhớ",
       "title": "Thử mở càng xem nào",
+      "images": [
+        {
+          "src": "bai-02/mo-cang-khoi.png",
+          "alt": "Chương trình bốn khối đánh số: Leanbot bắt đầu hoạt động, Mission: Begin when, Gripper: Open, Mission: End"
+        }
+      ],
       "steps": [
         [
           "1",
@@ -76,28 +118,42 @@
         ],
         [
           "2",
-          "Nhiệm vụ: Bắt đầu khi chạm cùng lúc TB1A + TB1B"
+          "Mission: Begin when TB1A + TB1B combo touched"
         ],
         [
           "3",
-          "Tay gắp: Mở"
+          "Gripper: Open (tay gắp mở)"
         ],
         [
           "4",
-          "Nhiệm vụ: Kết thúc"
+          "Mission: End"
         ]
       ],
-      "check": "Con mở được hai càng rồi"
+      "check": "Con mở được hai càng rồi",
+      "checkId": "5"
     },
     {
       "part": "Hai góc phải nhớ",
       "title": "Giờ đổi thành đóng",
       "lines": [
-        "Giữ nguyên chương trình, chỉ thay khối giữa thành Tay gắp: Đóng.",
+        "Giữ nguyên chương trình, chỉ thay khối giữa thành Gripper: Close (tay gắp đóng).",
         "Nhìn cột code bên phải xem dòng nào đổi."
       ],
+      "images": [
+        {
+          "src": "bai-02/dong-cang-khoi.png",
+          "alt": "Chương trình với khối giữa là Gripper: Close",
+          "caption": "Chương trình"
+        },
+        {
+          "src": "bai-02/dong-cang.png",
+          "alt": "Hai càng khép vào giữa",
+          "caption": "Robot đóng càng"
+        }
+      ],
       "code": "LbGripper.open();   →   LbGripper.close();",
-      "check": "Con đóng được hai càng rồi"
+      "check": "Con đóng được hai càng rồi",
+      "checkId": "6"
     },
     {
       "part": "Chọn góc bất kỳ",
@@ -106,12 +162,30 @@
         "Khối này cho con tự chọn góc, không chỉ mở hay đóng.",
         "Hai càng cùng về đúng góc đó."
       ],
+      "images": [
+        {
+          "src": "bai-02/xoay-120-khoi.png",
+          "alt": "Khối Gripper: Rotate to 120 độ, ô số được khoanh vàng",
+          "caption": "Khối"
+        },
+        {
+          "src": "bai-02/xoay-120.png",
+          "alt": "Hai càng nghiêng lên quá nằm ngang: 120 độ",
+          "caption": "Robot"
+        }
+      ],
       "code": "LbGripper.moveTo(120);",
       "note": "120 độ là đóng SÁT hơn cả Đóng. Nó cũng là giới hạn trên của khoảng an toàn."
     },
     {
       "part": "Chọn góc bất kỳ",
       "title": "Khối xoay từng càng có ba ô",
+      "images": [
+        {
+          "src": "bai-02/ba-o.png",
+          "alt": "Khối xoay từng càng, ba ô số đánh 1, 2, 3: góc trái, góc phải, thời gian"
+        }
+      ],
       "table": {
         "head": [
           "Ô",
@@ -137,6 +211,12 @@
     {
       "part": "Chọn góc bất kỳ",
       "title": "Mili giây là gì?",
+      "images": [
+        {
+          "src": "bai-02/mili-giay.png",
+          "alt": "Thanh thời gian: 500 mili giây là nửa giây, 1000 mili giây là 1 giây"
+        }
+      ],
       "chips": [
         {
           "label": "1 giây",
@@ -154,6 +234,12 @@
     {
       "part": "Chọn góc bất kỳ",
       "title": "Thử một lần nhanh, một lần chậm",
+      "images": [
+        {
+          "src": "bai-02/nhanh-cham-khoi.png",
+          "alt": "Bốn khối đánh số: xoay trong 100 mili giây, chờ 2 giây, xoay trong 5000 mili giây, chờ 2 giây"
+        }
+      ],
       "steps": [
         [
           "1",
@@ -173,11 +259,18 @@
         ]
       ],
       "note": "Khối này làm XONG rồi chương trình mới đi tiếp. Robot không đứng im đâu, nó đang quay chậm.",
-      "check": "Con thấy càng quay nhanh và quay chậm"
+      "check": "Con thấy càng quay nhanh và quay chậm",
+      "checkId": "10"
     },
     {
       "part": "Gắp – chở – thả",
       "title": "Bốn bước để gắp",
+      "images": [
+        {
+          "src": "bai-02/gap-4-buoc.png",
+          "alt": "Bốn ô: tới gần vật, mở càng, hạ càng quanh khối, đóng càng kẹp khối"
+        }
+      ],
       "steps": [
         [
           "1",
@@ -201,6 +294,12 @@
     {
       "part": "Gắp – chở – thả",
       "title": "Bốn bước để thả",
+      "images": [
+        {
+          "src": "bai-02/tha-4-buoc.png",
+          "alt": "Bốn ô: đi tới ô thả, đứng đúng chỗ, mở càng cho khối rơi, lùi ra"
+        }
+      ],
       "steps": [
         [
           "1",
@@ -228,6 +327,12 @@
         "Gắp ở kho, chở tới khu phố, rồi mới thả.",
         "Càng phải ĐÓNG suốt lúc robot đang chạy."
       ],
+      "images": [
+        {
+          "src": "bai-02/dong-roi-chay.png",
+          "alt": "Robot chở khối từ KHO tới KHU PHỐ, càng đóng suốt đường, tới nơi mới mở"
+        }
+      ],
       "tip": "Mở càng chỉ khi đã tới nơi. Đúng thứ tự thì mới giao được hàng."
     },
     {
@@ -236,6 +341,12 @@
       "lines": [
         "Sau khi đóng càng, cho robot chờ 1 giây rồi mới chạy.",
         "Một giây đó để càng kẹp chặt, khối không tuột."
+      ],
+      "images": [
+        {
+          "src": "bai-02/cho-1-giay.png",
+          "alt": "Khối Gripper: Close, rồi Chờ 1 giây được khoanh vàng, rồi mới chạy"
+        }
       ],
       "code": "LbDelay(1000);",
       "note": "LbDelay đếm bằng mili giây, nên 1 giây là 1000."
@@ -246,6 +357,12 @@
       "lines": [
         "Đặt một khối xốp trước robot. Con tự ghép khối nhé."
       ],
+      "images": [
+        {
+          "src": "bai-02/may-gap-thu.png",
+          "alt": "Năm bước: càng mở, tiến tới khối xốp, đóng gắp, lùi về, mở thả khối"
+        }
+      ],
       "list": [
         "Bắt đầu với càng MỞ.",
         "Tiến tới khối xốp.",
@@ -253,11 +370,24 @@
         "Lùi về chỗ xuất phát.",
         "Mở càng để thả khối."
       ],
-      "check": "Robot của con gắp và thả được khối"
+      "check": "Robot của con gắp và thả được khối",
+      "checkId": "15"
     },
     {
       "part": "Thử sức",
       "title": "Robot chộp hụt thì hỏi gì?",
+      "images": [
+        {
+          "src": "bai-02/chop-hut.png",
+          "alt": "Càng khép vào chỗ trống vì khối còn xa",
+          "caption": "Chộp hụt"
+        },
+        {
+          "src": "bai-02/gap-trung.png",
+          "alt": "Robot tiến gần rồi đóng, kẹp được khối",
+          "caption": "Gắp trúng"
+        }
+      ],
       "steps": [
         [
           "1",
@@ -277,6 +407,12 @@
     {
       "part": "Thử sức",
       "title": "Viết ba dòng vào sổ kỹ sư",
+      "images": [
+        {
+          "src": "bai-02/so-ky-su.png",
+          "alt": "Cuốn sổ có ba dòng: khó nhất là, lần sau con sẽ, con tự hào vì"
+        }
+      ],
       "list": [
         "Phần khó nhất hôm nay là gì?",
         "Lần sau con sẽ làm khác chỗ nào?",
@@ -287,6 +423,12 @@
     {
       "part": "Kiểm nghiệm",
       "title": "Thử trên robot: gắp và chở",
+      "images": [
+        {
+          "src": "bai-02/nhac-robot.png",
+          "alt": "Hai tay nhấc robot lên, khối vàng vẫn nằm trong càng"
+        }
+      ],
       "steps": [
         [
           "1",
@@ -298,7 +440,7 @@
         ],
         [
           "3",
-          "Chạm hai nút, nhìn càng mở trước khi tiến"
+          "Chạm hai vùng TB1A + TB1B, nhìn càng mở trước khi tiến"
         ],
         [
           "4",
@@ -313,6 +455,10 @@
         {
           "label": "Mở trình soạn khối lệnh (tiếng Việt)",
           "href": "https://ide.pythaverse.space/lbeditor/?lang=vi"
+        },
+        {
+          "label": "Mở Leanbot IDE (nạp code, xem SERIAL)",
+          "href": "https://ide.pythaverse.space/#/code"
         }
       ],
       "tip": "Bước 4 là phép thử thật: chở hàng mà rơi dọc đường thì coi như chưa gắp được."
@@ -328,7 +474,7 @@
         "rows": [
           [
             "Robot húc khối văng đi",
-            "Khối Tay gắp: Mở phải nằm ĐẦU chương trình"
+            "Khối Gripper: Open phải nằm ĐẦU chương trình"
           ],
           [
             "Càng khép vào chỗ trống",
@@ -348,7 +494,8 @@
           ]
         ]
       },
-      "check": "Con nhấc robot lên mà khối không rơi"
+      "check": "Con nhấc robot lên mà khối không rơi",
+      "checkId": "19"
     }
   ],
   "quiz": [

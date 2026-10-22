@@ -29,6 +29,21 @@ describe('checkKeysOf', () => {
     expect(checkKeysOf(gate)).toEqual([checkKey('bai-00', 0), checkKey('bai-00', 2)]);
   });
 
+  it('keys a tick by its checkId, so it stays with its screen when screens are inserted', () => {
+    const plain = { part: 'p', title: 't', lines: ['l'] };
+    const moved: LeanbotLesson = {
+      ...gate,
+      // the tick that was on screen 2 now sits on screen 3, a new screen pushed it down
+      screens: [
+        { ...plain, check: 'tick one' },
+        plain,
+        plain,
+        { ...plain, check: 'tick two', checkId: '2' },
+      ],
+    };
+    expect(checkKeysOf(moved)).toEqual([checkKey('bai-00', 0), checkKey('bai-00', '2')]);
+  });
+
   it('is empty for a lesson without ticks', () => {
     expect(checkKeysOf(lesson('bai-09', 9, [undefined]))).toEqual([]);
   });

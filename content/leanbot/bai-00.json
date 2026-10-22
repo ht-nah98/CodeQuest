@@ -23,14 +23,24 @@
         "Đây là robot con sẽ lập trình cả khóa.",
         "Trước khi ra lệnh cho nó, mình làm quen đã."
       ],
-      "image": "leanbot-phan-cung-1.png",
-      "alt": "Leanbot nhìn nghiêng, có chú thích từng bộ phận"
+      "images": [
+        {
+          "src": "leanbot-phan-cung-1.png",
+          "alt": "Leanbot nhìn nghiêng, có chú thích từng bộ phận"
+        }
+      ]
     },
     {
       "part": "Robot của con",
       "title": "Robot có 6 bộ phận",
       "lines": [
         "Mỗi bộ phận học ở một bài khác nhau."
+      ],
+      "images": [
+        {
+          "src": "bai-00/bo-phan.png",
+          "alt": "Leanbot nhìn từ trên xuống, chú thích mắt siêu âm, càng tay gắp, đèn màu, vùng chạm, bánh xe, mắt hồng ngoại"
+        }
       ],
       "table": {
         "head": [
@@ -78,6 +88,18 @@
       "lines": [
         "Đừng lẫn hai nhóm này. Chúng làm hai việc khác nhau."
       ],
+      "images": [
+        {
+          "src": "bai-00/ir-duoi-bung.png",
+          "alt": "Bốn mắt dưới bụng robot nằm trên vạch đen",
+          "caption": "4 mắt dưới bụng"
+        },
+        {
+          "src": "bai-00/ir-hai-ben.png",
+          "alt": "Bốn mắt hai bên thân robot nhìn thấy hộp bên cạnh",
+          "caption": "4 mắt hai bên"
+        }
+      ],
       "chips": [
         {
           "label": "4 mắt dưới bụng",
@@ -97,19 +119,35 @@
       "lines": [
         "Ô vuông nhỏ ở giữa lưng robot chính là bộ não."
       ],
-      "image": "leanbot-phan-cung-3.png",
-      "alt": "Leanbot nhìn từ trên xuống: 4 nút chạm, Arduino Nano, Bluetooth",
+      "images": [
+        {
+          "src": "leanbot-phan-cung-3.png",
+          "alt": "Leanbot nhìn từ trên xuống: 4 vùng chạm, Arduino Nano, Bluetooth"
+        }
+      ],
       "note": "Lát nữa trong máy tính con sẽ thấy chữ ARDUINO UNO. Không sao, vẫn nạp được."
     },
     {
       "part": "Robot của con",
-      "title": "4 nút chạm, nhớ tên nhé",
+      "title": "4 vùng chạm, nhớ tên nhé",
       "lines": [
-        "TB1A và TB1B ở phía trước.",
-        "TB2A và TB2B ở phía sau."
+        "Không phải nút bấm! Là 4 vùng ở MÉP tấm mạch đỏ, có chữ tên và đường răng cưa.",
+        "TB1A và TB1B ở phía trước. TB2A và TB2B ở phía sau."
+      ],
+      "images": [
+        {
+          "src": "bai-00/vung-cham-tb1a.png",
+          "alt": "Ảnh thật: mép mạch đỏ có chữ TB1A giữa hai đường răng cưa trắng",
+          "caption": "Vùng TB1A"
+        },
+        {
+          "src": "bai-00/vung-cham-tb1b-tb2b.png",
+          "alt": "Ảnh thật: mép mạch có chữ TB2B và TB1B với đường răng cưa",
+          "caption": "Vùng TB2B và TB1B"
+        }
       ],
       "code": "LbMission.begin( TB1A + TB1B );",
-      "warn": "Phải chạm CÙNG LÚC hai nút trước. Chạm một nút thì robot đứng im — robot không hỏng đâu!"
+      "warn": "Chạm đầu ngón tay vào đúng chữ đó, không cần ấn. Phải chạm CÙNG LÚC hai vùng phía trước thì robot mới chạy."
     },
     {
       "part": "Hai cổng USB",
@@ -117,12 +155,28 @@
       "lines": [
         "Hai cổng nằm sát nhau mà làm hai việc khác hẳn."
       ],
-      "image": "leanbot-phan-cung-2.png",
-      "alt": "Mặt sau Leanbot: cổng Arduino, cổng sạc, công tắc, cục pin"
+      "images": [
+        {
+          "src": "leanbot-phan-cung-2.png",
+          "alt": "Mặt sau Leanbot: cổng Arduino, cổng sạc, công tắc, cục pin"
+        }
+      ]
     },
     {
       "part": "Hai cổng USB",
       "title": "Cắm nhầm là coi như robot chết",
+      "images": [
+        {
+          "src": "bai-00/cong-tren.png",
+          "alt": "Cáp cắm vào cổng trên của robot, dấu tích xanh",
+          "caption": "Cổng TRÊN: nạp code"
+        },
+        {
+          "src": "bai-00/cong-duoi.png",
+          "alt": "Cáp cắm vào cổng dưới ở cục pin, dấu chéo đỏ",
+          "caption": "Cổng DƯỚI: chỉ sạc"
+        }
+      ],
       "chips": [
         {
           "label": "Cổng TRÊN · Arduino",
@@ -137,11 +191,24 @@
       ],
       "warn": "Cắm vào cổng sạc thì máy tính không thấy robot. Giống hệt robot hỏng, mà thật ra chỉ cắm nhầm.",
       "tip": "Mẹo: dán nhãn \"NẠP\" và \"SẠC\" lên hai cổng.",
-      "check": "Con chỉ đúng hai cổng rồi"
+      "check": "Con chỉ đúng hai cổng rồi",
+      "checkId": "6"
     },
     {
       "part": "Sạc robot",
       "title": "Sạc bằng 2 cách",
+      "images": [
+        {
+          "src": "bai-00/sac-may-tinh.png",
+          "alt": "Cáp nối máy tính xách tay với robot",
+          "caption": "Cách 1"
+        },
+        {
+          "src": "bai-00/sac-o-dien.png",
+          "alt": "Củ sạc cắm ổ điện, cáp nối vào robot",
+          "caption": "Cách 2"
+        }
+      ],
       "chips": [
         {
           "label": "Cách 1",
@@ -165,6 +232,16 @@
     {
       "part": "Sạc robot",
       "title": "Nhìn đèn để biết sạc xong chưa",
+      "images": [
+        {
+          "src": "bai-00/den-do.png",
+          "alt": "Đèn đỏ nháy ở mặt sau robot: đang sạc"
+        },
+        {
+          "src": "bai-00/den-xanh.png",
+          "alt": "Đèn xanh đứng yên ở mặt sau robot: đã đầy"
+        }
+      ],
       "chips": [
         {
           "label": "Nháy đỏ",
@@ -178,11 +255,18 @@
         }
       ],
       "warn": "Pin yếu thì robot chạy lệch dù code đúng từng chữ. Robot tự nhiên chạy sai? Nghĩ tới pin TRƯỚC.",
-      "check": "Con sạc robot rồi"
+      "check": "Con sạc robot rồi",
+      "checkId": "8"
     },
     {
       "part": "Giữ gìn robot",
       "title": "3 điều phải nhớ",
+      "images": [
+        {
+          "src": "bai-00/giu-gin.png",
+          "alt": "Ba ô: cất robot vào hộp là đúng, phơi nắng là sai, sạc đều đặn là đúng"
+        }
+      ],
       "list": [
         "Các bộ phận KHÔNG lắp lẫn cổng được. Mắt siêu âm có cổng riêng của nó.",
         "Không dùng thì cất vào hộp. Không để ngoài bàn, không phơi nắng.",
@@ -198,9 +282,15 @@
     {
       "part": "Cài đặt máy tính",
       "title": "Máy tính cần ba thứ",
+      "images": [
+        {
+          "src": "bai-00/ba-thu.png",
+          "alt": "Ba ô: trình duyệt Chrome hoặc Edge, trình soạn khối có ?lang=vi, cáp truyền dữ liệu"
+        }
+      ],
       "list": [
         "Trình duyệt Chrome hoặc Edge. Firefox và Safari KHÔNG nạp code được.",
-        "Trình soạn khối lệnh, mở kèm đuôi ?lang=vi cho ra tiếng Việt.",
+        "Leanbot IDE ide.pythaverse.space/#/code để nạp code. Trình soạn khối có đuôi ?lang=vi để ghép khối.",
         "Cáp USB cắm được cả hai đầu: một đầu vào máy, một đầu vào robot."
       ],
       "links": [
@@ -213,6 +303,10 @@
           "href": "https://www.microsoft.com/edge"
         },
         {
+          "label": "Mở Leanbot IDE (nạp code, xem SERIAL)",
+          "href": "https://ide.pythaverse.space/#/code"
+        },
+        {
           "label": "Mở trình soạn khối lệnh (tiếng Việt)",
           "href": "https://ide.pythaverse.space/lbeditor/?lang=vi"
         }
@@ -222,6 +316,17 @@
     {
       "part": "Cài đặt máy tính",
       "title": "Máy tính phải THẤY robot",
+      "images": [
+        {
+          "src": "bai-00/chon-cong.png",
+          "alt": "Ba bước: bấm SELECT DEVICE, chọn cổng rồi bấm Connect, thanh dưới hiện SERIAL: SELECTED"
+        },
+        {
+          "src": "bai-00/chon-cong-that.png",
+          "alt": "Hộp thoại thật: dòng USB Serial được khoanh, rồi nút Connect",
+          "caption": "Hộp chọn cổng thật"
+        }
+      ],
       "steps": [
         [
           "1",
@@ -233,7 +338,7 @@
         ],
         [
           "3",
-          "Trong trình soạn, bấm SELECT DEVICE"
+          "Mở Leanbot IDE, bấm SELECT DEVICE ở thanh dưới"
         ],
         [
           "4",
@@ -242,16 +347,29 @@
       ],
       "links": [
         {
-          "label": "Mở trình soạn khối lệnh (tiếng Việt)",
-          "href": "https://ide.pythaverse.space/lbeditor/?lang=vi"
+          "label": "Mở Leanbot IDE (nạp code, xem SERIAL)",
+          "href": "https://ide.pythaverse.space/#/code"
         }
       ],
-      "tip": "Thấy chữ SERIAL: SELECTED là máy đã bắt tay được với robot. Chưa thấy thì xem màn sau.",
-      "check": "Máy tính thấy robot rồi"
+      "tip": "Thấy chữ SERIAL: SELECTED là xong. Mỗi lần mở lại Chrome phải chọn cổng lại một lần.",
+      "check": "Máy tính thấy robot rồi",
+      "checkId": "11"
     },
     {
       "part": "Cài đặt máy tính",
       "title": "Máy không thấy robot thì sao?",
+      "images": [
+        {
+          "src": "bai-00/cong-co.png",
+          "alt": "Hộp chọn cổng có tên USB-SERIAL CH340",
+          "caption": "Có tên cổng: cắm đúng"
+        },
+        {
+          "src": "bai-00/cong-trong.png",
+          "alt": "Hộp chọn cổng trống trơn",
+          "caption": "Trống trơn: xem bảng dưới"
+        }
+      ],
       "table": {
         "head": [
           "Dấu hiệu",
@@ -273,6 +391,10 @@
           [
             "Robot không lên đèn",
             "Chưa bật công tắc, hoặc hết pin"
+          ],
+          [
+            "Báo Failed to open serial port",
+            "Tắt cửa sổ khác đang dùng robot, rút cáp cắm lại. Vẫn lỗi thì báo thầy"
           ]
         ]
       },
@@ -291,20 +413,49 @@
         "Não robot là Arduino NANO, nhưng trong trình soạn chọn ARDUINO UNO vẫn nạp được.",
         "Chọn sai hẳn loại khác thì nạp xong robot không chạy gì."
       ],
+      "images": [
+        {
+          "src": "bai-00/bang-mach.png",
+          "alt": "Thanh dưới IDE, ô BOARD: ARDUINO UNO được khoanh vàng"
+        }
+      ],
       "code": "BOARD: ARDUINO UNO   ·   SERVER: ONLINE",
       "links": [
         {
-          "label": "Mở trình soạn khối lệnh (tiếng Việt)",
-          "href": "https://ide.pythaverse.space/lbeditor/?lang=vi"
+          "label": "Mở Leanbot IDE (nạp code, xem SERIAL)",
+          "href": "https://ide.pythaverse.space/#/code"
         }
       ]
     },
     {
       "part": "Kiểm tra robot",
-      "title": "Giờ mình xem robot còn tốt không",
+      "title": "Lấy chương trình kiểm tra",
       "lines": [
-        "Có một chương trình kiểm tra sẵn.",
-        "Nạp vào robot, nó sẽ tự báo từng bộ phận."
+        "Hãng có sẵn một chương trình để kiểm tra robot. Con chép nó về."
+      ],
+      "images": [
+        {
+          "src": "bai-00/lay-code.png",
+          "alt": "Trang kho Tools: thư mục Sample Code, tệp Leanbot_Test_and_Demo_v1.ino, nút Raw được đánh số"
+        }
+      ],
+      "steps": [
+        [
+          "1",
+          "Mở kho Tools (đường dẫn bên dưới)"
+        ],
+        [
+          "2",
+          "Bấm thư mục Sample Code"
+        ],
+        [
+          "3",
+          "Bấm tệp Leanbot_Test_and_Demo_v1.ino"
+        ],
+        [
+          "4",
+          "Bấm nút Raw, rồi Ctrl+A và Ctrl+C để chép"
+        ]
       ],
       "links": [
         {
@@ -316,75 +467,81 @@
           "href": "https://youtu.be/i-EFK6lf2as"
         }
       ],
-      "note": "Lấy tệp Sample Code/Leanbot_Test_and_Demo_v1.ino"
+      "note": "Kho cần đăng nhập tài khoản Pythaverse của lớp. Thầy mở sẵn cho con."
     },
     {
       "part": "Kiểm tra robot",
-      "title": "Nút nạp không có chữ nào cả",
-      "image": "ide-nut-nap.png",
-      "alt": "Ba biểu tượng ở góc phải màn hình IDE",
-      "chips": [
+      "title": "Tạo một dự án mới trong IDE",
+      "images": [
         {
-          "label": "Dấu tích",
-          "body": "CHỈ kiểm code. Không nạp!",
-          "tone": "oops"
+          "src": "bai-00/du-an-menu.png",
+          "alt": "Bấm tên dự án ở góc trái, rồi chọn Project Manger",
+          "caption": "Bước 1, 2"
         },
         {
-          "label": "Nút play",
-          "body": "Nạp vào robot. Bấm cái này!",
-          "tone": "go"
-        },
-        {
-          "label": "SERIAL",
-          "body": "Xem robot nói gì",
-          "tone": "sky"
+          "src": "bai-00/du-an-tao.png",
+          "alt": "Hộp Create New Project: gõ tên rồi bấm CREATE",
+          "caption": "Bước 4, 5"
         }
       ],
-      "warn": "Bấm nhầm dấu tích thì máy vẫn báo thành công, mà robot không nhận gì."
-    },
-    {
-      "part": "Kiểm tra robot",
-      "title": "Nạp code: 6 bước",
       "steps": [
         [
           "1",
-          "Mở trình soạn thảo, dán chương trình vào"
+          "Trong Leanbot IDE, bấm tên dự án ở góc trên bên trái"
         ],
         [
           "2",
-          "Bật công tắc robot — đèn đỏ sáng"
+          "Chọn Project Manger... (IDE viết thiếu chữ a)"
         ],
         [
           "3",
-          "Cắm cáp vào cổng TRÊN"
+          "Bấm dấu + ở góc phải"
         ],
         [
           "4",
-          "Bấm nút play"
+          "Gõ tên, ví dụ KIEM TRA ROBOT"
         ],
         [
           "5",
-          "Chọn cổng → Connect → chờ 100% – Done!"
-        ],
-        [
-          "6",
-          "Rút cáp. Robot chạy!"
+          "Bấm CREATE"
         ]
       ],
       "links": [
         {
-          "label": "Mở trình soạn khối lệnh (tiếng Việt)",
-          "href": "https://ide.pythaverse.space/lbeditor/?lang=vi"
+          "label": "Mở Leanbot IDE (nạp code, xem SERIAL)",
+          "href": "https://ide.pythaverse.space/#/code"
         }
+      ]
+    },
+    {
+      "part": "Kiểm tra robot",
+      "title": "Dán chương trình vào",
+      "lines": [
+        "Bấm vào giữa vùng code. Ctrl+A để chọn hết, rồi Ctrl+V để dán.",
+        "Góc trái phải hiện đúng tên dự án con vừa tạo."
       ],
-      "warn": "Không rút cáp khi đang nạp. Chờ đủ 100%.",
-      "check": "Con nạp được chương trình rồi"
+      "images": [
+        {
+          "src": "bai-00/dan-code.png",
+          "alt": "IDE với dự án KIEM TRA ROBOT, vùng code bắt đầu bằng #include Leanbot.h"
+        }
+      ]
     },
     {
       "part": "Kiểm tra robot",
       "title": "Trước khi bấm, nhìn thanh dưới",
-      "image": "ide-thanh-duoi.png",
-      "alt": "Thanh dưới màn hình IDE",
+      "images": [
+        {
+          "src": "bai-00/thanh-duoi.png",
+          "alt": "Thanh dưới IDE với ba ô đánh số: SELECT DEVICE, BOARD, SERVER ONLINE"
+        }
+      ],
+      "links": [
+        {
+          "label": "Mở Leanbot IDE (nạp code, xem SERIAL)",
+          "href": "https://ide.pythaverse.space/#/code"
+        }
+      ],
       "table": {
         "head": [
           "Chữ",
@@ -407,22 +564,167 @@
       }
     },
     {
+      "part": "Kiểm tra robot",
+      "title": "Nút nạp không có chữ nào cả",
+      "images": [
+        {
+          "src": "bai-00/nut-nap.png",
+          "alt": "Ba nút: dấu tích chỉ kiểm, nút màn hình có tam giác để nạp, nút SERIAL để xem robot nói gì",
+          "caption": "Bấm nút ở giữa"
+        },
+        {
+          "src": "bai-00/nut-nap-that.png",
+          "alt": "Rê chuột lên nút nạp thấy chữ Compile & Upload và bốn dấu tích xanh",
+          "caption": "Rê chuột lên sẽ thấy"
+        }
+      ],
+      "chips": [
+        {
+          "label": "Dấu tích",
+          "body": "CHỈ kiểm code. Không nạp!",
+          "tone": "oops"
+        },
+        {
+          "label": "Nút play",
+          "body": "Nạp vào robot. Bấm cái này!",
+          "tone": "go"
+        },
+        {
+          "label": "SERIAL",
+          "body": "Xem robot nói gì",
+          "tone": "sky"
+        }
+      ],
+      "warn": "Bấm nhầm dấu tích (nút bên trái) thì máy vẫn báo thành công, mà robot không nhận gì.",
+      "tip": "Rê chuột lên nút nạp: đủ bốn dấu tích xanh là sẵn sàng.",
+      "links": [
+        {
+          "label": "Mở Leanbot IDE (nạp code, xem SERIAL)",
+          "href": "https://ide.pythaverse.space/#/code"
+        }
+      ]
+    },
+    {
+      "part": "Kiểm tra robot",
+      "title": "Nạp code: 5 bước",
+      "images": [
+        {
+          "src": "bai-00/nap-50.png",
+          "alt": "Thanh tiến độ 50% Uploading code"
+        },
+        {
+          "src": "bai-00/nap-100.png",
+          "alt": "Thanh tiến độ 100% Done"
+        }
+      ],
+      "steps": [
+        [
+          "1",
+          "Bật công tắc robot, cắm cáp vào cổng TRÊN"
+        ],
+        [
+          "2",
+          "Thanh dưới chưa có SERIAL: SELECTED thì chọn cổng"
+        ],
+        [
+          "3",
+          "Bấm nút nạp (Compile & Upload)"
+        ],
+        [
+          "4",
+          "Chờ: 25% Compiling → 50% Uploading"
+        ],
+        [
+          "5",
+          "Thấy 100% – Done! là nạp xong"
+        ]
+      ],
+      "links": [
+        {
+          "label": "Mở Leanbot IDE (nạp code, xem SERIAL)",
+          "href": "https://ide.pythaverse.space/#/code"
+        }
+      ],
+      "warn": "Không rút cáp khi chưa tới 100%.",
+      "check": "Con nạp được chương trình rồi",
+      "checkId": "16"
+    },
+    {
+      "part": "Kiểm tra robot",
+      "title": "Chữ trắng 'warning' không phải lỗi",
+      "lines": [
+        "Nạp xong, khung đen hiện vài dòng chữ trắng có chữ warning. Đó là lời nhắc, kệ nó.",
+        "Chỉ cần thấy 100% – Done! là robot đã nhận chương trình."
+      ],
+      "images": [
+        {
+          "src": "bai-00/canh-bao.png",
+          "alt": "Thanh 100% Done, bên dưới dòng warning được khoanh dấu chấm than"
+        }
+      ],
+      "warn": "Không lên được 100% – Done! mới là có lỗi. Lúc đó xem lại cổng và cáp."
+    },
+    {
+      "part": "Kiểm tra robot",
+      "title": "Rút cáp thì robot tự chạy",
+      "lines": [
+        "Chương trình đã nằm trong robot. Rút cáp ra, robot chạy bằng pin.",
+        "Nhưng rút cáp là MONITOR không còn số liệu nữa."
+      ],
+      "images": [
+        {
+          "src": "bai-00/giu-cap.png",
+          "alt": "Cáp nối máy tính với robot, màn hình có các dòng số liệu"
+        },
+        {
+          "src": "bai-00/rut-cap.png",
+          "alt": "Robot không cáp tự chạy, màn hình máy tính trống"
+        }
+      ],
+      "chips": [
+        {
+          "label": "Muốn XEM số liệu",
+          "body": "Giữ cáp, cho robot chạy gần máy",
+          "tone": "sky"
+        },
+        {
+          "label": "Muốn robot đi xa",
+          "body": "Rút cáp, nhìn đèn và nghe còi",
+          "tone": "go"
+        }
+      ],
+      "note": "Bài 0 cần xem số liệu, nên con cứ giữ cáp tới hết bài."
+    },
+    {
       "part": "Đọc số liệu",
       "title": "Robot gửi số liệu về đây",
       "lines": [
-        "Mở cửa sổ SERIAL. Robot gửi về liên tục một dòng như này:"
+        "Bấm chữ MONITOR ở khung dưới. Chọn 115200 baud.",
+        "Robot gửi về 10 dòng mỗi giây, mỗi dòng như này:"
+      ],
+      "images": [
+        {
+          "src": "bai-00/monitor-that.png",
+          "alt": "Tab MONITOR đang mở, các dòng TB 0000 - IR - cm - GR chạy liên tục"
+        }
       ],
       "code": "TB 0000 - IR 00 .... 00 - 23 cm - GR 50 50",
       "links": [
         {
-          "label": "Mở trình soạn khối lệnh (tiếng Việt)",
-          "href": "https://ide.pythaverse.space/lbeditor/?lang=vi"
+          "label": "Mở Leanbot IDE (nạp code, xem SERIAL)",
+          "href": "https://ide.pythaverse.space/#/code"
         }
       ]
     },
     {
       "part": "Đọc số liệu",
       "title": "Đọc từng khúc một",
+      "images": [
+        {
+          "src": "bai-00/doc-tung-khuc.png",
+          "alt": "Dòng số liệu tách bốn khúc màu: vùng chạm, mắt hồng ngoại, mắt siêu âm, góc hai càng"
+        }
+      ],
       "table": {
         "head": [
           "Khúc",
@@ -432,34 +734,42 @@
         "rows": [
           [
             "TB 0000",
-            "4 nút chạm",
-            "Chạm nút → số thành 1"
+            "4 vùng chạm",
+            "Chạm vùng → số thành 1"
           ],
           [
-            "IR 00 .... 00",
+            "IR 11 1000 11",
             "Mắt hồng ngoại",
             "Đặt lên vạch đen → số đổi"
           ],
           [
-            "23 cm",
+            "43 cm",
             "Mắt siêu âm",
             "Đưa tay lại gần → số nhỏ đi"
           ],
           [
-            "GR 50 50",
+            "GR 0 0",
             "Góc hai càng",
-            "Mở càng → số đổi"
+            "Gõ Gripper → thành 90 90"
           ]
         ]
       },
-      "tip": "Bộ phận nào số không đổi thì bộ phận đó có vấn đề.",
-      "check": "Con đọc được dòng số liệu"
+      "tip": "Phía trước trống trơn thì mắt siêu âm báo 1000 cm. Bộ phận nào số không đổi thì có vấn đề.",
+      "check": "Con đọc được dòng số liệu",
+      "checkId": "19"
     },
     {
       "part": "Tám lệnh thử",
       "title": "Gõ lệnh, robot làm thử",
       "lines": [
-        "Gõ vào ô của cửa sổ SERIAL rồi Enter."
+        "Tích ô NL trước đã. Không tích thì robot không nghe lệnh.",
+        "Gõ tên lệnh vào ô dưới cùng rồi bấm Enter."
+      ],
+      "images": [
+        {
+          "src": "bai-00/go-lenh-that.png",
+          "alt": "Ô gõ có chữ Gripper, ô NL đã tích, 115200 baud"
+        }
       ],
       "table": {
         "head": [
@@ -485,8 +795,8 @@
           ],
           [
             "RGBLeds",
-            "Bật 7 đèn màu",
-            "Đủ 7 đèn sáng"
+            "Bật 7 đèn cùng một màu",
+            "Đủ 7 đèn sáng, rồi tắt"
           ],
           [
             "Buzzer",
@@ -512,8 +822,8 @@
       },
       "links": [
         {
-          "label": "Mở trình soạn khối lệnh (tiếng Việt)",
-          "href": "https://ide.pythaverse.space/lbeditor/?lang=vi"
+          "label": "Mở Leanbot IDE (nạp code, xem SERIAL)",
+          "href": "https://ide.pythaverse.space/#/code"
         }
       ],
       "note": "Bốn màn sau đi qua từng bộ phận một. Bảng này để con tra lại khi quên lệnh nào."
@@ -521,6 +831,12 @@
     {
       "part": "Thử từng bộ phận",
       "title": "Thử bánh xe",
+      "images": [
+        {
+          "src": "bai-00/banh-xe.png",
+          "alt": "Motion: robot tiến, lùi, quay; StraightMotion: chạy thẳng 1 mét rồi lùi về"
+        }
+      ],
       "steps": [
         [
           "1",
@@ -540,36 +856,134 @@
         ]
       ],
       "tip": "Tốt là robot về đúng chỗ cũ và đi thẳng, không lệch sang bên nào.",
-      "check": "Bánh xe chạy đúng"
+      "check": "Bánh xe chạy đúng",
+      "checkId": "21",
+      "warn": "Đặt robot xuống SÀN trước, cáp để chùng. Lệnh này làm bánh quay thật, để trên bàn là rơi."
     },
     {
       "part": "Thử từng bộ phận",
       "title": "Thử tay gắp",
       "lines": [
-        "Gõ lệnh Gripper. Robot đóng càng rồi mở càng."
+        "Gõ lệnh Gripper. Robot đóng càng rồi mở càng.",
+        "Trên MONITOR: GR 90 90 lúc đóng, rồi GR 0 0 lúc mở."
+      ],
+      "images": [
+        {
+          "src": "bai-00/tay-gap-that.png",
+          "alt": "Log thật: dòng GR 90 90 được khoanh, ngay sau đó GR 0 0",
+          "caption": "Số trên MONITOR"
+        },
+        {
+          "src": "bai-00/cang-lech.png",
+          "alt": "Một càng nghiêng lệch",
+          "caption": "Cần hiệu chỉnh"
+        }
       ],
       "tip": "Tốt là hai càng khép vào và dang ra ĐỀU NHAU. Một càng lệch là càng đó cần hiệu chỉnh.",
-      "check": "Tay gắp mở đóng đều nhau"
+      "check": "Tay gắp mở đóng đều nhau",
+      "checkId": "22"
     },
     {
       "part": "Thử từng bộ phận",
       "title": "Thử đèn và còi",
+      "images": [
+        {
+          "src": "bai-00/den-coi.png",
+          "alt": "Bảy đèn màu sáng và tám nốt nhạc đô rê mi fa sol la si đô"
+        }
+      ],
       "steps": [
         [
           "1",
-          "Gõ RGBLeds — phải đủ 7 đèn sáng"
+          "Gõ RGBLeds: 7 đèn sáng cùng một màu khoảng 1 giây"
         ],
         [
           "2",
-          "Gõ Buzzer — phải nghe 8 nốt"
+          "Gõ Buzzer: phải nghe đủ 8 nốt"
         ]
       ],
       "note": "Tám nốt là đô rê mi fa sol la si đô. Thiếu đèn nào thì nhớ đèn thứ mấy để báo thầy.",
-      "check": "7 đèn sáng, còi kêu đủ 8 nốt"
+      "check": "7 đèn sáng, còi kêu đủ 8 nốt",
+      "checkId": "23"
+    },
+    {
+      "part": "Kiểm tra robot",
+      "title": "Thử 4 vùng chạm",
+      "lines": [
+        "Chạm và giữ từng vùng, nhìn khúc TB trên MONITOR."
+      ],
+      "images": [
+        {
+          "src": "bai-00/nut-cham.png",
+          "alt": "Robot nhìn từ trên với bốn vùng chạm TB1A, TB1B ở trước, TB2A, TB2B ở sau"
+        }
+      ],
+      "table": {
+        "head": [
+          "Chạm vùng",
+          "MONITOR hiện"
+        ],
+        "rows": [
+          [
+            "TB1A",
+            "TB 1000"
+          ],
+          [
+            "TB1B",
+            "TB 0100"
+          ],
+          [
+            "TB2A",
+            "TB 0010"
+          ],
+          [
+            "TB2B",
+            "TB 0001"
+          ]
+        ]
+      },
+      "tip": "Cầm robot ở phía sau là chạm luôn TB2A, TB2B: thấy TB 0011 là đúng."
+    },
+    {
+      "part": "Kiểm tra robot",
+      "title": "Thử mắt siêu âm",
+      "lines": [
+        "Đưa bàn tay ra trước mắt siêu âm, rồi kéo ra xa dần."
+      ],
+      "images": [
+        {
+          "src": "bai-00/sieu-am-that.png",
+          "alt": "Log thật: số cm giảm còn 9, 8, 10, 7 khi có tay trước mặt robot"
+        }
+      ],
+      "steps": [
+        [
+          "1",
+          "Tay cách 10 cm: số khoảng 10 cm"
+        ],
+        [
+          "2",
+          "Kéo tay ra xa: số lớn dần"
+        ],
+        [
+          "3",
+          "Chĩa robot ra chỗ trống: 1000 cm, tức là không thấy gì"
+        ]
+      ]
     },
     {
       "part": "Thử từng bộ phận",
       "title": "Thử hai loại mắt",
+      "images": [
+        {
+          "src": "bai-00/mat-theo-tay.png",
+          "alt": "Bàn tay trước robot, cách 15 cm"
+        },
+        {
+          "src": "bai-00/mat-do-vach.png",
+          "alt": "Robot đi trên vạch đen, dừng ở ngã tư"
+        }
+      ],
       "steps": [
         [
           "1",
@@ -589,13 +1003,26 @@
         ]
       ],
       "warn": "Mắt dò vạch chập chờn thì ĐỪNG sửa code. Hiệu chỉnh trước, xem hai màn cuối.",
-      "check": "Hai loại mắt đều nhận"
+      "check": "Hai loại mắt đều nhận",
+      "checkId": "24"
     },
     {
       "part": "Hiệu chỉnh",
       "title": "Dò vạch chập chờn? Đừng sửa code",
       "lines": [
         "Hiệu chỉnh lại mắt dò vạch trước đã."
+      ],
+      "images": [
+        {
+          "src": "bai-00/hieu-chinh-trang.png",
+          "alt": "Robot trên nền trắng, ngón tay chạm TB1A",
+          "caption": "Bước 2"
+        },
+        {
+          "src": "bai-00/hieu-chinh-den.png",
+          "alt": "Robot trên vạch đen, ngón tay chạm TB1A",
+          "caption": "Bước 3"
+        }
       ],
       "steps": [
         [
@@ -604,11 +1031,11 @@
         ],
         [
           "2",
-          "Đặt robot lên nền TRẮNG → chạm nút TB1A"
+          "Đặt robot lên nền TRẮNG → chạm vùng TB1A"
         ],
         [
           "3",
-          "Đặt robot lên VẠCH ĐEN → chạm nút TB1A"
+          "Đặt robot lên VẠCH ĐEN → chạm vùng TB1A"
         ],
         [
           "4",
@@ -622,6 +1049,12 @@
       "title": "Hiệu chỉnh là gì?",
       "lines": [
         "Là chỉnh cho bộ phận chạy ĐÚNG. Không phải sửa chữa, cũng không phải cho nhanh hơn."
+      ],
+      "images": [
+        {
+          "src": "bai-00/hieu-chinh-vong.png",
+          "alt": "Ba bước: chuẩn bị dụng cụ, chỉnh cho đúng, thử lại việc đó"
+        }
       ],
       "list": [
         "Trước khi hiệu chỉnh: chuẩn bị đủ dụng cụ.",
@@ -646,6 +1079,12 @@
     {
       "part": "Xong Bài 0 chưa?",
       "title": "Xong Bài 0 khi đủ chín việc",
+      "images": [
+        {
+          "src": "bai-00/chin-viec.png",
+          "alt": "Chín ô việc của Bài 0, ô nào cũng có dấu tích"
+        }
+      ],
       "steps": [
         [
           "1",
@@ -689,6 +1128,12 @@
         "Các bài sau đều cần nạp code xuống robot thật.",
         "Bài 0 chưa xong mà học tiếp thì ghép khối xong cũng không thấy gì chạy."
       ],
+      "images": [
+        {
+          "src": "bai-00/mo-khoa.png",
+          "alt": "Chín dấu tích, mũi tên tới ổ khóa mở, Bài 1 mở khóa"
+        }
+      ],
       "tip": "Quay lại các màn còn thiếu ô tích. Ô tích nằm ngay dưới phần hướng dẫn của màn đó."
     },
     {
@@ -696,6 +1141,12 @@
       "title": "Thử lại một lượt từ đầu",
       "lines": [
         "Tích đủ chín ô rồi thì thử lại một lượt, không nhìn hướng dẫn."
+      ],
+      "images": [
+        {
+          "src": "bai-00/thu-lai.png",
+          "alt": "Năm bước thử lại: tắt rút cáp, bật cắm cổng trên, nạp lại, gõ Buzzer, nghe 8 nốt"
+        }
       ],
       "steps": [
         [
@@ -721,8 +1172,8 @@
       ],
       "links": [
         {
-          "label": "Mở trình soạn khối lệnh (tiếng Việt)",
-          "href": "https://ide.pythaverse.space/lbeditor/?lang=vi"
+          "label": "Mở Leanbot IDE (nạp code, xem SERIAL)",
+          "href": "https://ide.pythaverse.space/#/code"
         }
       ],
       "tip": "Làm được một lượt không cần nhìn hướng dẫn thì máy của con đã sẵn sàng cho mọi bài sau."
@@ -742,7 +1193,7 @@
           ],
           [
             "Nạp báo lỗi giữa chừng",
-            "Nạp code: 6 bước"
+            "Nạp code: 5 bước"
           ],
           [
             "SERIAL không có chữ nào",
@@ -781,15 +1232,15 @@
       "explain": "Nháy đỏ là đang sạc. Xong là xanh dương, không nháy."
     },
     {
-      "q": "Chương trình bắt đầu bằng TB1A + TB1B. Bé chạm một nút, robot không chạy. Vì sao?",
+      "q": "Chương trình bắt đầu bằng TB1A + TB1B. Bé chạm một vùng, robot không chạy. Vì sao?",
       "options": [
         "Robot hỏng",
         "Hết pin",
-        "Phải chạm cùng lúc hai nút trước",
+        "Phải chạm cùng lúc hai vùng trước",
         "Nạp code lại"
       ],
       "correct": 2,
-      "explain": "Dấu + nghĩa là cả hai nút cùng lúc."
+      "explain": "Dấu + nghĩa là cả hai vùng cùng lúc."
     },
     {
       "q": "Não của Leanbot là loại Arduino nào?",

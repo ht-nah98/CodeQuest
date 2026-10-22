@@ -21,6 +21,12 @@
         "Robot giao hàng trong thành phố đâm vào thùng hàng, vào tường.",
         "Làm sao con biết có vật gì quá gần con? Con nhìn bằng mắt.",
         "Robot chưa có mắt. Hôm nay mình lắp mắt cho nó."
+      ],
+      "images": [
+        {
+          "src": "bai-03/dam-tuong.png",
+          "alt": "Robot chạy thẳng vào bức tường thùng giấy: bụp"
+        }
       ]
     },
     {
@@ -30,11 +36,23 @@
         "Dơi kêu một tiếng rồi nghe tiếng dội lại.",
         "Nghe tiếng dội là dơi biết phía trước có gì, dù trời tối thui."
       ],
+      "images": [
+        {
+          "src": "bai-03/con-doi.png",
+          "alt": "Con dơi kêu ra sóng âm, tiếng vọng dội lại từ bức tường"
+        }
+      ],
       "note": "Tiếng dội lại gọi là TIẾNG VỌNG. Mắt thần của Leanbot cũng làm đúng như con dơi."
     },
     {
       "part": "Mắt thần",
       "title": "Hai mắt tròn phía trước",
+      "images": [
+        {
+          "src": "bai-03/hai-mat.png",
+          "alt": "Robot nhìn từ trước: mắt T bên phải gửi tiếng kêu, mắt R bên trái nghe tiếng vọng"
+        }
+      ],
       "chips": [
         {
           "label": "Mắt T · bộ phát",
@@ -52,6 +70,18 @@
     {
       "part": "Mắt thần",
       "title": "Vọng về nhanh thì vật gần",
+      "images": [
+        {
+          "src": "bai-03/vong-gan.png",
+          "alt": "Tường gần, ít vòng sóng: vọng về rất nhanh",
+          "caption": "Vật gần"
+        },
+        {
+          "src": "bai-03/vong-xa.png",
+          "alt": "Tường xa, nhiều vòng sóng: vọng về chậm",
+          "caption": "Vật xa"
+        }
+      ],
       "table": {
         "head": [
           "Tiếng vọng",
@@ -77,6 +107,12 @@
     {
       "part": "Ba con số",
       "title": "Ba con số phải nhớ",
+      "images": [
+        {
+          "src": "bai-03/ba-so.png",
+          "alt": "Thước trước robot: tới 25 cm là dừng, quá 30 cm là trống, xa nhất 400 cm"
+        }
+      ],
       "table": {
         "head": [
           "Số",
@@ -105,6 +141,12 @@
         "Thử xem: dừng ở 25 cm, rồi lùi tới khi hơn 25 cm.",
         "Vừa lên 26 là robot tiến lại, tới 25 lại dừng, lại lùi, lại tiến."
       ],
+      "images": [
+        {
+          "src": "bai-03/yo-yo.png",
+          "alt": "Robot tới 25 cm thì dừng, 26 lại tiến, giật tới giật lui như yo-yo"
+        }
+      ],
       "warn": "Robot giật tới giật lui như cái yo-yo, không đi đâu được cả."
     },
     {
@@ -113,6 +155,12 @@
       "lines": [
         "Dừng ở 25 cm, nhưng lùi tới tận hơn 30 cm mới thôi.",
         "Robot có thừa 5 cm để thở, nên nó không giật nữa."
+      ],
+      "images": [
+        {
+          "src": "bai-03/vung-dem.png",
+          "alt": "Thước có vùng vàng 5 cm giữa 25 cm và 30 cm: vùng đệm"
+        }
       ],
       "tip": "Số để DỪNG phải nhỏ hơn số coi là TRỐNG. Đừng sửa cho hai số bằng nhau."
     },
@@ -123,11 +171,29 @@
         "Robot đang tiến: 27 lớn hơn 25 nên nó CHƯA dừng.",
         "Robot đang lùi: 27 chưa hơn 30 nên nó VẪN lùi tiếp."
       ],
+      "images": [
+        {
+          "src": "bai-03/27-dang-tien.png",
+          "alt": "Robot cách tường 27 cm, đang tiến: chưa dừng",
+          "caption": "Đang tiến"
+        },
+        {
+          "src": "bai-03/27-dang-lui.png",
+          "alt": "Robot cách tường 27 cm, đang lùi: vẫn lùi tiếp",
+          "caption": "Đang lùi"
+        }
+      ],
       "note": "Cùng một khoảng cách mà robot làm hai việc khác nhau, tùy nó đang tiến hay đang lùi."
     },
     {
       "part": "Ba con số",
       "title": "Bốn luật robot an toàn",
+      "images": [
+        {
+          "src": "bai-03/bon-luat.png",
+          "alt": "Bốn ô: trống thì đi tiếp, gần 25 cm thì dừng, lùi tới khi hơn 30 cm, kiểm tra liên tục"
+        }
+      ],
       "steps": [
         [
           "1",
@@ -155,6 +221,12 @@
         "Chương trình chạy tới khối nếu, hỏi một câu, rồi đi tiếp.",
         "Nó không quay lại hỏi nữa."
       ],
+      "images": [
+        {
+          "src": "bai-03/neu-mot-lan.png",
+          "alt": "Robot hỏi một lần lúc còn xa, trả lời không, rồi chạy tiếp và đâm vào tường"
+        }
+      ],
       "warn": "Chỉ có khối nếu thôi thì robot vẫn đâm vào tường: lúc nó hỏi, vật còn ở xa."
     },
     {
@@ -164,14 +236,20 @@
         "Điều kiện còn đúng thì nó còn làm các khối bên trong.",
         "Sai rồi thì nó thôi và đi xuống khối dưới."
       ],
+      "images": [
+        {
+          "src": "bai-03/lap-khi.png",
+          "alt": "Sơ đồ: còn đúng thì làm khối bên trong rồi hỏi lại; sai thì đi xuống khối dưới"
+        }
+      ],
       "chips": [
         {
-          "label": "nếu",
+          "label": "if (nếu)",
           "body": "Hỏi một lần rồi đi tiếp",
           "tone": "coin"
         },
         {
-          "label": "lặp khi",
+          "label": "repeat while (lặp khi)",
           "body": "Hỏi lại sau mỗi vòng",
           "tone": "go"
         }
@@ -180,6 +258,12 @@
     {
       "part": "Nếu và lặp khi",
       "title": "Chương trình 1: dừng khi gần vật",
+      "images": [
+        {
+          "src": "bai-03/ct1.png",
+          "alt": "Chương trình 1: chạy 30 và 30, if Ping vật trong 25 cm, do Dừng"
+        }
+      ],
       "steps": [
         [
           "1",
@@ -187,27 +271,34 @@
         ],
         [
           "2",
-          "nếu — Phía trước có vật trong vòng 25 cm?"
+          "if (nếu): Ping: Object in front is within 25 cm distance ?"
         ],
         [
           "3",
-          "thì — Dừng"
+          "do (thì): Dừng"
         ]
       ],
       "code": "if (Leanbot.pingCm() <= 25) { LbMotion.stopAndWait(); }",
-      "check": "Con cho robot dừng trước hộp giấy"
+      "check": "Con cho robot dừng trước hộp giấy",
+      "checkId": "11"
     },
     {
       "part": "Nếu và lặp khi",
       "title": "Chương trình 2: lùi tới khi trống",
+      "images": [
+        {
+          "src": "bai-03/ct2.png",
+          "alt": "Chương trình 2: repeat while khoảng cách ≤ 30, do chạy −30 và −30; khối Dừng nằm ngoài vòng lặp"
+        }
+      ],
       "steps": [
         [
           "1",
-          "lặp khi — Khoảng cách phía trước ≤ 30"
+          "repeat while (lặp khi): Ping: Front distance in cm ≤ 30"
         ],
         [
           "2",
-          "thì — Chạy với vận tốc Trái −30 Phải −30"
+          "do (thì): Chạy với vận tốc Trái −30 Phải −30"
         ],
         [
           "3",
@@ -223,16 +314,29 @@
         "Trái −30 Phải −30 là lùi, y như Bài 1.",
         "Robot còn gần thì còn lùi. Hơn 30 cm là nó thôi."
       ],
+      "images": [
+        {
+          "src": "bai-03/lui-ra.png",
+          "alt": "Robot lùi ra khỏi tường, tới hơn 30 cm thì thôi"
+        }
+      ],
       "code": "while (Leanbot.pingCm() <= 30) { ... }",
-      "check": "Con cho robot lùi ra xa tường"
+      "check": "Con cho robot lùi ra xa tường",
+      "checkId": "13"
     },
     {
       "part": "Nếu và lặp khi",
       "title": "Ghép cả hai thành robot biết tránh",
+      "images": [
+        {
+          "src": "bai-03/ct-tranh.png",
+          "alt": "Chương trình tránh vật: repeat while true bọc ngoài, chạy tới, if vật trong 25 cm thì dừng, lùi tới khi trống, dừng"
+        }
+      ],
       "steps": [
         [
           "1",
-          "lặp mãi"
+          "repeat while true (lặp mãi)"
         ],
         [
           "2",
@@ -240,7 +344,7 @@
         ],
         [
           "3",
-          "nếu vật ≤ 25 cm thì Dừng"
+          "if vật ≤ 25 cm thì Dừng"
         ],
         [
           "4",
@@ -252,13 +356,20 @@
         ]
       ],
       "note": "Phải bọc trong lặp mãi thì robot mới kiểm tra liên tục. Đó chính là luật số 4.",
-      "check": "Robot của con tự tránh được vật cản"
+      "check": "Robot của con tự tránh được vật cản",
+      "checkId": "14"
     },
     {
       "part": "Thử sức",
       "title": "Đổi ngưỡng rồi ghi lại",
       "lines": [
         "Con thử ba đề này, mỗi lần chỉ đổi MỘT con số."
+      ],
+      "images": [
+        {
+          "src": "bai-03/doi-nguong.png",
+          "alt": "Khối if với ô số 25 được khoanh vàng: mỗi lần chỉ đổi số này"
+        }
       ],
       "list": [
         "Dừng khi vật cách 15 cm hoặc gần hơn.",
@@ -270,6 +381,18 @@
     {
       "part": "Thử sức",
       "title": "Robot lùi mãi không dừng",
+      "images": [
+        {
+          "src": "bai-03/dung-trong-sai.png",
+          "alt": "Khối Dừng nằm bên trong vòng lặp",
+          "caption": "Sai: Dừng nằm TRONG"
+        },
+        {
+          "src": "bai-03/dung-ngoai-dung.png",
+          "alt": "Khối Dừng nằm bên dưới, ngoài vòng lặp",
+          "caption": "Đúng: Dừng nằm NGOÀI"
+        }
+      ],
       "steps": [
         [
           "1",
@@ -289,6 +412,12 @@
     {
       "part": "Thử sức",
       "title": "Mắt thần còn dùng ở đâu?",
+      "images": [
+        {
+          "src": "bai-03/o-dau.png",
+          "alt": "Ba ô: xe hơi lùi kêu bíp, robot hút bụi tránh chân ghế, máy bay giao hàng"
+        }
+      ],
       "list": [
         "Xe hơi kêu bíp khi con lùi sát tường.",
         "Robot hút bụi tránh chân ghế.",
@@ -299,6 +428,12 @@
     {
       "part": "Kiểm nghiệm",
       "title": "Thử trên robot: dừng trước hộp",
+      "images": [
+        {
+          "src": "bai-03/thu-hop.png",
+          "alt": "Robot xuất phát cách hộp khoảng 1 mét, dừng cách hộp 23 đến 27 cm"
+        }
+      ],
       "steps": [
         [
           "1",
@@ -314,7 +449,7 @@
         ],
         [
           "4",
-          "Chạm hai nút, để robot tự chạy tới"
+          "Chạm hai vùng TB1A + TB1B, để robot tự chạy tới"
         ],
         [
           "5",
@@ -325,6 +460,10 @@
         {
           "label": "Mở trình soạn khối lệnh (tiếng Việt)",
           "href": "https://ide.pythaverse.space/lbeditor/?lang=vi"
+        },
+        {
+          "label": "Mở Leanbot IDE (nạp code, xem SERIAL)",
+          "href": "https://ide.pythaverse.space/#/code"
         }
       ],
       "tip": "Đo được 23–27 cm là đúng. Rồi con đẩy hộp lại gần xem robot có tự lùi ra không."
@@ -332,6 +471,12 @@
     {
       "part": "Kiểm nghiệm",
       "title": "Hai phép thử khó hơn",
+      "images": [
+        {
+          "src": "bai-03/ba-phep-thu.png",
+          "alt": "Ba phép thử: chắn vở thì dừng ngay, đẩy hộp sát thì lùi, bỏ hộp thì chạy tiếp"
+        }
+      ],
       "list": [
         "Cầm quyển vở chắn trước robot đang chạy: nó phải dừng ngay, không đợi tới hộp.",
         "Đẩy hộp sát robot rồi bỏ tay ra: robot lùi, và phải dừng khi trống hơn 30 cm.",
@@ -370,7 +515,8 @@
           ]
         ]
       },
-      "check": "Robot dừng trước hộp và tự lùi khi con đẩy hộp lại gần"
+      "check": "Robot dừng trước hộp và tự lùi khi con đẩy hộp lại gần",
+      "checkId": "20"
     }
   ],
   "quiz": [

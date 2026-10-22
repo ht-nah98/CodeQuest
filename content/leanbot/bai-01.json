@@ -20,11 +20,23 @@
       "lines": [
         "Kỹ sư là người nghĩ ra đồ hay rồi làm cho nó chạy.",
         "Leanbot làm đúng điều con ra lệnh. Không mệt, không quên."
+      ],
+      "images": [
+        {
+          "src": "bai-01/ky-su.png",
+          "alt": "Con ghép khối lệnh, mũi tên chỉ sang robot Leanbot đang chạy"
+        }
       ]
     },
     {
       "part": "Quy tắc số 1",
       "title": "Pha một gói mì, con làm gì trước?",
+      "images": [
+        {
+          "src": "bai-01/pha-mi.png",
+          "alt": "Năm hình theo thứ tự: xé gói mì, cho vào bát, đổ nước sôi, chờ 3 phút, ăn"
+        }
+      ],
       "steps": [
         [
           "1",
@@ -55,6 +67,12 @@
       "lines": [
         "Làm cái này trước, rồi mới cái kia. Người ta gọi là THỨ TỰ CÁC BƯỚC."
       ],
+      "images": [
+        {
+          "src": "bai-01/tren-xuong.png",
+          "alt": "Ba khối xếp chồng, đánh số 1, 2, 3 từ trên xuống"
+        }
+      ],
       "tip": "Trong vùng ghép khối: khối ở TRÊN làm trước, khối ở DƯỚI làm sau. Đọc từ trên xuống như đọc truyện."
     },
     {
@@ -64,8 +82,12 @@
         "Mỗi khối màu là một câu thần chú bảo Leanbot làm gì.",
         "Ghép khối lại như xếp hình thì thành một chương trình."
       ],
-      "image": "blockly-toan-canh.png",
-      "alt": "Trình soạn khối lệnh: thanh nhóm bên trái, vùng ghép khối ở giữa, cột code bên phải",
+      "images": [
+        {
+          "src": "blockly-toan-canh.png",
+          "alt": "Trình soạn khối lệnh: thanh nhóm bên trái, vùng ghép khối ở giữa, cột code bên phải"
+        }
+      ],
       "links": [
         {
           "label": "Mở trình soạn khối lệnh (tiếng Việt)",
@@ -78,6 +100,12 @@
       "title": "Chữ ra tiếng Anh thì đổi thế nào?",
       "lines": [
         "Trình soạn chỉ nói tiếng Việt khi địa chỉ có đuôi ?lang=vi."
+      ],
+      "images": [
+        {
+          "src": "bai-01/lang-vi.png",
+          "alt": "Thanh địa chỉ, phần ?lang=vi tô vàng ở cuối"
+        }
       ],
       "steps": [
         [
@@ -114,12 +142,28 @@
         "Bấm nhóm Leanbot, rồi bấm nhóm con Di chuyển.",
         "Khay khối sẽ mở ra ở bên cạnh."
       ],
-      "image": "blockly-khay-di-chuyen.png",
-      "alt": "Khay khối của nhóm Di chuyển đang mở, thấy các khối Chạy với vận tốc, Chạy đoạn đường, Dừng"
+      "images": [
+        {
+          "src": "blockly-khay-di-chuyen.png",
+          "alt": "Khay khối của nhóm Di chuyển đang mở, thấy các khối Chạy với vận tốc, Chạy đoạn đường, Dừng"
+        }
+      ]
     },
     {
       "part": "Trung tâm chỉ huy",
       "title": "Kéo một khối thế nào?",
+      "images": [
+        {
+          "src": "bai-01/keo-chua-dinh.png",
+          "alt": "Hai khối nằm gần nhau nhưng còn hở",
+          "caption": "Còn hở: chưa dính"
+        },
+        {
+          "src": "bai-01/keo-da-khop.png",
+          "alt": "Hai khối khớp sát vào nhau",
+          "caption": "Sát mép: đã khớp"
+        }
+      ],
       "steps": [
         [
           "1",
@@ -143,13 +187,25 @@
     {
       "part": "Trung tâm chỉ huy",
       "title": "Chương trình nào cũng có khung này",
-      "list": [
-        "Leanbot bắt đầu hoạt động — khối mũ, ở trên cùng.",
-        "Nhiệm vụ: Bắt đầu khi chạm cùng lúc TB1A + TB1B.",
-        "Các lệnh di chuyển nằm BÊN TRONG khối nhiệm vụ.",
-        "Nhiệm vụ: Kết thúc."
+      "images": [
+        {
+          "src": "bai-01/khung-dung.png",
+          "alt": "Khung chương trình đánh số 1 đến 4, lệnh di chuyển nằm bên trong khối Mission",
+          "caption": "Đúng: lệnh nằm TRONG"
+        },
+        {
+          "src": "bai-01/khung-sai.png",
+          "alt": "Khối Mission rỗng, các lệnh di chuyển nằm riêng ở dưới",
+          "caption": "Sai: robot đứng im"
+        }
       ],
-      "warn": "Lệnh để ra ngoài khối nhiệm vụ thì robot đứng im. Robot không hỏng đâu, chỉ là lệnh để sai chỗ."
+      "list": [
+        "Leanbot bắt đầu hoạt động: khối mũ, ở trên cùng.",
+        "Mission: Begin when TB1A + TB1B combo touched. Nghĩa là: bắt đầu khi chạm hai vùng TB1A và TB1B.",
+        "Các lệnh di chuyển nằm BÊN TRONG khối Mission.",
+        "Mission: End. Nghĩa là: kết thúc."
+      ],
+      "warn": "Lệnh để ra ngoài khối Mission thì robot đứng im. Robot không hỏng đâu, chỉ là lệnh để sai chỗ."
     },
     {
       "part": "Đi tới, đi lùi",
@@ -157,6 +213,12 @@
       "lines": [
         "Leanbot có hai bánh. Trái là bánh bên trái, Phải là bánh bên phải.",
         "Hai ô cùng số 30 thì robot đi thẳng về phía mặt nó đang hướng."
+      ],
+      "images": [
+        {
+          "src": "bai-01/di-thang.png",
+          "alt": "Hai robot: Trái 30 Phải 30 đi thẳng chậm, Trái 50 Phải 50 đi thẳng xa hơn"
+        }
       ],
       "chips": [
         {
@@ -174,6 +236,18 @@
     {
       "part": "Đi tới, đi lùi",
       "title": "Ba khối để đi tới 15 cm",
+      "images": [
+        {
+          "src": "bai-01/di-15cm-khoi.png",
+          "alt": "Chương trình đầy đủ: chạy 30 và 30, chạy đoạn đường 15 cm, dừng",
+          "caption": "Chương trình"
+        },
+        {
+          "src": "bai-01/di-15cm.png",
+          "alt": "Robot đi thẳng từ chỗ xuất phát tới 15 cm",
+          "caption": "Robot đi 15 cm"
+        }
+      ],
       "steps": [
         [
           "1",
@@ -192,22 +266,60 @@
     },
     {
       "part": "Đi tới, đi lùi",
-      "title": "Nạp xuống robot rồi chạm hai nút",
+      "title": "Nạp xuống robot rồi chạm hai vùng",
       "lines": [
-        "Nạp chương trình xuống Leanbot, đặt robot xuống sàn phẳng.",
-        "Chạm CÙNG LÚC hai nút trước TB1A và TB1B thì robot mới chạy."
+        "Trình soạn khối chỉ GHÉP khối. Nạp xuống robot thì làm ở Leanbot IDE."
+      ],
+      "steps": [
+        [
+          "1",
+          "Bấm nút copy màu xanh lá, cạnh cột code bên phải"
+        ],
+        [
+          "2",
+          "Mở Leanbot IDE, bấm CREATE A NEW PROJECT, đặt tên, CREATE"
+        ],
+        [
+          "3",
+          "Dán code vào, nạp như Bài 0: nút nạp, chờ 100% – Done!"
+        ],
+        [
+          "4",
+          "Rút cáp, đặt robot xuống sàn phẳng"
+        ],
+        [
+          "5",
+          "Chạm CÙNG LÚC hai vùng phía trước TB1A và TB1B"
+        ]
+      ],
+      "images": [
+        {
+          "src": "bai-01/cham-hai-nut.png",
+          "alt": "Hai ngón tay chạm hai vùng phía trước, TB1A bên trái và TB1B bên phải"
+        }
       ],
       "links": [
         {
           "label": "Mở trình soạn khối lệnh (tiếng Việt)",
           "href": "https://ide.pythaverse.space/lbeditor/?lang=vi"
+        },
+        {
+          "label": "Mở Leanbot IDE (nạp code, xem SERIAL)",
+          "href": "https://ide.pythaverse.space/#/code"
         }
       ],
-      "check": "Con cho robot đi được 15 cm rồi"
+      "check": "Con cho robot đi được 15 cm rồi",
+      "checkId": "10"
     },
     {
       "part": "Đi tới, đi lùi",
       "title": "Dấu trừ nghĩa là lùi",
+      "images": [
+        {
+          "src": "bai-01/toi-lui.png",
+          "alt": "Robot 30 và 30 đi tới; robot −50 và −50 đi lùi"
+        }
+      ],
       "chips": [
         {
           "label": "Trái 30 · Phải 30",
@@ -229,7 +341,14 @@
         "Vận tốc mỗi bánh chỉ nằm từ −59 đến 59 vòng/phút.",
         "Số to thì bánh quay nhanh. Nhưng đừng gõ quá 59."
       ],
-      "check": "Con cho robot lùi về đúng chỗ cũ rồi"
+      "images": [
+        {
+          "src": "bai-01/toc-do.png",
+          "alt": "Đồng hồ vận tốc từ −59 đến 59, kim chỉ 30"
+        }
+      ],
+      "check": "Con cho robot lùi về đúng chỗ cũ rồi",
+      "checkId": "12"
     },
     {
       "part": "Quay tại chỗ",
@@ -238,11 +357,29 @@
         "Lúc đó robot xoay tại chỗ như con quay, không đi xa khỏi chỗ cũ.",
         "Trên khối, đổi ô chọn từ Chạy sang Rẽ."
       ],
+      "images": [
+        {
+          "src": "bai-01/xoay-tai-cho.png",
+          "alt": "Bánh trái quay tới, bánh phải quay lùi, robot xoay tại chỗ",
+          "caption": "Hai bánh ngược chiều"
+        },
+        {
+          "src": "bai-01/chay-sang-re.png",
+          "alt": "Khối di chuyển với ô chọn Rẽ được khoanh vàng",
+          "caption": "Đổi Chạy thành Rẽ"
+        }
+      ],
       "note": "Robot còn một cách quay nữa là quay vòng cung, hai bánh cùng chiều khác tốc độ. Bài sau mới học."
     },
     {
       "part": "Quay tại chỗ",
       "title": "Quay bao nhiêu độ?",
+      "images": [
+        {
+          "src": "bai-01/bao-nhieu-do.png",
+          "alt": "Ba robot quay 90 độ, 180 độ và 360 độ"
+        }
+      ],
       "table": {
         "head": [
           "Số độ",
@@ -270,11 +407,35 @@
       "lines": [
         "Con đứng đối diện robot thì trái phải của con ngược với nó.",
         "Muốn biết bên nào, hãy đứng sau lưng robot, cùng hướng với nó."
+      ],
+      "images": [
+        {
+          "src": "bai-01/trai-phai-doi-dien.png",
+          "alt": "Con đứng đối diện robot: trái của con là phải của robot",
+          "caption": "Đối diện: dễ nhầm"
+        },
+        {
+          "src": "bai-01/trai-phai-sau-lung.png",
+          "alt": "Con đứng sau lưng robot: trái phải trùng nhau",
+          "caption": "Sau lưng: cùng phía"
+        }
       ]
     },
     {
       "part": "Quay tại chỗ",
       "title": "Quay sang phải",
+      "images": [
+        {
+          "src": "bai-01/quay-phai-khoi.png",
+          "alt": "Ba khối: Rẽ với vận tốc Trái 50 Phải −50, Rẽ góc 90 độ, Dừng",
+          "caption": "Chương trình"
+        },
+        {
+          "src": "bai-01/quay-phai.png",
+          "alt": "Bánh trái tới, bánh phải lùi, robot quay sang phải",
+          "caption": "Robot quay phải"
+        }
+      ],
       "steps": [
         [
           "1",
@@ -294,6 +455,18 @@
     {
       "part": "Quay tại chỗ",
       "title": "Quay sang trái",
+      "images": [
+        {
+          "src": "bai-01/quay-trai-khoi.png",
+          "alt": "Ba khối: Rẽ với vận tốc Trái −50 Phải 50, Rẽ góc 90 độ, Dừng",
+          "caption": "Chương trình"
+        },
+        {
+          "src": "bai-01/quay-trai.png",
+          "alt": "Bánh phải tới, bánh trái lùi, robot quay sang trái",
+          "caption": "Robot quay trái"
+        }
+      ],
       "steps": [
         [
           "1",
@@ -309,11 +482,18 @@
         ]
       ],
       "note": "Đổi từ quay phải sang quay trái chỉ cần đổi chỗ dấu trừ giữa hai ô.",
-      "check": "Con cho robot quay phải và quay trái rồi"
+      "check": "Con cho robot quay phải và quay trái rồi",
+      "checkId": "17"
     },
     {
       "part": "Quay tại chỗ",
       "title": "Robot quay lố thì sao?",
+      "images": [
+        {
+          "src": "bai-01/quay-lo.png",
+          "alt": "Đường xanh là góc 90 độ muốn quay, đường đỏ là robot quay lố quá"
+        }
+      ],
       "chips": [
         {
           "label": "Cách 1",
@@ -333,6 +513,18 @@
       "title": "Thử sức 1: đi rồi quay",
       "lines": [
         "Cho Leanbot đi tới 50 cm, rồi quay sang phải một góc vuông."
+      ],
+      "images": [
+        {
+          "src": "bai-01/thu-suc-1-khoi.png",
+          "alt": "Sáu khối đánh số: chạy 50 và 50, đoạn đường 50 cm, dừng, rẽ 30 và −30, góc 85 độ, dừng",
+          "caption": "Chương trình"
+        },
+        {
+          "src": "bai-01/thu-suc-1.png",
+          "alt": "Robot đi thẳng 50 cm rồi quay sang phải",
+          "caption": "Robot đi rồi quay"
+        }
       ],
       "steps": [
         [
@@ -368,6 +560,12 @@
         "Ghép thêm vào dưới bài trên: đi tới 35 cm, rồi quay sang TRÁI.",
         "Đường robot đi sẽ thành hình chữ L."
       ],
+      "images": [
+        {
+          "src": "bai-01/chu-l.png",
+          "alt": "Đường đi: lên 50 cm, quay phải, sang 35 cm, quay trái"
+        }
+      ],
       "note": "Quay trái thì bánh trái mang dấu trừ: Trái −30 Phải 30."
     },
     {
@@ -376,16 +574,29 @@
       "lines": [
         "Robot xuất phát ở dấu X. Con tự ghép khối từ đầu nhé."
       ],
+      "images": [
+        {
+          "src": "bai-01/kho-bau.png",
+          "alt": "Bản đồ ô vuông: từ dấu X đi lên 50 cm tới lá cờ, quay phải, đi 30 cm tới rương kho báu"
+        }
+      ],
       "list": [
         "Đi tới 50 cm, tới điểm mốc giữa đường.",
         "Quay phải 90 độ.",
         "Đi tới 30 cm là tới kho báu."
       ],
-      "check": "Robot của con tới được kho báu"
+      "check": "Robot của con tới được kho báu",
+      "checkId": "21"
     },
     {
       "part": "Thử sức",
       "title": "Robot đi sai thì làm gì?",
+      "images": [
+        {
+          "src": "bai-01/sua-loi.png",
+          "alt": "Vòng sửa lỗi: nhìn chỗ sai, kiểm số, chỉnh một chút, chạy thử lại"
+        }
+      ],
       "steps": [
         [
           "1",
@@ -409,6 +620,12 @@
     {
       "part": "Kiểm nghiệm",
       "title": "Thử trên robot: đi 50 cm rồi quay",
+      "images": [
+        {
+          "src": "bai-01/do-50cm.png",
+          "alt": "Hai mẩu băng dính cách nhau 50 cm, bánh robot đặt sát mẩu thứ nhất"
+        }
+      ],
       "steps": [
         [
           "1",
@@ -435,6 +652,10 @@
         {
           "label": "Mở trình soạn khối lệnh (tiếng Việt)",
           "href": "https://ide.pythaverse.space/lbeditor/?lang=vi"
+        },
+        {
+          "label": "Mở Leanbot IDE (nạp code, xem SERIAL)",
+          "href": "https://ide.pythaverse.space/#/code"
         }
       ],
       "tip": "Sai trong khoảng 2–3 cm là bình thường. Sai quá 10 cm thì xem bảng ở màn sau."
@@ -450,7 +671,7 @@
         "rows": [
           [
             "Robot đứng im",
-            "Chạm CÙNG LÚC hai nút chưa? Lệnh có nằm trong khối Nhiệm vụ không?"
+            "Chạm CÙNG LÚC hai vùng TB1A, TB1B chưa? Lệnh có nằm trong khối Mission không?"
           ],
           [
             "Robot đi cong",
@@ -470,7 +691,8 @@
           ]
         ]
       },
-      "check": "Con đo rồi: robot đi gần đúng 50 cm"
+      "check": "Con đo rồi: robot đi gần đúng 50 cm",
+      "checkId": "24"
     }
   ],
   "quiz": [

@@ -50,7 +50,7 @@ test('a lesson runs from its goals to the quiz and scores it', async ({ page }) 
   await page.goto('/leanbot/bai-00/0');
 
   // The page counter names the whole lesson, so the flow below cannot silently skip pages.
-  await expect(page.getByText('1 / 33')).toBeVisible();
+  await expect(page.getByText('1 / 39')).toBeVisible();
 
   await page.getByRole('button', { name: 'Tiếp →' }).click();
   await expect(page).toHaveURL(/\/leanbot\/bai-00\/1$/);
@@ -85,7 +85,7 @@ test('a lesson runs from its goals to the quiz and scores it', async ({ page }) 
   );
 
   // The quiz marks a right answer and explains it.
-  await page.goto('/leanbot/bai-00/32');
+  await page.goto('/leanbot/bai-00/38');
   await expect(page.getByRole('heading', { name: 'Con nhớ được bao nhiêu?' })).toBeVisible();
   await page.getByRole('button', { name: /Cắm vào cổng nào\?/ }).click();
   await expect(page.getByText(/hai cổng USB sát nhau/)).toBeVisible();
@@ -140,6 +140,45 @@ test('lesson 1 lists, links out to the editor and scores its quiz', async ({ pag
   await expect(page.getByRole('heading', { name: 'Con nhớ được bao nhiêu?' })).toBeVisible();
   await page.getByRole('button', { name: /^A.*Quay tại chỗ/ }).click();
   await expect(page.getByText(/xoay tại chỗ như con quay/)).toBeVisible();
+});
+
+// Coach, 22/10/2026: "học sinh tiểu học học thông qua hình ảnh". Every screen of lessons 0-4
+// shows a picture except the closing look-up table; a picture whose file is missing would be a
+// broken frame, so each one must have actually loaded, and a pair must carry its captions.
+const PICTURED: [lesson: string, screens: number, pictures: number][] = [
+  ['bai-00', 37, 50],
+  ['bai-01', 25, 32],
+  ['bai-02', 20, 24],
+  ['bai-03', 21, 23],
+  ['bai-04', 18, 20],
+];
+
+test('lessons 0-4 show their pictures, and pairs carry their captions', async ({ page }) => {
+  test.setTimeout(process.env.CI ? 300_000 : 120_000);
+  for (const [lesson, screens, expected] of PICTURED) {
+    let pictures = 0;
+    for (let n = 1; n <= screens; n += 1) {
+      await page.goto(`/leanbot/${lesson}/${String(n)}`);
+      await expect(page.getByRole('heading', { level: 2 })).toBeVisible();
+      const loaded = await page
+        .locator('main figure img')
+        .evaluateAll((all) =>
+          all.map(
+            (img) =>
+              (img as HTMLImageElement).complete && (img as HTMLImageElement).naturalWidth > 0,
+          ),
+        );
+      expect(loaded.every(Boolean), `${lesson} page ${String(n)}`).toBe(true);
+      pictures += loaded.length;
+    }
+    expect(pictures, lesson).toBe(expected);
+  }
+
+  await page.goto('/leanbot/bai-01/8');
+  await expect(page.getByRole('heading', { name: /Chương trình nào cũng có khung/ })).toBeVisible();
+  await expect(page.getByText('Đúng: lệnh nằm TRONG')).toBeVisible();
+  await expect(page.getByText('Sai: robot đứng im')).toBeVisible();
+  await page.screenshot({ path: 'test-results/leanbot/bai-01-khung.png', fullPage: true });
 });
 
 // Lessons 2 and 3: the list must carry every lesson that has a JSON file, and each lesson's
@@ -220,7 +259,9 @@ test('lesson 4 teaches the four eyes and ends with a line test', async ({ page }
 
   // Calibration is the answer to "the robot keeps leaving the line".
   await page.goto('/leanbot/bai-04/11');
-  await expect(page.getByRole('heading', { name: /Đỏ – Trắng – Vàng – Đen – Xanh – Xong/ })).toBeVisible();
+  await expect(
+    page.getByRole('heading', { name: /Đỏ – Trắng – Vàng – Đen – Xanh – Xong/ }),
+  ).toBeVisible();
 
   await page.goto('/leanbot/bai-04/18');
   await expect(page.getByText('Trôi khỏi vạch liên tục')).toBeVisible();
@@ -261,5 +302,10 @@ test('a screen that names a tool carries its link', async ({ page }) => {
   await expect(page.getByRole('link', { name: /Mở trình soạn khối lệnh/ })).toHaveAttribute(
     'href',
     'https://ide.pythaverse.space/lbeditor/?lang=vi',
+  );
+  // Code is uploaded from the Leanbot IDE, not from the block editor (coach, 22/10/2026).
+  await expect(page.getByRole('link', { name: /Mở Leanbot IDE/ })).toHaveAttribute(
+    'href',
+    'https://ide.pythaverse.space/#/code',
   );
 });

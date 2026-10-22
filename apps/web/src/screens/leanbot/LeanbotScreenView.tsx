@@ -1,5 +1,6 @@
 import type { LeanbotScreen } from '@codequest/content-schema';
 import { LEANBOT_IMG } from '../../features/leanbot/leanbotCourse';
+import { checkIdOf } from '../../features/leanbot/leanbotGate';
 import { LeanbotCheck } from './LeanbotCheck';
 import { LeanbotEyebrow } from './LeanbotEyebrow';
 import { LeanbotLinkList } from './LeanbotLinkList';
@@ -37,12 +38,31 @@ export function LeanbotScreenView({
         </p>
       ))}
 
-      {screen.image !== undefined && (
-        <img
-          src={LEANBOT_IMG + screen.image}
-          alt={screen.alt ?? ''}
-          className="w-full rounded-panel border-3 border-ink bg-paper"
-        />
+      {screen.images && (
+        <div className="flex flex-wrap items-start justify-center gap-3">
+          {screen.images.map((image) => {
+            // Drawn pictures (tools/leanbot-art) are shot at 1.5x: show them at their real size,
+            // so two only sit side by side when both still read at full size. They go in srcset
+            // alone - with a src beside it, a 1x screen would pick the src as its 1x candidate.
+            const drawn = image.src.includes('/');
+            const url = LEANBOT_IMG + image.src;
+            return (
+              <figure key={image.src} className="m-0 flex max-w-full flex-col items-center gap-1">
+                <img
+                  src={drawn ? undefined : url}
+                  srcSet={drawn ? `${url} 1.5x` : undefined}
+                  alt={image.alt}
+                  className={`h-auto max-w-full rounded-panel border-3 border-ink bg-paper ${drawn ? '' : 'w-full'}`}
+                />
+                {image.caption !== undefined && (
+                  <figcaption className="text-center font-display text-lg">
+                    {image.caption}
+                  </figcaption>
+                )}
+              </figure>
+            );
+          })}
+        </div>
       )}
 
       {screen.chips && (
@@ -135,7 +155,9 @@ export function LeanbotScreenView({
         <p className={`m-0 ${BOX} border-ink bg-paper`}>{screen.note}</p>
       )}
 
-      {screen.check !== undefined && <LeanbotCheck id={`${lessonId}.${String(index)}`} label={screen.check} />}
+      {screen.check !== undefined && (
+        <LeanbotCheck id={`${lessonId}.${checkIdOf(screen, index)}`} label={screen.check} />
+      )}
     </>
   );
 }

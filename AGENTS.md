@@ -116,7 +116,7 @@ Báo cáo kết quả **thật**: lệnh nào đỏ thì nói đỏ, kèm output
 
 ## 9. Sai lầm đã xảy ra, đừng lặp lại
 
-Ghi ngày 21/10/2026, sau một phiên làm việc mà **ba hướng bị làm rồi bỏ**; mục 9.8–9.19 thêm
+Ghi ngày 21/10/2026, sau một phiên làm việc mà **ba hướng bị làm rồi bỏ**; mục 9.8–9.21 thêm
 ngày 22/10/2026, sau khi bật CI và đẩy lên production lần đầu. Mỗi mục là một việc đã thật sự
 xảy ra, không phải lời khuyên chung chung.
 
@@ -312,3 +312,27 @@ Code không bao giờ xóa hồ sơ này.
 (xem `.env.example`) và trang chọn hồ sơ có ô "HLV". Thế giới chưa có boss vẫn ẩn cả với HLV, nên
 màn mới thì tạm chép vào `content/worlds/_sandbox/levels/` (đổi `id`, `worldId: "_sandbox"`),
 khởi động lại dev, gửi link `/play/<id>`, chơi xong thì xóa. Đừng commit các bản chép đó.
+
+### 9.20. Bé học bằng hình, và hình phải chụp từ thứ thật
+
+HLV đọc Bài 0–4 rồi nói thẳng: *"Học sinh tiểu học học thông qua hình ảnh… Tôi đọc nguyên chữ còn
+thấy khó hiểu."* 115 màn chỉ có 9 hình. Khi làm hình mới lộ ra ba chỗ chữ sai mà không ai thấy:
+khối thật ghi `Mission: Begin when … combo touched` chứ không phải "Nhiệm vụ: Bắt đầu…"; khối
+`if`/`repeat while` vẫn tiếng Anh; và **TB1A…TB2B không phải nút bấm** mà là vùng chạm in ở mép
+mạch (HLV phát hiện khi cầm robot thật).
+
+**Luật:** màn nào của bài Leanbot cũng có hình (`tools/leanbot-art`). Khối lệnh thì chụp từ
+trình soạn thật; giao diện IDE thì chụp màn hình thật; bộ phận robot thì đối chiếu ảnh chụp robot
+thật. Chữ trong bài phải khớp đúng chữ trên màn hình bé thấy, kể cả chỗ còn tiếng Anh.
+
+### 9.21. Đi hết quy trình trên robot thật trước khi viết hướng dẫn cho bé
+
+Bài 0 viết "nạp code" mà không nói nạp ở đâu: link duy nhất là trình soạn khối, trong khi nạp
+phải làm ở **Leanbot IDE** (`ide.pythaverse.space/#/code`). Đi thật một lượt trên máy HLV mới lộ
+thêm: máy Linux cần quyền cổng (udev), Chrome **không nhớ cổng** CH340 giữa các lần mở, gửi lệnh
+phải **tích ô NL**, dòng `warning` sau khi nạp là vô hại, robot nhấc lên thì mắt dò vạch báo
+`1111`, phía trước trống thì siêu âm báo `1000 cm`.
+
+**Luật:** bài nào có thao tác trên robot thì làm thật một lượt (nạp, xem MONITOR, gõ lệnh) và
+chụp lại trước khi viết. Ô tích nào có thể dời chỗ thì cho nó `checkId` cố định, vì ô tích lưu
+theo vị trí sẽ nhảy sang màn khác khi chèn màn mới.
