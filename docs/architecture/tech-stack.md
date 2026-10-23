@@ -15,6 +15,7 @@ Quy tắc:
 | `blockly` | **13.3.0** | engine, games, web | Trình ghép khối | Headless trên Node: `import * as Blockly from 'blockly'` (Node tự chọn bản `core-node` + jsdom; đã chạy thử) |
 | `@blockly/field-grid-dropdown` | 13.3.0 | web | Dropdown dạng lưới có ảnh | |
 | `@blockly/disable-top-blocks` | 13.3.0 | web | Chỉ cho phép disable khối không rời | |
+| `@blockly/field-colour` | 13.3.0 | web | Ô chọn màu dạng bảng cho khối Leanbot | HLV 23/10/2026: khối phải giống trình soạn Pythaverse (`lbeditor`), nơi màu đèn chọn bằng bảng màu. Blockly 13 đã đưa ô màu ra khỏi lõi thành plugin này |
 | `@blockly/workspace-content-highlight` | 13.3.0 | web | Làm mờ quanh vùng cần chú ý (tutorial) | Tên đúng có tiền tố `workspace-` |
 | `@blockly/zoom-to-fit` | 13.3.0 | web | Nút thu phóng vừa màn hình | |
 | `@blockly/theme-deuteranopia` | 13.3.0 | web | Gốc cho theme mù màu `codequest-cvd` | |

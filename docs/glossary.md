@@ -150,17 +150,17 @@ Luật đầy đủ: `product/game-kinds.md` §3.3. Trong lời nói cho bé ở
 | Thi thử · lượt · lượt tốt nhất | `level.exam` `{ runs, seed }`, `ExamScoreboard` | Màn `w06-exam`: 2 lượt × 120 giây, lượt nhiều điểm hơn được tính; không sao, không xu |
 
 ## Thế giới Leanbot (bản đồ thứ hai, `product/the-gioi-leanbot.md`)
-Khối tiếng Việt cho mọi khối của trình soạn Pythaverse; code vẫn là code Leanbot tiếng Anh.
+Đủ 93 khối của trình soạn Pythaverse, cùng tên khối và cùng code, chữ trên khối bằng tiếng Việt.
 
 | Tiếng Việt | Trong code | Nghĩa |
 |---|---|---|
 | Thế giới Leanbot | (bản đồ, chưa có schema: ADR-0030) | Bản đồ thứ hai bên cạnh **Làng của Măng** (10 thế giới cũ) |
 | Xưởng Phiên Dịch (Màn 0) | `/xuong-phien-dich`, `screens/workshop/` | Khối Việt ↔ code Leanbot, hai chiều. Chỉ HLV thấy cho tới khi bản đồ xong |
-| Khối Leanbot | `lb_*` (`packages/games/src/leanbot/blocks.ts`) | Khối Việt khớp một khối Pythaverse. Không dùng lại `cq_*`: code của chúng là C++ |
+| Khối Leanbot | tên khối của Pythaverse (`LbMotion.run`, `controls_if`…), `packages/games/src/leanbot/` | Không có tiền tố: chương trình lưu từ Pythaverse mở được ở đây. CodeQuest không dùng các khối lõi Blockly nào (nó dùng `cq_*`) |
 | Code Leanbot | `toArduino` | Code Arduino y như trình soạn Pythaverse in ra, bỏ 3 dòng "Generated … at <giờ>" |
 | Dựng khối | `parseArduino` | Đọc code **dạng chuẩn** thành khối. Dòng không đọc được thì báo đỏ, không đoán |
-| Nhiệm vụ | `lb_mission_touch` / `lb_mission_now` | "Bắt đầu khi chạm TB1A + TB1B … kết thúc nhiệm vụ" = `LbMission.begin/end` |
-| Quay bánh / đi tiếp / xoay tiếp | `lb_run` / `lb_go` / `lb_turn` | Leanbot đi **hai bước**: bật bánh, rồi chờ đủ quãng hay đủ góc |
-| Tô đèn / bật đèn lên | `lb_led_set` / `lb_led_show` | Tô chỉ ghi màu; phải "bật đèn lên" đèn mới sáng |
-| 4 mắt dò vạch thấy ⬜⬛⬛⬜ | `lb_irline_is` | `(LbIRLine.value() == 6)`: mỗi ô đen là một bit, mắt ngoài trái là bit cao nhất |
-| Lặp khi / lặp mãi | `lb_repeat_while` / `lb_forever` | `while (…)` / `while (true)`. Ngược với "lặp đến khi" (`while (!(…))`) |
+| Nhiệm vụ | `LbMission.beginByTeacher_end` … | "Nhiệm vụ: Bắt đầu khi chạm cùng lúc TB1A + TB1B … Nhiệm vụ: Kết thúc" = `LbMission.begin/end` |
+| Chạy với vận tốc / Chạy đoạn đường / Rẽ góc | `LbMotion.run` / `waitDistanceMm` / `waitRotationDeg` | Leanbot đi **hai bước**: bật bánh, rồi chờ đủ quãng hay đủ góc |
+| Tô đèn / Bật lên | `LbRGB.setColor` / `LbRGB.show` | Tô chỉ ghi màu; phải "Bật lên" đèn mới sáng |
+| Dò vạch: ⬜⬛⬛⬜ | `LbIRLine.state` | Một số 4 bit: mỗi ô đen là một bit, mắt ngoài trái là bit cao nhất (⬜⬛⬛⬜ = 6) |
+| Hộp chung / hộp riêng | `vars_initialize_global*` / `vars_initialize_local*` | Biến của Pythaverse có kiểu: số nguyên, số thập phân, chữ, đúng/sai |

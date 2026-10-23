@@ -4,13 +4,17 @@ import { common, Events, inject, serialization, type WorkspaceSvg } from 'blockl
 import {
   parseArduino,
   type ParseProblem,
-  registerLeanbotBlocks,
+  registerLeanbotFlyouts,
   toArduino,
 } from '@codequest/games';
 import '../../blockly/blockly.css';
 import { loadBlocklyFonts, setupBlockly } from '../../blockly/setup';
 import { codequestTheme } from '../../blockly/theme';
-import { LEANBOT_IDE_URL, workshopToolbox } from '../../features/workshop/workshopToolbox';
+import {
+  LEANBOT_IDE_URL,
+  setupWorkshopBlocks,
+  workshopToolbox,
+} from '../../features/workshop/workshopToolbox';
 import { useSignedInProfile } from '../../features/profiles';
 import { vi } from '../../i18n/vi';
 import { Button, Panel, UI_COLORS } from '../../ui';
@@ -71,7 +75,7 @@ function Workshop() {
     void loadBlocklyFonts().then(() => {
       if (disposed) return;
       setupBlockly();
-      registerLeanbotBlocks();
+      setupWorkshopBlocks();
       workspace = inject(container, {
         renderer: 'zelos',
         theme: codequestTheme,
@@ -83,6 +87,7 @@ function Workshop() {
         zoom: { controls: true, wheel: false, startScale: 0.9, minScale: 0.5, maxScale: 1.6 },
         grid: { spacing: 24, length: 2, colour: UI_COLORS.brandSoft, snap: true },
       });
+      registerLeanbotFlyouts(workspace);
       workspaceRef.current = workspace;
       const ws = workspace;
       ws.addChangeListener((event: Events.Abstract) => {
@@ -137,7 +142,7 @@ function Workshop() {
       code: draft,
       lineOf,
       problems: result.problems,
-      built: ws.getAllBlocks(false).length,
+      built: ws.getAllBlocks(false).filter((block) => !block.isShadow()).length,
     });
     setDraft(null);
   };

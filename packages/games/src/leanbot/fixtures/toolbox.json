@@ -1,0 +1,622 @@
+{
+  "source": "https://ide.pythaverse.space/lbeditor/?lang=en (Blockly 3.20200924.3, generator 2024-09-15), 23/10/2026",
+  "categories": [
+    {
+      "path": ["Logic"],
+      "vi": ["Logic"],
+      "custom": null,
+      "colour": null,
+      "blocks": [
+        {
+          "type": "controls_if",
+          "xml": "<block type='controls_if'></block>",
+          "code": "if (false) {\n}\n"
+        },
+        {
+          "type": "logic_compare",
+          "xml": "<block type='logic_compare'></block>",
+          "code": "(0 == 0)"
+        },
+        {
+          "type": "logic_operation",
+          "xml": "<block type='logic_operation'></block>",
+          "code": "false && false"
+        },
+        {
+          "type": "logic_negate",
+          "xml": "<block type='logic_negate'></block>",
+          "code": "!false"
+        },
+        {
+          "type": "logic_boolean",
+          "xml": "<block type='logic_boolean'></block>",
+          "code": "true"
+        },
+        {
+          "type": "logic_null",
+          "xml": "<block type='logic_null'></block>",
+          "code": "null"
+        },
+        {
+          "type": "logic_ternary",
+          "xml": "<block type='logic_ternary'></block>",
+          "code": "false ? null : null"
+        },
+        {
+          "type": "controls_switch",
+          "xml": "<block type='controls_switch'></block>",
+          "code": "switch (i) {\n  case false:\n}\n\n"
+        }
+      ]
+    },
+    {
+      "path": ["Loops"],
+      "vi": ["Vòng lặp"],
+      "custom": null,
+      "colour": null,
+      "blocks": [
+        {
+          "type": "controls_repeat_ext",
+          "xml": "<block type='controls_repeat_ext'><value name='TIMES'><shadow type='math_number'><field name='NUM'>10</field></shadow></value></block>",
+          "code": "for (int count = 0; count < 10; count++) {\n}\n\n"
+        },
+        {
+          "type": "controls_repeat",
+          "xml": "<block type='controls_repeat'></block>",
+          "code": "for (int count = 0; count < 10; count++) {\n}\n\n"
+        },
+        {
+          "type": "controls_whileUntil",
+          "xml": "<block type='controls_whileUntil'></block>",
+          "code": "while (false) {\n}\n\n"
+        },
+        {
+          "type": "controls_for",
+          "xml": "<block type='controls_for'><value name='FROM'><shadow type='math_number'><field name='NUM'>1</field></shadow></value><value name='TO'><shadow type='math_number'><field name='NUM'>10</field></shadow></value><value name='BY'><shadow type='math_number'><field name='NUM'>1</field></shadow></value></block>",
+          "code": "for (int j = 1; j <= 10; j++) {\n}\n\n"
+        },
+        {
+          "type": "controls_forEach",
+          "xml": "<block type='controls_forEach'></block>",
+          "code": "var k_list = [];\nfor (var k_index in k_list) {\n  k = k_list[k_index];\n}\n\n"
+        },
+        {
+          "type": "controls_flow_statements",
+          "xml": "<block type='controls_flow_statements'></block>",
+          "code": "break;\n"
+        }
+      ]
+    },
+    {
+      "path": ["Math"],
+      "vi": ["Toán"],
+      "custom": null,
+      "colour": null,
+      "blocks": [
+        {
+          "type": "math_number",
+          "xml": "<block type='math_number' gap='12'><field name='NUM'>123</field></block>",
+          "code": "123"
+        },
+        {
+          "type": "math_constant",
+          "xml": "<block type='math_constant' gap='12'></block>",
+          "code": "PI"
+        },
+        {
+          "type": "math_arithmetic",
+          "xml": "<block type='math_arithmetic' gap='12'><value name='A'><shadow type='math_number'><field name='NUM'>1</field></shadow></value><value name='B'><shadow type='math_number'><field name='NUM'>2</field></shadow></value></block>",
+          "code": "1 + 2"
+        },
+        {
+          "type": "math_modulo",
+          "xml": "<block type='math_modulo' gap='12'><value name='DIVIDEND'><shadow type='math_number'><field name='NUM'>64</field></shadow></value><value name='DIVISOR'><shadow type='math_number'><field name='NUM'>10</field></shadow></value></block>",
+          "code": "64 % 10"
+        },
+        {
+          "type": "math_number_property",
+          "xml": "<block type='math_number_property' gap='12'><value name='NUMBER_TO_CHECK'><shadow type='math_number'><field name='NUM'>0</field></shadow></value></block>",
+          "code": "(0 % 2) == 0"
+        },
+        {
+          "type": "math_round",
+          "xml": "<block type='math_round' gap='28'><value name='NUM'><shadow type='math_number'><field name='NUM'>3.14</field></shadow></value></block>",
+          "code": "round(3.14)"
+        },
+        {
+          "type": "math_single",
+          "xml": "<block type='math_single' gap='12'><value name='NUM'><shadow type='math_number'><field name='NUM'>9</field></shadow></value></block>",
+          "code": "abs(9)"
+        },
+        {
+          "type": "math_multiple2",
+          "xml": "<block type='math_multiple2' gap='12'><value name='NUM1'><shadow type='math_number'><field name='NUM'>2</field></shadow></value><value name='NUM2'><shadow type='math_number'><field name='NUM'>3</field></shadow></value></block>",
+          "code": "max(2, 3)"
+        },
+        {
+          "type": "math_trig",
+          "xml": "<block type='math_trig' gap='28'><value name='NUM'><shadow type='math_number'><field name='NUM'>45</field></shadow></value></block>",
+          "code": "cos(radians(45))"
+        },
+        {
+          "type": "math_constrain",
+          "xml": "<block type='math_constrain' gap='12'><value name='VALUE'><shadow type='math_number'><field name='NUM'>50</field></shadow></value><value name='LOW'><shadow type='math_number'><field name='NUM'>1</field></shadow></value><value name='HIGH'><shadow type='math_number'><field name='NUM'>100</field></shadow></value></block>",
+          "code": "constrain(50, 1, 100)"
+        },
+        {
+          "type": "math_map",
+          "xml": "<block type='math_map' gap='36'><value name='Number'><block type='math_map_from'><value name='NUM'><shadow type='math_number'><field name='NUM'>712</field></shadow></value></block></value><value name='fromLow'><block type='math_map_to'><value name='FROM'><shadow type='math_number'><field name='NUM'>0</field></shadow></value><value name='TO'><shadow type='math_number'><field name='NUM'>0</field></shadow></value></block></value><value name='fromHigh'><block type='math_map_to'><value name='FROM'><shadow type='math_number'><field name='NUM'>1023</field></shadow></value><value name='TO'><shadow type='math_number'><field name='NUM'>100</field></shadow></value></block></value></block>",
+          "code": "map(712, 0, 1023, 0, 100)"
+        },
+        {
+          "type": "math_random_int",
+          "xml": "<block type='math_random_int' gap='12'><value name='FROM'><shadow type='math_number'><field name='NUM'>0</field></shadow></value><value name='TO'><shadow type='math_number'><field name='NUM'>100</field></shadow></value></block>",
+          "code": "random(0, 100)"
+        },
+        {
+          "type": "math_random_seed",
+          "xml": "<block type='math_random_seed'><value name='SEED'><shadow type='board_base_inout_analog_read'><field name='PIN'>A0</field></shadow></value></block>",
+          "code": "randomSeed(analogRead(A0));\n"
+        }
+      ]
+    },
+    {
+      "path": ["Variables"],
+      "vi": ["Biến"],
+      "custom": null,
+      "colour": null,
+      "blocks": []
+    },
+    {
+      "path": ["Variables", "local/param"],
+      "vi": ["Biến", "local/param"],
+      "custom": "VARIABLE_TYPED_LOCAL",
+      "colour": null,
+      "blocks": []
+    },
+    {
+      "path": ["Variables", "global"],
+      "vi": ["Biến", "global"],
+      "custom": "VARIABLE_TYPED",
+      "colour": null,
+      "blocks": []
+    },
+    {
+      "path": ["Variables", "numbers"],
+      "vi": ["Biến", "numbers"],
+      "custom": "VARIABLE_TYPED_NUM",
+      "colour": null,
+      "blocks": []
+    },
+    {
+      "path": ["Variables", "text"],
+      "vi": ["Biến", "text"],
+      "custom": "VARIABLE_TYPED_TEXT",
+      "colour": null,
+      "blocks": []
+    },
+    {
+      "path": ["Variables", "boolean"],
+      "vi": ["Biến", "boolean"],
+      "custom": "VARIABLE_TYPED_BOOLEAN",
+      "colour": null,
+      "blocks": []
+    },
+    {
+      "path": ["Functions"],
+      "vi": ["Chức năng"],
+      "custom": "PROCEDURE",
+      "colour": null,
+      "blocks": []
+    },
+    {
+      "path": ["Arduino"],
+      "vi": ["Arduino"],
+      "custom": null,
+      "colour": null,
+      "blocks": []
+    },
+    {
+      "path": ["Arduino", "In/Out"],
+      "vi": ["Arduino", "In/Out"],
+      "custom": null,
+      "colour": null,
+      "blocks": [
+        {
+          "type": "board_base_inout_buildin_led",
+          "xml": "<block type='board_base_inout_buildin_led'></block>",
+          "code": "digitalWrite(LED_BUILTIN, HIGH);\n"
+        },
+        {
+          "type": "board_base_inout_digital_write",
+          "xml": "<block type='board_base_inout_digital_write'></block>",
+          "code": "digitalWrite(0, HIGH);\n"
+        },
+        {
+          "type": "board_base_inout_digital_read",
+          "xml": "<block type='board_base_inout_digital_read'></block>",
+          "code": "digitalRead(0)"
+        },
+        {
+          "type": "board_base_inout_highlow",
+          "xml": "<block type='board_base_inout_highlow'></block>",
+          "code": "HIGH"
+        },
+        {
+          "type": "board_base_inout_analog_write",
+          "xml": "<block type='board_base_inout_analog_write'><value name='PWM'><shadow type='math_number'><field name='NUM'>0</field></shadow></value></block>",
+          "code": "analogWrite(3, 0);\n"
+        },
+        {
+          "type": "board_base_inout_analog_read",
+          "xml": "<block type='board_base_inout_analog_read'></block>",
+          "code": "analogRead(A0)"
+        },
+        {
+          "type": "board_base_delay",
+          "xml": "<block type='board_base_delay'><value name='DELAY_TIME'><shadow type='math_number'><field name='NUM'>1234</field></shadow></value></block>",
+          "code": "delay(1234);\n"
+        },
+        {
+          "type": "board_base_angle",
+          "xml": "<block type='board_base_angle'></block>",
+          "code": "90"
+        },
+        {
+          "type": "board_base_map",
+          "xml": "<block type='board_base_map'><value name='Number'><shadow type='math_number'><field name='NUM'>250</field></shadow></value><value name='fromLow'><shadow type='math_number'><field name='NUM'>0</field></shadow></value><value name='fromHigh'><shadow type='math_number'><field name='NUM'>1023</field></shadow></value><value name='toLow'><shadow type='math_number'><field name='NUM'>0</field></shadow></value><value name='toHigh'><shadow type='math_number'><field name='NUM'>255</field></shadow></value></block>",
+          "code": "map(250, 0, 1023, 0, 255)"
+        },
+        {
+          "type": "board_base_inout_tone",
+          "xml": "<block type='board_base_inout_tone'><value name='NUM'><shadow type='math_number'><field name='NUM'>440</field></shadow></value></block>",
+          "code": "tone(0, 440);\n"
+        },
+        {
+          "type": "board_base_inout_notone",
+          "xml": "<block type='board_base_inout_notone'></block>",
+          "code": "noTone(0);\n"
+        }
+      ]
+    },
+    {
+      "path": ["Arduino", "Serial"],
+      "vi": ["Arduino", "Serial"],
+      "custom": null,
+      "colour": null,
+      "blocks": [
+        {
+          "type": "text",
+          "xml": "<block type='text'><field name='TEXT'>some text</field></block>",
+          "code": "\"some text\""
+        },
+        {
+          "type": "board_serial_init",
+          "xml": "<block type='board_serial_init'></block>",
+          "code": ""
+        },
+        {
+          "type": "board_serial_print",
+          "xml": "<block type='board_serial_print'><value name='CONTENT'><shadow type='text'><field name='TEXT'>Hello World!</field></shadow></value></block>",
+          "code": "Serial.println(\"Hello World!\");\n"
+        },
+        {
+          "type": "board_serial_available",
+          "xml": "<block type='board_serial_available'></block>",
+          "code": "Serial.available()"
+        },
+        {
+          "type": "board_serial_read",
+          "xml": "<block type='board_serial_read'></block>",
+          "code": "Serial.read()"
+        },
+        {
+          "type": "board_serial_readStringUntil",
+          "xml": "<block type='board_serial_readStringUntil'><value name='CONTENT'><shadow type='text'><field name='TEXT'>\\n</field></shadow></value></block>",
+          "code": "Serial.readStringUntil('\\n')"
+        },
+        {
+          "type": "board_serial_flush",
+          "xml": "<block type='board_serial_flush'></block>",
+          "code": "Serial.flush();\n"
+        }
+      ]
+    },
+    {
+      "path": ["Leanbot"],
+      "vi": ["LeanbotVN"],
+      "custom": null,
+      "colour": null,
+      "blocks": [
+        {
+          "type": "Leanbot.commentLine",
+          "xml": "<block type='Leanbot.commentLine'></block>",
+          "code": "\n// Comment\n"
+        },
+        {
+          "type": "Leanbot.section",
+          "xml": "<block type='Leanbot.section'></block>",
+          "code": "\n{ // Comment\n}\n\n"
+        },
+        {
+          "type": "Leanbot.delay",
+          "xml": "<block type='Leanbot.delay'><value name='Delay'><shadow type='math_number'><field name='NUM'>1.25</field></shadow></value></block>",
+          "code": "LbDelay(1.25 * 1000);\n"
+        },
+        {
+          "type": "LbMission.elapsedMillis",
+          "xml": "<block type='LbMission.elapsedMillis'></block>",
+          "code": "LbMission.elapsedMillis() / 1000"
+        },
+        {
+          "type": "LbMission.beginByTeacher_end",
+          "xml": "<block type='LbMission.beginByTeacher_end'></block>",
+          "code": "LbMission.begin(TB1A + TB1B);\nLbMission.end();\n"
+        },
+        {
+          "type": "LbMission.beginImmediately_end",
+          "xml": "<block type='LbMission.beginImmediately_end'></block>",
+          "code": "LbMission.begin(0);\nLbMission.end();\n"
+        },
+        {
+          "type": "LbMission.missionSelect",
+          "xml": "<block type='LbMission.missionSelect'></block>",
+          "code": "\"msNumberGrid\""
+        },
+        {
+          "type": "LbMission.beginBySelect_end",
+          "xml": "<block type='LbMission.beginBySelect_end'><value name='missionId'><shadow type='text'><field name='TEXT'>mission name</field></shadow></value></block>",
+          "code": "LbMission.beginDigitalTwin(F(\"mission name\"));\nLbMission.end();\n"
+        },
+        {
+          "type": "LbMission.end",
+          "xml": "<block type='LbMission.end'></block>",
+          "code": "LbMission.end();\n"
+        },
+        {
+          "type": "Leanbot.whenStarted",
+          "xml": "<block type='Leanbot.whenStarted'></block>",
+          "code": ""
+        },
+        {
+          "type": "Leanbot.DCMotor.setPower",
+          "xml": "<block type='Leanbot.DCMotor.setPower'><value name='Power'><shadow type='math_number'><field name='NUM'>100</field></shadow></value></block>",
+          "code": "Leanbot.DCMotor.setPower(100 * 255 / 100);\n"
+        }
+      ]
+    },
+    {
+      "path": ["Leanbot", "Motion"],
+      "vi": ["LeanbotVN", "Di chuyển"],
+      "custom": null,
+      "colour": null,
+      "blocks": [
+        {
+          "type": "LbMotion.run",
+          "xml": "<block type='LbMotion.run'><value name='Left'><shadow type='math_number'><field name='NUM'>30</field></shadow></value><value name='Right'><shadow type='math_number'><field name='NUM'>30</field></shadow></value></block>",
+          "code": "LbMotion.runLRrpm(30, 30);\n"
+        },
+        {
+          "type": "LbMotion.waitDistanceMm",
+          "xml": "<block type='LbMotion.waitDistanceMm'><value name='distanceMm'><shadow type='math_number'><field name='NUM'>4.2</field></shadow></value></block>",
+          "code": "LbMotion.waitDistanceMm(4.2 * 10);\n"
+        },
+        {
+          "type": "LbMotion.waitRotationDeg",
+          "xml": "<block type='LbMotion.waitRotationDeg'><value name='rotationDeg'><shadow type='math_number'><field name='NUM'>90</field></shadow></value></block>",
+          "code": "LbMotion.waitRotationDeg(90);\n"
+        },
+        {
+          "type": "LbMotion.wait",
+          "xml": "<block type='LbMotion.wait'><value name='Delay'><shadow type='math_number'><field name='NUM'>1.25</field></shadow></value></block>",
+          "code": "LbDelay(1.25 * 1000);\n"
+        },
+        {
+          "type": "LbMotion.stop",
+          "xml": "<block type='LbMotion.stop'></block>",
+          "code": "LbMotion.stopAndWait();\n"
+        },
+        {
+          "type": "LbMotion.approxDistance",
+          "xml": "<block type='LbMotion.approxDistance'></block>",
+          "code": "LbMotion.getDistanceMm()"
+        },
+        {
+          "type": "LbMotion.approxHeading",
+          "xml": "<block type='LbMotion.approxHeading'></block>",
+          "code": "LbMotion.getRotationDeg()"
+        },
+        {
+          "type": "LbMotion.setZeroOrigin",
+          "xml": "<block type='LbMotion.setZeroOrigin'></block>",
+          "code": "LbMotion.setZeroOrigin();\n"
+        }
+      ]
+    },
+    {
+      "path": ["Leanbot", "Gripper"],
+      "vi": ["LeanbotVN", "Tay gắp"],
+      "custom": null,
+      "colour": null,
+      "blocks": [
+        {
+          "type": "LbGripper.open",
+          "xml": "<block type='LbGripper.open'></block>",
+          "code": "LbGripper.open();\n"
+        },
+        {
+          "type": "LbGripper.close",
+          "xml": "<block type='LbGripper.close'></block>",
+          "code": "LbGripper.close();\n"
+        },
+        {
+          "type": "LbGripper.moveTo",
+          "xml": "<block type='LbGripper.moveTo'><value name='angleDeg'><shadow type='math_number'><field name='NUM'>45</field></shadow></value></block>",
+          "code": "LbGripper.moveTo(45);\n"
+        },
+        {
+          "type": "LbGripper.moveToLR",
+          "xml": "<block type='LbGripper.moveToLR'><value name='angleDegL'><shadow type='math_number'><field name='NUM'>30</field></shadow></value><value name='angleDegR'><shadow type='math_number'><field name='NUM'>60</field></shadow></value><value name='timeMs'><shadow type='math_number'><field name='NUM'>1000</field></shadow></value></block>",
+          "code": "LbGripper.moveToLR(30, 60, 1000);\n"
+        },
+        {
+          "type": "LbGripper.help",
+          "xml": "<block type='LbGripper.help'></block>",
+          "code": ""
+        }
+      ]
+    },
+    {
+      "path": ["Leanbot", "RGB Leds"],
+      "vi": ["LeanbotVN", "Đèn Led RGB"],
+      "custom": null,
+      "colour": null,
+      "blocks": [
+        {
+          "type": "LbRGB.help",
+          "xml": "<block type='LbRGB.help'></block>",
+          "code": ""
+        },
+        {
+          "type": "LbRGB.clear_show",
+          "xml": "<block type='LbRGB.clear_show'></block>",
+          "code": "LbRGB.clear();\nLbRGB.show();\n"
+        },
+        {
+          "type": "LbRGB.setColor",
+          "xml": "<block type='LbRGB.setColor'><value name='RGBColor'><shadow type='LbRGB.colour_picker'><field name='Color'>#00ffff</field></shadow></value></block>",
+          "code": "LbRGB[ledO] = 0x00ffff;\n"
+        },
+        {
+          "type": "LbRGB.setColorText",
+          "xml": "<block type='LbRGB.setColorText'></block>",
+          "code": "LbRGB[ledO] = CRGB::Yellow;\n"
+        },
+        {
+          "type": "LbRGB.fillColor",
+          "xml": "<block type='LbRGB.fillColor'><value name='bitmask'><shadow type='LbRGB.shape'></shadow></value><value name='RGBColor'><shadow type='LbRGB.colour_picker'><field name='Color'>#ffff00</field></shadow></value></block>",
+          "code": "LbRGB.fillColor(0xffff00, BITMAP(ledO, ledA, ledB, ledC, ledD, ledE, ledF));\n"
+        },
+        {
+          "type": "LbRGB.colour_picker",
+          "xml": "<block type='LbRGB.colour_picker'></block>",
+          "code": "0xff0000"
+        },
+        {
+          "type": "LbRGB.colour_random",
+          "xml": "<block type='LbRGB.colour_random'></block>",
+          "code": "CRGB(random8(), random8(), random8())"
+        },
+        {
+          "type": "LbRGB.colour_rgb",
+          "xml": "<block type='LbRGB.colour_rgb'><value name='Red'><shadow type='math_number'><field name='NUM'>255</field></shadow></value><value name='Green'><shadow type='math_number'><field name='NUM'>0</field></shadow></value><value name='Blue'><shadow type='math_number'><field name='NUM'>0</field></shadow></value></block>",
+          "code": "0xff0000"
+        },
+        {
+          "type": "LbRGB.colour_blend",
+          "xml": "<block type='LbRGB.colour_blend'></block>",
+          "code": "0x008080"
+        },
+        {
+          "type": "LbRGB.clear",
+          "xml": "<block type='LbRGB.clear'></block>",
+          "code": "LbRGB.clear();\n"
+        },
+        {
+          "type": "LbRGB.show",
+          "xml": "<block type='LbRGB.show'></block>",
+          "code": "LbRGB.show();\n"
+        }
+      ]
+    },
+    {
+      "path": ["Leanbot", "Sound"],
+      "vi": ["LeanbotVN", "Phát nhạc"],
+      "custom": null,
+      "colour": null,
+      "blocks": [
+        {
+          "type": "Leanbot.toneDuration",
+          "xml": "<block type='Leanbot.toneDuration'><value name='Freq'><shadow type='math_number'><field name='NUM'>1500</field></shadow></value><value name='Duration'><shadow type='math_number'><field name='NUM'>100</field></shadow></value></block>",
+          "code": "Leanbot.tone(1500, 100);\nLbDelay(100);\n"
+        }
+      ]
+    },
+    {
+      "path": ["Leanbot", "Sensors"],
+      "vi": ["LeanbotVN", "Cảm biến"],
+      "custom": null,
+      "colour": null,
+      "blocks": [
+        {
+          "type": "LbTouch.waitUntil",
+          "xml": "<block type='LbTouch.waitUntil'></block>",
+          "code": "while (LbTouch.read(TB1A) == LOW);\n"
+        },
+        {
+          "type": "LbTouch.read",
+          "xml": "<block type='LbTouch.read'></block>",
+          "code": "(LbTouch.read(TB1A) == HIGH)"
+        },
+        {
+          "type": "Leanbot.ping",
+          "xml": "<block type='Leanbot.ping'></block>",
+          "code": "Leanbot.pingCm()"
+        },
+        {
+          "type": "Leanbot.objectInFront",
+          "xml": "<block type='Leanbot.objectInFront'><value name='Distance'><shadow type='math_number'><field name='NUM'>25</field></shadow></value></block>",
+          "code": "Leanbot.pingCm() <= 25"
+        }
+      ]
+    },
+    {
+      "path": ["Leanbot", "IRLine"],
+      "vi": ["LeanbotVN", "Cảm biến vạch"],
+      "custom": null,
+      "colour": null,
+      "blocks": [
+        {
+          "type": "LbIRLine.doManualCalibration",
+          "xml": "<block type='LbIRLine.doManualCalibration'></block>",
+          "code": ""
+        },
+        {
+          "type": "LbIRLine.setThreshold",
+          "xml": "<block type='LbIRLine.setThreshold'><value name='th2L'><shadow type='math_number'><field name='NUM'>300</field></shadow></value><value name='th0L'><shadow type='math_number'><field name='NUM'>300</field></shadow></value><value name='th1R'><shadow type='math_number'><field name='NUM'>300</field></shadow></value><value name='th3R'><shadow type='math_number'><field name='NUM'>300</field></shadow></value></block>",
+          "code": ""
+        },
+        {
+          "type": "LbIRLine.read",
+          "xml": "<block type='LbIRLine.read'></block>",
+          "code": "LbIRLine.read();\n"
+        },
+        {
+          "type": "LbIRLine.displayOnRGB",
+          "xml": "<block type='LbIRLine.displayOnRGB'><value name='RGBColor'><shadow type='LbRGB.colour_picker'><field name='Color'>#00ff00</field></shadow></value></block>",
+          "code": "LbIRLine.displayOnRGB(0x00ff00);\n"
+        },
+        {
+          "type": "LbIRLine.isBlackDetected",
+          "xml": "<block type='LbIRLine.isBlackDetected'></block>",
+          "code": "LbIRLine.isBlackDetected()"
+        },
+        {
+          "type": "LbIRLine.value",
+          "xml": "<block type='LbIRLine.value'></block>",
+          "code": "LbIRLine.value()"
+        },
+        {
+          "type": "LbIRLine.state",
+          "xml": "<block type='LbIRLine.state'></block>",
+          "code": "0"
+        },
+        {
+          "type": "LbIRLine.help",
+          "xml": "<block type='LbIRLine.help'></block>",
+          "code": ""
+        }
+      ]
+    }
+  ]
+}

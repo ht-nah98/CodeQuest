@@ -16,6 +16,8 @@ export const BLOCKLY_MESSAGE_OVERRIDES: Readonly<Record<string, string>> = {
   CONTROLS_WHILEUNTIL_OPERATOR_UNTIL: 'lặp đến khi',
   CONTROLS_WHILEUNTIL_INPUT_DO: 'làm',
   CONTROLS_REPEAT_INPUT_DO: 'làm',
+  // Leanbot world (Pythaverse's repeat blocks): the words of Làng Măng's "lặp N lần".
+  CONTROLS_REPEAT_TITLE: 'lặp %1 lần',
   LOGIC_NEGATE_TITLE: 'không phải %1',
 
   // Context menu.

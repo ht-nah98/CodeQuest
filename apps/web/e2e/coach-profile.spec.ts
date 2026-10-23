@@ -93,7 +93,7 @@ const PASTED = [
   '  LbMission.begin(TB1A + TB1B);',
   '  LbMotion.runLRrpm(30, 30);',
   '  LbMotion.waitDistanceMm(20 * 10);',
-  '  Serial.println("xin chao");',
+  '  Wire.begin();',
   '  LbMotion.stopAndWait();',
   '  LbMission.end();',
   '}',
@@ -116,15 +116,15 @@ test('HLV turns pasted Leanbot code into Vietnamese blocks and back', async ({ p
   await page.getByRole('button', { name: 'Dán code vào' }).click();
   await page.getByTestId('workshop-paste').fill(PASTED);
   await page.getByRole('button', { name: 'Dựng khối' }).click();
-  // 4 blocks: the mission and the three motion lines; Serial.println is not a Leanbot block.
+  // 4 blocks: the mission and the three motion lines; Wire.begin() is no block's code.
   await expect(page.getByTestId('workshop-report')).toContainText('Măng dựng được 4 khối.');
   await expect(page.getByTestId('workshop-report')).toContainText(
     'Dòng 11: Măng chưa đọc được dòng này.',
   );
   await expect(code.locator('[data-problem]')).toHaveAttribute('data-line', '11');
   const blocks = page.getByTestId('workshop-blocks');
-  await expect(blocks.getByText('quay bánh: trái')).toBeVisible();
-  await expect(blocks.getByText('bắt đầu khi chạm')).toBeVisible();
+  await expect(blocks.getByText('với vận tốc Trái')).toBeVisible();
+  await expect(blocks.getByText('Nhiệm vụ: Bắt đầu khi chạm cùng lúc')).toBeVisible();
   await page.screenshot({ path: `${SHOTS}/workshop-pasted.png` });
 
   // Code → block: a line selects its block, and the block lights its line back.
@@ -135,8 +135,14 @@ test('HLV turns pasted Leanbot code into Vietnamese blocks and back', async ({ p
   // Blocks → code: deleting the selected "đi tiếp" block regenerates the code without it.
   await page.locator('.blocklySelected').first().press('Delete');
   await expect(code).not.toContainText('waitDistanceMm');
-  await expect(code).not.toContainText('Serial');
+  await expect(code).not.toContainText('Wire');
   await expect(code).toContainText('LbMotion.runLRrpm(30, 30);');
   await expect(page.getByTestId('workshop-report')).toHaveCount(0);
   await page.screenshot({ path: `${SHOTS}/workshop-blocks.png` });
+
+  // The toolbox is Pythaverse's: Leanbot opens on its six groups, the leds come with a palette.
+  await page.getByRole('treeitem', { name: 'Leanbot', exact: true }).click();
+  await page.getByRole('treeitem', { name: 'Đèn Led RGB', exact: true }).click();
+  await expect(page.locator('.blocklyFlyout').getByText('Đèn: Tô đèn').first()).toBeVisible();
+  await page.screenshot({ path: `${SHOTS}/workshop-toolbox.png` });
 });

@@ -164,20 +164,24 @@ export type {
   SorterReason,
   SorterState,
 } from './sorter';
-// Leanbot world blocks, Arduino code and code → blocks (the-gioi-leanbot.md, Màn 0).
+// Leanbot world: Pythaverse's blocks in Vietnamese and their Arduino code (the-gioi-leanbot.md).
 export {
+  blockToArduino,
   LB_BLOCK_TYPES,
   LB_BLOCKS,
-  LB_COLORS,
+  LB_COLOURS,
+  LB_GENERATED_TYPES,
+  LB_TOOLBOX,
   parseArduino,
   registerLeanbotBlocks,
+  registerLeanbotFlyouts,
   toArduino,
 } from './leanbot';
 export type {
   ArduinoProgram,
   BlockState,
   LbBlockDef,
-  LbGroup,
+  LbCategory,
   ParseProblem,
   ParseProblemReason,
   ParseResult,

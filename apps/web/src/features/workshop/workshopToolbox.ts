@@ -1,58 +1,44 @@
-import type { utils } from 'blockly';
-import { LB_BLOCKS, type LbGroup } from '@codequest/games';
-import { vi } from '../../i18n/vi';
+import { registerFieldColour } from '@blockly/field-colour';
+import { LB_TOOLBOX, type LbCategory, registerLeanbotBlocks } from '@codequest/games';
 
-// Toolbox of the Xưởng Phiên Dịch (Màn 0): every Leanbot block, grouped like Pythaverse's
-// editor so a child finds a block in the same place on both sides.
+// Toolbox of the Xưởng Phiên Dịch (Màn 0): Pythaverse's Leanbot toolbox, category for category
+// (LB_TOOLBOX), so a child finds a block in the same place in both editors.
 
 /** Leanbot IDE, where the code is uploaded (content/leanbot/duong-dan.json, checked in a test). */
 export const LEANBOT_IDE_URL = 'https://ide.pythaverse.space/#/code';
 
-const GROUPS: readonly { group: LbGroup; style: string }[] = [
-  { group: 'mission', style: 'event_category' },
-  { group: 'motion', style: 'move_category' },
-  { group: 'gripper', style: 'robot_category' },
-  { group: 'led', style: 'pen_category' },
-  { group: 'sensor', style: 'sensor_category' },
-  { group: 'irline', style: 'sensor_category' },
-  { group: 'logic', style: 'logic_category' },
-  { group: 'loop', style: 'loop_category' },
-  { group: 'math', style: 'variable_category' },
-];
-
-const n = (value: number) => ({ block: { type: 'lb_number', fields: { N: value } } });
-
-/** Blocks with value inputs come with something plugged in, like Pythaverse's toolbox. */
-const PRESETS: Readonly<Record<string, utils.toolbox.BlockInfo>> = {
-  lb_compare: {
-    kind: 'block',
-    type: 'lb_compare',
-    fields: { OP: 'LT' },
-    inputs: { A: { block: { type: 'lb_ping' } }, B: n(25) },
-  },
-  lb_arith: { kind: 'block', type: 'lb_arith', inputs: { A: n(1), B: n(2) } },
-};
+export interface WorkshopCategory {
+  kind: 'category';
+  name: string;
+  colour: string;
+  custom?: string;
+  contents: (WorkshopCategory | { kind: 'block'; blockxml: string })[];
+}
 
 export interface WorkshopToolbox {
   kind: 'categoryToolbox';
-  contents: {
-    kind: 'category';
-    name: string;
-    categorystyle: string;
-    contents: utils.toolbox.BlockInfo[];
-  }[];
+  contents: WorkshopCategory[];
+}
+
+function category(c: LbCategory): WorkshopCategory {
+  return {
+    kind: 'category',
+    name: c.name,
+    colour: c.colour,
+    ...(c.custom !== undefined && { custom: c.custom }),
+    contents: [
+      ...(c.blocks ?? []).map((xml) => ({ kind: 'block' as const, blockxml: xml })),
+      ...(c.children ?? []).map(category),
+    ],
+  };
 }
 
 export function workshopToolbox(): WorkshopToolbox {
-  return {
-    kind: 'categoryToolbox',
-    contents: GROUPS.map(({ group, style }) => ({
-      kind: 'category',
-      name: vi.workshop.categories[group],
-      categorystyle: style,
-      contents: LB_BLOCKS.filter((def) => def.group === group).map(
-        (def) => PRESETS[def.type] ?? { kind: 'block', type: def.type },
-      ),
-    })),
-  };
+  return { kind: 'categoryToolbox', contents: LB_TOOLBOX.map(category) };
+}
+
+/** The colour picker of the browser first, then the Leanbot blocks that use it. */
+export function setupWorkshopBlocks(): void {
+  registerFieldColour();
+  registerLeanbotBlocks();
 }

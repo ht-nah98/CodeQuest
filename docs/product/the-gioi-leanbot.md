@@ -1,9 +1,10 @@
-# Thế giới Leanbot — bản đồ phiêu lưu thứ hai (bản nháp chờ HLV duyệt)
+# Thế giới Leanbot — bản đồ phiêu lưu thứ hai
 
-> **Trạng thái 23/10/2026:** HLV duyệt kế hoạch ("triển khai tiếp"). **Đã có:** bộ khối Việt,
-> bộ sinh code Arduino khớp Pythaverse, bộ đọc code → khối, và **Màn 0 Xưởng Phiên Dịch** ở
-> `/xuong-phien-dich` (chỉ HLV thấy, §5). **Chưa có:** sân mô phỏng, Vùng 1–9, hai bản đồ (ADR-0030).
-> Bốn câu hỏi ở §7 HLV chưa trả lời; đang làm theo đề xuất của từng câu.
+> **Trạng thái 23/10/2026:** HLV duyệt kế hoạch ("triển khai tiếp"), rồi yêu cầu **bám đúng mẫu
+> Pythaverse** (§3). **Đã có:** đủ 93 khối của trình soạn Pythaverse bằng tiếng Việt, code Arduino
+> giống hệt của họ, bộ đọc code → khối, và **Màn 0 Xưởng Phiên Dịch** ở `/xuong-phien-dich` (chỉ
+> HLV thấy, §5). **Chưa có:** sân mô phỏng, Vùng 1–9, hai bản đồ (ADR-0030). Bốn câu hỏi ở §7 HLV
+> chưa trả lời.
 > Bảng khối dưới đây bóc từ trình soạn khối thật của Pythaverse bằng
 > `node tools/pythaverse-blocks/dump.mjs` → `docs/research/pythaverse-lbeditor-blocks.json`.
 
@@ -66,146 +67,197 @@ void loop() {
 }
 ```
 
-## 3. Bảng khối: Pythaverse → khối tiếng Việt của mình → code
+## 3. Bảng khối: đủ 93 khối của Pythaverse, chữ tiếng Việt
 
-Cột **"Khối Việt (đề xuất)"** là chữ hiện trên khối của mình. HLV sửa thẳng vào bảng.
-`[ ]` là ô số, `▾` là ô chọn, `◇` là ô điều kiện, `⟨ ⟩` là ô cắm giá trị.
-Cột **Dạy** cho biết khối có lên bản đồ không: ✅ dạy, ➖ để sau, ✘ không dạy (lý do ở cuối bảng).
+**HLV (23/10/2026, sau khi xem bản đầu):** *"lbeditor lại có nhiều khối block hơn. Bạn phải bám
+theo những thứ mẫu của họ."* Bản đầu tự chọn khoảng 45 khối và tự đặt khối mới, nên bị **làm lại**
+như sau:
 
-### 3.1. Nhiệm vụ và thời gian
+- **Đủ mọi khối** trong thanh khối của `ide.pythaverse.space/lbeditor`, **cùng cây nhóm, cùng thứ
+  tự**: Logic, Vòng lặp, Toán, Biến (5 nhóm con), Hàm, Arduino (Vào/Ra, Serial), Leanbot (Di
+  chuyển, Tay gắp, Đèn Led RGB, Phát nhạc, Cảm biến, Cảm biến vạch).
+- **Cùng tên khối, cùng ô cắm, cùng ô chọn, cùng giá trị ban đầu, cùng màu.** Nhờ vậy chương trình
+  lưu từ Pythaverse (XML) mở được ở đây, và ngược lại.
+- **Chỉ khác chữ trên khối:** tiếng Việt. Chỗ nào bản `?lang=vi` của Pythaverse đã dịch (Di
+  chuyển, Chờ, Nhiệm vụ: Bắt đầu ngay lập tức…) thì giữ đúng chữ đó. Khối Pythaverse lấy nguyên
+  của Blockly (`nếu`, `lặp`, so sánh, hàm…) dùng chữ tiếng Việt của Blockly, chỉnh cho khớp Làng
+  Măng (`nếu … thì`, `lặp N lần`, `lặp khi`, `không phải`).
+- **Code ra giống hệt từng ký tự** code trình soạn Pythaverse in ra (trừ 3 dòng "Generated … at
+  <giờ>" ở đầu). Kiểm bằng máy cho cả 93 khối và 5 chương trình dài (`leanbot.test.ts`).
+- Ô màu là **bảng màu** như Pythaverse (plugin `@blockly/field-colour`); mắt dò vạch chọn ⬜/⬛
+  bằng bảng 2 màu như của họ.
+- Ba khối "hình" (`*` của Tay gắp, Đèn, Cảm biến vạch) dùng **ảnh chụp robot của mình**, không chép
+  ảnh của Pythaverse.
 
-| Pythaverse (en) | Khối Việt (đề xuất) | Code sinh ra | Dạy |
+Khác biệt duy nhất trong code: khối ghi chú mặc định là `// Mô tả` thay vì `// Comment`.
+
+Bảng dưới sinh tự động từ code (chữ khối như bé thấy, code là code Pythaverse in ra với giá trị
+ban đầu). `?` là chỗ cắm khối khác.
+
+#### Logic (Logic)
+
+| # | Pythaverse | Khối tiếng Việt | Code |
 |---|---|---|---|
-| Mission: Begin when TB1A + TB1B combo touched … Mission: End | 🚩 **Bắt đầu khi chạm** `TB1A + TB1B ▾` … **Kết thúc nhiệm vụ** | `LbMission.begin(TB1A + TB1B);` … `LbMission.end();` | ✅ |
-| Mission: Begin immediately … Mission: End | 🚩 **Bắt đầu ngay** … **Kết thúc nhiệm vụ** | `LbMission.begin(0);` … `LbMission.end();` | ✅ |
-| Wait for 1.25 seconds | **Chờ** `[1.25]` `giây ▾` | `LbDelay(1.25 * 1000);` | ✅ |
-| Mission: elapsed Time in seconds | ⟨**thời gian nhiệm vụ** (giây)⟩ | `LbMission.elapsedMillis() / 1000` | ➖ |
-| Comment | 💬 **Ghi chú** `[…]` | `// …` | ✅ |
-| Mission: Begin Digital Twin … | — | `LbMission.beginDigitalTwin(F("…"))` | ✘ |
-| DC Motor: Run forward at power level 100 % | — | `Leanbot.DCMotor.setPower(…)` | ✘ |
+| 1 | `controls_if` | nếu ? thì ? | `if (false) {` |
+| 2 | `logic_compare` | ? = ? | `(0 == 0)` |
+| 3 | `logic_operation` | ? và ? | `false && false` |
+| 4 | `logic_negate` | không phải ? | `!false` |
+| 5 | `logic_boolean` | đúng | `true` |
+| 6 | `logic_null` | trống không | `null` |
+| 7 | `logic_ternary` | kiểm tra ? nếu đúng ? nếu sai ? | `false ? null : null` |
+| 8 | `controls_switch` | xét hộp i nếu bằng ? thì ? | `switch (i) {` |
 
-### 3.2. Di chuyển
+#### Vòng lặp (Loops)
 
-| Pythaverse (en) | Khối Việt (đề xuất) | Code sinh ra | Dạy |
+| # | Pythaverse | Khối tiếng Việt | Code |
 |---|---|---|---|
-| Motion: Run with velocity Left 30 Right 30 rpm | **Quay bánh: trái** `[30]` **phải** `[30]` vòng/phút | `LbMotion.runLRrpm(30, 30);` | ✅ |
-| Motion: Keep running for 4.2 cm | **Đi tiếp** `[4.2]` `cm ▾` | `LbMotion.waitDistanceMm(4.2 * 10);` | ✅ |
-| Motion: Keep turning for 90 degrees | **Xoay tiếp** `[90]` độ | `LbMotion.waitRotationDeg(90);` | ✅ |
-| Motion: Keep running for 1.25 seconds | = khối **Chờ** (cùng một dòng code) | `LbDelay(1.25 * 1000);` | ✅ |
-| Motion: Stop | **Dừng lại** | `LbMotion.stopAndWait();` | ✅ |
-| Motion: Reset Distance and Heading | **Đặt lại quãng đường và góc về 0** | `LbMotion.setZeroOrigin();` | ➖ |
-| Motion: approx. Distance in mm | ⟨**quãng đường đã đi** (mm)⟩ | `LbMotion.getDistanceMm()` | ➖ |
-| Motion: approx. Heading in degrees | ⟨**góc đã xoay** (độ)⟩ | `LbMotion.getRotationDeg()` | ➖ |
+| 9 | `controls_repeat_ext` | lặp 10 lần làm ? | `for (int count = 0; count < 10; count++) {` |
+| 10 | `controls_repeat` | lặp 10 lần làm ? | `for (int count = 0; count < 10; count++) {` |
+| 11 | `controls_whileUntil` | lặp khi ? làm ? | `while (false) {` |
+| 12 | `controls_for` | đếm theo j từ 1 đến 10 mỗi lần thêm 1 làm ? | `for (int j = 1; j <= 10; j++) {` |
+| 13 | `controls_forEach` | với mỗi thành phần k trong danh sách ? làm ? | `var k_list = [];` |
+| 14 | `controls_flow_statements` | thoát | `break;` |
 
-Hai điều phải dạy kỹ, vì khác với Măng ở Làng (Măng đi theo ô):
+#### Toán (Math)
 
-- Leanbot đi theo **cách hai bước**: "quay bánh" chỉ **bật** động cơ, robot chưa dừng;
-  khối "đi tiếp 20 cm" mới **chờ** tới khi đủ 20 cm. Thiếu khối thứ hai thì robot chạy mãi.
-- **Rẽ = hai bánh quay ngược nhau**: trái `-30`, phải `30` là xoay sang trái. Ô chọn "Run /
-  Turn" của Pythaverse **không đổi code** (đã thử: "Turn" với trái 30, phải 30 vẫn ra
-  `runLRrpm(30, 30)`), nên mình bỏ ô chọn đó, để dấu `-` nói lên tất cả. **Cần thử trên robot
-  thật** chiều quay của dấu `-` trước khi viết màn.
-
-### 3.3. Tay gắp
-
-| Pythaverse (en) | Khối Việt (đề xuất) | Code sinh ra | Dạy |
+| # | Pythaverse | Khối tiếng Việt | Code |
 |---|---|---|---|
-| Gripper: Open | ✋ **Mở tay gắp** | `LbGripper.open();` | ✅ |
-| Gripper: Close | ✊ **Khép tay gắp** | `LbGripper.close();` | ✅ |
-| Gripper: Rotate to 45 degrees | **Xoay tay gắp tới** `[45]` độ | `LbGripper.moveTo(45);` | ✅ |
-| Gripper: Rotate Left to 30 and Right to 60 degrees in 1000 milliseconds | **Xoay tay trái tới** `[30]` **tay phải tới** `[60]` độ **trong** `[1000]` mili giây | `LbGripper.moveToLR(30, 60, 1000);` | ✅ |
+| 15 | `math_number` | 123 | `123` |
+| 16 | `math_constant` | π | `PI` |
+| 17 | `math_arithmetic` | 1 + 2 | `1 + 2` |
+| 18 | `math_modulo` | số dư của 64 ÷ 10 | `64 % 10` |
+| 19 | `math_number_property` | 0 là số chẵn | `(0 % 2) == 0` |
+| 20 | `math_round` | làm tròn 3.14 | `round(3.14)` |
+| 21 | `math_single` | trị tuyệt đối 9 | `abs(9)` |
+| 22 | `math_multiple2` | số lớn hơn trong 2 3 | `max(2, 3)` |
+| 23 | `math_trig` | cos 45 độ | `cos(radians(45))` |
+| 24 | `math_constrain` | giới hạn 50 không dưới 1 không hơn 100 | `constrain(50, 1, 100)` |
+| 25 | `math_map` | đổi thang đo: 712 , biết rằng 0 đổi thành 0 1023 đổi thành 100 | `map(712, 0, 1023, 0, 100)` |
+| 26 | `math_random_int` | Một số nguyên bất kỳ từ 0 đến 100 | `random(0, 100)` |
+| 27 | `math_random_seed` | khởi động số ngẫu nhiên bằng (đọc chân analog A0) | `randomSeed(analogRead(A0));` |
 
-### 3.4. Đèn và còi
+#### Arduino › Vào/Ra (Arduino › In/Out)
 
-| Pythaverse (en) | Khối Việt (đề xuất) | Code sinh ra | Dạy |
+| # | Pythaverse | Khối tiếng Việt | Code |
 |---|---|---|---|
-| RGB Leds: Set ledO to Color | **Tô đèn** `O ▾` **màu** ⟨🎨⟩ | `LbRGB[ledO] = 0x00ffff;` | ✅ |
-| RGB Leds: Set ledO to Yellow | **Tô đèn** `O ▾` **màu** `vàng ▾` | `LbRGB[ledO] = CRGB::Yellow;` | ✅ |
-| RGB Leds: Fill (Shape …) with Color | **Tô các đèn** `☑O ☑A … ☑F` **màu** ⟨🎨⟩ | `LbRGB.fillColor(0xffff00, BITMAP(ledO, …));` | ✅ |
-| RGB Leds: Clear | **Xóa hết màu** | `LbRGB.clear();` | ✅ |
-| RGB Leds: Display | 💡 **Bật đèn lên** | `LbRGB.show();` | ✅ |
-| RGB Leds: Clear … Display | = **Xóa hết màu** … **Bật đèn lên** (hai khối rời: cùng code, nên code → khối không phân biệt được) | `LbRGB.clear();` … `LbRGB.show();` | ✅ |
-| Color: #fff | ⟨🎨 **màu** ■⟩ | `0xff0000` | ✅ |
-| Color: Random | ⟨**màu ngẫu nhiên**⟩ | `CRGB(random8(), random8(), random8())` | ➖ |
-| Color: R 255 G 0 B 0 | ⟨**màu: đỏ** `[255]` **xanh lá** `[0]` **xanh dương** `[0]`⟩ | `0xff0000` | ➖ |
-| Color: Blend … with ratio 0.5 | ⟨**pha màu** ■ **với** ■ **tỉ lệ** `[0.5]`⟩ | `0x008080` | ➖ |
-| Sound: Play 1500 Hz tone for 100 milliseconds | 🔔 **Kêu** `[1500]` Hz **trong** `[100]` mili giây | `Leanbot.tone(1500, 100);` `LbDelay(100);` | ✅ |
+| 28 | `board_base_inout_buildin_led` | bật đèn trên mạch ở mức HIGH | `digitalWrite(LED_BUILTIN, HIGH);` |
+| 29 | `board_base_inout_digital_write` | đặt chân số 0 ở mức HIGH | `digitalWrite(0, HIGH);` |
+| 30 | `board_base_inout_digital_read` | mức của chân số 0 | `digitalRead(0)` |
+| 31 | `board_base_inout_highlow` | HIGH | `HIGH` |
+| 32 | `board_base_inout_analog_write` | ghi ra chân analog 3 giá trị 0 | `analogWrite(3, 0);` |
+| 33 | `board_base_inout_analog_read` | đọc chân analog A0 | `analogRead(A0)` |
+| 34 | `board_base_delay` | chờ (mili giây) 1234 | `delay(1234);` |
+| 35 | `board_base_angle` | góc: 90 | `90` |
+| 36 | `board_base_map` | đổi giá trị 250 từ khoảng 0 - 1023 sang khoảng 0 - 255 | `map(250, 0, 1023, 0, 255)` |
+| 37 | `board_base_inout_tone` | phát tiếng ở chân 0 tần số (Hz) 440 | `tone(0, 440);` |
+| 38 | `board_base_inout_notone` | tắt tiếng ở chân 0 | `noTone(0);` |
 
-Ô màu (⟨🎨⟩) là **ô chọn 9 màu có tên** (đỏ, cam, vàng, xanh lá, xanh ngọc, xanh dương, tím,
-hồng, trắng), không phải bảng pha màu: Blockly bản mới bỏ ô chọn màu khỏi lõi, và tên màu dễ đọc
-hơn. "Tô đèn" in `CRGB::Red`; "tô các đèn" và "hiện mắt dò vạch" in số `0xff0000` như Pythaverse.
+#### Arduino › Serial (Arduino › Serial)
 
-Chỗ dễ sai cần một màn riêng: "tô đèn" chỉ **ghi màu vào bộ nhớ**, phải có "bật đèn lên" thì
-đèn mới sáng. Sân mô phỏng sẽ cho thấy đèn chưa đổi cho tới khi gặp "bật đèn lên".
-
-### 3.5. Vùng chạm, mắt siêu âm
-
-| Pythaverse (en) | Khối Việt (đề xuất) | Code sinh ra | Dạy |
+| # | Pythaverse | Khối tiếng Việt | Code |
 |---|---|---|---|
-| Touch: wait until TB1A touched | ✋ **Chờ tới khi chạm** `TB1A ▾` | `while (LbTouch.read(TB1A) == LOW);` | ✅ |
-| Touch: TB1A is touched ? | ◇ `TB1A ▾` **đang được chạm?** | `(LbTouch.read(TB1A) == HIGH)` | ✅ |
-| Ping: Front distance in cm | ⟨**khoảng cách phía trước** (cm)⟩ | `Leanbot.pingCm()` | ✅ |
-| Ping: Object in front is within 25 cm distance ? | ◇ **có vật trong vòng** `[25]` cm? | `Leanbot.pingCm() <= 25` | ✅ |
+| 39 | `text` | “ some text ” | `"some text"` |
+| 40 | `board_serial_init` | Serial: mở với tốc độ 115200 baud | `` |
+| 41 | `board_serial_print` | Serial: in rồi xuống dòng “ Hello World! ” | `Serial.println("Hello World!");` |
+| 42 | `board_serial_available` | Serial: có dữ liệu gửi tới? | `Serial.available()` |
+| 43 | `board_serial_read` | Serial: đọc | `Serial.read()` |
+| 44 | `board_serial_readStringUntil` | Serial: đọc tới khi gặp “ \n ” | `Serial.readStringUntil('\n')` |
+| 45 | `board_serial_flush` | Serial: chờ gửi xong | `Serial.flush();` |
 
-### 3.6. Mắt dò vạch
+#### Leanbot (Leanbot)
 
-| Pythaverse (en) | Khối Việt (đề xuất) | Code sinh ra | Dạy |
+| # | Pythaverse | Khối tiếng Việt | Code |
 |---|---|---|---|
-| IRLine: Read sensors | 👀 **Mắt dò vạch: nhìn xuống** | `LbIRLine.read();` | ✅ |
-| IRLine: Black is detected ? | ◇ **thấy vạch đen?** | `LbIRLine.isBlackDetected()` | ✅ |
-| IRLine: #fff #fff #fff #fff (cắm vào `=` với Sensor values) | ◇ **4 mắt dò vạch thấy** `⬜⬛⬛⬜` **?** | `(LbIRLine.value() == 6)` | ✅ |
-| IRLine: Sensor values (2L, 0L, 1R, 3R) | ⟨**4 mắt dò vạch**⟩ | `LbIRLine.value()` | ✅ |
-| IRLine: Display on RGB with Color | **Hiện 4 mắt dò vạch lên đèn, màu** ⟨🎨⟩ | `LbIRLine.displayOnRGB(0x00ff00);` | ✅ |
-| IRLine: Do manual calibration with TB1A button | **Dạy mắt dò vạch** (chạm `TB1A ▾`) | *(sinh ở `setup()`)* | ➖ |
-| IRLine: Set threshold 2L 0L 1R 3R | **Đặt ngưỡng 4 mắt** `[300]` `[300]` `[300]` `[300]` | *(sinh ở `setup()`)* | ➖ |
+| 46 | `Leanbot.commentLine` | 💬 Mô tả | `// Comment` |
+| 47 | `Leanbot.section` | 💬 Mô tả ? | `{ // Comment` |
+| 48 | `Leanbot.delay` | Chờ 1.25 giây | `LbDelay(1.25 * 1000);` |
+| 49 | `LbMission.elapsedMillis` | Nhiệm vụ: thời gian đã chạy, tính bằng giây | `LbMission.elapsedMillis() / 1000` |
+| 50 | `LbMission.beginByTeacher_end` | Nhiệm vụ: Bắt đầu khi chạm cùng lúc TB1A + TB1B ? Nhiệm vụ: Kết thúc | `LbMission.begin(TB1A + TB1B);` |
+| 51 | `LbMission.beginImmediately_end` | Nhiệm vụ: Bắt đầu ngay lập tức ? Nhiệm vụ: Kết thúc | `LbMission.begin(0);` |
+| 52 | `LbMission.missionSelect` | “ msNumberGrid ” | `"msNumberGrid"` |
+| 53 | `LbMission.beginBySelect_end` | Nhiệm vụ: Bắt đầu trên Bản Sao Số “ mission name ” ? Nhiệm vụ: Kết thúc | `LbMission.beginDigitalTwin(F("mission name"));` |
+| 54 | `LbMission.end` | Nhiệm vụ: Kết thúc | `LbMission.end();` |
+| 55 | `Leanbot.whenStarted` | Leanbot bắt đầu hoạt động | `` |
+| 56 | `Leanbot.DCMotor.setPower` | Động cơ DC: quay tới với mức 100 % | `Leanbot.DCMotor.setPower(100 * 255 / 100);` |
 
-Đã bóc (23/10): khối `IRLine: #fff…` là **một số 4 bit**, mỗi ô đen là một bit, mắt ngoài trái
-(2L) là bit cao nhất: `⬜⬛⬛⬜` = `6`, tất cả trắng = `0`. Pythaverse ghép nó với `Sensor values`
-bằng khối `=`, ra `(LbIRLine.value() == 6)`. Khối Việt gộp hai việc đó thành một câu hỏi.
-Đã biên dịch được (`npm run leanbot:compile`). **Vẫn cần thử trên robot thật** xem số đó có
-đúng thứ tự mắt không.
+#### Leanbot › Di chuyển (Leanbot › Motion)
 
-### 3.7. Logic, lặp, toán, hộp — dùng chung từ Làng Măng
-
-Bé đã học các khối này ở Làng. Ở Thế giới Leanbot chúng **giữ đúng chữ của Làng**
-(`docs/glossary.md`), chỉ thêm code Arduino bên cạnh.
-
-| Pythaverse (en) | Khối Việt (theo Làng Măng) | Code sinh ra | Dạy |
+| # | Pythaverse | Khối tiếng Việt | Code |
 |---|---|---|---|
-| if ◇ do | **nếu** ◇ **thì** | `if (…) { }` | ✅ |
-| if ◇ do … else | **nếu** ◇ **thì** … **nếu không thì** | `if (…) { } else { }` | ✅ |
-| repeat 10 times | **lặp** `[10]` **lần** | `for (int count = 0; count < 10; count++) { }` | ✅ |
-| repeat while ◇ | **lặp khi** ◇ | `while (…) { }` | ✅ |
-| repeat until ◇ (cùng khối, đổi ô chọn) | **lặp đến khi** ◇ | `while (!(…)) { }` | ✅ |
-| (không có khối "mãi mãi") | **lặp mãi** (= `repeat while true`) | `while (true) { }` | ✅ |
+| 57 | `LbMotion.run` | Di chuyển: Chạy với vận tốc Trái 30 Phải 30 vòng/phút | `LbMotion.runLRrpm(30, 30);` |
+| 58 | `LbMotion.waitDistanceMm` | Di chuyển: Chạy đoạn đường 4.2 cm | `LbMotion.waitDistanceMm(4.2 * 10);` |
+| 59 | `LbMotion.waitRotationDeg` | Di chuyển: Rẽ góc 90 độ | `LbMotion.waitRotationDeg(90);` |
+| 60 | `LbMotion.wait` | Di chuyển: Tiếp tục chạy trong 1.25 giây | `LbDelay(1.25 * 1000);` |
+| 61 | `LbMotion.stop` | Di chuyển: Dừng | `LbMotion.stopAndWait();` |
+| 62 | `LbMotion.approxDistance` | Di chuyển: quãng đường đã đi, tính bằng mm | `LbMotion.getDistanceMm()` |
+| 63 | `LbMotion.approxHeading` | Di chuyển: góc đã rẽ, tính bằng độ | `LbMotion.getRotationDeg()` |
+| 64 | `LbMotion.setZeroOrigin` | Di chuyển: Đặt quãng đường và góc về 0 | `LbMotion.setZeroOrigin();` |
 
-Chữ trên khối giữ đúng Làng Măng, nhưng là **khối riêng** (`lb_if`, `lb_repeat`…), không dùng
-lại `cq_if`: code của chúng là C++ chứ không phải JavaScript của sân chơi, và "lặp" của robot
-cần tới 1000 lần thay vì 20.
-| break out of loop | **thoát khỏi vòng lặp** | `break;` | ➖ |
-| count with j from 1 to 10 by 1 | **đếm** `j` **từ** `[1]` **tới** `[10]` | `for (int j = 1; j <= 10; j++) { }` | ➖ |
-| ◇ and ◇ / or / not | ◇ **và** ◇ / **hoặc** / **không phải** ◇ | `&&` / `\|\|` / `!` | ✅ |
-| ⟨ ⟩ = < > ⟨ ⟩ | ⟨ ⟩ `= ▾` ⟨ ⟩ | `(a == b)` | ✅ |
-| true / false | **đúng** / **sai** | `true` / `false` | ✅ |
-| 1 + 2, − × ÷ | ⟨ ⟩ `+ ▾` ⟨ ⟩ | `1 + 2` | ✅ |
-| remainder of 64 ÷ 10 | **phần dư của** ⟨ ⟩ **chia** ⟨ ⟩ | `64 % 10` | ➖ |
-| random integer from 0 to 100 | **số ngẫu nhiên từ** `[0]` **tới** `[100]` | `random(0, 100)` | ➖ |
-| constrain / map / round / max | — | `constrain` / `map` / `round` / `max` | ✘ |
-| Variables (int / float / text / boolean) | **hộp** (chỉ số nguyên) | `int x = 0;` | ➖ |
-| Functions | **phép** (như Thế giới 8) | `void tenPhep() { }` | ➖ |
+#### Leanbot › Tay gắp (Leanbot › Gripper)
 
-"Lặp khi" và "lặp đến khi" là **ngược nhau**. Pythaverse mặc định "repeat while"; Làng dạy
-"lặp đến khi" (Thế giới 5). Đề xuất: dạy cả hai, có một màn so sánh hai khối cạnh nhau.
+| # | Pythaverse | Khối tiếng Việt | Code |
+|---|---|---|---|
+| 65 | `LbGripper.open` | Tay gắp: Mở | `LbGripper.open();` |
+| 66 | `LbGripper.close` | Tay gắp: Khép | `LbGripper.close();` |
+| 67 | `LbGripper.moveTo` | Tay gắp: Xoay tới 45 độ | `LbGripper.moveTo(45);` |
+| 68 | `LbGripper.moveToLR` | Tay gắp: Xoay tay Trái tới 30 và tay Phải tới 60 độ trong 1000 mili giây | `LbGripper.moveToLR(30, 60, 1000);` |
+| 69 | `LbGripper.help` | * | `` |
 
-### 3.8. Không dạy (✘) và lý do
+#### Leanbot › Đèn Led RGB (Leanbot › RGB Leds)
 
-- **In/Out** (`digitalWrite`, `analogRead`, `tone(pin)`…) và **Serial** (`Serial.println`…):
-  việc của thợ điện tử, Leanbot đã gói sẵn trong các khối trên. Riêng `Serial.println` có thể
-  dạy ở cuối để bé **in số ra MONITOR** (Bài 0 đã dùng MONITOR) — ➖ để HLV chọn.
-- **Digital Twin, DC Motor**: thi AIROC không dùng; DC Motor là bộ phận gắn thêm.
-- **Danh sách, chữ, switch/case, constrain/map**: vượt quá lớp 4–5, không cần cho sa bàn.
+| # | Pythaverse | Khối tiếng Việt | Code |
+|---|---|---|---|
+| 70 | `LbRGB.help` | * | `` |
+| 71 | `LbRGB.clear_show` | Đèn: Xóa hết màu ? Đèn: Bật lên | `LbRGB.clear();` |
+| 72 | `LbRGB.setColor` | Đèn: Tô đèn ledO màu Màu sắc: #00ffff | `LbRGB[ledO] = 0x00ffff;` |
+| 73 | `LbRGB.setColorText` | Đèn: Tô đèn ledO màu Yellow ? | `LbRGB[ledO] = CRGB::Yellow;` |
+| 74 | `LbRGB.fillColor` | Đèn: Tô (các đèn: O true A true B true C true D true E true F true) màu Màu sắc: #ffff00 | `LbRGB.fillColor(0xffff00, BITMAP(ledO, ledA, ledB, ledC, ledD, ledE, ledF));` |
+| 75 | `LbRGB.colour_picker` | Màu sắc: #ff0000 | `0xff0000` |
+| 76 | `LbRGB.colour_random` | Màu sắc: ngẫu nhiên | `CRGB(random8(), random8(), random8())` |
+| 77 | `LbRGB.colour_rgb` | Màu sắc: Đỏ 255 Xanh lá 0 Xanh dương 0 | `0xff0000` |
+| 78 | `LbRGB.colour_blend` | Màu sắc: Pha #00ff00 với #0000ff tỉ lệ 0.5 | `0x008080` |
+| 79 | `LbRGB.clear` | Đèn: Xóa hết màu | `LbRGB.clear();` |
+| 80 | `LbRGB.show` | Đèn: Bật lên | `LbRGB.show();` |
 
-Tổng: **khoảng 45 khối ✅**, 15 khối ➖, phần còn lại ✘.
+#### Leanbot › Phát nhạc (Leanbot › Sound)
+
+| # | Pythaverse | Khối tiếng Việt | Code |
+|---|---|---|---|
+| 81 | `Leanbot.toneDuration` | Âm thanh: Kêu 1500 Hz trong 100 mili giây | `Leanbot.tone(1500, 100);` |
+
+#### Leanbot › Cảm biến (Leanbot › Sensors)
+
+| # | Pythaverse | Khối tiếng Việt | Code |
+|---|---|---|---|
+| 82 | `LbTouch.waitUntil` | Chạm: chờ tới khi chạm TB1A | `while (LbTouch.read(TB1A) == LOW);` |
+| 83 | `LbTouch.read` | Chạm: TB1A đang được chạm? | `(LbTouch.read(TB1A) == HIGH)` |
+| 84 | `Leanbot.ping` | Siêu âm: khoảng cách phía trước, tính bằng cm | `Leanbot.pingCm()` |
+| 85 | `Leanbot.objectInFront` | Siêu âm: có vật phía trước trong vòng 25 cm ? | `Leanbot.pingCm() <= 25` |
+
+#### Leanbot › Cảm biến vạch (Leanbot › IRLine)
+
+| # | Pythaverse | Khối tiếng Việt | Code |
+|---|---|---|---|
+| 86 | `LbIRLine.doManualCalibration` | Dò vạch: tự hiệu chỉnh, bấm bằng vùng chạm TB1A | `` |
+| 87 | `LbIRLine.setThreshold` | Dò vạch: đặt ngưỡng 2L 300 0L 300 1R 300 3R 300 | `` |
+| 88 | `LbIRLine.read` | Dò vạch: Đọc 4 mắt | `LbIRLine.read();` |
+| 89 | `LbIRLine.displayOnRGB` | Dò vạch: Hiện lên đèn với Màu sắc: #00ff00 | `LbIRLine.displayOnRGB(0x00ff00);` |
+| 90 | `LbIRLine.isBlackDetected` | Dò vạch: Thấy vạch đen? | `LbIRLine.isBlackDetected()` |
+| 91 | `LbIRLine.value` | Dò vạch: 4 mắt đang thấy (2L, 0L, 1R, 3R) | `LbIRLine.value()` |
+| 92 | `LbIRLine.state` | Dò vạch: #ffffff #ffffff #ffffff #ffffff | `0` |
+| 93 | `LbIRLine.help` | * | `` |
+
+### Những chỗ của Pythaverse giữ nguyên dù lạ
+
+Vì phải giống hệt, các chỗ sau **giữ như Pythaverse** (đã kiểm trên trình soạn của họ):
+
+- Ô chọn "Chạy / Rẽ" của khối Di chuyển và "chạy / rẽ" của "Tiếp tục" **không đổi code**.
+- "với mỗi thành phần … trong danh sách" in ra JavaScript (`var k_list = [];`), không biên dịch
+  được. "đếm theo" với cận không phải số cũng vậy.
+- In chữ có dấu `"` thì code hỏng (`Serial.print("a"b")`): Pythaverse không thoát dấu này.
+- Khối "các đèn" bỏ hết dấu tích thì in `BITMA)`.
+
+Bài học nên tránh các chỗ này, không sửa chúng.
 
 ## 4. Bản đồ: Màn 0 + 8 vùng
 
@@ -216,14 +268,17 @@ Leanbot. Số màn là ước lượng, chốt khi viết `curriculum` của t�
 |---|---|---|---|---|
 | 0 | 🔤 **Xưởng Phiên Dịch** | Mọi khối ✅ | Khối Việt và code Anh là **một**. Ghép khối → xem code; đọc code → đoán khối; dán code → ra khối | 4–5 |
 | 1 | 🚩 **Bãi Xuất Phát** | Bắt đầu khi chạm, Bắt đầu ngay, Kết thúc, Chờ, Ghi chú | Robot chỉ chạy sau khi chạm `TB1A + TB1B`; nhiệm vụ có đầu có cuối | 5 |
-| 2 | 🛞 **Đường Thẳng** | Quay bánh, Đi tiếp … cm, Chạy tiếp … giây, Dừng lại | Bật bánh rồi **chờ** quãng đường; đi theo cm, không theo ô | 6 |
-| 3 | ↪️ **Ngã Xoay** | Quay bánh ngược nhau, Xoay tiếp … độ, lặp | Rẽ = hai bánh ngược chiều; hình vuông = lặp 4 lần (đi + xoay 90°) | 6 |
-| 4 | ✊ **Bến Tay Gắp** | Mở, Khép, Xoay tay gắp, Xoay hai tay | Gắp đồ, chở đi, thả đúng chỗ | 5 |
-| 5 | 💡 **Hội Đèn Lồng** | Tô đèn, Tô các đèn, Xóa, Bật đèn lên, Kêu | Tô màu chưa sáng, phải "bật đèn lên"; còi có Hz và thời gian | 5 |
-| 6 | 🦇 **Hang Dơi** (mắt siêu âm) | Khoảng cách, Có vật gần hơn?, nếu, lặp khi / đến khi | Robot "nhìn" bằng tiếng vang; dừng trước tường; bám tay | 6 |
-| 7 | ✋ **Cổng Cảm Ứng** | Chờ tới khi chạm, … đang được chạm?, nếu không thì | Chọn việc bằng vùng chạm (chạm trước làm A, chạm sau làm B) | 4 |
-| 8 | 〰️ **Đường Vạch Đen** | Nhìn xuống, Thấy vạch đen?, 4 mắt dò vạch, Hiện lên đèn | Bám vạch: lệch trái thì xoay phải, lệch phải thì xoay trái | 6 |
+| 2 | 🛞 **Đường Thẳng** | Di chuyển: Chạy với vận tốc, Chạy đoạn đường, Tiếp tục chạy trong, Dừng | Bật bánh rồi **chờ** quãng đường; đi theo cm, không theo ô | 6 |
+| 3 | ↪️ **Ngã Xoay** | Chạy với vận tốc (hai bánh ngược nhau), Rẽ góc, lặp | Rẽ = hai bánh ngược chiều; hình vuông = lặp 4 lần (đi + xoay 90°) | 6 |
+| 4 | ✊ **Bến Tay Gắp** | Tay gắp: Mở, Khép, Xoay tới, Xoay tay Trái/Phải | Gắp đồ, chở đi, thả đúng chỗ | 5 |
+| 5 | 💡 **Hội Đèn Lồng** | Đèn: Tô đèn, Tô các đèn, Xóa hết màu, Bật lên; Màu sắc; Âm thanh: Kêu | Tô màu chưa sáng, phải "bật đèn lên"; còi có Hz và thời gian | 5 |
+| 6 | 🦇 **Hang Dơi** (mắt siêu âm) | Siêu âm: khoảng cách, có vật trong vòng?; nếu, lặp khi / đến khi | Robot "nhìn" bằng tiếng vang; dừng trước tường; bám tay | 6 |
+| 7 | ✋ **Cổng Cảm Ứng** | Chạm: chờ tới khi chạm, đang được chạm?; nếu … thì … nếu không | Chọn việc bằng vùng chạm (chạm trước làm A, chạm sau làm B) | 4 |
+| 8 | 〰️ **Đường Vạch Đen** | Dò vạch: Đọc 4 mắt, Thấy vạch đen?, 4 mắt đang thấy = ⬜⬛⬛⬜, Hiện lên đèn | Bám vạch: lệch trái thì xoay phải, lệch phải thì xoay trái | 6 |
 | 9 | 🏙️ **Sa Bàn AIROC** (boss) | Tất cả | Một bài thi gần giống sa bàn thật | 3 |
+
+Các nhóm Biến, Hàm, Arduino (Vào/Ra, Serial) có đủ trong xưởng; vùng nào dạy chúng thì chốt khi
+viết `curriculum` (xem câu hỏi §7.3).
 
 Khoảng **50 màn**. Mỗi vùng có nút dẫn sang bài tương ứng của khóa Leanbot để thử trên robot
 thật (Vùng 2–3 ↔ Bài 1, Vùng 4 ↔ Bài 2, Vùng 6 ↔ Bài 3–4…).
@@ -249,9 +304,9 @@ Sau Màn 0, xưởng luôn mở ở mọi màn (nút "Xem code").
 - **Hai bộ sinh code từ cùng một khối**: một bộ chạy trong sân mô phỏng; một bộ sinh **code
   Arduino giống hệt** code của trình soạn Pythaverse (so khớp từng khối với
   `docs/research/pythaverse-lbeditor-blocks.json` bằng unit test).
-- **Code → khối**: bộ đọc nhỏ chỉ hiểu dạng chuẩn ở §2 (các lệnh trong bảng, `if/else`,
-  `for` đếm, `while`, `LbDelay`, ghi chú). Không dùng thư viện C++ nào. Dòng ngoài dạng chuẩn
-  thì giữ nguyên và báo đỏ. Có unit test **khối → code → khối** ra đúng như cũ.
+- **Code → khối**: bộ đọc nhỏ chỉ hiểu dạng chuẩn (code mà các khối in ra). Không dùng thư viện
+  C++ nào. Dòng ngoài dạng chuẩn thì báo đỏ, không đoán. Có unit test **khối → code → khối** ra
+  đúng như cũ.
 - **Biên dịch thật** (§9.12): một script gửi code lời giải của mọi màn tới
   `cs.leanbot.space/v3/compile`. Chạy tay trước khi gộp (cần mạng nên không chạy trong CI).
 - **Hai bản đồ**: `World` có thêm trường `map` (`lang-mang` | `leanbot`), mặc định `lang-mang`
@@ -263,10 +318,10 @@ Sau Màn 0, xưởng luôn mở ở mọi màn (nút "Xem code").
 
 | Phần | Ở đâu | Kiểm bằng |
 |---|---|---|
-| 38 khối Việt | `packages/games/src/leanbot/blocks.ts` | — |
-| Khối → code Arduino | `leanbot/arduino.ts` (`toArduino`) | `leanbot.test.ts`: từng khối so với `docs/research/pythaverse-lbeditor-blocks.json`; hai chương trình dài so **từng ký tự** với code trình soạn Pythaverse in ra (`leanbot/fixtures/`) |
-| Code → khối | `leanbot/parse.ts` (`parseArduino`) | mỗi lý do báo đỏ một test; khối → code → khối → code ra y như cũ |
-| Biên dịch thật | `npm run leanbot:compile` (cần mạng) | chương trình có **mọi** khối + hai chương trình mẫu: biên dịch được trên `cs.leanbot.space` |
+| 93 khối Pythaverse bằng tiếng Việt | `packages/games/src/leanbot/blocks.ts`, `toolbox.ts`, `flyouts.ts` (Biến) | thanh khối đủ 93 khối, đúng cây nhóm (`workshopToolbox.test.ts`) |
+| Khối → code Arduino | `leanbot/arduino.ts` (`toArduino`) | `leanbot.test.ts`: **từng khối** của thanh khối so với code trình soạn Pythaverse in ra; **5 chương trình** lưu từ Pythaverse (XML) ra đúng từng ký tự (`leanbot/fixtures/`) |
+| Code → khối | `leanbot/parse.ts` (`parseArduino`) | mỗi lý do báo đỏ một test; mọi khối và 5 chương trình: khối → code → khối → code ra y như cũ |
+| Biên dịch thật | `npm run leanbot:compile` (cần mạng) | mọi khối lệnh của thanh khối + 5 chương trình mẫu: biên dịch được trên `cs.leanbot.space` |
 | Màn 0 | `/xuong-phien-dich` (`apps/web/src/screens/workshop/`) | e2e `coach-profile.spec.ts`; bé vào bằng địa chỉ thì bị đưa về `/hub` (`leanbot.spec.ts`) |
 
 Màn 0 hiện là **xưởng mở**: ghép khối thì code hiện bên phải; bấm một dòng code thì khối của nó
@@ -275,7 +330,11 @@ lý do; "Chép code" + link Leanbot IDE. **Chưa có** 4 thử thách dẫn dắ
 bản đồ Leanbot, tức ADR-0030).
 
 Code sinh ra **bỏ 3 dòng đầu** `// Generated … at <giờ>` của Pythaverse: có giờ thì mỗi lần ra
-code một khác. Bộ đọc bỏ qua các dòng ghi chú ngoài `loop()`, nên dán code có 3 dòng đó vẫn được.
+code một khác. Bộ đọc bỏ qua ghi chú ngoài `loop()`, nên dán code có 3 dòng đó vẫn được.
+
+Hai khối cùng in một code thì code → khối chọn khối đứng trước trong thanh khối: `LbDelay` ra
+"Chờ" (không ra "Di chuyển: Tiếp tục…"), `for (int count…)` ra "lặp … lần" có ô cắm, `LbRGB.clear();
+… LbRGB.show();` ra hai khối rời, màu số `0x…` ra "Màu sắc" bảng màu.
 
 ## 6. Thứ tự làm đề xuất
 
@@ -283,14 +342,17 @@ code một khác. Bộ đọc bỏ qua các dòng ghi chú ngoài `loop()`, nên
 2. **Thử trên robot thật** những chỗ còn nghi: chiều quay khi bánh âm, khối mắt dò vạch
    `⬜⬛⬛⬜`, "chờ tới khi chạm". Mỗi chỗ biên dịch + nạp một chương trình nhỏ.
 3. ADR-0030 (hai bản đồ, kiểu game `leanbot`) → HLV duyệt.
-4. Khối Việt + bộ sinh code Arduino + unit test so khớp Pythaverse. ✅ (23/10)
+4. Khối Việt + bộ sinh code Arduino + unit test so khớp Pythaverse. ✅ (23/10, làm lại theo mẫu
+   Pythaverse cùng ngày)
 5. **Màn 0** (xưởng chuyển đổi hai chiều) — ✅ bản xưởng mở (23/10); còn 4 thử thách dẫn dắt.
 6. Sân mô phỏng, rồi Vùng 1 → 9, mỗi vùng HLV chơi thử trước khi gộp.
 
 ## 7. Câu hỏi còn mở cho HLV
 
-1. Tên khối ở §3: có chữ nào bé lớp 4 chưa hiểu không (vd "vòng/phút", "Hz", "ngưỡng")?
+1. Chữ trên khối ở §3: có chữ nào bé lớp 4 chưa hiểu không (vd "vòng/phút", "Hz", "ngưỡng",
+   "baud")?
 2. Giữ **tên vùng chạm** `TB1A`… như trên robot (bé đã quen ở Bài 0) hay gọi "chạm trước
    trái"…? Đề xuất: giữ `TB1A` vì in trên robot, thêm hình nhỏ chỉ chỗ.
-3. Có dạy `Serial.println` (in số ra MONITOR) không?
+3. Các nhóm Biến, Hàm, Arduino (Vào/Ra, Serial) đã có trong xưởng: dạy ở vùng nào, hay chỉ để
+   bé tra?
 4. Thứ tự vùng có hợp với lịch 17 buổi của khóa Leanbot không?
