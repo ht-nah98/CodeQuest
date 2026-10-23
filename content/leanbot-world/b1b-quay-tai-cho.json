@@ -1,0 +1,189 @@
+{
+  "id": "b1b-quay-tai-cho",
+  "number": 3,
+  "stage": 1,
+  "title": "Quay tại chỗ",
+  "canDo": "Robot quay đúng 90° và đi được một hình vuông",
+  "image": {
+    "src": "bai-01/xoay-tai-cho.png",
+    "alt": "Bánh trái quay tới, bánh phải quay lùi, robot xoay tại chỗ"
+  },
+  "goals": [
+    "Quay bằng hai bánh ngược chiều",
+    "Quay phải, quay trái đúng 90°",
+    "Dùng lặp để đi hình vuông",
+    "Quay lố thì chỉnh số rồi thử lại"
+  ],
+  "course": "bai-01",
+  "screens": [
+    {
+      "kind": "read",
+      "id": "nguoc-chieu",
+      "screen": {
+        "part": "Quay",
+        "title": "Hai bánh ngược chiều thì robot quay",
+        "lines": [
+          "Bánh nào lùi thì robot quay về phía bánh đó.",
+          "Rẽ góc: chờ tới khi quay đủ số độ."
+        ],
+        "images": [
+          {
+            "src": "bai-01/quay-phai.png",
+            "alt": "Bánh trái tới, bánh phải lùi, robot quay sang phải",
+            "caption": "Trái 30, Phải −30"
+          },
+          {
+            "src": "bai-01/quay-trai.png",
+            "alt": "Bánh phải tới, bánh trái lùi, robot quay sang trái",
+            "caption": "Trái −30, Phải 30"
+          }
+        ],
+        "tip": "Đứng sau lưng robot mà nhìn, trái phải mới trùng với con."
+      }
+    },
+    {
+      "kind": "build",
+      "id": "quay-phai",
+      "mode": "build",
+      "task": "Cho robot quay phải 90°",
+      "help": ["Trái 30, Phải −30. Rồi Rẽ góc 90 độ, rồi Dừng."],
+      "toolbox": [
+        "LbMission.beginByTeacher_end",
+        "LbMotion.run",
+        "LbMotion.waitRotationDeg",
+        "LbMotion.stop",
+        "LbMotion.waitDistanceMm"
+      ],
+      "newBlocks": ["LbMotion.waitRotationDeg"],
+      "start": "<xml><block type='LbMission.beginByTeacher_end' x='40' y='40'><field name='comboTouch'>TB1A + TB1B</field></block></xml>",
+      "solution": "<xml><block type='LbMission.beginByTeacher_end' x='40' y='40'><field name='comboTouch'>TB1A + TB1B</field><statement name='Body'><block type='LbMotion.run'><field name='UnitSpeed'>rpm</field><value name='Left'><shadow type='math_number'><field name='NUM'>30</field></shadow></value><value name='Right'><shadow type='math_number'><field name='NUM'>-30</field></shadow></value><next><block type='LbMotion.waitRotationDeg'><value name='rotationDeg'><shadow type='math_number'><field name='NUM'>90</field></shadow></value><next><block type='LbMotion.stop'></block></next></block></next></block></statement></block></xml>"
+    },
+    {
+      "kind": "build",
+      "id": "quay-trai",
+      "mode": "build",
+      "task": "Cho robot quay trái 90°",
+      "toolbox": [
+        "LbMission.beginByTeacher_end",
+        "LbMotion.run",
+        "LbMotion.waitRotationDeg",
+        "LbMotion.stop",
+        "LbMotion.waitDistanceMm"
+      ],
+      "start": "<xml><block type='LbMission.beginByTeacher_end' x='40' y='40'><field name='comboTouch'>TB1A + TB1B</field></block></xml>",
+      "solution": "<xml><block type='LbMission.beginByTeacher_end' x='40' y='40'><field name='comboTouch'>TB1A + TB1B</field><statement name='Body'><block type='LbMotion.run'><field name='UnitSpeed'>rpm</field><value name='Left'><shadow type='math_number'><field name='NUM'>-30</field></shadow></value><value name='Right'><shadow type='math_number'><field name='NUM'>30</field></shadow></value><next><block type='LbMotion.waitRotationDeg'><value name='rotationDeg'><shadow type='math_number'><field name='NUM'>90</field></shadow></value><next><block type='LbMotion.stop'></block></next></block></next></block></statement></block></xml>",
+      "hints": [
+        {
+          "match": "runLRrpm(30, -30)",
+          "say": "Thế này là quay phải. Đổi dấu hai bánh."
+        }
+      ]
+    },
+    {
+      "kind": "build",
+      "id": "quay-nguoc",
+      "mode": "fix",
+      "task": "Muốn quay trái mà robot quay phải. Sửa",
+      "toolbox": [
+        "LbMission.beginByTeacher_end",
+        "LbMotion.run",
+        "LbMotion.waitRotationDeg",
+        "LbMotion.stop",
+        "LbMotion.waitDistanceMm"
+      ],
+      "start": "<xml><block type='LbMission.beginByTeacher_end' x='40' y='40'><field name='comboTouch'>TB1A + TB1B</field><statement name='Body'><block type='LbMotion.run'><field name='UnitSpeed'>rpm</field><value name='Left'><shadow type='math_number'><field name='NUM'>30</field></shadow></value><value name='Right'><shadow type='math_number'><field name='NUM'>-30</field></shadow></value><next><block type='LbMotion.waitRotationDeg'><value name='rotationDeg'><shadow type='math_number'><field name='NUM'>90</field></shadow></value><next><block type='LbMotion.stop'></block></next></block></next></block></statement></block></xml>",
+      "solution": "<xml><block type='LbMission.beginByTeacher_end' x='40' y='40'><field name='comboTouch'>TB1A + TB1B</field><statement name='Body'><block type='LbMotion.run'><field name='UnitSpeed'>rpm</field><value name='Left'><shadow type='math_number'><field name='NUM'>-30</field></shadow></value><value name='Right'><shadow type='math_number'><field name='NUM'>30</field></shadow></value><next><block type='LbMotion.waitRotationDeg'><value name='rotationDeg'><shadow type='math_number'><field name='NUM'>90</field></shadow></value><next><block type='LbMotion.stop'></block></next></block></next></block></statement></block></xml>",
+      "hints": [
+        {
+          "match": "runLRrpm(30, -30)",
+          "say": "Bánh trái đang tới nên robot quay phải. Đổi dấu hai bánh."
+        }
+      ]
+    },
+    {
+      "kind": "build",
+      "id": "chu-l",
+      "mode": "build",
+      "task": "Đi chữ L: 50 cm, quay phải, 35 cm",
+      "help": ["Vận tốc 30 cho mọi khối.", "Đi xong và quay xong đều Dừng."],
+      "image": {
+        "src": "bai-01/chu-l.png",
+        "alt": "Đường đi: lên 50 cm, quay phải, sang 35 cm"
+      },
+      "toolbox": [
+        "LbMission.beginByTeacher_end",
+        "LbMotion.run",
+        "LbMotion.waitDistanceMm",
+        "LbMotion.waitRotationDeg",
+        "LbMotion.stop"
+      ],
+      "start": "<xml><block type='LbMission.beginByTeacher_end' x='40' y='40'><field name='comboTouch'>TB1A + TB1B</field></block></xml>",
+      "solution": "<xml><block type='LbMission.beginByTeacher_end' x='40' y='40'><field name='comboTouch'>TB1A + TB1B</field><statement name='Body'><block type='LbMotion.run'><field name='UnitSpeed'>rpm</field><value name='Left'><shadow type='math_number'><field name='NUM'>30</field></shadow></value><value name='Right'><shadow type='math_number'><field name='NUM'>30</field></shadow></value><next><block type='LbMotion.waitDistanceMm'><field name='UnitDistance'>cm</field><value name='distanceMm'><shadow type='math_number'><field name='NUM'>50</field></shadow></value><next><block type='LbMotion.stop'><next><block type='LbMotion.run'><field name='UnitSpeed'>rpm</field><value name='Left'><shadow type='math_number'><field name='NUM'>30</field></shadow></value><value name='Right'><shadow type='math_number'><field name='NUM'>-30</field></shadow></value><next><block type='LbMotion.waitRotationDeg'><value name='rotationDeg'><shadow type='math_number'><field name='NUM'>90</field></shadow></value><next><block type='LbMotion.stop'><next><block type='LbMotion.run'><field name='UnitSpeed'>rpm</field><value name='Left'><shadow type='math_number'><field name='NUM'>30</field></shadow></value><value name='Right'><shadow type='math_number'><field name='NUM'>30</field></shadow></value><next><block type='LbMotion.waitDistanceMm'><field name='UnitDistance'>cm</field><value name='distanceMm'><shadow type='math_number'><field name='NUM'>35</field></shadow></value><next><block type='LbMotion.stop'></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></statement></block></xml>"
+    },
+    {
+      "kind": "read",
+      "id": "lap",
+      "screen": {
+        "part": "Lặp",
+        "title": "Lặp: làm đi làm lại",
+        "lines": [
+          "Hình vuông là bốn lần: đi một cạnh, quay phải 90°.",
+          "Khối lặp 4 lần gói bốn lần đó thành một khối."
+        ],
+        "code": "lặp 4 lần:\n  đi 20 cm\n  quay phải 90°",
+        "note": "Như khối lặp ở Làng Măng. Code là for (int count = 0; count < 4; count++)."
+      }
+    },
+    {
+      "kind": "build",
+      "id": "hinh-vuong",
+      "mode": "build",
+      "task": "Đi hình vuông cạnh 20 cm bằng khối lặp",
+      "help": ["Trong khối lặp: đi 20 cm, quay phải 90°.", "Đổi số lần lặp 10 thành 4."],
+      "toolbox": [
+        "LbMission.beginByTeacher_end",
+        "controls_repeat_ext",
+        "LbMotion.run",
+        "LbMotion.waitDistanceMm",
+        "LbMotion.waitRotationDeg",
+        "LbMotion.stop"
+      ],
+      "newBlocks": ["controls_repeat_ext"],
+      "start": "<xml><block type='LbMission.beginByTeacher_end' x='40' y='40'><field name='comboTouch'>TB1A + TB1B</field></block></xml>",
+      "solution": "<xml><block type='LbMission.beginByTeacher_end' x='40' y='40'><field name='comboTouch'>TB1A + TB1B</field><statement name='Body'><block type='controls_repeat_ext'><value name='TIMES'><shadow type='math_number'><field name='NUM'>4</field></shadow></value><statement name='DO'><block type='LbMotion.run'><field name='UnitSpeed'>rpm</field><value name='Left'><shadow type='math_number'><field name='NUM'>30</field></shadow></value><value name='Right'><shadow type='math_number'><field name='NUM'>30</field></shadow></value><next><block type='LbMotion.waitDistanceMm'><field name='UnitDistance'>cm</field><value name='distanceMm'><shadow type='math_number'><field name='NUM'>20</field></shadow></value><next><block type='LbMotion.run'><field name='UnitSpeed'>rpm</field><value name='Left'><shadow type='math_number'><field name='NUM'>30</field></shadow></value><value name='Right'><shadow type='math_number'><field name='NUM'>-30</field></shadow></value><next><block type='LbMotion.waitRotationDeg'><value name='rotationDeg'><shadow type='math_number'><field name='NUM'>90</field></shadow></value></block></next></block></next></block></next></block></statement><next><block type='LbMotion.stop'></block></next></block></statement></block></xml>",
+      "accept": [
+        "<xml><block type='LbMission.beginByTeacher_end' x='40' y='40'><field name='comboTouch'>TB1A + TB1B</field><statement name='Body'><block type='controls_repeat_ext'><value name='TIMES'><shadow type='math_number'><field name='NUM'>4</field></shadow></value><statement name='DO'><block type='LbMotion.run'><field name='UnitSpeed'>rpm</field><value name='Left'><shadow type='math_number'><field name='NUM'>30</field></shadow></value><value name='Right'><shadow type='math_number'><field name='NUM'>30</field></shadow></value><next><block type='LbMotion.waitDistanceMm'><field name='UnitDistance'>cm</field><value name='distanceMm'><shadow type='math_number'><field name='NUM'>20</field></shadow></value><next><block type='LbMotion.stop'><next><block type='LbMotion.run'><field name='UnitSpeed'>rpm</field><value name='Left'><shadow type='math_number'><field name='NUM'>30</field></shadow></value><value name='Right'><shadow type='math_number'><field name='NUM'>-30</field></shadow></value><next><block type='LbMotion.waitRotationDeg'><value name='rotationDeg'><shadow type='math_number'><field name='NUM'>90</field></shadow></value><next><block type='LbMotion.stop'></block></next></block></next></block></next></block></next></block></next></block></statement></block></statement></block></xml>"
+      ],
+      "hints": [
+        {
+          "match": "count < 10",
+          "say": "Khối lặp vẫn là 10 lần. Hình vuông có 4 cạnh."
+        }
+      ]
+    },
+    {
+      "kind": "read",
+      "id": "robot-vuong",
+      "screen": {
+        "part": "Robot thật",
+        "title": "Robot đi hình vuông",
+        "lines": ["Robot quay lố thì đổi 90 thành 85 rồi thử lại.", "Mỗi lần chỉ đổi một số."],
+        "images": [
+          {
+            "src": "bai-01/quay-lo.png",
+            "alt": "Đường xanh là góc 90 độ muốn quay, đường đỏ là robot quay lố quá"
+          }
+        ],
+        "links": [
+          {
+            "label": "Leanbot IDE",
+            "href": "https://ide.pythaverse.space/#/code"
+          }
+        ],
+        "check": "Robot đi hình vuông, về gần chỗ cũ",
+        "checkId": "robot-vuong"
+      },
+      "program": "<xml><block type='LbMission.beginByTeacher_end' x='40' y='40'><field name='comboTouch'>TB1A + TB1B</field><statement name='Body'><block type='controls_repeat_ext'><value name='TIMES'><shadow type='math_number'><field name='NUM'>4</field></shadow></value><statement name='DO'><block type='LbMotion.run'><field name='UnitSpeed'>rpm</field><value name='Left'><shadow type='math_number'><field name='NUM'>30</field></shadow></value><value name='Right'><shadow type='math_number'><field name='NUM'>30</field></shadow></value><next><block type='LbMotion.waitDistanceMm'><field name='UnitDistance'>cm</field><value name='distanceMm'><shadow type='math_number'><field name='NUM'>20</field></shadow></value><next><block type='LbMotion.run'><field name='UnitSpeed'>rpm</field><value name='Left'><shadow type='math_number'><field name='NUM'>30</field></shadow></value><value name='Right'><shadow type='math_number'><field name='NUM'>-30</field></shadow></value><next><block type='LbMotion.waitRotationDeg'><value name='rotationDeg'><shadow type='math_number'><field name='NUM'>90</field></shadow></value></block></next></block></next></block></next></block></statement><next><block type='LbMotion.stop'></block></next></block></statement></block></xml>"
+    }
+  ]
+}

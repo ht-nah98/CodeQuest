@@ -1,0 +1,206 @@
+{
+  "id": "b1a-di-toi-di-lui",
+  "number": 2,
+  "stage": 1,
+  "title": "Đi tới, đi lùi",
+  "canDo": "Robot đi thẳng đúng 15 cm rồi lùi về chỗ cũ",
+  "image": {
+    "src": "bai-01/di-15cm.png",
+    "alt": "Robot đi thẳng từ chỗ xuất phát tới 15 cm"
+  },
+  "goals": [
+    "Bật bánh rồi chờ đủ quãng đường",
+    "Đi tới đúng số cm",
+    "Dấu trừ là lùi, cả hai bánh đều trừ",
+    "Nạp xuống robot, đo bằng thước"
+  ],
+  "course": "bai-01",
+  "screens": [
+    {
+      "kind": "read",
+      "id": "hai-buoc",
+      "screen": {
+        "part": "Di chuyển",
+        "title": "Leanbot đi hai bước",
+        "lines": [
+          "Chạy với vận tốc: bật hai bánh. Robot bắt đầu chạy.",
+          "Chạy đoạn đường: chờ tới khi đi đủ quãng. Rồi mới Dừng."
+        ],
+        "images": [
+          {
+            "src": "bai-01/di-thang.png",
+            "alt": "Hai robot: Trái 30 Phải 30 đi thẳng chậm, Trái 50 Phải 50 đi thẳng xa hơn"
+          }
+        ],
+        "tip": "Vận tốc từ −59 tới 59 vòng/phút. Mới tập thì dùng 30."
+      }
+    },
+    {
+      "kind": "build",
+      "id": "di-10cm",
+      "mode": "build",
+      "task": "Cho robot đi tới 10 cm rồi dừng",
+      "help": ["Ba khối: Chạy với vận tốc, Chạy đoạn đường, Dừng.", "Đổi 4.2 thành 10."],
+      "toolbox": [
+        "LbMission.beginByTeacher_end",
+        "LbMotion.run",
+        "LbMotion.waitDistanceMm",
+        "LbMotion.stop"
+      ],
+      "newBlocks": ["LbMotion.run", "LbMotion.waitDistanceMm", "LbMotion.stop"],
+      "start": "<xml><block type='LbMission.beginByTeacher_end' x='40' y='40'><field name='comboTouch'>TB1A + TB1B</field></block></xml>",
+      "solution": "<xml><block type='LbMission.beginByTeacher_end' x='40' y='40'><field name='comboTouch'>TB1A + TB1B</field><statement name='Body'><block type='LbMotion.run'><field name='UnitSpeed'>rpm</field><value name='Left'><shadow type='math_number'><field name='NUM'>30</field></shadow></value><value name='Right'><shadow type='math_number'><field name='NUM'>30</field></shadow></value><next><block type='LbMotion.waitDistanceMm'><field name='UnitDistance'>cm</field><value name='distanceMm'><shadow type='math_number'><field name='NUM'>10</field></shadow></value><next><block type='LbMotion.stop'></block></next></block></next></block></statement></block></xml>",
+      "hints": [
+        {
+          "match": "4.2",
+          "say": "Ô đoạn đường vẫn là 4.2. Gõ 10."
+        }
+      ]
+    },
+    {
+      "kind": "build",
+      "id": "di-15cm",
+      "mode": "fill",
+      "task": "Đổi số để robot đi đúng 15 cm",
+      "image": {
+        "src": "bai-01/di-15cm.png",
+        "alt": "Robot đi thẳng từ chỗ xuất phát tới 15 cm"
+      },
+      "toolbox": [
+        "LbMission.beginByTeacher_end",
+        "LbMotion.run",
+        "LbMotion.waitDistanceMm",
+        "LbMotion.stop"
+      ],
+      "start": "<xml><block type='LbMission.beginByTeacher_end' x='40' y='40'><field name='comboTouch'>TB1A + TB1B</field><statement name='Body'><block type='LbMotion.run'><field name='UnitSpeed'>rpm</field><value name='Left'><shadow type='math_number'><field name='NUM'>30</field></shadow></value><value name='Right'><shadow type='math_number'><field name='NUM'>30</field></shadow></value><next><block type='LbMotion.waitDistanceMm'><field name='UnitDistance'>cm</field><value name='distanceMm'><shadow type='math_number'><field name='NUM'>10</field></shadow></value><next><block type='LbMotion.stop'></block></next></block></next></block></statement></block></xml>",
+      "solution": "<xml><block type='LbMission.beginByTeacher_end' x='40' y='40'><field name='comboTouch'>TB1A + TB1B</field><statement name='Body'><block type='LbMotion.run'><field name='UnitSpeed'>rpm</field><value name='Left'><shadow type='math_number'><field name='NUM'>30</field></shadow></value><value name='Right'><shadow type='math_number'><field name='NUM'>30</field></shadow></value><next><block type='LbMotion.waitDistanceMm'><field name='UnitDistance'>cm</field><value name='distanceMm'><shadow type='math_number'><field name='NUM'>15</field></shadow></value><next><block type='LbMotion.stop'></block></next></block></next></block></statement></block></xml>",
+      "accept": [
+        "<xml><block type='LbMission.beginByTeacher_end' x='40' y='40'><field name='comboTouch'>TB1A + TB1B</field><statement name='Body'><block type='LbMotion.run'><field name='UnitSpeed'>rpm</field><value name='Left'><shadow type='math_number'><field name='NUM'>30</field></shadow></value><value name='Right'><shadow type='math_number'><field name='NUM'>30</field></shadow></value><next><block type='LbMotion.waitDistanceMm'><field name='UnitDistance'>mm</field><value name='distanceMm'><shadow type='math_number'><field name='NUM'>150</field></shadow></value><next><block type='LbMotion.stop'></block></next></block></next></block></statement></block></xml>"
+      ]
+    },
+    {
+      "kind": "read",
+      "id": "dau-tru",
+      "screen": {
+        "part": "Di chuyển",
+        "title": "Dấu trừ là lùi",
+        "lines": [
+          "Muốn lùi thì cả hai bánh đều mang dấu trừ: −30 và −30.",
+          "Chỉ một bánh trừ thì robot không lùi mà xoay."
+        ],
+        "images": [
+          {
+            "src": "bai-01/toi-lui.png",
+            "alt": "Robot 30 và 30 đi tới; robot −50 và −50 đi lùi"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "build",
+      "id": "mot-banh-tru",
+      "mode": "fix",
+      "task": "Robot xoay thay vì lùi. Sửa cho nó lùi",
+      "help": ["Lùi 15 cm: cả hai bánh đều −30."],
+      "toolbox": [
+        "LbMission.beginByTeacher_end",
+        "LbMotion.run",
+        "LbMotion.waitDistanceMm",
+        "LbMotion.stop"
+      ],
+      "start": "<xml><block type='LbMission.beginByTeacher_end' x='40' y='40'><field name='comboTouch'>TB1A + TB1B</field><statement name='Body'><block type='LbMotion.run'><field name='UnitSpeed'>rpm</field><value name='Left'><shadow type='math_number'><field name='NUM'>30</field></shadow></value><value name='Right'><shadow type='math_number'><field name='NUM'>-30</field></shadow></value><next><block type='LbMotion.waitDistanceMm'><field name='UnitDistance'>cm</field><value name='distanceMm'><shadow type='math_number'><field name='NUM'>15</field></shadow></value><next><block type='LbMotion.stop'></block></next></block></next></block></statement></block></xml>",
+      "solution": "<xml><block type='LbMission.beginByTeacher_end' x='40' y='40'><field name='comboTouch'>TB1A + TB1B</field><statement name='Body'><block type='LbMotion.run'><field name='UnitSpeed'>rpm</field><value name='Left'><shadow type='math_number'><field name='NUM'>-30</field></shadow></value><value name='Right'><shadow type='math_number'><field name='NUM'>-30</field></shadow></value><next><block type='LbMotion.waitDistanceMm'><field name='UnitDistance'>cm</field><value name='distanceMm'><shadow type='math_number'><field name='NUM'>15</field></shadow></value><next><block type='LbMotion.stop'></block></next></block></next></block></statement></block></xml>",
+      "hints": [
+        {
+          "match": "runLRrpm(30, -30)",
+          "say": "Bánh trái vẫn tới. Lùi thì cả hai đều trừ."
+        },
+        {
+          "match": "runLRrpm(-30, 30)",
+          "say": "Bánh phải vẫn tới. Lùi thì cả hai đều trừ."
+        }
+      ]
+    },
+    {
+      "kind": "build",
+      "id": "toi-cho-lui",
+      "mode": "build",
+      "task": "Tới 15 cm, chờ 1 giây, lùi về",
+      "help": ["Tới: 30 và 30. Lùi: −30 và −30.", "Mỗi lần đi xong đều có khối Dừng."],
+      "toolbox": [
+        "LbMission.beginByTeacher_end",
+        "LbMotion.run",
+        "LbMotion.waitDistanceMm",
+        "LbMotion.stop",
+        "Leanbot.delay"
+      ],
+      "newBlocks": ["Leanbot.delay"],
+      "start": "<xml><block type='LbMission.beginByTeacher_end' x='40' y='40'><field name='comboTouch'>TB1A + TB1B</field></block></xml>",
+      "solution": "<xml><block type='LbMission.beginByTeacher_end' x='40' y='40'><field name='comboTouch'>TB1A + TB1B</field><statement name='Body'><block type='LbMotion.run'><field name='UnitSpeed'>rpm</field><value name='Left'><shadow type='math_number'><field name='NUM'>30</field></shadow></value><value name='Right'><shadow type='math_number'><field name='NUM'>30</field></shadow></value><next><block type='LbMotion.waitDistanceMm'><field name='UnitDistance'>cm</field><value name='distanceMm'><shadow type='math_number'><field name='NUM'>15</field></shadow></value><next><block type='LbMotion.stop'><next><block type='Leanbot.delay'><field name='Unit'>seconds</field><value name='Delay'><shadow type='math_number'><field name='NUM'>1</field></shadow></value><next><block type='LbMotion.run'><field name='UnitSpeed'>rpm</field><value name='Left'><shadow type='math_number'><field name='NUM'>-30</field></shadow></value><value name='Right'><shadow type='math_number'><field name='NUM'>-30</field></shadow></value><next><block type='LbMotion.waitDistanceMm'><field name='UnitDistance'>cm</field><value name='distanceMm'><shadow type='math_number'><field name='NUM'>15</field></shadow></value><next><block type='LbMotion.stop'></block></next></block></next></block></next></block></next></block></next></block></next></block></statement></block></xml>",
+      "accept": [
+        "<xml><block type='LbMission.beginByTeacher_end' x='40' y='40'><field name='comboTouch'>TB1A + TB1B</field><statement name='Body'><block type='LbMotion.run'><field name='UnitSpeed'>rpm</field><value name='Left'><shadow type='math_number'><field name='NUM'>30</field></shadow></value><value name='Right'><shadow type='math_number'><field name='NUM'>30</field></shadow></value><next><block type='LbMotion.waitDistanceMm'><field name='UnitDistance'>cm</field><value name='distanceMm'><shadow type='math_number'><field name='NUM'>15</field></shadow></value><next><block type='LbMotion.stop'><next><block type='Leanbot.delay'><field name='Unit'>seconds</field><value name='Delay'><shadow type='math_number'><field name='NUM'>1</field></shadow></value><next><block type='LbMotion.run'><field name='UnitSpeed'>rpm</field><value name='Left'><shadow type='math_number'><field name='NUM'>-50</field></shadow></value><value name='Right'><shadow type='math_number'><field name='NUM'>-50</field></shadow></value><next><block type='LbMotion.waitDistanceMm'><field name='UnitDistance'>cm</field><value name='distanceMm'><shadow type='math_number'><field name='NUM'>15</field></shadow></value><next><block type='LbMotion.stop'></block></next></block></next></block></next></block></next></block></next></block></next></block></statement></block></xml>"
+      ]
+    },
+    {
+      "kind": "build",
+      "id": "doc-code",
+      "mode": "code",
+      "task": "Ghép khối để ra đúng code bên trái",
+      "help": [
+        "runLRrpm là Chạy với vận tốc. waitDistanceMm là Chạy đoạn đường.",
+        "20 * 10: 20 cm đổi ra mm."
+      ],
+      "toolbox": [
+        "LbMission.beginByTeacher_end",
+        "LbMotion.run",
+        "LbMotion.waitDistanceMm",
+        "LbMotion.stop"
+      ],
+      "solution": "<xml><block type='LbMission.beginByTeacher_end' x='40' y='40'><field name='comboTouch'>TB1A + TB1B</field><statement name='Body'><block type='LbMotion.run'><field name='UnitSpeed'>rpm</field><value name='Left'><shadow type='math_number'><field name='NUM'>30</field></shadow></value><value name='Right'><shadow type='math_number'><field name='NUM'>30</field></shadow></value><next><block type='LbMotion.waitDistanceMm'><field name='UnitDistance'>cm</field><value name='distanceMm'><shadow type='math_number'><field name='NUM'>20</field></shadow></value><next><block type='LbMotion.stop'><next><block type='LbMotion.run'><field name='UnitSpeed'>rpm</field><value name='Left'><shadow type='math_number'><field name='NUM'>-30</field></shadow></value><value name='Right'><shadow type='math_number'><field name='NUM'>-30</field></shadow></value><next><block type='LbMotion.waitDistanceMm'><field name='UnitDistance'>cm</field><value name='distanceMm'><shadow type='math_number'><field name='NUM'>20</field></shadow></value><next><block type='LbMotion.stop'></block></next></block></next></block></next></block></next></block></next></block></statement></block></xml>"
+    },
+    {
+      "kind": "build",
+      "id": "chay-mai",
+      "mode": "fix",
+      "task": "Robot chạy mãi không dừng. Sửa cho đi 15 cm",
+      "help": ["Bật bánh xong phải có khối chờ đủ quãng đường."],
+      "toolbox": [
+        "LbMission.beginByTeacher_end",
+        "LbMotion.run",
+        "LbMotion.waitDistanceMm",
+        "LbMotion.stop"
+      ],
+      "start": "<xml><block type='LbMission.beginByTeacher_end' x='40' y='40'><field name='comboTouch'>TB1A + TB1B</field><statement name='Body'><block type='LbMotion.run'><field name='UnitSpeed'>rpm</field><value name='Left'><shadow type='math_number'><field name='NUM'>30</field></shadow></value><value name='Right'><shadow type='math_number'><field name='NUM'>30</field></shadow></value></block></statement></block></xml>",
+      "solution": "<xml><block type='LbMission.beginByTeacher_end' x='40' y='40'><field name='comboTouch'>TB1A + TB1B</field><statement name='Body'><block type='LbMotion.run'><field name='UnitSpeed'>rpm</field><value name='Left'><shadow type='math_number'><field name='NUM'>30</field></shadow></value><value name='Right'><shadow type='math_number'><field name='NUM'>30</field></shadow></value><next><block type='LbMotion.waitDistanceMm'><field name='UnitDistance'>cm</field><value name='distanceMm'><shadow type='math_number'><field name='NUM'>15</field></shadow></value><next><block type='LbMotion.stop'></block></next></block></next></block></statement></block></xml>"
+    },
+    {
+      "kind": "read",
+      "id": "robot-15cm",
+      "screen": {
+        "part": "Robot thật",
+        "title": "Robot đi 15 cm",
+        "steps": [
+          ["1", "Dán băng dính đánh dấu chỗ xuất phát"],
+          ["2", "Chép code, nạp ở Leanbot IDE"],
+          ["3", "Chạm TB1A và TB1B cùng lúc"],
+          ["4", "Đo bằng thước: có đúng 15 cm?"]
+        ],
+        "images": [
+          {
+            "src": "bai-01/do-50cm.png",
+            "alt": "Hai mẩu băng dính, bánh robot đặt sát mẩu thứ nhất"
+          }
+        ],
+        "links": [
+          {
+            "label": "Leanbot IDE",
+            "href": "https://ide.pythaverse.space/#/code"
+          }
+        ],
+        "check": "Robot đi đúng 15 cm rồi lùi về",
+        "checkId": "robot-15cm"
+      },
+      "program": "<xml><block type='LbMission.beginByTeacher_end' x='40' y='40'><field name='comboTouch'>TB1A + TB1B</field><statement name='Body'><block type='LbMotion.run'><field name='UnitSpeed'>rpm</field><value name='Left'><shadow type='math_number'><field name='NUM'>30</field></shadow></value><value name='Right'><shadow type='math_number'><field name='NUM'>30</field></shadow></value><next><block type='LbMotion.waitDistanceMm'><field name='UnitDistance'>cm</field><value name='distanceMm'><shadow type='math_number'><field name='NUM'>15</field></shadow></value><next><block type='LbMotion.stop'><next><block type='Leanbot.delay'><field name='Unit'>seconds</field><value name='Delay'><shadow type='math_number'><field name='NUM'>1</field></shadow></value><next><block type='LbMotion.run'><field name='UnitSpeed'>rpm</field><value name='Left'><shadow type='math_number'><field name='NUM'>-30</field></shadow></value><value name='Right'><shadow type='math_number'><field name='NUM'>-30</field></shadow></value><next><block type='LbMotion.waitDistanceMm'><field name='UnitDistance'>cm</field><value name='distanceMm'><shadow type='math_number'><field name='NUM'>15</field></shadow></value><next><block type='LbMotion.stop'></block></next></block></next></block></next></block></next></block></next></block></next></block></statement></block></xml>"
+    }
+  ]
+}

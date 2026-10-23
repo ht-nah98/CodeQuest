@@ -1,0 +1,186 @@
+{
+  "id": "b2-tay-gap",
+  "number": 4,
+  "stage": 1,
+  "title": "Tay gắp",
+  "canDo": "Robot gắp một khối, chở đi 20 cm rồi thả",
+  "image": {
+    "src": "bai-02/may-gap.png",
+    "alt": "Máy gắp thú gắp quả bóng, mũi tên sang Leanbot đang kẹp một khối vàng"
+  },
+  "goals": [
+    "Mở là 0°, khép là 90°",
+    "Xoay tay gắp tới một góc",
+    "Xoay từng càng, nhanh hay chậm",
+    "Gắp, chở, thả đúng thứ tự"
+  ],
+  "course": "bai-02",
+  "screens": [
+    {
+      "kind": "read",
+      "id": "mo-khep",
+      "screen": {
+        "part": "Tay gắp",
+        "title": "Mở 0°, khép 90°",
+        "lines": ["Hai càng chúc xuống đất là mở. Nằm ngang khép vào giữa là khép."],
+        "images": [
+          {
+            "src": "bai-02/goc-0.png",
+            "alt": "Robot nhìn từ trước, hai càng chúc thẳng xuống đất: 0 độ là mở",
+            "caption": "Mở: 0°"
+          },
+          {
+            "src": "bai-02/goc-90.png",
+            "alt": "Robot nhìn từ trước, hai càng nằm ngang khép vào giữa: 90 độ là đóng",
+            "caption": "Khép: 90°"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "build",
+      "id": "mo-roi-khep",
+      "mode": "build",
+      "task": "Mở tay gắp, chờ 1 giây, rồi khép",
+      "toolbox": [
+        "LbMission.beginByTeacher_end",
+        "LbGripper.open",
+        "LbGripper.close",
+        "Leanbot.delay"
+      ],
+      "newBlocks": ["LbGripper.open", "LbGripper.close"],
+      "start": "<xml><block type='LbMission.beginByTeacher_end' x='40' y='40'><field name='comboTouch'>TB1A + TB1B</field></block></xml>",
+      "solution": "<xml><block type='LbMission.beginByTeacher_end' x='40' y='40'><field name='comboTouch'>TB1A + TB1B</field><statement name='Body'><block type='LbGripper.open'><next><block type='Leanbot.delay'><field name='Unit'>seconds</field><value name='Delay'><shadow type='math_number'><field name='NUM'>1</field></shadow></value><next><block type='LbGripper.close'></block></next></block></next></block></statement></block></xml>"
+    },
+    {
+      "kind": "build",
+      "id": "xoay-120",
+      "mode": "fill",
+      "task": "Xoay tay gắp tới 120°",
+      "help": ["Góc an toàn: từ −30° tới 120°. Quá nữa là gãy."],
+      "image": {
+        "src": "bai-02/xoay-120.png",
+        "alt": "Hai càng nghiêng lên quá nằm ngang: 120 độ"
+      },
+      "toolbox": [
+        "LbMission.beginByTeacher_end",
+        "LbGripper.moveTo",
+        "LbGripper.open",
+        "LbGripper.close",
+        "Leanbot.delay"
+      ],
+      "newBlocks": ["LbGripper.moveTo"],
+      "start": "<xml><block type='LbMission.beginByTeacher_end' x='40' y='40'><field name='comboTouch'>TB1A + TB1B</field><statement name='Body'><block type='LbGripper.moveTo'><value name='angleDeg'><shadow type='math_number'><field name='NUM'>45</field></shadow></value></block></statement></block></xml>",
+      "solution": "<xml><block type='LbMission.beginByTeacher_end' x='40' y='40'><field name='comboTouch'>TB1A + TB1B</field><statement name='Body'><block type='LbGripper.moveTo'><value name='angleDeg'><shadow type='math_number'><field name='NUM'>120</field></shadow></value></block></statement></block></xml>"
+    },
+    {
+      "kind": "build",
+      "id": "tung-cang",
+      "mode": "build",
+      "task": "Xoay từng càng: nhanh rồi chậm",
+      "help": [
+        "Trái 120, Phải −30, trong 100 mili giây. Chờ 2 giây.",
+        "Rồi Trái −30, Phải 120, trong 5000 mili giây. Chờ 2 giây."
+      ],
+      "toolbox": [
+        "LbMission.beginByTeacher_end",
+        "LbGripper.moveToLR",
+        "LbGripper.moveTo",
+        "Leanbot.delay"
+      ],
+      "newBlocks": ["LbGripper.moveToLR"],
+      "start": "<xml><block type='LbMission.beginByTeacher_end' x='40' y='40'><field name='comboTouch'>TB1A + TB1B</field></block></xml>",
+      "solution": "<xml><block type='LbMission.beginByTeacher_end' x='40' y='40'><field name='comboTouch'>TB1A + TB1B</field><statement name='Body'><block type='LbGripper.moveToLR'><value name='angleDegL'><shadow type='math_number'><field name='NUM'>120</field></shadow></value><value name='angleDegR'><shadow type='math_number'><field name='NUM'>-30</field></shadow></value><value name='timeMs'><shadow type='math_number'><field name='NUM'>100</field></shadow></value><next><block type='Leanbot.delay'><field name='Unit'>seconds</field><value name='Delay'><shadow type='math_number'><field name='NUM'>2</field></shadow></value><next><block type='LbGripper.moveToLR'><value name='angleDegL'><shadow type='math_number'><field name='NUM'>-30</field></shadow></value><value name='angleDegR'><shadow type='math_number'><field name='NUM'>120</field></shadow></value><value name='timeMs'><shadow type='math_number'><field name='NUM'>5000</field></shadow></value><next><block type='Leanbot.delay'><field name='Unit'>seconds</field><value name='Delay'><shadow type='math_number'><field name='NUM'>2</field></shadow></value></block></next></block></next></block></next></block></statement></block></xml>"
+    },
+    {
+      "kind": "read",
+      "id": "gap-cho-tha",
+      "screen": {
+        "part": "Gắp – chở – thả",
+        "title": "Thứ tự gắp một khối",
+        "steps": [
+          ["1", "Mở càng trước"],
+          ["2", "Tiến tới khối"],
+          ["3", "Khép càng, chờ 1 giây"],
+          ["4", "Chở đi"],
+          ["5", "Mở càng để thả"]
+        ],
+        "images": [
+          {
+            "src": "bai-02/gap-4-buoc.png",
+            "alt": "Bốn ô: tới gần vật, mở càng, hạ càng quanh khối, đóng càng kẹp khối"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "build",
+      "id": "chop-hut",
+      "mode": "fix",
+      "task": "Robot chộp hụt. Thiếu khối gì?",
+      "help": ["Càng phải mở trước khi tiến tới khối."],
+      "image": {
+        "src": "bai-02/chop-hut.png",
+        "alt": "Càng khép vào chỗ trống vì khối còn xa",
+        "caption": "Chộp hụt"
+      },
+      "toolbox": [
+        "LbMission.beginByTeacher_end",
+        "LbGripper.open",
+        "LbGripper.close",
+        "Leanbot.delay",
+        "LbMotion.run",
+        "LbMotion.waitDistanceMm",
+        "LbMotion.stop"
+      ],
+      "start": "<xml><block type='LbMission.beginByTeacher_end' x='40' y='40'><field name='comboTouch'>TB1A + TB1B</field><statement name='Body'><block type='LbMotion.run'><field name='UnitSpeed'>rpm</field><value name='Left'><shadow type='math_number'><field name='NUM'>30</field></shadow></value><value name='Right'><shadow type='math_number'><field name='NUM'>30</field></shadow></value><next><block type='LbMotion.waitDistanceMm'><field name='UnitDistance'>cm</field><value name='distanceMm'><shadow type='math_number'><field name='NUM'>10</field></shadow></value><next><block type='LbMotion.stop'><next><block type='LbGripper.close'><next><block type='Leanbot.delay'><field name='Unit'>seconds</field><value name='Delay'><shadow type='math_number'><field name='NUM'>1</field></shadow></value></block></next></block></next></block></next></block></next></block></statement></block></xml>",
+      "solution": "<xml><block type='LbMission.beginByTeacher_end' x='40' y='40'><field name='comboTouch'>TB1A + TB1B</field><statement name='Body'><block type='LbGripper.open'><next><block type='LbMotion.run'><field name='UnitSpeed'>rpm</field><value name='Left'><shadow type='math_number'><field name='NUM'>30</field></shadow></value><value name='Right'><shadow type='math_number'><field name='NUM'>30</field></shadow></value><next><block type='LbMotion.waitDistanceMm'><field name='UnitDistance'>cm</field><value name='distanceMm'><shadow type='math_number'><field name='NUM'>10</field></shadow></value><next><block type='LbMotion.stop'><next><block type='LbGripper.close'><next><block type='Leanbot.delay'><field name='Unit'>seconds</field><value name='Delay'><shadow type='math_number'><field name='NUM'>1</field></shadow></value></block></next></block></next></block></next></block></next></block></next></block></statement></block></xml>"
+    },
+    {
+      "kind": "build",
+      "id": "gap-cho-tha-ghep",
+      "mode": "build",
+      "task": "Gắp khối ở 10 cm, chở thêm 20 cm, thả",
+      "help": ["Mở, tiến 10 cm, khép, chờ 1 giây, tiến 20 cm, mở.", "Mỗi lần đi xong đều Dừng."],
+      "image": {
+        "src": "bai-02/may-gap-thu.png",
+        "alt": "Năm bước: càng mở, tiến tới khối xốp, đóng gắp, lùi về, mở thả khối"
+      },
+      "toolbox": [
+        "LbMission.beginByTeacher_end",
+        "LbGripper.open",
+        "LbGripper.close",
+        "Leanbot.delay",
+        "LbMotion.run",
+        "LbMotion.waitDistanceMm",
+        "LbMotion.stop"
+      ],
+      "start": "<xml><block type='LbMission.beginByTeacher_end' x='40' y='40'><field name='comboTouch'>TB1A + TB1B</field></block></xml>",
+      "solution": "<xml><block type='LbMission.beginByTeacher_end' x='40' y='40'><field name='comboTouch'>TB1A + TB1B</field><statement name='Body'><block type='LbGripper.open'><next><block type='LbMotion.run'><field name='UnitSpeed'>rpm</field><value name='Left'><shadow type='math_number'><field name='NUM'>30</field></shadow></value><value name='Right'><shadow type='math_number'><field name='NUM'>30</field></shadow></value><next><block type='LbMotion.waitDistanceMm'><field name='UnitDistance'>cm</field><value name='distanceMm'><shadow type='math_number'><field name='NUM'>10</field></shadow></value><next><block type='LbMotion.stop'><next><block type='LbGripper.close'><next><block type='Leanbot.delay'><field name='Unit'>seconds</field><value name='Delay'><shadow type='math_number'><field name='NUM'>1</field></shadow></value><next><block type='LbMotion.run'><field name='UnitSpeed'>rpm</field><value name='Left'><shadow type='math_number'><field name='NUM'>30</field></shadow></value><value name='Right'><shadow type='math_number'><field name='NUM'>30</field></shadow></value><next><block type='LbMotion.waitDistanceMm'><field name='UnitDistance'>cm</field><value name='distanceMm'><shadow type='math_number'><field name='NUM'>20</field></shadow></value><next><block type='LbMotion.stop'><next><block type='LbGripper.open'></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></statement></block></xml>"
+    },
+    {
+      "kind": "read",
+      "id": "robot-gap",
+      "screen": {
+        "part": "Robot thật",
+        "title": "Robot gắp một khối",
+        "steps": [
+          ["1", "Đặt khối xốp cách robot 10 cm"],
+          ["2", "Chép code, nạp ở Leanbot IDE"],
+          ["3", "Chạm TB1A và TB1B cùng lúc"],
+          ["4", "Xem robot gắp, chở và thả"]
+        ],
+        "links": [
+          {
+            "label": "Leanbot IDE",
+            "href": "https://ide.pythaverse.space/#/code"
+          }
+        ],
+        "warn": "Góc ngoài −30° … 120° là gãy càng. Nghe tiếng rít thì dừng ngay.",
+        "check": "Robot gắp khối, chở 20 cm rồi thả",
+        "checkId": "robot-gap"
+      },
+      "program": "<xml><block type='LbMission.beginByTeacher_end' x='40' y='40'><field name='comboTouch'>TB1A + TB1B</field><statement name='Body'><block type='LbGripper.open'><next><block type='LbMotion.run'><field name='UnitSpeed'>rpm</field><value name='Left'><shadow type='math_number'><field name='NUM'>30</field></shadow></value><value name='Right'><shadow type='math_number'><field name='NUM'>30</field></shadow></value><next><block type='LbMotion.waitDistanceMm'><field name='UnitDistance'>cm</field><value name='distanceMm'><shadow type='math_number'><field name='NUM'>10</field></shadow></value><next><block type='LbMotion.stop'><next><block type='LbGripper.close'><next><block type='Leanbot.delay'><field name='Unit'>seconds</field><value name='Delay'><shadow type='math_number'><field name='NUM'>1</field></shadow></value><next><block type='LbMotion.run'><field name='UnitSpeed'>rpm</field><value name='Left'><shadow type='math_number'><field name='NUM'>30</field></shadow></value><value name='Right'><shadow type='math_number'><field name='NUM'>30</field></shadow></value><next><block type='LbMotion.waitDistanceMm'><field name='UnitDistance'>cm</field><value name='distanceMm'><shadow type='math_number'><field name='NUM'>20</field></shadow></value><next><block type='LbMotion.stop'><next><block type='LbGripper.open'></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></statement></block></xml>"
+    }
+  ]
+}

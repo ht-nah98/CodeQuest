@@ -2,7 +2,8 @@
 
 > **Trạng thái 23/10/2026:** HLV duyệt (§9): trang riêng `/the-gioi-leanbot`, chỉ đánh dấu xong
 > (không sao/coin), làm Đợt 1 trước (ADR-0030). **Đợt 1 đã có:** khung bài học, chấm bằng so code,
-> luật 29, bài L0 và L1 của Chặng 0 (16 màn). Chỉ HLV thấy, chờ HLV chơi thử.
+> luật 29, bài L0 và L1 của Chặng 0 (16 màn) — **HLV chơi thử và duyệt 23/10**. **Đợt 2 đã có:** Chặng 1,
+bài B1a, B1b, B2 (26 màn), chờ HLV chơi thử. Vẫn chỉ HLV thấy.
 > Nguồn nội dung: khóa gốc Pythaverse (`docs/leanbot/giao-trinh.md`) và 16 giáo án
 > `docs/leanbot/giao-an/` — nhất là hai mục "Bé học xong thì làm được gì" và "Bé hay vướng ở đâu"
 > của từng bài. Khối lệnh: `the-gioi-leanbot.md` §3 (đủ 93 khối, giống Pythaverse).
