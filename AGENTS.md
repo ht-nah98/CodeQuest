@@ -336,3 +336,14 @@ phải **tích ô NL**, dòng `warning` sau khi nạp là vô hại, robot nhấ
 **Luật:** bài nào có thao tác trên robot thì làm thật một lượt (nạp, xem MONITOR, gõ lệnh) và
 chụp lại trước khi viết. Ô tích nào có thể dời chỗ thì cho nó `checkId` cố định, vì ô tích lưu
 theo vị trí sẽ nhảy sang màn khác khi chèn màn mới.
+
+### 9.22. Đừng `git stash` khi dev server của HLV đang chạy
+
+Ngày 23/10, để so một test e2e với bản cũ, `git stash -u` tạm cất code mới (gồm cả tệp mới) rồi
+`stash pop` trả lại. Dev server ở cổng 5173 của HLV nạp lại bản cũ giữa chừng và giữ một mô-đun lỗi
+thời: HLV mở Thế giới Leanbot thì **mọi màn đều "game bị vấp"** (`does not provide an export named
+'checkProgram'`), dù code trong repo đúng và e2e (server riêng) xanh.
+
+**Luật:** cần so với bản cũ thì dùng `git worktree add` ở thư mục khác, đừng đổi tệp dưới chân dev
+server đang chạy. Lỡ đổi rồi thì khởi động lại `npm run dev` (xóa `node_modules/.vite`) và mở lại
+từng trang mới kiểm trước khi báo xong.
