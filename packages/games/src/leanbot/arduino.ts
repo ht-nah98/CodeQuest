@@ -45,6 +45,19 @@ type WithState = Block & {
   defaultCount_?: number;
 };
 
+/**
+ * A Vietnamese name as a C name: "làm gì đó" → `lam_gi_do`, "điểm" → `diem`. Pythaverse would
+ * print `l_C3_A0m_g_C3_AC__C4_91_C3_B3`; ASCII names are left as they are, as there.
+ */
+export function asciiName(name: string): string {
+  return name
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/đ/g, 'd')
+    .replace(/Đ/g, 'D')
+    .replace(/ /g, '_');
+}
+
 /** `Blockly.isNumber` of Pythaverse's Blockly. */
 const isNumber = (s: string) => /^\s*-?\d+(\.\d+)?\s*$/.test(s);
 const field = (block: Block, name: string) => String(block.getFieldValue(name));
@@ -722,8 +735,11 @@ export class LeanbotArduino extends CodeGenerator {
     }
   }
 
+  private workspace: Workspace | null = null;
+
   override init(workspace: Workspace): void {
     super.init(workspace);
+    this.workspace = workspace;
     this.includes_ = {};
     this.definitions_ = {};
     this.setups_ = {};
@@ -782,16 +798,17 @@ export class LeanbotArduino extends CodeGenerator {
 
   /** The C name of a variable field (its value is the variable id). */
   variableId(id: string): string {
-    return this.names().getName(id, Names.NameType.VARIABLE);
+    const name = this.workspace?.getVariableMap().getVariableById(id)?.getName() ?? id;
+    return this.variableName(name);
   }
 
   /** The C name of a procedure argument, given by name. */
   variableName(name: string): string {
-    return this.names().getName(name, Names.NameType.VARIABLE);
+    return this.names().getName(asciiName(name), Names.NameType.VARIABLE);
   }
 
   procedureName(name: string): string {
-    return this.names().getName(name, Names.NameType.PROCEDURE);
+    return this.names().getName(asciiName(name), Names.NameType.PROCEDURE);
   }
 
   private names(): Names {

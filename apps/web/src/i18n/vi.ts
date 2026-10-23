@@ -417,6 +417,7 @@ export const vi = {
       need: 'Đang làm, chỉ HLV thấy',
     },
     intro: 'Ghép khối bên trái, code hiện bên phải. Hai bên là một!',
+    resize: 'Kéo để đổi độ rộng hai bên',
     codeTitle: 'Code cho Leanbot',
     edit: 'Dán code vào',
     build: 'Dựng khối',

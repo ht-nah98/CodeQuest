@@ -59,6 +59,19 @@ describe('Leanbot Arduino code = Pythaverse’s', () => {
     expect([...types].filter((t) => !LB_GENERATED_TYPES.includes(t))).toEqual([]);
   });
 
+  it('turns Vietnamese names into C names without marks', () => {
+    const ws = loadXml(
+      '<xml><variables><variable type="int" id="d">điểm số</variable></variables>' +
+        '<block type="procedures_defnoreturn"><field name="NAME">làm gì đó</field><statement name="STACK">' +
+        '<block type="vars_set_int"><field name="VAR_SET_INT" id="d" variabletype="int">điểm số</field>' +
+        '<value name="VALUE"><block type="math_number"><field name="NUM">1</field></block></value></block>' +
+        '</statement></block></xml>',
+    );
+    const code = toArduino(ws).code;
+    expect(code).toContain('int diem_so;');
+    expect(code).toContain('void lam_gi_do() {\n  diem_so = 1;\n}');
+  });
+
   it('an empty workspace is Pythaverse’s empty sketch', () => {
     expect(toArduino(new Workspace()).code).toBe('void setup() {\n}\n\nvoid loop() {\n}');
   });

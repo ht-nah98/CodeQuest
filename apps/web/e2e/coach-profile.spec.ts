@@ -145,4 +145,28 @@ test('HLV turns pasted Leanbot code into Vietnamese blocks and back', async ({ p
   await page.getByRole('treeitem', { name: 'Đèn Led RGB', exact: true }).click();
   await expect(page.locator('.blocklyFlyout').getByText('Đèn: Tô đèn').first()).toBeVisible();
   await page.screenshot({ path: `${SHOTS}/workshop-toolbox.png` });
+
+  // Closing the flyout takes its scrollbar along (it once stayed on the workspace, coach 23/10).
+  const flyoutBar = page.locator('.blocklyToolboxFlyout + .blocklyFlyoutScrollbar');
+  await expect(flyoutBar).toBeVisible();
+  // Clicking the open category again closes it.
+  await page.getByRole('treeitem', { name: 'Đèn Led RGB', exact: true }).click();
+  await expect(page.locator('.blocklyToolboxFlyout')).toBeHidden();
+  await expect(flyoutBar).toBeHidden();
+
+  // The bar between the columns drags; the blocks column follows.
+  const blocksBox = async () => (await blocks.boundingBox())?.width ?? 0;
+  const before = await blocksBox();
+  const bar = page.getByTestId('workshop-split');
+  const barBox = await bar.boundingBox();
+  if (!barBox) throw new Error('no split bar');
+  await page.mouse.move(barBox.x + barBox.width / 2, barBox.y + barBox.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(barBox.x - 200, barBox.y + barBox.height / 2, { steps: 5 });
+  await page.mouse.up();
+  await expect.poll(blocksBox).toBeLessThan(before - 150);
+  await bar.focus();
+  await page.keyboard.press('ArrowRight');
+  await expect(bar).toHaveAttribute('aria-valuenow', /\d+/);
+  await page.screenshot({ path: `${SHOTS}/workshop-split.png` });
 });

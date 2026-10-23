@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Navigate } from 'react-router';
-import { common, Events, inject, serialization, type WorkspaceSvg } from 'blockly';
+import { common, Events, inject, serialization, svgResize, type WorkspaceSvg } from 'blockly';
 import {
   parseArduino,
   type ParseProblem,
@@ -38,6 +38,29 @@ type CodeView =
 
 const EMPTY: CodeView = { source: 'blocks', code: '', lineOf: new Map() };
 
+/** Width of the blocks column, in % of the row; the coach drags the bar between the columns. */
+const SPLIT_KEY = 'cq.workshop.split';
+const SPLIT_MIN = 30;
+const SPLIT_MAX = 80;
+const clampSplit = (n: number) => Math.min(SPLIT_MAX, Math.max(SPLIT_MIN, Math.round(n)));
+
+function readSplit(): number {
+  try {
+    const saved = Number(localStorage.getItem(SPLIT_KEY));
+    return saved ? clampSplit(saved) : 60;
+  } catch {
+    return 60;
+  }
+}
+
+function saveSplit(n: number): void {
+  try {
+    localStorage.setItem(SPLIT_KEY, String(n));
+  } catch {
+    // Storage can be blocked; the split still works for this visit.
+  }
+}
+
 /** The block whose code starts on `line` (0-based), or the last one starting before it. */
 function blockAtLine(lineOf: ReadonlyMap<string, number>, line: number): string | null {
   let best: string | null = null;
@@ -61,6 +84,8 @@ export default function WorkshopScreen() {
 
 function Workshop() {
   const host = useRef<HTMLDivElement>(null);
+  const row = useRef<HTMLDivElement>(null);
+  const [split, setSplit] = useState(readSplit);
   const workspaceRef = useRef<WorkspaceSvg | null>(null);
   const [view, setView] = useState<CodeView>(EMPTY);
   const [selected, setSelected] = useState<string | null>(null);
@@ -102,7 +127,13 @@ function Workshop() {
       const program = toArduino(ws);
       setView({ source: 'blocks', code: program.code, lineOf: program.lineOf });
     });
+    // Blockly only follows window resizes; the column also changes width when the bar is dragged.
+    const resize = new ResizeObserver(() => {
+      if (workspace) svgResize(workspace);
+    });
+    resize.observe(container);
     return () => {
+      resize.disconnect();
       disposed = true;
       workspace?.dispose();
       workspaceRef.current = null;
@@ -169,10 +200,54 @@ function Workshop() {
 
       <p className="m-0 font-bold">{t.intro}</p>
 
-      <div className="grid min-h-0 flex-1 grid-cols-[minmax(0,3fr)_minmax(0,2fr)] gap-3">
+      <div
+        ref={row}
+        className="grid min-h-0 flex-1"
+        style={{ gridTemplateColumns: `minmax(0, ${String(split)}%) 14px minmax(0, 1fr)` }}
+      >
         <Panel className="relative min-h-0 overflow-hidden" raised={false}>
           <div ref={host} className="absolute inset-0" data-testid="workshop-blocks" />
         </Panel>
+
+        <div
+          role="separator"
+          aria-orientation="vertical"
+          aria-label={t.resize}
+          aria-valuemin={SPLIT_MIN}
+          aria-valuemax={SPLIT_MAX}
+          aria-valuenow={split}
+          tabIndex={0}
+          data-testid="workshop-split"
+          className="group flex cursor-col-resize touch-none items-center justify-center outline-none"
+          onPointerDown={(e) => {
+            const box = row.current?.getBoundingClientRect();
+            if (!box) return;
+            e.currentTarget.setPointerCapture(e.pointerId);
+            let last = split;
+            const move = (ev: PointerEvent) => {
+              last = clampSplit(((ev.clientX - box.left) / box.width) * 100);
+              setSplit(last);
+            };
+            const up = (ev: PointerEvent) => {
+              move(ev);
+              window.removeEventListener('pointermove', move);
+              window.removeEventListener('pointerup', up);
+              saveSplit(last);
+            };
+            window.addEventListener('pointermove', move);
+            window.addEventListener('pointerup', up);
+          }}
+          onKeyDown={(e) => {
+            const step = e.key === 'ArrowLeft' ? -5 : e.key === 'ArrowRight' ? 5 : 0;
+            if (step === 0) return;
+            e.preventDefault();
+            const next = clampSplit(split + step);
+            setSplit(next);
+            saveSplit(next);
+          }}
+        >
+          <span className="h-16 w-1.5 rounded-full bg-ink/30 transition-colors group-hover:bg-ink/70 group-focus-visible:bg-brand-deep" />
+        </div>
 
         <Panel className="flex min-h-0 flex-col gap-2 p-3" raised={false}>
           <div className="flex flex-wrap items-center gap-2">

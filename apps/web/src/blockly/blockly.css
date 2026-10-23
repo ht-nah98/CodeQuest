@@ -99,3 +99,9 @@
   stroke-width: 2px;
   stroke-dasharray: 4 3;
 }
+
+/* Tailwind's preflight sets `svg { display: block }`, which beats the `display="none"` attribute
+   Blockly puts on a hidden scrollbar: a closed flyout left its scrollbar on the workspace. */
+.injectionDiv svg[display='none'] {
+  display: none;
+}
