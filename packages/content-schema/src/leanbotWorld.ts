@@ -50,9 +50,13 @@ export const LbwBuildScreenSchema = z
     /** At most two more sentences under the task. */
     help: z.array(z.string().min(1).max(120)).max(2).optional(),
     image: LeanbotImageSchema.optional(),
-    /** Block types in the toolbox, in this order. Only these: blocks open one lesson at a time. */
+    /**
+     * The toolbox, in this order: only these blocks, so blocks open one lesson at a time. An
+     * entry is a block type (with Pythaverse's starting values), or a block as XML when it needs
+     * more, such as the variable a "gán" block sets or the function a call calls.
+     */
     toolbox: z.array(z.string().min(1)).min(1).max(30),
-    /** Blocks met for the first time here: listed first, under "Khối mới". */
+    /** Entries of the toolbox met for the first time here: listed first, under "Khối mới". */
     newBlocks: z.array(z.string().min(1)).max(4).optional(),
     /** Starting program; empty workspace when left out. */
     start: ProgramXml.optional(),
@@ -81,7 +85,10 @@ export type LbwScreen = z.infer<typeof LbwScreenSchema>;
 
 export const LeanbotWorldLessonSchema = z.strictObject({
   /** File name without .json, also the route segment: "l0-xuong-khoi". */
-  id: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/).max(40),
+  id: z
+    .string()
+    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)
+    .max(40),
   /** Order in the list. */
   number: z.number().int().nonnegative(),
   /** Chặng 0–5 of the plan. */

@@ -80,9 +80,18 @@ const collect = (categories: readonly LbCategory[]) => {
 };
 collect(LB_TOOLBOX);
 
-/** A block as Pythaverse's toolbox lists it (with its starting values), by type. */
-export function toolboxXml(type: string): string {
-  return xmlByType.get(type) ?? `<block type='${type}'></block>`;
+/**
+ * A toolbox entry of a lesson as XML: a block type gets Pythaverse's starting values; an entry
+ * that is already a block's XML is kept as written.
+ */
+export function toolboxXml(entry: string): string {
+  if (entry.startsWith('<')) return entry;
+  return xmlByType.get(entry) ?? `<block type='${entry}'></block>`;
+}
+
+/** The block type of a toolbox entry. */
+export function toolboxEntryType(entry: string): string {
+  return entry.startsWith('<') ? (/type=['"]([^'"]+)['"]/.exec(entry)?.[1] ?? '') : entry;
 }
 
 /** Arduino code of a program saved as XML. */

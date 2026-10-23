@@ -5,7 +5,9 @@
 > luật 29, bài L0 và L1 của Chặng 0 (16 màn) — **HLV chơi thử và duyệt 23/10**. **Đợt 2 đã có:** Chặng 1,
 bài B1a, B1b, B2 (26 màn), chờ HLV chơi thử. **Đợt 3 đã có:** Chặng 2, bài B3, B3b, B4a, B4b (37 màn,
 phần không cần sa bàn ảo; B4b dùng nguyên chương trình mẫu FollowLine của khóa gốc, dựng lại bằng
-khối và ra code y hệt). Vẫn chỉ HLV thấy.
+khối và ra code y hệt). **Chặng 3 đã có:** H1 hộp đếm, H2 phép của robot (9 màn). Vẫn chỉ HLV thấy.
+Khay khối: tới 4 khối thì mở sẵn một danh sách; từ 5 khối thì chia nhóm như Pythaverse, nhóm
+"✨ Khối mới" đứng đầu (danh sách dài che mất chỗ ghép).
 > Nguồn nội dung: khóa gốc Pythaverse (`docs/leanbot/giao-trinh.md`) và 16 giáo án
 > `docs/leanbot/giao-an/` — nhất là hai mục "Bé học xong thì làm được gì" và "Bé hay vướng ở đâu"
 > của từng bài. Khối lệnh: `the-gioi-leanbot.md` §3 (đủ 93 khối, giống Pythaverse).

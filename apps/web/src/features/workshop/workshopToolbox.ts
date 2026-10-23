@@ -1,5 +1,11 @@
 import { registerFieldColour } from '@blockly/field-colour';
-import { LB_TOOLBOX, type LbCategory, registerLeanbotBlocks, toolboxXml } from '@codequest/games';
+import {
+  LB_TOOLBOX,
+  type LbCategory,
+  registerLeanbotBlocks,
+  toolboxEntryType,
+  toolboxXml,
+} from '@codequest/games';
 import { vi } from '../../i18n/vi';
 
 // Toolbox of the Xưởng Phiên Dịch (Màn 0): Pythaverse's Leanbot toolbox, category for category
@@ -45,7 +51,7 @@ export interface FlyoutToolbox {
 }
 
 /** Up to this many blocks a lesson toolbox stays open as one list; more go into groups. */
-const OPEN_TOOLBOX_MAX = 5;
+const OPEN_TOOLBOX_MAX = 4;
 
 /** Pythaverse's categories holding only `types`, empty ones left out. */
 function onlyTypes(c: LbCategory, types: readonly string[]): WorkshopCategory | null {
@@ -79,10 +85,12 @@ export function lessonToolbox(
   types: readonly string[],
   newTypes: readonly string[] = [],
 ): FlyoutToolbox | WorkshopToolbox {
-  const block = (type: string) => ({ kind: 'block' as const, blockxml: toolboxXml(type) });
+  const block = (entry: string) => ({ kind: 'block' as const, blockxml: toolboxXml(entry) });
   const old = types.filter((type) => !newTypes.includes(type));
   if (types.length > OPEN_TOOLBOX_MAX) {
-    const groups = LB_TOOLBOX.map((c) => onlyTypes(c, types)).filter(
+    // Entries written as XML stay as written: they go with the "Khác" group, not Pythaverse's.
+    const plain = types.filter((entry) => !entry.startsWith('<'));
+    const groups = LB_TOOLBOX.map((c) => onlyTypes(c, plain)).filter(
       (c): c is WorkshopCategory => c !== null,
     );
     const fresh: WorkshopCategory[] =
@@ -98,7 +106,9 @@ export function lessonToolbox(
         : [];
     // Blocks only the dynamic categories list (typed variables, functions) go in one more group.
     const listed = new Set(groups.flatMap(blockTypesOf));
-    const rest = types.filter((type) => !listed.has(type) && !newTypes.includes(type));
+    const rest = types.filter(
+      (entry) => !listed.has(toolboxEntryType(entry)) && !newTypes.includes(entry),
+    );
     const other: WorkshopCategory[] =
       rest.length > 0
         ? [

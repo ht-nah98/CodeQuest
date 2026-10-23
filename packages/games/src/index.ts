@@ -176,6 +176,7 @@ export {
   parseArduino,
   programBlockTypes,
   programCode,
+  toolboxEntryType,
   toolboxXml,
   registerLeanbotBlocks,
   registerLeanbotFlyouts,

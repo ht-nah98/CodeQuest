@@ -1,4 +1,4 @@
-import { type Block, CodeGenerator, inputs, Names, type Workspace } from 'blockly';
+import { type Block, CodeGenerator, inputs, Msg, Names, type Workspace } from 'blockly';
 import { LB_LEDS } from './blocks';
 
 // Arduino code of the Leanbot blocks, character for character what Pythaverse's editor
@@ -119,7 +119,11 @@ function procedureDef(block: Block, gen: LeanbotArduino): null {
     (arg) => `int ${gen.variableName(arg)}`,
   );
   const code = `${returnType} ${name}(${params.join(', ')}) {\n${branch}${returnValue}}\n`;
-  const comment = block.getCommentText() ?? PROCEDURE_COMMENT;
+  // The comment Blockly puts on a new function in the app's language counts as none: Pythaverse
+  // prints its own English one then, and so does this, whatever the language.
+  const own = block.getCommentText();
+  const comment =
+    own === null || own === Msg['PROCEDURES_DEFNORETURN_COMMENT'] ? PROCEDURE_COMMENT : own;
   gen.definitions_[`%${name}`] = `${gen.prefixLines(comment, '// ')}\n${code}`;
   return null;
 }

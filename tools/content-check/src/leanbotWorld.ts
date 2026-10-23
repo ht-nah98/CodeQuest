@@ -1,5 +1,10 @@
 import { LeanbotWorldLessonSchema, type LeanbotWorldLesson } from '@codequest/content-schema';
-import { LB_GENERATED_TYPES, programBlockTypes, programCode } from '@codequest/games';
+import {
+  LB_GENERATED_TYPES,
+  programBlockTypes,
+  programCode,
+  toolboxEntryType,
+} from '@codequest/games';
 
 // Rule 29 (ADR-0030): a Thế giới Leanbot lesson's programs load and print code, the toolbox of a
 // build screen holds every block of its solution, and a screen does not start already solved.
@@ -41,8 +46,13 @@ export function leanbotWorldIssues(lesson: LeanbotWorldLesson): LeanbotWorldIssu
       }
       continue;
     }
-    for (const type of screen.toolbox) {
+    const toolbox = screen.toolbox.map(toolboxEntryType);
+    for (const type of toolbox) {
       if (!KNOWN.has(type)) add(`${at}.toolbox: unknown block "${type}"`);
+    }
+    for (const entry of screen.toolbox.filter((e) => e.startsWith('<'))) {
+      const code = codeOf(`<xml>${entry}</xml>`);
+      if (code instanceof Error) add(`${at}.toolbox: a block does not load: ${code.message}`);
     }
     const solution = codeOf(screen.solution);
     if (solution instanceof Error) {
@@ -52,7 +62,7 @@ export function leanbotWorldIssues(lesson: LeanbotWorldLesson): LeanbotWorldIssu
     // A block the starting program already holds needs no place in the toolbox.
     const given = new Set(screen.start === undefined ? [] : programBlockTypesSafe(screen.start));
     const missing = programBlockTypes(screen.solution).filter(
-      (t) => !screen.toolbox.includes(t) && !given.has(t),
+      (t) => !toolbox.includes(t) && !given.has(t),
     );
     if (missing.length > 0) {
       add(

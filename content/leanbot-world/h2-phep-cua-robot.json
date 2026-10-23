@@ -1,0 +1,102 @@
+{
+  "id": "h2-phep-cua-robot",
+  "number": 10,
+  "stage": 3,
+  "title": "Phép của robot",
+  "canDo": "Gói nhiều khối thành một phép có tên rồi dùng lại nhiều lần",
+  "image": {
+    "src": "bai-04/follow-line.png",
+    "alt": "Một chồng rất nhiều khối được gói lại thành một khối tên followLine"
+  },
+  "goals": [
+    "Phép ở Làng Măng là hàm ở đây",
+    "Dạy robot một phép mới",
+    "Gọi phép nhiều lần",
+    "Đọc code có hàm"
+  ],
+  "screens": [
+    {
+      "kind": "read",
+      "id": "phep-la-ham",
+      "screen": {
+        "part": "Phép",
+        "title": "Phép ở Làng Măng là hàm ở đây",
+        "lines": [
+          "Phép gói nhiều khối thành một khối có tên. Muốn làm lại thì gọi tên phép.",
+          "Chương trình mẫu bám vạch có phép followLine như thế."
+        ],
+        "images": [
+          {
+            "src": "bai-04/follow-line.png",
+            "alt": "Một chồng rất nhiều khối được gói lại thành một khối tên followLine"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "build",
+      "id": "phep-mot-canh",
+      "mode": "build",
+      "task": "Dạy phép đi một cạnh, gọi 4 lần: hình vuông",
+      "help": [
+        "Trong phép: đi 20 cm, quay phải 90°.",
+        "Trong Nhiệm vụ: lặp 4 lần gọi phép, rồi Dừng."
+      ],
+      "toolbox": [
+        "controls_repeat_ext",
+        "<block type='procedures_callnoreturn'><mutation name='đi một cạnh'></mutation></block>",
+        "LbMotion.run",
+        "LbMotion.waitDistanceMm",
+        "LbMotion.waitRotationDeg",
+        "LbMotion.stop"
+      ],
+      "newBlocks": [
+        "<block type='procedures_callnoreturn'><mutation name='đi một cạnh'></mutation></block>"
+      ],
+      "start": "<xml><block type='LbMission.beginByTeacher_end' x='40' y='40'><field name='comboTouch'>TB1A + TB1B</field></block><block type='procedures_defnoreturn' x='40' y='320'><field name='NAME'>đi một cạnh</field></block></xml>",
+      "solution": "<xml><block type='LbMission.beginByTeacher_end' x='40' y='40'><field name='comboTouch'>TB1A + TB1B</field><statement name='Body'><block type='controls_repeat_ext'><value name='TIMES'><shadow type='math_number'><field name='NUM'>4</field></shadow></value><statement name='DO'><block type='procedures_callnoreturn'><mutation name='đi một cạnh'></mutation></block></statement><next><block type='LbMotion.stop'></block></next></block></statement></block><block type='procedures_defnoreturn' x='40' y='320'><field name='NAME'>đi một cạnh</field><statement name='STACK'><block type='LbMotion.run'><field name='UnitSpeed'>rpm</field><value name='Left'><shadow type='math_number'><field name='NUM'>30</field></shadow></value><value name='Right'><shadow type='math_number'><field name='NUM'>30</field></shadow></value><next><block type='LbMotion.waitDistanceMm'><field name='UnitDistance'>cm</field><value name='distanceMm'><shadow type='math_number'><field name='NUM'>20</field></shadow></value><next><block type='LbMotion.run'><field name='UnitSpeed'>rpm</field><value name='Left'><shadow type='math_number'><field name='NUM'>30</field></shadow></value><value name='Right'><shadow type='math_number'><field name='NUM'>-30</field></shadow></value><next><block type='LbMotion.waitRotationDeg'><value name='rotationDeg'><shadow type='math_number'><field name='NUM'>90</field></shadow></value></block></next></block></next></block></next></block></statement></block></xml>",
+      "hints": [
+        {
+          "match": "void di_mot_canh() {\n}",
+          "say": "Phép còn trống. Kéo khối đi và quay vào trong phép."
+        }
+      ]
+    },
+    {
+      "kind": "build",
+      "id": "doc-phep",
+      "mode": "code",
+      "task": "Ghép khối để ra đúng code bên trái",
+      "help": ["void keu_hai_lan() là phép tên kêu hai lần.", "keu_hai_lan(); là gọi phép đó."],
+      "toolbox": [
+        "LbMission.beginByTeacher_end",
+        "<block type='procedures_defnoreturn'><field name='NAME'>kêu hai lần</field></block>",
+        "<block type='procedures_callnoreturn'><mutation name='kêu hai lần'></mutation></block>",
+        "Leanbot.toneDuration",
+        "Leanbot.delay"
+      ],
+      "solution": "<xml><block type='LbMission.beginByTeacher_end' x='40' y='40'><field name='comboTouch'>TB1A + TB1B</field><statement name='Body'><block type='procedures_callnoreturn'><mutation name='kêu hai lần'></mutation><next><block type='Leanbot.delay'><field name='Unit'>seconds</field><value name='Delay'><shadow type='math_number'><field name='NUM'>1</field></shadow></value><next><block type='procedures_callnoreturn'><mutation name='kêu hai lần'></mutation></block></next></block></next></block></statement></block><block type='procedures_defnoreturn' x='40' y='320'><field name='NAME'>kêu hai lần</field><statement name='STACK'><block type='Leanbot.toneDuration'><field name='UnitFreq'>Hz</field><field name='UnitDuration'>milliseconds</field><value name='Freq'><shadow type='math_number'><field name='NUM'>1500</field></shadow></value><value name='Duration'><shadow type='math_number'><field name='NUM'>100</field></shadow></value><next><block type='Leanbot.delay'><field name='Unit'>seconds</field><value name='Delay'><shadow type='math_number'><field name='NUM'>0.3</field></shadow></value><next><block type='Leanbot.toneDuration'><field name='UnitFreq'>Hz</field><field name='UnitDuration'>milliseconds</field><value name='Freq'><shadow type='math_number'><field name='NUM'>1500</field></shadow></value><value name='Duration'><shadow type='math_number'><field name='NUM'>100</field></shadow></value></block></next></block></next></block></statement></block></xml>"
+    },
+    {
+      "kind": "read",
+      "id": "robot-phep",
+      "screen": {
+        "part": "Robot thật",
+        "title": "Hình vuông bằng phép",
+        "lines": [
+          "Cùng hình vuông như Bài 3, nhưng chương trình ngắn hơn nhiều.",
+          "Đổi 20 trong phép là cả bốn cạnh cùng đổi."
+        ],
+        "links": [
+          {
+            "label": "Leanbot IDE",
+            "href": "https://ide.pythaverse.space/#/code"
+          }
+        ],
+        "check": "Robot đi hình vuông bằng phép",
+        "checkId": "robot-phep-vuong"
+      },
+      "program": "<xml><block type='LbMission.beginByTeacher_end' x='40' y='40'><field name='comboTouch'>TB1A + TB1B</field><statement name='Body'><block type='controls_repeat_ext'><value name='TIMES'><shadow type='math_number'><field name='NUM'>4</field></shadow></value><statement name='DO'><block type='procedures_callnoreturn'><mutation name='đi một cạnh'></mutation></block></statement><next><block type='LbMotion.stop'></block></next></block></statement></block><block type='procedures_defnoreturn' x='40' y='320'><field name='NAME'>đi một cạnh</field><statement name='STACK'><block type='LbMotion.run'><field name='UnitSpeed'>rpm</field><value name='Left'><shadow type='math_number'><field name='NUM'>30</field></shadow></value><value name='Right'><shadow type='math_number'><field name='NUM'>30</field></shadow></value><next><block type='LbMotion.waitDistanceMm'><field name='UnitDistance'>cm</field><value name='distanceMm'><shadow type='math_number'><field name='NUM'>20</field></shadow></value><next><block type='LbMotion.run'><field name='UnitSpeed'>rpm</field><value name='Left'><shadow type='math_number'><field name='NUM'>30</field></shadow></value><value name='Right'><shadow type='math_number'><field name='NUM'>-30</field></shadow></value><next><block type='LbMotion.waitRotationDeg'><value name='rotationDeg'><shadow type='math_number'><field name='NUM'>90</field></shadow></value></block></next></block></next></block></next></block></statement></block></xml>"
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-import { serialization, utils, Workspace, Xml } from 'blockly';
+import { Msg, serialization, utils, Workspace, Xml } from 'blockly';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 import { blockToArduino, LB_GENERATED_TYPES, toArduino } from './arduino';
 import { type BlockState, parseArduino, type ParseResult } from './parse';
@@ -71,6 +71,15 @@ describe('Leanbot Arduino code = Pythaverse’s', () => {
     const code = toArduino(ws).code;
     expect(code).toContain('int diem_so;');
     expect(code).toContain('void lam_gi_do() {\n  diem_so = 1;\n}');
+  });
+
+  it('a function’s default comment, in any language, prints as Pythaverse’s', () => {
+    const ws = loadXml(programs.procs?.xml ?? '');
+    const def = ws.getBlocksByType('procedures_defnoreturn', false)[0];
+    def?.setCommentText(Msg['PROCEDURES_DEFNORETURN_COMMENT'] ?? '');
+    expect(toArduino(ws).code).toBe(programs.procs?.ino);
+    def?.setCommentText('Kêu hai lần');
+    expect(toArduino(ws).code).toContain('// Kêu hai lần\nvoid chao() {');
   });
 
   it('an empty workspace is Pythaverse’s empty sketch', () => {

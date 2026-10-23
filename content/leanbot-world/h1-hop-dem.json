@@ -1,0 +1,158 @@
+{
+  "id": "h1-hop-dem",
+  "number": 9,
+  "stage": 3,
+  "title": "Hộp đếm",
+  "canDo": "Robot đếm số ngã tư nó đi qua và in ra MONITOR",
+  "goals": [
+    "Hộp ở Làng Măng là biến ở đây",
+    "Gán số cho hộp, đọc số trong hộp",
+    "Cộng thêm 1 mỗi lần gặp chuyện",
+    "In số trong hộp ra MONITOR"
+  ],
+  "screens": [
+    {
+      "kind": "read",
+      "id": "hop-la-bien",
+      "screen": {
+        "part": "Hộp nhớ",
+        "title": "Hộp ở Làng Măng là biến ở đây",
+        "lines": [
+          "Hộp giữ một con số để robot nhớ. Trong code nó gọi là biến.",
+          "Hộp có kiểu: số nguyên, số thập phân, chữ, đúng/sai. Bài này dùng số nguyên."
+        ],
+        "chips": [
+          {
+            "label": "Khối",
+            "body": "🔢 gán điểm bằng 5",
+            "tone": "sky"
+          },
+          {
+            "label": "Code",
+            "body": "diem = 5;",
+            "tone": "go"
+          }
+        ],
+        "note": "Tên hộp có dấu thì code bỏ dấu: điểm thành diem, ngã tư thành nga_tu."
+      }
+    },
+    {
+      "kind": "build",
+      "id": "gan-diem",
+      "mode": "build",
+      "task": "Gán điểm bằng 5 rồi in ra MONITOR",
+      "help": [
+        "Kéo Serial: mở ra chỗ trống. Trong Nhiệm vụ: gán điểm bằng 5, rồi in điểm.",
+        "Cắm khối điểm (khối tròn) vào chỗ in."
+      ],
+      "toolbox": [
+        "board_serial_init",
+        "board_serial_print",
+        "<block type='vars_set_int'><field name='VAR_SET_INT' id='v_iem' variabletype='int'>điểm</field><value name='VALUE'><shadow type='math_number'><field name='NUM'>0</field></shadow></value></block>",
+        "<block type='vars_get_int'><field name='VAR_GET_INT' id='v_iem' variabletype='int'>điểm</field></block>",
+        "LbMission.beginImmediately_end"
+      ],
+      "newBlocks": [
+        "<block type='vars_set_int'><field name='VAR_SET_INT' id='v_iem' variabletype='int'>điểm</field><value name='VALUE'><shadow type='math_number'><field name='NUM'>0</field></shadow></value></block>",
+        "<block type='vars_get_int'><field name='VAR_GET_INT' id='v_iem' variabletype='int'>điểm</field></block>"
+      ],
+      "start": "<xml><variables><variable type='int' id='v_iem'>điểm</variable></variables><block type='LbMission.beginImmediately_end' x='40' y='40'></block></xml>",
+      "solution": "<xml><variables><variable type='int' id='v_iem'>điểm</variable></variables><block type='board_serial_init' x='40' y='10'><field name='SPEED'>115200</field></block><block type='LbMission.beginImmediately_end' x='40' y='40'><statement name='Body'><block type='vars_set_int'><field name='VAR_SET_INT' id='v_iem' variabletype='int'>điểm</field><value name='VALUE'><shadow type='math_number'><field name='NUM'>5</field></shadow></value><next><block type='board_serial_print'><field name='PRINT'>println</field><value name='CONTENT'><block type='vars_get_int'><field name='VAR_GET_INT' id='v_iem' variabletype='int'>điểm</field></block></value></block></next></block></statement></block></xml>",
+      "accept": [
+        "<xml><variables><variable type='int' id='v_iem'>điểm</variable></variables><block type='LbMission.beginImmediately_end' x='40' y='40'><statement name='Body'><block type='vars_set_int'><field name='VAR_SET_INT' id='v_iem' variabletype='int'>điểm</field><value name='VALUE'><shadow type='math_number'><field name='NUM'>5</field></shadow></value><next><block type='board_serial_print'><field name='PRINT'>println</field><value name='CONTENT'><block type='vars_get_int'><field name='VAR_GET_INT' id='v_iem' variabletype='int'>điểm</field></block></value></block></next></block></statement></block><block type='board_serial_init' x='40' y='560'><field name='SPEED'>115200</field></block></xml>"
+      ],
+      "hints": [
+        {
+          "match": "diem = 0;",
+          "say": "Ô số của khối gán vẫn là 0. Gõ 5."
+        },
+        {
+          "match": "Hello World",
+          "say": "Chỗ in vẫn là chữ mẫu. Cắm khối điểm vào."
+        }
+      ]
+    },
+    {
+      "kind": "build",
+      "id": "cong-them",
+      "mode": "build",
+      "task": "Bắt đầu từ 0, cộng thêm 1 ba lần, rồi in",
+      "help": [
+        "Trong lặp 3 lần: gán điểm bằng điểm + 1.",
+        "Cắm khối điểm vào ô trái của phép cộng, gõ 1 ở ô phải."
+      ],
+      "toolbox": [
+        "board_serial_init",
+        "board_serial_print",
+        "<block type='vars_set_int'><field name='VAR_SET_INT' id='v_iem' variabletype='int'>điểm</field><value name='VALUE'><shadow type='math_number'><field name='NUM'>0</field></shadow></value></block>",
+        "<block type='vars_get_int'><field name='VAR_GET_INT' id='v_iem' variabletype='int'>điểm</field></block>",
+        "math_arithmetic",
+        "controls_repeat_ext",
+        "LbMission.beginImmediately_end"
+      ],
+      "newBlocks": ["math_arithmetic"],
+      "start": "<xml><variables><variable type='int' id='v_iem'>điểm</variable></variables><block type='LbMission.beginImmediately_end' x='40' y='40'><statement name='Body'><block type='vars_set_int'><field name='VAR_SET_INT' id='v_iem' variabletype='int'>điểm</field><value name='VALUE'><shadow type='math_number'><field name='NUM'>0</field></shadow></value></block></statement></block></xml>",
+      "solution": "<xml><variables><variable type='int' id='v_iem'>điểm</variable></variables><block type='board_serial_init' x='40' y='10'><field name='SPEED'>115200</field></block><block type='LbMission.beginImmediately_end' x='40' y='40'><statement name='Body'><block type='vars_set_int'><field name='VAR_SET_INT' id='v_iem' variabletype='int'>điểm</field><value name='VALUE'><shadow type='math_number'><field name='NUM'>0</field></shadow></value><next><block type='controls_repeat_ext'><value name='TIMES'><shadow type='math_number'><field name='NUM'>3</field></shadow></value><statement name='DO'><block type='vars_set_int'><field name='VAR_SET_INT' id='v_iem' variabletype='int'>điểm</field><value name='VALUE'><block type='math_arithmetic'><field name='OP'>ADD</field><value name='A'><block type='vars_get_int'><field name='VAR_GET_INT' id='v_iem' variabletype='int'>điểm</field></block></value><value name='B'><shadow type='math_number'><field name='NUM'>1</field></shadow></value></block></value></block></statement><next><block type='board_serial_print'><field name='PRINT'>println</field><value name='CONTENT'><block type='vars_get_int'><field name='VAR_GET_INT' id='v_iem' variabletype='int'>điểm</field></block></value></block></next></block></next></block></statement></block></xml>",
+      "accept": [
+        "<xml><variables><variable type='int' id='v_iem'>điểm</variable></variables><block type='LbMission.beginImmediately_end' x='40' y='40'><statement name='Body'><block type='vars_set_int'><field name='VAR_SET_INT' id='v_iem' variabletype='int'>điểm</field><value name='VALUE'><shadow type='math_number'><field name='NUM'>0</field></shadow></value><next><block type='controls_repeat_ext'><value name='TIMES'><shadow type='math_number'><field name='NUM'>3</field></shadow></value><statement name='DO'><block type='vars_set_int'><field name='VAR_SET_INT' id='v_iem' variabletype='int'>điểm</field><value name='VALUE'><block type='math_arithmetic'><field name='OP'>ADD</field><value name='A'><block type='vars_get_int'><field name='VAR_GET_INT' id='v_iem' variabletype='int'>điểm</field></block></value><value name='B'><shadow type='math_number'><field name='NUM'>1</field></shadow></value></block></value></block></statement><next><block type='board_serial_print'><field name='PRINT'>println</field><value name='CONTENT'><block type='vars_get_int'><field name='VAR_GET_INT' id='v_iem' variabletype='int'>điểm</field></block></value></block></next></block></next></block></statement></block><block type='board_serial_init' x='40' y='560'><field name='SPEED'>115200</field></block></xml>"
+      ],
+      "hints": [
+        {
+          "match": "count < 10",
+          "say": "Lặp vẫn là 10 lần. Đổi thành 3."
+        },
+        {
+          "match": "diem = 1 + 2;",
+          "say": "Ô trái của phép cộng phải là khối điểm."
+        }
+      ]
+    },
+    {
+      "kind": "build",
+      "id": "dem-nga-tu",
+      "mode": "build",
+      "task": "Mỗi lần 4 mắt thấy ⬛⬛⬛⬛ thì cộng 1 và in",
+      "help": [
+        "Ngã tư là chỗ cả bốn mắt cùng thấy đen.",
+        "Trong nếu: ngã tư + 1, in ngã tư, chờ 0.5 giây để không đếm hai lần."
+      ],
+      "toolbox": [
+        "board_serial_init",
+        "board_serial_print",
+        "<block type='vars_set_int'><field name='VAR_SET_INT' id='v_nga_tu' variabletype='int'>ngã tư</field><value name='VALUE'><shadow type='math_number'><field name='NUM'>0</field></shadow></value></block>",
+        "<block type='vars_get_int'><field name='VAR_GET_INT' id='v_nga_tu' variabletype='int'>ngã tư</field></block>",
+        "math_arithmetic",
+        "Leanbot.delay"
+      ],
+      "start": "<xml><variables><variable type='int' id='v_nga_tu'>ngã tư</variable></variables><block type='LbMission.beginImmediately_end' x='40' y='40'><statement name='Body'><block type='vars_set_int'><field name='VAR_SET_INT' id='v_nga_tu' variabletype='int'>ngã tư</field><value name='VALUE'><shadow type='math_number'><field name='NUM'>0</field></shadow></value><next><block type='controls_whileUntil'><field name='MODE'>WHILE</field><value name='BOOL'><block type='logic_boolean'><field name='BOOL'>TRUE</field></block></value><statement name='DO'><block type='LbIRLine.read'><next><block type='controls_if'><value name='IF0'><block type='logic_compare'><field name='OP'>EQ</field><value name='A'><block type='LbIRLine.value'></block></value><value name='B'><block type='LbIRLine.state'><field name='state0'>#000000</field><field name='state1'>#000000</field><field name='state2'>#000000</field><field name='state3'>#000000</field></block></value></block></value></block></next></block></statement></block></next></block></statement></block><block type='board_serial_init' x='40' y='560'><field name='SPEED'>115200</field></block></xml>",
+      "solution": "<xml><variables><variable type='int' id='v_nga_tu'>ngã tư</variable></variables><block type='LbMission.beginImmediately_end' x='40' y='40'><statement name='Body'><block type='vars_set_int'><field name='VAR_SET_INT' id='v_nga_tu' variabletype='int'>ngã tư</field><value name='VALUE'><shadow type='math_number'><field name='NUM'>0</field></shadow></value><next><block type='controls_whileUntil'><field name='MODE'>WHILE</field><value name='BOOL'><block type='logic_boolean'><field name='BOOL'>TRUE</field></block></value><statement name='DO'><block type='LbIRLine.read'><next><block type='controls_if'><value name='IF0'><block type='logic_compare'><field name='OP'>EQ</field><value name='A'><block type='LbIRLine.value'></block></value><value name='B'><block type='LbIRLine.state'><field name='state0'>#000000</field><field name='state1'>#000000</field><field name='state2'>#000000</field><field name='state3'>#000000</field></block></value></block></value><statement name='DO0'><block type='vars_set_int'><field name='VAR_SET_INT' id='v_nga_tu' variabletype='int'>ngã tư</field><value name='VALUE'><block type='math_arithmetic'><field name='OP'>ADD</field><value name='A'><block type='vars_get_int'><field name='VAR_GET_INT' id='v_nga_tu' variabletype='int'>ngã tư</field></block></value><value name='B'><shadow type='math_number'><field name='NUM'>1</field></shadow></value></block></value><next><block type='board_serial_print'><field name='PRINT'>println</field><value name='CONTENT'><block type='vars_get_int'><field name='VAR_GET_INT' id='v_nga_tu' variabletype='int'>ngã tư</field></block></value><next><block type='Leanbot.delay'><field name='Unit'>seconds</field><value name='Delay'><shadow type='math_number'><field name='NUM'>0.5</field></shadow></value></block></next></block></next></block></statement></block></next></block></statement></block></next></block></statement></block><block type='board_serial_init' x='40' y='560'><field name='SPEED'>115200</field></block></xml>",
+      "accept": [
+        "<xml><variables><variable type='int' id='v_nga_tu'>ngã tư</variable></variables><block type='board_serial_init' x='40' y='10'><field name='SPEED'>115200</field></block><block type='LbMission.beginImmediately_end' x='40' y='40'><statement name='Body'><block type='vars_set_int'><field name='VAR_SET_INT' id='v_nga_tu' variabletype='int'>ngã tư</field><value name='VALUE'><shadow type='math_number'><field name='NUM'>0</field></shadow></value><next><block type='controls_whileUntil'><field name='MODE'>WHILE</field><value name='BOOL'><block type='logic_boolean'><field name='BOOL'>TRUE</field></block></value><statement name='DO'><block type='LbIRLine.read'><next><block type='controls_if'><value name='IF0'><block type='logic_compare'><field name='OP'>EQ</field><value name='A'><block type='LbIRLine.value'></block></value><value name='B'><block type='LbIRLine.state'><field name='state0'>#000000</field><field name='state1'>#000000</field><field name='state2'>#000000</field><field name='state3'>#000000</field></block></value></block></value><statement name='DO0'><block type='vars_set_int'><field name='VAR_SET_INT' id='v_nga_tu' variabletype='int'>ngã tư</field><value name='VALUE'><block type='math_arithmetic'><field name='OP'>ADD</field><value name='A'><block type='vars_get_int'><field name='VAR_GET_INT' id='v_nga_tu' variabletype='int'>ngã tư</field></block></value><value name='B'><shadow type='math_number'><field name='NUM'>1</field></shadow></value></block></value><next><block type='board_serial_print'><field name='PRINT'>println</field><value name='CONTENT'><block type='vars_get_int'><field name='VAR_GET_INT' id='v_nga_tu' variabletype='int'>ngã tư</field></block></value><next><block type='Leanbot.delay'><field name='Unit'>seconds</field><value name='Delay'><shadow type='math_number'><field name='NUM'>0.5</field></shadow></value></block></next></block></next></block></statement></block></next></block></statement></block></next></block></statement></block></xml>"
+      ]
+    },
+    {
+      "kind": "read",
+      "id": "robot-dem",
+      "screen": {
+        "part": "Robot thật",
+        "title": "Rê robot qua ngã tư",
+        "steps": [
+          ["1", "Cân chỉnh mắt dò vạch như Bài 7"],
+          ["2", "Chép code, nạp, mở MONITOR 115200"],
+          ["3", "Cầm robot rê chậm qua từng ngã tư"],
+          ["4", "Số trên MONITOR tăng 1 mỗi ngã tư?"]
+        ],
+        "links": [
+          {
+            "label": "Leanbot IDE",
+            "href": "https://ide.pythaverse.space/#/code"
+          }
+        ],
+        "tip": "Gửi lệnh ở MONITOR phải tích ô NL, như ở Bài 0.",
+        "check": "MONITOR đếm đúng số ngã tư",
+        "checkId": "robot-dem-nga-tu"
+      },
+      "program": "<xml><variables><variable type='int' id='v_nga_tu'>ngã tư</variable></variables><block type='LbMission.beginImmediately_end' x='40' y='40'><statement name='Body'><block type='vars_set_int'><field name='VAR_SET_INT' id='v_nga_tu' variabletype='int'>ngã tư</field><value name='VALUE'><shadow type='math_number'><field name='NUM'>0</field></shadow></value><next><block type='controls_whileUntil'><field name='MODE'>WHILE</field><value name='BOOL'><block type='logic_boolean'><field name='BOOL'>TRUE</field></block></value><statement name='DO'><block type='LbIRLine.read'><next><block type='controls_if'><value name='IF0'><block type='logic_compare'><field name='OP'>EQ</field><value name='A'><block type='LbIRLine.value'></block></value><value name='B'><block type='LbIRLine.state'><field name='state0'>#000000</field><field name='state1'>#000000</field><field name='state2'>#000000</field><field name='state3'>#000000</field></block></value></block></value><statement name='DO0'><block type='vars_set_int'><field name='VAR_SET_INT' id='v_nga_tu' variabletype='int'>ngã tư</field><value name='VALUE'><block type='math_arithmetic'><field name='OP'>ADD</field><value name='A'><block type='vars_get_int'><field name='VAR_GET_INT' id='v_nga_tu' variabletype='int'>ngã tư</field></block></value><value name='B'><shadow type='math_number'><field name='NUM'>1</field></shadow></value></block></value><next><block type='board_serial_print'><field name='PRINT'>println</field><value name='CONTENT'><block type='vars_get_int'><field name='VAR_GET_INT' id='v_nga_tu' variabletype='int'>ngã tư</field></block></value><next><block type='Leanbot.delay'><field name='Unit'>seconds</field><value name='Delay'><shadow type='math_number'><field name='NUM'>0.5</field></shadow></value></block></next></block></next></block></statement></block></next></block></statement></block></next></block></statement></block><block type='board_serial_init' x='40' y='560'><field name='SPEED'>115200</field></block></xml>"
+    }
+  ]
+}
