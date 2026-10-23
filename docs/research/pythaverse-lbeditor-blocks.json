@@ -1,0 +1,657 @@
+{
+ "source": "https://ide.pythaverse.space/lbeditor/ (Blockly 3.20200924.3, generator 2024-09-15)",
+ "extracted": "2026-10-23",
+ "toolbox": [
+  {
+   "category": "Logic",
+   "type": "controls_if",
+   "en": "if ? do ?",
+   "vi": "if ? do ?",
+   "code": "if (false) {\n}"
+  },
+  {
+   "category": "Logic",
+   "type": "logic_compare",
+   "en": "? = ?",
+   "vi": "? = ?",
+   "code": "(0 == 0)"
+  },
+  {
+   "category": "Logic",
+   "type": "logic_operation",
+   "en": "? and ?",
+   "vi": "? and ?",
+   "code": "false && false"
+  },
+  {
+   "category": "Logic",
+   "type": "logic_negate",
+   "en": "not ?",
+   "vi": "not ?",
+   "code": "!false"
+  },
+  {
+   "category": "Logic",
+   "type": "logic_boolean",
+   "en": "true",
+   "vi": "true",
+   "code": "true"
+  },
+  {
+   "category": "Logic",
+   "type": "logic_null",
+   "en": "null",
+   "vi": "null",
+   "code": "null"
+  },
+  {
+   "category": "Logic",
+   "type": "logic_ternary",
+   "en": "test ? if true ? if false ?",
+   "vi": "test ? if true ? if false ?",
+   "code": "false ? null : null"
+  },
+  {
+   "category": "Logic",
+   "type": "controls_switch",
+   "en": "Switch (i) case ? do ?",
+   "vi": "Switch (i) case ? do ?",
+   "code": "switch (i) {\n  case false:\n}"
+  },
+  {
+   "category": "Loops",
+   "type": "controls_repeat_ext",
+   "en": "repeat 10 times do ?",
+   "vi": "repeat 10 times do ?",
+   "code": "for (int count = 0; count < 10; count++) {\n}"
+  },
+  {
+   "category": "Loops",
+   "type": "controls_repeat",
+   "en": "repeat 10 times do ?",
+   "vi": "repeat 10 times do ?",
+   "code": "for (int count2 = 0; count2 < 10; count2++) {\n}"
+  },
+  {
+   "category": "Loops",
+   "type": "controls_whileUntil",
+   "en": "repeat while ? do ?",
+   "vi": "repeat while ? do ?",
+   "code": "while (false) {\n}"
+  },
+  {
+   "category": "Loops",
+   "type": "controls_for",
+   "en": "count with j from 1 to 10 by 1 do ?",
+   "vi": "count with j from 1 to 10 by 1 do ?",
+   "code": "for (int j = 1; j <= 10; j++) {\n}"
+  },
+  {
+   "category": "Loops",
+   "type": "controls_forEach",
+   "en": "for each item k in list ? do ?",
+   "vi": "for each item k in list ? do ?",
+   "code": "var k_list = [];\nfor (var k_index in k_list) {\n  k = k_list[k_index];\n}"
+  },
+  {
+   "category": "Loops",
+   "type": "controls_flow_statements",
+   "en": "break out of loop",
+   "vi": "break out of loop",
+   "code": "break;"
+  },
+  {
+   "category": "Math",
+   "type": "math_number",
+   "en": "123",
+   "vi": "123",
+   "code": "123"
+  },
+  {
+   "category": "Math",
+   "type": "math_constant",
+   "en": "π",
+   "vi": "π",
+   "code": "PI"
+  },
+  {
+   "category": "Math",
+   "type": "math_arithmetic",
+   "en": "1 + 2",
+   "vi": "1 + 2",
+   "code": "1 + 2"
+  },
+  {
+   "category": "Math",
+   "type": "math_modulo",
+   "en": "remainder of 64 ÷ 10",
+   "vi": "remainder of 64 ÷ 10",
+   "code": "64 % 10"
+  },
+  {
+   "category": "Math",
+   "type": "math_number_property",
+   "en": "0 is even",
+   "vi": "0 is even",
+   "code": "(0 % 2) == 0"
+  },
+  {
+   "category": "Math",
+   "type": "math_round",
+   "en": "round 3.14",
+   "vi": "round 3.14",
+   "code": "round(3.14)"
+  },
+  {
+   "category": "Math",
+   "type": "math_single",
+   "en": "abs 9",
+   "vi": "",
+   "code": ""
+  },
+  {
+   "category": "Math",
+   "type": "math_multiple2",
+   "en": "max 2 3",
+   "vi": "max 2 3",
+   "code": "max(2, 3)"
+  },
+  {
+   "category": "Math",
+   "type": "math_trig",
+   "en": "cos 45 degrees",
+   "vi": "cos 45 degrees",
+   "code": "cos(radians(45))"
+  },
+  {
+   "category": "Math",
+   "type": "math_constrain",
+   "en": "Constrain 50 to be within range 1 to 100",
+   "vi": "constrain 50 low 1 high 100",
+   "code": "constrain(50, 1, 100)"
+  },
+  {
+   "category": "Math",
+   "type": "math_map",
+   "en": "Map from 712 , such as 0 map to 0 1023 map to 100",
+   "vi": "Map from 712 , such as 0 map to 0 1023 map to 100",
+   "code": "map(712, 0, 1023, 0, 100)"
+  },
+  {
+   "category": "Math",
+   "type": "math_random_int",
+   "en": "Random integer in range 0 to 100",
+   "vi": "random integer from 0 to 100",
+   "code": "random(0, 100)"
+  },
+  {
+   "category": "Math",
+   "type": "math_random_seed",
+   "en": "Initialize random generator with seed (read value on the analog input A0)",
+   "vi": "Leanbot bắt đầu hoạt động Mission: Begin when TB1A + TB1B combo touched ? Mission: End",
+   "code": "randomSeed(0);"
+  },
+  {
+   "category": "In/Out",
+   "type": "board_base_inout_buildin_led",
+   "en": "put the LEDs on the card to logic HIGH",
+   "vi": "put the LEDs on the card to logic HIGH",
+   "code": "digitalWrite(LED_BUILTIN, HIGH);"
+  },
+  {
+   "category": "In/Out",
+   "type": "board_base_inout_digital_write",
+   "en": "put the pin Digital 0 to logic state HIGH",
+   "vi": "put the pin Digital 0 to logic state HIGH",
+   "code": "digitalWrite(0, HIGH);"
+  },
+  {
+   "category": "In/Out",
+   "type": "board_base_inout_digital_read",
+   "en": "the logic state of PIN# 0",
+   "vi": "the logic state of PIN# 0",
+   "code": "digitalRead(0)"
+  },
+  {
+   "category": "In/Out",
+   "type": "board_base_inout_highlow",
+   "en": "HIGH",
+   "vi": "HIGH",
+   "code": "HIGH"
+  },
+  {
+   "category": "In/Out",
+   "type": "board_base_inout_analog_write",
+   "en": "write about Analog pin 3 value 0",
+   "vi": "write about Analog pin 3 value 0",
+   "code": "analogWrite(3, 0);"
+  },
+  {
+   "category": "In/Out",
+   "type": "board_base_inout_analog_read",
+   "en": "read value on the analog input A0",
+   "vi": "read value on the analog input A0",
+   "code": "analogRead(A0)"
+  },
+  {
+   "category": "In/Out",
+   "type": "board_base_delay",
+   "en": "delay (in ms) 1234",
+   "vi": "delay (in ms) 1234",
+   "code": "delay(1234);"
+  },
+  {
+   "category": "In/Out",
+   "type": "board_base_angle",
+   "en": "angle:  90",
+   "vi": "angle:  90",
+   "code": "90"
+  },
+  {
+   "category": "In/Out",
+   "type": "board_base_map",
+   "en": "Map value 250 of range 0 - 1023 to range 0 - 255",
+   "vi": "Map value 250 of range 0 - 1023 to range 0 - 255",
+   "code": "map(250, 0, 1023, 0, 255)"
+  },
+  {
+   "category": "In/Out",
+   "type": "board_base_inout_tone",
+   "en": "emits sound on the pin 0 on frequency (Hz) 440",
+   "vi": "emits sound on the pin 0 on frequency (Hz) 440",
+   "code": "tone(0, 440);"
+  },
+  {
+   "category": "In/Out",
+   "type": "board_base_inout_notone",
+   "en": "stop sound on the pin 0",
+   "vi": "stop sound on the pin 0",
+   "code": "noTone(0);"
+  },
+  {
+   "category": "Serial",
+   "type": "text",
+   "en": "“ some text ”",
+   "vi": "“ some text ”",
+   "code": "\"some text\""
+  },
+  {
+   "category": "Serial",
+   "type": "board_serial_init",
+   "en": "Serial: Init with speed 115200 baud",
+   "vi": "Serial communication init speed 115200",
+   "code": ""
+  },
+  {
+   "category": "Serial",
+   "type": "board_serial_print",
+   "en": "Serial: Println “ Hello World! ”",
+   "vi": "Print  Format Println “ Hello World! ”",
+   "code": "Serial.println(\"Hello World!\");"
+  },
+  {
+   "category": "Serial",
+   "type": "board_serial_available",
+   "en": "Serial: Is data available?",
+   "vi": "Serial Available?",
+   "code": "Serial.available()"
+  },
+  {
+   "category": "Serial",
+   "type": "board_serial_read",
+   "en": "Serial: Read",
+   "vi": "Serial Read",
+   "code": "Serial.read()"
+  },
+  {
+   "category": "Serial",
+   "type": "board_serial_readStringUntil",
+   "en": "Serial: Read until “ \\n ”",
+   "vi": "String read until “ \\n ”",
+   "code": "Serial.readStringUntil('\\n')"
+  },
+  {
+   "category": "Serial",
+   "type": "board_serial_flush",
+   "en": "Serial: Flush",
+   "vi": "Serial flush",
+   "code": "Serial.flush();"
+  },
+  {
+   "category": "Leanbot",
+   "type": "Leanbot.commentLine",
+   "en": "⠀ Comment",
+   "vi": "⠀ Mô tả",
+   "code": "// Mô tả"
+  },
+  {
+   "category": "Leanbot",
+   "type": "Leanbot.section",
+   "en": "⠀ Comment ?",
+   "vi": "⠀ Mô tả ?",
+   "code": "{ // Mô tả\n}"
+  },
+  {
+   "category": "Leanbot",
+   "type": "Leanbot.delay",
+   "en": "Wait for 1.25 seconds",
+   "vi": "Chờ 1.25 giây",
+   "code": "LbDelay(1.25 * 1000);"
+  },
+  {
+   "category": "Leanbot",
+   "type": "LbMission.elapsedMillis",
+   "en": "Mission: elapsed Time in seconds",
+   "vi": "Mission: elapsed Time in giây",
+   "code": "LbMission.elapsedMillis() / 1000"
+  },
+  {
+   "category": "Leanbot",
+   "type": "LbMission.beginByTeacher_end",
+   "en": "Mission: Begin when TB1A + TB1B combo touched ? Mission: End",
+   "vi": "Mission: Begin when TB1A + TB1B combo touched ? Mission: End",
+   "code": "LbMission.begin(TB1A + TB1B);\nLbMission.end();"
+  },
+  {
+   "category": "Leanbot",
+   "type": "LbMission.beginImmediately_end",
+   "en": "Mission: Begin immediately ? Mission: End",
+   "vi": "Nhiệm vụ: Bắt đầu ngay lập tức ? Nhiệm vụ: Kết thúc",
+   "code": "LbMission.begin(0);\nLbMission.end();"
+  },
+  {
+   "category": "Leanbot",
+   "type": "LbMission.missionSelect",
+   "en": "“ msNumberGrid ”",
+   "vi": "“ msNumberGrid ”",
+   "code": "\"msNumberGrid\""
+  },
+  {
+   "category": "Leanbot",
+   "type": "LbMission.beginBySelect_end",
+   "en": "Mission: Begin Digital Twin “ mission name ” ? Mission: End",
+   "vi": "Mission: Begin Digital Twin “ mission name ” ? Mission: End",
+   "code": "LbMission.beginDigitalTwin(F(\"mission name\"));\nLbMission.end();"
+  },
+  {
+   "category": "Leanbot",
+   "type": "LbMission.end",
+   "en": "Mission: End",
+   "vi": "Mission: End",
+   "code": "LbMission.end();"
+  },
+  {
+   "category": "Leanbot",
+   "type": "Leanbot.whenStarted",
+   "en": "When Leanbot started",
+   "vi": "Leanbot bắt đầu hoạt động",
+   "code": ""
+  },
+  {
+   "category": "Leanbot",
+   "type": "Leanbot.DCMotor.setPower",
+   "en": "DC Motor: Run forward at power level 100 %",
+   "vi": "DC Motor: Run forward at power level 100 %",
+   "code": "Leanbot.DCMotor.setPower(100 * 255 / 100);"
+  },
+  {
+   "category": "Motion",
+   "type": "LbMotion.run",
+   "en": "Motion: Run with velocity Left 30 Right 30 rpm",
+   "vi": "Di chuyển: Chạy với vận tốc Trái 30 Phải 30 vòng/phút",
+   "code": "LbMotion.runLRrpm(30, 30);"
+  },
+  {
+   "category": "Motion",
+   "type": "LbMotion.waitDistanceMm",
+   "en": "Motion: Keep running for 4.2 cm",
+   "vi": "Di chuyển: Chạy đoạn đường 4.2 cm",
+   "code": "LbMotion.waitDistanceMm(4.2 * 10);"
+  },
+  {
+   "category": "Motion",
+   "type": "LbMotion.waitRotationDeg",
+   "en": "Motion: Keep turning for 90 degrees",
+   "vi": "Di chuyển: Rẽ góc 90 độ",
+   "code": "LbMotion.waitRotationDeg(90);"
+  },
+  {
+   "category": "Motion",
+   "type": "LbMotion.wait",
+   "en": "Motion: Keep running for 1.25 seconds",
+   "vi": "Di chuyển: Tiếp tục chạy trong 1.25 giây",
+   "code": "LbDelay(1.25 * 1000);"
+  },
+  {
+   "category": "Motion",
+   "type": "LbMotion.stop",
+   "en": "Motion: Stop",
+   "vi": "Di chuyển: Dừng",
+   "code": "LbMotion.stopAndWait();"
+  },
+  {
+   "category": "Motion",
+   "type": "LbMotion.approxDistance",
+   "en": "Motion: approx. Distance in mm",
+   "vi": "Di chuyển: approx. Distance in mm",
+   "code": "LbMotion.getDistanceMm()"
+  },
+  {
+   "category": "Motion",
+   "type": "LbMotion.approxHeading",
+   "en": "Motion: approx. Heading in degrees",
+   "vi": "Di chuyển: approx. Heading in độ",
+   "code": "LbMotion.getRotationDeg()"
+  },
+  {
+   "category": "Motion",
+   "type": "LbMotion.setZeroOrigin",
+   "en": "Motion: Reset Distance and Heading",
+   "vi": "Di chuyển: Reset Distance and Heading",
+   "code": "LbMotion.setZeroOrigin();"
+  },
+  {
+   "category": "Gripper",
+   "type": "LbGripper.open",
+   "en": "Gripper: Open",
+   "vi": "Gripper: Open",
+   "code": "LbGripper.open();"
+  },
+  {
+   "category": "Gripper",
+   "type": "LbGripper.close",
+   "en": "Gripper: Close",
+   "vi": "Gripper: Close",
+   "code": "LbGripper.close();"
+  },
+  {
+   "category": "Gripper",
+   "type": "LbGripper.moveTo",
+   "en": "Gripper: Rotate to 45 degrees",
+   "vi": "Gripper: Rotate to 45 độ",
+   "code": "LbGripper.moveTo(45);"
+  },
+  {
+   "category": "Gripper",
+   "type": "LbGripper.moveToLR",
+   "en": "Gripper: Rotate Left to 30 and Right to 60 degrees in 1000 milliseconds",
+   "vi": "Gripper: Rotate Left to 30 and Right to 60 độ in 1000 mili giây",
+   "code": "LbGripper.moveToLR(30, 60, 1000);"
+  },
+  {
+   "category": "Gripper",
+   "type": "LbGripper.help",
+   "en": "*",
+   "vi": "*",
+   "code": ""
+  },
+  {
+   "category": "RGB Leds",
+   "type": "LbRGB.help",
+   "en": "*",
+   "vi": "*",
+   "code": ""
+  },
+  {
+   "category": "RGB Leds",
+   "type": "LbRGB.clear_show",
+   "en": "RGB Leds: Clear ? RGB Leds: Display",
+   "vi": "RGB Leds: Clear ? RGB Leds: Display",
+   "code": "LbRGB.clear();\nLbRGB.show();"
+  },
+  {
+   "category": "RGB Leds",
+   "type": "LbRGB.setColor",
+   "en": "RGB Leds: Set ledO to Color: #fff",
+   "vi": "RGB Leds: Set ledO to Màu sắc: #fff",
+   "code": "LbRGB[ledO] = 0x00ffff;"
+  },
+  {
+   "category": "RGB Leds",
+   "type": "LbRGB.setColorText",
+   "en": "RGB Leds: Set ledO to Yellow ?",
+   "vi": "RGB Leds: Set ledO to Yellow ?",
+   "code": "LbRGB[ledO] = CRGB::Yellow;"
+  },
+  {
+   "category": "RGB Leds",
+   "type": "LbRGB.fillColor",
+   "en": "RGB Leds: Fill (Shape: O true A true B true C true D true E true F true) with Color: #fff",
+   "vi": "RGB Leds: Fill (Shape: O true A true B true C true D true E true F true) with Màu sắc: #fff",
+   "code": "LbRGB.fillColor(0xffff00, BITMAP(ledO, ledA, ledB, ledC, ledD, ledE, ledF));"
+  },
+  {
+   "category": "RGB Leds",
+   "type": "LbRGB.colour_picker",
+   "en": "Color: #fff",
+   "vi": "Màu sắc: #fff",
+   "code": "0xff0000"
+  },
+  {
+   "category": "RGB Leds",
+   "type": "LbRGB.colour_random",
+   "en": "Color: Random",
+   "vi": "Màu sắc: Random",
+   "code": "CRGB(random8(), random8(), random8())"
+  },
+  {
+   "category": "RGB Leds",
+   "type": "LbRGB.colour_rgb",
+   "en": "Color: R 255 G 0 B 0",
+   "vi": "Màu sắc: R 255 G 0 B 0",
+   "code": "0xff0000"
+  },
+  {
+   "category": "RGB Leds",
+   "type": "LbRGB.colour_blend",
+   "en": "Color: Blend #fff and #fff with ratio 0.5",
+   "vi": "Màu sắc: Blend #fff and #fff with ratio 0.5",
+   "code": "0x008080"
+  },
+  {
+   "category": "RGB Leds",
+   "type": "LbRGB.clear",
+   "en": "RGB Leds: Clear",
+   "vi": "RGB Leds: Clear",
+   "code": "LbRGB.clear();"
+  },
+  {
+   "category": "RGB Leds",
+   "type": "LbRGB.show",
+   "en": "RGB Leds: Display",
+   "vi": "RGB Leds: Display",
+   "code": "LbRGB.show();"
+  },
+  {
+   "category": "Sound",
+   "type": "Leanbot.toneDuration",
+   "en": "Sound: Play 1500 Hz tone for 100 milliseconds",
+   "vi": "Sound: Play 1500 Hz tone for 100 mili giây",
+   "code": "Leanbot.tone(1500, 100);\nLbDelay(100);"
+  },
+  {
+   "category": "Sensors",
+   "type": "LbTouch.waitUntil",
+   "en": "Touch: wait until TB1A touched",
+   "vi": "Touch: wait until TB1A touched",
+   "code": "while (LbTouch.read(TB1A) == LOW);"
+  },
+  {
+   "category": "Sensors",
+   "type": "LbTouch.read",
+   "en": "Touch: TB1A is touched ?",
+   "vi": "Touch: TB1A is touched ?",
+   "code": "(LbTouch.read(TB1A) == HIGH)"
+  },
+  {
+   "category": "Sensors",
+   "type": "Leanbot.ping",
+   "en": "Ping: Front distance in cm",
+   "vi": "Ping: Front distance in cm",
+   "code": "Leanbot.pingCm()"
+  },
+  {
+   "category": "Sensors",
+   "type": "Leanbot.objectInFront",
+   "en": "Ping: Object in front is within 25 cm distance ?",
+   "vi": "Ping: Object in front is within 25 cm distance ?",
+   "code": "Leanbot.pingCm() <= 25"
+  },
+  {
+   "category": "IRLine",
+   "type": "LbIRLine.doManualCalibration",
+   "en": "IRLine: Do manual calibration with TB1A button",
+   "vi": "IRLine: Do manual calibration with TB1A button",
+   "code": ""
+  },
+  {
+   "category": "IRLine",
+   "type": "LbIRLine.setThreshold",
+   "en": "IRLine: Set threshold  2L 300 0L 300 1R 300 3R 300",
+   "vi": "IRLine: Set threshold  2L 300 0L 300 1R 300 3R 300",
+   "code": ""
+  },
+  {
+   "category": "IRLine",
+   "type": "LbIRLine.read",
+   "en": "IRLine: Read sensors",
+   "vi": "IRLine: Read sensors",
+   "code": "LbIRLine.read();"
+  },
+  {
+   "category": "IRLine",
+   "type": "LbIRLine.displayOnRGB",
+   "en": "IRLine: Display on RGB with Color: #fff",
+   "vi": "IRLine: Display on RGB with Màu sắc: #fff",
+   "code": "LbIRLine.displayOnRGB(0x00ff00);"
+  },
+  {
+   "category": "IRLine",
+   "type": "LbIRLine.isBlackDetected",
+   "en": "IRLine: Black is detected ?",
+   "vi": "IRLine: Black is detected ?",
+   "code": "LbIRLine.isBlackDetected()"
+  },
+  {
+   "category": "IRLine",
+   "type": "LbIRLine.value",
+   "en": "IRLine: Sensor values (2L, 0L, 1R, 3R)",
+   "vi": "IRLine: Sensor values (2L, 0L, 1R, 3R)",
+   "code": "LbIRLine.value()"
+  },
+  {
+   "category": "IRLine",
+   "type": "LbIRLine.state",
+   "en": "IRLine: #fff #fff #fff #fff",
+   "vi": "IRLine: #fff #fff #fff #fff",
+   "code": "0"
+  },
+  {
+   "category": "IRLine",
+   "type": "LbIRLine.help",
+   "en": "*",
+   "vi": "*",
+   "code": ""
+  }
+ ]
+}

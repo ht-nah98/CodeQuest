@@ -17,6 +17,7 @@ Nếu hai tài liệu nói khác nhau, **tài liệu ở cột "Nguồn chuẩn"
 | Lý do gốc của các quyết định sản phẩm (bản kế hoạch đầu tiên; **không** thắng khi mâu thuẫn với tài liệu chuyên đề) | `product/master-plan.md` |
 | Chương trình học: 10 thế giới, khái niệm, số màn | `product/curriculum.md` |
 | Đặc tả từng kiểu game | `product/game-kinds.md` |
+| Bản đồ thứ hai "Thế giới Leanbot": khối Pythaverse bằng tiếng Việt, Màn 0 khối ↔ code (**bản nháp chờ HLV duyệt**) | `product/the-gioi-leanbot.md` |
 | **Khóa Leanbot** (khóa thứ hai trong app, ADR-0028): giáo trình, giáo án, thiết bị, nền tảng | **`leanbot/`** — mục lục ở `leanbot/README.md`, nguồn chuẩn ở `leanbot/giao-trinh.md` |
 | Thông tin cuộc thi AIROC 2026 | `product/airoc-2026.md` |
 | Sao, coin, giá gợi ý, huy hiệu, mở khóa | `product/rewards-economy.md` |
