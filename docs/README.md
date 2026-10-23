@@ -18,6 +18,7 @@ Nếu hai tài liệu nói khác nhau, **tài liệu ở cột "Nguồn chuẩn"
 | Chương trình học: 10 thế giới, khái niệm, số màn | `product/curriculum.md` |
 | Đặc tả từng kiểu game | `product/game-kinds.md` |
 | Bản đồ thứ hai "Thế giới Leanbot": khối Pythaverse bằng tiếng Việt, Màn 0 khối ↔ code (đã duyệt 23/10; Màn 0 đã có, chỉ HLV thấy) | `product/the-gioi-leanbot.md` |
+| Bài giảng của Thế giới Leanbot: 6 chặng, 15 bài, ~112 màn từ làm quen tới thi AIROC (**kế hoạch chờ HLV duyệt**) | `product/the-gioi-leanbot-bai-giang.md` |
 | **Khóa Leanbot** (khóa thứ hai trong app, ADR-0028): giáo trình, giáo án, thiết bị, nền tảng | **`leanbot/`** — mục lục ở `leanbot/README.md`, nguồn chuẩn ở `leanbot/giao-trinh.md` |
 | Thông tin cuộc thi AIROC 2026 | `product/airoc-2026.md` |
 | Sao, coin, giá gợi ý, huy hiệu, mở khóa | `product/rewards-economy.md` |
