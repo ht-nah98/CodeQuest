@@ -28,8 +28,14 @@ describe('rule 29: Thế giới Leanbot lessons', () => {
   it('flags a solution that needs a block the toolbox does not offer', () => {
     const issues = leanbotWorldIssues(lesson({ toolbox, solution: mission(gripper) }));
     expect(issues.map((i) => i.message)).toEqual([
-      'screens.0 (a): the solution uses LbGripper.open, which the toolbox does not offer',
+      'screens.0 (a): the solution uses LbGripper.open, which neither the toolbox nor the start offers',
     ]);
+  });
+
+  it('a block the starting program holds needs no place in the toolbox', () => {
+    const start = mission(gripper);
+    const solution = mission(`<block type='LbGripper.open'><next>${stop}</next></block>`);
+    expect(leanbotWorldIssues(lesson({ mode: 'fix', toolbox, start, solution }))).toEqual([]);
   });
 
   it('flags a block type that does not exist', () => {

@@ -44,16 +44,74 @@ export interface FlyoutToolbox {
   contents: ({ kind: 'block'; blockxml: string } | { kind: 'label'; text: string })[];
 }
 
+/** Up to this many blocks a lesson toolbox stays open as one list; more go into groups. */
+const OPEN_TOOLBOX_MAX = 5;
+
+/** Pythaverse's categories holding only `types`, empty ones left out. */
+function onlyTypes(c: LbCategory, types: readonly string[]): WorkshopCategory | null {
+  const blocks = (c.blocks ?? []).filter((xml) => types.includes(typeOf(xml)));
+  const children = (c.children ?? [])
+    .map((child) => onlyTypes(child, types))
+    .filter((child): child is WorkshopCategory => child !== null);
+  if (blocks.length === 0 && children.length === 0) return null;
+  return {
+    kind: 'category',
+    name: c.name,
+    colour: c.colour,
+    contents: [...blocks.map((xml) => ({ kind: 'block' as const, blockxml: xml })), ...children],
+  };
+}
+
+function blockTypesOf(c: WorkshopCategory): string[] {
+  return c.contents.flatMap((item) =>
+    item.kind === 'block' ? [typeOf(item.blockxml)] : blockTypesOf(item),
+  );
+}
+
+const typeOf = (xml: string) => /type=['"]([^'"]+)['"]/.exec(xml)?.[1] ?? '';
+
 /**
- * The toolbox of a lesson screen: the blocks met for the first time on top under "Khối mới",
- * then the ones already learnt. Each comes with Pythaverse's starting values.
+ * The toolbox of a lesson screen. A few blocks: one open list, the blocks met for the first
+ * time on top under "Khối mới". More: Pythaverse's groups holding only these blocks, with a
+ * "Khối mới" group first, so the open list never covers the workspace.
  */
 export function lessonToolbox(
   types: readonly string[],
   newTypes: readonly string[] = [],
-): FlyoutToolbox {
+): FlyoutToolbox | WorkshopToolbox {
   const block = (type: string) => ({ kind: 'block' as const, blockxml: toolboxXml(type) });
   const old = types.filter((type) => !newTypes.includes(type));
+  if (types.length > OPEN_TOOLBOX_MAX) {
+    const groups = LB_TOOLBOX.map((c) => onlyTypes(c, types)).filter(
+      (c): c is WorkshopCategory => c !== null,
+    );
+    const fresh: WorkshopCategory[] =
+      newTypes.length > 0
+        ? [
+            {
+              kind: 'category',
+              name: vi.leanbotWorld.newBlocks,
+              colour: '#fbc73f',
+              contents: newTypes.map(block),
+            },
+          ]
+        : [];
+    // Blocks only the dynamic categories list (typed variables, functions) go in one more group.
+    const listed = new Set(groups.flatMap(blockTypesOf));
+    const rest = types.filter((type) => !listed.has(type) && !newTypes.includes(type));
+    const other: WorkshopCategory[] =
+      rest.length > 0
+        ? [
+            {
+              kind: 'category',
+              name: vi.leanbotWorld.otherBlocks,
+              colour: '#a55b80',
+              contents: rest.map(block),
+            },
+          ]
+        : [];
+    return { kind: 'categoryToolbox', contents: [...fresh, ...groups, ...other] };
+  }
   return {
     kind: 'flyoutToolbox',
     contents: [
@@ -67,7 +125,6 @@ export function lessonToolbox(
   };
 }
 
-/** The colour picker of the browser first, then the Leanbot blocks that use it. */
 let blocksReady = false;
 
 export function setupWorkshopBlocks(): void {

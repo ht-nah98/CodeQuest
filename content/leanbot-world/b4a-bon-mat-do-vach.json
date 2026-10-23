@@ -1,0 +1,176 @@
+{
+  "id": "b4a-bon-mat-do-vach",
+  "number": 7,
+  "stage": 2,
+  "title": "Bốn mắt dò vạch",
+  "canDo": "Nhìn 4 ô trắng đen là biết robot đi thẳng hay quẹo",
+  "image": {
+    "src": "bai-04/robot-thay.png",
+    "alt": "Bốn ô: vạch ở giữa, lệch sang trái, lệch sang phải, hết vạch; dưới mỗi ô là bốn ô vuông robot thấy"
+  },
+  "goals": [
+    "Nền trắng dội sáng, vạch đen nuốt sáng",
+    "Bốn mắt thành bốn ô trắng đen",
+    "Hiện bốn mắt lên đèn",
+    "Cân chỉnh trước khi chạy"
+  ],
+  "course": "bai-04",
+  "screens": [
+    {
+      "kind": "read",
+      "id": "trang-den",
+      "screen": {
+        "part": "Mắt dò vạch",
+        "title": "Mắt thấy vạch đen thế nào",
+        "lines": [
+          "Mắt chiếu ánh sáng xuống sàn. Nền trắng dội lên nhiều, vạch đen dội lên rất ít."
+        ],
+        "images": [
+          {
+            "src": "bai-04/nen-trang.png",
+            "alt": "Mắt chiếu ánh sáng xuống nền trắng, mũi tên dội lên to",
+            "caption": "Nền trắng"
+          },
+          {
+            "src": "bai-04/vach-den.png",
+            "alt": "Mắt chiếu ánh sáng xuống vạch đen, mũi tên dội lên nhỏ và đứt",
+            "caption": "Vạch đen"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "read",
+      "id": "bon-o",
+      "screen": {
+        "part": "Mắt dò vạch",
+        "title": "Bốn mắt thành bốn ô",
+        "lines": [
+          "Bốn mắt ở mũi robot, từ trái qua phải.",
+          "Khối Dò vạch có bốn ô: bấm vào ô để chọn trắng hay đen. ⬜⬛⬛⬜ là vạch ở giữa."
+        ],
+        "images": [
+          {
+            "src": "bai-04/bon-mat.png",
+            "alt": "Robot nhìn từ trên, hàng bốn mắt ở mũi đánh số 1 2 3 4 từ trái qua phải"
+          },
+          {
+            "src": "bai-04/so-ten.png",
+            "alt": "Bốn ô trắng đen đen trắng bằng 6; bốn ô trắng bằng 0"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "build",
+      "id": "hien-len-den",
+      "mode": "build",
+      "task": "Lặp mãi: đọc 4 mắt, hiện lên đèn",
+      "help": ["Mắt nào thấy đen thì đèn đó sáng. Robot tự kiểm mắt."],
+      "toolbox": [
+        "LbMission.beginImmediately_end",
+        "controls_whileUntil",
+        "logic_boolean",
+        "LbIRLine.read",
+        "LbIRLine.displayOnRGB"
+      ],
+      "newBlocks": ["LbIRLine.read", "LbIRLine.displayOnRGB"],
+      "start": "<xml><block type='LbMission.beginImmediately_end' x='40' y='40'></block></xml>",
+      "solution": "<xml><block type='LbMission.beginImmediately_end' x='40' y='40'><statement name='Body'><block type='controls_whileUntil'><field name='MODE'>WHILE</field><value name='BOOL'><block type='logic_boolean'><field name='BOOL'>TRUE</field></block></value><statement name='DO'><block type='LbIRLine.read'><next><block type='LbIRLine.displayOnRGB'><value name='RGBColor'><shadow type='LbRGB.colour_picker'><field name='Color'>#00ff00</field></shadow></value></block></next></block></statement></block></statement></block></xml>"
+    },
+    {
+      "kind": "read",
+      "id": "ba-nhom",
+      "screen": {
+        "part": "Mắt dò vạch",
+        "title": "Lệch bên nào thì quẹo bên đó",
+        "lines": [
+          "Vạch lệch sang trái thì quẹo trái. Lệch phải thì quẹo phải. Ở giữa thì đi thẳng."
+        ],
+        "images": [
+          {
+            "src": "bai-04/ba-nhom.png",
+            "alt": "Ba ô: vạch lệch trái thì quẹo trái, lệch phải thì quẹo phải, ở giữa thì đi thẳng"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "build",
+      "id": "giua-thi-di",
+      "mode": "fill",
+      "task": "Thấy ⬜⬛⬛⬜ thì đi thẳng, không thì dừng",
+      "help": [
+        "Cắm khối so sánh: 4 mắt đang thấy = Dò vạch.",
+        "Bấm bốn ô của khối Dò vạch: trắng, đen, đen, trắng."
+      ],
+      "toolbox": [
+        "LbMission.beginImmediately_end",
+        "controls_whileUntil",
+        "logic_boolean",
+        "LbIRLine.read",
+        "controls_if",
+        "logic_compare",
+        "LbIRLine.value",
+        "LbIRLine.state",
+        "LbMotion.run",
+        "LbMotion.stop"
+      ],
+      "newBlocks": ["LbIRLine.value", "LbIRLine.state"],
+      "start": "<xml><block type='LbMission.beginImmediately_end' x='40' y='40'><statement name='Body'><block type='controls_whileUntil'><field name='MODE'>WHILE</field><value name='BOOL'><block type='logic_boolean'><field name='BOOL'>TRUE</field></block></value><statement name='DO'><block type='LbIRLine.read'><next><block type='controls_if'><mutation else=\"1\"></mutation><statement name='DO0'><block type='LbMotion.run'><field name='UnitSpeed'>rpm</field><value name='Left'><shadow type='math_number'><field name='NUM'>30</field></shadow></value><value name='Right'><shadow type='math_number'><field name='NUM'>30</field></shadow></value></block></statement><statement name='ELSE'><block type='LbMotion.stop'></block></statement></block></next></block></statement></block></statement></block></xml>",
+      "solution": "<xml><block type='LbMission.beginImmediately_end' x='40' y='40'><statement name='Body'><block type='controls_whileUntil'><field name='MODE'>WHILE</field><value name='BOOL'><block type='logic_boolean'><field name='BOOL'>TRUE</field></block></value><statement name='DO'><block type='LbIRLine.read'><next><block type='controls_if'><mutation else=\"1\"></mutation><value name='IF0'><block type='logic_compare'><field name='OP'>EQ</field><value name='A'><block type='LbIRLine.value'></block></value><value name='B'><block type='LbIRLine.state'><field name='state0'>#ffffff</field><field name='state1'>#000000</field><field name='state2'>#000000</field><field name='state3'>#ffffff</field></block></value></block></value><statement name='DO0'><block type='LbMotion.run'><field name='UnitSpeed'>rpm</field><value name='Left'><shadow type='math_number'><field name='NUM'>30</field></shadow></value><value name='Right'><shadow type='math_number'><field name='NUM'>30</field></shadow></value></block></statement><statement name='ELSE'><block type='LbMotion.stop'></block></statement></block></next></block></statement></block></statement></block></xml>",
+      "hints": [
+        {
+          "match": "== 0)",
+          "say": "Bốn ô đang trắng hết. Bấm hai ô giữa thành đen."
+        },
+        {
+          "match": "if (false)",
+          "say": "Chỗ hỏi của nếu còn trống."
+        }
+      ]
+    },
+    {
+      "kind": "read",
+      "id": "can-chinh",
+      "screen": {
+        "part": "Cân chỉnh",
+        "title": "Dạy robot biết trắng và đen",
+        "steps": [
+          ["1", "Bật robot: đèn nháy đỏ"],
+          ["2", "Đặt bốn mắt trên nền trắng, chạm TB1A: đèn vàng"],
+          ["3", "Đặt bốn mắt trên vạch đen, chạm TB1A: đèn xanh"],
+          ["4", "Chạm TB1A lần nữa là xong"]
+        ],
+        "images": [
+          {
+            "src": "bai-04/den-can-chinh.png",
+            "alt": "Bốn ô: mới bật đèn đỏ nháy, trên nền trắng chạm TB1A đèn vàng, trên vạch đen chạm TB1A đèn xanh, chạm lần 3 là xong"
+          }
+        ],
+        "tip": "Đổi chỗ, đổi ánh sáng thì cân chỉnh lại."
+      }
+    },
+    {
+      "kind": "read",
+      "id": "robot-mat",
+      "screen": {
+        "part": "Robot thật",
+        "title": "Cân chỉnh rồi xem bốn mắt",
+        "lines": [
+          "Chương trình này cân chỉnh trước, rồi hiện bốn mắt lên đèn.",
+          "Rê robot qua vạch đen: đèn sáng đúng mắt đang thấy đen?"
+        ],
+        "links": [
+          {
+            "label": "Leanbot IDE",
+            "href": "https://ide.pythaverse.space/#/code"
+          }
+        ],
+        "check": "Đèn sáng đúng mắt đang thấy vạch đen",
+        "checkId": "robot-bon-mat"
+      },
+      "program": "<xml><block type='LbIRLine.doManualCalibration'><field name='touchX'>TB1A</field></block><block type='LbMission.beginImmediately_end' x='40' y='140'><statement name='Body'><block type='controls_whileUntil'><field name='MODE'>WHILE</field><value name='BOOL'><block type='logic_boolean'><field name='BOOL'>TRUE</field></block></value><statement name='DO'><block type='LbIRLine.read'><next><block type='LbIRLine.displayOnRGB'><value name='RGBColor'><shadow type='LbRGB.colour_picker'><field name='Color'>#00ff00</field></shadow></value></block></next></block></statement></block></statement></block></xml>"
+    }
+  ]
+}

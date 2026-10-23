@@ -3,7 +3,9 @@
 > **Trạng thái 23/10/2026:** HLV duyệt (§9): trang riêng `/the-gioi-leanbot`, chỉ đánh dấu xong
 > (không sao/coin), làm Đợt 1 trước (ADR-0030). **Đợt 1 đã có:** khung bài học, chấm bằng so code,
 > luật 29, bài L0 và L1 của Chặng 0 (16 màn) — **HLV chơi thử và duyệt 23/10**. **Đợt 2 đã có:** Chặng 1,
-bài B1a, B1b, B2 (26 màn), chờ HLV chơi thử. Vẫn chỉ HLV thấy.
+bài B1a, B1b, B2 (26 màn), chờ HLV chơi thử. **Đợt 3 đã có:** Chặng 2, bài B3, B3b, B4a, B4b (37 màn,
+phần không cần sa bàn ảo; B4b dùng nguyên chương trình mẫu FollowLine của khóa gốc, dựng lại bằng
+khối và ra code y hệt). Vẫn chỉ HLV thấy.
 > Nguồn nội dung: khóa gốc Pythaverse (`docs/leanbot/giao-trinh.md`) và 16 giáo án
 > `docs/leanbot/giao-an/` — nhất là hai mục "Bé học xong thì làm được gì" và "Bé hay vướng ở đâu"
 > của từng bài. Khối lệnh: `the-gioi-leanbot.md` §3 (đủ 93 khối, giống Pythaverse).
@@ -316,9 +318,9 @@ lời giải ghép từ `toolbox` ra đúng `target`, khối trong `newBlocks` c
 
 | Đợt | Làm gì | Bé thấy gì | Cần |
 |---|---|---|---|
-| **Đ1** | Schema + màn hình bài học (khung xưởng + bảng hướng dẫn bên cạnh + nút Kiểm tra); thanh khối theo màn; chấm bằng so code; Chặng 0 (L0, L1) | 15 màn đầu | Không cần sân mô phỏng |
-| **Đ2** | Chặng 1 (B1a, B1b, B2), màn 🤖 có ô tích | Robot đi, tay gắp | Hình chụp robot thật cho từng màn |
-| **Đ3** | Chặng 2 (B3, B3b, B4a, phần không cần sân của B4b) | Cảm biến | Thử trên robot: thứ tự bit mắt dò vạch, chiều bánh âm |
+| **Đ1** ✅ | Schema + màn hình bài học (khung xưởng + bảng hướng dẫn bên cạnh + nút Kiểm tra); thanh khối theo màn; chấm bằng so code; Chặng 0 (L0, L1) | 15 màn đầu | Không cần sân mô phỏng |
+| **Đ2** ✅ | Chặng 1 (B1a, B1b, B2), màn 🤖 có ô tích | Robot đi, tay gắp | Hình của khóa Leanbot (bai-01, bai-02) |
+| **Đ3** ✅ | Chặng 2 (B3, B3b, B4a, phần không cần sân của B4b) | Cảm biến | Thử trên robot: thứ tự bit mắt dò vạch, chiều bánh âm |
 | **Đ4** | **Sa bàn ảo**: kiểu game `leanbot`, mô phỏng liên tục (mm, độ), sa bàn Synapse City, tất định | Màn 🗺️ của B4b, H1 | ADR riêng; việc lớn nhất |
 | **Đ5** | Chặng 3–4 | Hộp, phép, ảo → thật | Đ4 |
 | **Đ6** | Chặng 5, thi thử | Ba nhiệm vụ, trùm cuối | Đ4, luật AIROC 2026 bản đầy đủ |

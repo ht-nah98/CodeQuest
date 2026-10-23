@@ -433,6 +433,7 @@ export const vi = {
     modes: { build: 'Ghép khối', fix: 'Sửa lỗi', fill: 'Điền số', code: 'Đọc code' },
     newBlocks: '✨ Khối mới',
     oldBlocks: 'Khối đã học',
+    otherBlocks: 'Khác',
     yourCode: 'Code của con',
     targetCode: 'Code cần ghép ra',
     check: 'Kiểm tra',

@@ -69,7 +69,7 @@ async function compile(code: string): Promise<{ ok: boolean; log: string }> {
 registerLeanbotBlocks();
 const programs: [string, string][] = [
   ['every statement block of the toolbox', everyStatementBlock()],
-  ...['full', 'imm', 'arduino', 'procs', 'math'].map((name): [string, string] => [
+  ...['full', 'imm', 'arduino', 'procs', 'math', 'followline'].map((name): [string, string] => [
     `${name}.ino`,
     readFileSync(new URL(`${name}.ino`, FIXTURES), 'utf8'),
   ]),

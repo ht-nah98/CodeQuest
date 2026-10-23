@@ -1,0 +1,143 @@
+{
+  "id": "b4b-bam-vach",
+  "number": 8,
+  "stage": 2,
+  "title": "Bám vạch",
+  "canDo": "Robot bám theo vạch đen hết một đoạn đường",
+  "image": {
+    "src": "bai-04/thu-vach.png",
+    "alt": "Robot đầu vạch dài khoảng 1 mét, đi hết vạch không rời ra"
+  },
+  "goals": [
+    "Một bước lái: đọc mắt, chọn hai bánh, nhích 1 mm",
+    "Quẹo trái: bánh trái chậm, bánh phải nhanh",
+    "Lặp khi còn thấy vạch đen",
+    "Đọc chương trình mẫu bám vạch"
+  ],
+  "course": "bai-04",
+  "screens": [
+    {
+      "kind": "read",
+      "id": "hai-banh",
+      "screen": {
+        "part": "Bám vạch",
+        "title": "Quẹo bằng hai bánh khác tốc độ",
+        "lines": [
+          "Bánh trái chậm, bánh phải nhanh thì robot quẹo trái.",
+          "Chương trình mẫu dùng bước/giây: 190 là chậm, 1500 là nhanh."
+        ],
+        "images": [
+          {
+            "src": "bai-04/que-trai.png",
+            "alt": "Bánh trái chậm 190, bánh phải nhanh 1500: robot quẹo trái",
+            "caption": "Quẹo trái"
+          },
+          {
+            "src": "bai-04/que-phai.png",
+            "alt": "Bánh trái nhanh 1500, bánh phải chậm 190: robot quẹo phải",
+            "caption": "Quẹo phải"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "build",
+      "id": "que-trai",
+      "mode": "fill",
+      "task": "Vạch lệch trái ⬜⬛⬜⬜: điền số cho quẹo trái",
+      "help": ["Ở nhánh thứ hai: Trái 190, Phải 1500 bước/giây."],
+      "toolbox": [
+        "LbMission.beginByTeacher_end",
+        "controls_whileUntil",
+        "logic_boolean",
+        "LbIRLine.read",
+        "controls_if",
+        "logic_compare",
+        "LbIRLine.value",
+        "LbIRLine.state",
+        "LbMotion.run",
+        "LbMotion.waitDistanceMm"
+      ],
+      "start": "<xml><block type='LbMission.beginByTeacher_end' x='40' y='40'><field name='comboTouch'>TB1A + TB1B</field><statement name='Body'><block type='controls_whileUntil'><field name='MODE'>WHILE</field><value name='BOOL'><block type='logic_boolean'><field name='BOOL'>TRUE</field></block></value><statement name='DO'><block type='LbIRLine.read'><next><block type='controls_if'><mutation elseif=\"2\"></mutation><value name='IF0'><block type='logic_compare'><field name='OP'>EQ</field><value name='A'><block type='LbIRLine.value'></block></value><value name='B'><block type='LbIRLine.state'><field name='state0'>#ffffff</field><field name='state1'>#000000</field><field name='state2'>#000000</field><field name='state3'>#ffffff</field></block></value></block></value><statement name='DO0'><block type='LbMotion.run'><field name='UnitSpeed'>sps</field><value name='Left'><shadow type='math_number'><field name='NUM'>1500</field></shadow></value><value name='Right'><shadow type='math_number'><field name='NUM'>1500</field></shadow></value></block></statement><value name='IF1'><block type='logic_compare'><field name='OP'>EQ</field><value name='A'><block type='LbIRLine.value'></block></value><value name='B'><block type='LbIRLine.state'><field name='state0'>#ffffff</field><field name='state1'>#000000</field><field name='state2'>#ffffff</field><field name='state3'>#ffffff</field></block></value></block></value><statement name='DO1'><block type='LbMotion.run'><field name='UnitSpeed'>sps</field><value name='Left'><shadow type='math_number'><field name='NUM'>1500</field></shadow></value><value name='Right'><shadow type='math_number'><field name='NUM'>1500</field></shadow></value></block></statement><value name='IF2'><block type='logic_compare'><field name='OP'>EQ</field><value name='A'><block type='LbIRLine.value'></block></value><value name='B'><block type='LbIRLine.state'><field name='state0'>#ffffff</field><field name='state1'>#ffffff</field><field name='state2'>#000000</field><field name='state3'>#ffffff</field></block></value></block></value><statement name='DO2'><block type='LbMotion.run'><field name='UnitSpeed'>sps</field><value name='Left'><shadow type='math_number'><field name='NUM'>1500</field></shadow></value><value name='Right'><shadow type='math_number'><field name='NUM'>190</field></shadow></value></block></statement><next><block type='LbMotion.waitDistanceMm'><field name='UnitDistance'>mm</field><value name='distanceMm'><shadow type='math_number'><field name='NUM'>1</field></shadow></value></block></next></block></next></block></statement></block></statement></block></xml>",
+      "solution": "<xml><block type='LbMission.beginByTeacher_end' x='40' y='40'><field name='comboTouch'>TB1A + TB1B</field><statement name='Body'><block type='controls_whileUntil'><field name='MODE'>WHILE</field><value name='BOOL'><block type='logic_boolean'><field name='BOOL'>TRUE</field></block></value><statement name='DO'><block type='LbIRLine.read'><next><block type='controls_if'><mutation elseif=\"2\"></mutation><value name='IF0'><block type='logic_compare'><field name='OP'>EQ</field><value name='A'><block type='LbIRLine.value'></block></value><value name='B'><block type='LbIRLine.state'><field name='state0'>#ffffff</field><field name='state1'>#000000</field><field name='state2'>#000000</field><field name='state3'>#ffffff</field></block></value></block></value><statement name='DO0'><block type='LbMotion.run'><field name='UnitSpeed'>sps</field><value name='Left'><shadow type='math_number'><field name='NUM'>1500</field></shadow></value><value name='Right'><shadow type='math_number'><field name='NUM'>1500</field></shadow></value></block></statement><value name='IF1'><block type='logic_compare'><field name='OP'>EQ</field><value name='A'><block type='LbIRLine.value'></block></value><value name='B'><block type='LbIRLine.state'><field name='state0'>#ffffff</field><field name='state1'>#000000</field><field name='state2'>#ffffff</field><field name='state3'>#ffffff</field></block></value></block></value><statement name='DO1'><block type='LbMotion.run'><field name='UnitSpeed'>sps</field><value name='Left'><shadow type='math_number'><field name='NUM'>190</field></shadow></value><value name='Right'><shadow type='math_number'><field name='NUM'>1500</field></shadow></value></block></statement><value name='IF2'><block type='logic_compare'><field name='OP'>EQ</field><value name='A'><block type='LbIRLine.value'></block></value><value name='B'><block type='LbIRLine.state'><field name='state0'>#ffffff</field><field name='state1'>#ffffff</field><field name='state2'>#000000</field><field name='state3'>#ffffff</field></block></value></block></value><statement name='DO2'><block type='LbMotion.run'><field name='UnitSpeed'>sps</field><value name='Left'><shadow type='math_number'><field name='NUM'>1500</field></shadow></value><value name='Right'><shadow type='math_number'><field name='NUM'>190</field></shadow></value></block></statement><next><block type='LbMotion.waitDistanceMm'><field name='UnitDistance'>mm</field><value name='distanceMm'><shadow type='math_number'><field name='NUM'>1</field></shadow></value></block></next></block></next></block></statement></block></statement></block></xml>",
+      "hints": [
+        {
+          "match": "waitDistanceMm(1)",
+          "say": "Nhìn nhánh thứ hai: hai bánh vẫn đều 1500."
+        }
+      ]
+    },
+    {
+      "kind": "build",
+      "id": "que-nguoc",
+      "mode": "fix",
+      "task": "Robot quẹo ngược, rời khỏi vạch. Sửa",
+      "help": ["Vạch lệch phải ⬜⬜⬛⬜ thì phải quẹo phải: bánh trái nhanh."],
+      "toolbox": [
+        "LbMission.beginByTeacher_end",
+        "controls_whileUntil",
+        "logic_boolean",
+        "LbIRLine.read",
+        "controls_if",
+        "logic_compare",
+        "LbIRLine.value",
+        "LbIRLine.state",
+        "LbMotion.run",
+        "LbMotion.waitDistanceMm"
+      ],
+      "start": "<xml><block type='LbMission.beginByTeacher_end' x='40' y='40'><field name='comboTouch'>TB1A + TB1B</field><statement name='Body'><block type='controls_whileUntil'><field name='MODE'>WHILE</field><value name='BOOL'><block type='logic_boolean'><field name='BOOL'>TRUE</field></block></value><statement name='DO'><block type='LbIRLine.read'><next><block type='controls_if'><mutation elseif=\"2\"></mutation><value name='IF0'><block type='logic_compare'><field name='OP'>EQ</field><value name='A'><block type='LbIRLine.value'></block></value><value name='B'><block type='LbIRLine.state'><field name='state0'>#ffffff</field><field name='state1'>#000000</field><field name='state2'>#000000</field><field name='state3'>#ffffff</field></block></value></block></value><statement name='DO0'><block type='LbMotion.run'><field name='UnitSpeed'>sps</field><value name='Left'><shadow type='math_number'><field name='NUM'>1500</field></shadow></value><value name='Right'><shadow type='math_number'><field name='NUM'>1500</field></shadow></value></block></statement><value name='IF1'><block type='logic_compare'><field name='OP'>EQ</field><value name='A'><block type='LbIRLine.value'></block></value><value name='B'><block type='LbIRLine.state'><field name='state0'>#ffffff</field><field name='state1'>#000000</field><field name='state2'>#ffffff</field><field name='state3'>#ffffff</field></block></value></block></value><statement name='DO1'><block type='LbMotion.run'><field name='UnitSpeed'>sps</field><value name='Left'><shadow type='math_number'><field name='NUM'>190</field></shadow></value><value name='Right'><shadow type='math_number'><field name='NUM'>1500</field></shadow></value></block></statement><value name='IF2'><block type='logic_compare'><field name='OP'>EQ</field><value name='A'><block type='LbIRLine.value'></block></value><value name='B'><block type='LbIRLine.state'><field name='state0'>#ffffff</field><field name='state1'>#ffffff</field><field name='state2'>#000000</field><field name='state3'>#ffffff</field></block></value></block></value><statement name='DO2'><block type='LbMotion.run'><field name='UnitSpeed'>sps</field><value name='Left'><shadow type='math_number'><field name='NUM'>190</field></shadow></value><value name='Right'><shadow type='math_number'><field name='NUM'>1500</field></shadow></value></block></statement><next><block type='LbMotion.waitDistanceMm'><field name='UnitDistance'>mm</field><value name='distanceMm'><shadow type='math_number'><field name='NUM'>1</field></shadow></value></block></next></block></next></block></statement></block></statement></block></xml>",
+      "solution": "<xml><block type='LbMission.beginByTeacher_end' x='40' y='40'><field name='comboTouch'>TB1A + TB1B</field><statement name='Body'><block type='controls_whileUntil'><field name='MODE'>WHILE</field><value name='BOOL'><block type='logic_boolean'><field name='BOOL'>TRUE</field></block></value><statement name='DO'><block type='LbIRLine.read'><next><block type='controls_if'><mutation elseif=\"2\"></mutation><value name='IF0'><block type='logic_compare'><field name='OP'>EQ</field><value name='A'><block type='LbIRLine.value'></block></value><value name='B'><block type='LbIRLine.state'><field name='state0'>#ffffff</field><field name='state1'>#000000</field><field name='state2'>#000000</field><field name='state3'>#ffffff</field></block></value></block></value><statement name='DO0'><block type='LbMotion.run'><field name='UnitSpeed'>sps</field><value name='Left'><shadow type='math_number'><field name='NUM'>1500</field></shadow></value><value name='Right'><shadow type='math_number'><field name='NUM'>1500</field></shadow></value></block></statement><value name='IF1'><block type='logic_compare'><field name='OP'>EQ</field><value name='A'><block type='LbIRLine.value'></block></value><value name='B'><block type='LbIRLine.state'><field name='state0'>#ffffff</field><field name='state1'>#000000</field><field name='state2'>#ffffff</field><field name='state3'>#ffffff</field></block></value></block></value><statement name='DO1'><block type='LbMotion.run'><field name='UnitSpeed'>sps</field><value name='Left'><shadow type='math_number'><field name='NUM'>190</field></shadow></value><value name='Right'><shadow type='math_number'><field name='NUM'>1500</field></shadow></value></block></statement><value name='IF2'><block type='logic_compare'><field name='OP'>EQ</field><value name='A'><block type='LbIRLine.value'></block></value><value name='B'><block type='LbIRLine.state'><field name='state0'>#ffffff</field><field name='state1'>#ffffff</field><field name='state2'>#000000</field><field name='state3'>#ffffff</field></block></value></block></value><statement name='DO2'><block type='LbMotion.run'><field name='UnitSpeed'>sps</field><value name='Left'><shadow type='math_number'><field name='NUM'>1500</field></shadow></value><value name='Right'><shadow type='math_number'><field name='NUM'>190</field></shadow></value></block></statement><next><block type='LbMotion.waitDistanceMm'><field name='UnitDistance'>mm</field><value name='distanceMm'><shadow type='math_number'><field name='NUM'>1</field></shadow></value></block></next></block></next></block></statement></block></statement></block></xml>"
+    },
+    {
+      "kind": "build",
+      "id": "het-vach-thi-dung",
+      "mode": "fix",
+      "task": "Lặp khi còn thấy vạch đen, hết vạch thì dừng",
+      "help": ["Đổi ô đúng của lặp thành khối Thấy vạch đen?", "Thêm khối Dừng bên dưới lặp."],
+      "toolbox": [
+        "LbMission.beginByTeacher_end",
+        "controls_whileUntil",
+        "logic_boolean",
+        "LbIRLine.isBlackDetected",
+        "LbIRLine.read",
+        "controls_if",
+        "logic_compare",
+        "LbIRLine.value",
+        "LbIRLine.state",
+        "LbMotion.run",
+        "LbMotion.waitDistanceMm",
+        "LbMotion.stop"
+      ],
+      "newBlocks": ["LbIRLine.isBlackDetected"],
+      "start": "<xml><block type='LbMission.beginByTeacher_end' x='40' y='40'><field name='comboTouch'>TB1A + TB1B</field><statement name='Body'><block type='controls_whileUntil'><field name='MODE'>WHILE</field><value name='BOOL'><block type='logic_boolean'><field name='BOOL'>TRUE</field></block></value><statement name='DO'><block type='LbIRLine.read'><next><block type='controls_if'><mutation elseif=\"2\"></mutation><value name='IF0'><block type='logic_compare'><field name='OP'>EQ</field><value name='A'><block type='LbIRLine.value'></block></value><value name='B'><block type='LbIRLine.state'><field name='state0'>#ffffff</field><field name='state1'>#000000</field><field name='state2'>#000000</field><field name='state3'>#ffffff</field></block></value></block></value><statement name='DO0'><block type='LbMotion.run'><field name='UnitSpeed'>sps</field><value name='Left'><shadow type='math_number'><field name='NUM'>1500</field></shadow></value><value name='Right'><shadow type='math_number'><field name='NUM'>1500</field></shadow></value></block></statement><value name='IF1'><block type='logic_compare'><field name='OP'>EQ</field><value name='A'><block type='LbIRLine.value'></block></value><value name='B'><block type='LbIRLine.state'><field name='state0'>#ffffff</field><field name='state1'>#000000</field><field name='state2'>#ffffff</field><field name='state3'>#ffffff</field></block></value></block></value><statement name='DO1'><block type='LbMotion.run'><field name='UnitSpeed'>sps</field><value name='Left'><shadow type='math_number'><field name='NUM'>190</field></shadow></value><value name='Right'><shadow type='math_number'><field name='NUM'>1500</field></shadow></value></block></statement><value name='IF2'><block type='logic_compare'><field name='OP'>EQ</field><value name='A'><block type='LbIRLine.value'></block></value><value name='B'><block type='LbIRLine.state'><field name='state0'>#ffffff</field><field name='state1'>#ffffff</field><field name='state2'>#000000</field><field name='state3'>#ffffff</field></block></value></block></value><statement name='DO2'><block type='LbMotion.run'><field name='UnitSpeed'>sps</field><value name='Left'><shadow type='math_number'><field name='NUM'>1500</field></shadow></value><value name='Right'><shadow type='math_number'><field name='NUM'>190</field></shadow></value></block></statement><next><block type='LbMotion.waitDistanceMm'><field name='UnitDistance'>mm</field><value name='distanceMm'><shadow type='math_number'><field name='NUM'>1</field></shadow></value></block></next></block></next></block></statement></block></statement></block></xml>",
+      "solution": "<xml><block type='LbMission.beginByTeacher_end' x='40' y='40'><field name='comboTouch'>TB1A + TB1B</field><statement name='Body'><block type='controls_whileUntil'><field name='MODE'>WHILE</field><value name='BOOL'><block type='LbIRLine.isBlackDetected'></block></value><statement name='DO'><block type='LbIRLine.read'><next><block type='controls_if'><mutation elseif=\"2\"></mutation><value name='IF0'><block type='logic_compare'><field name='OP'>EQ</field><value name='A'><block type='LbIRLine.value'></block></value><value name='B'><block type='LbIRLine.state'><field name='state0'>#ffffff</field><field name='state1'>#000000</field><field name='state2'>#000000</field><field name='state3'>#ffffff</field></block></value></block></value><statement name='DO0'><block type='LbMotion.run'><field name='UnitSpeed'>sps</field><value name='Left'><shadow type='math_number'><field name='NUM'>1500</field></shadow></value><value name='Right'><shadow type='math_number'><field name='NUM'>1500</field></shadow></value></block></statement><value name='IF1'><block type='logic_compare'><field name='OP'>EQ</field><value name='A'><block type='LbIRLine.value'></block></value><value name='B'><block type='LbIRLine.state'><field name='state0'>#ffffff</field><field name='state1'>#000000</field><field name='state2'>#ffffff</field><field name='state3'>#ffffff</field></block></value></block></value><statement name='DO1'><block type='LbMotion.run'><field name='UnitSpeed'>sps</field><value name='Left'><shadow type='math_number'><field name='NUM'>190</field></shadow></value><value name='Right'><shadow type='math_number'><field name='NUM'>1500</field></shadow></value></block></statement><value name='IF2'><block type='logic_compare'><field name='OP'>EQ</field><value name='A'><block type='LbIRLine.value'></block></value><value name='B'><block type='LbIRLine.state'><field name='state0'>#ffffff</field><field name='state1'>#ffffff</field><field name='state2'>#000000</field><field name='state3'>#ffffff</field></block></value></block></value><statement name='DO2'><block type='LbMotion.run'><field name='UnitSpeed'>sps</field><value name='Left'><shadow type='math_number'><field name='NUM'>1500</field></shadow></value><value name='Right'><shadow type='math_number'><field name='NUM'>190</field></shadow></value></block></statement><next><block type='LbMotion.waitDistanceMm'><field name='UnitDistance'>mm</field><value name='distanceMm'><shadow type='math_number'><field name='NUM'>1</field></shadow></value></block></next></block></next></block></statement><next><block type='LbMotion.stop'></block></next></block></statement></block></xml>"
+    },
+    {
+      "kind": "read",
+      "id": "mau-chinh-thuc",
+      "screen": {
+        "part": "Chương trình mẫu",
+        "title": "Chương trình bám vạch của khóa gốc",
+        "lines": [
+          "Đây là chương trình mẫu FollowLine của Pythaverse, dựng bằng khối tiếng Việt.",
+          "Đọc theo ba phần: đọc mắt, chọn hướng, kiểm đích. Không cần tự viết."
+        ],
+        "images": [
+          {
+            "src": "bai-04/ba-phan.png",
+            "alt": "Vòng ba phần: đọc mắt, chọn hướng, kiểm đích; mỗi vòng nhích 1 mm"
+          }
+        ],
+        "links": [
+          {
+            "label": "Leanbot IDE",
+            "href": "https://ide.pythaverse.space/#/code"
+          }
+        ],
+        "check": "Robot bám hết đoạn vạch 1 mét",
+        "checkId": "robot-bam-vach"
+      },
+      "program": "<xml><variables><variable type='int' id='v_target'>target</variable><variable type='int' id='v_line'>line</variable></variables><block type='Leanbot.whenStarted' x='40' y='40'><next><block type='Leanbot.section'><field name='commentString'>Do manual calibration with black/white line</field><statement name='Body'><block type='LbIRLine.doManualCalibration'><field name='touchX'>TB1A</field></block></statement><next><block type='LbMission.beginByTeacher_end'><field name='comboTouch'>TB1A + TB1B</field><statement name='Body'><block type='Leanbot.section'><field name='commentString'>Follow line to the end then stops</field><statement name='Body'><block type='procedures_callnoreturn'><mutation name='followLine'></mutation><field name='NAME'>followLine</field></block></statement></block></statement></block></next></block></next></block><block type='procedures_defnoreturn' x='40' y='400'><field name='NAME'>followLine</field><statement name='STACK'><block type='vars_set_int'><field name='VAR_SET_INT' id='v_target' variabletype='int'>target</field><value name='VALUE'><block type='math_arithmetic'><field name='OP'>ADD</field><value name='A'><block type='LbMotion.approxDistance'><field name='UnitDistance'>mm</field></block></value><value name='B'><block type='math_number'><field name='NUM'>1000</field></block></value></block></value><next><block type='controls_whileUntil'><field name='MODE'>WHILE</field><value name='BOOL'><block type='LbIRLine.isBlackDetected'></block></value><statement name='DO'><block type='controls_repeat_ext'><value name='TIMES'><shadow type='math_number'><field name='NUM'>10</field></shadow></value><statement name='DO'><block type='LbIRLine.read'><next><block type='vars_set_int'><field name='VAR_SET_INT' id='v_line' variabletype='int'>line</field><value name='VALUE'><block type='LbIRLine.value'></block></value><next><block type='LbIRLine.displayOnRGB'><value name='RGBColor'><shadow type='LbRGB.colour_picker'><field name='Color'>#00ff00</field></shadow></value><next><block type='controls_switch'><mutation casebreak='12' default='1'></mutation><field name='SWVAR' id='v_line' variabletype='int'>line</field><value name='CASE0'><block type='math_number'><field name='NUM'>4</field></block></value><value name='CASE1'><block type='math_number'><field name='NUM'>14</field></block></value><value name='CASE2'><block type='math_number'><field name='NUM'>12</field></block></value><value name='CASE3'><block type='math_number'><field name='NUM'>8</field></block></value><statement name='DO3'><block type='LbMotion.run'><field name='UnitSpeed'>sps</field><value name='Left'><shadow type='math_number'><field name='NUM'>190</field></shadow></value><value name='Right'><shadow type='math_number'><field name='NUM'>1500</field></shadow></value></block></statement><value name='CASE4'><block type='math_number'><field name='NUM'>2</field></block></value><value name='CASE5'><block type='math_number'><field name='NUM'>7</field></block></value><value name='CASE6'><block type='math_number'><field name='NUM'>3</field></block></value><value name='CASE7'><block type='math_number'><field name='NUM'>1</field></block></value><statement name='DO7'><block type='LbMotion.run'><field name='UnitSpeed'>sps</field><value name='Left'><shadow type='math_number'><field name='NUM'>1500</field></shadow></value><value name='Right'><shadow type='math_number'><field name='NUM'>190</field></shadow></value></block></statement><value name='CASE8'><block type='math_number'><field name='NUM'>9</field></block></value><value name='CASE9'><block type='math_number'><field name='NUM'>13</field></block></value><value name='CASE10'><block type='math_number'><field name='NUM'>11</field></block></value><value name='CASE11'><block type='math_number'><field name='NUM'>10</field></block></value><value name='CASE12'><block type='math_number'><field name='NUM'>5</field></block></value><statement name='DEFAULT'><block type='LbMotion.run'><field name='UnitSpeed'>sps</field><value name='Left'><shadow type='math_number'><field name='NUM'>1500</field></shadow></value><value name='Right'><shadow type='math_number'><field name='NUM'>1500</field></shadow></value></block></statement><next><block type='controls_if'><value name='IF0'><block type='LbIRLine.isBlackDetected'></block></value><statement name='DO0'><block type='controls_flow_statements'><field name='FLOW'>BREAK</field></block></statement><next><block type='LbMotion.waitDistanceMm'><field name='UnitDistance'>mm</field><value name='distanceMm'><shadow type='math_number'><field name='NUM'>1</field></shadow></value></block></next></block></next></block></next></block></next></block></next></block></statement><next><block type='controls_if'><value name='IF0'><block type='logic_compare'><field name='OP'>GT</field><value name='A'><block type='LbMotion.approxDistance'><field name='UnitDistance'>mm</field></block></value><value name='B'><block type='vars_get_int'><field name='VAR_GET_INT' id='v_target' variabletype='int'>target</field></block></value></block></value><statement name='DO0'><block type='controls_if'><value name='IF0'><block type='logic_compare'><field name='OP'>EQ</field><value name='A'><block type='LbIRLine.value'></block></value><value name='B'><block type='LbIRLine.state'><field name='state0'>#ffffff</field><field name='state1'>#000000</field><field name='state2'>#000000</field><field name='state3'>#ffffff</field></block></value></block></value><statement name='DO0'><block type='controls_flow_statements'><field name='FLOW'>BREAK</field></block></statement></block></statement></block></next></block></statement></block></next></block></statement></block></xml>"
+    }
+  ]
+}

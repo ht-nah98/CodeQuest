@@ -12,7 +12,8 @@ interface ToolboxFixture {
 }
 const toolbox = (await vi.importActual<{ default: ToolboxFixture }>('./fixtures/toolbox.json'))
   .default;
-const PROGRAMS = ['full', 'imm', 'arduino', 'procs', 'math'] as const;
+// followline: the official FollowLine_EN sample of Pythaverse's lesson 4, rebuilt from its blocks.
+const PROGRAMS = ['full', 'imm', 'arduino', 'procs', 'math', 'followline'] as const;
 const programs = Object.fromEntries(
   await Promise.all(
     PROGRAMS.map(async (name) => {

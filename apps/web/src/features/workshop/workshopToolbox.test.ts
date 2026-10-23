@@ -1,6 +1,11 @@
 import { describe, expect, it, vi } from 'vitest';
 import { LB_TOOLBOX } from '@codequest/games';
-import { LEANBOT_IDE_URL, type WorkshopCategory, workshopToolbox } from './workshopToolbox';
+import {
+  LEANBOT_IDE_URL,
+  lessonToolbox,
+  type WorkshopCategory,
+  workshopToolbox,
+} from './workshopToolbox';
 
 const links = await vi.importActual<{ default: unknown }>(
   '../../../../../content/leanbot/duong-dan.json',
@@ -26,5 +31,41 @@ describe('workshop toolbox', () => {
 
   it('links the Leanbot IDE listed on the course links page', () => {
     expect(JSON.stringify(links.default)).toContain(LEANBOT_IDE_URL);
+  });
+
+  it('a lesson with a few blocks shows them in one open list, the new ones first', () => {
+    const toolbox = lessonToolbox(
+      ['LbMission.beginImmediately_end', 'Leanbot.delay'],
+      ['Leanbot.delay'],
+    );
+    expect(toolbox.kind).toBe('flyoutToolbox');
+    expect(toolbox.contents.map((item) => (item.kind === 'label' ? item.text : 'block'))).toEqual([
+      '✨ Khối mới',
+      'block',
+      'Khối đã học',
+      'block',
+    ]);
+  });
+
+  it('a lesson with many blocks groups them like Pythaverse, "Khối mới" first', () => {
+    const types = [
+      'LbMission.beginByTeacher_end',
+      'controls_whileUntil',
+      'logic_boolean',
+      'controls_if',
+      'Leanbot.objectInFront',
+      'LbMotion.run',
+      'LbMotion.stop',
+      'vars_set_int',
+    ];
+    const toolbox = lessonToolbox(types, ['Leanbot.objectInFront']);
+    if (toolbox.kind !== 'categoryToolbox') throw new Error('expected groups');
+    expect(toolbox.contents.map((c) => c.name)).toEqual([
+      '✨ Khối mới',
+      'Logic',
+      'Vòng lặp',
+      'Leanbot',
+      'Khác',
+    ]);
   });
 });

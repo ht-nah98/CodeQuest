@@ -172,7 +172,16 @@ export const LB_BLOCKS: readonly LbBlockDef[] = [
     type: 'controls_switch',
     json: {
       message0: 'xét hộp %1',
-      args0: [{ type: 'field_variable', name: 'SWVAR', variable: 'i' }],
+      // Any variable, whatever its type: Pythaverse switches on typed ones (`line` is an int).
+      args0: [
+        {
+          type: 'field_variable',
+          name: 'SWVAR',
+          variable: 'i',
+          variableTypes: ['', 'int', 'float', 'String', 'bool', 'global'],
+          defaultType: '',
+        },
+      ],
       message1: 'nếu bằng %1',
       args1: [{ type: 'input_value', name: 'CASE0', align: 'RIGHT' }],
       message2: 'thì %1',

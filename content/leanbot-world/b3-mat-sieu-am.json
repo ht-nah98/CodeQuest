@@ -1,0 +1,298 @@
+{
+  "id": "b3-mat-sieu-am",
+  "number": 5,
+  "stage": 2,
+  "title": "Mắt siêu âm",
+  "canDo": "Robot chạy tới, dừng trước vật ở 25 cm, lùi khi vật tới quá gần",
+  "image": {
+    "src": "bai-03/thu-hop.png",
+    "alt": "Robot xuất phát cách hộp khoảng 1 mét, dừng cách hộp 23 đến 27 cm"
+  },
+  "goals": [
+    "Siêu âm đo xa bằng tiếng vọng",
+    "Nếu … thì: hỏi một câu, đúng thì làm",
+    "Lặp mãi để robot hỏi liên tục",
+    "Lặp khi: làm tới khi câu trả lời đổi",
+    "In khoảng cách ra MONITOR"
+  ],
+  "course": "bai-03",
+  "screens": [
+    {
+      "kind": "read",
+      "id": "con-doi",
+      "screen": {
+        "part": "Siêu âm",
+        "title": "Robot nghe tiếng vọng như con dơi",
+        "lines": [
+          "Mắt T kêu ra tiếng rất cao. Tiếng chạm vật rồi dội về mắt R.",
+          "Tiếng về càng lâu thì vật càng xa."
+        ],
+        "images": [
+          {
+            "src": "bai-03/con-doi.png",
+            "alt": "Con dơi kêu ra sóng âm, tiếng vọng dội lại từ bức tường"
+          },
+          {
+            "src": "bai-03/hai-mat.png",
+            "alt": "Robot nhìn từ trước: mắt T bên phải gửi tiếng kêu, mắt R bên trái nghe tiếng vọng"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "read",
+      "id": "ba-so",
+      "screen": {
+        "part": "Siêu âm",
+        "title": "Ba con số phải nhớ",
+        "lines": [
+          "Tới 25 cm là dừng. Quá 30 cm là phía trước trống.",
+          "Không có vật thì robot đo ra số rất lớn."
+        ],
+        "images": [
+          {
+            "src": "bai-03/ba-so.png",
+            "alt": "Thước trước robot: tới 25 cm là dừng, quá 30 cm là trống, xa nhất 400 cm"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "build",
+      "id": "neu-gan-thi-keu",
+      "mode": "build",
+      "task": "Nếu có vật trong vòng 25 cm thì kêu bíp",
+      "help": [
+        "Kéo khối nếu vào Nhiệm vụ. Cắm khối Siêu âm vào chỗ hỏi.",
+        "Khối kêu đặt vào trong nếu."
+      ],
+      "toolbox": [
+        "LbMission.beginByTeacher_end",
+        "controls_if",
+        "Leanbot.objectInFront",
+        "Leanbot.toneDuration",
+        "LbMotion.run",
+        "LbMotion.stop"
+      ],
+      "newBlocks": ["controls_if", "Leanbot.objectInFront"],
+      "start": "<xml><block type='LbMission.beginByTeacher_end' x='40' y='40'><field name='comboTouch'>TB1A + TB1B</field></block></xml>",
+      "solution": "<xml><block type='LbMission.beginByTeacher_end' x='40' y='40'><field name='comboTouch'>TB1A + TB1B</field><statement name='Body'><block type='controls_if'><value name='IF0'><block type='Leanbot.objectInFront'><value name='Distance'><shadow type='math_number'><field name='NUM'>25</field></shadow></value></block></value><statement name='DO0'><block type='Leanbot.toneDuration'><field name='UnitFreq'>Hz</field><field name='UnitDuration'>milliseconds</field><value name='Freq'><shadow type='math_number'><field name='NUM'>1500</field></shadow></value><value name='Duration'><shadow type='math_number'><field name='NUM'>100</field></shadow></value></block></statement></block></statement></block></xml>"
+    },
+    {
+      "kind": "read",
+      "id": "neu-mot-lan",
+      "screen": {
+        "part": "Nếu",
+        "title": "Nếu chỉ hỏi một lần",
+        "lines": [
+          "Khối nếu hỏi đúng một lần, lúc chương trình chạy tới nó.",
+          "Lúc đó vật còn xa thì robot đi tiếp, rồi đâm vào tường."
+        ],
+        "images": [
+          {
+            "src": "bai-03/neu-mot-lan.png",
+            "alt": "Robot hỏi một lần lúc còn xa, trả lời không, rồi chạy tiếp và đâm vào tường"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "build",
+      "id": "dung-truoc-vat",
+      "mode": "build",
+      "task": "Chạy tới, gặp vật trong 25 cm thì dừng",
+      "help": [
+        "Lặp khi đúng = lặp mãi: robot hỏi đi hỏi lại.",
+        "Trong lặp: chạy 30 và 30, rồi nếu có vật thì Dừng."
+      ],
+      "toolbox": [
+        "LbMission.beginByTeacher_end",
+        "controls_whileUntil",
+        "logic_boolean",
+        "controls_if",
+        "Leanbot.objectInFront",
+        "LbMotion.run",
+        "LbMotion.stop"
+      ],
+      "newBlocks": ["controls_whileUntil", "logic_boolean"],
+      "start": "<xml><block type='LbMission.beginByTeacher_end' x='40' y='40'><field name='comboTouch'>TB1A + TB1B</field></block></xml>",
+      "solution": "<xml><block type='LbMission.beginByTeacher_end' x='40' y='40'><field name='comboTouch'>TB1A + TB1B</field><statement name='Body'><block type='controls_whileUntil'><field name='MODE'>WHILE</field><value name='BOOL'><block type='logic_boolean'><field name='BOOL'>TRUE</field></block></value><statement name='DO'><block type='LbMotion.run'><field name='UnitSpeed'>rpm</field><value name='Left'><shadow type='math_number'><field name='NUM'>30</field></shadow></value><value name='Right'><shadow type='math_number'><field name='NUM'>30</field></shadow></value><next><block type='controls_if'><value name='IF0'><block type='Leanbot.objectInFront'><value name='Distance'><shadow type='math_number'><field name='NUM'>25</field></shadow></value></block></value><statement name='DO0'><block type='LbMotion.stop'></block></statement></block></next></block></statement></block></statement></block></xml>",
+      "hints": [
+        {
+          "match": "while (false)",
+          "say": "Ô đúng/sai đang là sai. Chọn đúng để lặp mãi."
+        }
+      ]
+    },
+    {
+      "kind": "build",
+      "id": "neu-ngoai-lap",
+      "mode": "fix",
+      "task": "Robot vẫn đâm vào tường. Sửa đi",
+      "help": ["Khối nếu đang nằm ngoài lặp: chỉ hỏi một lần."],
+      "toolbox": [
+        "LbMission.beginByTeacher_end",
+        "controls_whileUntil",
+        "logic_boolean",
+        "controls_if",
+        "Leanbot.objectInFront",
+        "LbMotion.run",
+        "LbMotion.stop"
+      ],
+      "start": "<xml><block type='LbMission.beginByTeacher_end' x='40' y='40'><field name='comboTouch'>TB1A + TB1B</field><statement name='Body'><block type='controls_whileUntil'><field name='MODE'>WHILE</field><value name='BOOL'><block type='logic_boolean'><field name='BOOL'>TRUE</field></block></value><statement name='DO'><block type='LbMotion.run'><field name='UnitSpeed'>rpm</field><value name='Left'><shadow type='math_number'><field name='NUM'>30</field></shadow></value><value name='Right'><shadow type='math_number'><field name='NUM'>30</field></shadow></value></block></statement><next><block type='controls_if'><value name='IF0'><block type='Leanbot.objectInFront'><value name='Distance'><shadow type='math_number'><field name='NUM'>25</field></shadow></value></block></value><statement name='DO0'><block type='LbMotion.stop'></block></statement></block></next></block></statement></block></xml>",
+      "solution": "<xml><block type='LbMission.beginByTeacher_end' x='40' y='40'><field name='comboTouch'>TB1A + TB1B</field><statement name='Body'><block type='controls_whileUntil'><field name='MODE'>WHILE</field><value name='BOOL'><block type='logic_boolean'><field name='BOOL'>TRUE</field></block></value><statement name='DO'><block type='LbMotion.run'><field name='UnitSpeed'>rpm</field><value name='Left'><shadow type='math_number'><field name='NUM'>30</field></shadow></value><value name='Right'><shadow type='math_number'><field name='NUM'>30</field></shadow></value><next><block type='controls_if'><value name='IF0'><block type='Leanbot.objectInFront'><value name='Distance'><shadow type='math_number'><field name='NUM'>25</field></shadow></value></block></value><statement name='DO0'><block type='LbMotion.stop'></block></statement></block></next></block></statement></block></statement></block></xml>"
+    },
+    {
+      "kind": "build",
+      "id": "in-khoang-cach",
+      "mode": "build",
+      "task": "In khoảng cách ra MONITOR mỗi nửa giây",
+      "help": [
+        "Serial: mở với tốc độ 115200. Rồi lặp mãi: in khoảng cách, chờ 0.5 giây.",
+        "Mở MONITOR ở Leanbot IDE, đưa tay lại gần xem số đổi."
+      ],
+      "toolbox": [
+        "board_serial_init",
+        "board_serial_print",
+        "Leanbot.ping",
+        "controls_whileUntil",
+        "logic_boolean",
+        "Leanbot.delay"
+      ],
+      "newBlocks": ["board_serial_init", "board_serial_print", "Leanbot.ping"],
+      "start": "<xml><block type='LbMission.beginByTeacher_end' x='40' y='40'><field name='comboTouch'>TB1A + TB1B</field></block></xml>",
+      "solution": "<xml><block type='board_serial_init'><field name='SPEED'>115200</field></block><block type='LbMission.beginByTeacher_end' x='40' y='140'><field name='comboTouch'>TB1A + TB1B</field><statement name='Body'><block type='controls_whileUntil'><field name='MODE'>WHILE</field><value name='BOOL'><block type='logic_boolean'><field name='BOOL'>TRUE</field></block></value><statement name='DO'><block type='board_serial_print'><field name='PRINT'>println</field><value name='CONTENT'><block type='Leanbot.ping'><field name='UnitPing'>cm</field></block></value><next><block type='Leanbot.delay'><field name='Unit'>seconds</field><value name='Delay'><shadow type='math_number'><field name='NUM'>0.5</field></shadow></value></block></next></block></statement></block></statement></block></xml>",
+      "accept": [
+        "<xml><block type='LbMission.beginByTeacher_end' x='40' y='40'><field name='comboTouch'>TB1A + TB1B</field><statement name='Body'><block type='controls_whileUntil'><field name='MODE'>WHILE</field><value name='BOOL'><block type='logic_boolean'><field name='BOOL'>TRUE</field></block></value><statement name='DO'><block type='board_serial_print'><field name='PRINT'>println</field><value name='CONTENT'><block type='Leanbot.ping'><field name='UnitPing'>cm</field></block></value><next><block type='Leanbot.delay'><field name='Unit'>seconds</field><value name='Delay'><shadow type='math_number'><field name='NUM'>0.5</field></shadow></value></block></next></block></statement></block></statement></block><block type='board_serial_init' x='40' y='400'><field name='SPEED'>115200</field></block></xml>"
+      ]
+    },
+    {
+      "kind": "read",
+      "id": "lap-khi",
+      "screen": {
+        "part": "Lặp khi",
+        "title": "Lặp khi: còn đúng thì còn làm",
+        "lines": [
+          "Lặp khi hỏi trước mỗi vòng: còn đúng thì làm thêm, sai thì đi xuống khối dưới.",
+          "Còn gần trong 30 cm thì còn lùi."
+        ],
+        "images": [
+          {
+            "src": "bai-03/lap-khi.png",
+            "alt": "Sơ đồ: còn đúng thì làm khối bên trong rồi hỏi lại; sai thì đi xuống khối dưới"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "build",
+      "id": "lui-toi-khi-trong",
+      "mode": "build",
+      "task": "Lùi khi vật còn trong 30 cm, rồi dừng",
+      "help": [
+        "So sánh: khoảng cách ≤ 30. Cắm số 30 vào ô bên phải.",
+        "Khối Dừng nằm ngoài, dưới lặp khi."
+      ],
+      "toolbox": [
+        "LbMission.beginByTeacher_end",
+        "controls_whileUntil",
+        "logic_compare",
+        "Leanbot.ping",
+        "math_number",
+        "LbMotion.run",
+        "LbMotion.stop"
+      ],
+      "newBlocks": ["logic_compare", "math_number"],
+      "start": "<xml><block type='LbMission.beginByTeacher_end' x='40' y='40'><field name='comboTouch'>TB1A + TB1B</field></block></xml>",
+      "solution": "<xml><block type='LbMission.beginByTeacher_end' x='40' y='40'><field name='comboTouch'>TB1A + TB1B</field><statement name='Body'><block type='controls_whileUntil'><field name='MODE'>WHILE</field><value name='BOOL'><block type='logic_compare'><field name='OP'>LTE</field><value name='A'><block type='Leanbot.ping'><field name='UnitPing'>cm</field></block></value><value name='B'><block type='math_number'><field name='NUM'>30</field></block></value></block></value><statement name='DO'><block type='LbMotion.run'><field name='UnitSpeed'>rpm</field><value name='Left'><shadow type='math_number'><field name='NUM'>-30</field></shadow></value><value name='Right'><shadow type='math_number'><field name='NUM'>-30</field></shadow></value></block></statement><next><block type='LbMotion.stop'></block></next></block></statement></block></xml>",
+      "hints": [
+        {
+          "match": ">= 30",
+          "say": "Dấu đang là ≥. Còn gần là ≤ 30."
+        },
+        {
+          "match": "== 30",
+          "say": "Đổi dấu = thành ≤."
+        }
+      ]
+    },
+    {
+      "kind": "build",
+      "id": "dung-trong-lap",
+      "mode": "fix",
+      "task": "Robot cứ giật cục. Khối Dừng để sai chỗ",
+      "image": {
+        "src": "bai-03/dung-ngoai-dung.png",
+        "alt": "Khối Dừng nằm bên dưới, ngoài vòng lặp",
+        "caption": "Đúng: Dừng nằm NGOÀI"
+      },
+      "toolbox": [
+        "LbMission.beginByTeacher_end",
+        "controls_whileUntil",
+        "logic_compare",
+        "Leanbot.ping",
+        "math_number",
+        "LbMotion.run",
+        "LbMotion.stop"
+      ],
+      "start": "<xml><block type='LbMission.beginByTeacher_end' x='40' y='40'><field name='comboTouch'>TB1A + TB1B</field><statement name='Body'><block type='controls_whileUntil'><field name='MODE'>WHILE</field><value name='BOOL'><block type='logic_compare'><field name='OP'>LTE</field><value name='A'><block type='Leanbot.ping'><field name='UnitPing'>cm</field></block></value><value name='B'><block type='math_number'><field name='NUM'>30</field></block></value></block></value><statement name='DO'><block type='LbMotion.run'><field name='UnitSpeed'>rpm</field><value name='Left'><shadow type='math_number'><field name='NUM'>-30</field></shadow></value><value name='Right'><shadow type='math_number'><field name='NUM'>-30</field></shadow></value><next><block type='LbMotion.stop'></block></next></block></statement></block></statement></block></xml>",
+      "solution": "<xml><block type='LbMission.beginByTeacher_end' x='40' y='40'><field name='comboTouch'>TB1A + TB1B</field><statement name='Body'><block type='controls_whileUntil'><field name='MODE'>WHILE</field><value name='BOOL'><block type='logic_compare'><field name='OP'>LTE</field><value name='A'><block type='Leanbot.ping'><field name='UnitPing'>cm</field></block></value><value name='B'><block type='math_number'><field name='NUM'>30</field></block></value></block></value><statement name='DO'><block type='LbMotion.run'><field name='UnitSpeed'>rpm</field><value name='Left'><shadow type='math_number'><field name='NUM'>-30</field></shadow></value><value name='Right'><shadow type='math_number'><field name='NUM'>-30</field></shadow></value></block></statement><next><block type='LbMotion.stop'></block></next></block></statement></block></xml>"
+    },
+    {
+      "kind": "build",
+      "id": "tranh-vat",
+      "mode": "build",
+      "task": "Ghép đủ: tới, dừng ở 25 cm, lùi tới khi trống",
+      "help": [
+        "Lặp mãi: chạy tới; nếu có vật trong 25 cm thì Dừng, lùi khi còn trong 30 cm, Dừng."
+      ],
+      "image": {
+        "src": "bai-03/bon-luat.png",
+        "alt": "Bốn ô: trống thì đi tiếp, gần 25 cm thì dừng, lùi tới khi hơn 30 cm, kiểm tra liên tục"
+      },
+      "toolbox": [
+        "LbMission.beginByTeacher_end",
+        "controls_whileUntil",
+        "logic_boolean",
+        "controls_if",
+        "Leanbot.objectInFront",
+        "logic_compare",
+        "Leanbot.ping",
+        "math_number",
+        "LbMotion.run",
+        "LbMotion.stop"
+      ],
+      "start": "<xml><block type='LbMission.beginByTeacher_end' x='40' y='40'><field name='comboTouch'>TB1A + TB1B</field></block></xml>",
+      "solution": "<xml><block type='LbMission.beginByTeacher_end' x='40' y='40'><field name='comboTouch'>TB1A + TB1B</field><statement name='Body'><block type='controls_whileUntil'><field name='MODE'>WHILE</field><value name='BOOL'><block type='logic_boolean'><field name='BOOL'>TRUE</field></block></value><statement name='DO'><block type='LbMotion.run'><field name='UnitSpeed'>rpm</field><value name='Left'><shadow type='math_number'><field name='NUM'>30</field></shadow></value><value name='Right'><shadow type='math_number'><field name='NUM'>30</field></shadow></value><next><block type='controls_if'><value name='IF0'><block type='Leanbot.objectInFront'><value name='Distance'><shadow type='math_number'><field name='NUM'>25</field></shadow></value></block></value><statement name='DO0'><block type='LbMotion.stop'><next><block type='controls_whileUntil'><field name='MODE'>WHILE</field><value name='BOOL'><block type='logic_compare'><field name='OP'>LTE</field><value name='A'><block type='Leanbot.ping'><field name='UnitPing'>cm</field></block></value><value name='B'><block type='math_number'><field name='NUM'>30</field></block></value></block></value><statement name='DO'><block type='LbMotion.run'><field name='UnitSpeed'>rpm</field><value name='Left'><shadow type='math_number'><field name='NUM'>-30</field></shadow></value><value name='Right'><shadow type='math_number'><field name='NUM'>-30</field></shadow></value></block></statement><next><block type='LbMotion.stop'></block></next></block></next></block></statement></block></next></block></statement></block></statement></block></xml>"
+    },
+    {
+      "kind": "read",
+      "id": "robot-hop",
+      "screen": {
+        "part": "Robot thật",
+        "title": "Robot tránh hộp",
+        "steps": [
+          ["1", "Đặt hộp cách robot khoảng 1 mét"],
+          ["2", "Chép code, nạp, chạm TB1A và TB1B"],
+          ["3", "Robot dừng cách hộp 23 tới 27 cm?"],
+          ["4", "Đẩy hộp lại gần: robot lùi ra?"]
+        ],
+        "images": [
+          {
+            "src": "bai-03/ba-phep-thu.png",
+            "alt": "Ba phép thử: chắn vở thì dừng ngay, đẩy hộp sát thì lùi, bỏ hộp thì chạy tiếp"
+          }
+        ],
+        "links": [
+          {
+            "label": "Leanbot IDE",
+            "href": "https://ide.pythaverse.space/#/code"
+          }
+        ],
+        "check": "Robot dừng trước hộp và lùi khi hộp tới gần",
+        "checkId": "robot-tranh-hop"
+      },
+      "program": "<xml><block type='LbMission.beginByTeacher_end' x='40' y='40'><field name='comboTouch'>TB1A + TB1B</field><statement name='Body'><block type='controls_whileUntil'><field name='MODE'>WHILE</field><value name='BOOL'><block type='logic_boolean'><field name='BOOL'>TRUE</field></block></value><statement name='DO'><block type='LbMotion.run'><field name='UnitSpeed'>rpm</field><value name='Left'><shadow type='math_number'><field name='NUM'>30</field></shadow></value><value name='Right'><shadow type='math_number'><field name='NUM'>30</field></shadow></value><next><block type='controls_if'><value name='IF0'><block type='Leanbot.objectInFront'><value name='Distance'><shadow type='math_number'><field name='NUM'>25</field></shadow></value></block></value><statement name='DO0'><block type='LbMotion.stop'><next><block type='controls_whileUntil'><field name='MODE'>WHILE</field><value name='BOOL'><block type='logic_compare'><field name='OP'>LTE</field><value name='A'><block type='Leanbot.ping'><field name='UnitPing'>cm</field></block></value><value name='B'><block type='math_number'><field name='NUM'>30</field></block></value></block></value><statement name='DO'><block type='LbMotion.run'><field name='UnitSpeed'>rpm</field><value name='Left'><shadow type='math_number'><field name='NUM'>-30</field></shadow></value><value name='Right'><shadow type='math_number'><field name='NUM'>-30</field></shadow></value></block></statement><next><block type='LbMotion.stop'></block></next></block></next></block></statement></block></next></block></statement></block></statement></block></xml>"
+    }
+  ]
+}

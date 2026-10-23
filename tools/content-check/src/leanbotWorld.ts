@@ -20,6 +20,14 @@ function codeOf(xml: string): string | Error {
   }
 }
 
+function programBlockTypesSafe(xml: string): string[] {
+  try {
+    return programBlockTypes(xml);
+  } catch {
+    return [];
+  }
+}
+
 /** Rule 29 for one lesson that already passed its schema. */
 export function leanbotWorldIssues(lesson: LeanbotWorldLesson): LeanbotWorldIssue[] {
   const issues: LeanbotWorldIssue[] = [];
@@ -41,9 +49,15 @@ export function leanbotWorldIssues(lesson: LeanbotWorldLesson): LeanbotWorldIssu
       add(`${at}.solution does not load: ${solution.message}`);
       continue;
     }
-    const missing = programBlockTypes(screen.solution).filter((t) => !screen.toolbox.includes(t));
+    // A block the starting program already holds needs no place in the toolbox.
+    const given = new Set(screen.start === undefined ? [] : programBlockTypesSafe(screen.start));
+    const missing = programBlockTypes(screen.solution).filter(
+      (t) => !screen.toolbox.includes(t) && !given.has(t),
+    );
     if (missing.length > 0) {
-      add(`${at}: the solution uses ${missing.join(', ')}, which the toolbox does not offer`);
+      add(
+        `${at}: the solution uses ${missing.join(', ')}, which neither the toolbox nor the start offers`,
+      );
     }
     for (const [i, accepted] of (screen.accept ?? []).entries()) {
       const code = codeOf(accepted);
