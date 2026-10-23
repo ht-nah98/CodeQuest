@@ -209,7 +209,9 @@ describe('loadCatalog', () => {
     for (const id of ids) {
       if (id === SANDBOX_WORLD_ID) continue;
       const world = loaded.worldById.get(id);
-      const hasBoss = world?.levelIds.some((levelId) => loaded.levels.get(levelId)?.stage === 'boss');
+      const hasBoss = world?.levelIds.some(
+        (levelId) => loaded.levels.get(levelId)?.stage === 'boss',
+      );
       expect(hasBoss, `${id} is on the map, so it must have a boss`).toBe(true);
     }
     // World 10 is still being written (P5-09), so a child does not see it yet.

@@ -34,6 +34,7 @@ Trạng thái: **Đề xuất** → **Chấp nhận** → (**Đã bị thay th�
 | [0026](0026-maze-step-limit.md) | Bước sức của mê cung (`stepLimit`): mỗi `tiến` tốn 1 bước, hết bước là dừng | **Đề xuất** |
 | [0028](0028-two-courses-one-account.md) | Hai khóa trong một app (`/hub`): Leanbot và CodeQuest, chung một tài khoản | **Chấp nhận** |
 | [0029](0029-lesson-zero-gates-the-leanbot-course.md) | Bài 0 là cổng của khóa Leanbot: tích đủ 9 ô kiểm tra thì bài sau mới mở | **Chấp nhận** |
+| [0030](0030-leanbot-world-lessons.md) | Bài giảng Thế giới Leanbot ở trang riêng `/the-gioi-leanbot`, chấm bằng so code, chỉ đánh dấu xong | **Chấp nhận** |
 
 ## Mẫu
 ```markdown

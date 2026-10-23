@@ -5,6 +5,7 @@
   "type": "module",
   "dependencies": {
     "@codequest/games": "*",
-    "blockly": "13.3.0"
+    "blockly": "13.3.0",
+    "@codequest/content-schema": "*"
   }
 }

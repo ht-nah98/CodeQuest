@@ -171,8 +171,12 @@ export {
   LB_BLOCKS,
   LB_COLOURS,
   LB_GENERATED_TYPES,
+  checkProgram,
   LB_TOOLBOX,
   parseArduino,
+  programBlockTypes,
+  programCode,
+  toolboxXml,
   registerLeanbotBlocks,
   registerLeanbotFlyouts,
   toArduino,
@@ -185,4 +189,5 @@ export type {
   ParseProblem,
   ParseProblemReason,
   ParseResult,
+  ProgramCheck,
 } from './leanbot';

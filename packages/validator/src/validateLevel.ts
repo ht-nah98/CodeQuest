@@ -41,6 +41,8 @@ export const ID_PATTERNS = {
   lesson: /^w\d{2}-lesson(?:-[a-z0-9]+(?:-[a-z0-9]+)*)?$/,
   /** Leanbot course lessons (ADR-0028) are numbered, not tied to a world. */
   leanbot: /^bai-\d{2}$/,
+  /** Thế giới Leanbot lessons (ADR-0030): "l0-xuong-khoi", "b1a-di-toi-di-lui". */
+  leanbotWorld: /^[a-z]\d+[a-z]?(?:-[a-z0-9]+)+$/,
 } as const;
 
 export interface ValidateLevelOptions {

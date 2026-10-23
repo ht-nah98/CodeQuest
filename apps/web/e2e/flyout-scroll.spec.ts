@@ -44,8 +44,9 @@ async function flyoutState(page: Page, type?: string) {
       const flyout = workspace.getFlyout();
       if (!flyout) throw new Error('no flyout');
       const metrics = flyout.getWorkspace().getMetrics();
-      const area = (document.querySelector('.blocklyFlyout:not(.blocklyTrashcanFlyout)') as Element)
-        .getBoundingClientRect();
+      const area = (
+        document.querySelector('.blocklyFlyout:not(.blocklyTrashcanFlyout)') as Element
+      ).getBoundingClientRect();
       const blocks = flyout.getWorkspace().getTopBlocks(true);
       const source = blockType ? blocks.find((b) => b.type === blockType) : blocks.at(-1);
       const box = source?.getSvgRoot().getBoundingClientRect();
@@ -179,7 +180,9 @@ for (const level of LEVELS) {
       await page.mouse.wheel(0, -5000);
       await expect.poll(async () => (await flyoutState(page)).top).toBe(0);
       const thumb = await page.evaluate(() => {
-        const handle = [...document.querySelectorAll('.blocklyFlyoutScrollbar .blocklyScrollbarHandle')]
+        const handle = [
+          ...document.querySelectorAll('.blocklyFlyoutScrollbar .blocklyScrollbarHandle'),
+        ]
           .map((el) => el.getBoundingClientRect())
           .find((r) => r.height > 0);
         return handle ? { x: handle.x + handle.width / 2, y: handle.y + handle.height / 2 } : null;

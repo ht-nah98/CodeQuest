@@ -1,0 +1,157 @@
+{
+  "id": "l1-chuong-trinh-dau-tien",
+  "number": 1,
+  "stage": 0,
+  "title": "Chương trình đầu tiên",
+  "canDo": "Chạm hai vùng chạm là robot kêu bíp và sáng đèn",
+  "goals": [
+    "Cho robot kêu, đổi tiếng cao tiếng thấp",
+    "Tô màu cho đèn rồi bật đèn lên",
+    "Cho robot đợi tay con chạm mới chạy",
+    "Nạp chương trình xuống robot thật"
+  ],
+  "course": "bai-00",
+  "screens": [
+    {
+      "kind": "build",
+      "id": "bip",
+      "mode": "build",
+      "task": "Cho robot kêu một tiếng bíp",
+      "help": ["Kéo khối Âm thanh vào giữa khối Nhiệm vụ."],
+      "toolbox": ["LbMission.beginImmediately_end", "Leanbot.delay", "Leanbot.toneDuration"],
+      "newBlocks": ["Leanbot.toneDuration"],
+      "start": "<xml><block type='LbMission.beginImmediately_end' x='40' y='40'></block></xml>",
+      "solution": "<xml><block type='LbMission.beginImmediately_end' x='40' y='40'><statement name='Body'><block type='Leanbot.toneDuration'><field name='UnitFreq'>Hz</field><field name='UnitDuration'>milliseconds</field><value name='Freq'><shadow type='math_number'><field name='NUM'>1500</field></shadow></value><value name='Duration'><shadow type='math_number'><field name='NUM'>100</field></shadow></value></block></statement></block></xml>"
+    },
+    {
+      "kind": "build",
+      "id": "do-re-mi",
+      "mode": "fill",
+      "task": "Kêu đồ, rê, mi: 262, 294, 330 Hz",
+      "help": ["Số Hz càng lớn, tiếng càng cao."],
+      "toolbox": ["LbMission.beginImmediately_end", "Leanbot.delay", "Leanbot.toneDuration"],
+      "start": "<xml><block type='LbMission.beginImmediately_end' x='40' y='40'><statement name='Body'><block type='Leanbot.toneDuration'><field name='UnitFreq'>Hz</field><field name='UnitDuration'>milliseconds</field><value name='Freq'><shadow type='math_number'><field name='NUM'>1500</field></shadow></value><value name='Duration'><shadow type='math_number'><field name='NUM'>100</field></shadow></value><next><block type='Leanbot.toneDuration'><field name='UnitFreq'>Hz</field><field name='UnitDuration'>milliseconds</field><value name='Freq'><shadow type='math_number'><field name='NUM'>1500</field></shadow></value><value name='Duration'><shadow type='math_number'><field name='NUM'>100</field></shadow></value><next><block type='Leanbot.toneDuration'><field name='UnitFreq'>Hz</field><field name='UnitDuration'>milliseconds</field><value name='Freq'><shadow type='math_number'><field name='NUM'>1500</field></shadow></value><value name='Duration'><shadow type='math_number'><field name='NUM'>100</field></shadow></value></block></next></block></next></block></statement></block></xml>",
+      "solution": "<xml><block type='LbMission.beginImmediately_end' x='40' y='40'><statement name='Body'><block type='Leanbot.toneDuration'><field name='UnitFreq'>Hz</field><field name='UnitDuration'>milliseconds</field><value name='Freq'><shadow type='math_number'><field name='NUM'>262</field></shadow></value><value name='Duration'><shadow type='math_number'><field name='NUM'>100</field></shadow></value><next><block type='Leanbot.toneDuration'><field name='UnitFreq'>Hz</field><field name='UnitDuration'>milliseconds</field><value name='Freq'><shadow type='math_number'><field name='NUM'>294</field></shadow></value><value name='Duration'><shadow type='math_number'><field name='NUM'>100</field></shadow></value><next><block type='Leanbot.toneDuration'><field name='UnitFreq'>Hz</field><field name='UnitDuration'>milliseconds</field><value name='Freq'><shadow type='math_number'><field name='NUM'>330</field></shadow></value><value name='Duration'><shadow type='math_number'><field name='NUM'>100</field></shadow></value></block></next></block></next></block></statement></block></xml>",
+      "hints": [
+        {
+          "match": "1500",
+          "say": "Còn khối kêu 1500 Hz. Đổi cho đủ ba nốt."
+        }
+      ]
+    },
+    {
+      "kind": "read",
+      "id": "bay-den",
+      "screen": {
+        "part": "Đèn và còi",
+        "title": "Bảy đèn và một cái còi",
+        "lines": ["Đèn O ở giữa, sáu đèn A đến F xếp quanh.", "Mỗi đèn sáng được nhiều màu."],
+        "images": [
+          {
+            "src": "bai-00/den-coi.png",
+            "alt": "Bảy đèn của Leanbot sáng nhiều màu, và cái còi kêu đủ tám nốt"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "build",
+      "id": "to-den",
+      "mode": "build",
+      "task": "Tô đèn O màu đỏ rồi bật lên",
+      "help": ["Bấm ô màu để chọn màu đỏ.", "Tô màu xong phải có khối Bật lên."],
+      "toolbox": [
+        "LbMission.beginImmediately_end",
+        "Leanbot.delay",
+        "Leanbot.toneDuration",
+        "LbRGB.setColor",
+        "LbRGB.show"
+      ],
+      "newBlocks": ["LbRGB.setColor", "LbRGB.show"],
+      "start": "<xml><block type='LbMission.beginImmediately_end' x='40' y='40'></block></xml>",
+      "solution": "<xml><block type='LbMission.beginImmediately_end' x='40' y='40'><statement name='Body'><block type='LbRGB.setColor'><field name='ledX'>ledO</field><value name='RGBColor'><shadow type='LbRGB.colour_picker'><field name='Color'>#ff0000</field></shadow></value><next><block type='LbRGB.show'></block></next></block></statement></block></xml>",
+      "hints": [
+        {
+          "match": "0x00ffff",
+          "say": "Đèn đang màu xanh ngọc. Bấm ô màu, chọn đỏ."
+        }
+      ]
+    },
+    {
+      "kind": "build",
+      "id": "quen-bat-len",
+      "mode": "fix",
+      "task": "Đèn chưa sáng. Thiếu khối gì?",
+      "help": ["Tô màu chỉ là ghi nhớ màu. Đèn chưa sáng."],
+      "toolbox": [
+        "LbMission.beginImmediately_end",
+        "Leanbot.delay",
+        "Leanbot.toneDuration",
+        "LbRGB.setColor",
+        "LbRGB.show"
+      ],
+      "start": "<xml><block type='LbMission.beginImmediately_end' x='40' y='40'><statement name='Body'><block type='LbRGB.setColor'><field name='ledX'>ledA</field><value name='RGBColor'><shadow type='LbRGB.colour_picker'><field name='Color'>#3333ff</field></shadow></value></block></statement></block></xml>",
+      "solution": "<xml><block type='LbMission.beginImmediately_end' x='40' y='40'><statement name='Body'><block type='LbRGB.setColor'><field name='ledX'>ledA</field><value name='RGBColor'><shadow type='LbRGB.colour_picker'><field name='Color'>#3333ff</field></shadow></value><next><block type='LbRGB.show'></block></next></block></statement></block></xml>"
+    },
+    {
+      "kind": "read",
+      "id": "cho-cham",
+      "screen": {
+        "part": "Bắt đầu nhiệm vụ",
+        "title": "Robot đợi tay con",
+        "lines": [
+          "Bắt đầu ngay lập tức: robot chạy ngay khi nạp xong.",
+          "Bắt đầu khi chạm cùng lúc: robot đợi con chạm TB1A và TB1B."
+        ],
+        "images": [
+          {
+            "src": "bai-00/nut-cham.png",
+            "alt": "Bốn vùng chạm TB1A, TB1B, TB2A, TB2B ở mép mạch của Leanbot"
+          }
+        ],
+        "tip": "Chạm hai vùng bằng hai ngón tay, cùng một lúc."
+      }
+    },
+    {
+      "kind": "build",
+      "id": "cham-roi-keu",
+      "mode": "build",
+      "task": "Chạm hai vùng thì kêu bíp và sáng đèn",
+      "help": ["Dùng khối Nhiệm vụ: Bắt đầu khi chạm cùng lúc.", "Giữ màu có sẵn của đèn O."],
+      "toolbox": [
+        "LbMission.beginByTeacher_end",
+        "LbMission.beginImmediately_end",
+        "Leanbot.delay",
+        "Leanbot.toneDuration",
+        "LbRGB.setColor",
+        "LbRGB.show"
+      ],
+      "newBlocks": ["LbMission.beginByTeacher_end"],
+      "solution": "<xml><block type='LbMission.beginByTeacher_end' x='40' y='40'><field name='comboTouch'>TB1A + TB1B</field><statement name='Body'><block type='Leanbot.toneDuration'><field name='UnitFreq'>Hz</field><field name='UnitDuration'>milliseconds</field><value name='Freq'><shadow type='math_number'><field name='NUM'>1500</field></shadow></value><value name='Duration'><shadow type='math_number'><field name='NUM'>100</field></shadow></value><next><block type='LbRGB.setColor'><field name='ledX'>ledO</field><value name='RGBColor'><shadow type='LbRGB.colour_picker'><field name='Color'>#00ffff</field></shadow></value><next><block type='LbRGB.show'></block></next></block></next></block></statement></block></xml>"
+    },
+    {
+      "kind": "read",
+      "id": "robot-that",
+      "screen": {
+        "part": "Robot thật",
+        "title": "Nạp xuống robot và chạm",
+        "steps": [
+          ["1", "Bấm Chép code"],
+          ["2", "Mở Leanbot IDE, dán code, bấm nạp"],
+          ["3", "Chạm TB1A và TB1B cùng lúc"],
+          ["4", "Nghe bíp, nhìn đèn O sáng"]
+        ],
+        "links": [
+          {
+            "label": "Leanbot IDE",
+            "href": "https://ide.pythaverse.space/#/code"
+          }
+        ],
+        "note": "Máy chưa nạp được code thì làm Bài 0 của khóa Leanbot trước.",
+        "check": "Robot kêu bíp và sáng đèn",
+        "checkId": "robot-bip-den"
+      },
+      "program": "<xml><block type='LbMission.beginByTeacher_end' x='40' y='40'><field name='comboTouch'>TB1A + TB1B</field><statement name='Body'><block type='Leanbot.toneDuration'><field name='UnitFreq'>Hz</field><field name='UnitDuration'>milliseconds</field><value name='Freq'><shadow type='math_number'><field name='NUM'>1500</field></shadow></value><value name='Duration'><shadow type='math_number'><field name='NUM'>100</field></shadow></value><next><block type='LbRGB.setColor'><field name='ledX'>ledO</field><value name='RGBColor'><shadow type='LbRGB.colour_picker'><field name='Color'>#00ffff</field></shadow></value><next><block type='LbRGB.show'></block></next></block></next></block></statement></block></xml>"
+    }
+  ]
+}

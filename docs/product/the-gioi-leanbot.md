@@ -309,9 +309,8 @@ Sau Màn 0, xưởng luôn mở ở mọi màn (nút "Xem code").
   đúng như cũ.
 - **Biên dịch thật** (§9.12): một script gửi code lời giải của mọi màn tới
   `cs.leanbot.space/v3/compile`. Chạy tay trước khi gộp (cần mạng nên không chạy trong CI).
-- **Hai bản đồ**: `World` có thêm trường `map` (`lang-mang` | `leanbot`), mặc định `lang-mang`
-  để 10 thế giới cũ không phải sửa. `/map` có chỗ chuyển bản đồ. Đây là đổi schema và route,
-  khó lùi → viết ADR-0030 và hỏi HLV khi tới bước đó (§9.5).
+- **Không đặt lên bản đồ `/map`** (bỏ ý `World.map` ban đầu): HLV chọn trang riêng
+  `/the-gioi-leanbot` cho bài giảng (ADR-0030, `the-gioi-leanbot-bai-giang.md`).
 - **Ẩn khi chưa xong** (§9.10): bản đồ Leanbot chưa có vùng nào đủ boss thì không hiện với bé.
 
 ### Đã làm (23/10/2026)

@@ -15,6 +15,8 @@ export type { LbBlockDef } from './blocks';
 export { blockToArduino, LB_GENERATED_TYPES, toArduino } from './arduino';
 export type { ArduinoProgram } from './arduino';
 export { LB_VARIABLE_FLYOUTS, registerLeanbotFlyouts } from './flyouts';
+export { checkProgram, programBlockTypes, programCode, toolboxXml } from './lesson';
+export type { ProgramCheck } from './lesson';
 export { parseArduino } from './parse';
 export type { BlockState, ParseProblem, ParseProblemReason, ParseResult } from './parse';
 export { registerLeanbotBlocks } from './register';

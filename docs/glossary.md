@@ -149,12 +149,14 @@ Luật đầy đủ: `product/game-kinds.md` §3.3. Trong lời nói cho bé ở
 | Đề mới | `nextSeed`, `examConfig` | Nút đổi sang đề khác (số đề mới, khối đổi chỗ) |
 | Thi thử · lượt · lượt tốt nhất | `level.exam` `{ runs, seed }`, `ExamScoreboard` | Màn `w06-exam`: 2 lượt × 120 giây, lượt nhiều điểm hơn được tính; không sao, không xu |
 
-## Thế giới Leanbot (bản đồ thứ hai, `product/the-gioi-leanbot.md`)
+## Thế giới Leanbot (`product/the-gioi-leanbot.md`, bài giảng: `product/the-gioi-leanbot-bai-giang.md`)
 Đủ 93 khối của trình soạn Pythaverse, cùng tên khối và cùng code, chữ trên khối bằng tiếng Việt.
 
 | Tiếng Việt | Trong code | Nghĩa |
 |---|---|---|
-| Thế giới Leanbot | (bản đồ, chưa có schema: ADR-0030) | Bản đồ thứ hai bên cạnh **Làng của Măng** (10 thế giới cũ) |
+| Thế giới Leanbot | `/the-gioi-leanbot`, `content/leanbot-world/` (ADR-0030) | Bài giảng khối Leanbot từng bước, cạnh **Làng của Măng** (10 thế giới cũ). Chặng → bài → màn |
+| Màn đọc / màn ghép | `kind: 'read'` / `kind: 'build'` (`mode`: `build`, `fix`, `fill`, `code`) | Màn ghép chấm bằng **so code** với lời giải (`checkProgram`) |
+| Khối mới | `newBlocks` | Khối gặp lần đầu ở màn này, đứng trên cùng khay khối |
 | Xưởng Phiên Dịch (Màn 0) | `/xuong-phien-dich`, `screens/workshop/` | Khối Việt ↔ code Leanbot, hai chiều. Chỉ HLV thấy cho tới khi bản đồ xong |
 | Khối Leanbot | tên khối của Pythaverse (`LbMotion.run`, `controls_if`…), `packages/games/src/leanbot/` | Không có tiền tố: chương trình lưu từ Pythaverse mở được ở đây. CodeQuest không dùng các khối lõi Blockly nào (nó dùng `cq_*`) |
 | Code Leanbot | `toArduino` | Code Arduino y như trình soạn Pythaverse in ra, bỏ 3 dòng "Generated … at <giờ>" |

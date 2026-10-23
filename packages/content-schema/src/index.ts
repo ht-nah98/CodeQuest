@@ -54,6 +54,7 @@ export type { Lesson, LessonCard, MascotPose } from './lesson';
 export {
   LEANBOT_TONES,
   LeanbotChipSchema,
+  LeanbotImageSchema,
   LeanbotLessonSchema,
   LeanbotLinkSchema,
   LeanbotLinksPageSchema,
@@ -71,6 +72,24 @@ export type {
   LeanbotScreen,
   LeanbotTone,
 } from './leanbot';
+
+export {
+  LBW_BUILD_MODES,
+  LbwBuildModeSchema,
+  LbwBuildScreenSchema,
+  LbwHintSchema,
+  LbwReadScreenSchema,
+  LbwScreenSchema,
+  LeanbotWorldLessonSchema,
+} from './leanbotWorld';
+export type {
+  LbwBuildMode,
+  LbwBuildScreen,
+  LbwHint,
+  LbwReadScreen,
+  LbwScreen,
+  LeanbotWorldLesson,
+} from './leanbotWorld';
 
 export {
   DEFAULT_SCENE_THEME,

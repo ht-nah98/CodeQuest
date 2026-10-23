@@ -11,6 +11,7 @@ content/
 │  ├─ badges.json          huy hiệu
 │  └─ robotlab.json        luật chung của robotlab: giờ, giây mỗi lệnh, điểm (ADR-0021)
 ├─ leanbot/                khóa Leanbot (ADR-0028), phẳng: không có world, level, par
+├─ leanbot-world/          bài Thế giới Leanbot (ADR-0030), phẳng: màn đọc + màn ghép khối chấm bằng so code
 │  └─ bai-00.json
 └─ worlds/
    └─ w01-lang-tre/
@@ -313,6 +314,7 @@ Cách hiểu chi tiết (cài đặt ở P1-11):
 
 **Bước sức của mê cung** (P5-03, ADR-0026)
 28. Bản đồ mê cung có `stepLimit`: lời giải (chạy không giới hạn) đi ≤ `stepLimit` bước `tiến` trên **mọi** bản đồ. Lỗi ghi `rule 28: solution walks 10 steps > stepLimit 9 on map 1` (lời giải khi đó cũng thua `OUT_OF_STEPS`, luật 9). Cài ở `tools/content-check/src/stepLimit.ts`; fixture `extra-28-step-limit-short/`, test `stepLimit.test.ts`. Luật soạn S2 ("cách chạy được nhưng chậm" phải thua `OUT_OF_STEPS`) là test của thế giới.
+29. **Bài Thế giới Leanbot** (`content/leanbot-world/`, ADR-0030): mọi chương trình (`solution`, `start`, `accept`, `program`) mở được và in ra code; khay khối (`toolbox`) chứa mọi khối của lời giải và chỉ gồm khối có thật; màn không bắt đầu bằng đúng lời giải. Ảnh nằm trong `public/leanbot/img` (luật 18). Cài ở `tools/content-check/src/leanbotWorld.ts`, test `leanbotWorld.test.ts`. Code lời giải biên dịch được kiểm bằng `npm run leanbot:compile` (cần mạng, chạy tay).
 
 **`turtle`** (P4-08, ADR-0024)
 26. Luật của kiểu game `turtle` (hình mẫu trên lưới, `start`, góc ghim, khóa `drawProgram`), cài ở `tools/content-check/src/turtle.ts` (xem ADR-0024).

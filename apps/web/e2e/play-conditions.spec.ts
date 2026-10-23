@@ -156,9 +156,7 @@ async function dragInto(
       // Connection positions are only right once the last drop has been rendered.
       await Blockly.renderManagement.finishQueuedRenders();
       const flyout = workspace.getFlyout()?.getWorkspace();
-      const source = flyout
-        ?.getTopBlocks(false)
-        .find((block) => block.type === blockType);
+      const source = flyout?.getTopBlocks(false).find((block) => block.type === blockType);
       const parent =
         parentId === 'start'
           ? workspace.getBlocksByType('cq_start', false)[0]
@@ -212,7 +210,7 @@ async function programInView(page: Page): Promise<boolean> {
     const flyout = document.querySelector('.blocklyFlyout')?.getBoundingClientRect();
     const left = flyout ? flyout.right : area.left;
     return workspace.getTopBlocks(false).every((block) => {
-      const box = (block).getSvgRoot().getBoundingClientRect();
+      const box = block.getSvgRoot().getBoundingClientRect();
       return box.left >= left - 1 && box.right <= area.right + 1;
     });
   });
@@ -289,7 +287,9 @@ test.describe('_sandbox runner-until: lặp đến khi, Từng bước, giới h
     await open(page, LEVEL);
     const stage = page.getByTestId('play-stage');
     // Tier-0 "enter" hint with point "step": the Từng bước button pulses (P2-11 T10).
-    await expect(page.getByTestId('play-bubble')).toHaveText('Bấm Từng bước, xem câu hỏi sáng xanh hay đỏ.');
+    await expect(page.getByTestId('play-bubble')).toHaveText(
+      'Bấm Từng bước, xem câu hỏi sáng xanh hay đỏ.',
+    );
     await expect(page.getByTestId('play-step')).toHaveAttribute('data-hint-target', 'true');
     await page.screenshot({ path: `${SHOTS}/${testInfo.project.name}-step-pointer.png` });
 
@@ -365,9 +365,7 @@ test.describe('_sandbox runner-until: lặp đến khi, Từng bước, giới h
     await page.screenshot({ path: `${SHOTS}/${testInfo.project.name}-empty-condition.png` });
   });
 
-  test('maxLoopDepth 1: a loop dropped into a loop is refused', async ({
-    page,
-  }, testInfo) => {
+  test('maxLoopDepth 1: a loop dropped into a loop is refused', async ({ page }, testInfo) => {
     await open(page, LEVEL);
     await setProgram(
       page,

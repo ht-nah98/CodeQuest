@@ -314,6 +314,12 @@ test('a child sees no Leanbot world yet, not even by its address', async ({ page
   await page.goto('/hub');
   await expect(page.getByRole('link', { name: /CodeQuest/ })).toBeVisible();
   await expect(page.getByTestId('hub-leanbot-world')).toHaveCount(0);
-  await page.goto('/xuong-phien-dich');
-  await expect(page).toHaveURL(/\/hub$/);
+  for (const path of [
+    '/xuong-phien-dich',
+    '/the-gioi-leanbot',
+    '/the-gioi-leanbot/l0-xuong-khoi/2',
+  ]) {
+    await page.goto(path);
+    await expect(page).toHaveURL(/\/hub$/);
+  }
 });

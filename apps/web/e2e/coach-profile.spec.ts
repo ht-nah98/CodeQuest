@@ -107,6 +107,8 @@ test('HLV turns pasted Leanbot code into Vietnamese blocks and back', async ({ p
   await expect(page).toHaveURL(/\/hub$/);
   await page.mouse.move(0, 0);
   await page.getByTestId('hub-leanbot-world').click();
+  await expect(page).toHaveURL(/\/the-gioi-leanbot$/);
+  await page.getByTestId('lbw-workshop').click();
   await expect(page).toHaveURL(/\/xuong-phien-dich$/);
   const code = page.getByTestId('workshop-code');
   // An empty workspace is Pythaverse's empty sketch.
@@ -169,4 +171,47 @@ test('HLV turns pasted Leanbot code into Vietnamese blocks and back', async ({ p
   await page.keyboard.press('ArrowRight');
   await expect(bar).toHaveAttribute('aria-valuenow', /\d+/);
   await page.screenshot({ path: `${SHOTS}/workshop-split.png` });
+});
+
+// Thế giới Leanbot lessons (ADR-0030): a build screen is checked by comparing code.
+test('HLV builds the first program of lesson 0 and the check says it is right', async ({
+  page,
+}) => {
+  mkdirSync(SHOTS, { recursive: true });
+  await page.goto('/');
+  await page.getByTestId('coach-tile').click();
+  for (const digit of PIN ?? '') await page.keyboard.press(digit);
+  await expect(page).toHaveURL(/\/hub$/);
+  await page.goto('/the-gioi-leanbot');
+  await expect(page.locator('[data-lesson="l0-xuong-khoi"]')).toContainText('0/8 màn');
+  await page.screenshot({ path: `${SHOTS}/lbw-list.png` });
+  await page.locator('[data-lesson="l0-xuong-khoi"]').click();
+  await expect(page).toHaveURL(/\/the-gioi-leanbot\/l0-xuong-khoi\/0$/);
+  await expect(page.getByText('Kéo khối, điền số và đọc được code khối sinh ra')).toBeVisible();
+  await page.getByTestId('lbw-next').click();
+  await expect(page.getByRole('img', { name: /1 là khay khối/ })).toBeVisible();
+  await page.getByTestId('lbw-next').click();
+
+  // "Kéo khối Nhiệm vụ ra chỗ ghép": checking an empty workspace is not right.
+  await expect(page.getByTestId('lbw-task')).toHaveText('Kéo khối Nhiệm vụ ra chỗ ghép');
+  await page.getByTestId('lbw-check').click();
+  await expect(page.getByTestId('lbw-result')).not.toHaveAttribute('data-ok');
+
+  const block = page.locator('.blocklyFlyout .blocklyDraggable').first();
+  await expect(block).toBeVisible();
+  const from = await block.boundingBox();
+  const area = await page.getByTestId('lbw-blocks').boundingBox();
+  if (!from || !area) throw new Error('no block or workspace');
+  await page.mouse.move(from.x + 20, from.y + 15);
+  await page.mouse.down();
+  await page.mouse.move(area.x + area.width - 250, area.y + 120, { steps: 10 });
+  await page.mouse.up();
+  await expect(page.getByTestId('lbw-code')).toContainText('LbMission.begin(0);');
+  await page.getByTestId('lbw-check').click();
+  await expect(page.getByTestId('lbw-result')).toHaveAttribute('data-ok', '');
+  await expect(page.getByTestId('lbw-result')).toContainText('Nhiệm vụ có đầu và có cuối');
+  await page.screenshot({ path: `${SHOTS}/lbw-build-right.png` });
+
+  await page.goto('/the-gioi-leanbot');
+  await expect(page.locator('[data-lesson="l0-xuong-khoi"]')).toContainText('2/8 màn');
 });

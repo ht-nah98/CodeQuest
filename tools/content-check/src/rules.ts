@@ -13,6 +13,7 @@ import {
   FeedbackFileSchema,
   LeanbotLessonSchema,
   LeanbotLinksPageSchema,
+  LeanbotWorldLessonSchema,
   LessonSchema,
   ShopFileSchema,
   WorldSchema,
@@ -35,6 +36,7 @@ import {
 } from '@codequest/validator';
 import type { z } from 'zod';
 import { checkCurriculum, type CurriculumInput, type WorldFile } from './curriculum';
+import { leanbotWorldIssues } from './leanbotWorld';
 import { procedureIssues } from './procedures';
 import { checkSorterLevel, sorterLevelWarnings, sorterTrapWarnings } from './sorter';
 import { stepLimitIssues } from './stepLimit';
@@ -42,7 +44,8 @@ import { checkTurtleLevel, turtleLevelWarnings, turtleT1Warnings } from './turtl
 
 export type { GameKindLookup } from '@codequest/validator';
 
-export type ContentKind = 'world' | 'level' | 'lesson' | 'leanbot' | 'leanbotLinks' | 'shared';
+export type ContentKind =
+  'world' | 'level' | 'lesson' | 'leanbot' | 'leanbotLinks' | 'leanbotWorld' | 'shared';
 
 export interface ContentFile {
   /** Path relative to `content/`, always with `/` separators. */
@@ -93,11 +96,15 @@ const BADGE_ID = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 /** `content/leanbot/duong-dan.json`: the course's page of links, not a lesson. */
 export const LEANBOT_LINKS_FILE = 'duong-dan.json';
 
-const ENTITY_SCHEMAS: Record<'world' | 'lesson' | 'leanbot' | 'leanbotLinks', z.ZodType> = {
+const ENTITY_SCHEMAS: Record<
+  'world' | 'lesson' | 'leanbot' | 'leanbotLinks' | 'leanbotWorld',
+  z.ZodType
+> = {
   world: WorldSchema,
   lesson: LessonSchema,
   leanbot: LeanbotLessonSchema,
   leanbotLinks: LeanbotLinksPageSchema,
+  leanbotWorld: LeanbotWorldLessonSchema,
 };
 
 function schemaIssues(path: string, error: z.ZodError): Issue[] {
@@ -209,14 +216,31 @@ function locate(path: string): Location | string {
   }
   // The Leanbot course (ADR-0028) is a flat folder: it has no worlds, levels or unlock chain.
   if (parts[0] === 'leanbot' && parts[1] === LEANBOT_LINKS_FILE) {
-    return { kind: 'leanbotLinks', isDraft: false, expectedId: null, worldPrefix: null, worldDir: null };
+    return {
+      kind: 'leanbotLinks',
+      isDraft: false,
+      expectedId: null,
+      worldPrefix: null,
+      worldDir: null,
+    };
   }
   if (parts[0] === 'leanbot' && parts.length === 2) {
     const id = (parts[1] ?? '').replace(/\.json$/, '');
     return { kind: 'leanbot', isDraft: false, expectedId: id, worldPrefix: null, worldDir: null };
   }
+  // Thế giới Leanbot lessons (ADR-0030): flat too.
+  if (parts[0] === 'leanbot-world' && parts.length === 2) {
+    const id = (parts[1] ?? '').replace(/\.json$/, '');
+    return {
+      kind: 'leanbotWorld',
+      isDraft: false,
+      expectedId: id,
+      worldPrefix: null,
+      worldDir: null,
+    };
+  }
   if (parts[0] !== 'worlds' || parts.length < 3) {
-    return 'file is outside shared/, worlds/<world>/ and leanbot/';
+    return 'file is outside shared/, worlds/<world>/, leanbot/ and leanbot-world/';
   }
   const worldDir = parts[1] ?? '';
   const isDraft = worldDir.startsWith('_');
@@ -398,6 +422,29 @@ export function checkContent(
             `screens.${String(index)}.images.${String(i)}.src`,
             `/leanbot/img/${image.src}`,
           ]);
+        }
+      }
+    }
+    if (location.kind === 'leanbotWorld') {
+      const lesson = entity.success ? LeanbotWorldLessonSchema.parse(parsed) : null;
+      if (lesson !== null) {
+        issues.push(...leanbotWorldIssues(lesson).map((issue) => ({ path: file.path, ...issue })));
+        // Rule 18: pictures exist in public/leanbot/img.
+        const pictures: [string, string][] = [];
+        if (lesson.image) pictures.push(['image.src', lesson.image.src]);
+        for (const [index, screen] of lesson.screens.entries()) {
+          const images =
+            screen.kind === 'read'
+              ? (screen.screen.images ?? [])
+              : screen.image
+                ? [screen.image]
+                : [];
+          for (const [i, image] of images.entries()) {
+            pictures.push([`screens.${String(index)}.images.${String(i)}.src`, image.src]);
+          }
+        }
+        for (const [field, src] of pictures) {
+          shared.assets.push([file.path, field, `/leanbot/img/${src}`]);
         }
       }
     }

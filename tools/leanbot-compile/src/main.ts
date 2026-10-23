@@ -1,12 +1,35 @@
 // Compiles the Arduino code of the Leanbot blocks on Leanbot's own server, the way Leanbot IDE
 // does (AGENTS.md §9.12: code shown to a child must compile). Needs the network, so it is run by
 // hand before merging, not in CI:  npm run leanbot:compile
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { utils, Workspace, Xml } from 'blockly';
-import { LB_TOOLBOX, type LbCategory, registerLeanbotBlocks, toArduino } from '@codequest/games';
+import { LeanbotWorldLessonSchema } from '@codequest/content-schema';
+import {
+  LB_TOOLBOX,
+  type LbCategory,
+  programCode,
+  registerLeanbotBlocks,
+  toArduino,
+} from '@codequest/games';
 
 const COMPILE_URL = 'https://cs.leanbot.space/v3/compile';
 const FIXTURES = new URL('../../../packages/games/src/leanbot/fixtures/', import.meta.url);
+const LESSONS = new URL('../../../content/leanbot-world/', import.meta.url);
+
+/** Every program a Thế giới Leanbot lesson shows or asks for: solutions and robot steps. */
+function lessonPrograms(): [string, string][] {
+  return readdirSync(LESSONS)
+    .filter((name) => name.endsWith('.json'))
+    .flatMap((name) => {
+      const lesson = LeanbotWorldLessonSchema.parse(
+        JSON.parse(readFileSync(new URL(name, LESSONS), 'utf8')),
+      );
+      return lesson.screens.flatMap((screen): [string, string][] => {
+        const xml = screen.kind === 'build' ? screen.solution : screen.program;
+        return xml === undefined ? [] : [[`${lesson.id} › ${screen.id}`, programCode(xml)]];
+      });
+    });
+}
 
 /**
  * Blocks whose code does not compile on its own, in Pythaverse too: "for each" prints
@@ -50,6 +73,7 @@ const programs: [string, string][] = [
     `${name}.ino`,
     readFileSync(new URL(`${name}.ino`, FIXTURES), 'utf8'),
   ]),
+  ...lessonPrograms(),
 ];
 let failed = 0;
 for (const [name, code] of programs) {

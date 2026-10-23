@@ -1,23 +1,17 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { Navigate } from 'react-router';
-import { common, Events, inject, serialization, svgResize, type WorkspaceSvg } from 'blockly';
+import { Events, serialization } from 'blockly';
+import { parseArduino, type ParseProblem } from '@codequest/games';
 import {
-  parseArduino,
-  type ParseProblem,
-  registerLeanbotFlyouts,
-  toArduino,
-} from '@codequest/games';
-import '../../blockly/blockly.css';
-import { loadBlocklyFonts, setupBlockly } from '../../blockly/setup';
-import { codequestTheme } from '../../blockly/theme';
-import {
-  LEANBOT_IDE_URL,
-  setupWorkshopBlocks,
-  workshopToolbox,
-} from '../../features/workshop/workshopToolbox';
+  CodeLines,
+  copyText,
+  selectLine,
+  useLeanbotWorkspace,
+} from '../../features/workshop/LeanbotEditor';
+import { LEANBOT_IDE_URL, workshopToolbox } from '../../features/workshop/workshopToolbox';
 import { useSignedInProfile } from '../../features/profiles';
 import { vi } from '../../i18n/vi';
-import { Button, Panel, UI_COLORS } from '../../ui';
+import { Button, Panel } from '../../ui';
 import { TopBar } from '../shared/TopBar';
 
 const t = vi.workshop;
@@ -61,19 +55,6 @@ function saveSplit(n: number): void {
   }
 }
 
-/** The block whose code starts on `line` (0-based), or the last one starting before it. */
-function blockAtLine(lineOf: ReadonlyMap<string, number>, line: number): string | null {
-  let best: string | null = null;
-  let bestLine = -1;
-  for (const [id, at] of lineOf) {
-    if (at <= line && at > bestLine) {
-      best = id;
-      bestLine = at;
-    }
-  }
-  return best;
-}
-
 /** "/xuong-phien-dich" Màn 0 of the Leanbot world: Vietnamese blocks ↔ Leanbot's Arduino code. */
 export default function WorkshopScreen() {
   const profile = useSignedInProfile();
@@ -86,74 +67,22 @@ function Workshop() {
   const host = useRef<HTMLDivElement>(null);
   const row = useRef<HTMLDivElement>(null);
   const [split, setSplit] = useState(readSplit);
-  const workspaceRef = useRef<WorkspaceSvg | null>(null);
   const [view, setView] = useState<CodeView>(EMPTY);
   const [selected, setSelected] = useState<string | null>(null);
   const [draft, setDraft] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
-
-  useEffect(() => {
-    const container = host.current;
-    if (!container) return;
-    let disposed = false;
-    let workspace: WorkspaceSvg | null = null;
-    void loadBlocklyFonts().then(() => {
-      if (disposed) return;
-      setupBlockly();
-      setupWorkshopBlocks();
-      workspace = inject(container, {
-        renderer: 'zelos',
-        theme: codequestTheme,
-        media: '/blockly-media/',
-        toolbox: workshopToolbox(),
-        trashcan: true,
-        sounds: false,
-        move: { scrollbars: true, drag: true, wheel: true },
-        zoom: { controls: true, wheel: false, startScale: 0.9, minScale: 0.5, maxScale: 1.6 },
-        grid: { spacing: 24, length: 2, colour: UI_COLORS.brandSoft, snap: true },
-      });
-      registerLeanbotFlyouts(workspace);
-      workspaceRef.current = workspace;
-      const ws = workspace;
-      ws.addChangeListener((event: Events.Abstract) => {
-        if (event instanceof Events.Selected) {
-          setSelected(event.newElementId ?? null);
-          return;
-        }
-        if (event.isUiEvent) return;
-        const program = toArduino(ws);
-        setView({ source: 'blocks', code: program.code, lineOf: program.lineOf });
-      });
-      const program = toArduino(ws);
+  const workspaceRef = useLeanbotWorkspace(host, {
+    toolbox: workshopToolbox(),
+    onProgram: (program) => {
       setView({ source: 'blocks', code: program.code, lineOf: program.lineOf });
-    });
-    // Blockly only follows window resizes; the column also changes width when the bar is dragged.
-    const resize = new ResizeObserver(() => {
-      if (workspace) svgResize(workspace);
-    });
-    resize.observe(container);
-    return () => {
-      resize.disconnect();
-      disposed = true;
-      workspace?.dispose();
-      workspaceRef.current = null;
-    };
-  }, []);
+    },
+    onSelect: setSelected,
+  });
 
-  const lines = view.code.split('\n');
   const highlighted = selected !== null ? view.lineOf.get(selected) : undefined;
-  const problemLines = new Map(
-    view.source === 'pasted' ? view.problems.map((p) => [p.line - 1, p]) : [],
+  const problemLines = new Set(
+    view.source === 'pasted' ? view.problems.map((p) => p.line - 1) : [],
   );
-
-  const selectLine = (line: number) => {
-    const ws = workspaceRef.current;
-    const id = blockAtLine(view.lineOf, line);
-    const block = id !== null ? ws?.getBlockById(id) : null;
-    if (!ws || !block) return;
-    common.setSelected(block);
-    ws.centerOnBlock(block.id);
-  };
 
   const build = () => {
     const ws = workspaceRef.current;
@@ -179,22 +108,18 @@ function Workshop() {
   };
 
   const copy = () => {
-    void navigator.clipboard
-      .writeText(view.code)
-      .then(() => {
-        setCopied(true);
-        window.setTimeout(() => {
-          setCopied(false);
-        }, 1500);
-      })
-      .catch(() => {
-        // Clipboard blocked: the child can still select the code by hand.
-      });
+    void copyText(view.code).then((ok) => {
+      if (!ok) return;
+      setCopied(true);
+      window.setTimeout(() => {
+        setCopied(false);
+      }, 1500);
+    });
   };
 
   return (
     <main className="flex h-dvh flex-col gap-3 bg-ground p-3">
-      <TopBar back={{ label: vi.hub.title, to: '/hub' }}>
+      <TopBar back={{ label: vi.leanbotWorld.title, to: '/the-gioi-leanbot' }}>
         <h1 className="m-0 truncate font-display text-[28px] text-paper">{t.title}</h1>
       </TopBar>
 
@@ -296,30 +221,15 @@ function Workshop() {
               }}
             />
           ) : (
-            <pre
-              className="m-0 min-h-0 flex-1 overflow-auto rounded-panel border-3 border-ink bg-ink py-2 text-sm text-paper"
-              data-testid="workshop-code"
-            >
-              {lines.map((text, i) => (
-                <div
-                  key={i}
-                  onClick={() => {
-                    selectLine(i);
-                  }}
-                  data-line={i + 1}
-                  data-problem={problemLines.has(i) ? '' : undefined}
-                  data-highlight={highlighted === i ? '' : undefined}
-                  className={[
-                    'flex cursor-pointer gap-3 px-2',
-                    highlighted === i ? 'bg-brand-deep' : '',
-                    problemLines.has(i) ? 'bg-oops/60' : '',
-                  ].join(' ')}
-                >
-                  <span className="w-6 shrink-0 select-none text-right opacity-50">{i + 1}</span>
-                  <code className="whitespace-pre">{text}</code>
-                </div>
-              ))}
-            </pre>
+            <CodeLines
+              code={view.code}
+              highlighted={highlighted}
+              problems={problemLines}
+              onLineClick={(line) => {
+                selectLine(workspaceRef.current, view.lineOf, line);
+              }}
+              testId="workshop-code"
+            />
           )}
 
           {view.source === 'pasted' && draft === null && (

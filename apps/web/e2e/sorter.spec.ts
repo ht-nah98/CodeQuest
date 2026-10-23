@@ -16,9 +16,9 @@ interface HookWindow {
 
 const solutionOf = (levelId: string): unknown =>
   (
-    JSON.parse(
-      readFileSync(`../../content/worlds/_sandbox/levels/${levelId}.json`, 'utf8'),
-    ) as { solution: unknown }
+    JSON.parse(readFileSync(`../../content/worlds/_sandbox/levels/${levelId}.json`, 'utf8')) as {
+      solution: unknown;
+    }
   ).solution;
 
 async function openLevel(page: Page, levelId: string): Promise<void> {

@@ -1,4 +1,12 @@
-import { createContext, type ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import {
+  createContext,
+  type ReactNode,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { Navigate } from 'react-router';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { getProfile, type ProfileSummary } from '../../data/repos/profiles';
@@ -41,7 +49,10 @@ export function CurrentProfileProvider({ children }: { children: ReactNode }) {
   // Tagged with the id it was read for: right after `select`, the live query still holds the
   // previous answer for a moment, which must read as "loading", not as "deleted".
   const loaded = useLiveQuery(
-    async () => ({ id: profileId, profile: profileId === null ? null : ((await getProfile(profileId)) ?? null) }),
+    async () => ({
+      id: profileId,
+      profile: profileId === null ? null : ((await getProfile(profileId)) ?? null),
+    }),
     [profileId],
   );
   const profile = profileId === null ? null : loaded?.id === profileId ? loaded.profile : undefined;

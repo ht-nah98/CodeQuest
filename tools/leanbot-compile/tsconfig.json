@@ -5,5 +5,12 @@
     "types": ["node"]
   },
   "include": ["src"],
-  "references": [{ "path": "../../packages/games" }]
+  "references": [
+    {
+      "path": "../../packages/content-schema"
+    },
+    {
+      "path": "../../packages/games"
+    }
+  ]
 }

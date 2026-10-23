@@ -52,7 +52,7 @@ export default function HubScreen() {
 
           {/* Unfinished, so only the coach sees it (AGENTS.md §9.10). */}
           {profile.role === 'coach' && (
-            <Link to="/xuong-phien-dich" className={CARD} data-testid="hub-leanbot-world">
+            <Link to="/the-gioi-leanbot" className={CARD} data-testid="hub-leanbot-world">
               <PixelIcon name="gear" scale={3} />
               <h2 className="m-0 font-display text-[26px]">{vi.workshop.hubCard.title}</h2>
               <p className="m-0 font-bold">{vi.workshop.hubCard.what}</p>

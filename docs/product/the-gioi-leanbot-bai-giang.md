@@ -1,6 +1,8 @@
-# Thế giới Leanbot — hệ thống bài giảng (kế hoạch, chờ HLV duyệt)
+# Thế giới Leanbot — hệ thống bài giảng
 
-> **Trạng thái 23/10/2026: KẾ HOẠCH.** Chưa có code. HLV đọc, chọn ở §9, rồi mới làm.
+> **Trạng thái 23/10/2026:** HLV duyệt (§9): trang riêng `/the-gioi-leanbot`, chỉ đánh dấu xong
+> (không sao/coin), làm Đợt 1 trước (ADR-0030). **Đợt 1 đã có:** khung bài học, chấm bằng so code,
+> luật 29, bài L0 và L1 của Chặng 0 (16 màn). Chỉ HLV thấy, chờ HLV chơi thử.
 > Nguồn nội dung: khóa gốc Pythaverse (`docs/leanbot/giao-trinh.md`) và 16 giáo án
 > `docs/leanbot/giao-an/` — nhất là hai mục "Bé học xong thì làm được gì" và "Bé hay vướng ở đâu"
 > của từng bài. Khối lệnh: `the-gioi-leanbot.md` §3 (đủ 93 khối, giống Pythaverse).
@@ -322,7 +324,14 @@ lời giải ghép từ `toolbox` ra đúng `target`, khối trong `newBlocks` c
 
 Mỗi đợt: HLV chơi thử rồi mới gộp vào `main`; bài chưa xong thì ẩn (AGENTS.md §9.10).
 
-## 9. Cần HLV chọn
+## 9. HLV đã chọn (23/10/2026)
+
+1. Trang riêng `/the-gioi-leanbot` (phương án a). 2. Chỉ đánh dấu xong. 3. Làm Đợt 1 ngay.
+4. Tên bài và câu "Học xong con làm được…": chưa góp ý — sửa khi chơi thử.
+
+Câu hỏi gốc giữ lại bên dưới để biết vì sao chọn.
+
+### Câu hỏi đã hỏi
 
 1. **Bài giảng nằm ở đâu?**
    - (a) **Một trang riêng `/the-gioi-leanbot`**: danh sách bài → màn, giống khóa Leanbot; thẻ

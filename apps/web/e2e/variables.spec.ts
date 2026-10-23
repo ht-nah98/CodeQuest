@@ -187,9 +187,13 @@ async function typeField(page: Page, blockId: string, field: string, value: stri
     },
     [blockId, field] as const,
   );
-  await page.mouse.click(box.x, box.y);
   const editor = page.locator('.blocklyHtmlInput');
-  await expect(editor).toBeVisible();
+  // Right after a drag the workspace can still be settling and swallow the first click (the
+  // editor then never opens, 4 runs in 8 on a busy machine): click again until it opens.
+  await expect(async () => {
+    await page.mouse.click(box.x, box.y);
+    await expect(editor).toBeVisible({ timeout: 1000 });
+  }).toPass();
   await page.keyboard.press('ControlOrMeta+A');
   await page.keyboard.type(value);
   await page.keyboard.press('Enter');

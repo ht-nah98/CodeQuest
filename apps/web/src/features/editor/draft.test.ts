@@ -401,9 +401,9 @@ describe('hasSpells (P4-06: the editor does not edit spell levels yet)', () => {
 
 describe('isShelfLevel (P5-06: the editor has no shelf tools yet)', () => {
   it('is true for a sorter level, whatever else it carries', () => {
-    expect(isShelfLevel({ kind: 'sorter', config: { books: [2, 1], goal: { sorted: true } } })).toBe(
-      true,
-    );
+    expect(
+      isShelfLevel({ kind: 'sorter', config: { books: [2, 1], goal: { sorted: true } } }),
+    ).toBe(true);
   });
 
   it('is false for every other kind, and for things that are not levels', () => {

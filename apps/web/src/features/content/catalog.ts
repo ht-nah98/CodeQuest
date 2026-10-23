@@ -54,7 +54,9 @@ async function readCatalog(): Promise<Catalog> {
   const ready = shown.filter(
     (w) =>
       w.id === SANDBOX_WORLD_ID ||
-      w.levelIds.some((id) => levelById.get(id)?.stage === 'boss' && levelById.get(id)?.retired !== true),
+      w.levelIds.some(
+        (id) => levelById.get(id)?.stage === 'boss' && levelById.get(id)?.retired !== true,
+      ),
   );
   const sorted = [...ready].sort((a, b) => {
     const rank = (w: World) => (w.id === SANDBOX_WORLD_ID ? Number.MAX_SAFE_INTEGER : w.order);

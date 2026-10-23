@@ -1,0 +1,137 @@
+{
+  "id": "l0-xuong-khoi",
+  "number": 0,
+  "stage": 0,
+  "title": "Xưởng khối",
+  "canDo": "Kéo khối, điền số và đọc được code khối sinh ra",
+  "goals": [
+    "Kéo khối ra vùng ghép",
+    "Đặt khối vào giữa khối Nhiệm vụ",
+    "Đổi số và đổi đơn vị trên khối",
+    "Đọc code để biết khối nào làm gì"
+  ],
+  "course": "bai-00",
+  "screens": [
+    {
+      "kind": "read",
+      "id": "ba-phan",
+      "screen": {
+        "part": "Làm quen",
+        "title": "Ba phần của màn hình",
+        "lines": [
+          "① Khay khối: lấy khối ở đây.",
+          "② Chỗ ghép: thả khối vào đây.",
+          "③ Code: khối đổi thì code đổi theo. Robot chỉ hiểu code."
+        ],
+        "images": [
+          {
+            "src": "the-gioi/ba-phan.png",
+            "alt": "Màn hình ghép khối: 1 là khay khối, 2 là chỗ ghép khối, 3 là code"
+          }
+        ],
+        "tip": "Việc cần làm luôn ghi ở cột bên trái, kèm nút Kiểm tra."
+      }
+    },
+    {
+      "kind": "build",
+      "id": "keo-nhiem-vu",
+      "mode": "build",
+      "task": "Kéo khối Nhiệm vụ ra chỗ ghép",
+      "help": ["Nhìn code bên phải: có thêm dòng bắt đầu và dòng kết thúc."],
+      "toolbox": ["LbMission.beginImmediately_end"],
+      "newBlocks": ["LbMission.beginImmediately_end"],
+      "solution": "<xml><block type='LbMission.beginImmediately_end' x='40' y='40'></block></xml>",
+      "done": "Đúng rồi! Nhiệm vụ có đầu và có cuối."
+    },
+    {
+      "kind": "build",
+      "id": "cho-vao-giua",
+      "mode": "build",
+      "task": "Đặt khối Chờ vào giữa khối Nhiệm vụ",
+      "help": [
+        "Kéo khối Chờ vào cái miệng của khối Nhiệm vụ.",
+        "Dòng LbDelay phải nằm giữa begin và end."
+      ],
+      "toolbox": ["LbMission.beginImmediately_end", "Leanbot.delay"],
+      "newBlocks": ["Leanbot.delay"],
+      "start": "<xml><block type='LbMission.beginImmediately_end' x='40' y='40'></block></xml>",
+      "solution": "<xml><block type='LbMission.beginImmediately_end' x='40' y='40'><statement name='Body'><block type='Leanbot.delay'><field name='Unit'>seconds</field><value name='Delay'><shadow type='math_number'><field name='NUM'>1.25</field></shadow></value></block></statement></block></xml>"
+    },
+    {
+      "kind": "build",
+      "id": "cho-3-giay",
+      "mode": "fill",
+      "task": "Đổi số để robot chờ 3 giây",
+      "help": ["Bấm vào ô số trên khối Chờ rồi gõ số mới."],
+      "toolbox": ["LbMission.beginImmediately_end", "Leanbot.delay"],
+      "start": "<xml><block type='LbMission.beginImmediately_end' x='40' y='40'><statement name='Body'><block type='Leanbot.delay'><field name='Unit'>seconds</field><value name='Delay'><shadow type='math_number'><field name='NUM'>1.25</field></shadow></value></block></statement></block></xml>",
+      "solution": "<xml><block type='LbMission.beginImmediately_end' x='40' y='40'><statement name='Body'><block type='Leanbot.delay'><field name='Unit'>seconds</field><value name='Delay'><shadow type='math_number'><field name='NUM'>3</field></shadow></value></block></statement></block></xml>",
+      "hints": [
+        {
+          "match": "1.25",
+          "say": "Ô số vẫn là 1.25. Bấm vào để gõ 3."
+        }
+      ]
+    },
+    {
+      "kind": "build",
+      "id": "mili-giay",
+      "mode": "fill",
+      "task": "Cho robot chờ 500 mili giây",
+      "help": ["1 giây = 1000 mili giây.", "Đổi ô giây thành mili giây, rồi gõ 500."],
+      "toolbox": ["LbMission.beginImmediately_end", "Leanbot.delay"],
+      "start": "<xml><block type='LbMission.beginImmediately_end' x='40' y='40'><statement name='Body'><block type='Leanbot.delay'><field name='Unit'>seconds</field><value name='Delay'><shadow type='math_number'><field name='NUM'>1</field></shadow></value></block></statement></block></xml>",
+      "solution": "<xml><block type='LbMission.beginImmediately_end' x='40' y='40'><statement name='Body'><block type='Leanbot.delay'><field name='Unit'>milliseconds</field><value name='Delay'><shadow type='math_number'><field name='NUM'>500</field></shadow></value></block></statement></block></xml>",
+      "hints": [
+        {
+          "match": "* 1000",
+          "say": "Ô đơn vị vẫn là giây. Đổi thành mili giây."
+        }
+      ]
+    },
+    {
+      "kind": "build",
+      "id": "cho-nam-ngoai",
+      "mode": "fix",
+      "task": "Khối Chờ nằm ngoài. Kéo nó vào trong",
+      "help": ["Khối ở ngoài Nhiệm vụ thì robot không làm."],
+      "toolbox": ["LbMission.beginImmediately_end", "Leanbot.delay"],
+      "start": "<xml><block type='LbMission.beginImmediately_end' x='40' y='40'></block><block type='Leanbot.delay' x='60' y='220'><field name='Unit'>seconds</field><value name='Delay'><shadow type='math_number'><field name='NUM'>2</field></shadow></value></block></xml>",
+      "solution": "<xml><block type='LbMission.beginImmediately_end' x='40' y='40'><statement name='Body'><block type='Leanbot.delay'><field name='Unit'>seconds</field><value name='Delay'><shadow type='math_number'><field name='NUM'>2</field></shadow></value></block></statement></block></xml>"
+    },
+    {
+      "kind": "build",
+      "id": "doc-code",
+      "mode": "code",
+      "task": "Ghép khối để ra đúng code bên trái",
+      "help": ["Mỗi dòng LbDelay là một khối Chờ."],
+      "toolbox": ["LbMission.beginImmediately_end", "Leanbot.delay"],
+      "solution": "<xml><block type='LbMission.beginImmediately_end' x='40' y='40'><statement name='Body'><block type='Leanbot.delay'><field name='Unit'>seconds</field><value name='Delay'><shadow type='math_number'><field name='NUM'>1</field></shadow></value><next><block type='Leanbot.delay'><field name='Unit'>milliseconds</field><value name='Delay'><shadow type='math_number'><field name='NUM'>500</field></shadow></value></block></next></block></statement></block></xml>"
+    },
+    {
+      "kind": "read",
+      "id": "chep-code",
+      "screen": {
+        "part": "Mang code ra robot",
+        "title": "Chép code sang Leanbot IDE",
+        "lines": [
+          "Bấm Chép code, mở Leanbot IDE, dán code vào.",
+          "Nạp code xuống robot như ở Bài 0 của khóa Leanbot."
+        ],
+        "images": [
+          {
+            "src": "ide-toan-canh.png",
+            "alt": "Leanbot IDE: code ở giữa, nút nạp ở trên"
+          }
+        ],
+        "links": [
+          {
+            "label": "Leanbot IDE",
+            "href": "https://ide.pythaverse.space/#/code"
+          }
+        ]
+      },
+      "program": "<xml><block type='LbMission.beginImmediately_end' x='40' y='40'><statement name='Body'><block type='Leanbot.delay'><field name='Unit'>seconds</field><value name='Delay'><shadow type='math_number'><field name='NUM'>1</field></shadow></value><next><block type='Leanbot.delay'><field name='Unit'>milliseconds</field><value name='Delay'><shadow type='math_number'><field name='NUM'>500</field></shadow></value></block></next></block></statement></block></xml>"
+    }
+  ]
+}
