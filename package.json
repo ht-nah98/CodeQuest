@@ -25,7 +25,8 @@
     "sprites": "python3 tools/sprites/clean.py",
     "sprites:pack": "python3 tools/sprites/pack.py",
     "coach-pin-hash": "python3 tools/coach/pin_hash.py",
-    "leanbot:art": "node tools/leanbot-art/render.mjs"
+    "leanbot:art": "node tools/leanbot-art/render.mjs",
+    "leanbot:compile": "tsx tools/leanbot-compile/src/main.ts"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

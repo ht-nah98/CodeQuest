@@ -309,3 +309,11 @@ test('a screen that names a tool carries its link', async ({ page }) => {
     'https://ide.pythaverse.space/#/code',
   );
 });
+
+test('a child sees no Leanbot world yet, not even by its address', async ({ page }) => {
+  await page.goto('/hub');
+  await expect(page.getByRole('link', { name: /CodeQuest/ })).toBeVisible();
+  await expect(page.getByTestId('hub-leanbot-world')).toHaveCount(0);
+  await page.goto('/xuong-phien-dich');
+  await expect(page).toHaveURL(/\/hub$/);
+});

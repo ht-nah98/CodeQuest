@@ -10,6 +10,7 @@ src/
 ├─ runner/          config · state · events · blocks · sim · evaluate · reasons · index · runner.test
 ├─ maze/
 ├─ robotlab/        (GĐ 3)
+├─ leanbot/         Thế giới Leanbot: khối lb_* · toArduino (code như Pythaverse) · parseArduino (code → khối). Chưa phải kiểu game
 └─ index.ts         gameKinds registry
 ```
 **Cấm:** DOM, React, PixiJS, `Math.random`, `Date`. Mỗi reasonCode phải có test.

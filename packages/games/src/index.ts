@@ -164,3 +164,21 @@ export type {
   SorterReason,
   SorterState,
 } from './sorter';
+// Leanbot world blocks, Arduino code and code → blocks (the-gioi-leanbot.md, Màn 0).
+export {
+  LB_BLOCK_TYPES,
+  LB_BLOCKS,
+  LB_COLORS,
+  parseArduino,
+  registerLeanbotBlocks,
+  toArduino,
+} from './leanbot';
+export type {
+  ArduinoProgram,
+  BlockState,
+  LbBlockDef,
+  LbGroup,
+  ParseProblem,
+  ParseProblemReason,
+  ParseResult,
+} from './leanbot';

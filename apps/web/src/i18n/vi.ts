@@ -408,6 +408,47 @@ export const vi = {
     },
   },
 
+  // "/xuong-phien-dich" Màn 0 của Thế giới Leanbot (the-gioi-leanbot.md §4): khối Việt ↔ code.
+  workshop: {
+    title: 'Xưởng Phiên Dịch',
+    hubCard: {
+      title: 'Thế giới Leanbot',
+      what: 'Khối tiếng Việt, code tiếng Anh',
+      need: 'Đang làm, chỉ HLV thấy',
+    },
+    intro: 'Ghép khối bên trái, code hiện bên phải. Hai bên là một!',
+    codeTitle: 'Code cho Leanbot',
+    edit: 'Dán code vào',
+    build: 'Dựng khối',
+    cancel: 'Thôi',
+    copy: 'Chép code',
+    copied: 'Đã chép!',
+    openIde: 'Mở Leanbot IDE',
+    pastePlaceholder: 'Dán code chép từ Leanbot IDE vào đây',
+    built: (n: number) => `Măng dựng được ${String(n)} khối.`,
+    nothingBuilt: 'Măng chưa dựng được khối nào.',
+    line: (n: number) => `Dòng ${String(n)}`,
+    problems: {
+      unknown: 'Măng chưa đọc được dòng này.',
+      'missing-end': 'Thiếu dòng LbMission.end(); ở cuối.',
+      'stray-end': 'Nhiệm vụ này chưa bắt đầu mà đã kết thúc.',
+      'out-of-range': 'Số này to quá, khối không giữ được.',
+      'tone-without-delay': 'Sau Leanbot.tone phải có LbDelay cùng số.',
+      'outside-loop': 'Măng chỉ đọc code trong loop().',
+    },
+    categories: {
+      mission: 'Nhiệm vụ',
+      motion: 'Di chuyển',
+      gripper: 'Tay gắp',
+      led: 'Đèn và còi',
+      sensor: 'Chạm, siêu âm',
+      irline: 'Dò vạch',
+      logic: 'Nếu',
+      loop: 'Lặp',
+      math: 'Số',
+    },
+  },
+
   // "/leanbot" Khóa Leanbot (ADR-0028).
   leanbot: {
     title: 'Khóa Leanbot',

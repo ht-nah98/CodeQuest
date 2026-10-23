@@ -16,6 +16,8 @@ const MapScreen = lazy(() => import('../screens/map/MapScreen'));
 const LeanbotScreen = lazy(() => import('../screens/leanbot/LeanbotScreen'));
 const LeanbotLessonScreen = lazy(() => import('../screens/leanbot/LeanbotLessonScreen'));
 const LeanbotLinksScreen = lazy(() => import('../screens/leanbot/LeanbotLinksScreen'));
+// Màn 0 of the Leanbot world (the-gioi-leanbot.md); the coach only until the world is done.
+const WorkshopScreen = lazy(() => import('../screens/workshop/WorkshopScreen'));
 const WorldScreen = lazy(() => import('../screens/world/WorldScreen'));
 const LessonScreen = lazy(() => import('../screens/lesson/LessonScreen'));
 const PlayScreen = lazy(() => import('../screens/play/PlayScreen'));
@@ -61,6 +63,7 @@ export function App() {
                     path="/leanbot/:lessonId/:page"
                     element={signedIn(<LeanbotLessonScreen />)}
                   />
+                  <Route path="/xuong-phien-dich" element={signedIn(<WorkshopScreen />)} />
                   <Route path="/w/:worldId" element={signedIn(<WorldScreen />)} />
                   <Route path="/w/:worldId/lesson/:lessonId" element={signedIn(<LessonScreen />)} />
                   <Route path="/play/:levelId" element={signedIn(<PlayScreen />)} />

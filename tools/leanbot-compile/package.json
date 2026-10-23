@@ -1,0 +1,10 @@
+{
+  "name": "@codequest/leanbot-compile",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@codequest/games": "*",
+    "blockly": "13.3.0"
+  }
+}

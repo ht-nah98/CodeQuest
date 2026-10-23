@@ -57,7 +57,7 @@ test('HLV reads every Leanbot lesson without the lesson 0 ticks', async ({ page 
   // The pointer is still where the coach tile was. At 1280 px that is the bottom edge of the
   // Leanbot card, whose hover lift moves it off the pointer and back: it never holds still.
   await page.mouse.move(0, 0);
-  await page.getByRole('link', { name: /Leanbot/ }).click();
+  await page.getByRole('link', { name: /^Leanbot/ }).click();
   await expect(page).toHaveURL(/\/leanbot$/);
   await expect(page.getByText('HLV xem được mọi bài, không cần tích Bài 0.')).toBeVisible();
   const last = page.getByRole('link', { name: /Đi theo đường thông minh/ });
@@ -78,4 +78,65 @@ test('a child profile stays locked on the same laptop', async ({ page }) => {
   await page.goto('/w/w02-rung-lap-lai');
   await expect(page.getByRole('alert')).toBeVisible();
   await expect(page.locator(`[data-level="${LATE_LEVEL}"]`)).toHaveCount(0);
+});
+
+// Màn 0 of the Leanbot world (the-gioi-leanbot.md §4): hidden from children until the world is
+// done, so it is reached from the coach's hub.
+const PASTED = [
+  '#include <Leanbot.h>',
+  '',
+  'void setup() {',
+  '  Leanbot.begin();',
+  '}',
+  '',
+  'void loop() {',
+  '  LbMission.begin(TB1A + TB1B);',
+  '  LbMotion.runLRrpm(30, 30);',
+  '  LbMotion.waitDistanceMm(20 * 10);',
+  '  Serial.println("xin chao");',
+  '  LbMotion.stopAndWait();',
+  '  LbMission.end();',
+  '}',
+].join('\n');
+
+test('HLV turns pasted Leanbot code into Vietnamese blocks and back', async ({ page }) => {
+  mkdirSync(SHOTS, { recursive: true });
+  await page.goto('/');
+  await page.getByTestId('coach-tile').click();
+  for (const digit of PIN ?? '') await page.keyboard.press(digit);
+  await expect(page).toHaveURL(/\/hub$/);
+  await page.mouse.move(0, 0);
+  await page.getByTestId('hub-leanbot-world').click();
+  await expect(page).toHaveURL(/\/xuong-phien-dich$/);
+  const code = page.getByTestId('workshop-code');
+  // An empty workspace is Pythaverse's empty sketch.
+  await expect(code).toContainText('void loop() {');
+  await expect(page.locator('.blocklyToolbox')).toContainText('Di chuyển');
+
+  await page.getByRole('button', { name: 'Dán code vào' }).click();
+  await page.getByTestId('workshop-paste').fill(PASTED);
+  await page.getByRole('button', { name: 'Dựng khối' }).click();
+  // 4 blocks: the mission and the three motion lines; Serial.println is not a Leanbot block.
+  await expect(page.getByTestId('workshop-report')).toContainText('Măng dựng được 4 khối.');
+  await expect(page.getByTestId('workshop-report')).toContainText(
+    'Dòng 11: Măng chưa đọc được dòng này.',
+  );
+  await expect(code.locator('[data-problem]')).toHaveAttribute('data-line', '11');
+  const blocks = page.getByTestId('workshop-blocks');
+  await expect(blocks.getByText('quay bánh: trái')).toBeVisible();
+  await expect(blocks.getByText('bắt đầu khi chạm')).toBeVisible();
+  await page.screenshot({ path: `${SHOTS}/workshop-pasted.png` });
+
+  // Code → block: a line selects its block, and the block lights its line back.
+  await code.locator('[data-line="10"]').click();
+  await expect(page.locator('.blocklySelected')).toHaveCount(1);
+  await expect(code.locator('[data-highlight]')).toHaveAttribute('data-line', '10');
+
+  // Blocks → code: deleting the selected "đi tiếp" block regenerates the code without it.
+  await page.locator('.blocklySelected').first().press('Delete');
+  await expect(code).not.toContainText('waitDistanceMm');
+  await expect(code).not.toContainText('Serial');
+  await expect(code).toContainText('LbMotion.runLRrpm(30, 30);');
+  await expect(page.getByTestId('workshop-report')).toHaveCount(0);
+  await page.screenshot({ path: `${SHOTS}/workshop-blocks.png` });
 });

@@ -1,6 +1,9 @@
 # Thế giới Leanbot — bản đồ phiêu lưu thứ hai (bản nháp chờ HLV duyệt)
 
-> **Trạng thái 23/10/2026: KẾ HOẠCH, chưa có code.** HLV đọc, sửa, chốt rồi mới làm.
+> **Trạng thái 23/10/2026:** HLV duyệt kế hoạch ("triển khai tiếp"). **Đã có:** bộ khối Việt,
+> bộ sinh code Arduino khớp Pythaverse, bộ đọc code → khối, và **Màn 0 Xưởng Phiên Dịch** ở
+> `/xuong-phien-dich` (chỉ HLV thấy, §5). **Chưa có:** sân mô phỏng, Vùng 1–9, hai bản đồ (ADR-0030).
+> Bốn câu hỏi ở §7 HLV chưa trả lời; đang làm theo đề xuất của từng câu.
 > Bảng khối dưới đây bóc từ trình soạn khối thật của Pythaverse bằng
 > `node tools/pythaverse-blocks/dump.mjs` → `docs/research/pythaverse-lbeditor-blocks.json`.
 
@@ -88,7 +91,7 @@ Cột **Dạy** cho biết khối có lên bản đồ không: ✅ dạy, ➖ đ
 | Motion: Run with velocity Left 30 Right 30 rpm | **Quay bánh: trái** `[30]` **phải** `[30]` vòng/phút | `LbMotion.runLRrpm(30, 30);` | ✅ |
 | Motion: Keep running for 4.2 cm | **Đi tiếp** `[4.2]` `cm ▾` | `LbMotion.waitDistanceMm(4.2 * 10);` | ✅ |
 | Motion: Keep turning for 90 degrees | **Xoay tiếp** `[90]` độ | `LbMotion.waitRotationDeg(90);` | ✅ |
-| Motion: Keep running for 1.25 seconds | **Chạy tiếp** `[1.25]` giây | `LbDelay(1.25 * 1000);` | ✅ |
+| Motion: Keep running for 1.25 seconds | = khối **Chờ** (cùng một dòng code) | `LbDelay(1.25 * 1000);` | ✅ |
 | Motion: Stop | **Dừng lại** | `LbMotion.stopAndWait();` | ✅ |
 | Motion: Reset Distance and Heading | **Đặt lại quãng đường và góc về 0** | `LbMotion.setZeroOrigin();` | ➖ |
 | Motion: approx. Distance in mm | ⟨**quãng đường đã đi** (mm)⟩ | `LbMotion.getDistanceMm()` | ➖ |
@@ -121,12 +124,16 @@ Hai điều phải dạy kỹ, vì khác với Măng ở Làng (Măng đi theo �
 | RGB Leds: Fill (Shape …) with Color | **Tô các đèn** `☑O ☑A … ☑F` **màu** ⟨🎨⟩ | `LbRGB.fillColor(0xffff00, BITMAP(ledO, …));` | ✅ |
 | RGB Leds: Clear | **Xóa hết màu** | `LbRGB.clear();` | ✅ |
 | RGB Leds: Display | 💡 **Bật đèn lên** | `LbRGB.show();` | ✅ |
-| RGB Leds: Clear … Display | **Vẽ đèn mới:** … **rồi bật lên** | `LbRGB.clear();` … `LbRGB.show();` | ✅ |
+| RGB Leds: Clear … Display | = **Xóa hết màu** … **Bật đèn lên** (hai khối rời: cùng code, nên code → khối không phân biệt được) | `LbRGB.clear();` … `LbRGB.show();` | ✅ |
 | Color: #fff | ⟨🎨 **màu** ■⟩ | `0xff0000` | ✅ |
 | Color: Random | ⟨**màu ngẫu nhiên**⟩ | `CRGB(random8(), random8(), random8())` | ➖ |
 | Color: R 255 G 0 B 0 | ⟨**màu: đỏ** `[255]` **xanh lá** `[0]` **xanh dương** `[0]`⟩ | `0xff0000` | ➖ |
 | Color: Blend … with ratio 0.5 | ⟨**pha màu** ■ **với** ■ **tỉ lệ** `[0.5]`⟩ | `0x008080` | ➖ |
 | Sound: Play 1500 Hz tone for 100 milliseconds | 🔔 **Kêu** `[1500]` Hz **trong** `[100]` mili giây | `Leanbot.tone(1500, 100);` `LbDelay(100);` | ✅ |
+
+Ô màu (⟨🎨⟩) là **ô chọn 9 màu có tên** (đỏ, cam, vàng, xanh lá, xanh ngọc, xanh dương, tím,
+hồng, trắng), không phải bảng pha màu: Blockly bản mới bỏ ô chọn màu khỏi lõi, và tên màu dễ đọc
+hơn. "Tô đèn" in `CRGB::Red`; "tô các đèn" và "hiện mắt dò vạch" in số `0xff0000` như Pythaverse.
 
 Chỗ dễ sai cần một màn riêng: "tô đèn" chỉ **ghi màu vào bộ nhớ**, phải có "bật đèn lên" thì
 đèn mới sáng. Sân mô phỏng sẽ cho thấy đèn chưa đổi cho tới khi gặp "bật đèn lên".
@@ -138,7 +145,7 @@ Chỗ dễ sai cần một màn riêng: "tô đèn" chỉ **ghi màu vào bộ n
 | Touch: wait until TB1A touched | ✋ **Chờ tới khi chạm** `TB1A ▾` | `while (LbTouch.read(TB1A) == LOW);` | ✅ |
 | Touch: TB1A is touched ? | ◇ `TB1A ▾` **đang được chạm?** | `(LbTouch.read(TB1A) == HIGH)` | ✅ |
 | Ping: Front distance in cm | ⟨**khoảng cách phía trước** (cm)⟩ | `Leanbot.pingCm()` | ✅ |
-| Ping: Object in front is within 25 cm distance ? | ◇ **có vật gần hơn** `[25]` cm? | `Leanbot.pingCm() <= 25` | ✅ |
+| Ping: Object in front is within 25 cm distance ? | ◇ **có vật trong vòng** `[25]` cm? | `Leanbot.pingCm() <= 25` | ✅ |
 
 ### 3.6. Mắt dò vạch
 
@@ -146,15 +153,17 @@ Chỗ dễ sai cần một màn riêng: "tô đèn" chỉ **ghi màu vào bộ n
 |---|---|---|---|
 | IRLine: Read sensors | 👀 **Mắt dò vạch: nhìn xuống** | `LbIRLine.read();` | ✅ |
 | IRLine: Black is detected ? | ◇ **thấy vạch đen?** | `LbIRLine.isBlackDetected()` | ✅ |
-| IRLine: #fff #fff #fff #fff | ◇ **mắt dò vạch là** `⬜⬛⬛⬜` | `0` (xem dưới) | ✅ |
+| IRLine: #fff #fff #fff #fff (cắm vào `=` với Sensor values) | ◇ **4 mắt dò vạch thấy** `⬜⬛⬛⬜` **?** | `(LbIRLine.value() == 6)` | ✅ |
 | IRLine: Sensor values (2L, 0L, 1R, 3R) | ⟨**4 mắt dò vạch**⟩ | `LbIRLine.value()` | ✅ |
 | IRLine: Display on RGB with Color | **Hiện 4 mắt dò vạch lên đèn, màu** ⟨🎨⟩ | `LbIRLine.displayOnRGB(0x00ff00);` | ✅ |
 | IRLine: Do manual calibration with TB1A button | **Dạy mắt dò vạch** (chạm `TB1A ▾`) | *(sinh ở `setup()`)* | ➖ |
 | IRLine: Set threshold 2L 0L 1R 3R | **Đặt ngưỡng 4 mắt** `[300]` `[300]` `[300]` `[300]` | *(sinh ở `setup()`)* | ➖ |
 
-Khối `IRLine: #fff #fff #fff #fff` sinh ra `0` khi để mặc định; khi tô các ô thì sinh ra một
-số khác. Phải bóc thêm cách nó ghép với `LbIRLine.value()` (dự đoán: `LbIRLine.value() == 0b0110`)
-**và biên dịch thử** trước khi viết màn bám vạch (§9.12).
+Đã bóc (23/10): khối `IRLine: #fff…` là **một số 4 bit**, mỗi ô đen là một bit, mắt ngoài trái
+(2L) là bit cao nhất: `⬜⬛⬛⬜` = `6`, tất cả trắng = `0`. Pythaverse ghép nó với `Sensor values`
+bằng khối `=`, ra `(LbIRLine.value() == 6)`. Khối Việt gộp hai việc đó thành một câu hỏi.
+Đã biên dịch được (`npm run leanbot:compile`). **Vẫn cần thử trên robot thật** xem số đó có
+đúng thứ tự mắt không.
 
 ### 3.7. Logic, lặp, toán, hộp — dùng chung từ Làng Măng
 
@@ -169,6 +178,10 @@ Bé đã học các khối này ở Làng. Ở Thế giới Leanbot chúng **gi�
 | repeat while ◇ | **lặp khi** ◇ | `while (…) { }` | ✅ |
 | repeat until ◇ (cùng khối, đổi ô chọn) | **lặp đến khi** ◇ | `while (!(…)) { }` | ✅ |
 | (không có khối "mãi mãi") | **lặp mãi** (= `repeat while true`) | `while (true) { }` | ✅ |
+
+Chữ trên khối giữ đúng Làng Măng, nhưng là **khối riêng** (`lb_if`, `lb_repeat`…), không dùng
+lại `cq_if`: code của chúng là C++ chứ không phải JavaScript của sân chơi, và "lặp" của robot
+cần tới 1000 lần thay vì 20.
 | break out of loop | **thoát khỏi vòng lặp** | `break;` | ➖ |
 | count with j from 1 to 10 by 1 | **đếm** `j` **từ** `[1]` **tới** `[10]` | `for (int j = 1; j <= 10; j++) { }` | ➖ |
 | ◇ and ◇ / or / not | ◇ **và** ◇ / **hoặc** / **không phải** ◇ | `&&` / `\|\|` / `!` | ✅ |
@@ -246,14 +259,32 @@ Sau Màn 0, xưởng luôn mở ở mọi màn (nút "Xem code").
   khó lùi → viết ADR-0030 và hỏi HLV khi tới bước đó (§9.5).
 - **Ẩn khi chưa xong** (§9.10): bản đồ Leanbot chưa có vùng nào đủ boss thì không hiện với bé.
 
+### Đã làm (23/10/2026)
+
+| Phần | Ở đâu | Kiểm bằng |
+|---|---|---|
+| 38 khối Việt | `packages/games/src/leanbot/blocks.ts` | — |
+| Khối → code Arduino | `leanbot/arduino.ts` (`toArduino`) | `leanbot.test.ts`: từng khối so với `docs/research/pythaverse-lbeditor-blocks.json`; hai chương trình dài so **từng ký tự** với code trình soạn Pythaverse in ra (`leanbot/fixtures/`) |
+| Code → khối | `leanbot/parse.ts` (`parseArduino`) | mỗi lý do báo đỏ một test; khối → code → khối → code ra y như cũ |
+| Biên dịch thật | `npm run leanbot:compile` (cần mạng) | chương trình có **mọi** khối + hai chương trình mẫu: biên dịch được trên `cs.leanbot.space` |
+| Màn 0 | `/xuong-phien-dich` (`apps/web/src/screens/workshop/`) | e2e `coach-profile.spec.ts`; bé vào bằng địa chỉ thì bị đưa về `/hub` (`leanbot.spec.ts`) |
+
+Màn 0 hiện là **xưởng mở**: ghép khối thì code hiện bên phải; bấm một dòng code thì khối của nó
+sáng lên và ngược lại; "Dán code vào" → "Dựng khối" dựng lại khối, dòng chưa đọc được tô đỏ kèm
+lý do; "Chép code" + link Leanbot IDE. **Chưa có** 4 thử thách dẫn dắt (cần mô hình màn chơi của
+bản đồ Leanbot, tức ADR-0030).
+
+Code sinh ra **bỏ 3 dòng đầu** `// Generated … at <giờ>` của Pythaverse: có giờ thì mỗi lần ra
+code một khác. Bộ đọc bỏ qua các dòng ghi chú ngoài `loop()`, nên dán code có 3 dòng đó vẫn được.
+
 ## 6. Thứ tự làm đề xuất
 
 1. HLV duyệt tài liệu này (tên khối, vùng, số màn).
 2. **Thử trên robot thật** những chỗ còn nghi: chiều quay khi bánh âm, khối mắt dò vạch
    `⬜⬛⬛⬜`, "chờ tới khi chạm". Mỗi chỗ biên dịch + nạp một chương trình nhỏ.
 3. ADR-0030 (hai bản đồ, kiểu game `leanbot`) → HLV duyệt.
-4. Khối Việt + bộ sinh code Arduino + unit test so khớp Pythaverse.
-5. **Màn 0** (xưởng chuyển đổi hai chiều) — dùng được ngay cả khi chưa có sân mô phỏng.
+4. Khối Việt + bộ sinh code Arduino + unit test so khớp Pythaverse. ✅ (23/10)
+5. **Màn 0** (xưởng chuyển đổi hai chiều) — ✅ bản xưởng mở (23/10); còn 4 thử thách dẫn dắt.
 6. Sân mô phỏng, rồi Vùng 1 → 9, mỗi vùng HLV chơi thử trước khi gộp.
 
 ## 7. Câu hỏi còn mở cho HLV
